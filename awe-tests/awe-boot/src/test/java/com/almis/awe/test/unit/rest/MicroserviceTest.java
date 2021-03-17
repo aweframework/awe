@@ -149,7 +149,7 @@ public class MicroserviceTest extends AweSpringRestTests {
    */
   @Test
   public void testMicroserviceCallError() throws Exception {
-    doRestTest("CallOverWriteMicroserviceNameError", "data", "", "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"error\",\"title\":\"Error in query\",\"message\":\"\"}}]");
+    doRestTest("CallOverWriteMicroserviceNameError", "data", "", "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"error\",\"title\":\"Error title\",\"message\":\"Error message\"}}]");
   }
 
   /**
@@ -157,6 +157,14 @@ public class MicroserviceTest extends AweSpringRestTests {
    */
   @Test
   public void testMicroserviceCallWarning() throws Exception {
-    doRestTest("CallOverWriteMicroserviceNameWarning", "data", "", "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"error\",\"title\":\"Error in query\",\"message\":\"\"}}]");
+    doRestTest("CallOverWriteMicroserviceNameWarning", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"warning\",\"title\":\"Warning title\",\"message\":\"Warning message\"}}]");
+  }
+
+  /**
+   * Simple call with overwrite microservice name returning an AWException
+   */
+  @Test
+  public void testMicroserviceCallInfo() throws Exception {
+    doRestTest("CallOverWriteMicroserviceNameInfo", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"info\",\"title\":\"Info title\",\"message\":\"Info message\"}}]");
   }
 }

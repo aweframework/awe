@@ -94,7 +94,7 @@ public class TestMicroserviceController {
   @ResponseBody
   public ServiceData testGetOverwriteMicroserviceError(HttpServletRequest request) throws AWException {
     // Initialize parameters
-    return new ServiceData().setType(AnswerType.ERROR);
+    return new ServiceData().setType(AnswerType.ERROR).setTitle("Error title").setMessage("Error message");
   }
 
   /**
@@ -105,6 +105,17 @@ public class TestMicroserviceController {
   @ResponseBody
   public ServiceData testGetOverwriteMicroserviceWarning(HttpServletRequest request) throws AWException {
     // Initialize parameters
-    return new ServiceData().setType(AnswerType.WARNING);
+    return new ServiceData().setType(AnswerType.WARNING).setTitle("Warning title").setMessage("Warning message");
+  }
+
+  /**
+   * Test get overwrite microservice name
+   * @return Empty service data
+   */
+  @GetMapping(value = "/alu-service-bis/info")
+  @ResponseBody
+  public ServiceData testGetOverwriteMicroserviceInfo(HttpServletRequest request) throws AWException {
+    // Initialize parameters
+    return new ServiceData().setType(AnswerType.INFO).setTitle("Info title").setMessage("Info message");
   }
 }

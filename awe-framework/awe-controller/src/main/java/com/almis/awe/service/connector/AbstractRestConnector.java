@@ -25,7 +25,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -163,11 +162,12 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
 
   /**
    * Check service response and send exception if failed or warning
+   *
    * @param serviceData Service data
    * @throws AWException Service data is error or warning
    */
   protected void checkServiceResponse(ServiceData serviceData) throws AWException {
-    if (Arrays.asList(AnswerType.ERROR, AnswerType.WARNING).contains(serviceData.getType())) {
+    if (AnswerType.ERROR.equals(serviceData.getType())) {
       throw new AWException(serviceData.getTitle(), serviceData.getMessage(), serviceData.getType());
     }
   }
