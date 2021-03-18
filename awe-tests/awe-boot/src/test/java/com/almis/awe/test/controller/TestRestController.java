@@ -158,6 +158,18 @@ public class TestRestController {
   }
 
   /**
+   * Test post parameter list
+   *
+   * @return Empty service data
+   */
+  @PutMapping (value = "/complex/pojoJSONList")
+  @ResponseBody
+  public ServiceData testPostParameterListPOJOList(@RequestBody List<Concert> concertList) throws AWException {
+    // Initialize parameters
+    return new ServiceData();
+  }
+
+  /**
    * Test post send json
    *
    * @return Empty service data

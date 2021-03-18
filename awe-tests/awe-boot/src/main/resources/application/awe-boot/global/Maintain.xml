@@ -753,8 +753,18 @@
   <target name="TestComplexJavaParametersPOJO">
     <serve service="TestComplexJavaParametersPOJO">
       <variable id="name" type="STRING" value="name"/>
+      <variable id="dateOfShow" type="DATE" value="10/02/1985"/>
       <variable id="userGroupName" type="STRING" value="userGroupName"/>
       <variable id="eventHallName" type="STRING" value="eventHallName"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexJavaParametersPOJOList">
+    <serve service="TestComplexJavaParametersPOJOList">
+      <variable id="name" type="STRING" value="name1, name2"/>
+      <variable id="dateOfShow" type="DATE" value="10/02/1985, 11/02/1985"/>
+      <variable id="userGroupName" type="STRING" value="userGroupName1, userGroupName2"/>
+      <variable id="eventHallName" type="STRING" value="eventHallName1, eventHallName2"/>
     </serve>
   </target>
 
@@ -762,6 +772,12 @@
     <serve service="TestComplexRestParametersPOJO">
       <variable id="tutu" type="STRING" value="lala"/>
       <variable id="concert" type="OBJECT" name="concert"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexRestParametersPOJOList">
+    <serve service="TestComplexRestParametersPOJOList">
+      <variable id="concertList" type="OBJECT" name="concertList"/>
     </serve>
   </target>
 

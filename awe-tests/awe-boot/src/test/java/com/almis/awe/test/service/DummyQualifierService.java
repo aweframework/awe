@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Dummy Service class to test call services from <code>qualifier</code> attribute
  *
@@ -42,12 +44,25 @@ public class DummyQualifierService extends ServiceConfig {
   }
 
   /**
-   * @param concert
-   * @return
+   * Test complex POJO parameter
+   * @param concert Concert bean
+   * @throws AWException AWE exception
    */
   public ServiceData testComplexRestParametersPOJO(Concert concert) throws AWException {
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.putPOJO("concert", concert);
     return maintainService.launchMaintain("TestComplexRestParametersPOJO", parameters);
+  }
+
+  /**
+   * Test complex POJO list parameter
+   * @param concertList Concert list
+   * @return ServiceData
+   * @throws AWException AWE exception
+   */
+  public ServiceData testComplexRestParametersPOJOList(List<Concert> concertList) throws AWException {
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.putPOJO("concertList", concertList);
+    return maintainService.launchMaintain("TestComplexRestParametersPOJOList", parameters);
   }
 }

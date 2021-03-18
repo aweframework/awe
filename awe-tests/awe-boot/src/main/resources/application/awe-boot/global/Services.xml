@@ -341,10 +341,22 @@
     </java>
   </service>
 
+  <service id="TestComplexJavaParametersPOJOList">
+    <java classname="com.almis.awe.test.service.DummyQualifierService" method="testComplexRestParametersPOJOList">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Concert" list="true"/>
+    </java>
+  </service>
+
   <service id="TestComplexRestParametersPOJO">
     <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSON/{tutu}" content-type="JSON">
       <service-parameter type="STRING" name="tutu"/>
       <service-parameter type="OBJECT" name="concert" bean-class="com.almis.awe.test.bean.Concert"/>
+    </rest>
+  </service>
+
+  <service id="TestComplexRestParametersPOJOList">
+    <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSONList" content-type="JSON">
+      <service-parameter type="OBJECT" name="concertList" bean-class="com.almis.awe.test.bean.Concert" list="true"/>
     </rest>
   </service>
 

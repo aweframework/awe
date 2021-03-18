@@ -1,8 +1,8 @@
 package com.almis.awe.test.unit.scheduler;
 
-import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.file.Server;
@@ -12,26 +12,20 @@ import com.almis.awe.test.unit.TestUtil;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.naming.NamingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -53,6 +47,9 @@ public class ServerDAOTest extends TestUtil {
   @Mock
   private QueryUtil queryUtil;
 
+  @Mock
+  private DataListService dataListService;
+
   /**
    * Test context loaded
    *
@@ -73,6 +70,7 @@ public class ServerDAOTest extends TestUtil {
   public void findServerEmpty() throws Exception {
     given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
+    given(dataListService.asBeanList(any(), eq(Server.class))).willReturn(Collections.emptyList());
 
     // Assert called
     assertEquals(null, serverDAO.findServer(121, null));
@@ -94,7 +92,8 @@ public class ServerDAOTest extends TestUtil {
       .setPort(8080);
 
     given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Arrays.asList(server))));
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Collections.singletonList(server))));
+    given(dataListService.asBeanList(any(), eq(Server.class))).willReturn(Collections.singletonList(server));
 
     // Assert called
     assertEquals(server, serverDAO.findServer(121, null));
@@ -115,7 +114,8 @@ public class ServerDAOTest extends TestUtil {
       .setTypeOfConnection("SSH");
 
     given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Arrays.asList(server))));
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Collections.singletonList(server))));
+    given(dataListService.asBeanList(any(), eq(Server.class))).willReturn(Collections.singletonList(server));
 
     // Assert called
     assertEquals(server, serverDAO.findServer(122, null));

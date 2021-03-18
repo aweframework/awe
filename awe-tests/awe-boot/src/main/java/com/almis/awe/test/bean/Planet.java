@@ -2,6 +2,7 @@ package com.almis.awe.test.bean;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -18,6 +19,7 @@ public class Planet {
   private String terrain;
   private String surfaceWater;
   private Long population;
+  @DateTimeFormat(pattern = "dd/MM/yyyy")
   private Date created;
   private Date edited;
   private String url;

@@ -1,5 +1,6 @@
 package com.almis.awe.scheduler.autoconfigure;
 
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.dao.*;
@@ -109,9 +110,9 @@ public class SchedulerConfig {
     return new ExecutionService(scheduler);
   }
 
-  /*********************************************************************************************************************
-   JOB SERVICES
-   ********************************************************************************************************************/
+  /*
+   * JOB SERVICES
+   */
 
   /**
    * Define Maintain job service
@@ -133,9 +134,9 @@ public class SchedulerConfig {
     return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO);
   }
 
-  /*********************************************************************************************************************
-   JOB TYPES
-   ********************************************************************************************************************/
+  /*
+   * JOB TYPES
+   */
 
   /**
    * Define progress job
@@ -214,9 +215,9 @@ public class SchedulerConfig {
     return new BroadcastReportJob(broadcastService);
   }
 
-  /*********************************************************************************************************************
-   DAO
-   ********************************************************************************************************************/
+  /*
+   * DAO
+   */
 
   /**
    * Database Data Object Access
@@ -234,8 +235,8 @@ public class SchedulerConfig {
    * @return Calendar DAO
    */
   @Bean
-  public CalendarDAO calendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil) {
-    return new CalendarDAO(scheduler, queryService, queryUtil);
+  public CalendarDAO calendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
+    return new CalendarDAO(scheduler, queryService, queryUtil, dataListService);
   }
 
   /**
@@ -256,8 +257,9 @@ public class SchedulerConfig {
    */
   @Bean
   public TaskDAO taskDAO(Scheduler scheduler, QueryService queryService, MaintainService maintainService,
-                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker) {
-    return new TaskDAO(scheduler, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker);
+                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker,
+                         DataListService dataListService) {
+    return new TaskDAO(scheduler, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, dataListService);
   }
 
   /**
@@ -276,8 +278,8 @@ public class SchedulerConfig {
    * @return File DAO
    */
   @Bean
-  public ServerDAO serverDAO(QueryService queryService, QueryUtil queryUtil) {
-    return new ServerDAO(queryService, queryUtil);
+  public ServerDAO serverDAO(QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
+    return new ServerDAO(queryService, queryUtil, dataListService);
   }
 
   /**
@@ -290,9 +292,9 @@ public class SchedulerConfig {
     return new CommandDAO(runtime);
   }
 
-  /*********************************************************************************************************************
-   Checkers
-   ********************************************************************************************************************/
+  /*
+   * Checkers
+   */
 
   /**
    * Define file checker

@@ -4,6 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.services.ServiceRest;
 import com.almis.awe.model.entities.services.ServiceType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
 
@@ -19,8 +20,8 @@ public class RestConnector extends AbstractRestConnector {
    *
    * @param requestFactory Request factory
    */
-  public RestConnector(ClientHttpRequestFactory requestFactory) {
-    super(requestFactory);
+  public RestConnector(ClientHttpRequestFactory requestFactory, ObjectMapper objectMapper) {
+    super(requestFactory, objectMapper);
   }
 
   @Override

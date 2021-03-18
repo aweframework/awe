@@ -218,7 +218,9 @@ public final class DataListUtil {
    * @param <T>       class type
    * @return bean list
    * @throws AWException AWE exception
+   * @deprecated Use <code>asBeanList</code> at {@link com.almis.awe.model.service.DataListService#asBeanList(DataList, Class)}
    */
+  @Deprecated
   public static <T> List<T> asBeanList(@NonNull DataList dataList, Class<T> beanClass) throws AWException {
     List<T> list = new ArrayList<>();
     T rowBean;

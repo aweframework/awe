@@ -6,6 +6,7 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.dao.AweElementsDao;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.NumericUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.file.FileUtil;
@@ -29,6 +30,7 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.EnableCaching;
@@ -36,6 +38,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -146,6 +149,17 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public QueryUtil queryUtil() {
     return new QueryUtil();
+  }
+
+  /**
+   * DataList Service bean
+   * @param conversionService Conversion service
+   * @return DataList Service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public DataListService dataListService(ConversionService conversionService) {
+    return new DataListService(conversionService);
   }
 
   /**
@@ -491,24 +505,26 @@ public class AweAutoConfiguration {
    *
    * @param requestFactory Request factory
    * @param queryUtil Query utilities
+   * @param objectMapper Object mapper
    * @return Microservice connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MicroserviceConnector microserviceConnector(ClientHttpRequestFactory requestFactory, QueryUtil queryUtil) {
-    return new MicroserviceConnector(requestFactory, queryUtil);
+  public MicroserviceConnector microserviceConnector(ClientHttpRequestFactory requestFactory, QueryUtil queryUtil, ObjectMapper objectMapper) {
+    return new MicroserviceConnector(requestFactory, queryUtil, objectMapper);
   }
 
   /**
    * REST connector
    *
    * @param requestFactory Request factory
+   * @param objectMapper Object mapper
    * @return REST connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public RestConnector restConnector(ClientHttpRequestFactory requestFactory) {
-    return new RestConnector(requestFactory);
+  public RestConnector restConnector(ClientHttpRequestFactory requestFactory, ObjectMapper objectMapper) {
+    return new RestConnector(requestFactory, objectMapper);
   }
 
   /**
@@ -534,7 +550,6 @@ public class AweAutoConfiguration {
   public ServiceQueryConnector serviceQueryConnector(QueryUtil queryUtil) {
     return new ServiceQueryConnector(queryUtil);
   }
-
   /**
    * Service Maintain connector
    *
