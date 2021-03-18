@@ -7,6 +7,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,13 @@ import java.util.List;
  */
 @Service
 public class UserList extends ServiceConfig {
+
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  public UserList(ObjectMapper aweObjectMapper) {
+    this.objectMapper = aweObjectMapper;
+  }
 
   /**
    * Load users Json file
@@ -39,8 +47,6 @@ public class UserList extends ServiceConfig {
       Resource resource = new ClassPathResource("static/10000_complex.json");
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
-        // create ObjectMapper instance
-        ObjectMapper objectMapper = new ObjectMapper();
 
         // convert json string to object
         List<User> userList = objectMapper.readValue(resourceInputStream, new TypeReference<List<User>>() {

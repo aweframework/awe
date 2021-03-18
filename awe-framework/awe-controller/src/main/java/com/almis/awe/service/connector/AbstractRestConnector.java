@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mysema.commons.lang.Assert;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
@@ -39,14 +40,17 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
 
   // Autowired services
   private final ClientHttpRequestFactory requestFactory;
+  private ObjectMapper objectMapper;
 
   /**
    * Autowired constructor
    *
    * @param requestFactory Request factory
+   * @param objectMapper Object Mapper
    */
-  protected AbstractRestConnector(ClientHttpRequestFactory requestFactory) {
+  protected AbstractRestConnector(ClientHttpRequestFactory requestFactory, ObjectMapper objectMapper) {
     this.requestFactory = requestFactory;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -207,9 +211,8 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    */
   private void readParameterMap(MultiValueMap<String, String> requestParametersMap, ServiceInputParameter param, Map<String, Object> paramsMapFromRequest) {
     // If it has parameters, expand the url avoiding parameters already used
-    ObjectMapper mapper = new ObjectMapper();
     String paramName = param.getName();
-    JsonNode nodeValue = mapper.valueToTree(paramsMapFromRequest.get(paramName));
+    JsonNode nodeValue = objectMapper.valueToTree(paramsMapFromRequest.get(paramName));
     if (param.isList()) {
       for (JsonNode value : nodeValue) {
         requestParametersMap.add(paramName, value.asText());
@@ -232,15 +235,14 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    * @throws JsonProcessingException Error processing JSON
    */
   private String getParametersJson(AbstractServiceRest rest, UriComponentsBuilder uriBuilder, Map<String, Object> urlParameters, Map<String, Object> paramsMapFromRequest) throws JsonProcessingException {
-    ObjectNode requestParametersJson = JsonNodeFactory.instance.objectNode();
-    ObjectMapper mapper = new ObjectMapper();
+    JsonNode requestParametersJson = JsonNodeFactory.instance.objectNode();
     if (rest.getParameterList() != null) {
       for (ServiceInputParameter param : rest.getParameterList()) {
         // If it has parameters, expand the url avoiding parameters already used
         String paramName = param.getName();
         if (!urlParameters.containsKey(paramName)) {
           setParametersInURI(rest, uriBuilder, paramName, paramsMapFromRequest);
-          readParameterJson(requestParametersJson, param, paramsMapFromRequest);
+          readParameterJson((ObjectNode) requestParametersJson, param, paramsMapFromRequest);
         }
 
         // If parameter is a POJO, replace all parameters from request parameters
@@ -249,9 +251,8 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
         }
       }
     }
-
     // Create request using headers and parameters defined previously
-    return mapper.writeValueAsString(requestParametersJson);
+    return objectMapper.writeValueAsString(requestParametersJson);
   }
 
   /**
@@ -263,9 +264,8 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    */
   private void readParameterJson(ObjectNode requestParametersJson, ServiceInputParameter param, Map<String, Object> paramsMapFromRequest) {
     // If it has parameters, expand the url avoiding parameters already used
-    ObjectMapper mapper = new ObjectMapper();
     String paramName = param.getName();
-    JsonNode nodeValue = mapper.valueToTree(paramsMapFromRequest.get(paramName));
+    JsonNode nodeValue = objectMapper.valueToTree(paramsMapFromRequest.get(paramName));
     nodeValue = nodeValue == null ? JsonNodeFactory.instance.nullNode() : nodeValue;
     if (param.isList()) {
       ArrayNode list = JsonNodeFactory.instance.arrayNode();
@@ -287,11 +287,12 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    * @param param                Parameter to read
    * @param paramsMapFromRequest Parameters from request
    */
-  private ObjectNode readParameterPOJO(ServiceInputParameter param, Map<String, Object> paramsMapFromRequest) {
+  private JsonNode readParameterPOJO(ServiceInputParameter param, Map<String, Object> paramsMapFromRequest) {
     // If it has parameters, expand the url avoiding parameters already used
-    ObjectMapper mapper = new ObjectMapper();
     String paramName = param.getName();
-    return mapper.valueToTree(paramsMapFromRequest.get(paramName));
+    Assert.notNull(paramsMapFromRequest.get(paramName), "Parameter " + paramName + " not found. Check your parameters definition");
+
+    return objectMapper.valueToTree(paramsMapFromRequest.get(paramName));
   }
 
   /**

@@ -7,6 +7,7 @@ import com.almis.awe.model.entities.services.ServiceMicroservice;
 import com.almis.awe.model.entities.services.ServiceType;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -27,11 +28,12 @@ public class MicroserviceConnector extends AbstractRestConnector {
 
   /**
    * Autowired constructor
-   *
-   * @param requestFactory Request factory
+   *  @param requestFactory Request factory
+   * @param queryUtil Query Util
+   * @param objectMapper Object mapper
    */
-  public MicroserviceConnector(ClientHttpRequestFactory requestFactory, QueryUtil queryUtil) {
-    super(requestFactory);
+  public MicroserviceConnector(ClientHttpRequestFactory requestFactory, QueryUtil queryUtil, ObjectMapper objectMapper) {
+    super(requestFactory, objectMapper);
     this.queryUtil = queryUtil;
   }
 

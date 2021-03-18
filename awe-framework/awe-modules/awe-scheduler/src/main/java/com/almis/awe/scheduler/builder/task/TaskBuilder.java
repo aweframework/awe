@@ -1,13 +1,9 @@
 package com.almis.awe.scheduler.builder.task;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.scheduler.bean.calendar.Calendar;
-import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.file.Server;
-import com.almis.awe.scheduler.bean.report.Report;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
@@ -22,6 +18,8 @@ import lombok.extern.log4j.Log4j2;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 
+import java.util.List;
+
 import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 
 @Getter
@@ -31,7 +29,6 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 public abstract class TaskBuilder {
 
   private Integer index;
-  private DataList configurationData;
   private String site;
   private Task task;
   private Scheduler scheduler;
@@ -39,16 +36,12 @@ public abstract class TaskBuilder {
   /**
    * Set configuration data
    *
-   * @param data
+   * @param task
    * @return
    * @throws AWException
    */
-  public TaskBuilder setData(DataList data) throws AWException {
-    // Store data
-    setConfigurationData(data);
-
-    // Generate task data
-    generateTask(data);
+  public TaskBuilder setData(Task task) throws AWException {
+    this.task = task;
 
     // Retrieve task builder
     return this;
@@ -71,46 +64,26 @@ public abstract class TaskBuilder {
   }
 
   /**
-   * Fill task from datalist
-   *
-   * @param data
-   * @return
-   * @throws AWException
-   */
-  private void generateTask(DataList data) throws AWException {
-    if (data == null || data.getRows().isEmpty()) {
-      String dataListStatus = data == null ? "null" : "empty";
-      log.error("[SCHEDULER] The task could not be created, the datalist is {}", dataListStatus);
-      throw new AWException("[SCHEDULER] The datalist is " + dataListStatus);
-    }
-
-    // Initialize data
-    setTask(DataListUtil.asBeanList(data, Task.class).get(0));
-    getTask().setSchedule(DataListUtil.asBeanList(data, Schedule.class).get(0));
-    getTask().setReport(DataListUtil.asBeanList(data, Report.class).get(0));
-  }
-
-  /**
    * Fill parameters from datalist
    *
-   * @param data
+   * @param taskParameterList
    * @return
    * @throws AWException
    */
-  public TaskBuilder setParameters(DataList data) throws AWException {
-    getTask().setParameterList(DataListUtil.asBeanList(data, TaskParameter.class));
+  public TaskBuilder setParameters(List<TaskParameter> taskParameterList) throws AWException {
+    getTask().setParameterList(taskParameterList);
     return this;
   }
 
   /**
    * Fill dependencies from datalist
    *
-   * @param data
+   * @param taskDependencyList
    * @return
    * @throws AWException
    */
-  public TaskBuilder setDependencies(DataList data) throws AWException {
-    getTask().setDependencyList(DataListUtil.asBeanList(data, TaskDependency.class));
+  public TaskBuilder setDependencies(List<TaskDependency> taskDependencyList) throws AWException {
+    getTask().setDependencyList(taskDependencyList);
     return this;
   }
 

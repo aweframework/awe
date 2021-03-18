@@ -4,6 +4,7 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.notifier.dto.InterestedUsersDto;
 import com.almis.awe.notifier.dto.NotificationDto;
@@ -15,19 +16,20 @@ import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class NotifierServiceTest {
 
   @InjectMocks
@@ -42,10 +44,8 @@ public class NotifierServiceTest {
   @Mock
   private BroadcastService broadcastService;
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-  }
+  @Mock
+  private DataListService dataListService;
 
   @Test
   public void getNotifications() throws Exception {
@@ -123,6 +123,7 @@ public class NotifierServiceTest {
     row.put("screen", new CellData("screen"));
     dataList.addRow(row);
     when(queryService.launchQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(dataList));
+    when(dataListService.asBeanList(any(), eq(NotificationDto.class))).thenReturn(Collections.singletonList(new NotificationDto().setScreen("screen")));
 
     // Run
     ServiceData result = notifierService.goToNotificationScreen(1);
@@ -135,12 +136,14 @@ public class NotifierServiceTest {
 
   @Test
   public void testNotify() throws Exception {
-    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Arrays.asList(
+    List<InterestedUsersDto> interestedUsersDtoList = Arrays.asList(
       new InterestedUsersDto().setUser("tutu").setByEmail(true).setByWeb(false),
       new InterestedUsersDto().setUser("lala").setByEmail(false).setByWeb(false),
       new InterestedUsersDto().setUser("trololo").setByEmail(true).setByWeb(true),
       new InterestedUsersDto().setUser("lerele").setByEmail(false).setByWeb(true)
-    ))));
+    );
+    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(new DataList()));
+    when(dataListService.asBeanList(any(), eq(InterestedUsersDto.class))).thenReturn(interestedUsersDtoList);
 
     // Run
     notifierService.notify(new NotificationDto().setType(NotificationType.NORMAL));

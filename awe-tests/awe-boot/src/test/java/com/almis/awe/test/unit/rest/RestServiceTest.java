@@ -180,6 +180,16 @@ public class RestServiceTest extends AweSpringRestTests {
   }
 
   /**
+   * Rest test: Complex post with POJO list
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  public void testComplexPostParametersPOJOList() throws Exception {
+    doRestTest("TestComplexJavaParametersPOJOList", "maintain", "\"name\":\"my concert\",\"userGroupName\":\"user group\",\"eventHallName\":\"great hall\",", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+  }
+
+  /**
    * Call a external rest API
    *
    * @throws Exception Test error
