@@ -89,7 +89,7 @@
     <!-- Sleuth metrics -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-sleuth-api</artifactId>
+      <artifactId>spring-cloud-starter-sleuth</artifactId>
     </dependency>
     <!-- Jasypt -->
     <dependency>
