@@ -31,6 +31,7 @@ public class WebSettings {
   private String dataSuffix;
   private String homeScreen;
   private Integer recordsPerPage;
+  private Integer recordsPerPageOnCriteria;
   private Integer pixelsPerCharacter;
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;

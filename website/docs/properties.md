@@ -195,6 +195,8 @@ connection.timeout=60000000
 ################################################
 # Rows per page (Set to 0 to avoid pagination)
 application.data.rowsPerPage=30
+# Rows per page for criteria (Set to 0 to avoid pagination)
+application.data.rowsPerPageOnCriteria=100
 # Pixels per char in grids
 application.data.pixelsPerCharacter=8
 # Empty computed values if one of the wildcards are empty
