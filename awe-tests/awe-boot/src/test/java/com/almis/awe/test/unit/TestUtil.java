@@ -65,7 +65,7 @@ public class TestUtil extends ServiceConfig {
    * @return Parameter set
    */
   protected String setParameter(String name, String value) throws Exception {
-    MvcResult mvcResult = mockMvc.perform(post("/session/set/" + name)
+    MvcResult mvcResult = mockMvc.perform(post(String.format("/session/set/%s", name))
       .header("Authorization", SESSION_ID)
       .param("value", value)
       .session(session))

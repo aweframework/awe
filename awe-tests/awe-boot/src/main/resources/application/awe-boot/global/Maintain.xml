@@ -227,6 +227,46 @@
     </insert>
   </target>
 
+  <target name="SimpleSingleInsertUpdateDeleteFromVariableOptional">
+    <insert>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <field id="Des" variable="variable"/>
+      <field id="Drv" variable="opcional"/>
+      <variable type="STRINGN" id="opcional" name="variable" optional="true"/>
+      <variable type="STRING" id="variable" value="test-optional-variable"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <update>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <field id="Drv" variable="opcional"/>
+      <where>
+        <and>
+          <filter left-field="Des" condition="like" right-variable="test"/>
+        </and>
+      </where>
+      <variable type="STRINGB" id="test" value="test-optional-variable"/>
+      <variable type="STRINGN" id="opcional" name="variable" optional="true"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </update>
+    <delete>
+      <table id="HISAweDbs"/>
+      <where>
+        <and>
+          <filter left-field="Des" condition="like" right-variable="test"/>
+          <filter left-field="Drv" condition="eq" right-variable="opcional"/>
+        </and>
+      </where>
+      <variable type="STRINGB" id="test" value="test-optional-variable"/>
+      <variable type="STRINGN" id="opcional" name="variable" optional="true"/>
+    </delete>
+  </target>
+
   <target name="SimpleSingleInsertFromVariableValue">
     <insert>
       <table id="HISAweDbs"/>

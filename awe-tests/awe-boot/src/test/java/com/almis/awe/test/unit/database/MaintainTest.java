@@ -416,9 +416,28 @@ public class MaintainTest extends AweSpringDatabaseTests {
       String result = launchMaintain(maintainName, variables, expected);
       logger.debug(result);
       assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-        new MaintainResultDetails(MaintainType.INSERT, 1l)
+        new MaintainResultDetails(MaintainType.INSERT, 1L)
       });
     }
+  }
+
+  /**
+   * Launch a simple single insert from variable optional
+   *
+   * @throws Exception
+   */
+  @Test
+  public void launchSimpleInsertUpdateDeleteFromVariableOptional() throws Exception {
+    String maintainName = "SimpleSingleInsertUpdateDeleteFromVariableOptional";
+    String variables = "";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"UPDATE\",\"rowsAffected\":1},{\"operationType\":\"DELETE\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    logger.debug(result);
+    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 1L)
+    });
   }
 
   /**
@@ -606,7 +625,7 @@ public class MaintainTest extends AweSpringDatabaseTests {
   public void testInsertClob() throws Exception {
     String maintainName = "insertClobData";
     String longFile = readFileAsText("/static/tree_data.json");
-    String variables = "\"file\": \""+ StringUtil.fixJSonValue(longFile) +"\",";
+    String variables = "\"file\": \"" + StringUtil.fixJSonValue(longFile) + "\",";
     String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
@@ -624,12 +643,12 @@ public class MaintainTest extends AweSpringDatabaseTests {
   public void testInsertClobWithSpecialCharacters() throws Exception {
     String maintainName = "insertClobData";
     String longFile = readFileAsText("/static/clob.txt");
-    String variables = "\"file\": \""+ StringUtil.fixFormatValue(StringUtil.fixJSonValue(longFile))+"\",";
+    String variables = "\"file\": \"" + StringUtil.fixFormatValue(StringUtil.fixJSonValue(longFile)) + "\",";
     String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
     });
   }
 
