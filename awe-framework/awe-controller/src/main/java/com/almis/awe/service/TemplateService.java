@@ -182,6 +182,7 @@ public class TemplateService extends ServiceConfig {
       } catch (Exception exc) {
         // Only show a log if a screen fails
         getLogger().log(TemplateService.class, Level.ERROR, "Error generating application help", exc);
+        Thread.currentThread().interrupt();
       }
     }
 
@@ -313,9 +314,9 @@ public class TemplateService extends ServiceConfig {
   /**
    * Generates a taglist template from taglist and data
    *
-   * @param tagList
-   * @param data
-   * @return
+   * @param tagList Tag list
+   * @param data Data to fill
+   * @return Tag list template
    */
   public List<String> generateTaglistTemplate(TagList tagList, DataList data) {
     // For each row, generate the children code

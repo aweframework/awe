@@ -349,6 +349,7 @@ public class MenuService extends ServiceConfig {
         panelable.setTabValues(panelableData);
       } catch (Exception exc) {
         getLogger().log(MenuService.class, Level.ERROR, getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", panelable.getTargetAction()), exc);
+        Thread.currentThread().interrupt();
       }
     }
   }

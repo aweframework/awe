@@ -36,11 +36,10 @@ public abstract class TaskBuilder {
   /**
    * Set configuration data
    *
-   * @param task
-   * @return
-   * @throws AWException
+   * @param task Task
+   * @return Task builder
    */
-  public TaskBuilder setData(Task task) throws AWException {
+  public TaskBuilder setData(Task task) {
     this.task = task;
 
     // Retrieve task builder
@@ -66,24 +65,22 @@ public abstract class TaskBuilder {
   /**
    * Fill parameters from datalist
    *
-   * @param taskParameterList
-   * @return
-   * @throws AWException
+   * @param taskParameterList Task parameter list
+   * @return Task builder
    */
-  public TaskBuilder setParameters(List<TaskParameter> taskParameterList) throws AWException {
-    getTask().setParameterList(taskParameterList);
+  public TaskBuilder setParameters(List<TaskParameter> taskParameterList) {
+    task.setParameterList(taskParameterList);
     return this;
   }
 
   /**
    * Fill dependencies from datalist
    *
-   * @param taskDependencyList
-   * @return
-   * @throws AWException
+   * @param taskDependencyList Task dependency list
+   * @return Task builder
    */
-  public TaskBuilder setDependencies(List<TaskDependency> taskDependencyList) throws AWException {
-    getTask().setDependencyList(taskDependencyList);
+  public TaskBuilder setDependencies(List<TaskDependency> taskDependencyList) {
+    task.setDependencyList(taskDependencyList);
     return this;
   }
 
@@ -93,7 +90,7 @@ public abstract class TaskBuilder {
    * @return Calendar ID
    */
   public Integer getCalendarId() {
-    return getTask().getCalendarId();
+    return task.getCalendarId();
   }
 
   /**
@@ -102,48 +99,46 @@ public abstract class TaskBuilder {
    * @return File
    */
   public File getFile() {
-    return getTask().getFile();
+    return task.getFile();
   }
 
   /**
    * Set calendar to task
    *
-   * @param calendar
-   * @return
+   * @param calendar Calendar
+   * @return Task builder
    */
   public TaskBuilder setCalendar(Calendar calendar) {
-    getTask().setCalendar(calendar);
+    task.setCalendar(calendar);
     return this;
   }
 
   /**
    * Set server to file
    *
-   * @param server
-   * @return
+   * @param server File server
+   * @return Task builder
    */
   public TaskBuilder setFileServer(Server server) {
-    getTask().getFile().setServer(server);
+    task.getFile().setServer(server);
     return this;
   }
 
   /**
    * Generate scheduled trigger
    *
-   * @return Trigger
-   * @throws AWException
+   * @throws AWException Error generating trigger for task
    */
   private void generateTrigger() throws AWException {
     // Create trigger object
-    getTask().setTrigger(TriggerFactory.getInstance(TriggerType.TASK, defineJobData()));
+    task.setTrigger(TriggerFactory.getInstance(TriggerType.TASK, defineJobData()));
     log.debug("[SCHEDULER][TASK_QUERY {}][TRIGGER] Trigger generated", getTask().getTrigger().getKey().toString());
   }
 
   /**
    * Creates a new Job and retrieves it. It also saves the Job into the task
    *
-   * @return JobDetail
-   * @throws AWException
+   * @throws AWException Error generating job for task
    */
   private void generateJob() throws AWException {
     // Create and set the job to the Task

@@ -7,6 +7,7 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.component.grid.Column;
@@ -39,6 +40,9 @@ public class ScreenConfigurationGenerator extends ServiceConfig {
 
       // For each column, store value in components
       addScreenConfigurationToComponents(screenConfiguration, screen);
+    } catch (InterruptedException exc) {
+      Thread.currentThread().interrupt();
+      throw new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA", screen.getId()), exc);
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA", screen.getId()), exc);
     }
@@ -54,7 +58,7 @@ public class ScreenConfigurationGenerator extends ServiceConfig {
       String componentId = rule.get("component").getStringValue();
       String attribute = rule.get("attribute").getStringValue();
       String value = rule.get("value").getStringValue();
-      List elements = screen.getElementsById(componentId);
+      List<Element> elements = screen.getElementsById(componentId);
       if (!elements.isEmpty()) {
         applyRule(attribute, value, (Component) elements.get(0));
       }
