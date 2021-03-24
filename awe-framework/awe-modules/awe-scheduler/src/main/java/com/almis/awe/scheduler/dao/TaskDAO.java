@@ -474,6 +474,9 @@ public class TaskDAO extends ServiceConfig {
         .setTitle(getLocale(TITLE_SCHEDULER_NEW_TASK))
         .setMessage(getLocale(MESSAGE_SCHEDULER_NEW_TASK));
 
+    } catch (InterruptedException exc) {
+      Thread.currentThread().interrupt();
+      throw new AWException("Error inserting new task (interrupted): " + taskId, exc);
     } catch (Exception exc) {
       throw new AWException("Error inserting new task: " + taskId, exc);
     }
@@ -767,6 +770,9 @@ public class TaskDAO extends ServiceConfig {
 
       // Schedule task
       addTaskToScheduler(task);
+    } catch (InterruptedException exc) {
+      Thread.currentThread().interrupt();
+      throw new AWException("Error launching immediate task (interrupted): " + taskId, exc);
     } catch (Exception exc) {
       throw new AWException("Error launching immediate task: " + taskId, exc);
     }
@@ -815,7 +821,7 @@ public class TaskDAO extends ServiceConfig {
 
       if (checkTrigger(triggerKey)) {
         Trigger oldTrigger = scheduler.getTrigger(triggerKey);
-        TriggerBuilder triggerBuilder = oldTrigger.getTriggerBuilder();
+        TriggerBuilder<? extends Trigger> triggerBuilder = oldTrigger.getTriggerBuilder();
 
         // Create new trigger from old trigger builder
         Trigger newTrigger = triggerBuilder.build();
@@ -1208,6 +1214,9 @@ public class TaskDAO extends ServiceConfig {
           changeStatus(parentTask, execution.getParentExecution(), TaskStatus.JOB_WARNING,
             getLocale(WARNING_MESSAGE_TASK_DEPENDENCY_ERROR, execution.getTaskId().toString(), execution.getExecutionId().toString()));
         }
+      } catch (InterruptedException exc) {
+        Thread.currentThread().interrupt();
+        throw new AWException("Error setting task status (interrupted)", exc);
       } catch (Exception exc) {
         throw new AWException("Error setting task status", exc);
       }

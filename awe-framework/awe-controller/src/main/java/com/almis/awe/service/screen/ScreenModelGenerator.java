@@ -220,6 +220,7 @@ public class ScreenModelGenerator extends ServiceConfig {
         String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", entry.getKey());
         data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
         getLogger().log(ScreenModelGenerator.class, Level.ERROR, errorMessage, exc);
+        Thread.currentThread().interrupt();
       }
     }
   }
@@ -241,6 +242,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String errorMessage = getLocale("ERROR_MESSAGE_SCREEN_RESTRICTIONS", screen);
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
       getLogger().log(ScreenModelGenerator.class, Level.ERROR, errorMessage + screen, exc);
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -319,6 +321,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(errorMessage, exc));
       getLogger().log(ScreenModelGenerator.class, Level.ERROR, errorMessage, exc);
+      Thread.currentThread().interrupt();
     }
   }
 

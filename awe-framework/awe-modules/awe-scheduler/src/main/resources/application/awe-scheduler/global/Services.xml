@@ -110,7 +110,7 @@
   </service>
 
   <service id="nextExecutions">
-    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="computeNextFiretimes">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="computeNextFireTimes">
       <service-parameter name="fireTimes" type="INTEGER"/>
     </java>
   </service>

@@ -30,6 +30,9 @@ public class EmailMaintainConnector extends ServiceConfig implements MaintainCon
     try {
       // Send email
       return emailService.sendEmail(query.getId(), parameters).get();
+    } catch (InterruptedException exc) {
+      Thread.currentThread().interrupt();
+      throw new AWException("Error sending email - Thread interrupted", exc);
     } catch (Exception exc) {
       throw new AWException("Error sending email", exc);
     }
