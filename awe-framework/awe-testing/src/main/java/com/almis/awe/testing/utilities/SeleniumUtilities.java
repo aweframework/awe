@@ -141,6 +141,8 @@ public class SeleniumUtilities {
         case "headless-chrome":
           WebDriverManager.chromedriver().setup();
           chromeOptions.setHeadless(true);
+          chromeOptions.addArguments("--no-sandbox");
+          chromeOptions.addArguments("--disable-dev-shm-usage");
           setDriver(new ChromeDriver(chromeOptions));
           break;
         case "opera":
