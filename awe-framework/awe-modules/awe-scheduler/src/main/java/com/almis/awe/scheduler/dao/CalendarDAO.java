@@ -5,7 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.calendar.Calendar;
@@ -46,30 +46,33 @@ public class CalendarDAO extends ServiceConfig {
   private final Scheduler scheduler;
   private final QueryService queryService;
   private final QueryUtil queryUtil;
+  private final DataListService dataListService;
 
   /**
    * Autowired constructor
    *
-   * @param scheduler    Scheduler
-   * @param queryService Query service
-   * @param queryUtil    Query utilities
+   * @param scheduler       Scheduler
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param dataListService DataList service
    */
-  public CalendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil) {
+  public CalendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
     this.scheduler = scheduler;
     this.queryService = queryService;
     this.queryUtil = queryUtil;
+    this.dataListService = dataListService;
   }
 
   /**
    * Load calendars from the database to the scheduler
    *
-   * @throws AWException
+   * @throws AWException Error loading scheduler calendar
    */
   public void loadSchedulerCalendar() throws AWException {
     DataList calendarIdeList = queryService.launchPrivateQuery(SCHEDULER_CALENDAR_LIST_QUERY).getDataList();
     log.debug("[CALENDARS] Starting calendar load from database");
 
-    List<Calendar> calendarList = DataListUtil.asBeanList(calendarIdeList, Calendar.class);
+    List<Calendar> calendarList = dataListService.asBeanList(calendarIdeList, Calendar.class);
 
     for (Calendar calendar : calendarList) {
       // load a calendar with the given ide
@@ -80,10 +83,10 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Get calendar for the given ID on the given database
    *
-   * @param alias
-   * @param calendarId
-   * @return
-   * @throws AWException
+   * @param alias Calendar alias
+   * @param calendarId Calendar identifier
+   * @return Calendar
+   * @throws AWException Error retrieving calendar
    */
   public Calendar getCalendar(String alias, Integer calendarId) throws AWException {
     // Set context parameters to execute queries
@@ -95,22 +98,22 @@ public class CalendarDAO extends ServiceConfig {
     DataList calendarDays = queryService.launchPrivateQuery(SCHEDULER_TASK_CALENDAR_DATES_QUERY, parameters).getDataList();
 
     // Get calendar parameters
-    List<Calendar> calendarList = DataListUtil.asBeanList(calendarDetails, Calendar.class);
+    List<Calendar> calendarList = dataListService.asBeanList(calendarDetails, Calendar.class);
 
     // Fill calendar parameters
     return calendarList
       .get(0)
-      .addExcludedDateSet(DataListUtil.asBeanList(calendarDays, CalendarExcludedDate.class));
+      .addExcludedDateSet(dataListService.asBeanList(calendarDays, CalendarExcludedDate.class));
   }
 
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarIde
-   * @param replace
-   * @param updateTriggers
+   * @param calendarIde Calendar identifier
+   * @param replace Replace calendar
+   * @param updateTriggers Update task triggers
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(Integer calendarIde, boolean replace, boolean updateTriggers) throws AWException {
     return insertSchedulerCalendar(null, calendarIde, replace, updateTriggers);
@@ -119,12 +122,12 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarId
-   * @param replace
-   * @param updateTriggers
-   * @param alias
+   * @param calendarId Calendar identifier
+   * @param replace Replace calendar
+   * @param updateTriggers Update task triggers
+   * @param alias Calendar alias
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(String alias, Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
     try {
@@ -142,9 +145,9 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Update and schedule a new calendar
    *
-   * @param calendarIde
+   * @param calendarIde Calendar identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error updating scheduler calendar
    */
   public ServiceData updateSchedulerCalendar(Integer calendarIde) throws AWException {
     // Insert the scheduler calendar overwriting the old one.
@@ -154,9 +157,9 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Delete selected calendars
    *
-   * @param calendarIdList
+   * @param calendarIdList Calendar identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error deleting calendars
    */
   public ServiceData deleteSchedulerCalendar(List<Integer> calendarIdList) throws AWException {
     List<Task> taskList = retrieveTasksWithCalendars(calendarIdList);
@@ -182,15 +185,16 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Reschedule task with the new calendar id
    *
-   * @param task
-   * @param calendarId
+   * @param task Task to reschedule
+   * @param calendarId Calendar identifier
+   * @throws AWException Error rescheduling task with calendar
    */
   public void rescheduleTaskWithCalendar(Task task, String calendarId) throws AWException {
     try {
       task.setGroup(TaskUtil.getGroupForLaunchType(task.getLaunchType()));
       TriggerKey triggerKey = new TriggerKey(task.getTaskId().toString(), task.getGroup());
       Trigger trigger = scheduler.getTrigger(triggerKey);
-      TriggerBuilder triggerBuilder = trigger.getTriggerBuilder();
+      TriggerBuilder<? extends Trigger> triggerBuilder = trigger.getTriggerBuilder();
 
       // Create new trigger from old trigger builder
       Trigger newTrigger = triggerBuilder
@@ -207,9 +211,9 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Check if the scheduler contains the selected calendar
    *
-   * @param calendarIdList
+   * @param calendarIdList Calendar identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error checking triggers with calendars
    */
   public ServiceData checkTriggersContainsCalendar(Integer... calendarIdList) throws AWException {
     ServiceData serviceData = new ServiceData();
@@ -280,11 +284,11 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Compute next fire times
    *
-   * @param times
-   * @return
-   * @throws AWException
+   * @param times # of fire times to compute
+   * @return Service data
+   * @throws AWException Error computing next fire times
    */
-  public ServiceData computeNextFiretimes(int times) throws AWException {
+  public ServiceData computeNextFireTimes(int times) throws AWException {
     ServiceData serviceData = new ServiceData();
 
     try {
@@ -292,7 +296,7 @@ public class CalendarDAO extends ServiceConfig {
       Schedule schedule = getSchedule();
 
       // Build trigger
-      TriggerBuilder triggerBuilder = TriggerBuilder
+      TriggerBuilder<? extends Trigger> triggerBuilder = TriggerBuilder
         .newTrigger()
         .withIdentity("testTrigger", "testGroup");
 
@@ -362,22 +366,22 @@ public class CalendarDAO extends ServiceConfig {
    *
    * @param calendarIdList Calendar list
    * @return Task list using calendars
-   * @throws AWException
+   * @throws AWException Error retrieving tasks with calendars
    */
   private List<Task> retrieveTasksWithCalendars(List<Integer> calendarIdList) throws AWException {
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode parameters = queryUtil.getParameters();
     parameters.set("calendarId", mapper.valueToTree(calendarIdList));
     DataList dataList = queryService.launchPrivateQuery(SCHEDULER_GET_TASKS_WITH_CALENDARS, parameters).getDataList();
-    return DataListUtil.asBeanList(dataList, Task.class);
+    return dataListService.asBeanList(dataList, Task.class);
   }
 
   /**
    * Retrieve calendar if it's active
    *
    * @param calendarId Calendar identifier
-   * @return
-   * @throws AWException
+   * @return Quart calendar
+   * @throws AWException Error retrieving calendar from Quartz
    */
   private org.quartz.Calendar getQuartzCalendar(Integer calendarId) throws AWException {
     org.quartz.Calendar quartzCalendar = null;
@@ -399,17 +403,17 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Build schedule
    *
-   * @return
+   * @return Schedule Builder
+   * @throws AWException Error building schedule builder
    */
-  private ScheduleBuilder buildSchedule(Schedule schedule) throws AWException {
+  private <T extends Trigger> ScheduleBuilder<T> buildSchedule(Schedule schedule) throws AWException {
     return new PatternBuilder(schedule).build();
   }
 
   /**
    * get parameters for generating cron from context
    *
-   * @return
-   * @throws AWException
+   * @return Schedule
    */
   private Schedule getSchedule() {
     return new Schedule()

@@ -1,5 +1,5 @@
-import {aweApplication} from "./../awe";
-import {DefaultSpin} from "./../data/options";
+import {aweApplication} from "../awe";
+import {DefaultSpin} from "../data/options";
 
 // Criterion service
 aweApplication.factory('Criterion',
@@ -222,6 +222,15 @@ aweApplication.factory('Criterion',
               Control.restoreInitialModelAttribute(component.address, "selected");
             };
           }
+
+          /**
+           * Get max elements per page
+           * @param {int|undefined} defaultValue [optional] default value
+           * @returns {int} elements per page
+           */
+          component.getMax = function (defaultValue = $settings.get("recordsPerPageOnCriteria")) {
+            return parseInt("max" in component.controller ? component.controller.max : defaultValue, 10);
+          };
 
           /**
            * Extra data function (To be overwritten on complex directives)

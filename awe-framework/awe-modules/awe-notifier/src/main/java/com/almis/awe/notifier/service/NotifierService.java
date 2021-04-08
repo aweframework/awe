@@ -7,6 +7,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.notifier.dto.InterestedUsersDto;
 import com.almis.awe.notifier.dto.NotificationDto;
@@ -42,6 +43,7 @@ public class NotifierService {
   private final QueryService queryService;
   private final MaintainService maintainService;
   private final BroadcastService broadcastService;
+  private final DataListService dataListService;
 
   /**
    * Autowired constructor
@@ -49,11 +51,14 @@ public class NotifierService {
    * @param queryService     Query service
    * @param maintainService  Maintain service
    * @param broadcastService Broadcast service
+   * @param dataListService  DataList service
    */
-  public NotifierService(QueryService queryService, MaintainService maintainService, BroadcastService broadcastService) {
+  public NotifierService(QueryService queryService, MaintainService maintainService, BroadcastService broadcastService,
+                         DataListService dataListService) {
     this.queryService = queryService;
     this.maintainService = maintainService;
     this.broadcastService = broadcastService;
+    this.dataListService = dataListService;
   }
 
   /**
@@ -131,7 +136,7 @@ public class NotifierService {
    */
   public ServiceData goToNotificationScreen(Integer notificationId) throws AWException {
     DataList dataList = queryService.launchQuery(GET_NOTIFICATION, JsonNodeFactory.instance.objectNode().put("notification", notificationId)).getDataList();
-    List<NotificationDto> notificationDtoList = DataListUtil.asBeanList(dataList, NotificationDto.class);
+    List<NotificationDto> notificationDtoList = dataListService.asBeanList(dataList, NotificationDto.class);
     return new ServiceData().addClientAction(new ScreenActionBuilder(notificationDtoList.get(0).getScreen(), true).setContext("screen/private/home").setAsync(true).setSilent(true).build());
   }
 
@@ -149,7 +154,7 @@ public class NotifierService {
 
     // Get users interested in notification
     DataList dataList = queryService.launchPrivateQuery(INTERESTED_USERS, parameters).getDataList();
-    List<InterestedUsersDto> userList = DataListUtil.asBeanList(dataList, InterestedUsersDto.class);
+    List<InterestedUsersDto> userList = dataListService.asBeanList(dataList, InterestedUsersDto.class);
 
     // Refresh connected users
     broadcastService.broadcastMessageToUsers(

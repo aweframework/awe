@@ -5,7 +5,9 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.scheduler.bean.calendar.CalendarExcludedDate;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.test.unit.TestUtil;
@@ -30,8 +32,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 
@@ -62,6 +63,9 @@ public class CalendarDAOTest extends TestUtil {
 
   @Mock
   private AweElements aweElements;
+
+  @Mock
+  private DataListService dataListService;
 
   /**
    * Initializes json mapper for tests
@@ -182,6 +186,8 @@ public class CalendarDAOTest extends TestUtil {
     given(scheduler.getTriggerKeys(any())).willReturn(triggerSet);
     given(scheduler.getTrigger(any())).willReturn(TriggerBuilder.newTrigger().modifiedByCalendar("1").build());
     given(queryService.launchPrivateQuery(any(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
+    given(dataListService.asBeanList(any(DataList.class), eq(com.almis.awe.scheduler.bean.calendar.Calendar.class))).willReturn(Collections.singletonList(new com.almis.awe.scheduler.bean.calendar.Calendar().setCalendarId(calendarId)));
+    given(dataListService.asBeanList(any(DataList.class), eq(CalendarExcludedDate.class))).willReturn(Collections.singletonList(new CalendarExcludedDate().setDate(new Date())));
   }
 
 }

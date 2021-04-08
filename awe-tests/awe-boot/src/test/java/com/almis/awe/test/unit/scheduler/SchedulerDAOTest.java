@@ -21,17 +21,16 @@ import org.quartz.*;
 import org.springframework.context.ApplicationContext;
 
 import javax.naming.NamingException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_VISIBLE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 /**
  * Class used for testing queries through ActionController
@@ -47,28 +46,7 @@ public class SchedulerDAOTest extends TestUtil {
   private SchedulerDAO schedulerDAO;
 
   @Mock
-  private QueryUtil queryUtil;
-
-  @Mock
   private Scheduler scheduler;
-
-  @Mock
-  private ApplicationContext context;
-
-  @Mock
-  private AweElements aweElements;
-
-  /**
-   * Initializes json mapper for tests
-   */
-  @Before
-  public void initBeans() throws Exception {
-    doReturn(aweElements).when(context).getBean(any(Class.class));
-    given(aweElements.getLanguage()).willReturn("ES");
-    given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
-    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-  }
 
   /**
    * Test context loaded
@@ -88,8 +66,8 @@ public class SchedulerDAOTest extends TestUtil {
   public void getCurrentlyExecutingJobsNoScheduler() throws Exception {
     // Mock and spy
     JobExecutionContext jobExecutionContext = Mockito.mock(JobExecutionContext.class);
-    List<JobExecutionContext> jobExecutionContextList = Arrays.asList(jobExecutionContext);
-    given(scheduler.getCurrentlyExecutingJobs()).willReturn(jobExecutionContextList);
+    List<JobExecutionContext> jobExecutionContextList = Collections.singletonList(jobExecutionContext);
+    //given(scheduler.getCurrentlyExecutingJobs()).willReturn(jobExecutionContextList);
 
     // Run method
     ServiceData serviceData = schedulerDAO.getCurrentlyExecutingJobs();
@@ -105,16 +83,20 @@ public class SchedulerDAOTest extends TestUtil {
   public void getCurrentlyExecutingJobsStandby() throws Exception {
     // Mock and spy
     JobExecutionContext jobExecutionContext = Mockito.mock(JobExecutionContext.class);
-    List<JobExecutionContext> jobExecutionContextList = Arrays.asList(jobExecutionContext);
+    Trigger trigger = Mockito.mock(Trigger.class);
+    when(jobExecutionContext.getTrigger()).thenReturn(trigger);
+    when(trigger.getKey()).thenReturn(new TriggerKey("test", "test"));
+    List<JobExecutionContext> jobExecutionContextList = Collections.singletonList(jobExecutionContext);
+    when(scheduler.getTriggerState(any())).thenReturn(Trigger.TriggerState.COMPLETE);
     given(scheduler.getCurrentlyExecutingJobs()).willReturn(jobExecutionContextList);
-    given(scheduler.isInStandbyMode()).willReturn(true);
-    given(scheduler.isStarted()).willReturn(false);
+    given(scheduler.isInStandbyMode()).willReturn(false);
+    given(scheduler.isStarted()).willReturn(true);
 
     // Run method
     ServiceData serviceData = schedulerDAO.getCurrentlyExecutingJobs();
 
     // Assert
-    assertThat(serviceData).isNotNull();
+    assertEquals(1, serviceData.getDataList().getRecords());
   }
 
   /**
@@ -123,9 +105,6 @@ public class SchedulerDAOTest extends TestUtil {
   @Test
   public void getCurrentlyExecutingJobsNoStarted() throws Exception {
     // Mock and spy
-    JobExecutionContext jobExecutionContext = Mockito.mock(JobExecutionContext.class);
-    List<JobExecutionContext> jobExecutionContextList = Arrays.asList(jobExecutionContext);
-    given(scheduler.getCurrentlyExecutingJobs()).willReturn(jobExecutionContextList);
     given(scheduler.isInStandbyMode()).willReturn(false);
     given(scheduler.isStarted()).willReturn(false);
 
@@ -133,7 +112,7 @@ public class SchedulerDAOTest extends TestUtil {
     ServiceData serviceData = schedulerDAO.getCurrentlyExecutingJobs();
 
     // Assert
-    assertThat(serviceData).isNotNull();
+    assertEquals(0, serviceData.getDataList().getRecords());
   }
 
   /**
@@ -144,7 +123,7 @@ public class SchedulerDAOTest extends TestUtil {
     // Mock and spy
     JobExecutionContext jobExecutionContext = Mockito.mock(JobExecutionContext.class);
     given(jobExecutionContext.getTrigger()).willReturn(TriggerBuilder.newTrigger().withIdentity("1", "TEST_GROUP").build());
-    List<JobExecutionContext> jobExecutionContextList = Arrays.asList(jobExecutionContext);
+    List<JobExecutionContext> jobExecutionContextList = Collections.singletonList(jobExecutionContext);
     given(scheduler.getCurrentlyExecutingJobs()).willReturn(jobExecutionContextList);
     given(scheduler.isInStandbyMode()).willReturn(false);
     given(scheduler.isStarted()).willReturn(true);
@@ -154,7 +133,7 @@ public class SchedulerDAOTest extends TestUtil {
     ServiceData serviceData = schedulerDAO.getCurrentlyExecutingJobs();
 
     // Assert
-    assertThat(serviceData).isNotNull();
+    assertEquals(1, serviceData.getDataList().getRecords());
   }
 
   /**
@@ -164,12 +143,9 @@ public class SchedulerDAOTest extends TestUtil {
   public void getConfiguredJobsWithScheduler() throws Exception {
     // Mock and spy
     JobExecutionContext jobExecutionContext = Mockito.mock(JobExecutionContext.class);
-    given(jobExecutionContext.getTrigger()).willReturn(TriggerBuilder.newTrigger().withIdentity("1", "TEST_GROUP").build());
-    List<JobExecutionContext> jobExecutionContextList = Arrays.asList(jobExecutionContext);
-    given(scheduler.getCurrentlyExecutingJobs()).willReturn(jobExecutionContextList);
+    List<JobExecutionContext> jobExecutionContextList = Collections.singletonList(jobExecutionContext);
     given(scheduler.isInStandbyMode()).willReturn(false);
     given(scheduler.isStarted()).willReturn(true);
-    given(scheduler.getTriggerState(any())).willReturn(Trigger.TriggerState.NORMAL);
     given(scheduler.getTriggerGroupNames()).willReturn(Arrays.asList("1", "2", "3", "TEST_GROUP"));
     Set<TriggerKey> triggerKeySet = new HashSet<>();
     triggerKeySet.add(new TriggerKey("1", "TEST_GROUP"));
@@ -182,6 +158,6 @@ public class SchedulerDAOTest extends TestUtil {
     ServiceData serviceData = schedulerDAO.getConfiguredJobs();
 
     // Assert
-    assertThat(serviceData).isNotNull();
+    assertEquals(4, serviceData.getDataList().getRecords());
   }
 }

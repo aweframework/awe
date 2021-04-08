@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
-    <version>4.3.3</version>
+    <version>4.3.4</version>
     <relativePath>..</relativePath>
   </parent>
   
@@ -38,6 +38,10 @@
     <application.acronym>awe-tools</application.acronym>
     <skip.karma>true</skip.karma>
     <skip.delombok>false</skip.delombok>
+    <application.folder>.</application.folder>
+    <sonar.language>java,js</sonar.language>
+    <sonar.sources>src</sonar.sources>
+    <sonar.testExecutionReportPaths>../../awe-client-angular/target/reports/karma/junit/javascriptUnitTests.xml</sonar.testExecutionReportPaths>
   </properties>
 
   <build>

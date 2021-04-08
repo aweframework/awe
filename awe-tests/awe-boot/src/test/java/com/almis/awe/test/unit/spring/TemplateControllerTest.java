@@ -10,13 +10,12 @@ import org.junit.Test;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import javax.naming.NamingException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -24,7 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- *
  * @author pgarcia
  */
 @Log4j2
@@ -43,34 +41,26 @@ public class TemplateControllerTest extends AweSpringBootTests {
   }
 
   /**
-   * Test a template call
-   * @param endpoint Endpoint
-   * @param accept Accept type
-   * @param status Status
-   * @return Result actions
-   * @throws Exception
+   * Test template file
+   *
+   * @param filePath            File to test
+   * @param templatePath        Template path
+   * @param statusResultMatcher Result matcher
+   * @throws Exception Error in template retrieval
    */
-  private ResultActions templateTestPost(String endpoint, String accept, String content, ResultMatcher status) throws Exception{
-    return mockMvc.perform(post(endpoint)
-      .header("Authorization", "b0d28a33-eea9-44c6-a142-a7fc6bfb7afa")
-      .content(content)
-      .accept(accept)).andExpect(status);
-  }
+  private void testTemplate(String filePath, String templatePath, ResultMatcher statusResultMatcher) throws Exception {
+    String expected = readFileAsText(filePath).replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
+    MvcResult result = mockMvc.perform(get(templatePath).accept("text/html;charset=UTF-8"))
+      .andExpect(statusResultMatcher)
+      .andExpect(content().encoding("UTF-8"))
+      .andReturn();
 
-  /**
-   * Test a template call
-   * @param endpoint Endpoint
-   * @param accept Accept type
-   * @param status Status
-   * @return Result actions
-   * @throws Exception
-   */
-  private ResultActions templateTest(String endpoint, String accept, ResultMatcher status) throws Exception{
-    return mockMvc.perform(get(endpoint).accept(accept)).andExpect(status);
+    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
   }
 
   /**
    * Test context loaded
+   *
    * @throws NamingException Test error
    */
   @Test
@@ -83,134 +73,108 @@ public class TemplateControllerTest extends AweSpringBootTests {
 
   /**
    * Test of getAngularTemplate method, of class TemplateController.
+   *
    * @throws Exception Test error
    */
   @Test
   public void testGetAngularTemplate() throws Exception {
-    String expected = readFileAsText("templates/Modal.txt");
-    templateTest("/template/angular/confirm", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().string(expected));
+    testTemplate("templates/Modal.txt", "/template/angular/confirm", status().isOk());
   }
 
   /**
    * Test of getAngularSubTemplate method, of class TemplateController.
+   *
    * @throws Exception test error
    */
   @Test
   public void testGetAngularSubTemplate() throws Exception {
-    String expected = readFileAsText("templates/Criterion.txt");
-    templateTest("/template/angular/input/text", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().string(expected));
+    testTemplate("templates/Criterion.txt", "/template/angular/input/text", status().isOk());
   }
 
   /**
    * Test of getScreenTemplate method, of class TemplateController.
+   *
    * @throws Exception test error
    */
   @Test
   public void testGetScreenTemplate() throws Exception {
-    String expected = readFileAsText("templates/Screen.txt").replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
-    MvcResult result = templateTest("/template/screen/base/information", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().encoding("UTF-8"))
-      .andReturn();
-
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    testTemplate("templates/Screen.txt", "/template/screen/base/information", status().isOk());
   }
 
   /**
    * Test of launchAction method, of class ActionController.
+   *
    * @throws Exception Test error
    */
   @Test
   public void testGetErrorScreenTemplate() throws Exception {
-    String expected = readFileAsText("templates/ScreenError.txt").replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
-    MvcResult result = templateTest("/template/screen/base/pantalla-inexistente", "text/html;charset=UTF-8", status().isUnauthorized())
-      .andExpect(content().encoding("UTF-8"))
-      .andReturn();
-
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    testTemplate("templates/ScreenError.txt", "/template/screen/base/pantalla-inexistente", status().isUnauthorized());
   }
 
   /**
    * Test of getDefaultScreenTemplate method, of class TemplateController.
+   *
    * @throws Exception test error
    */
   @Test
   public void testGetDefaultScreenTemplate() throws Exception {
-    String expected = readFileAsText("templates/DefaultScreen.txt").replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
-    MvcResult result = templateTest("/template/screen/", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().encoding("UTF-8"))
-      .andReturn();
-
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    testTemplate("templates/DefaultScreen.txt", "/template/screen/", status().isOk());
   }
 
   /**
    * Test of public screen
+   *
    * @throws Exception test error
    */
   @Test
   public void testGetPublicScreenTemplate() throws Exception {
-    String expected = readFileAsText("templates/DefaultScreen.txt").replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
-    MvcResult result = templateTest("/template/screen/base/signin", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().encoding("UTF-8"))
-      .andReturn();
-
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    testTemplate("templates/DefaultScreen.txt", "/template/screen/base/signin", status().isOk());
   }
 
   /**
    * Test of getAngularTemplate method, of class TemplateController.
+   *
    * @throws Exception Test error
    */
   @Test
   @WithMockUser(username = "test", password = "test")
   public void testGetSitesHelpTemplate() throws Exception {
     given(aweSession.isAuthenticated()).willReturn(true);
-    String expected = readFileAsText("context-help/ScreenHelp.txt").replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
-    MvcResult result = templateTest("/template/help/sites", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().encoding("UTF-8"))
-      .andReturn();
-
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    testTemplate("context-help/ScreenHelp.txt", "/template/help/sites", status().isOk());
   }
 
   /**
    * Test of getAngularSubTemplate method, of class TemplateController.
+   *
    * @throws Exception test error
    */
   @Test
   @WithMockUser(username = "test", password = "test")
   public void testGetApplicationHelpTemplate() throws Exception {
     given(aweSession.isAuthenticated()).willReturn(true);
-    String expected = readFileAsText("context-help/ApplicationHelp.txt").replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
-    MvcResult result = templateTest("/template/help", "text/html;charset=UTF-8", status().isOk())
-      .andExpect(content().encoding("UTF-8"))
-      .andReturn();
-
-    assertEquals(expected, result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")));
+    testTemplate("context-help/ApplicationHelp.txt", "/template/help", status().isOk());
   }
 
   /**
    * Test of getSettings method, of class SettingsController.
+   *
    * @throws Exception Test error
    */
   @Test
   public void testGetSettings() throws Exception {
-    SettingsController settingsController = getBean(SettingsController.class);
-
-    String expected = "{\"pathServer\":\"\",\"initialURL\":\"\",\"language\":\"en\",\"theme\":\"sky\",\"charset\":\"UTF-8\",\"applicationName\":\"awe-boot\",\"dataSuffix\":\".data\",\"homeScreen\":\"screen/home\",\"recordsPerPage\":30,\"pixelsPerCharacter\":8,\"defaultComponentSize\":\"sm\",\"reloadCurrentScreen\":false,\"suggestTimeout\":300,\"connectionProtocol\":\"COMET\",\"connectionTransport\":\"websocket\",\"connectionBackup\":\"streaming\",\"connectionTimeout\":60000000,\"uploadIdentifier\":\"u\",\"downloadIdentifier\":\"d\",\"uploadMaxSize\":500,\"addressIdentifier\":\"address\",\"passwordPattern\":\".*\",\"minlengthPassword\":4,\"encodeTransmission\":false,\"encodeKey\":\"p\",\"tokenKey\":\"t\",\"actionsStack\":0,\"debug\":\"INFO\",\"loadingTimeout\":10000,\"helpTimeout\":1000,\"messageTimeout\":{\"info\":0,\"error\":0,\"validate\":2000,\"help\":5000,\"warning\":4000,\"ok\":2000,\"wrong\":0,\"chat\":0},\"numericOptions\":{\"pSign\":\"s\",\"aDec\":\",\",\"vMin\":-1.0E10,\"dGroup\":3,\"vMax\":1.0E10,\"mDec\":5,\"mRound\":\"S\",\"aPad\":false,\"wEmpty\":\"empty\",\"aSep\":\".\",\"aSign\":\"\"},\"pivotOptions\":{\"numGroup\":5000},\"chartOptions\":{\"limitPointsSerie\":1000000}}";
+    String expected = "{\"pathServer\":\"\",\"initialURL\":\"\",\"language\":\"en\",\"theme\":\"sky\",\"charset\":\"UTF-8\",\"applicationName\":\"awe-boot\",\"dataSuffix\":\".data\",\"homeScreen\":\"screen/home\",\"recordsPerPage\":30,\"recordsPerPageOnCriteria\":100,\"pixelsPerCharacter\":8,\"defaultComponentSize\":\"sm\",\"reloadCurrentScreen\":false,\"suggestTimeout\":300,\"connectionProtocol\":\"COMET\",\"connectionTransport\":\"websocket\",\"connectionBackup\":\"streaming\",\"connectionTimeout\":60000000,\"uploadIdentifier\":\"u\",\"downloadIdentifier\":\"d\",\"uploadMaxSize\":500,\"addressIdentifier\":\"address\",\"passwordPattern\":\".*\",\"minlengthPassword\":4,\"encodeTransmission\":false,\"encodeKey\":\"p\",\"tokenKey\":\"t\",\"actionsStack\":0,\"debug\":\"INFO\",\"loadingTimeout\":10000,\"helpTimeout\":1000,\"messageTimeout\":{\"info\":0,\"error\":0,\"validate\":2000,\"help\":5000,\"warning\":4000,\"ok\":2000,\"wrong\":0,\"chat\":0},\"numericOptions\":{\"pSign\":\"s\",\"aDec\":\",\",\"vMin\":-1.0E10,\"dGroup\":3,\"vMax\":1.0E10,\"mDec\":5,\"mRound\":\"S\",\"aPad\":false,\"wEmpty\":\"empty\",\"aSep\":\".\",\"aSign\":\"\"},\"pivotOptions\":{\"numGroup\":5000},\"chartOptions\":{\"limitPointsSerie\":1000000}}";
     ObjectNode expectedJson = (ObjectNode) objectMapper.readTree(expected);
-    MvcResult mvcResult = templateTestPost("/settings", "application/json", "{\"view\":\"base\"}", status().isOk())
+    MvcResult mvcResult = mockMvc.perform(post("/settings")
+      .header("Authorization", "b0d28a33-eea9-44c6-a142-a7fc6bfb7afa")
+      .content("{\"view\":\"base\"}")
+      .accept("application/json")).andExpect(status().isOk())
       .andExpect(content().json(expected))
       .andReturn();
 
     String result = mvcResult.getResponse().getContentAsString();
-    //logger.warn(result);
-    //logger.warn(expected);
     ObjectNode retrievedJson = (ObjectNode) objectMapper.readTree(result);
 
     // Check objects
-    assertTrue(expectedJson.equals(retrievedJson));
+    assertEquals(expectedJson, retrievedJson);
   }
 }

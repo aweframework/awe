@@ -1,5 +1,6 @@
 package com.almis.awe.notifier.autoconfigure;
 
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.notifier.service.NotifierService;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
@@ -34,10 +35,12 @@ public class NotifierConfig {
    * @param queryService     Query service
    * @param maintainService  Maintain service
    * @param broadcastService Broadcast service
+   * @param dataListService  DataList service
    * @return Notifier service
    */
   @Bean
-  public NotifierService notifierService(QueryService queryService, MaintainService maintainService, BroadcastService broadcastService) {
-    return new NotifierService(queryService, maintainService, broadcastService);
+  public NotifierService notifierService(QueryService queryService, MaintainService maintainService,
+                                         BroadcastService broadcastService, DataListService dataListService) {
+    return new NotifierService(queryService, maintainService, broadcastService, dataListService);
   }
 }

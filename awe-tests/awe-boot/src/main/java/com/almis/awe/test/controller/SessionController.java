@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by dfuentes on 29/05/2017.
  */
 @Controller
-@RequestMapping ("/session")
+@RequestMapping("/session")
 @Profile({"dev", "gitlab-ci"})
 public class SessionController {
 
@@ -32,13 +30,14 @@ public class SessionController {
 
   /**
    * Set session parameter
-   * @param name Key
+   *
+   * @param name  Key
    * @param value Value
    * @return set
    */
   @PostMapping("/set/{name}")
   @ResponseBody
-  public String setParameter(@PathVariable("name") String name, @RequestParam("value") String value) {
+  public String setParameter(@PathVariable("name") String name, @RequestParam(value = "value", required = false) String value) {
 
     // Initialize parameters
     session.setParameter(name, value);
@@ -49,6 +48,7 @@ public class SessionController {
 
   /**
    * Get session parameter
+   *
    * @param name Parameter
    * @return Value
    */
@@ -62,6 +62,7 @@ public class SessionController {
 
   /**
    * Get session parameter
+   *
    * @param name Parameter
    * @return Value
    */
@@ -78,6 +79,7 @@ public class SessionController {
 
   /**
    * Invalidate session
+   *
    * @return Value
    */
   @GetMapping("/invalidate")

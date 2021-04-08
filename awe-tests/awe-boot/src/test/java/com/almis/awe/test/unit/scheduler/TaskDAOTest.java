@@ -4,7 +4,9 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
@@ -76,6 +78,9 @@ public class TaskDAOTest extends TestUtil {
   @Mock
   private FileChecker fileChecker;
 
+  @Mock
+  private DataListService dataListService;
+
   /**
    * Initializes json mapper for tests
    */
@@ -85,7 +90,6 @@ public class TaskDAOTest extends TestUtil {
     doReturn(aweElements).when(context).getBean(any(Class.class));
     given(aweElements.getLanguage()).willReturn("ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
-    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryUtil.getParameters((String) isNull())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
   }
@@ -188,7 +192,6 @@ public class TaskDAOTest extends TestUtil {
     task.setGroup("TASK_GROUP");
     task.setJob(null);
     task.setTrigger(TriggerBuilder.newTrigger().build());
-    given(scheduler.checkExists(any(JobKey.class))).willReturn(false);
 
     // Run method
     taskDAO.resumeTask(task);
@@ -209,7 +212,6 @@ public class TaskDAOTest extends TestUtil {
     task.setGroup("TASK_GROUP");
     task.setJob(null);
     task.setTrigger(TriggerBuilder.newTrigger().build());
-    given(scheduler.checkExists(any(JobKey.class))).willReturn(false);
 
     // Run method
     taskDAO.resumeTask(task);
@@ -322,7 +324,7 @@ public class TaskDAOTest extends TestUtil {
   public void isTaskExecutionAllowed() throws Exception {
     Task task = mockTask();
     task.setLaunchType(TaskLaunchType.FILE_TRACKING.getValue());
-    given(fileChecker.checkFile(eq(task))).willReturn("File");
+    given(fileChecker.checkFile(task)).willReturn("File");
 
     // Finish task
     boolean allowed = taskDAO.isTaskExecutionAllowed(task);
@@ -364,7 +366,9 @@ public class TaskDAOTest extends TestUtil {
     dataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
-
+    given(dataListService.asBeanList(any(), eq(TaskExecution.class))).willReturn(Collections.singletonList(new TaskExecution()
+      .setExecutionId(1)
+      .setInitialDate(new Date()).setStatus(TaskStatus.JOB_INTERRUPTED.getValue())));
 
     // Finish task
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
@@ -391,6 +395,12 @@ public class TaskDAOTest extends TestUtil {
     dataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
+    given(dataListService.asBeanList(any(), eq(TaskExecution.class))).willReturn(Collections.singletonList(new TaskExecution()
+      .setExecutionId(1)
+      .setInitialDate(new Date())
+      .setEndDate(new Date())
+      .setExecutionTime(1231)
+      .setStatus(TaskStatus.JOB_WARNING.getValue())));
 
     // Finish task
     ServiceData serviceData = taskDAO.reloadExecutionScreen(1, 1);
@@ -432,6 +442,21 @@ public class TaskDAOTest extends TestUtil {
     taskDataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(taskDataList));
 
-    return new Task().setTaskId(1).setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(1).setParentId(2)));
+    Task task = new Task()
+      .setTaskId(1)
+      .setExecutionType(1)
+      .setLaunchType(TaskLaunchType.SCHEDULED.getValue())
+      .setLaunchDependenciesOnError(true)
+      .setLaunchDependenciesOnWarning(true)
+      .setSetTaskOnWarningIfDependencyError(setTaskOnWarning)
+      .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(1).setParentId(2)));
+
+    Schedule schedule = new Schedule().setRepeatNumber(2).setRepeatType(2);
+
+    when(dataListService.asBeanList(any(), eq(Task.class))).thenReturn(Collections.singletonList(task));
+    when(dataListService.asBeanList(any(), eq(Schedule.class))).thenReturn(Collections.singletonList(schedule));
+
+
+    return task;
   }
 }

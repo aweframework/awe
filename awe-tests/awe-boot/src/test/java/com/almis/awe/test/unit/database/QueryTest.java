@@ -814,13 +814,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryFilterExistsOK() throws Exception {
-    String queryName = "testExistsOK";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"abs\":1,\"name\":\"donald\",\"id\":1},{\"abs\":1,\"name\":\"jaimito\",\"id\":2},{\"abs\":1,\"name\":\"jorgito\",\"id\":3},{\"abs\":1,\"name\":\"juanito\",\"id\":4},{\"abs\":1,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testExistsOK",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"abs\":1,\"name\":\"donald\",\"id\":1},{\"abs\":1,\"name\":\"jaimito\",\"id\":2},{\"abs\":1,\"name\":\"jorgito\",\"id\":3},{\"abs\":1,\"name\":\"juanito\",\"id\":4},{\"abs\":1,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -830,13 +828,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryFilterExistsKO() throws Exception {
-    String queryName = "testExistsKO";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    assertResultJson(queryName, result, 0);
+    testDatabaseRequest(
+      "testExistsKO",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      0);
   }
 
   /**
@@ -846,13 +842,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryFilterNotExistsOK() throws Exception {
-    String queryName = "testNotExistsOK";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1},{\"name\":\"jaimito\",\"id\":2},{\"name\":\"jorgito\",\"id\":3},{\"name\":\"juanito\",\"id\":4},{\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testNotExistsOK",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1},{\"name\":\"jaimito\",\"id\":2},{\"name\":\"jorgito\",\"id\":3},{\"name\":\"juanito\",\"id\":4},{\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -862,13 +856,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryFilterNotExistsKO() throws Exception {
-    String queryName = "testNotExistsKO";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    assertResultJson(queryName, result, 0);
+    testDatabaseRequest(
+      "testNotExistsKO",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      0);
   }
 
   /**
@@ -878,13 +870,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseOperationCoalesce() throws Exception {
-    String queryName = "testCoalesce";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"nameNotNull\":\"test\",\"name\":\"test\",\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    assertResultJson(queryName, result, 1);
+    testDatabaseRequest(
+      "testCoalesce",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"nameNotNull\":\"test\",\"name\":\"test\",\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**
@@ -894,13 +884,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseOperationAddNumbers() throws Exception {
-    String queryName = "testCastToNumber";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToLong\":96,\"castToString\":\"12-21\",\"castToDouble\":4.9,\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"castToFloat\":1.5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    assertResultJson(queryName, result, 1);
+    testDatabaseRequest(
+      "testCastToNumber",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToLong\":96,\"castToString\":\"12-21\",\"castToDouble\":4.9,\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"castToFloat\":1.5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**
@@ -910,11 +898,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryOrderBy() throws Exception {
-    String queryName = "SimpleOrderBy";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":39,\"rows\":[{\"ParNam\":\"PwdPat\",\"Cat\":1,\"id\":1},{\"ParNam\":\"PwdMaxNumLog\",\"Cat\":1,\"id\":2},{\"ParNam\":\"PwdExp\",\"Cat\":1,\"id\":3},{\"ParNam\":\"MinPwd\",\"Cat\":1,\"id\":4},{\"ParNam\":\"Param9\",\"Cat\":2,\"id\":5},{\"ParNam\":\"Param8\",\"Cat\":2,\"id\":6},{\"ParNam\":\"Param7\",\"Cat\":2,\"id\":7},{\"ParNam\":\"Param6\",\"Cat\":2,\"id\":8},{\"ParNam\":\"Param5\",\"Cat\":2,\"id\":9},{\"ParNam\":\"Param4\",\"Cat\":2,\"id\":10},{\"ParNam\":\"Param3\",\"Cat\":2,\"id\":11},{\"ParNam\":\"Param2\",\"Cat\":2,\"id\":12},{\"ParNam\":\"Param19\",\"Cat\":2,\"id\":13},{\"ParNam\":\"Param18\",\"Cat\":2,\"id\":14},{\"ParNam\":\"Param17\",\"Cat\":2,\"id\":15},{\"ParNam\":\"Param16\",\"Cat\":2,\"id\":16},{\"ParNam\":\"Param15\",\"Cat\":2,\"id\":17},{\"ParNam\":\"Param14\",\"Cat\":2,\"id\":18},{\"ParNam\":\"Param13\",\"Cat\":2,\"id\":19},{\"ParNam\":\"Param12\",\"Cat\":2,\"id\":20},{\"ParNam\":\"Param11\",\"Cat\":2,\"id\":21},{\"ParNam\":\"Param10\",\"Cat\":2,\"id\":22},{\"ParNam\":\"Param1\",\"Cat\":2,\"id\":23},{\"ParNam\":\"MaxFntVer\",\"Cat\":2,\"id\":24},{\"ParNam\":\"MaxFntHor\",\"Cat\":2,\"id\":25},{\"ParNam\":\"DjrVerMar\",\"Cat\":2,\"id\":26},{\"ParNam\":\"DjrSubTitStl\",\"Cat\":2,\"id\":27},{\"ParNam\":\"DjrSepTck\",\"Cat\":2,\"id\":28},{\"ParNam\":\"DjrRmvLin\",\"Cat\":2,\"id\":29},{\"ParNam\":\"DjrRepPth\",\"Cat\":2,\"id\":30}]}}},{\"type\":\"end-load\"}]";
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 30);
+    testDatabaseRequest(
+      "SimpleOrderBy",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":39,\"rows\":[{\"ParNam\":\"PwdPat\",\"Cat\":1,\"id\":1},{\"ParNam\":\"PwdMaxNumLog\",\"Cat\":1,\"id\":2},{\"ParNam\":\"PwdExp\",\"Cat\":1,\"id\":3},{\"ParNam\":\"MinPwd\",\"Cat\":1,\"id\":4},{\"ParNam\":\"Param9\",\"Cat\":2,\"id\":5},{\"ParNam\":\"Param8\",\"Cat\":2,\"id\":6},{\"ParNam\":\"Param7\",\"Cat\":2,\"id\":7},{\"ParNam\":\"Param6\",\"Cat\":2,\"id\":8},{\"ParNam\":\"Param5\",\"Cat\":2,\"id\":9},{\"ParNam\":\"Param4\",\"Cat\":2,\"id\":10},{\"ParNam\":\"Param3\",\"Cat\":2,\"id\":11},{\"ParNam\":\"Param2\",\"Cat\":2,\"id\":12},{\"ParNam\":\"Param19\",\"Cat\":2,\"id\":13},{\"ParNam\":\"Param18\",\"Cat\":2,\"id\":14},{\"ParNam\":\"Param17\",\"Cat\":2,\"id\":15},{\"ParNam\":\"Param16\",\"Cat\":2,\"id\":16},{\"ParNam\":\"Param15\",\"Cat\":2,\"id\":17},{\"ParNam\":\"Param14\",\"Cat\":2,\"id\":18},{\"ParNam\":\"Param13\",\"Cat\":2,\"id\":19},{\"ParNam\":\"Param12\",\"Cat\":2,\"id\":20},{\"ParNam\":\"Param11\",\"Cat\":2,\"id\":21},{\"ParNam\":\"Param10\",\"Cat\":2,\"id\":22},{\"ParNam\":\"Param1\",\"Cat\":2,\"id\":23},{\"ParNam\":\"MaxFntVer\",\"Cat\":2,\"id\":24},{\"ParNam\":\"MaxFntHor\",\"Cat\":2,\"id\":25},{\"ParNam\":\"DjrVerMar\",\"Cat\":2,\"id\":26},{\"ParNam\":\"DjrSubTitStl\",\"Cat\":2,\"id\":27},{\"ParNam\":\"DjrSepTck\",\"Cat\":2,\"id\":28},{\"ParNam\":\"DjrRmvLin\",\"Cat\":2,\"id\":29},{\"ParNam\":\"DjrRepPth\",\"Cat\":2,\"id\":30}]}}},{\"type\":\"end-load\"}]",
+      30);
   }
 
   /**
@@ -1127,11 +1115,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryUniTst() throws Exception {
-    String queryName = "QryUniTst";
-    String variables = "";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    assertResultJson(queryName, result, 6);
+    testDatabaseRequest(
+      "QryUniTst",
+      "",
+      null,
+      6);
   }
 
   /**
@@ -1141,11 +1129,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryUniTstId() throws Exception {
-    String queryName = "QryUniTstId";
-    String variables = "";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    assertResultJson(queryName, result, 6);
+    testDatabaseRequest(
+      "QryUniTstId",
+      "",
+      null,
+      6);
   }
 
   /**
@@ -1155,11 +1143,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryChkPrg() throws Exception {
-    String queryName = "QryChkPrg";
-    String variables = "";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    assertResultJson(queryName, result, 1);
+    testDatabaseRequest(
+      "QryChkPrg",
+      "",
+      null,
+      1);
   }
 
   /**
@@ -1169,11 +1157,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryEdiTst() throws Exception {
-    String queryName = "QryEdiTst";
-    String variables = "";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    assertResultJson(queryName, result, 16);
+    testDatabaseRequest(
+      "QryEdiTst",
+      "",
+      null,
+      16);
   }
 
   /**
@@ -1183,11 +1171,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryEdiTstWithoutLimit() throws Exception {
-    String queryName = "QryEdiTst";
-    String variables = "\"max\": 0";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    assertResultJson(queryName, result, 16);
+    testDatabaseRequest(
+      "QryEdiTst",
+      "\"max\": 0",
+      null,
+      16);
   }
 
   /**
@@ -1197,11 +1185,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryEdiTstChk() throws Exception {
-    String queryName = "QryEdiTstChk";
-    String variables = "";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    assertResultJson(queryName, result, 16);
+    testDatabaseRequest(
+      "QryEdiTstChk",
+      "",
+      null,
+      16);
   }
 
   /**
@@ -1211,12 +1199,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseQueryQryEdiSug() throws Exception {
-    String queryName = "QryEdiSug";
-    String variables = "\"suggest\": \"fr\"";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":2,\"rows\":[{\"name\":\"frost\",\"value\":7,\"label\":\"Prueba - frost\"},{\"name\":\"fresh\",\"value\":8,\"label\":\"Prueba - fresh\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 2);
+    testDatabaseRequest(
+      "QryEdiSug",
+      "\"suggest\": \"fr\"",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":2,\"rows\":[{\"name\":\"frost\",\"value\":7,\"label\":\"Prueba - frost\"},{\"name\":\"fresh\",\"value\":8,\"label\":\"Prueba - fresh\"}]}}},{\"type\":\"end-load\"}]",
+      2);
   }
 
   /**
@@ -1226,12 +1213,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseCriteriaDate() throws Exception {
-    String queryName = "CrtTstDat";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 4);
+    testDatabaseRequest(
+      "CrtTstDat",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
+      4);
   }
 
   /**
@@ -1241,12 +1227,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseTstUsrSug() throws Exception {
-    String queryName = "TstUsrSug";
-    String variables = "\"suggest\": \"ito\"";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"},{\"label\":\"jorgito (Jorgito)\",\"id\":2,\"value\":\"jorgito\",\"nom\":\"Jorgito\"},{\"label\":\"juanito (Juanito)\",\"id\":3,\"value\":\"juanito\",\"nom\":\"Juanito\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 3);
+    testDatabaseRequest(
+      "TstUsrSug",
+      "\"suggest\": \"ito\"",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"},{\"label\":\"jorgito (Jorgito)\",\"id\":2,\"value\":\"jorgito\",\"nom\":\"Jorgito\"},{\"label\":\"juanito (Juanito)\",\"id\":3,\"value\":\"juanito\",\"nom\":\"Juanito\"}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -1256,14 +1241,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseUserSuggest() throws Exception {
-    String queryName = "TstUsrSugIde";
-    String variables = "\"suggest\": 1";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":1,\"id\":1,\"value\":1},{\"label\":811,\"id\":2,\"value\":811},{\"label\":1702,\"id\":3,\"value\":1702}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.debug("Expected: " + expected);
-    logger.debug("Result: " + result);
-    assertResultJson(queryName, result, 3);
+    testDatabaseRequest(
+      "TstUsrSugIde",
+      "\"suggest\": 1",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":1,\"id\":1,\"value\":1},{\"label\":811,\"id\":2,\"value\":811},{\"label\":1702,\"id\":3,\"value\":1702}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -1273,12 +1255,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseTstUsrSel() throws Exception {
-    String queryName = "TstUsrSel";
-    String variables = "\"suggest\": \"jaimito\"";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 1);
+    testDatabaseRequest(
+      "TstUsrSel",
+      "\"suggest\": \"jaimito\"",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2421,7 +2402,37 @@ public class QueryTest extends AweSpringDatabaseTests {
    * @throws Exception Test error
    */
   @Test
+  public void testDatabaseVariableOptionalFilter() throws Exception {
+    String queryName = "VariableOptionalFilter";
+    String variables = "\"var1\":null,\"var2\":1";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"l1_nom\":\"test\"}]}}},{\"type\":\"end-load\"}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultVariablesJson(queryName, result, 1);
+  }
+
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
   public void testDatabaseVariableOptional() throws Exception {
+    String queryName = "VariableOptional";
+    String variables = "\"var1\":1";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\"}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultVariablesJson(queryName, result, 0);
+  }
+
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  public void testDatabaseVariableOptionalWithValue() throws Exception {
     String queryName = "VariableOptional";
     String variables = "\"var1\":null,\"var2\":1";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"l1_nom\":\"test\"}]}}},{\"type\":\"end-load\"}]";
@@ -2512,6 +2523,10 @@ public class QueryTest extends AweSpringDatabaseTests {
     return dataListRows;
   }
 
+  private void testDatabaseRequest(String query, String variables, String expected, Integer expectedRows) throws Exception {
+    assertResultJson(query, performRequest(query, variables, DATABASE, expected), expectedRows);
+  }
+
   /**
    * Test of launchAction method, of class ActionController.
    *
@@ -2519,12 +2534,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseDatalistNoParams() throws Exception {
-    String queryName = "DatalistNoParams";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"0\"},{\"id\":2,\"value\":\"1\"},{\"id\":3,\"value\":\"2\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 3);
+    testDatabaseRequest(
+      "DatalistNoParams",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"0\"},{\"id\":2,\"value\":\"1\"},{\"id\":3,\"value\":\"2\"}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -2534,12 +2548,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayNoParams() throws Exception {
-    String queryName = "StringArrayNoParams";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"a\"},{\"id\":2,\"value\":\"b\"},{\"id\":3,\"value\":\"c\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 3);
+    testDatabaseRequest(
+      "StringArrayNoParams",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"a\"},{\"id\":2,\"value\":\"b\"},{\"id\":3,\"value\":\"c\"}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -2549,12 +2562,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayTwoStringsParams() throws Exception {
-    String queryName = "ServiceQueryTwoParams";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"IdeSitModDbsSrv\":\"QrySitModDbsOrd\",\"IdeSitSrv\":\"IdeSitModDbs,IdeSit,NamSit,IdeMod,NamMod,IdeDbs,Als,Ord\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 1);
+    testDatabaseRequest(
+      "ServiceQueryTwoParams",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"IdeSitModDbsSrv\":\"QrySitModDbsOrd\",\"IdeSitSrv\":\"IdeSitModDbs,IdeSit,NamSit,IdeMod,NamMod,IdeDbs,Als,Ord\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2564,12 +2576,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayNumberParam() throws Exception {
-    String queryName = "StringArrayNumberParam";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 1);
+    testDatabaseRequest(
+      "StringArrayNumberParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2579,12 +2590,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayLongParam() throws Exception {
-    String queryName = "StringArrayLongParam";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 1);
+    testDatabaseRequest(
+      "StringArrayLongParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2594,12 +2604,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayDoubleParam() throws Exception {
-    String queryName = "StringArrayDoubleParam";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 1);
+    testDatabaseRequest(
+      "StringArrayDoubleParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2609,12 +2618,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayFloatParam() throws Exception {
-    String queryName = "StringArrayFloatParam";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 1);
+    testDatabaseRequest(
+      "StringArrayFloatParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2624,12 +2632,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testDatabaseStringArrayBooleanParam() throws Exception {
-    String queryName = "StringArrayBooleanParam";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"true\"}]}}},{\"type\":\"end-load\"}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 1);
+    testDatabaseRequest(
+      "StringArrayBooleanParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"true\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2685,12 +2692,11 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   public void testRowNumber() throws Exception {
     assumeTrue(isInMemoryDatabase());
-    String queryName = "testRowNumber";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":1},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":2},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":3},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":4},{\"name\":\"test\",\"id\":5,\"rowNumber\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testRowNumber",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":1},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":2},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":3},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":4},{\"name\":\"test\",\"id\":5,\"rowNumber\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2701,13 +2707,11 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   public void testCaseOver() throws Exception {
     assumeTrue(isInMemoryDatabase());
-    String queryName = "testCaseOver";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"value\":0},{\"name\":\"jaimito\",\"id\":2,\"value\":0},{\"name\":\"jorgito\",\"id\":3,\"value\":1},{\"name\":\"juanito\",\"id\":4,\"value\":0},{\"name\":\"test\",\"id\":5,\"value\":2}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE);
-    logger.warn(result);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testCaseOver",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"value\":0},{\"name\":\"jaimito\",\"id\":2,\"value\":0},{\"name\":\"jorgito\",\"id\":3,\"value\":1},{\"name\":\"juanito\",\"id\":4,\"value\":0},{\"name\":\"test\",\"id\":5,\"value\":2}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2718,12 +2722,11 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   public void testRowNumberWithOperation() throws Exception {
     assumeTrue(isInMemoryDatabase());
-    String queryName = "testRowNumberWithOperation";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":2},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":3},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":4},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":5},{\"name\":\"test\",\"id\":5,\"rowNumber\":6}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testRowNumberWithOperation",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":2},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":3},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":4},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":5},{\"name\":\"test\",\"id\":5,\"rowNumber\":6}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2734,12 +2737,11 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   public void testPowerOfFieldOperation() throws Exception {
     assumeTrue(isInMemoryDatabase());
-    String queryName = "testPowerOfFieldOperation";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"powerField\":2.0,\"name\":\"donald\",\"id\":1},{\"powerField\":4.0,\"name\":\"jaimito\",\"id\":2},{\"powerField\":8.0,\"name\":\"jorgito\",\"id\":3},{\"powerField\":16.0,\"name\":\"juanito\",\"id\":4},{\"powerField\":32.0,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testPowerOfFieldOperation",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"powerField\":2.0,\"name\":\"donald\",\"id\":1},{\"powerField\":4.0,\"name\":\"jaimito\",\"id\":2},{\"powerField\":8.0,\"name\":\"jorgito\",\"id\":3},{\"powerField\":16.0,\"name\":\"juanito\",\"id\":4},{\"powerField\":32.0,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2751,12 +2753,11 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   public void testRoundFieldOperation() throws Exception {
     assumeTrue(isInMemoryDatabase());
-    String queryName = "testRoundField";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 1);
+    testDatabaseRequest(
+      "testRoundField",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**
@@ -2768,12 +2769,11 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   public void testRoundFieldOperationWithDecimals() throws Exception {
     assumeTrue(isInMemoryDatabase());
-    String queryName = "testRoundFieldWithDecimals";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2.13,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 1);
+    testDatabaseRequest(
+      "testRoundFieldWithDecimals",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2.13,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**
@@ -2783,12 +2783,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testNullIf() throws Exception {
-    String queryName = "testNullIf";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"nullif\":\"donald\"},{\"name\":\"jaimito\",\"id\":2,\"nullif\":\"jaimito\"},{\"name\":\"jorgito\",\"id\":3,\"nullif\":\"jorgito\"},{\"name\":\"juanito\",\"id\":4,\"nullif\":\"juanito\"},{\"name\":\"test\",\"id\":5,\"nullif\":null}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultJson(queryName, result, 5);
+    testDatabaseRequest(
+      "testNullIf",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"nullif\":\"donald\"},{\"name\":\"jaimito\",\"id\":2,\"nullif\":\"jaimito\"},{\"name\":\"jorgito\",\"id\":3,\"nullif\":\"jorgito\"},{\"name\":\"juanito\",\"id\":4,\"nullif\":\"juanito\"},{\"name\":\"test\",\"id\":5,\"nullif\":null}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2798,14 +2797,11 @@ public class QueryTest extends AweSpringDatabaseTests {
    */
   @Test
   public void testSum1() throws Exception {
-    String queryName = "testSum1";
-    String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"sum1\":1,\"id\":1},{\"sum1\":1,\"id\":2},{\"sum1\":1,\"id\":3},{\"sum1\":1,\"id\":4},{\"sum1\":1,\"id\":5},{\"sum1\":1,\"id\":6},{\"sum1\":1,\"id\":7},{\"sum1\":1,\"id\":8},{\"sum1\":1,\"id\":9},{\"sum1\":1,\"id\":10},{\"sum1\":1,\"id\":11},{\"sum1\":1,\"id\":12},{\"sum1\":1,\"id\":13},{\"sum1\":1,\"id\":14},{\"sum1\":1,\"id\":15},{\"sum1\":1,\"id\":16}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-
-    String result = performRequest(queryName, variables, DATABASE, expected);
-    logger.warn(result);
-    logger.warn(expected);
-    assertResultJson(queryName, result, 16);
+    testDatabaseRequest(
+      "testSum1",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"sum1\":1,\"id\":1},{\"sum1\":1,\"id\":2},{\"sum1\":1,\"id\":3},{\"sum1\":1,\"id\":4},{\"sum1\":1,\"id\":5},{\"sum1\":1,\"id\":6},{\"sum1\":1,\"id\":7},{\"sum1\":1,\"id\":8},{\"sum1\":1,\"id\":9},{\"sum1\":1,\"id\":10},{\"sum1\":1,\"id\":11},{\"sum1\":1,\"id\":12},{\"sum1\":1,\"id\":13},{\"sum1\":1,\"id\":14},{\"sum1\":1,\"id\":15},{\"sum1\":1,\"id\":16}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      16);
   }
 
   /**

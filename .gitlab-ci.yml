@@ -2,6 +2,9 @@
 # Pipeline definition
 ##############################
 
+include:
+  - template: DAST.gitlab-ci.yml
+
 image: maven:3.6-jdk-8
 
 variables:
@@ -26,6 +29,13 @@ variables:
   CACHE_KEY: "$CI_PIPELINE_IID-$CI_COMMIT_REF_SLUG"
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
+  DAST_WEBSITE: http://staging.aweframework.com
+  DAST_AUTH_URL: http://staging.aweframework.com/
+  DAST_USERNAME: test
+  DAST_PASSWORD: $DAST_PASSWORD
+  DAST_USERNAME_FIELD: cod_usr # the name of username field at the sign-in HTML form
+  DAST_PASSWORD_FIELD: pwd_usr # the name of password field at the sign-in HTML form
+  DAST_SUBMIT_FIELD: ButLogIn # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
 
 cache:
   key: $CACHE_KEY
@@ -44,6 +54,7 @@ stages:
   - site
   - package
   - deploy
+  - dast
   - release
 
 ##############################
@@ -76,17 +87,21 @@ stages:
 
 Build project:
   extends: .build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean install $SKIP_TESTS
+    - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    - echo "PROJECT_VERSION=$version" >> build.env
   artifacts:
+    reports:
+      dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
     expire_in: 1 day
   cache:
-    paths:
-      - .m2/repository/
-      - awe-framework/awe-client-angular/node_modules/
-      - awe-framework/awe-modules/awe-tools/node_modules/
-  script:
-    - mvn $MAVEN_CLI_OPTS clean install $SKIP_TESTS
+      paths:
+        - .m2/repository/
+        - awe-framework/awe-client-angular/node_modules/
+        - awe-framework/awe-modules/awe-tools/node_modules/
   rules:
     - <<: *if-default
 
@@ -207,10 +222,12 @@ Javadoc test:
   allow_failure: true
   dependencies: []
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dfailsafe.suite=**/${TEST_CLASS}.class -Djacoco.port=$TEST_PORT
+    - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
+    - sleep 10
   after_script:
-    - cp awe-tests/awe-boot/target/jacoco-it.exec awe-tests/awe-boot/target/jacoco-$TEST_NAME-it.exec
-    - search=`cat awe-tests/awe-boot/target/surefire-reports/TEST-com.almis.awe.test.AllTestsSuiteIT.xml`
+    - cp awe-tests/awe-boot/target/jacoco-it.exec awe-tests/awe-boot/target/jacoco-${TEST_NAME}-it.exec
+    - search=`cat awe-tests/awe-boot/target/surefire-reports/TEST-*.${TEST_CLASS}.xml`
     - errors=`echo $search | grep 'errors="[^"]*' | sed -e 's/.*errors="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
     - failures=`echo $search | grep 'failures="[^"]*' | sed -e 's/.*failures="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
     - echo "$errors errors and $failures failures found"
@@ -228,17 +245,71 @@ Javadoc test:
   rules:
     - <<: *if-default
 
-Firefox IT:
+.firefox-testing:
   extends: .browser-testing
   variables:
     BROWSER_OPTS: $FIREFOX_OPTS
-    TEST_NAME: firefox
 
-Chrome IT:
+.chrome-testing:
   extends: .browser-testing
   variables:
     BROWSER_OPTS: $CHROME_OPTS
-    TEST_NAME: chrome
+
+Firefox IT Application and Integration:
+  extends: .firefox-testing
+  variables:
+    TEST_NAME: firefox-application-integration
+    TEST_CLASS: ApplicationIntegrationTestsIT
+    TEST_PORT: 6301
+
+Firefox IT CRUD Criteria and Matrix:
+  extends: .firefox-testing
+  variables:
+    TEST_NAME: firefox-crud-criteria-matrix
+    TEST_CLASS: CRUDCriteriaMatrixTestsIT
+    TEST_PORT: 6302
+
+Firefox IT Regression Websocket and Print:
+  extends: .firefox-testing
+  variables:
+    TEST_NAME: firefox-regression-websocket-print
+    TEST_CLASS: RegressionWebsocketPrintTestsIT
+    TEST_PORT: 6303
+
+Firefox IT Scheduler:
+  extends: .firefox-testing
+  variables:
+    TEST_NAME: firefox-scheduler
+    TEST_CLASS: SchedulerTestsIT
+    TEST_PORT: 6304
+
+Chrome IT Application and Integration:
+  extends: .chrome-testing
+  variables:
+    TEST_NAME: chrome-application-integration
+    TEST_CLASS: ApplicationIntegrationTestsIT
+    TEST_PORT: 6305
+
+Chrome IT CRUD Criteria and Matrix:
+  extends: .chrome-testing
+  variables:
+    TEST_NAME: chrome-crud-criteria-matrix
+    TEST_CLASS: CRUDCriteriaMatrixTestsIT
+    TEST_PORT: 6306
+
+Chrome IT Regression Websocket and Print:
+  extends: .chrome-testing
+  variables:
+    TEST_NAME: chrome-regression-websocket-print
+    TEST_CLASS: RegressionWebsocketPrintTestsIT
+    TEST_PORT: 6307
+
+Chrome IT Scheduler:
+  extends: .chrome-testing
+  variables:
+    TEST_NAME: chrome-scheduler
+    TEST_CLASS: SchedulerTestsIT
+    TEST_PORT: 6308
 
 ##############################
 # Analysis stage
@@ -257,10 +328,16 @@ Launch Sonar:
     - SQL Server UT
     - MySQL UT
     - Frontend UT
-    - Firefox IT
-    - Chrome IT
+    - Firefox IT Application and Integration
+    - Firefox IT CRUD Criteria and Matrix
+    - Firefox IT Regression Websocket and Print
+    - Firefox IT Scheduler
+    - Chrome IT Application and Integration
+    - Chrome IT CRUD Criteria and Matrix
+    - Chrome IT Regression Websocket and Print
+    - Chrome IT Scheduler
   script:
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS $SONAR_OPTS
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Darchetype.test.skip=true $SONAR_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:
@@ -303,14 +380,15 @@ Build package:
   script:
     # Gitlab container
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker build -t registry.gitlab.com/aweframework/awe/awe-boot:latest ./awe-tests/awe-boot
-    - docker push registry.gitlab.com/aweframework/awe/awe-boot:latest
+    - docker build -t registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
+    - docker push registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
     # Docker Hub container
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_TOKEN
-    - docker build -t aweframework/awe-boot:latest ./awe-tests/awe-boot
-    - docker push aweframework/awe-boot:latest
+    - docker build -t aweframework/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
+    - docker push aweframework/awe-boot:$PROJECT_VERSION
   rules:
     - <<: *if-develop
+    - <<: *if-master
 
 ##############################
 # Deploy stage
@@ -339,7 +417,8 @@ Deploy Maven Central:
 .k8s_deploy:
   image: google/cloud-sdk
   cache: {}
-  dependencies: []
+  dependencies:
+    - Build project
   stage: deploy
   script:
     - echo "$GOOGLE_KEY" > key.json
@@ -356,6 +435,7 @@ Deploy Maven Central:
     - kubectl create secret docker-registry registry.gitlab.com --docker-server=https://registry.gitlab.com --docker-username=$CI_USERNAME --docker-password=$CI_PASSWORD --docker-email=$CI_EMAIL
     - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" awe-tests/awe-boot/deployment.yaml
     - sed -i "s/__CI_PROJECT_PATH_SLUG__/${CI_PROJECT_PATH_SLUG}/" awe-tests/awe-boot/deployment.yaml
+    - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/deployment.yaml
     - kubectl delete --all pods --namespace=$CI_ENVIRONMENT_SLUG
     - kubectl apply -f awe-tests/awe-boot/deployment.yaml
 
@@ -380,6 +460,10 @@ Deploy production:
   only:
     refs:
       - master
+
+dast:
+  rules:
+    - <<: *if-develop
 
 pages:
   image: docker:latest

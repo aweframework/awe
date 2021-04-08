@@ -1,4 +1,24 @@
 
+# Changelog for awe 4.3.4
+*08/04/2021*
+
+- Error in some selenium tests with Chrome Browser. [MR #290](https://gitlab.com/aweframework/awe/-/merge_requests/290) (Pablo Vidal Otero)
+- Update ADE dependency. [MR #289](https://gitlab.com/aweframework/awe/-/merge_requests/289) (Pablo Vidal Otero)
+- Fix InterruptedException issue found by Sonar. [MR #288](https://gitlab.com/aweframework/awe/-/merge_requests/288) (Pablo Javier García Mora)
+- Keep the attribute 'optional' in the variables that are used in the maintain and queries.. [MR #287](https://gitlab.com/aweframework/awe/-/merge_requests/287) (Pablo Javier García Mora)
+- Add a new default parameter for max rows per page on criteria. [MR #286](https://gitlab.com/aweframework/awe/-/merge_requests/286) (Pablo Javier García Mora)
+- Error sleuth starter dependency. [MR #285](https://gitlab.com/aweframework/awe/-/merge_requests/285) (Pablo Vidal Otero)
+- Warning messages from microservices responses are not retrieved successfully. [MR #284](https://gitlab.com/aweframework/awe/-/merge_requests/284) (Pablo Javier García Mora)
+- New jackson serializer in awe services for data binding. [MR #283](https://gitlab.com/aweframework/awe/-/merge_requests/283) (Pablo Vidal Otero)
+- Remove minor sonar issues. [MR #282](https://gitlab.com/aweframework/awe/-/merge_requests/282) (Pablo Javier García Mora)
+- Configure https in demo sites. [MR #281](https://gitlab.com/aweframework/awe/-/merge_requests/281) (Pablo Vidal Otero)
+- Session parameters like site and database are not retrieved on login. [MR #280](https://gitlab.com/aweframework/awe/-/merge_requests/280) (Pablo Javier García Mora)
+- Add button with a link to awe demo page. [MR #279](https://gitlab.com/aweframework/awe/-/merge_requests/279) (Pablo Vidal Otero)
+- Configure awe-boot for sending metrics to wavefront. [MR #278](https://gitlab.com/aweframework/awe/-/merge_requests/278) (Pablo Vidal Otero)
+- updateModel does not work, because it returns the object value instead of the value of the cell. [MR #277](https://gitlab.com/aweframework/awe/-/merge_requests/277) (Pablo Javier García Mora)
+- Revert email generation changes. [MR #276](https://gitlab.com/aweframework/awe/-/merge_requests/276) (Pablo Javier García Mora)
+- Update docusaurus version. [MR #275](https://gitlab.com/aweframework/awe/-/merge_requests/275) (Pablo Vidal Otero)
+
 # Changelog for awe 4.3.3
 *02/02/2021*
 

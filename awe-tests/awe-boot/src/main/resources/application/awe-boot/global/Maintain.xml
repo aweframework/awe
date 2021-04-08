@@ -227,6 +227,46 @@
     </insert>
   </target>
 
+  <target name="SimpleSingleInsertUpdateDeleteFromVariableOptional">
+    <insert>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <field id="Des" variable="variable"/>
+      <field id="Drv" variable="opcional"/>
+      <variable type="STRINGN" id="opcional" name="variable" optional="true"/>
+      <variable type="STRING" id="variable" value="test-optional-variable"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <update>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <field id="Drv" variable="opcional"/>
+      <where>
+        <and>
+          <filter left-field="Des" condition="like" right-variable="test"/>
+        </and>
+      </where>
+      <variable type="STRINGB" id="test" value="test-optional-variable"/>
+      <variable type="STRINGN" id="opcional" name="variable" optional="true"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </update>
+    <delete>
+      <table id="HISAweDbs"/>
+      <where>
+        <and>
+          <filter left-field="Des" condition="like" right-variable="test"/>
+          <filter left-field="Drv" condition="eq" right-variable="opcional"/>
+        </and>
+      </where>
+      <variable type="STRINGB" id="test" value="test-optional-variable"/>
+      <variable type="STRINGN" id="opcional" name="variable" optional="true"/>
+    </delete>
+  </target>
+
   <target name="SimpleSingleInsertFromVariableValue">
     <insert>
       <table id="HISAweDbs"/>
@@ -753,8 +793,18 @@
   <target name="TestComplexJavaParametersPOJO">
     <serve service="TestComplexJavaParametersPOJO">
       <variable id="name" type="STRING" value="name"/>
+      <variable id="dateOfShow" type="DATE" value="10/02/1985"/>
       <variable id="userGroupName" type="STRING" value="userGroupName"/>
       <variable id="eventHallName" type="STRING" value="eventHallName"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexJavaParametersPOJOList">
+    <serve service="TestComplexJavaParametersPOJOList">
+      <variable id="name" type="STRING" value="name1, name2"/>
+      <variable id="dateOfShow" type="DATE" value="10/02/1985, 11/02/1985"/>
+      <variable id="userGroupName" type="STRING" value="userGroupName1, userGroupName2"/>
+      <variable id="eventHallName" type="STRING" value="eventHallName1, eventHallName2"/>
     </serve>
   </target>
 
@@ -762,6 +812,12 @@
     <serve service="TestComplexRestParametersPOJO">
       <variable id="tutu" type="STRING" value="lala"/>
       <variable id="concert" type="OBJECT" name="concert"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexRestParametersPOJOList">
+    <serve service="TestComplexRestParametersPOJOList">
+      <variable id="concertList" type="OBJECT" name="concertList"/>
     </serve>
   </target>
 

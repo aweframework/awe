@@ -78,7 +78,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/utilities.js', f
     let data = '{"test": 1}';
 
     // Assert
-    expect($utilities.decodeData($utilities.encodeSymetric(data), "1")).toEqual({"test": 1});
-    expect($utilities.decodeData(data, "0")).toEqual({"test": 1});
+    expect($utilities.decodeData($utilities.encodeSymetric(data), true)).toEqual({"test": 1});
+    expect($utilities.decodeData(data, false)).toEqual({"test": 1});
   });
 });

@@ -34,7 +34,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    *
    * @param queryUtil Query utilities
    */
-  public AbstractQueryConnector(QueryUtil queryUtil) {
+  protected AbstractQueryConnector(QueryUtil queryUtil) {
     this.queryUtil = queryUtil;
   }
 
@@ -51,6 +51,8 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     try {
       // Launch query
       result = (ServiceData) builder.setQuery(query).build();
+    } catch (AWException exc) {
+      throw exc;
     } catch (Exception exc) {
       throw new AWEQueryException(getLocale("ERROR_TITLE_LAUNCHING_SQL_QUERY"), exc.getMessage(), query.getId(), exc);
     }

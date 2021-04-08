@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,16 +20,15 @@ import java.util.List;
 @Log4j2
 public class SchedulerService extends ServiceConfig {
 
-  // Autowired services
-  private final TaskDAO taskDAO;
-  private final SchedulerDAO schedulerDAO;
-  private final CalendarDAO calendarDAO;
-
   // Locales
   private static final String ERROR_MESSAGE_SCHEDULER_PAUSE_TASK = "ERROR_MESSAGE_SCHEDULER_PAUSE_TASK";
   private static final String ERROR_TITLE_SCHEDULER_PAUSE_TASK = "ERROR_TITLE_SCHEDULER_PAUSE_TASK";
   private static final String ERROR_MESSAGE_SCHEDULER_RESUME_TASK = "ERROR_MESSAGE_SCHEDULER_RESUME_TASK";
   private static final String ERROR_TITLE_SCHEDULER_RESUME_TASK = "ERROR_TITLE_SCHEDULER_RESUME_TASK";
+  // Autowired services
+  private final TaskDAO taskDAO;
+  private final SchedulerDAO schedulerDAO;
+  private final CalendarDAO calendarDAO;
 
   /**
    * Constructor
@@ -43,7 +42,7 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Start the scheduler service
    *
-   * @throws AWException
+   * @throws AWException Error starting scheduler
    */
   public ServiceData start() throws AWException {
     return schedulerDAO.start();
@@ -52,7 +51,7 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Start the scheduler service
    *
-   * @throws AWException
+   * @throws AWException Error starting scheduler
    */
   public ServiceData startNoQuartz() throws AWException {
     return schedulerDAO.startNoQuartz();
@@ -61,7 +60,7 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Stop the scheduler service
    *
-   * @throws AWException
+   * @throws AWException Error stopping scheduler
    */
   public ServiceData stop() throws AWException {
     return schedulerDAO.stop();
@@ -70,7 +69,7 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Scheduler's emergency reboot method
    *
-   * @throws AWException
+   * @throws AWException Error restarting scheduler
    */
   public ServiceData restart() throws AWException {
     return schedulerDAO.restart();
@@ -79,7 +78,7 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Clear all scheduled tasks and stop the scheduler.
    *
-   * @return
+   * @return Service data
    */
   public ServiceData clearAndStop() throws AWException {
     return schedulerDAO.clearAndStop();
@@ -88,8 +87,8 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Get currently executing jobs from the scheduler instance
    *
-   * @return
-   * @throws AWException
+   * @return Service data
+   * @throws AWException Error retrieving currently executing jobs
    */
   public ServiceData currentlyExecutingJobs() throws AWException {
     return schedulerDAO.getCurrentlyExecutingJobs();
@@ -99,8 +98,8 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Get configured
    *
-   * @return
-   * @throws AWException
+   * @return Configured jobs
+   * @throws AWException Error retrieving configured jobs
    */
   public ServiceData getConfiguredJobs() throws AWException {
     return schedulerDAO.getConfiguredJobs();
@@ -109,8 +108,8 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Returns information about the configured scheduler
    *
-   * @return
-   * @throws AWException
+   * @return Scheduler metadata
+   * @throws AWException Error retrieving scheduler metadata
    */
   public ServiceData getSchedulerMetadata() throws AWException {
     return schedulerDAO.getSchedulerMetadata();
@@ -120,7 +119,7 @@ public class SchedulerService extends ServiceConfig {
    * Retrieve the task list
    *
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error retrieving task list
    */
   public ServiceData getTaskList() throws AWException {
     return taskDAO.getTaskList();
@@ -130,7 +129,7 @@ public class SchedulerService extends ServiceConfig {
    * Retrieve the task progress status
    *
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error retrieving task execution list
    */
   public ServiceData getTaskExecutionList(Integer taskId) throws AWException {
     return taskDAO.getTaskExecutionList(taskId);
@@ -140,7 +139,7 @@ public class SchedulerService extends ServiceConfig {
    * Retrieve the executions to purge
    *
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error retrieving executions to purge
    */
   public ServiceData getExecutionsToPurge(Integer taskId, Integer executions) throws AWException {
     return taskDAO.getExecutionsToPurge(taskId, executions);
@@ -149,9 +148,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Execute the selected task now
    *
-   * @param taskId
+   * @param taskId Task identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error executing task
    */
   public ServiceData executeTaskNow(Integer taskId) throws AWException {
     return taskDAO.executeTaskNow(taskId);
@@ -160,14 +159,17 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Pause the selected task
    *
-   * @param taskId
+   * @param taskId Task identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error pausing task
    */
   public ServiceData pauseTask(Integer taskId) throws AWException {
     try {
       Task task = taskDAO.getTask(taskId).get();
       return taskDAO.pauseTask(task);
+    } catch (InterruptedException exc) {
+      Thread.currentThread().interrupt();
+      throw new AWException(getLocale(ERROR_TITLE_SCHEDULER_PAUSE_TASK), getLocale(ERROR_MESSAGE_SCHEDULER_PAUSE_TASK), exc);
     } catch (Exception exc) {
       throw new AWException(getLocale(ERROR_TITLE_SCHEDULER_PAUSE_TASK), getLocale(ERROR_MESSAGE_SCHEDULER_PAUSE_TASK), exc);
     }
@@ -176,14 +178,17 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Resume the selected task
    *
-   * @param taskId
+   * @param taskId Task identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error resuming task
    */
   public ServiceData resumeTask(Integer taskId) throws AWException {
     try {
       Task task = taskDAO.getTask(taskId).get();
       return taskDAO.resumeTask(task);
+    } catch (InterruptedException exc) {
+      Thread.currentThread().interrupt();
+      throw new AWException(getLocale(ERROR_TITLE_SCHEDULER_RESUME_TASK), getLocale(ERROR_MESSAGE_SCHEDULER_RESUME_TASK), exc);
     } catch (Exception exc) {
       throw new AWException(getLocale(ERROR_TITLE_SCHEDULER_RESUME_TASK), getLocale(ERROR_MESSAGE_SCHEDULER_RESUME_TASK), exc);
     }
@@ -197,7 +202,7 @@ public class SchedulerService extends ServiceConfig {
    * @param sendStatus      Status to send list
    * @param sendDestination Destination target list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error inserting task
    */
   public ServiceData insertSchedulerTask(Integer taskId, List<Integer> sendStatus, List<Integer> sendDestination) throws AWException {
     return taskDAO.insertTask(taskId);
@@ -210,7 +215,7 @@ public class SchedulerService extends ServiceConfig {
    * @param sendStatus      Status to send list
    * @param sendDestination Destination target list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error updating task
    */
   public ServiceData updateSchedulerTask(Integer taskId, List<Integer> sendStatus, List<Integer> sendDestination) throws AWException {
     return taskDAO.updateTask(taskId);
@@ -222,7 +227,7 @@ public class SchedulerService extends ServiceConfig {
    *
    * @param taskId Task identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error updating task
    */
   public ServiceData updateSchedulerTask(Integer taskId) throws AWException {
     return taskDAO.updateTask(taskId);
@@ -233,7 +238,7 @@ public class SchedulerService extends ServiceConfig {
    *
    * @param ideTsk Task identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error deleting task
    */
   public ServiceData deleteSchedulerTask(List<Integer> ideTsk) throws AWException {
     return taskDAO.deleteTask(ideTsk);
@@ -244,7 +249,7 @@ public class SchedulerService extends ServiceConfig {
    *
    * @param ideTsk Task identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error deleting task
    */
   public ServiceData deleteSchedulerTask(Integer ideTsk) throws AWException {
     return taskDAO.deleteTask(ideTsk);
@@ -255,7 +260,7 @@ public class SchedulerService extends ServiceConfig {
    *
    * @param taskId Task identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error updating execution time
    */
   public ServiceData updateExecutionTime(Integer taskId, Integer taskExecution) throws AWException {
     return taskDAO.updateExecutionTime(taskId, taskExecution);
@@ -264,9 +269,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Load needed variables from the selected maintain
    *
-   * @param maintainStr
+   * @param maintainStr Maintain identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error loading maintain variables
    */
   public ServiceData loadMaintainVariables(String maintainStr) throws AWException {
     return taskDAO.loadMaintainVariables(maintainStr);
@@ -275,9 +280,10 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Load execution screen
    *
-   * @param path
-   * @return
-   * @throws AWException
+   * @param path    Execution path
+   * @param address Execution address
+   * @return Service data
+   * @throws AWException Error loading execution screen
    */
   public ServiceData loadExecutionScreen(String path, JsonNode address) throws AWException {
     return taskDAO.loadExecutionScreen(path, (ObjectNode) address);
@@ -286,10 +292,10 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Reload execution screen
    *
-   * @param taskId
-   * @param executionId
-   * @return
-   * @throws AWException
+   * @param taskId      Task identifier
+   * @param executionId Execution identifier
+   * @return Service data
+   * @throws AWException Error reloading execution screen
    */
   public ServiceData reloadExecutionScreen(Integer taskId, Integer executionId) throws AWException {
     return taskDAO.reloadExecutionScreen(taskId, executionId);
@@ -298,10 +304,10 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Purge execution logs
    *
-   * @param taskId
-   * @param executions
-   * @return
-   * @throws AWException
+   * @param taskId     Task identifier
+   * @param executions Number of executions to purge
+   * @return Service data
+   * @throws AWException Error purging execution logs
    */
   public ServiceData purgeExecutionLogs(Integer taskId, Integer executions) throws AWException {
     return taskDAO.purgeExecutionLogFiles(taskId, executions);
@@ -310,8 +316,8 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Purge execution logs on application start
    *
-   * @return
-   * @throws AWException
+   * @return Service data
+   * @throws AWException Error purging executions
    */
   public ServiceData purgeExecutionsAtStart() throws AWException {
     return taskDAO.purgeExecutionsAtStart();
@@ -320,9 +326,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Pause the selected calendar
    *
-   * @param calendarIdList
+   * @param calendarIdList Calendar identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error deactivating calendars
    */
   public ServiceData deactivateCalendar(List<Integer> calendarIdList) throws AWException {
     return calendarDAO.deactivateCalendars(calendarIdList);
@@ -331,9 +337,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Resume the selected calendar
    *
-   * @param calendarIdList
+   * @param calendarIdList Calendar identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error activating calendars
    */
   public ServiceData activateCalendar(List<Integer> calendarIdList) throws AWException {
     return calendarDAO.activateCalendars(calendarIdList);
@@ -342,9 +348,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Check if the scheduler contains the selected calendar
    *
-   * @param calendarIdList
+   * @param calendarIdList Calendar identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error checking calendars existence
    */
   public ServiceData checkCalendarExist(List<Integer> calendarIdList) throws AWException {
     return calendarDAO.checkTriggersContainsCalendar(calendarIdList.toArray(new Integer[0]));
@@ -353,9 +359,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarIde
+   * @param calendarIde Calendar identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(Integer calendarIde) throws AWException {
     return calendarDAO.insertSchedulerCalendar(calendarIde, false, false);
@@ -364,11 +370,11 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarId
-   * @param replace
-   * @param updateTriggers
+   * @param calendarId     Calendar identifier
+   * @param replace        Replace calendar
+   * @param updateTriggers Update task triggers
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
     return calendarDAO.insertSchedulerCalendar(null, calendarId, replace, updateTriggers);
@@ -377,12 +383,12 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarId
-   * @param replace
-   * @param updateTriggers
-   * @param alias
+   * @param calendarId     Calendar identifier
+   * @param replace        Replace calendar
+   * @param updateTriggers Update task triggers
+   * @param alias          Calendar alias
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(String alias, Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
     return calendarDAO.insertSchedulerCalendar(alias, calendarId, replace, updateTriggers);
@@ -391,9 +397,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Update and schedule a new calendar
    *
-   * @param calendarId
+   * @param calendarId Calendar identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error updating scheduler calendar
    */
   public ServiceData updateSchedulerCalendar(Integer calendarId) throws AWException {
     return calendarDAO.updateSchedulerCalendar(calendarId);
@@ -402,9 +408,9 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Delete selected calendars
    *
-   * @param calendarIdList
+   * @param calendarIdList Calendar identifier list
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error deleting scheduler calendars
    */
   public ServiceData deleteSchedulerCalendar(List<Integer> calendarIdList) throws AWException {
     return calendarDAO.deleteSchedulerCalendar(calendarIdList);
@@ -413,12 +419,12 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Delete a calendar from scheduler
    *
-   * @param calendarId
+   * @param calendarId Calendar identifier
    * @return ServiceData
-   * @throws AWException
+   * @throws AWException Error deleting scheduler calendar
    */
   public ServiceData deleteSchedulerCalendar(Integer calendarId) throws AWException {
-    return calendarDAO.deleteSchedulerCalendar(Arrays.asList(calendarId));
+    return calendarDAO.deleteSchedulerCalendar(Collections.singletonList(calendarId));
   }
 
   /**
@@ -433,11 +439,11 @@ public class SchedulerService extends ServiceConfig {
   /**
    * Compute next fire times
    *
-   * @param times
-   * @return
-   * @throws AWException
+   * @param times # of fire times to compute
+   * @return Service data
+   * @throws AWException Error computing next fire times
    */
-  public ServiceData computeNextFiretimes(Integer times) throws AWException {
-    return calendarDAO.computeNextFiretimes(times);
+  public ServiceData computeNextFireTimes(Integer times) throws AWException {
+    return calendarDAO.computeNextFireTimes(times);
   }
 }

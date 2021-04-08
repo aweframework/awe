@@ -29,6 +29,7 @@ export const DefaultSettings = {
   dataSuffix: ".data",
   homeScreen: "home",
   recordsPerPage: 30,
+  recordsPerPageOnCriteria: 100,
   pixelsPerCharacter: 7,
   defaultComponentSize: "md",
   reloadCurrentScreen: false,

@@ -32,7 +32,7 @@ public abstract class SchedulerJob implements InterruptableJob {
    *
    * @param jobService Job service
    */
-  public SchedulerJob(JobService jobService) {
+  protected SchedulerJob(JobService jobService) {
     this.jobService = jobService;
   }
 
@@ -47,6 +47,10 @@ public abstract class SchedulerJob implements InterruptableJob {
       jobService.launchBatch(this, result);
     } catch (CancellationException exc) {
       log.warn("[SCHEDULER] Task was cancelled: {}", context.getTrigger().getKey().toString(), exc);
+    } catch (InterruptedException exc) {
+      log.error("[SCHEDULER] Task execution was interrupted: {}", context.getTrigger().getKey().toString(), exc);
+      Thread.currentThread().interrupt();
+      throw new JobExecutionException(exc.getMessage(), exc);
     } catch (Exception exc) {
       log.error("[SCHEDULER] Error on task execution: {}", context.getTrigger().getKey().toString(), exc);
       throw new JobExecutionException(exc.getMessage(), exc);
