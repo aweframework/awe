@@ -16,10 +16,14 @@ import com.almis.awe.template.FixedOracleTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
 import com.querydsl.sql.*;
 import com.querydsl.sql.types.ClobType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.jdbc.DataSourceHealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 
 import javax.sql.DataSource;
@@ -30,6 +34,9 @@ import javax.sql.DataSource;
 @org.springframework.context.annotation.Configuration
 @ConditionalOnProperty(name = "awe.database.enabled", havingValue = "true")
 public class SQLConfig {
+
+  @Value("${spring.datasource.validation-query:}")
+  private String validationQuery;
 
   /**
    * Database context holder
@@ -55,9 +62,19 @@ public class SQLConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  @Lazy
   public AweRoutingDataSource aweRoutingDataSource(AweDatabaseContextHolder databaseContextHolder) {
     return new AweRoutingDataSource(databaseContextHolder);
+  }
+
+  /**
+   * Health Indicator
+   *
+   * @param dataSource Datasource
+   * @return DB Health indicator
+   */
+  @Bean("aweDBHealthIndicator")
+  public HealthIndicator aweDBHealthIndicator(@Qualifier("aweRoutingDataSource") @Autowired DataSource dataSource) {
+    return new DataSourceHealthIndicator(dataSource, validationQuery);
   }
 
   /**
