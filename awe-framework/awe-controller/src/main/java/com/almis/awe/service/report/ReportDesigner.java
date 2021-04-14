@@ -20,16 +20,17 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.PrintColumnData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.chart.Chart;
 import com.almis.awe.model.entities.screen.component.criteria.Criteria;
-import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
-import com.almis.awe.model.entities.screen.component.grid.GroupHeader;
 import com.almis.awe.model.type.TotalizeStyleType;
 import com.almis.awe.service.QueryService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,6 +40,7 @@ import net.sf.dynamicreports.report.constant.PageOrientation;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +52,6 @@ import static net.sf.dynamicreports.report.builder.DynamicReports.stl;
  * Generate the component controllers of the screen
  */
 public class ReportDesigner extends ServiceConfig {
-
-  // Autowired services
-  private final QueryService queryService;
-
-  @Value("${settings.dataSuffix:.data}")
-  private String dataSuffix;
-
-  @Value("${application.data.pixelsPerCharacter:7}")
-  private Integer pixelsPerCharacter;
 
   // Report colors
   // TODO: Make them customizable
@@ -72,14 +65,22 @@ public class ReportDesigner extends ServiceConfig {
   private static final Integer MAX_GRID_FONT_SIZE = 10;
   private static final Integer MIN_GRID_FONT_SIZE = 5;
   private static final Float GRID_FONT_CORRECTION_RATIO = 1.7f;
+  // Autowired services
+  private final QueryService queryService;
+  private final ObjectMapper mapper;
+  @Value("${settings.dataSuffix:.data}")
+  private String dataSuffix;
+  @Value("${application.data.pixelsPerCharacter:7}")
+  private Integer pixelsPerCharacter;
 
   /**
    * Autowired constructor
    *
    * @param queryService Query service
    */
-  public ReportDesigner(QueryService queryService) {
+  public ReportDesigner(QueryService queryService, ObjectMapper mapper) {
     this.queryService = queryService;
+    this.mapper = mapper;
   }
 
   /**
@@ -243,22 +244,26 @@ public class ReportDesigner extends ServiceConfig {
       gridElement.setTitle(gridTitleText);
     }
 
-    // Get grid data
-    ObjectNode visibleColumns = getVisibleColumns(element, parameters);
+    try {
+      // Get grid data
+      List<PrintColumnData> visibleColumns = getVisibleColumns(element, parameters);
 
-    // Generate columns
-    List<String> fields = setGridColumns(element, gridElement, visibleColumns);
+      // Generate columns
+      List<String> fields = setGridColumns(gridElement, visibleColumns);
 
-    // Set grid orientation and font size
-    calculateGridOrientationAndFont(gridElement, printBean);
+      // Set grid orientation and font size
+      calculateGridOrientationAndFont(gridElement, printBean);
 
-    // Add data to grid
-    setGridData(element, gridElement, fields, parameters);
+      // Add data to grid
+      setGridData(element, gridElement, fields, parameters);
 
-    // Add grid to layout
-    gridLayout.addElement(gridElement)
-      .getStyle()
-      .setTopPadding(TOP_PADDING);
+      // Add grid to layout
+      gridLayout.addElement(gridElement)
+        .getStyle()
+        .setTopPadding(TOP_PADDING);
+    } catch (Exception exc) {
+      throw new AWException("Error trying to read visible columns from screen", exc);
+    }
   }
 
   /**
@@ -311,8 +316,8 @@ public class ReportDesigner extends ServiceConfig {
    * @param parameters Parameters
    * @return Visible columns
    */
-  private ObjectNode getVisibleColumns(Grid grid, ObjectNode parameters) {
-    return (ObjectNode) parameters.get(grid.getId() + dataSuffix).get(AweConstants.JSON_VISIBLE_COLUMNS);
+  private List<PrintColumnData> getVisibleColumns(Grid grid, ObjectNode parameters) throws IOException {
+    return mapper.readValue(parameters.get(grid.getId() + dataSuffix).get(AweConstants.JSON_VISIBLE_COLUMNS).traverse(), new TypeReference<List<PrintColumnData>>(){});
   }
 
   /**
@@ -329,32 +334,23 @@ public class ReportDesigner extends ServiceConfig {
   /**
    * Fill grid data
    *
-   * @param grid           Grid element
    * @param reportGrid     Report grid
    * @param visibleColumns Visible columns
    */
-  private List<String> setGridColumns(Grid grid, ReportGrid reportGrid, ObjectNode visibleColumns) {
+  private List<String> setGridColumns(ReportGrid reportGrid, List<PrintColumnData> visibleColumns) {
     List<String> fieldList = new ArrayList<>();
-    for (Element element : grid.getElementList()) {
-      if (element instanceof Column) {
-        Column column = (Column) element;
-        if (isPrintable(column, visibleColumns)) {
-          String label = visibleColumns.get(column.getName()).asText();
-          reportGrid.addGridHeader(getReportColumn(column, label, fieldList));
-        }
-      } else if (element instanceof GroupHeader) {
-        GroupHeader groupHeader = (GroupHeader) element;
-        ReportHeader reportHeader = new ReportHeader(groupHeader.getLabel())
-          .setLabel(getLocale(groupHeader.getLabel()));
-        for (Column column : groupHeader.getChildrenByType(Column.class)) {
-          if (isPrintable(column, visibleColumns)) {
-            String label = visibleColumns.get(column.getName()).asText();
-            reportHeader.addColumn(getReportColumn(column, label, fieldList));
-          }
-        }
+
+    visibleColumns.forEach(columnData -> {
+      if (columnData.isHeader()) {
+        ReportHeader reportHeader = new ReportHeader(columnData.getLabel())
+          .setLabel(columnData.getLabel());
+        columnData.getColumnList().forEach(column -> reportHeader.addColumn(getReportColumn(column, fieldList)));
         reportGrid.addGridHeader(reportHeader);
+      } else {
+        reportGrid.addGridHeader(getReportColumn(columnData, fieldList));
       }
-    }
+    });
+
     return fieldList;
   }
 
@@ -362,13 +358,12 @@ public class ReportDesigner extends ServiceConfig {
    * Generate report column and retrieve it
    *
    * @param column    Column
-   * @param label     Column label
    * @param fieldList Grid field list
    * @return Report column
    */
-  private ReportColumn getReportColumn(Column column, String label, List<String> fieldList) {
+  private ReportColumn getReportColumn(PrintColumnData column, List<String> fieldList) {
     ReportColumn reportColumn = new ReportColumn(column.getName())
-      .setLabel(label)
+      .setLabel(column.getLabel())
       .setField(column.getName())
       .setWidth(getColumnWidth(column));
     HorizontalTextAlignment alignment = getColumnAlignment(column);
@@ -378,22 +373,12 @@ public class ReportDesigner extends ServiceConfig {
     if (column.getType() != null) {
       reportColumn.setType(ColumnType.valueOf(column.getType().toUpperCase()));
     }
-    if (column.getComponentType() != null &&
-      ("icon".equalsIgnoreCase(column.getComponentType()) || "image".equalsIgnoreCase(column.getComponentType()))) {
-      reportColumn.setType(ColumnType.valueOf(column.getComponentType().toUpperCase()));
+    if (column.getComponent() != null &&
+      ("icon".equalsIgnoreCase(column.getComponent()) || "image".equalsIgnoreCase(column.getComponent()))) {
+      reportColumn.setType(ColumnType.valueOf(column.getComponent().toUpperCase()));
     }
     fieldList.add(column.getName());
     return reportColumn;
-  }
-
-
-  /**
-   * @param column         Column
-   * @param visibleColumns Visible columns
-   * @return Column is printable
-   */
-  private boolean isPrintable(Column column, ObjectNode visibleColumns) {
-    return visibleColumns.has(column.getName()) && column.isPrintable();
   }
 
   /**
@@ -402,10 +387,10 @@ public class ReportDesigner extends ServiceConfig {
    * @param column Column
    * @return Column is printable
    */
-  private Integer getColumnWidth(Column column) {
+  private Integer getColumnWidth(PrintColumnData column) {
     Integer columnWidth = null;
-    if (column.getCharLength() != null) {
-      columnWidth = column.getCharLength() * pixelsPerCharacter;
+    if (column.getCharlength() != null) {
+      columnWidth = column.getCharlength() * pixelsPerCharacter;
     } else if (column.getWidth() != null) {
       columnWidth = column.getWidth().equalsIgnoreCase("*") ? 300 : Integer.parseInt(column.getWidth());
     }
@@ -418,7 +403,7 @@ public class ReportDesigner extends ServiceConfig {
    * @param column Column
    * @return Column is printable
    */
-  private HorizontalTextAlignment getColumnAlignment(Column column) {
+  private HorizontalTextAlignment getColumnAlignment(PrintColumnData column) {
     HorizontalTextAlignment textAlignment = null;
     if (column.getAlign() != null) {
       textAlignment = HorizontalTextAlignment.valueOf(column.getAlign().toUpperCase());

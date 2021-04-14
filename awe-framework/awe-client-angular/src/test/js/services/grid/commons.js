@@ -11,7 +11,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
       CELL_ICON: "icon",
       CELL_IMAGE: "image"
     },
-    controller: {columnModel: []},
+    controller: {columnModel: [], headerModel: [{startColumnName: "other", numberOfColumns: 2, titleText: "Header text"}]},
     enableSorting: true,
     scope: {$on: () => null, charSize: 7, gridOptions: {}},
     listeners: {},
@@ -41,7 +41,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
     component: "text",
     enableFiltering: true,
     charlength: "0",
-    sendable: true
+    sendable: true,
+    printable: true
   }, {
     id: "value",
     label: "Value",
@@ -52,7 +53,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
     sortField: "lala",
     charlength: 20,
     sortable: true,
-    sendable: true
+    sendable: true,
+    printable: true
   }, {
     id: "other",
     label: "Other thing",
@@ -61,14 +63,33 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
     sortable: false,
     sortField: "lala",
     charlength: 20,
-    sendable: true
+    sendable: true,
+    printable: true
+  },{
+    id: "other2",
+    hidden: false,
+    summaryType: "SUM",
+    sortable: false,
+    sortField: "lala",
+    charlength: 20,
+    printable: true
+  },{
+    id: "other3",
+    label: "OTHER_THING",
+    hidden: false,
+    summaryType: "SUM",
+    sortable: false,
+    sortField: "lala",
+    charlength: 20,
+    printable: true
   },{
     id: "other other",
     hidden: true,
     summaryType: "SUM",
     sortable: false,
     sortField: "lala",
-    charlength: 20
+    charlength: 20,
+    printable: false
   }]);
 
   /**
@@ -799,37 +820,121 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
 
     // Assert
     expect(data).toEqual({
-      id: [{"value": 1, "label": 1}, {"value": 2, "label": 2}, {"value": 4, "label": 4}, {"value": 5, "label": 5}, {"value": 6, "label": 6}, {"value": 7, "label": 7}],
-      value: [{"value": "tutu", "label": "tutu"}, {"value": "lala", "label": "lala"}, {"value": "lele", "label": "lele"}, {"value": "lili", "label": "lili"}, {
-        "value": "lolo",
-        "label": "lolo"
-      }, {"value": "lulu", "label": "lulu"}],
-      other: [{"value": null, "label": ""}, {"value": null, "label": ""}, {"value": "asda", "label": "asda"}, {"value": null, "label": ""}, {"value": null, "label": ""}, {"value": null, "label": ""}],
-      "id.selected": {"value": 4, "label": 4},
-      "value.selected": {"value": "lele", "label": "lele"},
-      "other.selected": {"value": "asda", "label": "asda"},
+      id: [
+        {"value": 1, "label": 1, "title": "", "cell-style": "", "icon": ""},
+        {"value": 2, "label": 2, "title": "", "cell-style": "", "icon": ""},
+        {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
+        {"value": 5, "label": 5, "title": "", "cell-style": "", "icon": ""},
+        {"value": 6, "label": 6, "title": "", "cell-style": "", "icon": ""},
+        {"value": 7, "label": 7, "title": "", "cell-style": "", "icon": ""}],
+      value: [
+        {"value": "tutu", "label": "tutu", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lala", "label": "lala", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lili", "label": "lili", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lolo", "label": "lolo", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lulu", "label": "lulu", "title": "", "cell-style": "", "icon": ""}],
+      other: [
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""}],
+      "id.selected": {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
+      "value.selected": {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
+      "other.selected": {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
       "componentId-id": [4],
       "componentId.data": {
-        visibleColumns: {value: "Value", other: "Other thing"},
-        footer: {"id": {"value": null, "label": ""}, "value": {"value": null, "label": ""}, "other": {"value": null, "label": ""}}
+        visibleColumns: [{
+          name: "value",
+          label: "Value",
+          component: "text",
+          type: undefined,
+          charlength: 20,
+          width: 140,
+          align: undefined
+        }, {
+          name: "Header text",
+          label: "Header text",
+          columnList: [
+            { name: 'other', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: 'Other thing' },
+            { name: 'other2', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: '' }],
+          columnCounter: 0,
+          header: true
+        }, {
+            name: "other3",
+            label: "OTHER_THING",
+            component: undefined,
+            type: undefined,
+            charlength: 20,
+            width: 140,
+            align: undefined
+        }],
+        footer: {
+          "id": {"value": null, "label": ""},
+          "value": {"value": null, "label": ""},
+          "other": {"value": null, "label": ""}}
       },
       "selectedRowAddress": {view: 'viewId', component: 'componentId', row: 4}
     });
 
     expect(data2).toEqual({
-      id: [{"value": 1, "label": 1}, {"value": 2, "label": 2}, {"value": 4, "label": 4}, {"value": 5, "label": 5}, {"value": 6, "label": 6}, {"value": 7, "label": 7}],
-      value: [{"value": "tutu", "label": "tutu"}, {"value": "lala", "label": "lala"}, {"value": "lele", "label": "lele"}, {"value": "lili", "label": "lili"}, {
-        "value": "lolo",
-        "label": "lolo"
-      }, {"value": "lulu", "label": "lulu"}],
-      other: [{"value": null, "label": ""}, {"value": null, "label": ""}, {"value": "asda", "label": "asda"}, {"value": null, "label": ""}, {"value": null, "label": ""}, {"value": null, "label": ""}],
-      "id.selected": {"value": 4, "label": 4},
-      "value.selected": {"value": "lele", "label": "lele"},
-      "other.selected": {"value": "asda", "label": "asda"},
+      id: [
+        {"value": 1, "label": 1, "title": "", "cell-style": "", "icon": ""},
+        {"value": 2, "label": 2, "title": "", "cell-style": "", "icon": ""},
+        {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
+        {"value": 5, "label": 5, "title": "", "cell-style": "", "icon": ""},
+        {"value": 6, "label": 6, "title": "", "cell-style": "", "icon": ""},
+        {"value": 7, "label": 7, "title": "", "cell-style": "", "icon": ""}],
+      value: [
+        {"value": "tutu", "label": "tutu", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lala", "label": "lala", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lili", "label": "lili", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lolo", "label": "lolo", "title": "", "cell-style": "", "icon": ""},
+        {"value": "lulu", "label": "lulu", "title": "", "cell-style": "", "icon": ""}],
+      other: [
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""}],
+      "id.selected": {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
+      "value.selected": {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
+      "other.selected": {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
       "componentId-id": [4],
       "componentId.data": {
-        visibleColumns: {value: "Value", other: "Other thing"},
-        footer: {"id": {"value": null, "label": ""}, "value": {"value": null, "label": ""}, "other": {"value": null, "label": ""}}
+        visibleColumns: [{
+          name: "value",
+          label: "Value",
+          type: undefined,
+          component: "text",
+          charlength: 20,
+          width: 140,
+          align: undefined
+        }, {
+          name: "Header text",
+          label: "Header text",
+          columnList: [
+            { name: 'other', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: 'Other thing' },
+            { name: 'other2', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: '' }],
+          columnCounter: 0,
+          header: true
+        }, {
+          name: "other3",
+          label: "OTHER_THING",
+          component: undefined,
+          type: undefined,
+          charlength: 20,
+          width: 140,
+          align: undefined
+        }],
+        footer: {
+          "id": {"value": null, "label": ""},
+          "value": {"value": null, "label": ""},
+          "other": {"value": null, "label": ""}}
       },
       "selectedRowAddress": {view: 'viewId', component: 'componentId', row: 4},
       ...extraData

@@ -8,6 +8,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.chart.*;
 import com.almis.awe.service.ChartService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,9 @@ public class ChartServiceTest {
 
   @Mock
   private RestTemplate restTemplate;
+
+  @Mock
+  private ObjectMapper mapper;
 
   private final Screen testScreen = new Screen()
     .addElement(new Tag()

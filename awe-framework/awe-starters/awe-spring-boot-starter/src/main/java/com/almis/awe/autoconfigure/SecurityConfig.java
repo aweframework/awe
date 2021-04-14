@@ -62,6 +62,7 @@ public class SecurityConfig extends ServiceConfig {
   private final AweSessionDetails aweSessionDetails;
   private final LogUtil logger;
   private final AweElements elements;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
@@ -70,10 +71,11 @@ public class SecurityConfig extends ServiceConfig {
    * @param logger         Logger
    */
   @Autowired
-  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements) {
+  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements, ObjectMapper mapper) {
     this.aweSessionDetails = sessionDetails;
     this.logger = logger;
     this.elements = elements;
+    this.mapper = mapper;
   }
 
   private enum AUTHENTICATION_MODE {
@@ -238,8 +240,7 @@ public class SecurityConfig extends ServiceConfig {
       }
       try {
         // Read the parameters
-        ObjectNode parameters = (ObjectNode) new ObjectMapper().readTree(body);
-        getRequest().setParameterList(parameters);
+        getRequest().setParameterList((ObjectNode) mapper.readTree(body));
       } catch (IOException exc) {
         // Do nothing
       }
