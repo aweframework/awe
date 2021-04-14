@@ -36,7 +36,7 @@ public class FileUtil extends ServiceConfig {
   private Integer maxFilesPerFolder;
 
   // Object mapper
-  private static ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /**
    * Retrieves a previously uploaded file from upl path

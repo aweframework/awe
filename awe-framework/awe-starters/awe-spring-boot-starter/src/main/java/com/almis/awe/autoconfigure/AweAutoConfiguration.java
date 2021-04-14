@@ -81,8 +81,8 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   @RequestScope
-  public AweRequest aweRequest(HttpServletRequest request, HttpServletResponse response) {
-    return new AweRequest(request, response);
+  public AweRequest aweRequest(HttpServletRequest request, HttpServletResponse response, ObjectMapper mapper) {
+    return new AweRequest(request, response, mapper);
   }
 
   /**
@@ -153,6 +153,7 @@ public class AweAutoConfiguration {
 
   /**
    * DataList Service bean
+   *
    * @param conversionService Conversion service
    * @return DataList Service bean
    */
@@ -365,8 +366,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public ChartService chartService() {
-    return new ChartService();
+  public ChartService chartService(ObjectMapper mapper) {
+    return new ChartService(mapper);
   }
 
   /////////////////////////////////////////////
@@ -481,8 +482,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public ReportDesigner reportDesigner(QueryService queryService) {
-    return new ReportDesigner(queryService);
+  public ReportDesigner reportDesigner(QueryService queryService, ObjectMapper mapper) {
+    return new ReportDesigner(queryService, mapper);
   }
 
   /////////////////////////////////////////////
@@ -504,8 +505,8 @@ public class AweAutoConfiguration {
    * Microservice connector
    *
    * @param requestFactory Request factory
-   * @param queryUtil Query utilities
-   * @param objectMapper Object mapper
+   * @param queryUtil      Query utilities
+   * @param objectMapper   Object mapper
    * @return Microservice connector bean
    */
   @Bean
@@ -518,7 +519,7 @@ public class AweAutoConfiguration {
    * REST connector
    *
    * @param requestFactory Request factory
-   * @param objectMapper Object mapper
+   * @param objectMapper   Object mapper
    * @return REST connector bean
    */
   @Bean
@@ -550,6 +551,7 @@ public class AweAutoConfiguration {
   public ServiceQueryConnector serviceQueryConnector(QueryUtil queryUtil) {
     return new ServiceQueryConnector(queryUtil);
   }
+
   /**
    * Service Maintain connector
    *

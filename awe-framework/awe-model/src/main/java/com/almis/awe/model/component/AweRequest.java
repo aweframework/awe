@@ -43,16 +43,19 @@ public class AweRequest {
   // Request
   private final HttpServletRequest httpRequest;
   private final HttpServletResponse httpResponse;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
    *
    * @param request  Request
    * @param response Response
+   * @param mapper   ObjectMapper
    */
-  public AweRequest(HttpServletRequest request, HttpServletResponse response) {
+  public AweRequest(HttpServletRequest request, HttpServletResponse response, ObjectMapper mapper) {
     this.httpRequest = request;
     this.httpResponse = response;
+    this.mapper = mapper;
 
     // Set token
     setToken(request.getHeader(SESSION_CONNECTION_HEADER));
@@ -96,7 +99,6 @@ public class AweRequest {
    */
   private JsonNode getParameterValue(Object value) {
     JsonNodeFactory factory = JsonNodeFactory.instance;
-    ObjectMapper mapper = new ObjectMapper();
     if (value instanceof Date) {
       return factory.textNode(DateUtil.dat2WebTimestamp((Date) value));
     } else {
@@ -229,16 +231,5 @@ public class AweRequest {
       parameterValue = new CellData(parameter);
     }
     return parameterValue;
-  }
-
-  /**
-   * Retrieve the CellData parameter as jsonnode
-   *
-   * @param cellData Parameter
-   * @return Parameter as jsonNode
-   */
-  public JsonNode getCellDataAsParameter(CellData cellData) {
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.convertValue(cellData, JsonNode.class);
   }
 }

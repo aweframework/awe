@@ -70,7 +70,7 @@
       </tabcontainer>
       <tabcontainer id="MusMat">
         <criteria id="Pru" value="FndPos" component="hidden" />
-        <grid id="GrdMus" style="expand grid-bordered" multiselect="true" row-numbers="false" initial-load="query" server-action="data" target-action="QryUniTstId" max="30">
+        <grid id="GrdMus" style="expand grid-bordered" multiselect="true" row-numbers="false" initial-load="query" server-action="data" target-action="QryUniTstId" load-all="true" max="30">
           <column label="PARAMETER_TEXT" name="Als1" sort-field="Als" align="left" charlength="20">
             <dependency target-type="hide-column" initial="true">
               <dependency-element id="GrdMus" attribute="selectedRows" condition="ne" value="3" />

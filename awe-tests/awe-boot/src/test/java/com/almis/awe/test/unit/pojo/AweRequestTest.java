@@ -5,7 +5,9 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.test.bean.Planet;
 import com.almis.awe.test.unit.TestUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
@@ -21,6 +23,9 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * DataList, DataListUtil and DataListBuilder tests
@@ -39,6 +44,9 @@ public class AweRequestTest extends TestUtil {
   @Mock
   private HttpServletResponse response;
 
+  @Mock
+  private ObjectMapper mapper;
+
   /**
    * Test of set parameter
    *
@@ -47,10 +55,26 @@ public class AweRequestTest extends TestUtil {
   @Test
   public void testSetParameter() throws Exception {
     // Prepare
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper();
     JsonNodeFactory factory = JsonNodeFactory.instance;
     BigDecimal bigDecimal = new BigDecimal(1213123);
     Date date = new Date();
+    ArrayNode lista = factory.arrayNode().add("test1").add("test2");
+
+    when(mapper.convertValue(any(Object.class), eq(JsonNode.class)))
+      .thenReturn(factory.textNode("test"))
+      .thenReturn(factory.textNode("test1"))
+      .thenReturn(factory.textNode("test2"))
+      .thenReturn(lista)
+      .thenReturn(factory.numberNode(1))
+      .thenReturn(factory.numberNode(1L))
+      .thenReturn(factory.numberNode(1D))
+      .thenReturn(factory.numberNode(1F))
+      .thenReturn(factory.numberNode(bigDecimal))
+      .thenReturn(factory.booleanNode(true))
+      .thenReturn(objectMapper.valueToTree(new CellData("121")))
+      .thenReturn(objectMapper.convertValue(new Planet().setClimate("rainy"), JsonNode.class));
+
     aweRequest.setParameter("test", "test");
     aweRequest.setParameter("testList", "test1", "test2");
     aweRequest.setParameter("testList2", Arrays.asList("test1", "test2"));
@@ -67,8 +91,8 @@ public class AweRequestTest extends TestUtil {
 
     // Assert
     assertEquals("test", aweRequest.getParameterAsString("test"));
-    assertEquals(factory.arrayNode().add("test1").add("test2"), aweRequest.getParameter("testList"));
-    assertEquals(factory.arrayNode().add("test1").add("test2"), aweRequest.getParameter("testList2"));
+    assertEquals(lista, aweRequest.getParameter("testList"));
+    assertEquals(lista, aweRequest.getParameter("testList2"));
     assertEquals(factory.numberNode(1), aweRequest.getParameter("testInt"));
     assertEquals(factory.numberNode(1L), aweRequest.getParameter("testLong"));
     assertEquals(factory.numberNode(1D), aweRequest.getParameter("testDouble"));
@@ -88,6 +112,6 @@ public class AweRequestTest extends TestUtil {
     assertEquals("true", aweRequest.getParameterAsString("testBoolean"));
     assertEquals(factory.textNode("121"), aweRequest.getParameter("testCellData"));
     assertEquals("121", aweRequest.getParameterAsString("testCellData"));
-    assertEquals(mapper.convertValue(new Planet().setClimate("rainy"), ObjectNode.class), aweRequest.getParameter("testPOJO"));
+    assertEquals(objectMapper.convertValue(new Planet().setClimate("rainy"), ObjectNode.class), aweRequest.getParameter("testPOJO"));
   }
 }
