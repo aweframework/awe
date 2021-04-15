@@ -17,7 +17,7 @@
     <tag type="div" style="navbar-inner">
       <tag type="div" style="navbar-header">
         <tag type="h1">
-          <tag type="span" label="APP_CLIENT"></tag>
+          <tag type="span" label="APP_CLIENT"/>
         </tag>
         <button button-type="button" style="no-class navbar-toggle collapsed" id="ButNavCol" icon="bars icon navbar-icon">
           <button-action type="toggle-navbar" />
@@ -77,4 +77,6 @@
       </tag>
     </tag>
   </tag>
+
+  <tag source="modal"/>
 </screen>
