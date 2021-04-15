@@ -38,6 +38,9 @@
           <!-- Profile -->
           <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
             <include target-screen="notification-panel" target-source="notification-panel"/>
+            <info-button id="help" icon="question-circle" style="nav-icon-btn-success">
+              <button-action type="dialog" target="HlpOpt" />
+            </info-button>
             <info id="ButSetTog" icon="cog" title="SCREEN_TEXT_SETTINGS" dropdown-style="dropdown-lg">
               <info-criteria icon="puzzle-piece" title="SCREEN_TEXT_MODULE" component="select" id="module"
                              initial-load="query" target-action="ModNamByOpeSel" session="module"
@@ -119,5 +122,9 @@
         </tag>
       </tag>
     </tag>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center"/>
   </tag>
 </screen>
