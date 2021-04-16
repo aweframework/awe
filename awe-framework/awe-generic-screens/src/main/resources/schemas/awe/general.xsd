@@ -46,6 +46,7 @@
       <xs:enumeration value="STRING_HASH_SHA"/>
       <xs:enumeration value="STRING_HASH_PBKDF_2_W_HMAC_SHA_1"/>
       <xs:enumeration value="LIST_TO_STRING"/>
+      <xs:enumeration value="STRING_TO_LIST"/>
     </xs:restriction>
   </xs:simpleType>
 

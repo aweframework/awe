@@ -823,6 +823,7 @@ These are the possible variable types:
 * **OBJECT**: To define a variable as a java object
 * **CLOB**: To define a variable as a big text file
 * **LIST_TO_STRING**: Retrieve a list of values and manage them as a comma separated values in a string
+* **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values
 	
      
 ## Enumerated query
