@@ -33,6 +33,8 @@ public enum ParameterType {
   STRING_ENCRYPT,
   // Comma separated values into a string
   LIST_TO_STRING,
+  // String with comma separated values into a list
+  STRING_TO_LIST,
   // date
   DATE,
   // time

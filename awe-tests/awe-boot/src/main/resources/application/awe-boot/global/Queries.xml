@@ -951,7 +951,7 @@
       <and>
         <filter left-field="Nam" condition="in">
           <right-operand>
-            <constant value="sunset,sunny,default,purple-hills" type="STRING"/>
+            <constant value="sunset,sunny,default,purple-hills" type="STRING_TO_LIST"/>
           </right-operand>
         </filter>
       </and>
