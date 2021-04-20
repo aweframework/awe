@@ -31,9 +31,9 @@ public class Dialog extends ServiceConfig {
   /**
    * Fill a test dialog
    *
-   * @param denominations
-   * @return
-   * @throws AWException
+   * @param denominations Data to fill
+   * @return Service data
+   * @throws AWException Error filling test dialog
    */
   public ServiceData fillTestDialog(DataList denominations, String columnToUpdate) throws AWException {
     if (denominations == null) {
@@ -55,10 +55,11 @@ public class Dialog extends ServiceConfig {
   /**
    * Fill a test dialog
    *
-   * @param denominations
-   * @param address
-   * @return
-   * @throws AWException
+   * @param denominations Dialog data
+   * @param address       Dialog address
+   * @param columnName    Column name
+   * @return Service data
+   * @throws AWException Error storing test dialog data
    */
   public ServiceData storeTestDialog(Denominations denominations, JsonNode address, String columnName) throws AWException {
     // Create a datalist to fill the grid
@@ -72,7 +73,7 @@ public class Dialog extends ServiceConfig {
     ObjectNode result = JsonNodeFactory.instance.objectNode();
     result.putPOJO("value", denominationsDataList);
 
-    ComponentAddress cellAddress = new ComponentAddress(address);
+    ComponentAddress cellAddress = ComponentAddress.fromJson(address);
     cellAddress.setColumn(columnName);
 
     // Set variables

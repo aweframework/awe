@@ -366,6 +366,7 @@
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_FROM" value="There was an error generating the part [FROM] with value {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_MESSAGE" value="There was an error generating the message {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_TO" value="There was an error generating the part [To]"/>
+  <locale name="ERROR_MESSAGE_EMPTY_CRITERIA" value="The selected value is not in the database"/>
   <locale name="ERROR_MESSAGE_EMPTY_LIST_OPTIONAL" value="If a list can be empty, use optional in filter: {0}"/>
   <locale name="ERROR_MESSAGE_EMPTY_MAINTAIN_OUTPUT" value="Maintain operation -{0}- has not returned a valid output"/>
   <locale name="ERROR_MESSAGE_EMPTY_QUERY_OUTPUT" value="The query has not returned a valid output"/>

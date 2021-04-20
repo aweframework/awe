@@ -6,7 +6,8 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   ScreenServiceTest.class,
   TemplateServiceTest.class,
-  ChartServiceTest.class
+  ChartServiceTest.class,
+  QueryServiceTest.class
 })
 @RunWith(Suite.class)
 public class ServicesTestSuite {
