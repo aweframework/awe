@@ -91,7 +91,7 @@ public class UploadController extends ServiceConfig {
     // Broadcast file uploaded
     broadcastService.broadcastMessageToUID(token, new ClientAction("file-uploaded")
       .setAsync(true)
-      .setAddress(new ComponentAddress(parameters.get(AweConstants.PARAMETER_ADDRESS)))
+      .setAddress(ComponentAddress.fromJson(parameters.get(AweConstants.PARAMETER_ADDRESS)))
       .addParameter("path", FileUtil.fileDataToString(fileData))
       .addParameter("name", fileData.getFileName())
       .addParameter("size", fileData.getFileSize())

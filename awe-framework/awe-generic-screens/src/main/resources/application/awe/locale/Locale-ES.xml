@@ -369,6 +369,7 @@
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_FROM" value="Se ha producido un error generando la parte [De] con valor {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_MESSAGE" value="Se ha producido un error generando el mensaje {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_TO" value="Se ha producido un error generando la parte [Para]"/>
+  <locale name="ERROR_MESSAGE_EMPTY_CRITERIA" value="El valor seleccionado no está en la base de datos"/>
   <locale name="ERROR_MESSAGE_EMPTY_LIST_OPTIONAL" value="Si la lista puede ser vacía, utilice optional en el filtro: {0}"/>
   <locale name="ERROR_MESSAGE_EMPTY_MAINTAIN_OUTPUT" value="La operación de mantenimiento -{0}- no ha finalizado correctamente"/>
   <locale name="ERROR_MESSAGE_EMPTY_QUERY_OUTPUT" value="La consulta no ha finalizado correctamente"/>

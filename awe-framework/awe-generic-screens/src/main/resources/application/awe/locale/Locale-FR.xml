@@ -366,6 +366,7 @@
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_FROM" value="Il y avait une erreur de générer la partie [De] avec la valeur {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_MESSAGE" value="Il y avait une erreur générer le message {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_TO" value="Il y avait une erreur de générer la partie [Pour]"/>
+  <locale name="ERROR_MESSAGE_EMPTY_CRITERIA" value="La valeur sélectionnée n&amp;#39;est pas dans la base de données"/>
   <locale name="ERROR_MESSAGE_EMPTY_LIST_OPTIONAL" value="Si une liste peut être vide, utilisez l&apos;attribute optionnel dans le filtre: {0}"/>
   <locale name="ERROR_MESSAGE_EMPTY_MAINTAIN_OUTPUT" value="L&apos;operation de maintenance -{0}- n&apos;a pas fini correctement"/>
   <locale name="ERROR_MESSAGE_EMPTY_QUERY_OUTPUT" value="La requette n&apos;a pas finalise correctement"/>
