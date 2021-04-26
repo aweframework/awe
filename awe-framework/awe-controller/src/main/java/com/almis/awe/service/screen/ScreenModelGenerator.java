@@ -42,6 +42,12 @@ public class ScreenModelGenerator extends ServiceConfig {
   @Value("${settings.dataSuffix:.data}")
   private String dataSuffix;
 
+  @Value("${application.data.rowsPerPage:30}")
+  private Integer rowsPerPage;
+
+  @Value("${application.data.rowsPerPageOnCriteria:30}")
+  private Integer rowsPerPageCriteria;
+
   /**
    * Autowired constructor
    *
@@ -98,7 +104,7 @@ public class ScreenModelGenerator extends ServiceConfig {
     ObjectNode parameters = getRequest().getParametersSafe();
 
     // Elements per page
-    parameters.put(AweConstants.COMPONENT_MAX, component.getMax());
+    parameters.put(AweConstants.COMPONENT_MAX, Optional.ofNullable(component.getMax()).orElse(component instanceof Criteria ? rowsPerPageCriteria : rowsPerPage ));
 
     // Get sort if stored
     String specialAttributesKey = component.getElementKey() + dataSuffix;
@@ -352,7 +358,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   private void addScreenTargetDataToComponent(DataList data, Map<String, ScreenComponent> componentMap) {
     // For each column, store value in components
-    Map<String, CellData> firstRow = Optional.ofNullable(data.getRows().get(0)).orElse(Collections.emptyMap());
+    Map<String, CellData> firstRow = data.getRows().stream().findFirst().orElse(Collections.emptyMap());
     firstRow.keySet().forEach(componentId -> {
       // Get value
       List<CellData> values = getSelectedData(data, componentId);
