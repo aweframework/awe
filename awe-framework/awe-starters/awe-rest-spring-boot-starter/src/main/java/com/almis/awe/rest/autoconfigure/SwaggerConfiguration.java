@@ -7,9 +7,11 @@ import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.Contact;
+import springfox.documentation.service.SecurityScheme;
 import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.*;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -50,8 +52,6 @@ public class SwaggerConfiguration {
             .useDefaultResponseMessages(false)
             .pathMapping("/")
             .securitySchemes(securitySchemes())
-            .tags(new Tag("Public API", "Public admin interface to launch AWE services"),
-                    new Tag("Protected API", "Protected admin interface to launch AWE services"))
             .apiInfo(apiInfo());
   }
 
@@ -86,20 +86,6 @@ public class SwaggerConfiguration {
     securitySchemeList.add(apiKey());
 
     return securitySchemeList;
-  }
-
-
-  private SecurityContext securityContext() {
-    return SecurityContext.builder()
-            .securityReferences(defaultAuth())
-            .build();
-  }
-
-  List<SecurityReference> defaultAuth() {
-    AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
-    AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-    authorizationScopes[0] = authorizationScope;
-    return Collections.singletonList(new SecurityReference("JWTToken", authorizationScopes));
   }
 
   private ApiKey apiKey() {

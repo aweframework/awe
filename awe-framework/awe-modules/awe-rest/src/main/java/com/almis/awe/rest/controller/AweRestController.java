@@ -13,6 +13,8 @@ import com.almis.awe.service.QueryService;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +30,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/api")
-@Api(tags = { "Public API", "Protected API" })
+@Tags({@Tag(name = "Authentication API", description = "Authentication service"),
+        @Tag(name = "Public API", description = "Public admin interface to launch AWE services"),
+        @Tag(name = "Protected API", description = "Protected admin interface to launch AWE services")})
 public class AweRestController {
 
   // Autowired services
@@ -62,7 +66,7 @@ public class AweRestController {
   @ApiOperation(value = "Authentication service.",
           notes = "Provides a JWT token to be sent as http header in services that require authentication.",
           authorizations = {@Authorization(value = "")},
-          tags = "Public API")
+          tags = "Authentication API")
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Success. Authorized OK", response = LoginResponse.class),
           @ApiResponse(code = 400, message = "Bad request"),
@@ -99,7 +103,7 @@ public class AweRestController {
           @ApiResponse(code = 401, message = "Unauthorized. User not found or invalid credentials"),
           @ApiResponse(code = 500, message = "Internal error")})
   public ResponseEntity<AweRestResponse> launchQuery(@ApiParam(value = "Query ID", required = true) @PathVariable String queryId,
-                                                        @ApiParam(value = "Query parameters") @RequestBody(required = false) RequestParameter parameters) throws AWException {
+                                                     @ApiParam(value = "Query parameters") @RequestBody(required = false) RequestParameter parameters) throws AWException {
     setParameters(parameters);
     AweRestResponse aweRestResponse = convertServiceDataToDto(queryService.launchQuery(queryId));
     // Clear context
@@ -124,13 +128,8 @@ public class AweRestController {
           @ApiResponse(code = 400, message = "Bad request. Query not defined"),
           @ApiResponse(code = 401, message = "Unauthorized. User not found or invalid credentials"),
           @ApiResponse(code = 500, message = "Internal error")})
-  public ResponseEntity<AweRestResponse> launchPublicQuery(@ApiParam(value = "Query ID", required = true) @PathVariable String queryId,
-                                                        @ApiParam(value = "Query parameters") @RequestBody(required = false) RequestParameter parameters) throws AWException {
-    setParameters(parameters);
-    AweRestResponse aweRestResponse = convertServiceDataToDto(queryService.launchQuery(queryId));
-    // Clear context
-    SecurityContextHolder.clearContext();
-    return ResponseEntity.ok(aweRestResponse);
+  public ResponseEntity<AweRestResponse> launchPublicQuery(@ApiParam(value = "Query ID", required = true) @PathVariable String queryId, @ApiParam(value = "Query parameters") @RequestBody(required = false) RequestParameter parameters) throws AWException {
+   return launchQuery(queryId, parameters);
   }
 
   /**
@@ -139,7 +138,7 @@ public class AweRestController {
    * @param maintainId Maintain id
    * @param parameters JSON parameters
    * @return JSON response
-   * @throws AWException the aw exception
+   * @throws AWException the AWE exception
    */
   @PostMapping({"/maintain/{maintainId}"})
   @ApiOperation(value = "Maintain service.", notes = "Launch a maintain given maintain id and parameters.",
@@ -163,8 +162,8 @@ public class AweRestController {
    *
    * @param maintainId Maintain id
    * @param parameters JSON parameters
+   * @throws AWException AWE exception
    * @return JSON response
-   * @throws AWException the aw exception
    */
   @PostMapping({"/public/maintain/{maintainId}"})
   @ApiOperation(value = "Maintain service.", notes = "Launch a public maintain given maintain id and parameters.",
@@ -176,11 +175,7 @@ public class AweRestController {
           @ApiResponse(code = 401, message = "Unauthorized. User not found or invalid credentials"),
           @ApiResponse(code = 500, message = "Internal error")})
   public ResponseEntity<AweRestResponse> launchPublicMaintain(@PathVariable String maintainId, @RequestBody(required = false) RequestParameter parameters) throws AWException {
-    setParameters(parameters);
-    AweRestResponse aweRestResponse = convertServiceDataToDto(maintainService.launchMaintain(maintainId));
-    // Clear context
-    SecurityContextHolder.clearContext();
-    return ResponseEntity.ok(aweRestResponse);
+    return launchMaintain(maintainId, parameters);
   }
 
   /**
