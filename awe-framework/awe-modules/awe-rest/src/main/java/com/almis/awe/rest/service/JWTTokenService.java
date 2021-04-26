@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Util class to manage authentication with JWT tokens.
@@ -54,11 +55,8 @@ public class JWTTokenService extends ServiceConfig {
    * Get JWT verifier
    */
   public JWTVerifier getJWTVerifier() {
-    if (jwtVerifier == null) {
-      Algorithm algorithm = Algorithm.HMAC512(jwtSecret);
-      jwtVerifier = JWT.require(algorithm).withIssuer(jwtIssuer).build();
-    }
-    return jwtVerifier;
+    return Optional.ofNullable(jwtVerifier)
+            .orElse(JWT.require(Algorithm.HMAC512(jwtSecret)).withIssuer(jwtIssuer).build());
   }
 
   /**

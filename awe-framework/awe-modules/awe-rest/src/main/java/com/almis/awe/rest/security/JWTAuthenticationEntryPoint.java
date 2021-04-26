@@ -1,6 +1,6 @@
 package com.almis.awe.rest.security;
 
-import com.almis.awe.rest.dto.Error;
+import com.almis.awe.rest.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
@@ -31,7 +31,7 @@ public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
     log.warn("[awe-rest] [" + request.getRequestURI() + "] Authentication EntryPoint: " + exception.getMessage());
 
-    Error authenticationResponse = new Error();
+    ErrorResponse authenticationResponse = new ErrorResponse();
     authenticationResponse.setCode(HttpServletResponse.SC_UNAUTHORIZED);
     authenticationResponse.setMessage("Not authorized. Token is not valid or not found");
 

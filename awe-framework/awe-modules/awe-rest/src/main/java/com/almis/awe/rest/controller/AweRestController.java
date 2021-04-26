@@ -4,7 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.rest.dto.AweRestResponse;
-import com.almis.awe.rest.dto.Error;
+import com.almis.awe.rest.dto.ErrorResponse;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.rest.dto.RequestParameter;
 import com.almis.awe.rest.service.JWTTokenService;
@@ -186,9 +186,9 @@ public class AweRestController {
    */
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public Error handleException(Exception exc) {
+  public ErrorResponse handleException(Exception exc) {
     // Retrieve exception
-    return new Error(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
+    return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
   }
 
   /**
@@ -199,9 +199,9 @@ public class AweRestController {
    */
   @ExceptionHandler(AWException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public Error handleException(AWException exc) {
+  public ErrorResponse handleException(AWException exc) {
     // Retrieve exception
-    return new Error(HttpStatus.BAD_REQUEST.value(), exc.getMessage());
+    return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), exc.getMessage());
   }
 
   /**
@@ -212,9 +212,9 @@ public class AweRestController {
    */
   @ExceptionHandler(AuthenticationException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  public Error handleAuthenticationException(Exception exc) {
+  public ErrorResponse handleAuthenticationException(Exception exc) {
     // Retrieve exception
-    return new Error(HttpStatus.UNAUTHORIZED.value(), "Not authorized. " + exc.getMessage());
+    return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "Not authorized. " + exc.getMessage());
   }
 
   /**

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(value = "AWE Rest error response model")
-public class Error {
+public class ErrorResponse {
   @ApiModelProperty(value = "Error code")
   private int code;
   @ApiModelProperty(value = "Error message")

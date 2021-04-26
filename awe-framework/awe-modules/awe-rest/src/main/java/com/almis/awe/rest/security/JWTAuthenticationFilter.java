@@ -1,6 +1,6 @@
 package com.almis.awe.rest.security;
 
-import com.almis.awe.rest.dto.Error;
+import com.almis.awe.rest.dto.ErrorResponse;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
@@ -65,7 +65,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
     log.warn("[awe-rest] [/api/authenticate] Unsuccessful authentication in : " + exception.getMessage());
-    Error authenticationError = new Error();
+    ErrorResponse authenticationError = new ErrorResponse();
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     if (exception instanceof BadCredentialsException) {
