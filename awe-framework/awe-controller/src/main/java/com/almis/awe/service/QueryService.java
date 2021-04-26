@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.Level;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Provides methods to retrieve application data
@@ -32,12 +32,15 @@ import java.util.Optional;
  */
 public class QueryService extends ServiceConfig {
 
-  // Constants
-  private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
-  private static final String ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND = "ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND";
   // Autowired services
   private final QueryLauncher queryLauncher;
   private final QueryUtil queryUtil;
+
+  // Constants
+  private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
+  private static final String ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND = "ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND";
+  public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY";
+  public static final String ERROR_MESSAGE_QUERY_NOT_FOUND = "ERROR_MESSAGE_QUERY_NOT_FOUND";
 
   /**
    * Autowired constructor
@@ -436,28 +439,18 @@ public class QueryService extends ServiceConfig {
    */
   private Query getQuery(String queryName, boolean checkAvailable) throws AWException {
     // Variable definition
-    Query query;
-    try {
-      if (getElements().getQuery(queryName) != null) {
-        // Get the query
-        query = getElements().getQuery(queryName).copy();
-        // If query is private, check security
-        if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
-          getLogger().log(QueryService.class, Level.WARN, "ERROR_MESSAGE_OUT_OF_SESSION");
-          throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_SQL_QUERY"), getLocale("ERROR_MESSAGE_OUT_OF_SESSION"));
-        }
-      } else {
-        throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale("ERROR_MESSAGE_QUERY_NOT_FOUND", queryName));
-      }
-    } catch (AWException exc) {
-      throw exc;
-    } catch (Exception exc) {
-      throw new AWException(
-        getLocale(ERROR_TITLE_RETRIEVING_DATA),
-        String.format("%s in query %s", Optional.ofNullable(exc.getMessage()).orElse(exc.getClass().getSimpleName()), queryName),
-        exc);
-    }
+    Query query = getElements().getQuery(queryName);
 
+    if (query != null) {
+      // Get the query
+      query = query.copy();
+      // If query is private, check security
+      if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
+        throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+      }
+    } else {
+      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_QUERY_NOT_FOUND, queryName));
+    }
     return query;
   }
 

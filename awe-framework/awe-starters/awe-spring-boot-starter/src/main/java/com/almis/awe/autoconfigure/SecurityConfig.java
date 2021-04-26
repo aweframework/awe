@@ -30,6 +30,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -56,6 +57,7 @@ import java.util.Map;
  */
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig extends ServiceConfig {
 
   // Autowired services
@@ -160,8 +162,33 @@ public class SecurityConfig extends ServiceConfig {
   @Value("${security.headers.frameOptions.sameOrigin:true}")
   private boolean sameOrigin;
 
-  @Value("${session.cookie.name:AWESESSIONID}")
+  @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
+
+  // White list urls
+  private static final String[] AUTH_LIST = {
+          "/",
+          "/websocket/**",
+          "/settings",
+          "/css/**",
+          "/js/**",
+          "/images/**",
+          "/fonts/**",
+          "/*.ico",
+          "/*.html",
+          "/*.map",
+          "/template/**",
+          "/action/get-locals",
+          "/action/screen-data",
+          "/screen/public/**",
+          // -- swagger ui
+          "/v2/api-docs",
+          "/swagger-resources/**",
+          "/swagger-ui/",
+          "/swagger-ui/**",
+          "/swagger-ui.html",
+          "/webjars/**"
+  };
 
   /**
    * Second configuration class for spring security
@@ -177,16 +204,19 @@ public class SecurityConfig extends ServiceConfig {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http
-        .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-        .headers().xssProtection().block(false).and().and()
-        .authorizeRequests().antMatchers("css/**", "js/**", "images/**", "fonts/**").permitAll().and()
-        // Add a filter to parse login parameters
-        .addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
-        //.formLogin().permitAll().and()
-        .logout().logoutUrl("/action/logout")
-        .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-        .addLogoutHandler(getBean(AweLogoutHandler.class));
+      http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+              .headers().xssProtection().block(false).and()
+              .and().authorizeRequests()
+              .antMatchers(AUTH_LIST).permitAll()
+              .anyRequest().authenticated()
+              // Login redirect
+              .and().formLogin().loginPage("/").permitAll()
+              // Add a filter to parse login parameters
+              .and().addFilterAfter(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
+              // Add logout handler
+              .logout().logoutUrl("/action/logout")
+              .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
+              .addLogoutHandler(getBean(AweLogoutHandler.class));
 
       if (sameOrigin) {
         http.headers().frameOptions().sameOrigin();
@@ -272,7 +302,7 @@ public class SecurityConfig extends ServiceConfig {
       authenticationFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
         // Initialize parameters
         initRequest(request);
-        aweSessionDetails.onLoginSuccess(authentication);
+        aweSessionDetails.onLoginSuccess();
         request.getRequestDispatcher("/action/loginRedirect").forward(request, response);
       });
       authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {

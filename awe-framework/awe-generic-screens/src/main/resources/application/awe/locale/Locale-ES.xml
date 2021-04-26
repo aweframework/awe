@@ -432,6 +432,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="Ha habido un problema al lanzar la consulta [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="Ha habido un problema enviando un mensaje a una cola desde la consulta {0}"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="Ha habido un problema al lanzar la consulta SQL [{0}]. Más información en el log de la aplicación"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error lanzando la consulta privada [{0}] sin autorización"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Error lanzando el mantenimiento privado [{0}] sin autorización"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="Los parametros de conexión de LDAP son incorrectos"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="Las credenciales de LDAP son incorrectas"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>

@@ -429,6 +429,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="There was a problem trying to execute a query [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="There was a problem sending a message to a queue from the query {0}"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="There was a problem trying to execute an SQL query [{0}]. Please see log for more details"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error launching query [{0}] without authorization"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Error launching maintain [{0}] without authorization"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="LDAP connection parameters are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="The ldap credentials are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>
