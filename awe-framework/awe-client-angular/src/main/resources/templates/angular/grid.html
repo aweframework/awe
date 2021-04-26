@@ -21,7 +21,7 @@
     <div ng-if="::!controller.disablePagination" class="pagination-content {{component.footerPaginationStyle}}">
       <div ng-if="model.records > 0 && component.bigGrid">
         <div class="hidden-xs col-sm-8 text-center pagination-content">
-          <ul uib-pagination ng-change="component.changePage()" total-items="model.records" items-per-page="controller.max" ng-model="component.currentPage" num-pages="model.total" max-size="5" class="pagination pagination-{{::size}}"
+          <ul uib-pagination ng-change="component.changePage()" total-items="model.records" items-per-page="component.getMax()" ng-model="component.currentPage" num-pages="model.total" max-size="5" class="pagination pagination-{{::size}}"
                       previous-text="{{'SCREEN_TEXT_GRID_PREVIOUS'| translateMultiple}}" next-text="{{'SCREEN_TEXT_GRID_NEXT'| translateMultiple}}" force-ellipses="true" boundary-link-numbers="true"
                       first-text="{{'SCREEN_TEXT_GRID_FIRST'| translateMultiple}}" last-text="{{'SCREEN_TEXT_GRID_LAST'| translateMultiple}}"></ul>
           <input ng-if="model.total > 1" class="pagination-goto" placeholder="..." type="number" ng-blur="onGoToPageChanged($event)" ng-keypress="onGoToPageChanged($event)" />
