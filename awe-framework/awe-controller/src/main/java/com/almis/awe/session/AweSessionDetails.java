@@ -74,8 +74,6 @@ public class AweSessionDetails extends ServiceConfig {
 
   /**
    * Manage login success
-   *
-   * @param authentication Authentication
    */
   public void onLoginSuccess() {
     AweSession session = getSession();
