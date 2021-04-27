@@ -18,7 +18,7 @@ import java.util.Set;
  */
 @Log4j2
 public class AweSession implements Serializable {
-  //private transient Authentication authentication;
+
   public static final String ROLE = "ROLE_";
   private final AweSessionStorage sessionStorage;
 
@@ -26,13 +26,6 @@ public class AweSession implements Serializable {
    * Autowired constructor
    */
   public AweSession() {
-    // Merged with spring security
-//    SecurityContext securityContext = SecurityContextHolder.getContext();
-//    Authentication contextAuthentication = securityContext.getAuthentication();
-//    if (contextAuthentication != null) {
-//      this.setAuthentication(contextAuthentication);
-//    }
-
     // Generate session storage
     sessionStorage = new AweSessionStorage();
   }
@@ -188,15 +181,4 @@ public class AweSession implements Serializable {
             !(SecurityContextHolder.getContext().getAuthentication()
                     instanceof AnonymousAuthenticationToken);
   }
-
-//  /**
-//   * Set session authentication
-//   *
-//   * @param authentication {@link Authentication}
-//   * @return AWE session
-//   */
-//  public AweSession setAuthentication(Authentication authentication) {
-//    this.authentication = authentication;
-//    return this;
-//  }
 }
