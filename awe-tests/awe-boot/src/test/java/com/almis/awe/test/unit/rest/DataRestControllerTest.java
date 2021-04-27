@@ -1,5 +1,6 @@
 package com.almis.awe.test.unit.rest;
 
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.rest.dto.RequestParameter;
@@ -146,6 +147,32 @@ public class DataRestControllerTest extends AweSpringRestTests {
 
     Assert.assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
     Assert.assertEquals(2,  Objects.requireNonNull(response.getBody()).getDataList().getRecords());
+  }
+
+  @Test
+  public void protectedQueryWithPublicApiUnauthorized() {
+    // Build entity and variable maps
+    HttpEntity<String> entity = new HttpEntity<>(headers);
+    String queryProtected = "getApplicationParameters";
+    ResponseEntity<AweRestResponse> response = restTemplate.exchange(
+            createURLWithPort("/api/public/data/" + queryProtected),
+            HttpMethod.POST, entity, AweRestResponse.class);
+
+    Assert.assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+    Assert.assertEquals(AnswerType.ERROR,  Objects.requireNonNull(response.getBody()).getType());
+  }
+
+  @Test
+  public void unknownQueryWithPublicBarRequest() {
+    // Build entity and variable maps
+    HttpEntity<String> entity = new HttpEntity<>(headers);
+    String unknownQuery = "unknownQuery";
+    ResponseEntity<AweRestResponse> response = restTemplate.exchange(
+            createURLWithPort("/api/public/data/" + unknownQuery),
+            HttpMethod.POST, entity, AweRestResponse.class);
+
+    Assert.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
+    Assert.assertEquals(AnswerType.ERROR,  Objects.requireNonNull(response.getBody()).getType());
   }
 
 
