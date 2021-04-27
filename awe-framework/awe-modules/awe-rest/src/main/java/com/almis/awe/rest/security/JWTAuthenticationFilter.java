@@ -1,6 +1,7 @@
 package com.almis.awe.rest.security;
 
-import com.almis.awe.rest.dto.ErrorResponse;
+import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
@@ -64,21 +65,24 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
-    log.warn("[awe-rest] [/api/authenticate] Unsuccessful authentication in : " + exception.getMessage());
-    ErrorResponse authenticationError = new ErrorResponse();
+    log.warn("[awe-rest] [/api/authenticate] Unsuccessful authentication in: " + exception.getMessage());
+    AweRestResponse authenticationError = new AweRestResponse();
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
     if (exception instanceof BadCredentialsException) {
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
-      authenticationError.setCode(HttpStatus.UNAUTHORIZED.value());
+      authenticationError.setType(AnswerType.ERROR);
+      authenticationError.setTitle("Unauthorized");
       authenticationError.setMessage("Bad credentials");
     } else if (exception instanceof UsernameNotFoundException){
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
-      authenticationError.setCode(HttpStatus.UNAUTHORIZED.value());
+      authenticationError.setType(AnswerType.ERROR);
+      authenticationError.setTitle("Unauthorized");
       authenticationError.setMessage("User not found or not active");
     } else {
       response.setStatus(HttpStatus.BAD_REQUEST.value());
-      authenticationError.setCode(HttpStatus.BAD_REQUEST.value());
+      authenticationError.setType(AnswerType.ERROR);
+      authenticationError.setTitle("Bad request");
       authenticationError.setMessage(exception.getMessage());
     }
     response.getWriter().write(objectMapper.writeValueAsString(authenticationError));

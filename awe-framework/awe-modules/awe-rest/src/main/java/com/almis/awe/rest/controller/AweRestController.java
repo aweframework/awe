@@ -3,8 +3,8 @@ package com.almis.awe.rest.controller;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
-import com.almis.awe.rest.dto.ErrorResponse;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.rest.dto.RequestParameter;
 import com.almis.awe.rest.service.JWTTokenService;
@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,10 +31,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/api")
+@Log4j2
 @Tags({@Tag(name = "Authentication API", description = "Authentication service"),
         @Tag(name = "Public API", description = "Public admin interface to launch AWE services"),
         @Tag(name = "Protected API", description = "Protected admin interface to launch AWE services")})
 public class AweRestController {
+
+  // Constants
+  public static final String AWE_REST = "[awe-rest] ";
 
   // Autowired services
   private final QueryService queryService;
@@ -62,6 +67,13 @@ public class AweRestController {
     this.objectMapper = objectMapper;
   }
 
+  /**
+   * Authenticate service. Generate JWT Token for authentication
+   * @param username User name
+   * @param password User password
+   * @param httpServletResponse response
+   * @return LoginResponse with jwt token info
+   */
   @PostMapping("/authenticate")
   @ApiOperation(value = "Authentication service.",
           notes = "Provides a JWT token to be sent as http header in services that require authentication.",
@@ -179,16 +191,21 @@ public class AweRestController {
   }
 
   /**
-   * Handle upload error
+   * Handle rest error
    *
    * @param exc Exception to handle
-   * @return Response error
+   * @return Rest response error
    */
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public ErrorResponse handleException(Exception exc) {
+  public AweRestResponse handleException(Exception exc) {
+    log.debug(AWE_REST + exc);
     // Retrieve exception
-    return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exc.getMessage());
+    AweRestResponse aweRestResponse = new AweRestResponse();
+    aweRestResponse.setType(AnswerType.ERROR);
+    aweRestResponse.setTitle(AWE_REST);
+    aweRestResponse.setMessage(exc.getMessage());
+    return aweRestResponse;
   }
 
   /**
@@ -199,22 +216,32 @@ public class AweRestController {
    */
   @ExceptionHandler(AWException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ErrorResponse handleException(AWException exc) {
+  public AweRestResponse handleException(AWException exc) {
+    log.debug(AWE_REST + exc);
     // Retrieve exception
-    return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), exc.getMessage());
+    AweRestResponse aweRestResponse = new AweRestResponse();
+    aweRestResponse.setType(AnswerType.ERROR);
+    aweRestResponse.setTitle(AWE_REST);
+    aweRestResponse.setMessage(exc.getMessage());
+    return aweRestResponse;
   }
 
   /**
-   * Handle upload error
+   * Handle authentication error
    *
    * @param exc Exception to handle
    * @return Response error
    */
   @ExceptionHandler(AuthenticationException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  public ErrorResponse handleAuthenticationException(Exception exc) {
+  public AweRestResponse handleAuthenticationException(Exception exc) {
+    log.debug(AWE_REST + exc);
     // Retrieve exception
-    return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "Not authorized. " + exc.getMessage());
+    AweRestResponse aweRestResponse = new AweRestResponse();
+    aweRestResponse.setType(AnswerType.ERROR);
+    aweRestResponse.setTitle(AWE_REST);
+    aweRestResponse.setMessage("Not authorized. " + exc.getMessage());
+    return aweRestResponse;
   }
 
   /**
