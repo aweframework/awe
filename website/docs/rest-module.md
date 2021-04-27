@@ -1,5 +1,6 @@
 ---
-id: rest title: Rest API Module
+id: rest 
+title: Rest API Module
 ---
 
 What's a REST api? REST stands for **Re**presentational **S**tate **T**ransfer. (It is sometimes spelled "REST".) It
