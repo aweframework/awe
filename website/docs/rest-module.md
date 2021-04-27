@@ -17,7 +17,34 @@ Much like Web Services, a REST service is:
 - Standards-based (runs on top of HTTP)
 - Can easily be used in the presence of firewalls
 
+To activate this module, follow this steps:
+
+- Add **awe-rest dependencies** to pom.xml descriptor.
+
+```xml
+<dependencies>
+...
+  <dependency>
+    <groupId>com.almis.awe</groupId>
+    <artifactId>awe-rest-spring-boot-starter</artifactId>
+  </dependency>
+...
+</dependencies>
+```
+
 <img alt="AWE Rest" src={require('@docusaurus/useBaseUrl').default('img/AWE_Rest.png')} />
+
+## **AWE Rest configuration properties**
+
+This module provides the following properties to overwrite the `awe-rest-spring-boot-starter` starter:
+
+| Key | Default value | Description |
+|-----|---------------|-------------|
+| awe.rest.jwt.authorization-header | `Authorization` | Authentication header name |
+| awe.rest.jwt.jwt-prefix |  | JWT token prefix |
+| awe.rest.jwt.jwt-secret | `${security.master.key}` security property  | JWT secret password for sign token |
+| awe.rest.jwt.jwt-issuer | `AWE ISSUER` | JWT issuer name |
+| awe.rest.jwt.jwt-expiration-time | `60m` | JWT time valid token to expire |
 
 ## **Services**
 
