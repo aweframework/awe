@@ -8,6 +8,7 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
+import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
 import com.almis.awe.security.handler.AweLogoutHandler;
 import com.almis.awe.service.AccessService;
@@ -40,6 +41,7 @@ import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -51,10 +53,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Spring security main configuration method
- * Created by dfuentes on 06/03/2017.
- */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
@@ -64,20 +62,22 @@ public class SecurityConfig extends ServiceConfig {
   private final AweSessionDetails aweSessionDetails;
   private final LogUtil logger;
   private final AweElements elements;
-  private final ObjectMapper mapper;
+  private final ObjectMapper objectMapper;
 
   /**
    * Autowired constructor
    *
-   * @param sessionDetails Session details
-   * @param logger         Logger
+   * @param sessionDetails AWE session details
+   * @param logger         Log utility
+   * @param elements       Awe elements
+   * @param objectMapper   Object mapper
    */
   @Autowired
-  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements, ObjectMapper mapper) {
+  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements, ObjectMapper objectMapper) {
     this.aweSessionDetails = sessionDetails;
     this.logger = logger;
     this.elements = elements;
-    this.mapper = mapper;
+    this.objectMapper = objectMapper;
   }
 
   private enum AUTHENTICATION_MODE {
@@ -92,21 +92,10 @@ public class SecurityConfig extends ServiceConfig {
       this.mode = mode;
     }
 
-    /**
-     * Get security value
-     *
-     * @return Mode
-     */
     public String getValue() {
       return mode;
     }
 
-    /**
-     * Get authentication from value
-     *
-     * @param value Value
-     * @return Authentication mode
-     */
     public static AUTHENTICATION_MODE fromValue(String value) {
       if (value.equalsIgnoreCase(LDAP.getValue())) {
         return LDAP;
@@ -191,7 +180,7 @@ public class SecurityConfig extends ServiceConfig {
   };
 
   /**
-   * Second configuration class for spring security
+   * Configuration class for spring security
    */
   @Configuration
   public class AWEScreenSecurityAdapter extends WebSecurityConfigurerAdapter {
@@ -211,6 +200,8 @@ public class SecurityConfig extends ServiceConfig {
               .anyRequest().authenticated()
               // Login redirect
               .and().formLogin().loginPage("/").permitAll()
+              // Add entrypoint for exception handling
+              .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
               // Add a filter to parse login parameters
               .and().addFilterAfter(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
               // Add logout handler
@@ -270,7 +261,7 @@ public class SecurityConfig extends ServiceConfig {
       }
       try {
         // Read the parameters
-        getRequest().setParameterList((ObjectNode) mapper.readTree(body));
+        getRequest().setParameterList((ObjectNode) objectMapper.readTree(body));
       } catch (IOException exc) {
         // Do nothing
       }
@@ -338,10 +329,20 @@ public class SecurityConfig extends ServiceConfig {
     }
 
     /**
-     * Retrieve a logout handler
-     *
-     * @param sessionDetails Session details
-     * @return Logout handler
+     * Authentication entry point.
+     * Handle exceptions for awe actions
+     * @param sessionDetails AWE session details
+     * @return AuthenticationEntryPoint
+     */
+    @Bean
+    public AuthenticationEntryPoint actionAuthenticationEntryPoint(AweSessionDetails sessionDetails) {
+      return new ActionAuthenticationEntryPoint(sessionDetails);
+    }
+
+    /**
+     * Logout handler
+     * @param sessionDetails AWE session details
+     * @return AweLogoutHandler
      */
     @Bean
     public AweLogoutHandler logoutHandler(AweSessionDetails sessionDetails) {
@@ -430,21 +431,21 @@ public class SecurityConfig extends ServiceConfig {
     public LoginAccessControl loginAccessControl() {
       return new LoginAccessControl();
     }
-  }
 
-  /////////////////////////////////////////////
-  // SERVICES
-  /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    // SERVICES
+    /////////////////////////////////////////////
 
-  /**
-   * Access service
-   *
-   * @param menuService Menu service
-   * @return Access service bean
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  public AccessService accessService(MenuService menuService) {
-    return new AccessService(menuService);
+    /**
+     * Access service
+     *
+     * @param menuService Menu service
+     * @return Access service bean
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public AccessService accessService(MenuService menuService) {
+      return new AccessService(menuService);
+    }
   }
 }

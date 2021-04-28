@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 /**
  * Service to launch server calls
@@ -20,7 +20,6 @@ aweApplication.factory('Ajax',
     function ($utilities, $log, $http, $actionController, $httpParamSerializer, $loadingBar) {
 
       // Service variables;
-      let connectionType = 'Ajax';
       let connected = true;
       let encodeTransmission = false;
       let serverPath = "";
@@ -184,7 +183,10 @@ aweApplication.factory('Ajax',
 
             // Add action list
             if (angular.isArray(data)) {
-              $actionController.addActionList(data, false, {address: action.attr("callbackTarget"), context: action.attr("context")});
+              $actionController.addActionList(data, false, {
+                address: action.attr("callbackTarget"),
+                context: action.attr("context")
+              });
             }
           }
         },
@@ -194,34 +196,59 @@ aweApplication.factory('Ajax',
          * @param {Object} action Action launched
          */
         manageError: function (error, action) {
-          var target = action.attr("callbackTarget");
+          let target = action.attr("callbackTarget");
+          let actions;
 
           // Finish call action (cancel)
           $actionController.closeAllActions();
 
-          // Generate message title
-          let title = "Connection error";
-
-          // Launch message
-          let endLoad = {
-            type: 'end-load',
-            callbackTarget: target,
-            parameters: {}
-          };
-          let actions = [endLoad];
-          if (!$utilities.isEmpty(error.data)) {
-            let message = {
-              type: 'message',
-              parameters: {
-                type: "error",
-                title: title,
-                message: "[" + connectionType + "] " + error.data
-              }};
-            actions.push(message);
+          // Clean modals
+          let modalElement = document.querySelector(".modal-backdrop");
+          if (modalElement) {
+            modalElement.remove();
           }
-          // Log error output
-          $log.error("[" + connectionType + "] " + title, error);
-          $actionController.addActionList(actions, false, {address: target, context: action.attr("context")});
+
+          // Handle by error status
+          switch (error.status) {
+            case 401: // Unauthorized
+            case 403:
+              // Define actions to manage expired session
+              actions = [{
+                type: 'end-load',
+                address: target
+              }, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.data.error,
+                  message: error.data.message
+                }
+              }, {
+                type: "screen",
+                parameters: {
+                  screen: "/",
+                }
+              }];
+              // Log error output
+              $log.error("Session expired", error);
+              break;
+            case -1: // Disconnected
+            default:
+              actions = [{
+                type: 'end-load',
+                address: target
+              }, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: "ERROR_TITLE_INVALID_CONNECTION",
+                  message: "ERROR_MESSAGE_INVALID_CONNECTION"
+                }
+              }];
+              // Log error output
+              $log.error("Connection has been lost with the server", error);
+          }
+          $actionController.addActionList(actions, false, {address: {view: "base"}});
         }
       };
       return $ajax;

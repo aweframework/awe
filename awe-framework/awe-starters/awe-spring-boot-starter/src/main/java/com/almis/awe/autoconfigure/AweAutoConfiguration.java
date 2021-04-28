@@ -97,6 +97,17 @@ public class AweAutoConfiguration {
     return new AweElements(context, logger, elementsDao);
   }
 
+  /**
+   * Object mapper
+   *
+   * @return ObjectMapper bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
+  }
+
   /////////////////////////////////////////////
   // DAO
   /////////////////////////////////////////////
@@ -366,8 +377,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public ChartService chartService(ObjectMapper mapper) {
-    return new ChartService(mapper);
+  public ChartService chartService(ObjectMapper objectMapper) {
+    return new ChartService(objectMapper);
   }
 
   /////////////////////////////////////////////
