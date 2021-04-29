@@ -23,23 +23,11 @@ module.exports = (config) => {
       enabled: true,
       usePhantomJS: false,
       preferHeadless: true,
-      // Remove edge
+      // Remove PhantomJS and IE
       postDetection: function(availableBrowsers) {
-        var result = availableBrowsers;
-        var edgeIndex = availableBrowsers.indexOf('Edge');
-        console.info("LAUNCH EDGE? " + process.env["launch.edge"]);
-        if (process.env["launch.edge"] !== "true") {
-          if (edgeIndex > -1) {
-            result.splice(edgeIndex, 1);
-          }
-        }
-
-        // Replace safari to safariNative if found
-        var safariIndex = availableBrowsers.indexOf('Safari');
-        if (safariIndex > -1) {
-          result[safariIndex] = 'SafariNative';
-        }
-        return result;
+        return availableBrowsers
+          .map(browser => 'Safari' === browser ? 'SafariNative' : browser)
+          .filter(browser => !['IE', 'PhantomJS'].includes(browser));
       }
     },
     webpack: {
