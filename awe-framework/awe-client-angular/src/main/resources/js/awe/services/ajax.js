@@ -6,7 +6,7 @@ import {aweApplication} from "./../awe";
  * @param {Array} Injection call
  */
 aweApplication.factory('Ajax',
-  ['AweUtilities', '$log', '$http', 'ActionController', '$httpParamSerializerJQLike', 'LoadingBar', '$document',
+  ['AweUtilities', '$log', '$http', 'ActionController', '$httpParamSerializerJQLike', 'LoadingBar',
     /**
      * Retrieve the comet connection object
      * @param {object} $utilities AweUtilities service
@@ -15,10 +15,9 @@ aweApplication.factory('Ajax',
      * @param {object} $actionController Action controller
      * @param {object} $httpParamSerializer Parameter serializer
      * @param {object} $loadingBar Loading bar
-     * @param {object} $document Document
      * @returns {Object} Ajax connection
      */
-    function ($utilities, $log, $http, $actionController, $httpParamSerializer, $loadingBar, $document) {
+    function ($utilities, $log, $http, $actionController, $httpParamSerializer, $loadingBar) {
 
       // Service variables;
       let connected = true;
