@@ -4,6 +4,7 @@ import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.dto.RequestParameter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@Log4j2
 @FixMethodOrder (MethodSorters.NAME_ASCENDING)
 public class MaintainRestControllerTest extends AweSpringRestTests {
 

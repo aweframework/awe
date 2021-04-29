@@ -6,7 +6,7 @@ import {aweApplication} from "./../awe";
  * @param {Array} Injection call
  */
 aweApplication.factory('Ajax',
-  ['AweUtilities', '$log', '$http', 'ActionController', '$httpParamSerializerJQLike', 'LoadingBar',
+  ['AweUtilities', '$log', '$http', 'ActionController', '$httpParamSerializerJQLike', 'LoadingBar', '$document',
     /**
      * Retrieve the comet connection object
      * @param {object} $utilities AweUtilities service
@@ -15,9 +15,10 @@ aweApplication.factory('Ajax',
      * @param {object} $actionController Action controller
      * @param {object} $httpParamSerializer Parameter serializer
      * @param {object} $loadingBar Loading bar
+     * @param {object} $document Document
      * @returns {Object} Ajax connection
      */
-    function ($utilities, $log, $http, $actionController, $httpParamSerializer, $loadingBar) {
+    function ($utilities, $log, $http, $actionController, $httpParamSerializer, $loadingBar, $document) {
 
       // Service variables;
       let connected = true;
@@ -203,7 +204,7 @@ aweApplication.factory('Ajax',
           $actionController.closeAllActions();
 
           // Clean modals
-          let modalElement = document.querySelector(".modal-backdrop");
+          let modalElement = $document[0].querySelector(".modal-backdrop");
           if (modalElement) {
             modalElement.remove();
           }
