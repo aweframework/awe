@@ -1,5 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', function() {
-  let $injector, $ajax, $settings, $httpBackend, $loadingBar, $actionController, Action, $document, $log;
+  let $injector, $ajax, $settings, $httpBackend, $loadingBar, $actionController, Action, $log;
   let originalTimeout;
 
   // Mock module
@@ -14,7 +14,6 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
       $loadingBar = $injector.get('LoadingBar');
       $actionController = $injector.get('ActionController');
       Action = $injector.get('Action');
-      $document = $injector.get('$document');
       $log = $injector.get('$log');
 
       // Get settings
@@ -91,7 +90,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     spyOn($actionController, "closeAllActions");
     spyOn($actionController, "addActionList");
     spyOn($log, "error");
-    $document[0].querySelector = jasmine.createSpy('HTML Element').and.returnValue({remove: () => null});
+    // $document[0].querySelector = jasmine.createSpy('HTML Element').and.returnValue({remove: () => null});
 
     // Launch
     let action = new Action();

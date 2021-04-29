@@ -204,7 +204,7 @@ aweApplication.factory('Ajax',
           $actionController.closeAllActions();
 
           // Clean modals
-          let modalElement = $document[0].querySelector(".modal-backdrop");
+          let modalElement = document.querySelector(".modal-backdrop");
           if (modalElement) {
             modalElement.remove();
           }
