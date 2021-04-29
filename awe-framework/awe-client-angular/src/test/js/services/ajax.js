@@ -14,6 +14,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
       $loadingBar = $injector.get('LoadingBar');
       $actionController = $injector.get('ActionController');
       Action = $injector.get('Action');
+      $document = $injector.get('$document');
       $log = $injector.get('$log');
 
       // Get settings
@@ -90,6 +91,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     spyOn($actionController, "closeAllActions");
     spyOn($actionController, "addActionList");
     spyOn($log, "error");
+    $document[0].querySelector = jasmine.createSpy('HTML Element').and.returnValue({remove: () => null});
 
     // Launch
     let action = new Action();
@@ -188,7 +190,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     // Launch
     let message = {data: [{tutu: "lala"}]};
     let action = new Action();
-    $ajax.manageMessage(message, action)
+    $ajax.manageMessage(message, action);
 
     // Assert
     expect($actionController.addActionList).toHaveBeenCalled();
@@ -203,7 +205,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     let message = {data: {tutu: "lala"}};
     let action = new Action();
     action.destroy();
-    $ajax.manageMessage(message, action)
+    $ajax.manageMessage(message, action);
 
     // Assert
     expect($actionController.addActionList).not.toHaveBeenCalled();
@@ -217,7 +219,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     // Launch
     let message = {data: {tutu: "lala"}};
     let action = new Action();
-    $ajax.manageMessage(message, action)
+    $ajax.manageMessage(message, action);
 
     // Assert
     expect($actionController.addActionList).not.toHaveBeenCalled();
@@ -231,7 +233,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     // Launch
     let message = {data: [{tutu: "lala"}]};
     let action = new Action();
-    $ajax.manageError(message, action)
+    $ajax.manageError(message, action);
 
     // Assert
     expect($actionController.addActionList).toHaveBeenCalled();
