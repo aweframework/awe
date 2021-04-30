@@ -17,6 +17,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
@@ -35,16 +36,9 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
   // White list urls
   private static final String[] AUTH_LIST = {
-          // -- swagger ui
-          "/v2/api-docs",
-          "/swagger-resources/**",
-          "/swagger-ui/",
-          "/swagger-ui/**",
-          "/swagger-ui.html",
-          "/webjars/**",
-          // Rest API
-          "/api/authenticate",
-          "/api/public/**"
+    // Rest API
+    "/api/authenticate",
+    "/api/public/**"
   };
 
   @Autowired
@@ -58,7 +52,7 @@ public class RestSecurityConfiguration extends ServiceConfig {
    * Rest security configuration adapter
    */
   @Configuration
-  @Order(1)
+  @Order(99)
   public class RestSecurityConfigurationImpl extends WebSecurityConfigurerAdapter {
 
     @Override
@@ -76,6 +70,18 @@ public class RestSecurityConfiguration extends ServiceConfig {
               .addFilter(new JWTAuthorizationFilter(authenticationManager, aweUserDetailService, getBean(JWTTokenService.class)));
     }
 
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+      web.ignoring().antMatchers(
+              // -- swagger ui
+              "/v2/api-docs",
+              "/swagger-resources/**",
+              "/swagger-ui/",
+              "/swagger-ui/**",
+              "/swagger-ui.html",
+              "/webjars/**");
+    }
+
     @Bean
     ModelMapper modelMapper() {
       return new ModelMapper();
@@ -83,6 +89,7 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
     /**
      * JWT Token service
+     *
      * @param restConfigProperties Rest config properties
      * @return JWTTokenService
      */

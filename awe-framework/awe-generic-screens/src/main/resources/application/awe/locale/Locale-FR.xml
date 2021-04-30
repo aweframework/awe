@@ -387,6 +387,7 @@
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="Il y avait un problème de récupération de l&apos;état du téléchargement de fichier"/>
   <locale name="ERROR_MESSAGE_FILENAME_SIZE_LIMIT" value="Le nom du fichier téléchargé a une taille de {0} chars, et au-dessus du maximum autorisé: 160 chars"/>
   <locale name="ERROR_MESSAGE_FILL_STATEMENT_VARIABLES" value="Erreur dans la variable. Index {0} - Type: {1} - Valeur: {2}"/>
+  <locale name="ERROR_MESSAGE_FORBIDDEN_ACCESS" value="L'accès à la ressource demandée est interdit"/>
   <locale name="ERROR_MESSAGE_FORMAT_COMPUTED" value="Il y avait un problème de mise en champ calculé avec la valeur {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_SERVICE_DATA" value="Il ya eu un problème avec le formatage des donnees du service {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_TOTALIZED" value="Il ya eu un problème avec le formatage de la valeur totalisée {0} sur le terrain"/>

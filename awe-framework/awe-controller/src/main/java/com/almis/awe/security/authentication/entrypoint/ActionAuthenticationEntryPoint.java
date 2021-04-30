@@ -34,7 +34,7 @@ public class ActionAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
   @Override
   public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException exception) throws IOException, ServletException {
-    log.info("Action entryPoint. Invalid session expired [{}]", httpServletRequest.getSession().getId());
+    log.error("Action Authentication entryPoint. Invalid session expired [{}]", httpServletRequest.getSession().getId());
 
     // Clear websocket connections
     sessionDetails.onLogoutSuccess();

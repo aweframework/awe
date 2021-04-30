@@ -387,6 +387,7 @@
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="There was a problem retrieving the status of the file upload"/>
   <locale name="ERROR_MESSAGE_FILENAME_SIZE_LIMIT" value="The uploaded file has a filename length of {0} chars, and exceeds the maximum allowed: 160 chars"/>
   <locale name="ERROR_MESSAGE_FILL_STATEMENT_VARIABLES" value="Error in variable. Index {0} - Type: {1} - Value: {2}"/>
+  <locale name="ERROR_MESSAGE_FORBIDDEN_ACCESS" value="Access to the requested resource is forbidden"/>
   <locale name="ERROR_MESSAGE_FORMAT_COMPUTED" value="There was a problem formatting computed field with value {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_SERVICE_DATA" value="There was a problem formatting service data {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_TOTALIZED" value="There was a problem formatting totalized field with value {0}"/>

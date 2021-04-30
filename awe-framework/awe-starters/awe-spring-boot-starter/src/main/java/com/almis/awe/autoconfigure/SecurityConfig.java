@@ -10,6 +10,7 @@ import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
+import com.almis.awe.security.handler.AweAccessDeniedHandler;
 import com.almis.awe.security.handler.AweLogoutHandler;
 import com.almis.awe.service.AccessService;
 import com.almis.awe.service.MenuService;
@@ -33,6 +34,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
@@ -42,6 +44,7 @@ import org.springframework.security.ldap.authentication.LdapAuthenticationProvid
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -156,27 +159,12 @@ public class SecurityConfig extends ServiceConfig {
 
   // White list urls
   private static final String[] AUTH_LIST = {
-          "/",
           "/websocket/**",
-          "/settings",
-          "/css/**",
-          "/js/**",
-          "/images/**",
-          "/fonts/**",
-          "/*.ico",
-          "/*.html",
-          "/*.map",
           "/template/**",
+          "/settings",
           "/action/get-locals",
           "/action/screen-data",
-          "/screen/public/**",
-          // -- swagger ui
-          "/v2/api-docs",
-          "/swagger-resources/**",
-          "/swagger-ui/",
-          "/swagger-ui/**",
-          "/swagger-ui.html",
-          "/webjars/**"
+          "/screen/public/**"
   };
 
   /**
@@ -193,25 +181,46 @@ public class SecurityConfig extends ServiceConfig {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+      http.antMatcher("/**")
               .headers().xssProtection().block(false).and()
               .and().authorizeRequests()
+              // Web
               .antMatchers(AUTH_LIST).permitAll()
               .anyRequest().authenticated()
               // Login redirect
               .and().formLogin().loginPage("/").permitAll()
-              // Add entrypoint for exception handling
+              // Exceptions handling
+              .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
               .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
               // Add a filter to parse login parameters
-              .and().addFilterAfter(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
+              .and().addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
               // Add logout handler
               .logout().logoutUrl("/action/logout")
               .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-              .addLogoutHandler(getBean(AweLogoutHandler.class));
+              .addLogoutHandler(getBean(AweLogoutHandler.class))
+              // CSRF
+              .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 
       if (sameOrigin) {
         http.headers().frameOptions().sameOrigin();
       }
+    }
+
+    /**
+     * Allows access to static resources, bypassing Spring security.
+     */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+      web.ignoring().antMatchers(
+              // Web resources
+              "/css/**",
+              "/js/**",
+              "/images/**",
+              "/fonts/**",
+              "/*.ico",
+              "/*.html",
+              "/*.map",
+              "/webjars/**");
     }
 
     /**
@@ -337,6 +346,17 @@ public class SecurityConfig extends ServiceConfig {
     @Bean
     public AuthenticationEntryPoint actionAuthenticationEntryPoint(AweSessionDetails sessionDetails) {
       return new ActionAuthenticationEntryPoint(sessionDetails);
+    }
+
+    /**
+     * Access denied handler.
+     * Handle forbidden access (403)
+     *
+     * @return Access denied handler
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+      return new AweAccessDeniedHandler();
     }
 
     /**

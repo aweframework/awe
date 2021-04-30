@@ -104,6 +104,25 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     expect($actionController.addActionList).toHaveBeenCalled();
   });
 
+  // Handler 403 error
+  it('should show error message 403', function() {
+    // Mock
+    spyOn($actionController, "closeAllActions");
+    spyOn($actionController, "addActionList");
+    spyOn($log, "error");
+
+    // Launch
+    let action = new Action();
+    action.attr("silent", true);
+    $ajax.manageError({status: 403, data:{error:"Forbidden access", message:"Forbidden access"}}, action);
+    $httpBackend.flush();
+
+    // Assert
+    expect($actionController.closeAllActions).toHaveBeenCalled();
+    expect($log.error).toHaveBeenCalled();
+    expect($actionController.addActionList).toHaveBeenCalled();
+  });
+
   // Handler default error
   it('should show default error message', function() {
     // Mock

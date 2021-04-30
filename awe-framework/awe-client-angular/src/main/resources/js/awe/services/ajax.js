@@ -156,7 +156,7 @@ aweApplication.factory('Ajax',
         },
         /**
          * Serialize the post parameters
-         * @param {Object} message Send message parameters
+         * @param {Object} parameters Pparameters
          * @return {Object} Serialized parameters
          */
         serializeParameters: function (parameters) {
@@ -208,11 +208,9 @@ aweApplication.factory('Ajax',
             modalElement.remove();
           }
 
-          // Handle by error status
+          // Handle by error status. Define actions to manage errors
           switch (error.status) {
             case 401: // Unauthorized
-            case 403:
-              // Define actions to manage expired session
               actions = [{
                 type: 'end-load',
                 address: target
@@ -231,6 +229,21 @@ aweApplication.factory('Ajax',
               }];
               // Log error output
               $log.error("Session expired", error);
+              break;
+            case 403: // Forbidden
+              actions = [{
+                type: 'end-load',
+                address: target
+              }, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.data.error,
+                  message: error.data.message
+                }
+              }];
+              // Log error output
+              $log.error("Forbidden access", error);
               break;
             case -1: // Disconnected
             default:
