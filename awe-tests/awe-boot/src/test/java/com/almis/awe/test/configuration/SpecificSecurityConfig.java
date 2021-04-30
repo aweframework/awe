@@ -19,7 +19,7 @@ public class SpecificSecurityConfig extends ServiceConfig {
    * Second configuration class for spring security
    */
   @Configuration
-  @Order(99)
+  @Order(98)
   public class AWEScreenSecurityAdapter extends WebSecurityConfigurerAdapter {
 
     /**
