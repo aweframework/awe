@@ -30,7 +30,10 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.EnableCaching;
@@ -95,6 +98,21 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public AweElements aweElements(LogUtil logger, AweElementsDao elementsDao) {
     return new AweElements(context, logger, elementsDao);
+  }
+
+  /**
+   * Object mapper
+   *
+   * @return ObjectMapper bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ObjectMapper objectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    return objectMapper;
   }
 
   /////////////////////////////////////////////
@@ -366,8 +384,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public ChartService chartService(ObjectMapper mapper) {
-    return new ChartService(mapper);
+  public ChartService chartService(ObjectMapper objectMapper) {
+    return new ChartService(objectMapper);
   }
 
   /////////////////////////////////////////////

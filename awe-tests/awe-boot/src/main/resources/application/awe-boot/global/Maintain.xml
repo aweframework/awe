@@ -703,6 +703,19 @@
     </delete>
   </target>
 
+  <!-- Test public delete -->
+  <target name="testPublicDelete" public="true">
+    <delete>
+      <table id="HISAweMod"/>
+      <where>
+        <and>
+          <filter left-field="HISope" condition="eq" right-variable="User"/>
+        </and>
+      </where>
+      <variable id="User" type="STRING"/>
+    </delete>
+  </target>
+
   <!-- Test include -->
   <target name="testInclude">
     <include-target name="testInsert"/>

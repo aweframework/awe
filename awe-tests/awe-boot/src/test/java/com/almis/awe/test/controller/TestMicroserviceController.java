@@ -1,6 +1,5 @@
 package com.almis.awe.test.controller;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
@@ -27,15 +26,21 @@ public class TestMicroserviceController {
 
   /**
    * Test post parameter list
+   *
+   * @param database Database parameter
+   * @param user User parameter
+   * @param date Date parameter
+   * @param parameterNumber Number of parameters
+   * @param request Http request
    * @return Empty service data
    */
   @PostMapping(value = "/alu-microservice/data/aluWbsCorGetKey")
   @ResponseBody
-  public ServiceData testPostParameterList(@RequestParam(name = "database", required = true) String database,
-                                           @RequestParam(name = "username", required = true) String user,
-                                           @RequestParam(name = "AppDat", required = true) @DateTimeFormat(pattern="dd/MM/yyyy") Date date,
-                                           @RequestParam(name = "numPar", required = true) Integer parameterNumber,
-                                           HttpServletRequest request) throws AWException {
+  public ServiceData testPostParameterList(@RequestParam(name = "database") String database,
+                                           @RequestParam(name = "username") String user,
+                                           @RequestParam(name = "AppDat") @DateTimeFormat(pattern="dd/MM/yyyy") Date date,
+                                           @RequestParam(name = "numPar") Integer parameterNumber,
+                                           HttpServletRequest request) {
     // Initialize parameters
     return new ServiceData();
   }
@@ -44,9 +49,9 @@ public class TestMicroserviceController {
    * Test post parameter list
    * @return Empty service data
    */
-  @PostMapping(value = "/alu-microservice2/invoke/{lala}")
+  @PostMapping(value = "/alu-microservice/invoke/{lala}")
   @ResponseBody
-  public ServiceData testPostParameterListAnotherMicroservice(@PathVariable(value = "lala", required = true) String lala, @RequestBody ObjectNode jsonData, HttpServletRequest request) throws AWException {
+  public ServiceData testPostParameterListAnotherMicroservice(@PathVariable(value = "lala") String lala, @RequestBody ObjectNode jsonData, HttpServletRequest request) {
     Map<String, CellData> row = new HashMap<>();
     row.put("text", new CellData("test"));
     row.put("date", new CellData(new GregorianCalendar(1978, Calendar.OCTOBER, 23).getTime()));
@@ -68,9 +73,9 @@ public class TestMicroserviceController {
    * Test post parameter list
    * @return Empty service data
    */
-  @PostMapping(value = "/alu-microservice3/invoke")
+  @PostMapping(value = "/alu-microservice/invoke")
   @ResponseBody
-  public ServiceData testPostMicroservice(HttpServletRequest request) throws AWException {
+  public ServiceData testPostMicroservice(HttpServletRequest request) {
     // Initialize parameters
     return new ServiceData();
   }
@@ -81,7 +86,7 @@ public class TestMicroserviceController {
    */
   @GetMapping(value = "/alu-service-bis/invoke")
   @ResponseBody
-  public ServiceData testGetOverwriteMicroservice(HttpServletRequest request) throws AWException {
+  public ServiceData testGetOverwriteMicroservice(HttpServletRequest request) {
     // Initialize parameters
     return new ServiceData();
   }
@@ -92,7 +97,7 @@ public class TestMicroserviceController {
    */
   @GetMapping(value = "/alu-service-bis/error")
   @ResponseBody
-  public ServiceData testGetOverwriteMicroserviceError(HttpServletRequest request) throws AWException {
+  public ServiceData testGetOverwriteMicroserviceError(HttpServletRequest request) {
     // Initialize parameters
     return new ServiceData().setType(AnswerType.ERROR).setTitle("Error title").setMessage("Error message");
   }
@@ -103,7 +108,7 @@ public class TestMicroserviceController {
    */
   @GetMapping(value = "/alu-service-bis/warning")
   @ResponseBody
-  public ServiceData testGetOverwriteMicroserviceWarning(HttpServletRequest request) throws AWException {
+  public ServiceData testGetOverwriteMicroserviceWarning(HttpServletRequest request) {
     // Initialize parameters
     return new ServiceData().setType(AnswerType.WARNING).setTitle("Warning title").setMessage("Warning message");
   }
@@ -114,7 +119,7 @@ public class TestMicroserviceController {
    */
   @GetMapping(value = "/alu-service-bis/info")
   @ResponseBody
-  public ServiceData testGetOverwriteMicroserviceInfo(HttpServletRequest request) throws AWException {
+  public ServiceData testGetOverwriteMicroserviceInfo(HttpServletRequest request) {
     // Initialize parameters
     return new ServiceData().setType(AnswerType.INFO).setTitle("Info title").setMessage("Info message");
   }

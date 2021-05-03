@@ -17,7 +17,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
@@ -75,11 +74,9 @@ public class AweSessionDetails extends ServiceConfig {
 
   /**
    * Manage login success
-   *
-   * @param authentication Authentication
    */
-  public void onLoginSuccess(Authentication authentication) {
-    AweSession session = getSession().setAuthentication(authentication);
+  public void onLoginSuccess() {
+    AweSession session = getSession();
 
     // Store user in session
     session.setParameter(SESSION_USER, session.getUser());

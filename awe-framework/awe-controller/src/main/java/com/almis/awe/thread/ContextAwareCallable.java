@@ -1,5 +1,7 @@
 package com.almis.awe.thread;
 
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -10,8 +12,9 @@ import java.util.concurrent.Callable;
  * @param <T> type of ContextAwareCallable
  */
 public class ContextAwareCallable<T> implements Callable<T> {
-  private Callable<T> task;
-  private RequestAttributes context;
+  private final Callable<T> task;
+  private final RequestAttributes context;
+  private final SecurityContext securityContext;
 
   /**
    * Constructor
@@ -19,9 +22,10 @@ public class ContextAwareCallable<T> implements Callable<T> {
    * @param task task
    * @param context context
    */
-  public ContextAwareCallable(Callable<T> task, RequestAttributes context) {
+  public ContextAwareCallable(Callable<T> task, RequestAttributes context, SecurityContext securityContext) {
     this.task = task;
     this.context = context;
+    this.securityContext = securityContext;
   }
 
   /**
@@ -35,11 +39,16 @@ public class ContextAwareCallable<T> implements Callable<T> {
     if (context != null) {
       RequestContextHolder.setRequestAttributes(context);
     }
+    if (securityContext != null) {
+      SecurityContextHolder.setContext(securityContext);
+    }
 
     try {
       return task.call();
     } finally {
+      // Clear context
       RequestContextHolder.resetRequestAttributes();
+      SecurityContextHolder.clearContext();
     }
   }
 }

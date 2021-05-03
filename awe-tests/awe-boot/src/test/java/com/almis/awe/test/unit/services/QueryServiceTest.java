@@ -3,7 +3,6 @@ package com.almis.awe.test.unit.services;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
-import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
@@ -12,7 +11,6 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
@@ -76,17 +74,10 @@ public class QueryServiceTest {
     queryService.launchQueryAction();
   }
 
-  @Test(expected = AWException.class)
+  @Test(expected = BadCredentialsException.class)
   public void launchQueryActionQueryExceptionWithMessage() throws Exception {
     when(aweRequest.getTargetAction()).thenReturn("target");
     when(aweElements.getQuery(anyString())).thenThrow(new BadCredentialsException("Error"));
-    queryService.launchQueryAction();
-  }
-
-  @Test(expected = AWException.class)
-  public void launchQueryActionQueryExceptionWithoutMessage() throws Exception {
-    when(aweRequest.getTargetAction()).thenReturn("target");
-    when(aweElements.getQuery(anyString())).thenThrow(new NullPointerException());
     queryService.launchQueryAction();
   }
 

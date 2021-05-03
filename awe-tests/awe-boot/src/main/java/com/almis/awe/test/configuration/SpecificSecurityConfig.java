@@ -1,19 +1,28 @@
 package com.almis.awe.test.configuration;
 
-import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.test.listener.TestSessionListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
- * Spring security main configuration method
- * Created by dfuentes on 06/03/2017.
+ * Custom Spring security configuration
  */
+@Order(2)
 @Configuration
-@Profile({"gitlab-ci"})
-public class SpecificSecurityConfig extends ServiceConfig {
+public class SpecificSecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Value("${management.endpoints.web.base-path:/actuator}")
+  private String actuatorEndpoint;
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.antMatcher(actuatorEndpoint + "/**").anonymous();
+  }
 
   @Bean
   public ServletListenerRegistrationBean<TestSessionListener> sessionListenerWithMetrics() {

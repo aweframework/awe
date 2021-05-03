@@ -2322,7 +2322,7 @@ public class QueryTest extends AweSpringDatabaseTests {
     Date currentDate = new Date();
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
     Date parsedDate = sdf.parse(date + " " + time);
-    logger.debug("Retrieved date: " + parsedDate.toString() + " - Current date: " + currentDate.toString());
+    logger.debug("Retrieved date: " + parsedDate.toString() + " - Current date: " + currentDate);
     logger.debug("Difference between dates: " + (currentDate.getTime() - parsedDate.getTime()));
 
     sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
@@ -3176,10 +3176,9 @@ public class QueryTest extends AweSpringDatabaseTests {
   @Test
   @WithAnonymousUser
   public void testCheckAnonymousUserQuery() throws Exception {
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"Session has expired. Please reload\",\"title\":\"Error in maintain operation\",\"type\":\"error\"}},{\"type\":\"cancel\"}]";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"Error launching maintain [SimpleSingleInsert] without authorization\",\"title\":\"Error in maintain operation\",\"type\":\"error\"}},{\"type\":\"cancel\"}]";
 
     mockMvc.perform(post("/action/maintain/SimpleSingleInsert")
-      .header("Authorization", "16617f0d-97ee-4f6b-ad54-905d6ce3c328")
       .content("{\"max\":30}")
       .contentType(MediaType.APPLICATION_JSON)
       .accept(MediaType.APPLICATION_JSON))

@@ -44,7 +44,6 @@
     "numeral": "^2.0.6",
     "sockjs-client": "^1.1.1",
     "spin.js": "^2.3.2",
-
     "lodash-webpack-plugin": "^0.11.5",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",

@@ -8,7 +8,9 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
+import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
+import com.almis.awe.security.handler.AweAccessDeniedHandler;
 import com.almis.awe.security.handler.AweLogoutHandler;
 import com.almis.awe.service.AccessService;
 import com.almis.awe.service.MenuService;
@@ -30,7 +32,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
@@ -39,6 +43,8 @@ import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -50,32 +56,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Spring security main configuration method
- * Created by dfuentes on 06/03/2017.
- */
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig extends ServiceConfig {
 
   // Autowired services
   private final AweSessionDetails aweSessionDetails;
   private final LogUtil logger;
   private final AweElements elements;
-  private final ObjectMapper mapper;
+  private final ObjectMapper objectMapper;
 
   /**
    * Autowired constructor
    *
-   * @param sessionDetails Session details
-   * @param logger         Logger
+   * @param sessionDetails AWE session details
+   * @param logger         Log utility
+   * @param elements       Awe elements
+   * @param objectMapper   Object mapper
    */
   @Autowired
-  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements, ObjectMapper mapper) {
+  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements, ObjectMapper objectMapper) {
     this.aweSessionDetails = sessionDetails;
     this.logger = logger;
     this.elements = elements;
-    this.mapper = mapper;
+    this.objectMapper = objectMapper;
   }
 
   private enum AUTHENTICATION_MODE {
@@ -90,21 +95,10 @@ public class SecurityConfig extends ServiceConfig {
       this.mode = mode;
     }
 
-    /**
-     * Get security value
-     *
-     * @return Mode
-     */
     public String getValue() {
       return mode;
     }
 
-    /**
-     * Get authentication from value
-     *
-     * @param value Value
-     * @return Authentication mode
-     */
     public static AUTHENTICATION_MODE fromValue(String value) {
       if (value.equalsIgnoreCase(LDAP.getValue())) {
         return LDAP;
@@ -160,11 +154,21 @@ public class SecurityConfig extends ServiceConfig {
   @Value("${security.headers.frameOptions.sameOrigin:true}")
   private boolean sameOrigin;
 
-  @Value("${session.cookie.name:AWESESSIONID}")
+  @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
 
+  // White list urls
+  private static final String[] AUTH_LIST = {
+          "/websocket/**",
+          "/template/**",
+          "/settings",
+          "/action/get-locals",
+          "/action/screen-data",
+          "/screen/public/**"
+  };
+
   /**
-   * Second configuration class for spring security
+   * Configuration class for spring security
    */
   @Configuration
   public class AWEScreenSecurityAdapter extends WebSecurityConfigurerAdapter {
@@ -177,20 +181,45 @@ public class SecurityConfig extends ServiceConfig {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http
-        .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-        .headers().xssProtection().block(false).and().and()
-        .authorizeRequests().antMatchers("css/**", "js/**", "images/**", "fonts/**").permitAll().and()
-        // Add a filter to parse login parameters
-        .addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
-        //.formLogin().permitAll().and()
-        .logout().logoutUrl("/action/logout")
-        .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-        .addLogoutHandler(getBean(AweLogoutHandler.class));
+      http.antMatcher("/**")
+              .headers().xssProtection().block(false).and()
+              .and().authorizeRequests()
+              // Web
+              .antMatchers(AUTH_LIST).permitAll()
+              .anyRequest().authenticated()
+              // Login redirect
+              .and().formLogin().loginPage("/").permitAll()
+              // Exceptions handling
+              .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+              .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
+              // Add a filter to parse login parameters
+              .and().addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
+              // Add logout handler
+              .logout().logoutUrl("/action/logout")
+              .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
+              .addLogoutHandler(getBean(AweLogoutHandler.class))
+              // CSRF
+              .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 
       if (sameOrigin) {
         http.headers().frameOptions().sameOrigin();
       }
+    }
+
+    /**
+     * Allows access to static resources, bypassing Spring security.
+     */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+      web.ignoring().antMatchers(
+              // Web resources
+              "/css/**",
+              "/js/**",
+              "/images/**",
+              "/fonts/**",
+              "/*.ico",
+              "/*.html",
+              "/*.map");
     }
 
     /**
@@ -240,7 +269,7 @@ public class SecurityConfig extends ServiceConfig {
       }
       try {
         // Read the parameters
-        getRequest().setParameterList((ObjectNode) mapper.readTree(body));
+        getRequest().setParameterList((ObjectNode) objectMapper.readTree(body));
       } catch (IOException exc) {
         // Do nothing
       }
@@ -272,7 +301,7 @@ public class SecurityConfig extends ServiceConfig {
       authenticationFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
         // Initialize parameters
         initRequest(request);
-        aweSessionDetails.onLoginSuccess(authentication);
+        aweSessionDetails.onLoginSuccess();
         request.getRequestDispatcher("/action/loginRedirect").forward(request, response);
       });
       authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {
@@ -308,10 +337,31 @@ public class SecurityConfig extends ServiceConfig {
     }
 
     /**
-     * Retrieve a logout handler
+     * Authentication entry point.
+     * Handle exceptions for awe actions
+     * @param sessionDetails AWE session details
+     * @return AuthenticationEntryPoint
+     */
+    @Bean
+    public AuthenticationEntryPoint actionAuthenticationEntryPoint(AweSessionDetails sessionDetails) {
+      return new ActionAuthenticationEntryPoint(sessionDetails);
+    }
+
+    /**
+     * Access denied handler.
+     * Handle forbidden access (403)
      *
-     * @param sessionDetails Session details
-     * @return Logout handler
+     * @return Access denied handler
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+      return new AweAccessDeniedHandler();
+    }
+
+    /**
+     * Logout handler
+     * @param sessionDetails AWE session details
+     * @return AweLogoutHandler
      */
     @Bean
     public AweLogoutHandler logoutHandler(AweSessionDetails sessionDetails) {
@@ -400,21 +450,21 @@ public class SecurityConfig extends ServiceConfig {
     public LoginAccessControl loginAccessControl() {
       return new LoginAccessControl();
     }
-  }
 
-  /////////////////////////////////////////////
-  // SERVICES
-  /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    // SERVICES
+    /////////////////////////////////////////////
 
-  /**
-   * Access service
-   *
-   * @param menuService Menu service
-   * @return Access service bean
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  public AccessService accessService(MenuService menuService) {
-    return new AccessService(menuService);
+    /**
+     * Access service
+     *
+     * @param menuService Menu service
+     * @return Access service bean
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public AccessService accessService(MenuService menuService) {
+      return new AccessService(menuService);
+    }
   }
 }
