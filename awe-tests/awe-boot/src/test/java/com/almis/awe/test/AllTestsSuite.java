@@ -10,6 +10,7 @@ import com.almis.awe.test.unit.pojo.PojoTestsSuite;
 import com.almis.awe.test.unit.print.PrintTestSuite;
 import com.almis.awe.test.unit.rest.SpringRestTestsSuite;
 import com.almis.awe.test.unit.scheduler.SchedulerTestSuite;
+import com.almis.awe.test.unit.security.SecurityTest;
 import com.almis.awe.test.unit.services.ServicesTestSuite;
 import com.almis.awe.test.unit.session.AweSessionDetailsTest;
 import com.almis.awe.test.unit.spring.SpringBootTestsSuite;
@@ -33,7 +34,8 @@ import org.junit.runners.Suite.SuiteClasses;
   DeveloperTestSuite.class,
   NotifierTestsSuite.class,
   PrintTestSuite.class,
-  AweSessionDetailsTest.class
+  AweSessionDetailsTest.class,
+  SecurityTest.class
 })
 public class AllTestsSuite {
 }

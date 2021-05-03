@@ -2,6 +2,7 @@ package com.almis.awe.test.controller;
 
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.test.listener.TestSessionListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpSession;
  */
 @Controller
 @RequestMapping("/session")
+@Profile({"gitlab-ci"})
 public class SessionController {
 
   private final AweSession session;

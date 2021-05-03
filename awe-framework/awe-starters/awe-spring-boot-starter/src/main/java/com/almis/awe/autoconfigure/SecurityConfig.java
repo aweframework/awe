@@ -219,8 +219,7 @@ public class SecurityConfig extends ServiceConfig {
               "/fonts/**",
               "/*.ico",
               "/*.html",
-              "/*.map",
-              "/webjars/**");
+              "/*.map");
     }
 
     /**

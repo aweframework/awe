@@ -30,7 +30,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
    *
    * @param authenticationManager Authentication manager
    * @param aweUserDetailService  UserDetail service
-   * @param jwtTokenService JWT token service
+   * @param jwtTokenService       JWT token service
    */
   public JWTAuthorizationFilter(AuthenticationManager authenticationManager, AweUserDetailService aweUserDetailService, JWTTokenService jwtTokenService) {
     super(authenticationManager);
@@ -42,31 +42,28 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
           throws IOException, ServletException {
     String header = request.getHeader(jwtTokenService.getAuthorizationHeader());
-    if( header == null || !header.startsWith(jwtTokenService.getJwtPrefix())) {
-      chain.doFilter(request,response);
+    if (header == null || !header.startsWith(jwtTokenService.getJwtPrefix())) {
+      chain.doFilter(request, response);
       return;
     }
     UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
     SecurityContextHolder.getContext().setAuthentication(authentication);
-    chain.doFilter(request,response);
+    chain.doFilter(request, response);
   }
 
   private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-    String token = request.getHeader(jwtTokenService.getAuthorizationHeader());
-    if (token != null) {
-      // Verify token and extract user
-      try {
-        DecodedJWT decodedJWT = jwtTokenService.verifyToken(token);
-        if (decodedJWT != null) {
-          return new UsernamePasswordAuthenticationToken(aweUserDetailService.loadUserByUsername(decodedJWT.getSubject()), null, new ArrayList<>());
-        }
-
-      } catch (JWTVerificationException ex) {
-        //Invalid token
-        logger.debug("Invalid JWT token", ex);
-        return null;
+    UsernamePasswordAuthenticationToken authenticationToken = null;
+    // Verify token and extract user
+    try {
+      DecodedJWT decodedJWT = jwtTokenService.verifyToken(request.getHeader(jwtTokenService.getAuthorizationHeader()));
+      if (decodedJWT != null) {
+        authenticationToken = new UsernamePasswordAuthenticationToken(aweUserDetailService.loadUserByUsername(decodedJWT.getSubject()), null, new ArrayList<>());
       }
+    } catch (JWTVerificationException ex) {
+      //Invalid token
+      logger.debug("Invalid JWT token", ex);
+      return null;
     }
-    return null;
+    return authenticationToken;
   }
 }
