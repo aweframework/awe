@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 /**
  * Custom Spring security configuration
  */
-@Order(1)
+@Order(2)
 @Configuration
 public class SpecificSecurityConfig extends WebSecurityConfigurerAdapter {
 
