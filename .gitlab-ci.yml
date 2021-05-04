@@ -356,7 +356,9 @@ Build package:
   image: docker:latest
   stage: package
   cache: { }
-  needs: [ "Launch Sonar" ]
+  needs:
+    - job: Build project
+    - job: Launch Sonar
   services:
     - docker:dind
   tags:
