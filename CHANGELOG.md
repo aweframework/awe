@@ -1,4 +1,7 @@
 
+# Changelog for awe 4.3.6
+*04/05/2021*
+
 # Changelog for awe 4.3.5
 *04/05/2021*
 
