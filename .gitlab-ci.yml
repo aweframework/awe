@@ -390,7 +390,6 @@ Deploy snapshot:
 
 Deploy Maven Central:
   stage: deploy
-  needs: [ "Launch Sonar" ]
   before_script:
     ## Add gpg key to sign
     - gpg --batch --import <(echo "$GPG_PRIVATE_KEY")

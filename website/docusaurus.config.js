@@ -105,6 +105,15 @@ module.exports = {
 				facetFilters: [`version:${versions[0]}`],
 			},
 		},
+		hideableSidebar: true,
+		colorMode: {
+			defaultMode: 'dark',
+			disableSwitch: false,
+			respectPrefersColorScheme: true,
+		},
+		prism: {
+			additionalLanguages: ['java'],
+		},
 	},
 	presets: [
 		[
