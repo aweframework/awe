@@ -1,4 +1,17 @@
 
+# Changelog for awe 4.3.5
+*04/05/2021*
+
+- Don't translate the selected language on developer module. [MR #300](https://gitlab.com/aweframework/awe/-/merge_requests/300) (Pablo Javier García Mora)
+- Screen load fails if initial target returns 0 rows. [MR #299](https://gitlab.com/aweframework/awe/-/merge_requests/299) (Pablo Javier García Mora)
+- Securize rest api module calls. [MR #298](https://gitlab.com/aweframework/awe/-/merge_requests/298) (Pablo Vidal Otero)
+- Create action `control-empty-cancel`. [MR #297](https://gitlab.com/aweframework/awe/-/merge_requests/297) (Pablo Javier García Mora)
+- Focus not moving to tab when required criterios is empty. [MR #296](https://gitlab.com/aweframework/awe/-/merge_requests/296) (Pablo Javier García Mora)
+- Avoid generating array lists when values are comma separated (unless defined as specific type). [MR #295](https://gitlab.com/aweframework/awe/-/merge_requests/295) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Bug with dialogs opened from home_navbar. [MR #294](https://gitlab.com/aweframework/awe/-/merge_requests/294) (Pablo Javier García Mora)
+- Problem printing dynamic columns in a grid. [MR #293](https://gitlab.com/aweframework/awe/-/merge_requests/293) (Pablo Javier García Mora)
+- Change Database pool to use Hikari. [MR #291](https://gitlab.com/aweframework/awe/-/merge_requests/291) (Pablo Vidal Otero)
+
 # Changelog for awe 4.3.4
 *08/04/2021*
 
