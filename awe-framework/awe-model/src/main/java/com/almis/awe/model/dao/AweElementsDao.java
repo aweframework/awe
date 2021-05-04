@@ -30,9 +30,26 @@ import java.util.concurrent.Future;
 @Log4j2
 public class AweElementsDao {
 
+  private static final String OK = " - OK";
+  private static final String KO = " - NOT FOUND";
+  private static final String READING = "Reading ''{0}''{1}";
+  private static final String READING_FILES_FROM = "Reading files from ''{0}''{1}";
+  private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
   // Autowired services
   private final XStreamSerializer serializer;
   private final Environment environment;
+  // Application files path
+  @Value("${application.paths.application:application/}")
+  private String applicationPath;
+  // Application module prefix
+  @Value("${modules.prefix:module.}")
+  private String modulePrefix;
+  // XML extension
+  @Value("#{'${extensions.xml:.xml}'.split(',')}")
+  private String xmlExtension;
+  // Application modules
+  @Value("#{'${modules.list:awe}'.split(',')}")
+  private List<String> modules;
 
   /**
    * Autowired constructor
@@ -43,28 +60,6 @@ public class AweElementsDao {
     this.serializer = serializer;
     this.environment = context.getEnvironment();
   }
-
-  private static final String OK = " - OK";
-  private static final String KO = " - NOT FOUND";
-  private static final String READING = "Reading ''{0}''{1}";
-  private static final String READING_FILES_FROM = "Reading files from ''{0}''{1}";
-  private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
-
-  // Application files path
-  @Value("${application.paths.application:application/}")
-  private String applicationPath;
-
-  // Application module prefix
-  @Value("${modules.prefix:module.}")
-  private String modulePrefix;
-
-  // XML extension
-  @Value("#{'${extensions.xml:.xml}'.split(',')}")
-  private String xmlExtension;
-
-  // Application modules
-  @Value("#{'${modules.list:awe}'.split(',')}")
-  private List<String> modules;
 
   /**
    * Read all XML files and store them in the component
@@ -301,7 +296,7 @@ public class AweElementsDao {
     // Parse the read locales and store them on the final storage
     Map<String, String> localeTranslated = new ConcurrentHashMap<>();
     for (Global locale : localeLanguage.values()) {
-      localeTranslated.put(locale.getName(), parseLocale(locale));
+      localeTranslated.put(locale.getName(), StringUtil.parseLocale(locale));
     }
 
     // Store the translated locale in localeList
@@ -311,28 +306,9 @@ public class AweElementsDao {
   }
 
   /**
-   * Parse a locale
-   *
-   * @param locale Locale
-   * @return locale parsed
-   */
-  public String parseLocale(Global locale) {
-    String localParsed = locale.getMarkdown();
-
-    if (localParsed == null || localParsed.isEmpty()) {
-      // Retrieve local value
-      localParsed = locale.getValue();
-    } else {
-      // Retrieve local markdown and parse it into html
-      localParsed = StringUtil.evalMarkdown(localParsed);
-    }
-
-    return localParsed;
-  }
-
-  /**
    * Deserialize string template
-   * @param clazz Object class
+   *
+   * @param clazz    Object class
    * @param template String template
    * @return Object deserialized
    */
@@ -342,7 +318,8 @@ public class AweElementsDao {
 
   /**
    * Deserialize string template
-   * @param clazz Object class
+   *
+   * @param clazz    Object class
    * @param template String template
    * @return Object deserialized
    */
@@ -352,7 +329,8 @@ public class AweElementsDao {
 
   /**
    * Deserialize XML
-   * @param clazz Object class
+   *
+   * @param clazz  Object class
    * @param stream XML Stream
    * @return Object deserialized
    */
