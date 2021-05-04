@@ -31,4 +31,8 @@
       <view name="report" style="expand expandible-vertical"/>
     </tag>
   </tag>
+
+  <tag source="modal">
+    <include target-screen="home_navbar" target-source="modal" />
+  </tag>
 </screen>

@@ -40,17 +40,14 @@ module.exports = {
   },
   module : {
     rules : [
-      { test: require.resolve('jquery'), use: [{loader: 'expose-loader', options: 'jQuery'},{loader: 'expose-loader', options: '$'}]},
-      { test: /\.jsx?$/, loader: 'babel-loader', exclude: /node_modules/},
-      // Hack to load angular synchronously
-      { test : /[\/]angular\.js$/, loader : "exports-loader?angular"},
+      { test: require.resolve('jquery'), use: [{loader: 'expose-loader', options: {exposes: ['jQuery', '$']}}]},
+      { test: /\.jsx?$/, exclude: /node_modules/, use: [{loader: 'babel-loader'}]},
       { test : /\.css$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
       { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
-          loader: "less-loader", options: { lessPlugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ],
-            minimize: true, sourceMap: true}}]},
-      { test : /\.(jpg|gif|png)$/, loader : 'url-loader?limit=100000&name=./images/[hash].[ext]'},
-      { test : /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use : "url-loader?limit=10000&mimetype=application/font-woff&name=./fonts/[hash].[ext]"},
-      { test : /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use : "file-loader?name=./fonts/[hash].[ext]"}
+          loader: "less-loader", options: { lessPlugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ], sourceMap: true}}]},
+      { test : /\.(jpg|gif|png)$/, use: [{loader: 'url-loader', options: {limit: 100000, name: './images/[hash].[ext]'}}]},
+      { test : /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: [{loader: 'url-loader', options: {limit: 100000, mimetype: 'application/font-woff', name: './fonts/[hash].[ext]'}}]},
+      { test : /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: [{loader: 'file-loader', options: {name: './fonts/[hash].[ext]'}}]},
     ]
   },
   resolve: {
@@ -67,9 +64,7 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: "css/styles.css",
-      disable: false,
-      allChunks: true
+      filename: "css/styles.css"
     }),
     new LodashModuleReplacementPlugin,
     new webpack.ProvidePlugin({

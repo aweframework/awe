@@ -8,7 +8,7 @@ aweApplication.factory('Panel',
      * @param {Service} Component
      */
     function (Component) {
-      var Panel = {
+      return {
         /**
          * Initialize numeric criteria
          * @param {Object} controller Panel controller
@@ -36,12 +36,10 @@ aweApplication.factory('Panel',
           component.listeners = component.listeners || {};
 
           // Select current tab
-          component.listeners['selectCurrentTab'] = scope.$on("selectCurrentTab", function () {
+          component.listeners['selectCurrentTab'] = scope.$on("select-current-tab", function () {
             controller.selectTab(identifier);
           });
         }
       };
-
-      return Panel;
     }
   ]);

@@ -703,6 +703,19 @@
     </delete>
   </target>
 
+  <!-- Test public delete -->
+  <target name="testPublicDelete" public="true">
+    <delete>
+      <table id="HISAweMod"/>
+      <where>
+        <and>
+          <filter left-field="HISope" condition="eq" right-variable="User"/>
+        </and>
+      </where>
+      <variable id="User" type="STRING"/>
+    </delete>
+  </target>
+
   <!-- Test include -->
   <target name="testInclude">
     <include-target name="testInsert"/>
@@ -801,10 +814,10 @@
 
   <target name="TestComplexJavaParametersPOJOList">
     <serve service="TestComplexJavaParametersPOJOList">
-      <variable id="name" type="STRING" value="name1, name2"/>
-      <variable id="dateOfShow" type="DATE" value="10/02/1985, 11/02/1985"/>
-      <variable id="userGroupName" type="STRING" value="userGroupName1, userGroupName2"/>
-      <variable id="eventHallName" type="STRING" value="eventHallName1, eventHallName2"/>
+      <variable id="name" type="STRING_TO_LIST" value="name1, name2"/>
+      <variable id="dateOfShow" type="STRING_TO_LIST" value="10/02/1985, 11/02/1985"/>
+      <variable id="userGroupName" type="STRING_TO_LIST" value="userGroupName1, userGroupName2"/>
+      <variable id="eventHallName" type="STRING_TO_LIST" value="eventHallName1, eventHallName2"/>
     </serve>
   </target>
 

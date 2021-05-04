@@ -354,7 +354,6 @@ public class QueryUtil extends ServiceConfig {
   public JsonNode getParameter(Variable variable, ObjectNode parameters) throws AWException {
     // Variable definition
     JsonNode parameter = variable.getName() != null ? getRequestParameter(variable.getName(), parameters) : null;
-    boolean parseList;
 
     // Check value as static
     String stringParameter;
@@ -366,11 +365,8 @@ public class QueryUtil extends ServiceConfig {
       stringParameter = variable.getValue();
     }
 
-    // Check if string parameter is a list
-    parseList = stringParameter != null && stringParameter.contains(",");
-
     // Retrieve parameter
-    return getParameter(stringParameter, parameter, ParameterType.valueOf(variable.getType()), variable.getId(), parseList);
+    return getParameter(stringParameter, parameter, ParameterType.valueOf(variable.getType()), variable.getId());
   }
 
   /**
@@ -380,22 +376,11 @@ public class QueryUtil extends ServiceConfig {
    * @param parameter   Parameter
    * @param type        Type
    * @param variableId  Variable id
-   * @param parseList   Try to parse parameter as list
    * @return Parameter as JSON
    * @throws AWException Error retrieving variable value
    */
-  public JsonNode getParameter(String stringValue, JsonNode parameter, ParameterType type, String variableId, boolean parseList) throws AWException {
+  public JsonNode getParameter(String stringValue, JsonNode parameter, ParameterType type, String variableId) throws AWException {
     JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-
-    // Retrieve string value as list
-    if (parseList) {
-      String[] values = StringUtils.split(stringValue, ",");
-      ArrayNode valueList = nodeFactory.arrayNode();
-      for (String value : values) {
-        valueList.add(value.trim());
-      }
-      parameter = valueList;
-    }
 
     // If parameter is not json, generate it
     switch (type) {
@@ -411,7 +396,6 @@ public class QueryUtil extends ServiceConfig {
       case DATE:
       case TIME:
       case TIMESTAMP:
-
       case STRINGN:
         parameter = getStringWithNullsParameter(parameter, stringValue);
         break;
@@ -420,6 +404,15 @@ public class QueryUtil extends ServiceConfig {
       case SYSTEM_TIMESTAMP:
       case NULL:
         parameter = nodeFactory.nullNode();
+        break;
+      case STRING_TO_LIST:
+        // Retrieve string value as list
+        ArrayNode valueList = nodeFactory.arrayNode();
+        Arrays.stream(StringUtils.split(stringValue, ","))
+          .map(String::trim)
+          .forEach(valueList::add);
+
+        parameter = valueList;
         break;
       case STRING:
       case STRINGB:

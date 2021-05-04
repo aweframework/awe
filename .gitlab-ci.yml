@@ -26,7 +26,7 @@ variables:
   SPRING_PROFILES_ACTIVE: gitlab-ci
   KUBERNETES_PROJECT_ID: wired-armor-229610
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster
-  CACHE_KEY: "$CI_PIPELINE_IID-$CI_COMMIT_REF_SLUG"
+  CACHE_KEY: "ALMIS_WEB_ENGINE_CACHE"
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   DAST_WEBSITE: http://staging.aweframework.com
@@ -39,12 +39,8 @@ variables:
 
 cache:
   key: $CACHE_KEY
-  policy: pull
   paths:
     - .m2/repository/
-    - website/node_modules/
-    - awe-framework/awe-client-angular/node_modules/
-    - awe-framework/awe-modules/awe-tools/node_modules/
 
 stages:
   - build
@@ -80,9 +76,6 @@ stages:
 .build:
   stage: build
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
-  cache:
-    key: $CACHE_KEY
-    policy: push
   retry: 2
 
 Build project:
@@ -97,19 +90,12 @@ Build project:
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
     expire_in: 1 day
-  cache:
-      paths:
-        - .m2/repository/
-        - awe-framework/awe-client-angular/node_modules/
-        - awe-framework/awe-modules/awe-tools/node_modules/
   rules:
     - <<: *if-default
 
 Build website:
   extends: .build
-  cache:
-    paths:
-      - website/node_modules/
+  cache: { }
   script:
     - npm install --prefix website
     - npm run build --prefix website
@@ -129,7 +115,7 @@ Build website:
   stage: unit test
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   allow_failure: false
-  dependencies: []
+  needs: [ "Build project" ]
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Dsurefire.suite=**/$UNIT_TEST_SUITE -P$TEST_NAME
     - cp awe-tests/awe-boot/target/jacoco.exec awe-tests/awe-boot/target/jacoco-${TEST_NAME}-ut.exec
@@ -187,6 +173,7 @@ SQL Server UT:
 
 Frontend UT:
   stage: unit test
+  needs: [ ]
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
@@ -202,6 +189,7 @@ Frontend UT:
 
 Javadoc test:
   stage: unit test
+  needs: [ "Build project" ]
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
@@ -220,7 +208,7 @@ Javadoc test:
   stage: integration test
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   allow_failure: true
-  dependencies: []
+  needs: [ "Build project" ]
   script:
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dfailsafe.suite=**/${TEST_CLASS}.class -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
@@ -318,24 +306,20 @@ Chrome IT Scheduler:
 Launch Sonar:
   stage: analysis
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
-  cache:
-    key: $CACHE_KEY
-    paths:
-      - .sonar/cache
-  dependencies:
-    - All UT
-    - Oracle UT
-    - SQL Server UT
-    - MySQL UT
-    - Frontend UT
-    - Firefox IT Application and Integration
-    - Firefox IT CRUD Criteria and Matrix
-    - Firefox IT Regression Websocket and Print
-    - Firefox IT Scheduler
-    - Chrome IT Application and Integration
-    - Chrome IT CRUD Criteria and Matrix
-    - Chrome IT Regression Websocket and Print
-    - Chrome IT Scheduler
+  needs:
+    - job: All UT
+    - job: Oracle UT
+    - job: SQL Server UT
+    - job: MySQL UT
+    - job: Frontend UT
+    - job: Firefox IT Application and Integration
+    - job: Firefox IT CRUD Criteria and Matrix
+    - job: Firefox IT Regression Websocket and Print
+    - job: Firefox IT Scheduler
+    - job: Chrome IT Application and Integration
+    - job: Chrome IT CRUD Criteria and Matrix
+    - job: Chrome IT Regression Websocket and Print
+    - job: Chrome IT Scheduler
   script:
     - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Darchetype.test.skip=true $SONAR_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
@@ -352,6 +336,7 @@ Launch Sonar:
 
 Generate javadoc & schemas:
   stage: site
+  needs: [ "Build project" ]
   script:
     - mvn $MAVEN_CLI_OPTS install site javadoc:aggregate $SKIP_TESTS -Darchetype.test.skip=true -Dskip.javadoc=false -Dskip.main=true -Dskip.frontend=true -Dbuild.environment=production -f awe-framework/pom.xml
   artifacts:
@@ -370,9 +355,10 @@ Generate javadoc & schemas:
 Build package:
   image: docker:latest
   stage: package
-  cache: {}
-  dependencies:
-    - Build project
+  cache: { }
+  needs:
+    - job: Build project
+    - job: Launch Sonar
   services:
     - docker:dind
   tags:
@@ -396,7 +382,7 @@ Build package:
 
 Deploy snapshot:
   stage: deploy
-  dependencies: []
+  needs: [ "Launch Sonar" ]
   script:
     - mvn $MAVEN_CLI_OPTS deploy $DEPLOY_OPTS
   rules:
@@ -404,7 +390,7 @@ Deploy snapshot:
 
 Deploy Maven Central:
   stage: deploy
-  dependencies: []
+  needs: [ "Launch Sonar" ]
   before_script:
     ## Add gpg key to sign
     - gpg --batch --import <(echo "$GPG_PRIVATE_KEY")
@@ -416,9 +402,12 @@ Deploy Maven Central:
 # Kubernetes deployment
 .k8s_deploy:
   image: google/cloud-sdk
-  cache: {}
-  dependencies:
-    - Build project
+  cache: { }
+  needs:
+    - job: Build project
+    - job: Build package
+    - job: Launch Sonar
+      artifacts: false
   stage: deploy
   script:
     - echo "$GOOGLE_KEY" > key.json
@@ -468,10 +457,10 @@ dast:
 pages:
   image: docker:latest
   stage: deploy
-  cache: {}
-  dependencies:
-    - Generate javadoc & schemas
-    - Build website
+  cache: { }
+  needs:
+    - job: Generate javadoc & schemas
+    - job: Build website
   script:
     - mkdir -p .public/docs/schemas
     - cp -r awe-framework/target/site/apidocs .public/javadoc-api/
@@ -519,8 +508,8 @@ Generate a new milestone:
 
 Start a new release:
   image: registry.gitlab.com/aweframework/docker-tools/maven-jdk8-jq-git:latest
-  cache: {}
-  dependencies: []
+  cache: { }
+  dependencies: [ ]
   stage: release
   <<: *git_credentials
   script:

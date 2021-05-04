@@ -10,6 +10,7 @@ import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +24,20 @@ import java.util.stream.Collectors;
 @Log4j2
 public class ChartService extends ServiceConfig {
 
+  // Autowired parameters
+  private final ObjectMapper mapper;
   // Global files path
   @Value("${highcharts.server.url:http://export.highcharts.com}")
   private String exportServerUrl;
+
+  /**
+   * Autowired constructor
+   * @param mapper Object mapper
+   */
+  @Autowired
+  public ChartService(ObjectMapper mapper) {
+    this.mapper = mapper;
+  }
 
   /**
    * Render chart with highcharts export server
@@ -128,7 +140,7 @@ public class ChartService extends ServiceConfig {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     ResponseEntity<String> responseEntity = restTemplate.postForEntity(exportServerUrl, new HttpEntity<>(chartData, headers), String.class);
-    log.info("Generating chart with data: {}", new ObjectMapper().valueToTree(chartData));
+    log.info("Generating chart with data: {}", mapper.valueToTree(chartData));
 
     // Handle response status
     if (!responseEntity.getStatusCode().is2xxSuccessful()) {
@@ -164,12 +176,12 @@ public class ChartService extends ServiceConfig {
     data.getRows().stream()
       .filter(row -> row.containsKey(serie.getXValue()))
       .forEach(row -> {
-      if (serie.getZValue() != null) {
-        result.add(new ChartSeriePoint(row.get(serie.getXValue()).getValue(), row.get(serie.getYValue()).getValue(), row.get(serie.getZValue()).getValue()));
-      } else {
-        result.add(new ChartSeriePoint(row.get(serie.getXValue()).getValue(), row.get(serie.getYValue()).getValue()));
-      }
-    });
+        if (serie.getZValue() != null) {
+          result.add(new ChartSeriePoint(row.get(serie.getXValue()).getValue(), row.get(serie.getYValue()).getValue(), row.get(serie.getZValue()).getValue()));
+        } else {
+          result.add(new ChartSeriePoint(row.get(serie.getXValue()).getValue(), row.get(serie.getYValue()).getValue()));
+        }
+      });
     return result;
   }
 }

@@ -43,6 +43,8 @@ public class MaintainService extends ServiceConfig {
   // Constants
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
   private static final String ERROR_MESSAGE_MAINTAIN_NOT_FOUND = "ERROR_MESSAGE_MAINTAIN_NOT_FOUND";
+  public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN";
+
   // Autowired services
   private final MaintainLauncher maintainLauncher;
   private final AccessService accessService;
@@ -393,11 +395,11 @@ public class MaintainService extends ServiceConfig {
    * Retrieve maintain target from maintain id
    *
    * @param maintainId   Maintain id
-   * @param checkSession Check session
+   * @param checkAvailable Check available
    * @return Maintain target
    * @throws AWException Error retrieving maintain target
    */
-  private Target prepareMaintain(String maintainId, boolean checkSession) throws AWException {
+  private Target prepareMaintain(String maintainId, boolean checkAvailable) throws AWException {
     // Variable Definition
     Target maintain;
     try {
@@ -406,9 +408,8 @@ public class MaintainService extends ServiceConfig {
         maintain = getElements().getMaintain(maintainId).copy();
 
         // If query is private, check security
-        if (checkSession && !maintain.isPublic() && !accessService.isAuthenticated()) {
-          getLogger().log(QueryService.class, Level.WARN, getLocale("ERROR_MESSAGE_OUT_OF_SESSION"));
-          throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_OUT_OF_SESSION"));
+        if (checkAvailable && !maintain.isPublic() && !accessService.isAuthenticated()) {
+          throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
         }
       } else {
         throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_MAINTAIN_NOT_FOUND, maintainId));

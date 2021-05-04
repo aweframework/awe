@@ -371,46 +371,37 @@ aweApplication.factory('GridEvents',
           var component = scope.component;
           component.hideContextMenu();
 
-          // We get visible columns and filter rowNum and chkBox
-          var visibleColumns = component.getVisibleColumns();
-          var filteredVisibleColumns = [];
-          for(var col in visibleColumns) {
-            if(visibleColumns.hasOwnProperty(col)) {
-              if(col !== "rowNum" && col !== "chkBox" && col !== "RowIco") {
-                filteredVisibleColumns.push({"id": col});
-              }
-            }
-          }
-
           var rowsPrintData = [];
           rowsPrintData.push([]);
 
-          // We fill the first row with column's names
-          _.each(filteredVisibleColumns, function(column) {
-            rowsPrintData[0].push($translate.instant(component.getColumn(column.id).label));
-          });
+          // We get visible columns and filter rowNum and chkBox
+          component.controller.columnModel
+            .filter(c => !c.hidden)
+            .filter(c => ["rowNum", "chkBox", "RowIco"].indexOf(c.id) === -1)
+            .map(c => ({id: c.id, label: c.label}))
+            .forEach(c => {
+              // We fill the first row with column's names
+              rowsPrintData[0].push($translate.instant(c.label));
 
-          // For each column, we get all the values from the selected columns
-          _.each(filteredVisibleColumns, function(column) {
-            var columnPrintData = component.getColumnPrintData(column.id);
-            var selectedColumnPrintData = columnPrintData[column.id + component.constants.SELECTED_TAIL] || [];
+              // For each column, we get all the values from the selected columns
+              let columnPrintData = component.getColumnPrintData(c.id);
+              let selectedColumnPrintData = columnPrintData[c.id + component.constants.SELECTED_TAIL] || [];
 
-            // For each value, we add it to its location (at the beggining, the
-            // array corresponding to the row won't be created
-            _.each(selectedColumnPrintData, function(cellPrintData, index) {
-              // Index + 1 because first row is for column's names
-              if (!rowsPrintData[index + 1]) {
-                rowsPrintData.push([]);
-              }
-              rowsPrintData[index + 1].push(cellPrintData);
+              // For each value, we add it to its location (at the beggining, the
+              // array corresponding to the row won't be created
+              selectedColumnPrintData.forEach((cellPrintData, index) => {
+                // Index + 1 because first row is for column's names
+                if (!rowsPrintData[index + 1]) {
+                  rowsPrintData.push([]);
+                }
+                rowsPrintData[index + 1].push(cellPrintData);
+              })
             });
 
-          });
-
           // We join all values of a row and separate them with tabs
-          _.each(rowsPrintData, function(rowPrintData, index) {
+          rowsPrintData.forEach((rowPrintData, index) => {
             rowsPrintData[index] = rowPrintData.join("\t");
-          });
+          })
 
           // We join all rows and separate them with new line feed
           var printData = rowsPrintData.join("\n");

@@ -78,12 +78,14 @@ public class FlywayMigrationConfig {
       }
 
       if (dataSource instanceof AweRoutingDataSource) {
+        // Load dataSources
+        ((AweRoutingDataSource) dataSource).loadDataSources();
         // Spread scripts migration
         log.info("========== Migrating databases of [AweDbs] table defined in default database ... ==========");
         for (String module : modulesToMigrate) {
-          ((AweRoutingDataSource) dataSource).getContextHolder().getDataSources().forEach((key, value) -> {
+          ((AweRoutingDataSource) dataSource).getResolvedDataSources().forEach((key, value) -> {
               log.info("========== Migrating database {} for module {} ... ==========", key, module);
-              Flyway customFlyway = customizeFlywayConfig(module, (DataSource) value, indexBaseLine);
+              Flyway customFlyway = customizeFlywayConfig(module, value, indexBaseLine);
               customFlyway.migrate();
               log.info("======= Current version of module {} from database {}: {}", module, key, customFlyway.info().current().getVersion());
             }

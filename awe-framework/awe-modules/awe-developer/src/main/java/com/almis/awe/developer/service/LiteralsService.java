@@ -4,78 +4,45 @@ import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.client.grid.UpdateCellActionBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.developer.comparator.CompareLocal;
+import com.almis.awe.developer.model.Literal;
 import com.almis.awe.developer.type.FormatType;
-import com.almis.awe.developer.util.LocaleUtil;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.component.XStreamSerializer;
+import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Global;
-import com.almis.awe.model.entities.XMLFile;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.core.util.QuickWriter;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.XppDriver;
-import org.apache.logging.log4j.Level;
+import com.almis.awe.model.util.data.StringUtil;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
-/**
- * @author agomez
- */
+@Log4j2
 public class LiteralsService extends ServiceConfig {
 
-  private static final String FILE_DESCRIPTION = "Application Locales";
-
-  @Value("${extensions.xml:.xml}")
-  private String xmlExtension;
-  // Locale file names without language code
-  @Value("${application.files.locale:Locale-}")
-  private String localeFile;
-
-  @Value("${translation.api.key}")
-  private String translationApiKey;
-
-  @Value("${translation.api.url}")
-  private String translationApiUrl;
-
-  @Value("${translation.api.parameters.key}")
-  private String keyParameter;
-
-  @Value("${translation.api.parameters.language}")
-  private String languageParameter;
-
-  @Value("${translation.api.parameters.text}")
-  private String textParameter;
-
   // Autowired services
-  private final PathService pathService;
-  private final XStreamSerializer serializer;
+  private final TranslationService translationService;
+  private final LocaleFileService localeFileService;
+
+  @Value("${language.default:en}")
+  private String defaultLanguage;
 
   /**
    * Autowired constructor
    *
-   * @param pathService Path service
-   * @param serializer  Serializer
+   * @param translationService Translation service
+   * @param localeFileService  Locale service
    */
-  public LiteralsService(PathService pathService, XStreamSerializer serializer) {
-    this.pathService = pathService;
-    this.serializer = serializer;
+  public LiteralsService(TranslationService translationService, LocaleFileService localeFileService) {
+    this.translationService = translationService;
+    this.localeFileService = localeFileService;
   }
 
   /**
@@ -88,21 +55,17 @@ public class LiteralsService extends ServiceConfig {
    * @throws AWException Error translating text
    */
   public ServiceData translate(String text, String fromLanguage, String toLanguage) throws AWException {
-    ServiceData serDat = new ServiceData();
-    String result;
+    String result = text;
 
-    if (Objects.equals(fromLanguage, toLanguage)) {
-      // Skip translation
-      result = text;
-    } else {
+    if (!Optional.ofNullable(fromLanguage).orElse("").equalsIgnoreCase(toLanguage)) {
       // Call translation API
-      result = getTranslation(text, fromLanguage, toLanguage);
+      result = translationService.getTranslation(text, fromLanguage, toLanguage);
     }
 
-    String[] arr = {result};
-    serDat.setData(arr);
-
-    return serDat;
+    return new ServiceData()
+      .setDataList(DataListUtil
+        .fromBeanList(Collections.singletonList(new Literal()
+          .setValue(result))));
   }
 
   /**
@@ -114,10 +77,8 @@ public class LiteralsService extends ServiceConfig {
    * @throws AWException Error retrieving locale matches
    */
   public ServiceData getLocaleMatches(String literal, String codeLang) throws AWException {
-    ServiceData serviceData = new ServiceData();
-    DataList data = findStringInFile(codeLang.toUpperCase(), literal);
-    serviceData.setDataList(data);
-    return serviceData;
+    return new ServiceData()
+      .setDataList(findStringInFile(codeLang.toUpperCase(), literal));
   }
 
   /**
@@ -128,23 +89,17 @@ public class LiteralsService extends ServiceConfig {
    * @throws AWException Error retrieving translation list
    */
   public ServiceData getTranslationList(String code) throws AWException {
-    ServiceData serviceData = new ServiceData();
-
-    // Get existing Locales
-    Map<String, Map<String, String>> localeList = getElements().getLocales();
-
     // List of loaded languages
     DataList translations = new DataList();
 
     // Iterate by language
-    for (String codeLang : localeList.keySet()) {
+    for (String codeLang : localeFileService.getLanguageList()) {
       // Get language
       DataList languageData = retrieveLocaleFromFile(code, codeLang.toUpperCase());
       translations.getRows().addAll(languageData.getRows());
     }
 
-    serviceData.setDataList(translations);
-    return serviceData;
+    return new ServiceData().setDataList(translations.setRecords(translations.getRows().size()));
   }
 
   /**
@@ -207,37 +162,50 @@ public class LiteralsService extends ServiceConfig {
    * @throws AWException Error creating new locale
    */
   public ServiceData newLiteral(String codeLang, String code, String literal) throws AWException {
-    ServiceData serviceData = new ServiceData();
+    // Iterate by language (excluding the base codeLang)
+    List<ServiceData> resultList = localeFileService.getLanguageList().stream()
+      .map(language -> addNewLocale(language, codeLang, code, literal))
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
 
-    List<String> languages = LocaleUtil.getLanguageList(pathService.getPath());
+    // Retrieve service data
+    return resultList.stream()
+      .filter(serviceData -> AnswerType.ERROR.equals(serviceData.getType()))
+      .findAny()
+      .orElse(resultList.stream()
+        .filter(serviceData -> AnswerType.OK.equals(serviceData.getType()))
+        .findAny()
+        .orElse(new ServiceData()
+          .setTitle(getLocale("WARNING_TITLE_NEW_LOCAL"))
+          .setMessage(getLocale("WARNING_MESSAGE_LOCAL_ALREADY_EXISTS", code))
+          .setType(AnswerType.WARNING)));
+  }
 
-    // Iterate by language
-    for (String actualLangCode : languages) {
+  private ServiceData addNewLocale(String language, String oldLanguage, String code, String literal) {
+    try {
       // Get locals of one language
-      Locales localesFromFile = readLocalesFromFile(actualLangCode);
+      Locales localesFromFile = Optional.ofNullable(localeFileService.readLocalesFromFile(language)).orElse(new Locales());
 
       // Check if local already exists
-      if (localesFromFile != null) {
-        if (localesFromFile.getLocale(code) == null) {
-          String newLiteral = getTranslation(literal, codeLang.toUpperCase(), actualLangCode);
+      if (localesFromFile.getLocale(code) == null) {
+        String newLiteral = oldLanguage.equalsIgnoreCase(language) ? literal : translationService.getTranslation(literal, oldLanguage.toUpperCase(), language);
 
-          // Create new local in XML file
-          storeNewLocale(actualLangCode, code, newLiteral);
+        // Create new local in XML file
+        storeNewLocale(language, code, newLiteral);
 
-          // Set service data
-          serviceData.setTitle(getLocale("OK_TITLE_NEW_LOCAL"));
-          serviceData.setMessage(getLocale("OK_MESSAGE_NEW_LOCAL", code));
-        } else {
-          // Send warning
-          serviceData.setTitle(getLocale("WARNING_TITLE_NEW_LOCAL"));
-          serviceData.setMessage(getLocale("WARNING_MESSAGE_LOCAL_ALREADY_EXISTS", code));
-          serviceData.setType(AnswerType.WARNING);
-        }
+        return new ServiceData()
+          .setTitle(getLocale("OK_TITLE_NEW_LOCAL"))
+          .setMessage(getLocale("OK_MESSAGE_NEW_LOCAL", code));
       }
+    } catch (AWException exc) {
+      log.error("Error trying to add a new locale ({}) on language {}", code, language, exc);
+      return new ServiceData()
+        .setType(AnswerType.ERROR)
+        .setTitle(exc.getTitle())
+        .setMessage(exc.getMessage());
     }
 
-    return serviceData;
-
+    return null;
   }
 
   /**
@@ -250,19 +218,15 @@ public class LiteralsService extends ServiceConfig {
   public ServiceData deleteLiteral(String code) throws AWException {
     ServiceData serviceData = new ServiceData();
 
-    // Get existing locals
-    Map<String, Map<String, String>> localeList = getElements().getLocales();
-
-    // * Iterate by language
-    for (String codeLang : localeList.keySet()) {
+    // Iterate by language
+    for (String codeLang : localeFileService.getLanguageList()) {
       // Get language
       storeDeletedLocale(codeLang, code);
     }
 
-    serviceData.setTitle(getLocale("OK_TITLE_REMOVED_LOCAL"));
-    serviceData.setMessage(getLocale("OK_MESSAGE_REMOVED_LOCAL", code));
-    return serviceData;
-
+    return serviceData
+      .setTitle(getLocale("OK_TITLE_REMOVED_LOCAL"))
+      .setMessage(getLocale("OK_MESSAGE_REMOVED_LOCAL", code));
   }
 
   /**
@@ -271,14 +235,12 @@ public class LiteralsService extends ServiceConfig {
    * @return Used language
    */
   public ServiceData getUsingLanguage() {
-    getLogger().log(LiteralsService.class, Level.INFO, "getUsingLanguage");
-    ServiceData serviceData = new ServiceData();
-
-    String codeLang = getElements().getProperty("var.glb.lan");
-    String[] labval = {"ENUM_LAN_" + codeLang, codeLang.toLowerCase()};
-    serviceData.setData(labval);
-
-    return serviceData;
+    log.debug("Retrieving default language");
+    return new ServiceData()
+      .setDataList(DataListUtil.fromBeanList(Collections.singletonList(
+        new Global()
+          .setValue(defaultLanguage.toLowerCase())
+          .setLabel("ENUM_LAN_" + defaultLanguage.toUpperCase()))));
   }
 
   /**
@@ -290,35 +252,22 @@ public class LiteralsService extends ServiceConfig {
    * @throws AWException Error retrieving markdown
    */
   public ServiceData getSelectedLocale(String codeLang, String code) throws AWException {
-    List<String> values = new ArrayList<>();
-    List<String> types = new ArrayList<>();
-    FormatType format = FormatType.TEXT;
     ServiceData serviceData = new ServiceData();
 
     // Read Locale File List for a LANGUAGE
-    Locales localesFromFile = readLocalesFromFile(codeLang);
-    if (localesFromFile != null) {
-      List<Global> globals = localesFromFile.getLocales();
-      for (Global global : globals) {
-        if (global.getName().equalsIgnoreCase(code)) {
-          if (global.getMarkdown() != null && !"".equals(global.getMarkdown())) {
-            values.add(global.getMarkdown());
-            format = FormatType.MARKDOWN;
-          } else {
-            values.add(global.getValue());
-            format = FormatType.TEXT;
-          }
-        }
-      }
-      // Store format
-      types.add(format.toString());
-
-      // Add actions to list
-      serviceData.addClientAction(new SelectActionBuilder("litTxt", values).setAsync(true).build());
-      serviceData.addClientAction(new SelectActionBuilder("litMrk", values).setAsync(true).build());
-      serviceData.addClientAction(new SelectActionBuilder("FormatSelector", types).setAsync(true).build());
-      serviceData.addClientAction(new SelectActionBuilder("FlgStoLit", types).setAsync(true).build());
-    }
+    Optional.ofNullable(localeFileService.readLocalesFromFile(codeLang))
+      .orElse(new Locales().setLocales(new ArrayList<>()))
+      .getLocales().stream()
+      .filter(global -> code.equalsIgnoreCase(global.getName()))
+      .forEach(global -> {
+        // Add actions to list
+        FormatType format = Strings.isBlank(global.getMarkdown()) ? FormatType.TEXT : FormatType.MARKDOWN;
+        String value = FormatType.TEXT.equals(format) ? global.getValue() : global.getMarkdown();
+        serviceData.addClientAction(new SelectActionBuilder("litTxt", value).setAsync(true).build());
+        serviceData.addClientAction(new SelectActionBuilder("litMrk", value).setAsync(true).build());
+        serviceData.addClientAction(new SelectActionBuilder("FormatSelector", format.toString()).setAsync(true).build());
+        serviceData.addClientAction(new SelectActionBuilder("FlgStoLit", format.toString()).setAsync(true).build());
+      });
 
     return serviceData;
   }
@@ -339,42 +288,6 @@ public class LiteralsService extends ServiceConfig {
   }
 
   /**
-   * Extract translation from API result
-   *
-   * @param literal  Locale
-   * @param fromLang Source language
-   * @param toLang   Target language
-   * @return Locale translated
-   * @throws AWException Error translating locale
-   */
-  private String getTranslation(String literal, String fromLang, String toLang) throws AWException {
-
-    String translation;
-
-    try {
-
-      // Get translation from cloud
-      String result = getUrlString(literal, fromLang, toLang);
-
-      // Extract translation of the result
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode jsonResponse = mapper.readTree(result);
-      translation = jsonResponse.path("responseData").path("translatedText").asText();
-
-      if ("".equalsIgnoreCase(translation)) {
-        throw new AWException(getLocale("ERROR_TITLE_RETRIEVING_TRANSLATION"),
-          getLocale("ERROR_MESSAGE_RETRIEVING_TRANSLATION", toLang, literal));
-      }
-    } catch (Exception exc) {
-      throw new AWException(getLocale("ERROR_TITLE_RETRIEVING_TRANSLATION"),
-        getLocale("ERROR_MESSAGE_RETRIEVING_TRANSLATION", toLang, literal), exc);
-    }
-
-    return translation;
-
-  }
-
-  /**
    * Search literal in file
    *
    * @param codeLang Language
@@ -385,29 +298,21 @@ public class LiteralsService extends ServiceConfig {
   private DataList findStringInFile(String codeLang, String search) throws AWException {
     DataList dataList = new DataList();
 
-    // Add row to dataList
-    List<String> keys = new ArrayList<>();
-    List<String> values = new ArrayList<>();
-
     // Read Locale File List for a LANGUAGE
-    Locales localesFromFile = readLocalesFromFile(codeLang);
-    if (localesFromFile != null) {
-      List<Global> globals = localesFromFile.getLocales();
-      for (Global locale : globals) {
-        String key = locale.getName();
-        String text = locale.getValue() != null ? locale.getValue() : locale.getMarkdown();
+    List<Global> found = Optional.ofNullable(localeFileService.readLocalesFromFile(codeLang))
+      .orElse(new Locales().setLocales(new ArrayList<>()))
+      .getLocales().stream()
+      .filter(global -> matchesSearch(search, global.getName(), Optional.ofNullable(global.getValue()).orElse(global.getMarkdown())))
+      .collect(Collectors.toList());
 
-        if (matchesSearch(search, key, text)) {
-          // Get value
-          keys.add(key);
-          values.add(text);
-        }
-      }
-
-      DataListUtil.addColumn(dataList, "key", keys);
-      DataListUtil.addColumn(dataList, "value", values);
-      dataList.setRecords(dataList.getRows().size());
-    }
+    // Store in datalist
+    DataListUtil.addColumn(dataList, "key", found.stream()
+      .map(Global::getName)
+      .collect(Collectors.toList()));
+    DataListUtil.addColumn(dataList, AweConstants.JSON_VALUE_PARAMETER, found.stream()
+      .map(global -> Optional.ofNullable(global.getValue()).orElse(global.getMarkdown()))
+      .collect(Collectors.toList()));
+    dataList.setRecords(dataList.getRows().size());
 
     return dataList;
   }
@@ -420,16 +325,8 @@ public class LiteralsService extends ServiceConfig {
    * @return Search string matches values
    */
   private boolean matchesSearch(String search, String... values) {
-    if (search == null) {
-      return true;
-    } else {
-      for (String value : values) {
-        if (value.toLowerCase().contains(search.toLowerCase())) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return Arrays.stream(values)
+      .anyMatch(value -> value.toLowerCase().contains(Optional.ofNullable(search).orElse("").toLowerCase()));
   }
 
   /**
@@ -441,26 +338,16 @@ public class LiteralsService extends ServiceConfig {
    * @throws AWException Error retrieving locale
    */
   private DataList retrieveLocaleFromFile(String code, String codeLang) throws AWException {
+    Locales locales = Optional.ofNullable(localeFileService.readLocalesFromFile(codeLang))
+      .orElse(new Locales().setLocales(new ArrayList<>()));
 
-    DataList dataList = new DataList();
-    List<String> values = new ArrayList<>();
-    Locales localesFromFile = readLocalesFromFile(codeLang);
-    if (localesFromFile != null) {
-      List<Global> globals = localesFromFile.getLocales();
-      for (Global locale : globals) {
-        String actualKey = locale.getName();
-        if (code.equalsIgnoreCase(actualKey)) {
-          // Get matches literals
-          values.add(getElements().parseLocale(locale));
-        }
-      }
-      DataListUtil.addColumn(dataList, "value", values);
-      DataListUtil.addColumn(dataList, "key", codeLang);
-      DataListUtil.addColumn(dataList, "code", code);
-      dataList.setRecords(dataList.getRows().size());
-    }
-
-    return dataList;
+    return DataListUtil.fromBeanList(locales.getLocales().stream()
+      .filter(global -> code.equalsIgnoreCase(global.getName()))
+      .map(global -> new Literal()
+        .setValue(StringUtil.parseLocale(global))
+        .setKey(codeLang)
+        .setCode(code))
+      .collect(Collectors.toList()));
   }
 
   /**
@@ -475,28 +362,23 @@ public class LiteralsService extends ServiceConfig {
    */
   private void storeUpdatedLocale(String codeLang, String code, String text, String markdown, String formatSelector) throws AWException {
 
-    // Read locale File List for a LANGUAGE
-    Locales localesFromFile = readLocalesFromFile(codeLang);
-    if (localesFromFile != null) {
-      List<Global> globals = localesFromFile.getLocales();
-      for (Global global : globals) {
-        if (code.equalsIgnoreCase(global.getName())) {
-          if (FormatType.TEXT.toString().equalsIgnoreCase(formatSelector)) {
-            global.setValue(text);
-            global.setMarkdown(null);
-          } else {
-            global.setMarkdown(markdown);
-            global.setValue(null);
-          }
-        }
-      }
+    String valueToText = FormatType.TEXT.toString().equalsIgnoreCase(formatSelector) ? text : null;
+    String valueToMarkdown = FormatType.TEXT.toString().equalsIgnoreCase(formatSelector) ? null : markdown;
 
-      // Fix markdown attribute
-      fixMarkdown(globals);
-    }
+    // Read locale File List for a LANGUAGE
+    Locales locales = Optional.ofNullable(localeFileService.readLocalesFromFile(codeLang))
+      .orElse(new Locales().setLocales(new ArrayList<>()));
+
+    // Update locale
+    locales.getLocales().stream()
+      .filter(global -> code.equalsIgnoreCase(global.getName()))
+      .forEach(global -> global.setValue(valueToText).setMarkdown(valueToMarkdown));
+
+    // Fix markdown attribute
+    fixMarkdown(locales.getLocales());
 
     // Store updated locale file
-    storeLocaleListFile(codeLang, localesFromFile);
+    localeFileService.storeLocaleListFile(codeLang, locales);
   }
 
   /**
@@ -515,27 +397,20 @@ public class LiteralsService extends ServiceConfig {
     locale.setMarkdown(null);
 
     // Read Local File List for a LANGUAGE
-    Locales localesFromFile = readLocalesFromFile(codeLang);
-    if (localesFromFile != null) {
-      List<Global> globals = localesFromFile.getLocales();
+    Locales locales = Optional.ofNullable(localeFileService.readLocalesFromFile(codeLang))
+      .orElse(new Locales().setLocales(new ArrayList<>()));
 
-      // If no locals add the global list
-      if (globals == null) {
-        globals = new ArrayList<>();
-      }
+    // Add locale
+    locales.getLocales().add(locale);
 
-      // Add new global
-      globals.add(locale);
+    // Fix markdown attribute
+    fixMarkdown(locales.getLocales());
 
-      // Fix markdown attribute
-      fixMarkdown(globals);
-
-      globals.sort(new CompareLocal());
-      localesFromFile.setLocales(globals);
-    }
+    // Sort
+    locales.getLocales().sort(new CompareLocal());
 
     // Store updated local file
-    storeLocaleListFile(codeLang, localesFromFile);
+    localeFileService.storeLocaleListFile(codeLang, locales);
   }
 
   /**
@@ -548,23 +423,18 @@ public class LiteralsService extends ServiceConfig {
   private void storeDeletedLocale(String codeLang, String code) throws AWException {
 
     // Read locale File List for a LANGUAGE
-    Locales localesFromFile = readLocalesFromFile(codeLang);
-    if (localesFromFile != null) {
-      List<Global> globals = localesFromFile.getLocales();
+    Locales locales = Optional.ofNullable(localeFileService.readLocalesFromFile(codeLang))
+      .orElse(new Locales().setLocales(new ArrayList<>()));
 
-      for (Global global : globals) {
-        if (global.getName().equalsIgnoreCase(code)) {
-          globals.remove(global);
-          break;
-        }
-      }
+    locales.setLocales(locales.getLocales().stream()
+      .filter(global -> !code.equalsIgnoreCase(global.getName()))
+      .collect(Collectors.toList()));
 
-      // Fix markdown attribute
-      fixMarkdown(globals);
-    }
+    // Fix markdown attribute
+    fixMarkdown(locales.getLocales());
 
     // Store updated local file
-    storeLocaleListFile(codeLang, localesFromFile);
+    localeFileService.storeLocaleListFile(codeLang, locales);
   }
 
   /**
@@ -574,122 +444,8 @@ public class LiteralsService extends ServiceConfig {
    */
   private void fixMarkdown(List<Global> globals) {
     // Fix markdown attribute
-    for (Global global : globals) {
-      if (global.getMarkdown() != null && global.getMarkdown().isEmpty()) {
-        // Remove </local> if not needed
-        global.setMarkdown(null);
-      }
-    }
-  }
-
-  /**
-   * Read local list from file
-   *
-   * @param codeLang Language code (ES, EN, FR...)
-   * @return List of locales loaded
-   */
-  private Locales readLocalesFromFile(String codeLang) throws AWException {
-
-    String fileName = localeFile + codeLang;
-    String path = pathService.getPath() + fileName + xmlExtension;
-
-    return (Locales) readXmlFile(path);
-  }
-
-  /**
-   * Read all XML files and return them
-   *
-   * @param path File path
-   * @return Xml file object
-   */
-  private XMLFile readXmlFile(String path) {
-    XMLFile xml = null;
-    try {
-      // Unmarshall XML
-      File file = new File(path);
-      if (file.exists()) {
-        InputStream resourceInputStream = new FileInputStream(file);
-        xml = serializer.getObjectFromXml((Class<? extends XMLFile>) Locales.class, resourceInputStream);
-        getLogger().log(AweElements.class, Level.DEBUG, "Reading ''{0}'' - OK", path);
-      } else {
-        getLogger().log(AweElements.class, Level.DEBUG, "Reading ''{0}'' - NOT FOUND", path);
-      }
-    } catch (IOException exc) {
-      getLogger().log(AweElements.class, Level.ERROR, "Error parsing XML - ''{0}''", path, exc);
-    }
-    return xml;
-  }
-
-  /**
-   * Store local file
-   *
-   * @param codeLang Language
-   */
-  private void storeLocaleListFile(String codeLang, Locales locales) throws AWException {
-
-    String fileName = localeFile + codeLang;
-    XStream xstream;
-    // Define XML path
-    String xmlPth = pathService.getPath() + fileName + xmlExtension;
-
-    try (FileOutputStream fileOutputStream = new FileOutputStream(xmlPth)) {
-      // Retrieve xstream serializer
-      xstream = new XStream(new XppDriver() {
-        @Override
-        public HierarchicalStreamWriter createWriter(Writer out) {
-          return new PrettyPrintWriter(out) {
-            @Override
-            protected void writeText(QuickWriter writer, String text) {
-              if (!text.trim().isEmpty()) {
-                writer.write("<![CDATA[");
-                writer.write(text);
-                writer.write("]]>");
-              }
-            }
-          };
-        }
-      });
-
-      // Process locales annotations
-      xstream.processAnnotations(Locales.class);
-
-      // Generate xml file
-      BufferedWriter xmlOut = new BufferedWriter(new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8));
-      LocaleUtil.printHeader(xmlOut, fileName, FILE_DESCRIPTION, true);
-      xstream.toXML(locales, xmlOut);
-    } catch (Exception exc) {
-      throw new AWException(getLocale("ERROR_TITLE_STORE_FILE"),
-        getLocale("ERROR_MESSAGE_STORE_FILE", fileName), exc);
-    }
-  }
-
-  /**
-   * Returns the URL to make a call for translation to the API
-   *
-   * @param literal  Locale
-   * @param fromLang Source language
-   * @param toLang   Target language
-   * @return Url string
-   * @throws IOException Error calling api
-   */
-  private String getUrlString(String literal, String fromLang, String toLang) throws IOException {
-
-    /* GLOSBE */
-    String encodedText = URLEncoder.encode(literal, StandardCharsets.UTF_8.toString());
-    String url = translationApiUrl +
-      "?" + keyParameter + "=" + translationApiKey +
-      "&" + languageParameter + "=" + fromLang.toLowerCase() + "|" + toLang.toLowerCase() +
-      "&" + textParameter + "=" + encodedText;
-
-    URLConnection connection = new URL(url).openConnection();
-
-    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-    StringBuilder stringBuilder = new StringBuilder();
-    String current;
-    while ((current = in.readLine()) != null) {
-      stringBuilder.append(current);
-    }
-
-    return stringBuilder.toString();
+    globals.stream()
+      .filter(global -> Strings.isBlank(global.getMarkdown()))
+      .forEach(global -> global.setMarkdown(null));
   }
 }

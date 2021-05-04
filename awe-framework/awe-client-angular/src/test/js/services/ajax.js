@@ -1,5 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', function() {
-  let $injector, $ajax, $settings, $httpBackend, $loadingBar, $actionController, Action;
+  let $injector, $ajax, $settings, $httpBackend, $loadingBar, $actionController, Action, $log;
   let originalTimeout;
 
   // Mock module
@@ -14,6 +14,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
       $loadingBar = $injector.get('LoadingBar');
       $actionController = $injector.get('ActionController');
       Action = $injector.get('Action');
+      $log = $injector.get('$log');
 
       // Get settings
       spyOn($settings, "get").and.returnValue("");
@@ -83,6 +84,64 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     expect($loadingBar.startTask).not.toHaveBeenCalled();
   });
 
+  // Handler 401 error
+  it('should redirect to "/" with error 401', function() {
+    // Mock
+    spyOn($actionController, "closeAllActions");
+    spyOn($actionController, "addActionList");
+    spyOn($log, "error");
+    // $document[0].querySelector = jasmine.createSpy('HTML Element').and.returnValue({remove: () => null});
+
+    // Launch
+    let action = new Action();
+    action.attr("silent", true);
+    $ajax.manageError({status: 401, data:{error:"Invalid session", message:"Invalid session"}}, action);
+    $httpBackend.flush();
+
+    // Assert
+    expect($actionController.closeAllActions).toHaveBeenCalled();
+    expect($log.error).toHaveBeenCalled();
+    expect($actionController.addActionList).toHaveBeenCalled();
+  });
+
+  // Handler 403 error
+  it('should show error message 403', function() {
+    // Mock
+    spyOn($actionController, "closeAllActions");
+    spyOn($actionController, "addActionList");
+    spyOn($log, "error");
+
+    // Launch
+    let action = new Action();
+    action.attr("silent", true);
+    $ajax.manageError({status: 403, data:{error:"Forbidden access", message:"Forbidden access"}}, action);
+    $httpBackend.flush();
+
+    // Assert
+    expect($actionController.closeAllActions).toHaveBeenCalled();
+    expect($log.error).toHaveBeenCalled();
+    expect($actionController.addActionList).toHaveBeenCalled();
+  });
+
+  // Handler default error
+  it('should show default error message', function() {
+    // Mock
+    spyOn($actionController, "closeAllActions");
+    spyOn($actionController, "addActionList");
+    spyOn($log, "error");
+
+    // Launch
+    let action = new Action();
+    action.attr("silent", true);
+    $ajax.manageError({status: -1, data:{}}, action);
+    $httpBackend.flush();
+
+    // Assert
+    expect($actionController.closeAllActions).toHaveBeenCalled();
+    expect($log.error).toHaveBeenCalled();
+    expect($actionController.addActionList).toHaveBeenCalled();
+  });
+
   // Should launch a get request
   it('should launch a get request', function() {
     // Mock
@@ -149,7 +208,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     // Launch
     let message = {data: [{tutu: "lala"}]};
     let action = new Action();
-    $ajax.manageMessage(message, action)
+    $ajax.manageMessage(message, action);
 
     // Assert
     expect($actionController.addActionList).toHaveBeenCalled();
@@ -164,7 +223,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     let message = {data: {tutu: "lala"}};
     let action = new Action();
     action.destroy();
-    $ajax.manageMessage(message, action)
+    $ajax.manageMessage(message, action);
 
     // Assert
     expect($actionController.addActionList).not.toHaveBeenCalled();
@@ -178,7 +237,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     // Launch
     let message = {data: {tutu: "lala"}};
     let action = new Action();
-    $ajax.manageMessage(message, action)
+    $ajax.manageMessage(message, action);
 
     // Assert
     expect($actionController.addActionList).not.toHaveBeenCalled();
@@ -192,7 +251,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     // Launch
     let message = {data: [{tutu: "lala"}]};
     let action = new Action();
-    $ajax.manageError(message, action)
+    $ajax.manageError(message, action);
 
     // Assert
     expect($actionController.addActionList).toHaveBeenCalled();
@@ -207,7 +266,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
     let message = {};
     let action = new Action();
     action.destroy();
-    $ajax.manageError(message, action)
+    $ajax.manageError(message, action);
 
     // Assert
     expect($actionController.addActionList).toHaveBeenCalled();

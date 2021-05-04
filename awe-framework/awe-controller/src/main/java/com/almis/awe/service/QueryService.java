@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.Level;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ public class QueryService extends ServiceConfig {
   // Constants
   private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
   private static final String ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND = "ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND";
+  public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY";
+  public static final String ERROR_MESSAGE_QUERY_NOT_FOUND = "ERROR_MESSAGE_QUERY_NOT_FOUND";
 
   /**
    * Autowired constructor
@@ -51,17 +54,28 @@ public class QueryService extends ServiceConfig {
   }
 
   /**
+   * Check if target action is defined
+   *
+   * @throws AWException Target action is not defined
+   */
+  private void checkAction() throws AWException {
+    if (getRequest().getTargetAction() == null) {
+      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND));
+    }
+  }
+
+  /**
    * Launches a query (must be defined in APP or AWE Queries.xml file) and generates the output Query comes defined in target-action variable
    *
    * @return Query output
    * @throws AWException Query failed
    */
   public ServiceData launchQueryAction() throws AWException {
-    if (getRequest().getTargetAction() != null) {
-      return launchQuery(getRequest().getTargetAction());
-    } else {
-      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND));
-    }
+    // Check if target action is filled up
+    checkAction();
+
+    // Proceed with action
+    return launchQuery(getRequest().getTargetAction());
   }
 
   /**
@@ -71,11 +85,11 @@ public class QueryService extends ServiceConfig {
    * @throws AWException Query failed
    */
   public ServiceData updateModelAction() throws AWException {
-    if (getRequest().getTargetAction() != null) {
-      return updateModel(getRequest().getTargetAction());
-    } else {
-      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND));
-    }
+    // Check if target action is filled up
+    checkAction();
+
+    // Proceed with action
+    return updateModel(getRequest().getTargetAction());
   }
 
   /**
@@ -85,11 +99,25 @@ public class QueryService extends ServiceConfig {
    * @throws AWException Query failed
    */
   public ServiceData checkUniqueAction() throws AWException {
-    if (getRequest().getTargetAction() != null) {
-      return checkUnique(getRequest().getTargetAction());
-    } else {
-      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND));
-    }
+    // Check if target action is filled up
+    checkAction();
+
+    // Proceed with action
+    return checkUnique(getRequest().getTargetAction());
+  }
+
+  /**
+   * Check if a query returns data or not
+   *
+   * @return Service data
+   * @throws AWException Query failed
+   */
+  public ServiceData checkEmptyAction() throws AWException {
+    // Check if target action is filled up
+    checkAction();
+
+    // Proceed with action
+    return checkEmpty(getRequest().getTargetAction());
   }
 
   /**
@@ -99,18 +127,17 @@ public class QueryService extends ServiceConfig {
    * @throws AWException Subscription failed
    */
   public ServiceData subscribeAction() throws AWException {
-    // Variable initialization
-    String query = getRequest().getTargetAction();
-    ObjectNode address = (ObjectNode) getRequest().getParameter(AweConstants.PARAMETER_ADDRESS);
+    // Check if target action is filled up
+    checkAction();
 
     // Generate Component Address
-    ComponentAddress componentAddress = new ComponentAddress(address);
+    ComponentAddress componentAddress = ComponentAddress.fromJson(getRequest().getParameter(AweConstants.PARAMETER_ADDRESS));
 
     // Store session token into the address
     componentAddress.setSession(getRequest().getToken());
 
     // Subscribe to query
-    return subscribe(query, componentAddress);
+    return subscribe(getRequest().getTargetAction(), componentAddress);
   }
 
   /**
@@ -371,6 +398,23 @@ public class QueryService extends ServiceConfig {
   }
 
   /**
+   * Check if a query returns no data
+   *
+   * @param queryId Query identifier
+   * @return Service data
+   * @throws AWException Query failed
+   */
+  public ServiceData checkEmpty(String queryId) throws AWException {
+    ServiceData serviceData = launchQuery(queryId);
+
+    // If query has data, retrieve a validation error
+    if (serviceData.getDataList().getRecords() == 0) {
+      throw new AWException(getLocale("ERROR_TITLE_CRITERIA_VALIDATION"), getLocale("ERROR_MESSAGE_EMPTY_CRITERIA"));
+    }
+    return serviceData;
+  }
+
+  /**
    * Add output variables
    *
    * @param out Output
@@ -395,26 +439,18 @@ public class QueryService extends ServiceConfig {
    */
   private Query getQuery(String queryName, boolean checkAvailable) throws AWException {
     // Variable definition
-    Query query;
-    try {
-      if (getElements().getQuery(queryName) != null) {
-        // Get the query
-        query = getElements().getQuery(queryName).copy();
-        // If query is private, check security
-        if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
-          getLogger().log(QueryService.class, Level.WARN, "ERROR_MESSAGE_OUT_OF_SESSION");
-          throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_SQL_QUERY"), getLocale("ERROR_MESSAGE_OUT_OF_SESSION"));
-        }
-      } else {
-        throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale("ERROR_MESSAGE_QUERY_NOT_FOUND", queryName));
-      }
-    } catch (AWException exc) {
-      throw exc;
-    } catch (Exception exc) {
-      String datMsg = exc.getMessage() == null ? queryName : exc.toString() + " (" + queryName + ")";
-      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), datMsg, exc);
-    }
+    Query query = getElements().getQuery(queryName);
 
+    if (query != null) {
+      // Get the query
+      query = query.copy();
+      // If query is private, check security
+      if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
+        throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+      }
+    } else {
+      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_QUERY_NOT_FOUND, queryName));
+    }
     return query;
   }
 

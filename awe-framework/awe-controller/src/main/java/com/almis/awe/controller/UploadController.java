@@ -38,6 +38,7 @@ public class UploadController extends ServiceConfig {
   // Autowired services
   private final FileService fileService;
   private final BroadcastService broadcastService;
+  private final ObjectMapper mapper;
 
   // Upload identifier
   @Value("${file.upload.identifier:u}")
@@ -48,11 +49,13 @@ public class UploadController extends ServiceConfig {
    *
    * @param fileService      File service
    * @param broadcastService Broadcast service
+   * @param mapper           Object mapper
    */
   @Autowired
-  public UploadController(FileService fileService, BroadcastService broadcastService) {
+  public UploadController(FileService fileService, BroadcastService broadcastService, ObjectMapper mapper) {
     this.fileService = fileService;
     this.broadcastService = broadcastService;
+    this.mapper = mapper;
   }
 
   /**
@@ -74,7 +77,6 @@ public class UploadController extends ServiceConfig {
                                @RequestParam("u") String uploadIdentifier) throws AWException, IOException {
     // Retrieve parameters
     AweRequest aweRequest = getRequest();
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set(AweConstants.PARAMETER_ADDRESS, mapper.readTree(address));
     parameters.put(AweConstants.PARAMETER_DESTINATION, destination);
@@ -89,7 +91,7 @@ public class UploadController extends ServiceConfig {
     // Broadcast file uploaded
     broadcastService.broadcastMessageToUID(token, new ClientAction("file-uploaded")
       .setAsync(true)
-      .setAddress(new ComponentAddress(parameters.get(AweConstants.PARAMETER_ADDRESS)))
+      .setAddress(ComponentAddress.fromJson(parameters.get(AweConstants.PARAMETER_ADDRESS)))
       .addParameter("path", FileUtil.fileDataToString(fileData))
       .addParameter("name", fileData.getFileName())
       .addParameter("size", fileData.getFileSize())

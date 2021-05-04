@@ -1,6 +1,5 @@
 package com.almis.awe.test.unit.rest;
 
-import com.almis.awe.exception.AWException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.After;
 import org.junit.Before;

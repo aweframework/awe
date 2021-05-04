@@ -31,4 +31,8 @@
       </tag>
     </tag>
   </tag>
+
+  <tag source="modal">
+    <include target-screen="home_navbar" target-source="modal" />
+  </tag>
 </screen>

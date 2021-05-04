@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Level;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -19,21 +18,14 @@ import java.util.Set;
  */
 @Log4j2
 public class AweSession implements Serializable {
-  private transient Authentication authentication;
+
   public static final String ROLE = "ROLE_";
-  private AweSessionStorage sessionStorage;
+  private final AweSessionStorage sessionStorage;
 
   /**
    * Autowired constructor
    */
   public AweSession() {
-    // Merged with spring security
-    SecurityContext securityContext = SecurityContextHolder.getContext();
-    Authentication contextAuthentication = securityContext.getAuthentication();
-    if (contextAuthentication != null) {
-      this.setAuthentication(contextAuthentication);
-    }
-
     // Generate session storage
     sessionStorage = new AweSessionStorage();
   }
@@ -44,11 +36,7 @@ public class AweSession implements Serializable {
    * @return Authentication
    */
   public Authentication getAuthentication() {
-    if (authentication == null) {
-      SecurityContext securityContext = SecurityContextHolder.getContext();
-      authentication = securityContext.getAuthentication();
-    }
-    return authentication;
+     return SecurityContextHolder.getContext().getAuthentication();
   }
 
   /**
@@ -187,17 +175,10 @@ public class AweSession implements Serializable {
    * @return User is authenticated
    */
   public boolean isAuthenticated() {
-    return getAuthentication() != null && !(getAuthentication() instanceof AnonymousAuthenticationToken);
-  }
-
-  /**
-   * Set session authentication
-   *
-   * @param authentication {@link Authentication}
-   * @return AWE session
-   */
-  public AweSession setAuthentication(Authentication authentication) {
-    this.authentication = authentication;
-    return this;
+    return  SecurityContextHolder.getContext().getAuthentication() != null &&
+            SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
+            //when Anonymous Authentication is enabled
+            !(SecurityContextHolder.getContext().getAuthentication()
+                    instanceof AnonymousAuthenticationToken);
   }
 }

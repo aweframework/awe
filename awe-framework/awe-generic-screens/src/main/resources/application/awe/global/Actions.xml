@@ -971,6 +971,31 @@
     </answer>
   </action>
 
+  <!-- CONTROL EMPTY AND CANCEL -->
+  <action id="control-empty-cancel" format="JSON">
+    <call service="checkEmpty" />
+    <answer type="ok">
+      <response>
+        <type>end-load</type>
+      </response>
+    </answer>
+    <answer type="error">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" value="warning" />
+          <parameter name="target" parameter="target" />
+        </parameters>
+      </response>
+      <response>
+        <type>cancel</type>
+      </response>
+    </answer>
+  </action>
+
   <!-- GET GENERATED FILE -->
   <action id="get-file" format="FILE">
     <call service="GetGenFil" />

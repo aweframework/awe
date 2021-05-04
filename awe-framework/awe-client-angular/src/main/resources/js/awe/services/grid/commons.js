@@ -721,7 +721,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
             address.row = rowId;
             var isSelected = selected.indexOf(rowId) > -1;
             let cellValue = {
-              value: component.getCellData(row[address.column], component.constants.CELL_VALUE),
+              ...component.getCell(row[address.column]),
               label: component.getVisibleData(address, row, column)
             };
             columnData.push(cellValue);
@@ -789,17 +789,64 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         };
 
         /**
+         * Retrieve current header for column
+         * @param headers
+         * @param column
+         * @returns {{columnCounter: *, name: *, columnList: [], header: boolean, label}|null}
+         */
+        function findCurrentHeader(headers = [], column = {}) {
+          let header = headers.find(h => h.startColumnName === column.name) || null;
+          if (header !== null) {
+            return {
+              columnList: [],
+              columnCounter: header.numberOfColumns,
+              name: header.titleText,
+              label: header.titleText.split(" ").map(singleLabel => $translate.instant(singleLabel)).join(" "),
+              header: true
+            }
+          }
+          return null;
+        }
+
+        /**
+         * Get column print data
+         * @param column
+         * @returns {{component, charlength, name, width, label, type, align}}
+         */
+        function getColumnInformation(column) {
+          const {name, label, type, component, width, charlength, align} = column;
+          return {
+            name, type, component, width, charlength, align,
+            label: (label || "").split(" ").map(l => $translate.instant(l)).join(" ")
+          };
+        }
+
+        /**
          * Retrieve column header information
          *
          * @returns {array} Visible column list
          */
         component.getVisibleColumns = function () {
-          var columns = {};
-          _.each(component.controller.columnModel, function (column) {
-            if (!column.hidden) {
-              columns[column.name] = $translate.instant(column.label);
-            }
-          });
+          let columns = [];
+          let headers = component.controller.headerModel;
+          let currentHeader = null;
+          component.controller.columnModel
+            .filter(column => !column.hidden && column.printable)
+            .forEach(column => {
+              currentHeader = currentHeader || findCurrentHeader(headers, column);
+              if (currentHeader !== null) {
+                currentHeader.columnList.push(getColumnInformation(column));
+                currentHeader.columnCounter--;
+                if (currentHeader.columnCounter === 0) {
+                  columns.push(currentHeader);
+                  currentHeader = null;
+                }
+              } else {
+                columns.push(getColumnInformation(column));
+              }
+            });
+
+          // Retrieve columns
           return columns;
         };
         /**

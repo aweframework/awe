@@ -81,7 +81,7 @@ public class AweSessionDetailsTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
-    when(aweSession.setAuthentication(any())).thenReturn(aweSession);
+//    when(aweSession.setAuthentication(any())).thenReturn(aweSession);
     when(aweSession.getUser()).thenReturn("user");
     when(aweSession.getSessionId()).thenReturn("session-id");
     when(aweSession.getParameter(User.class, SESSION_USER_DETAILS)).thenReturn(userDetails);
@@ -95,20 +95,20 @@ public class AweSessionDetailsTest {
   @Test
   public void onLoginSuccess() throws Exception {
     when(queryService.launchQuery(eq(null), anyString(), anyString())).thenReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Collections.singletonList(new Global()))));
-    aweSessionDetails.onLoginSuccess(authentication);
+    aweSessionDetails.onLoginSuccess();
     verify(aweSession, times(12)).setParameter(anyString(), any());
   }
 
   @Test
   public void onLoginSuccessErrorSessionParameters() {
-    aweSessionDetails.onLoginSuccess(authentication);
+    aweSessionDetails.onLoginSuccess();
     verify(aweSession, times(3)).setParameter(eq(SESSION_FAILURE), any());
   }
 
   @Test
   public void onLoginSuccessNullDataList() throws Exception {
     when(queryService.launchQuery(eq(null), anyString(), anyString())).thenReturn(new ServiceData());
-    aweSessionDetails.onLoginSuccess(authentication);
+    aweSessionDetails.onLoginSuccess();
     verify(aweSession, times(9)).setParameter(anyString(), any());
   }
 

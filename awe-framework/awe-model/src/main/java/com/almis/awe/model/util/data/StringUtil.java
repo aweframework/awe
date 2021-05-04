@@ -1,5 +1,6 @@
 package com.almis.awe.model.util.data;
 
+import com.almis.awe.model.entities.Global;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,6 +9,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
@@ -501,5 +503,15 @@ public final class StringUtil {
    */
   public static String shortenText(String text, Integer size, String replacement) {
     return size > 0 && text.length() > size ? text.substring(0, size - replacement.length()) + replacement : text;
+  }
+
+  /**
+   * Parse a locale
+   *
+   * @param locale Locale
+   * @return locale parsed
+   */
+  public static String parseLocale(Global locale) {
+    return Strings.isBlank(locale.getMarkdown()) ? locale.getValue() : evalMarkdown(locale.getMarkdown());
   }
 }

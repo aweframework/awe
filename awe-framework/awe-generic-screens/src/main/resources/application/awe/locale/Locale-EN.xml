@@ -366,6 +366,7 @@
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_FROM" value="There was an error generating the part [FROM] with value {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_MESSAGE" value="There was an error generating the message {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_TO" value="There was an error generating the part [To]"/>
+  <locale name="ERROR_MESSAGE_EMPTY_CRITERIA" value="The selected value is not in the database"/>
   <locale name="ERROR_MESSAGE_EMPTY_LIST_OPTIONAL" value="If a list can be empty, use optional in filter: {0}"/>
   <locale name="ERROR_MESSAGE_EMPTY_MAINTAIN_OUTPUT" value="Maintain operation -{0}- has not returned a valid output"/>
   <locale name="ERROR_MESSAGE_EMPTY_QUERY_OUTPUT" value="The query has not returned a valid output"/>
@@ -386,6 +387,7 @@
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="There was a problem retrieving the status of the file upload"/>
   <locale name="ERROR_MESSAGE_FILENAME_SIZE_LIMIT" value="The uploaded file has a filename length of {0} chars, and exceeds the maximum allowed: 160 chars"/>
   <locale name="ERROR_MESSAGE_FILL_STATEMENT_VARIABLES" value="Error in variable. Index {0} - Type: {1} - Value: {2}"/>
+  <locale name="ERROR_MESSAGE_FORBIDDEN_ACCESS" value="Access to the requested resource is forbidden"/>
   <locale name="ERROR_MESSAGE_FORMAT_COMPUTED" value="There was a problem formatting computed field with value {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_SERVICE_DATA" value="There was a problem formatting service data {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_TOTALIZED" value="There was a problem formatting totalized field with value {0}"/>
@@ -428,6 +430,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="There was a problem trying to execute a query [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="There was a problem sending a message to a queue from the query {0}"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="There was a problem trying to execute an SQL query [{0}]. Please see log for more details"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error launching query [{0}] without authorization"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Error launching maintain [{0}] without authorization"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="LDAP connection parameters are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="The ldap credentials are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>

@@ -77,6 +77,9 @@
   <service id="checkUnique">
     <java classname="com.almis.awe.service.QueryService" method="checkUniqueAction" />
   </service>
+  <service id="checkEmpty">
+    <java classname="com.almis.awe.service.QueryService" method="checkEmptyAction" />
+  </service>
   <service id="InitDatabaseConnections" launch-phase="APPLICATION_START">
     <java classname="com.almis.awe.service.QueryService" method="initDatasourceConnections" />
   </service>

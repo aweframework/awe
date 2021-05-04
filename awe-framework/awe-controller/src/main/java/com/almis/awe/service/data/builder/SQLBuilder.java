@@ -923,7 +923,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     // Get variable values from previously prepared map
     String type = field.getType() == null ? "STRING" : field.getType();
     ParameterType parameterType = ParameterType.valueOf(type);
-    JsonNode variableValue = queryUtil.getParameter(field.getValue(), null, parameterType, null, field.getValue().contains(","));
+    JsonNode variableValue = queryUtil.getParameter(field.getValue(), null, parameterType, null);
 
     return getOperandFilterExpression(filter, field, variableValue.isArray(), parameterType, variableValue, field.getValue());
   }

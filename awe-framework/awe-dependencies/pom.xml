@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.3.4</version>
+    <version>4.3.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -40,7 +40,9 @@
     <graalvm.version>20.2.0</graalvm.version>
     <selenium.version>3.141.59</selenium.version>
     <lombok.version>1.18.16</lombok.version>
+    <modelmapper.version>2.4.0</modelmapper.version>
     <querydsl.version>4.3.1</querydsl.version>
+    <swagger.version>3.0.0</swagger.version>
     <jacoco.version>0.8.6</jacoco.version>
 
     <!-- Compilation -->
@@ -309,6 +311,12 @@
         <artifactId>lombok</artifactId>
         <version>${lombok.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <!-- ModelMapper -->
+      <dependency>
+        <groupId>org.modelmapper</groupId>
+        <artifactId>modelmapper</artifactId>
+        <version>${modelmapper.version}</version>
       </dependency>
 
       <!-- Aspects -->

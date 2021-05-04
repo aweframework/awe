@@ -369,6 +369,7 @@
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_FROM" value="Se ha producido un error generando la parte [De] con valor {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_MESSAGE" value="Se ha producido un error generando el mensaje {0}"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_TO" value="Se ha producido un error generando la parte [Para]"/>
+  <locale name="ERROR_MESSAGE_EMPTY_CRITERIA" value="El valor seleccionado no está en la base de datos"/>
   <locale name="ERROR_MESSAGE_EMPTY_LIST_OPTIONAL" value="Si la lista puede ser vacía, utilice optional en el filtro: {0}"/>
   <locale name="ERROR_MESSAGE_EMPTY_MAINTAIN_OUTPUT" value="La operación de mantenimiento -{0}- no ha finalizado correctamente"/>
   <locale name="ERROR_MESSAGE_EMPTY_QUERY_OUTPUT" value="La consulta no ha finalizado correctamente"/>
@@ -389,6 +390,7 @@
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="Ha habido un problema recuperando el estado de la subida del fichero"/>
   <locale name="ERROR_MESSAGE_FILENAME_SIZE_LIMIT" value="El nombre del fichero subido tiene una longitud de {0} caracteres, superior al máximo permitido: 160 caracteres"/>
   <locale name="ERROR_MESSAGE_FILL_STATEMENT_VARIABLES" value="Error en variable. Índice {0} - Tipo: {1} - Valor: {2}"/>
+  <locale name="ERROR_MESSAGE_FORBIDDEN_ACCESS" value="Prohibido el acceso al recurso solicitado"/>
   <locale name="ERROR_MESSAGE_FORMAT_COMPUTED" value="Ha habido un problema formateando el campo compuesto con valor {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_SERVICE_DATA" value="Ha habido un problema formateando los datos del servicio {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_TOTALIZED" value="Ha habido un problema formateando el campo totalizado con valor {0}"/>
@@ -431,6 +433,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="Ha habido un problema al lanzar la consulta [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="Ha habido un problema enviando un mensaje a una cola desde la consulta {0}"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="Ha habido un problema al lanzar la consulta SQL [{0}]. Más información en el log de la aplicación"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error lanzando la consulta privada [{0}] sin autorización"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Error lanzando el mantenimiento privado [{0}] sin autorización"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="Los parametros de conexión de LDAP son incorrectos"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="Las credenciales de LDAP son incorrectas"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>

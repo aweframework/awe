@@ -30,7 +30,10 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.EnableCaching;
@@ -81,8 +84,8 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   @RequestScope
-  public AweRequest aweRequest(HttpServletRequest request, HttpServletResponse response) {
-    return new AweRequest(request, response);
+  public AweRequest aweRequest(HttpServletRequest request, HttpServletResponse response, ObjectMapper mapper) {
+    return new AweRequest(request, response, mapper);
   }
 
   /**
@@ -95,6 +98,21 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public AweElements aweElements(LogUtil logger, AweElementsDao elementsDao) {
     return new AweElements(context, logger, elementsDao);
+  }
+
+  /**
+   * Object mapper
+   *
+   * @return ObjectMapper bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ObjectMapper objectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    return objectMapper;
   }
 
   /////////////////////////////////////////////
@@ -153,6 +171,7 @@ public class AweAutoConfiguration {
 
   /**
    * DataList Service bean
+   *
    * @param conversionService Conversion service
    * @return DataList Service bean
    */
@@ -365,8 +384,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public ChartService chartService() {
-    return new ChartService();
+  public ChartService chartService(ObjectMapper objectMapper) {
+    return new ChartService(objectMapper);
   }
 
   /////////////////////////////////////////////
@@ -481,8 +500,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public ReportDesigner reportDesigner(QueryService queryService) {
-    return new ReportDesigner(queryService);
+  public ReportDesigner reportDesigner(QueryService queryService, ObjectMapper mapper) {
+    return new ReportDesigner(queryService, mapper);
   }
 
   /////////////////////////////////////////////
@@ -504,8 +523,8 @@ public class AweAutoConfiguration {
    * Microservice connector
    *
    * @param requestFactory Request factory
-   * @param queryUtil Query utilities
-   * @param objectMapper Object mapper
+   * @param queryUtil      Query utilities
+   * @param objectMapper   Object mapper
    * @return Microservice connector bean
    */
   @Bean
@@ -518,7 +537,7 @@ public class AweAutoConfiguration {
    * REST connector
    *
    * @param requestFactory Request factory
-   * @param objectMapper Object mapper
+   * @param objectMapper   Object mapper
    * @return REST connector bean
    */
   @Bean
@@ -550,6 +569,7 @@ public class AweAutoConfiguration {
   public ServiceQueryConnector serviceQueryConnector(QueryUtil queryUtil) {
     return new ServiceQueryConnector(queryUtil);
   }
+
   /**
    * Service Maintain connector
    *

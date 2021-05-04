@@ -10,8 +10,10 @@ import com.almis.awe.model.entities.queries.DatabaseConnectionInfo;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
@@ -22,6 +24,7 @@ import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author pgarcia
@@ -35,6 +38,9 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
   private final SessionService sessionService;
   private final LogUtil logger;
   private StringValueResolver resolver;
+  // Datasource name
+  @Value("${spring.datasource.name:default}")
+  private String datasourceName;
   // Database jndi-url
   @Value("${spring.datasource.jndi-name}")
   private String databaseJndi;
@@ -44,7 +50,7 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
   // Database user
   @Value("${spring.datasource.username:}")
   private String databaseUser;
-  // Database password
+  // Database passwordEsql
   @Value("${spring.datasource.password:}")
   private String databasePassword;
   // Database driver
@@ -82,7 +88,7 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
     // Retrieve datasources
     for (DatabaseConnectionInfo connectionInfo : connectionInfoMap.values()) {
       try {
-        dataSources.put(connectionInfo.getAlias(), getDataSource(connectionInfo.getJndi(), connectionInfo.getUrl(),
+        dataSources.put(connectionInfo.getAlias(), getDataSource(connectionInfo.getAlias(), connectionInfo.getJndi(), connectionInfo.getUrl(),
           connectionInfo.getUser(), connectionInfo.getPassword(), connectionInfo.getDriver(), validationQuery));
       } catch (Exception exc) {
         // Log datasource failure
@@ -98,6 +104,7 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
   /**
    * Retrieve datasource definition
    *
+   * @param alias  Database alias
    * @param jndi   JNDI
    * @param url    URL
    * @param user   User
@@ -105,24 +112,24 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
    * @param driver Driver
    * @return Datasource
    */
-  DataSource getDataSource(String jndi, String url, String user, String pass, String driver, String validationQuery) {
+  DataSource getDataSource(String alias, String jndi, String url, String user, String pass, String driver, String validationQuery) {
     DataSource dataSource = null;
     if (jndi != null && !jndi.isEmpty()) {
       final JndiDataSourceLookup dsLookup = new JndiDataSourceLookup();
       dsLookup.setResourceRef(true);
-      dataSource = dsLookup.getDataSource(resolver.resolveStringValue(jndi));
+      dataSource = dsLookup.getDataSource(Objects.requireNonNull(resolver.resolveStringValue(jndi)));
     } else if (url != null && !url.isEmpty()) {
-      org.apache.tomcat.jdbc.pool.DataSource tomcatDataSource = new org.apache.tomcat.jdbc.pool.DataSource();
-      tomcatDataSource.setUrl(resolver.resolveStringValue(url));
-      if (user != null) {
-        tomcatDataSource.setUsername(resolver.resolveStringValue(user));
-      }
-      if (pass != null) {
-        tomcatDataSource.setPassword(resolver.resolveStringValue(pass));
-      }
-      tomcatDataSource.setDriverClassName(resolver.resolveStringValue(driver));
-      tomcatDataSource.setValidationQuery(validationQuery);
-      dataSource = tomcatDataSource;
+      HikariDataSource hikariDataSource = (HikariDataSource) DataSourceBuilder.create()
+              .driverClassName(resolver.resolveStringValue(driver))
+              .url(resolver.resolveStringValue(url))
+              .username(resolver.resolveStringValue(user))
+              .password(resolver.resolveStringValue(pass))
+              .build();
+      // Config advanced properties
+      hikariDataSource.setConnectionTestQuery(validationQuery);
+      String poolName = alias != null ? alias : datasourceName;
+      hikariDataSource.setPoolName(poolName);
+      dataSource = hikariDataSource;
     }
     return dataSource;
   }
@@ -148,7 +155,7 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
    * @return Datasource connection
    */
   public DataSource getDataSource() {
-    return getDataSource(databaseJndi, databaseUrl, databaseUser, databasePassword, databaseDriver, validationQuery);
+    return getDataSource(null, databaseJndi, databaseUrl, databaseUser, databasePassword, databaseDriver, validationQuery);
   }
 
   /**
