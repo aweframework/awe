@@ -405,9 +405,7 @@ Deploy Maven Central:
   cache: { }
   needs:
     - job: Build project
-      artifacts: false
     - job: Build package
-      artifacts: false
     - job: Launch Sonar
       artifacts: false
   stage: deploy
