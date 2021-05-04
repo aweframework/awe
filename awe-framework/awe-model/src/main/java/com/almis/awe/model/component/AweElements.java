@@ -304,16 +304,6 @@ public class AweElements {
   }
 
   /**
-   * Parse a locale
-   *
-   * @param locale Locale
-   * @return locale parsed
-   */
-  public String parseLocale(Global locale) {
-    return elementsDao.parseLocale(locale);
-  }
-
-  /**
    * Get an EnumeratedGroup with the identifier
    *
    * @param groupId Group identifier

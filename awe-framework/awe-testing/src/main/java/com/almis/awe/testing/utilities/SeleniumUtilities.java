@@ -313,9 +313,9 @@ public class SeleniumUtilities {
         .toLowerCase()
         .replaceAll("[\\W\\s]+", "_")
         .replaceAll("_+", "_");
-      messageSanitized = messageSanitized.length() > 180 ? messageSanitized.substring(0, 180) : messageSanitized;
+      messageSanitized = messageSanitized.length() > 100 ? messageSanitized.substring(0, 100) : messageSanitized;
       String timestamp = new SimpleDateFormat("HHmmssSSS").format(new Date());
-      Path path = Paths.get(screenshotPath, "screenshot-" + getCurrentOption() + "-" + timestamp + "-" + messageSanitized + ".png");
+      Path path = Paths.get(screenshotPath, getCurrentOption() + "-" + timestamp + "-" + messageSanitized + ".png");
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);
 

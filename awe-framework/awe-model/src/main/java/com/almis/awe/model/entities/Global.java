@@ -9,6 +9,7 @@ import com.thoughtworks.xstream.converters.extended.ToAttributedValueConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -20,6 +21,7 @@ import lombok.experimental.SuperBuilder;
  */
 @Getter
 @Setter
+@Accessors(chain = true)
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @XStreamAlias("global")

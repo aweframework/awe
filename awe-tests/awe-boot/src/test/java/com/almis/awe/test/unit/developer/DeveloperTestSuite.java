@@ -5,7 +5,8 @@ import org.junit.runners.Suite;
 
 
 @Suite.SuiteClasses({
-        LiteralsServiceTest.class,
+  LiteralsServiceTest.class,
+  LocaleFileServiceTest.class
 })
 
 @RunWith(Suite.class)
