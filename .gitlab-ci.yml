@@ -26,7 +26,6 @@ variables:
   SPRING_PROFILES_ACTIVE: gitlab-ci
   KUBERNETES_PROJECT_ID: wired-armor-229610
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster
-  CACHE_KEY: "ALMIS_WEB_ENGINE_CACHE"
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   DAST_WEBSITE: http://staging.aweframework.com
@@ -38,7 +37,7 @@ variables:
   DAST_SUBMIT_FIELD: ButLogIn # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
 
 cache:
-  key: $CACHE_KEY
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .m2/repository/
 
