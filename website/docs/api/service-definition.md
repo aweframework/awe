@@ -7,7 +7,9 @@ Service operations are designed to perform specific treatments and calculations 
 
 Currently there are two types of services declared in the AWE Engine: **Java Services** and **Web Services**
 
-> **Note:** All services are defined in the `Services.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::info
+**Note:** All services are defined in the `Services.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## **Global service structure**
 

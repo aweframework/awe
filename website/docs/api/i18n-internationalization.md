@@ -7,7 +7,9 @@ AWE implements a i18n system for internationalization of web applications. For t
 
 Also you can add `CDATA` tag inside local in **markdown** language to show rich text. Very useful when you want to show a lot of formatting information. For example in the help screen application. You can view all markdown syntax in [this](https://wiki.almis.com/help/markdown/markdown) page.
 
-> **Note:** All locals are defined in the `Local-[Country code].xml` files at **local folder**. The country codes must be two capital letters.  View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::info
+**Note:** All locals are defined in the `Local-[Country code].xml` files at **local folder**. The country codes must be two capital letters.  View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## Locals XML structure
 

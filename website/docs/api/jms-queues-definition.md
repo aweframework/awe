@@ -23,9 +23,9 @@ There is a timing dependency between publishers and subscribers. The publisher h
 
 <img alt="topic" src={require('@docusaurus/useBaseUrl').default('img/topic.png')}/>
 
-
-> **Note:** All queues  are defined in the `Queues.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
-
+:::info
+**Note:** All queues  are defined in the `Queues.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## **Queue xml structure**
 

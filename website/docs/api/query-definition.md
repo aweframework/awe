@@ -7,8 +7,9 @@ The AWE query engine is used for querying data on external systems. It works as 
 
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/Data_engine.png')}/>
 
-> **Note:** All queries are defined in the `queries.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
-
+:::info
+**Note:** All queries are defined in the `queries.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## SQL query
 
