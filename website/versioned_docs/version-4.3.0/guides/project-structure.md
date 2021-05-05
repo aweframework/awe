@@ -32,9 +32,9 @@ The *global* folder contains the following files:
 * **Maintain.xml** - With the definition of database and service process calls.
 * **Services.xml** - Interface file to external services.
 
-### Local folder
+### Locale folder
 
-The *local* folder contains a file for each language defined on the application. All files are named Local-*{language}*.xml, where **language** is the language acronym in two letters (ES, EN, FR...).
+The *locale* folder contains a file for each language defined on the application. All files are named Locale-*{language}*.xml, where **language** is the language acronym in two letters (ES, EN, FR...).
 
 ### Menu folder
 
