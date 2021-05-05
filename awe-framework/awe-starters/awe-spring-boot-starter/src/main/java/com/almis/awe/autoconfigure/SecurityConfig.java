@@ -164,7 +164,10 @@ public class SecurityConfig extends ServiceConfig {
           "/settings",
           "/action/get-locals",
           "/action/screen-data",
-          "/screen/public/**"
+          "/screen/public/**",
+          // React engine
+          "/screen-data",
+          "/locales/**",
   };
 
   /**
