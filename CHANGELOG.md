@@ -1,8 +1,4 @@
-
 # Changelog for awe 4.3.6
-*04/05/2021*
-
-# Changelog for awe 4.3.5
 *04/05/2021*
 
 - Don't translate the selected language on developer module. [MR #300](https://gitlab.com/aweframework/awe/-/merge_requests/300) (Pablo Javier García Mora)
