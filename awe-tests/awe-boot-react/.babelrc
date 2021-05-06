@@ -20,9 +20,7 @@
         "object-values-to-object-keys",
         ["istanbul", {
           "exclude": [
-            "**/test/",
-            "**/node_modules/",
-            "**/lib/"
+            "**/node_modules/"
           ]
         }]
       ]
@@ -35,9 +33,7 @@
         "object-values-to-object-keys",
         ["istanbul", {
           "exclude": [
-            "**/test/",
-            "**/node_modules/",
-            "**/lib/"
+            "**/node_modules/"
           ]
         }]
       ]
