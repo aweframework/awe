@@ -16,7 +16,7 @@
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>1.8</java.version>
+    <java.version>11</java.version>
     <application.name>awe-react</application.name>
     <application.acronym>awe-react</application.acronym>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
