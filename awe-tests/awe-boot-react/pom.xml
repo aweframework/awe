@@ -17,8 +17,6 @@
   <properties>
     <!-- Application maven properties -->
     <java.version>11</java.version>
-    <application.name>awe-react</application.name>
-    <application.acronym>awe-react</application.acronym>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <selenium.version>3.141.59</selenium.version>
