@@ -7,7 +7,7 @@ const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib")
 // Fix webpack for karma
 module.exports = (config) => {
   config.set({
-    basePath: path.join(__dirname, "target", "reports", "karma"),
+    basePath: path.join(__dirname),
     frameworks: ['detectBrowsers', 'jasmine'],
     reporters: ['spec', 'sonarqubeUnit', 'coverage-istanbul'],
     //concurrency: 1,
@@ -103,7 +103,7 @@ module.exports = (config) => {
     },
     sonarQubeUnitReporter: {
       sonarQubeVersion: 'LATEST',
-      outputFile: path.join("junit", "javascriptUnitTests.xml"),
+      outputFile: path.join("target", "reports", "karma", "junit", "javascriptUnitTests.xml"),
       overrideTestDescription: false,
       testFilePattern: '.js',
       useBrowserName: false
