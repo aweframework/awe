@@ -1,5 +1,7 @@
+import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
+
 describe('awe-framework/awe-client-angular/src/test/js/services/comet.js', function() {
-  let $injector, $utilities, $actionController, $comet;
+  let $injector, $utilities, $actionController, $comet, $httpBackend;
   let originalTimeout;
 
   // Mock module
@@ -11,7 +13,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/comet.js', funct
       $utilities = $injector.get('AweUtilities');
       $actionController = $injector.get('ActionController');
       $comet = $injector.get('Comet');
+      $httpBackend = $injector.get('$httpBackend');
     }]);
+
+    // backend definition common for all tests
+    $httpBackend.when('GET', '/websocket').respond("{}");
 
     originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -39,31 +45,28 @@ describe('awe-framework/awe-client-angular/src/test/js/services/comet.js', funct
   });
 
   it('should connect', function() {
-    let connection = {connect: (headers, fn, c) => fn(), subscribe: (fn) => fn};
-    spyOn($comet, "getConnection").and.returnValue(connection);
-    spyOn(connection, "subscribe");
+    const client = {activate: jasmine.createSpy("activate")};
+    spyOn($comet, "getWebsocketClient").and.returnValue(client);
     $comet._connect();
-    expect(connection.subscribe).toHaveBeenCalledTimes(2);
-  });
-
-  it('should connect with fails', function() {
-    let connection = {connect: (headers, fn, error) => error(), subscribe: (fn) => fn()};
-    spyOn($comet, "getConnection").and.returnValue(connection);
-    spyOn($comet, "_disconnect");
-    $comet._connect();
-    expect($comet._disconnect).toHaveBeenCalled();
+    expect(client.activate).toHaveBeenCalled();
   });
 
   it('should disconnect', function() {
-    let connection = {disconnect: (fn) => fn()};
+    let connection = {deactivate: jasmine.createSpy("activate"), active: true};
     spyOn($comet, "getConnection").and.returnValue(connection);
-    spyOn($comet, "setConnection");
-    $comet._disconnect();
-    expect($comet.setConnection).toHaveBeenCalled();
+    $comet.disconnect();
+    expect(connection.deactivate).toHaveBeenCalled();
+  });
+
+  it('should disconnect (but not active)', function() {
+    let connection = {deactivate: jasmine.createSpy("activate"), active: false};
+    spyOn($comet, "getConnection").and.returnValue(connection);
+    $comet.disconnect();
+    expect(connection.deactivate).not.toHaveBeenCalled();
   });
 
   it('should disconnect and reconnect', function() {
-    let connection = {disconnect: (fn) => fn()};
+    let connection = {deactivate: () => ({then: (fn) => fn()}), active: true};
     spyOn($comet, "getConnection").and.returnValue(connection);
     spyOn($comet, "_connect");
     $comet._reconnect();
@@ -71,9 +74,12 @@ describe('awe-framework/awe-client-angular/src/test/js/services/comet.js', funct
   });
 
   it('should reconnect', function() {
+    let connection = {deactivate: jasmine.createSpy("activate"), active: false};
+    spyOn($comet, "getConnection").and.returnValue(connection);
     spyOn($comet, "_connect");
     $comet._reconnect();
     expect($comet._connect).toHaveBeenCalled();
+    expect(connection.deactivate).not.toHaveBeenCalled();
   });
 
   it('should manage a broadcast call', function() {

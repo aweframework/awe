@@ -202,7 +202,9 @@ public class SecurityConfig extends ServiceConfig {
               .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
               .addLogoutHandler(getBean(AweLogoutHandler.class))
               // CSRF
-              .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+              .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+              // ignore our stomp endpoints since they are protected using Stomp headers
+              .ignoringAntMatchers("/websocket/**");
 
       if (sameOrigin) {
         http.headers().frameOptions().sameOrigin();
