@@ -15,26 +15,17 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * TransformCellProcessor class
  */
 public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware {
-  private Totalize totalize;
   Map<String, CellData> totalizeValues = null;
   Map<String, String> totalizeKeys = null;
   List<SqlField> fieldList = null;
+  private Totalize totalize;
   private AweElements elements;
-
-  /**
-   * Set Awe Elements
-   *
-   * @return Totalize Column Processor
-   */
-  public TotalizeColumnProcessor setElements(AweElements elements) {
-    this.elements = elements;
-    return this;
-  }
 
   /**
    * Retrieve Awe Elements
@@ -46,6 +37,16 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
       throw new AWException("No elements defined", "Define elements before building the totalize processor");
     }
     return elements;
+  }
+
+  /**
+   * Set Awe Elements
+   *
+   * @return Totalize Column Processor
+   */
+  public TotalizeColumnProcessor setElements(AweElements elements) {
+    this.elements = elements;
+    return this;
   }
 
   /**
@@ -128,9 +129,9 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
     Map<String, CellData> totalizeRow = new HashMap<>();
 
     for (SqlField field : fieldList) {
-      String columnIdentifier = "";
+      String columnIdentifier;
       String totalizeIdentifier = "-" + totalize.getFunction();
-      CellData cell = null;
+      CellData cell;
 
       TransformCellProcessor transformProcessor = new TransformCellProcessor()
         .setElements(elements)
@@ -174,7 +175,7 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
     }
 
     // Add row ID
-    newRow.put("id", new CellData(String.valueOf("TOT-" + list.size())));
+    newRow.put("id", new CellData("TOT-" + list.size()));
 
     // Add row list
     list.add(newRow);
@@ -227,40 +228,45 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
    *
    * @param row           Row to be calculated
    * @param totalizeField Totalize field
-   * @throws AWException Error generating values
    */
-  private void calculateTotalizedRow(Map<String, CellData> row, TotalizeField totalizeField) throws AWException {
+  private void calculateTotalizedRow(Map<String, CellData> row, TotalizeField totalizeField) {
     // Big decimal treatment. Choose number type and cast to BigDecimal
-    Object value = row.get(totalizeField.getField()).getObjectValue();
-    Double doubleValue = fixDoubleValue(row.get(totalizeField.getField()).getDoubleValue(),
-      row.get(totalizeField.getField()).getStringValue());
+    CellData field = Optional.ofNullable(row.get(totalizeField.getField())).orElse(new CellData());
+    double doubleValue = fixDoubleValue(field.getDoubleValue(), field.getStringValue());
 
-    if (totalizeValues.containsKey(totalizeField.getField() + "-CNT")) {
-      Double totVal = totalizeValues.get(totalizeField.getField() + "-SUM").getDoubleValue();
-      Double maxVal = totalizeValues.get(totalizeField.getField() + "-MAX").getDoubleValue();
-      Double minVal = totalizeValues.get(totalizeField.getField() + "-MIN").getDoubleValue();
-      Integer cntVal = totalizeValues.get(totalizeField.getField() + "-CNT").getIntegerValue();
+    int cntVal = Optional.ofNullable(getTotalsField(totalizeField, "CNT").getIntegerValue()).orElse(0) + 1;
+    double totVal = Optional.ofNullable(getTotalsField(totalizeField, "SUM").getDoubleValue()).orElse(0.0) + doubleValue;
+    double maxVal = Math.max(Optional.ofNullable(getTotalsField(totalizeField, "MAX").getDoubleValue()).orElse(doubleValue), doubleValue);
+    double minVal = Math.min(Optional.ofNullable(getTotalsField(totalizeField, "MIN").getDoubleValue()).orElse(doubleValue), doubleValue);
 
-      totVal = totVal == null ? doubleValue : totVal + doubleValue;
-      cntVal++;
-      maxVal = maxVal == null ? doubleValue : Math.max(maxVal, doubleValue);
-      minVal = minVal == null ? doubleValue : Math.min(minVal, doubleValue);
-      Double avgVal = Math.ceil(totVal / cntVal.longValue());
+    // Put value on list
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "SUM"), new CellData(totVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "AVG"), new CellData(Math.ceil(totVal / cntVal)));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "MAX"), new CellData(maxVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "MIN"), new CellData(minVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "CNT"), new CellData(cntVal));
+  }
 
-      // Put value on list
-      totalizeValues.put(totalizeField.getField() + "-SUM", new CellData(totVal));
-      totalizeValues.put(totalizeField.getField() + "-AVG", new CellData(avgVal));
-      totalizeValues.put(totalizeField.getField() + "-MAX", new CellData(maxVal));
-      totalizeValues.put(totalizeField.getField() + "-MIN", new CellData(minVal));
-      totalizeValues.put(totalizeField.getField() + "-CNT", new CellData(cntVal));
-    } else if (!totalizeValues.containsKey(totalizeField.getField() + "-CNT")) {
-      // Put value on list
-      totalizeValues.put(totalizeField.getField() + "-SUM", new CellData(doubleValue));
-      totalizeValues.put(totalizeField.getField() + "-AVG", new CellData(doubleValue));
-      totalizeValues.put(totalizeField.getField() + "-MAX", new CellData(doubleValue));
-      totalizeValues.put(totalizeField.getField() + "-MIN", new CellData(doubleValue));
-      totalizeValues.put(totalizeField.getField() + "-CNT", new CellData(value == null ? 0 : 1));
-    }
+  /**
+   * Get totals field
+   *
+   * @param field     Field
+   * @param operation Operation
+   * @return Totals field value
+   */
+  private CellData getTotalsField(TotalizeField field, String operation) {
+    return Optional.ofNullable(totalizeValues.get(getTotalsFieldIdentifier(field, operation))).orElse(new CellData());
+  }
+
+  /**
+   * Get totals field identifier
+   *
+   * @param field     Field
+   * @param operation Operation
+   * @return Field identifier
+   */
+  private String getTotalsFieldIdentifier(TotalizeField field, String operation) {
+    return String.format("%s-%s", field.getField(), operation);
   }
 
   /**
@@ -269,22 +275,22 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
    * @param doubleValue Double value
    * @param stringValue String value
    * @return Double value fixed
-   * @throws AWException
    */
-  private Double fixDoubleValue(Double doubleValue, String stringValue) throws AWException {
-    if (doubleValue == null) {
-      if (stringValue.isEmpty()) {
-        return 0.0;
-      } else {
-        try {
-          return NumericUtil.parseNumericString(stringValue).doubleValue();
-        } catch (ParseException exc) {
-          throw new AWException(getElements().getLocaleWithLanguage("ERROR_TITLE_PARSING_TEXT", getElements().getLanguage()),
-            getElements().getLocaleWithLanguage("ERROR_MESSAGE_PARSING_TEXT", getElements().getLanguage(),stringValue, "double"), exc);
-        }
-      }
-    } else {
-      return doubleValue;
+  private Double fixDoubleValue(Double doubleValue, String stringValue) {
+    return Optional.ofNullable(doubleValue).orElse(parseStringValue(stringValue));
+  }
+
+  /**
+   * Parse string value as double
+   *
+   * @param value String value
+   * @return Double value
+   */
+  private Double parseStringValue(String value) {
+    try {
+      return NumericUtil.parseNumericString(value).doubleValue();
+    } catch (ParseException exc) {
+      return 0.0;
     }
   }
 }
