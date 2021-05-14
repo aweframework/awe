@@ -27,6 +27,7 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -40,6 +41,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 /**
  * Manage AWE screen access
  */
+@Log4j2
 public class ScreenService extends ServiceConfig {
 
   // Autowired services
@@ -178,6 +180,7 @@ public class ScreenService extends ServiceConfig {
       screenData.setStructure(getScreenFromOptionId(optionId));
       return screenData;
     } catch (AWException exc) {
+      log.error("Error retrieving screen structure for option {}", optionId, exc);
       return new ScreenData();
     }
   }
