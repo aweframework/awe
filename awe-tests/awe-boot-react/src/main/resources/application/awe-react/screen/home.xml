@@ -23,7 +23,7 @@
         </tag>
         <tag type="div" style="layout-header-right p-ml-auto">
           <!-- Profile -->
-          <tag type="ul" style="navbar p-p-2">
+          <tag type="ul" style="navbar">
             <include target-screen="notification-panel" target-source="notification-panel"/>
             <info id="ButSetTog" icon="cog" title="SCREEN_TEXT_SETTINGS" dropdown-style="dropdown-lg">
               <info-criteria icon="puzzle-piece" title="SCREEN_TEXT_MODULE" component="select" id="module"
@@ -99,7 +99,7 @@
                 </dependency>
               </info-criteria>
             </info>
-            <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT" style="p-button-text p-button-rounded p-button-secondary">
+            <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT" style="p-m-2 p-button-text p-button-secondary">
               <button-action type="logout"/>
             </info-button>
           </tag>
