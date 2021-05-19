@@ -14,9 +14,9 @@ Insert into AweMod (IdeMod, Nam, ScrIni, IdeThm, Act, Ord) values (2, 'Base', 'S
 UPDATE AweKey SET KeyVal = '3' where KeyNam = 'ModKey';
 
 -- Insert AweDbs
-Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (1	,'awedb1','AWE DB 1','J','hsql','org.hsqldb.jdbc.JDBCDriver','sa', null,'Des','jdbc:hsqldb:file:tests/test-angular-redux/target/db/awe-angular-redux',1);
-Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (2	,'awedb2','AWE DB 2','J','hsql','org.hsqldb.jdbc.JDBCDriver','sa', null,'Des','jdbc:hsqldb:file:tests/test-angular-redux/target/db/awe-angular-redux',1);
-Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (3	,'awedb3','AWE DB 3','J','hsql','org.hsqldb.jdbc.JDBCDriver','sa', null,'Des','jdbc:hsqldb:file:tests/test-angular-redux/target/db/awe-angular-redux',1);
+Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (1	,'awedb1','AWE DB 1','J','hsql','org.hsqldb.jdbc.JDBCDriver','sa', null,'Des','jdbc:hsqldb:file:target/db/awe-angular-redux',1);
+Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (2	,'awedb2','AWE DB 2','J','hsql','org.hsqldb.jdbc.JDBCDriver','sa', null,'Des','jdbc:hsqldb:file:target/db/awe-angular-redux',1);
+Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (3	,'awedb3','AWE DB 3','J','hsql','org.hsqldb.jdbc.JDBCDriver','sa', null,'Des','jdbc:hsqldb:file:target/db/awe-angular-redux',1);
 
 -- Update DbsKey
 UPDATE AweKey SET KeyVal = '4' where KeyNam = 'DbsKey';
