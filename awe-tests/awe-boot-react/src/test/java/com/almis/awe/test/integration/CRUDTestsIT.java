@@ -513,7 +513,7 @@ public class CRUDTestsIT extends SeleniumUtilities {
     selectContain("Dct",  "Jdbc");
 
     // Insert text
-    writeText("Dbc", "jdbc:hsqldb:file:tests/test-angular-redux/target/db/awe-angular-redux");
+    writeText("Dbc", "jdbc:hsqldb:file:target/db/awe-angular-redux");
 
     // Select on selector
     selectContain("Typ",  "Development");
