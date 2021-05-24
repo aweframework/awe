@@ -9,7 +9,7 @@ module.exports = (config) => {
   config.set({
     basePath: path.join(__dirname),
     frameworks: ['detectBrowsers', 'jasmine'],
-    reporters: ['spec', 'sonarqubeUnit', 'coverage-istanbul'],
+    reporters: ['spec', 'sonarqubeUnit', 'coverage-istanbul', 'junit'],
     //concurrency: 1,
     browserConsoleLogOptions: { level: 'info', format: '%b %T: %m', terminal: true},
     reportSlowerThan: 500,
