@@ -496,123 +496,121 @@
       </tabcontainer>
       <tabcontainer id="DepMat">
         <tag type="div" style="expand expandible-vertical">
-          <resizable directions="bottom" style="no-resizable-xs height-lg">
-            <tag type="div" style="expand expandible-horizontal">
-              <resizable directions="right" style="col-xs-12 col-sm-4 col-lg-2 no-padding no-resizable-xs">
-                <grid id="MatSel" style="expand grid-bordered" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
-                  <column label="COLUMN_SIT" sort-field="Als" name="Als5" charlength="25" />
-                </grid>
-              </resizable>
-              <grid id="MatPrn" style="expand grid-bordered" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
-                <column label="COLUMN_SIT" sort-field="Als" name="Als6" charlength="25" />
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als7" charlength="20">
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="1" attribute="currentRowValue" alias="Label"/>
-                  </dependency>
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="1" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als8" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="2" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="2" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als9" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="3" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="3" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als10" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="4" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="4" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als11" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="5" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="5" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als12" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="6" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="6" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als13" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="7" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="7" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als14" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="8" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="8" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als15" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="9" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="9" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
-                <column label="PARAMETER_TEXT" sort-field="Als" name="Als16" charlength="20">
-                  <dependency initial="true" target-type="show">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="10" />
-                  </dependency>
-                  <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
-                    <dependency-element id="MatCol"/>
-                    <dependency-element id="MatCol" column="Des3" row="10" attribute="currentRowValue" alias="Label" />
-                  </dependency>
-                </column>
+          <resizable directions="bottom">
+            <resizable directions="right" style="p-p-0">
+              <grid id="MatSel" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
+                <column label="COLUMN_SIT" sort-field="Als" name="Als5" charlength="25" />
               </grid>
-            </tag>
+              <grid id="MatPrn" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
+                  <column label="COLUMN_SIT" sort-field="Als" name="Als6" charlength="25" />
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als7" charlength="20">
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="1" attribute="currentRowValue" alias="Label"/>
+                    </dependency>
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="1" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als8" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="2" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="2" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als9" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="3" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="3" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als10" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="4" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="4" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als11" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="5" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="5" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als12" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="6" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="6" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als13" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="7" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="7" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als14" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="8" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="8" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als15" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="9" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="9" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                  <column label="PARAMETER_TEXT" sort-field="Als" name="Als16" charlength="20">
+                    <dependency initial="true" target-type="show">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" attribute="totalRows" condition="ge" value="10" />
+                    </dependency>
+                    <dependency initial="true" source-type="launcher" target-type="label" target-action="Label">
+                      <dependency-element id="MatCol"/>
+                      <dependency-element id="MatCol" column="Des3" row="10" attribute="currentRowValue" alias="Label" />
+                    </dependency>
+                  </column>
+                </grid>
+            </resizable>
+            <grid id="MatCol" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
+              <column label="COLUMN_SIT" sort-field="Als" name="Als17" charlength="25" />
+              <column label="COLUMN_MOD" sort-field="Des" name="Des3" charlength="25" />
+              <column label="COLUMN_DBA" sort-field="Prg" name="Prg1" charlength="25" />
+            </grid>
           </resizable>
-          <grid id="MatCol" style="expand grid-bordered" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
-            <column label="COLUMN_SIT" sort-field="Als" name="Als17" charlength="25" />
-            <column label="COLUMN_MOD" sort-field="Des" name="Des3" charlength="25" />
-            <column label="COLUMN_DBA" sort-field="Prg" name="Prg1" charlength="25" />
-          </grid>
         </tag>
       </tabcontainer>
     </tab>

@@ -28,31 +28,29 @@
     </window>
     <window label="SCREEN_TEXT_USER" style="expand" maximize="true">
       <tag type="div" style="panel-body expand" expandible="horizontal">
-        <tag type="div" style="panel-body expand">
+        <tag type="div" style="p-p-2 expand">
           <criteria label="SCREEN_TEXT_USER" component="text" id="gegtr" validation="required" style="col-xs-12" />
           <criteria label="SCREEN_TEXT_PASS" component="password" id="ertge" validation="required" style="col-xs-12" />
         </tag>
         <resizable directions="right" style="col-xs-12 col-sm-4 col-lg-2 no-padding no-resizable-xs">
-          <tag style="expand" expandible="vertical">
-            <window label="SCREEN_TEXT_USER" style="expand" maximize="true">
-              <tag type="div" style="panel-body scrollable expand" label="SCREEN_TEXT_USER" />
-              <tag type="div" style="panel-footer">
-                <tag type="div" style="pull-right">
-                  <button button-type="button" label="BUTTON_LOGIN" icon="sign-in" id="ButPru"/>
-                </tag>
+          <window label="SCREEN_TEXT_USER" style="expand" maximize="true">
+            <tag type="div" style="panel-body scrollable expand" label="SCREEN_TEXT_USER" />
+            <tag type="div" style="panel-footer">
+              <tag type="div" style="pull-right">
+                <button button-type="button" label="BUTTON_LOGIN" icon="sign-in" id="ButPru"/>
               </tag>
-            </window>
-          </tag>
-        </resizable>
-        <window label="SCREEN_TEXT_USER" style="expand" maximize="true">
-          <tag type="div" style="panel-body scrollable expand" label="SCREEN_TEXT_USER" />
-          <tag type="div" style="panel-footer">
-            <tag type="div" style="pull-right">
-              <button button-type="button" label="BUTTON_LOGIN" icon="sign-in" id="ButPru2"/>
             </tag>
-          </tag>
-        </window>
-        <tag type="div" style="panel-body staticWidthSample">
+          </window>
+          <window label="SCREEN_TEXT_USER" style="expand" maximize="true">
+            <tag type="div" style="panel-body scrollable expand" label="SCREEN_TEXT_USER" />
+            <tag type="div" style="panel-footer">
+              <tag type="div" style="pull-right">
+                <button button-type="button" label="BUTTON_LOGIN" icon="sign-in" id="ButPru2"/>
+              </tag>
+            </tag>
+          </window>
+        </resizable>
+        <tag type="div" style="p-p-2 staticWidthSample">
           <criteria label="SCREEN_TEXT_USER" icon="user" component="text" id="etertg" validation="required" style="col-xs-12" />
           <criteria label="SCREEN_TEXT_PASS" component="password" id="ertgegg" validation="required" style="col-xs-12" />
         </tag>
