@@ -182,7 +182,7 @@ Frontend UT:
     expire_in: 1 day
     reports:
       junit:
-        - awe-framework/awe-client-angular/target/reports/karma/junit/*.xml
+        - awe-framework/awe-client-angular/target/reports/junit/*.xml
   rules:
     - <<: *if-default
 

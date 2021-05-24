@@ -108,5 +108,9 @@ module.exports = (config) => {
       testFilePattern: '.js',
       useBrowserName: false
     },
+    junitReporter: {
+      outputDir: path.join("target", "reports", "junit"),
+      useBrowserName: false, // add browser name to report and classes names
+    }
   });
 };
