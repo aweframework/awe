@@ -64,8 +64,8 @@
             </tag>
             <tag type="div" style="expand">
               <accordion id="accordion">
-                <accordion-item id="accordionItem1" label="Item 1"></accordion-item>
-                <accordion-item id="accordionItem2" label="Item 2"></accordion-item>
+                <accordion-item id="accordionItem1" label="Item 1"/>
+                <accordion-item id="accordionItem2" label="Item 2"/>
               </accordion>
             </tag>
           </tag>

@@ -82,13 +82,13 @@
             <include target-screen="info" target-source="center"/>
           </window>
         </accordion-item>
-        <dependency source-type="value" target-type="attribute" target-action="selected" value="element1">
+        <dependency source-type="value" target-type="input" value="element1">
           <dependency-element id="dep_test" condition="eq" value="aaa"/>
         </dependency>
-        <dependency source-type="value" target-type="attribute" target-action="selected" value="element2">
+        <dependency source-type="value" target-type="input" value="element2">
           <dependency-element id="dep_test" condition="eq" value="bbb"/>
         </dependency>
-        <dependency source-type="value" target-type="attribute" target-action="selected" value="element3">
+        <dependency source-type="value" target-type="input" value="element3">
           <dependency-element id="dep_test" condition="eq" value="ccc"/>
         </dependency>
       </accordion>
