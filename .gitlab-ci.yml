@@ -5,7 +5,7 @@
 include:
   - template: DAST.gitlab-ci.yml
 
-image: maven:3.6-jdk-8
+image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools"
@@ -74,11 +74,6 @@ stages:
 
 .build:
   stage: build
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
-  retry: 2
-
-Build project:
-  extends: .build
   script:
     - mvn $MAVEN_CLI_OPTS clean install $SKIP_TESTS
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -92,8 +87,15 @@ Build project:
   rules:
     - <<: *if-default
 
-Build website:
+Build project:
   extends: .build
+
+Build project (jdk 14):
+  extends: .build
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk14-node-maven:latest
+
+Build website:
+  stage: build
   cache: { }
   script:
     - npm install --prefix website
@@ -112,7 +114,6 @@ Build website:
 # Unit testing extension
 .unit-testing:
   stage: unit test
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   allow_failure: false
   needs: [ "Build project" ]
   script:
@@ -173,7 +174,6 @@ SQL Server Tests:
 Frontend UT:
   stage: unit test
   needs: [ ]
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
   artifacts:
@@ -205,7 +205,6 @@ Javadoc test:
 # Browser testing extension
 .browser-testing:
   stage: integration test
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   allow_failure: true
   needs: [ "Build project" ]
   script:
@@ -304,7 +303,6 @@ Chrome IT Scheduler:
 
 Launch Sonar:
   stage: analysis
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   needs:
     - job: All UT
     - job: Oracle Tests
