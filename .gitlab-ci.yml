@@ -332,6 +332,7 @@ Launch Sonar:
 ##############################
 
 Generate javadoc & schemas:
+  image: maven:3.6-jdk-8
   stage: site
   needs: [ "Build project" ]
   script:
