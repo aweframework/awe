@@ -11,10 +11,11 @@ module.exports = (config) => {
     frameworks: ['detectBrowsers', 'jasmine'],
     reporters: ['spec', 'sonarqubeUnit', 'coverage-istanbul', 'junit'],
     //concurrency: 1,
+    // browsers: ['Chrome', 'Firefox'],
     browserConsoleLogOptions: { level: 'info', format: '%b %T: %m', terminal: true},
     reportSlowerThan: 500,
     singleRun: true,
-    files: [ tests ],
+    files: [tests],
     preprocessors: {
       [tests]: ['webpack', 'sourcemap']
     },

@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Generate the component model of the screen
@@ -301,7 +302,7 @@ public class ScreenModelGenerator extends ServiceConfig {
     String target = component.getController().getTargetAction();
     try {
       ServiceData componentTargetOutput = futureData.get();
-      DataList componentData = (DataList) componentTargetOutput.getVariableMap().get(AweConstants.ACTION_DATA).getObjectValue();
+      DataList componentData = ((DataList) componentTargetOutput.getVariableMap().get(AweConstants.ACTION_DATA).getObjectValue()).copy();
 
       // Apply restricted value list
       applyRestrictedValueList(component, componentData);
@@ -344,7 +345,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String[] restrictedValueList = criteriaComponent.getRestrictedValueList().trim().split(AweConstants.COMMA_SEPARATOR);
       for (String restrictedValue : restrictedValueList) {
         // Update componentData
-        componentData.getRows().removeIf(n -> (n.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue().equalsIgnoreCase(restrictedValue)));
+        componentData.setRows(componentData.getRows().stream().filter(n -> (!n.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue().equalsIgnoreCase(restrictedValue))).collect(Collectors.toList()));
         componentData.setRecords(componentData.getRows().size());
       }
     }

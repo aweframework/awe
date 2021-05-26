@@ -26,12 +26,10 @@ public class ZipFileUtil {
   /**
    * Returns a zip file system
    *
-   * @param zipFilename
-   *            to construct the file system from
-   * @param create
-   *            true if the zip file should be created
+   * @param zipFilename to construct the file system from
+   * @param create      true if the zip file should be created
    * @return a zip file system
-   * @throws IOException
+   * @throws IOException io exception
    */
   private static FileSystem createZipFileSystem(String zipFilename, boolean create) throws IOException {
 
@@ -54,9 +52,9 @@ public class ZipFileUtil {
    *            the name of the zip to create
    * @param filenames
    *            list of filename to add to the zip
-   * @throws IOException
+   * @throws IOException IO exception
    */
-  public static void create(String zipFilename, List<String> filenames) throws IOException {
+  public static void zip(String zipFilename, List<String> filenames) throws IOException {
 
     try (FileSystem zipFileSystem = createZipFileSystem(zipFilename, true)) {
       final Path root = zipFileSystem.getPath("/");
@@ -87,7 +85,7 @@ public class ZipFileUtil {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
               throws IOException {
-              final Path dirToCreate = zipFileSystem.getPath(root.toString(), dir.toString());
+              final Path dirToCreate = zipFileSystem.getPath(root.toString(), dir.getFileName().toString());
               if (Files.notExists(dirToCreate)) {
                 log.debug(CREATING_DIRECTORY, dirToCreate);
                 Files.createDirectories(dirToCreate);
@@ -108,7 +106,7 @@ public class ZipFileUtil {
    *            the name of the zip file to extract
    * @param destDirname
    *            the directory to unzip to
-   * @throws IOException
+   * @throws IOException IO exception
    */
   public static void unzip(String zipFilename, String destDirname) throws IOException {
 

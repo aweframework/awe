@@ -210,8 +210,9 @@ Query definition to load a bean parameter (each variable will field a bean attri
 Service definition with a bean parameter
 
 ```xml
+
 <service id="testServiceBeanParameter">
-  <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
+  <java classname="com.almis.awe.service.DummyService" method="getDummyData">
     <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Planet"/>
   </java>
 </service>
@@ -258,8 +259,9 @@ Query definition to load a bean parameter (each variable is a parameter list whi
 Service definition with a bean parameter list
 
 ```xml
+
 <service id="testServiceBeanParameterList">
-  <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
+  <java classname="com.almis.awe.service.DummyService" method="getDummyData">
     <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Planet" list="true"/>
   </java>
 </service>
@@ -296,9 +298,10 @@ Query definition to load a bean parameter (each variable is a parameter list whi
 Service definition with a Json parameter
 
 ```xml
+
 <service id="testLoadJsonAddress">
-  <java classname="com.almis.awe.test.service.DummyService" method="getJsonAddress">
-    <service-parameter type="JSON" />
+  <java classname="com.almis.awe.service.DummyService" method="getJsonAddress">
+    <service-parameter type="JSON"/>
   </java>
 </service>
 ```
@@ -334,8 +337,9 @@ Query definition
 Service definition with a Json parameter
 
 ```xml
+
 <service id="testLoadJsonBean">
-  <java classname="com.almis.awe.test.service.DummyService" method="getJsonBean">
+  <java classname="com.almis.awe.service.DummyService" method="getJsonBean">
     <service-parameter type="JSON" bean-class="com.almis.awe.model.dto.DataList"/>
   </java>
 </service>

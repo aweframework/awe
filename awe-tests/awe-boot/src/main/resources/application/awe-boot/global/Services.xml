@@ -6,90 +6,90 @@
   <!-- Test services -->
 
   <service id="simplePagination">
-    <java classname="com.almis.awe.test.service.DummyService" method="paginate" />
+    <java classname="com.almis.awe.service.DummyService" method="paginate"/>
   </service>
 
   <service id="simpleManagedPagination">
-    <java classname="com.almis.awe.test.service.DummyService" method="paginate">
+    <java classname="com.almis.awe.service.DummyService" method="paginate">
       <service-parameter name="_page_" type="LONG"/>
       <service-parameter name="_max_" type="LONG"/>
     </java>
   </service>
 
   <service id="SysDat">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDate" />
+    <java classname="com.almis.awe.service.DummyService" method="getDate"/>
   </service>
 
   <service id="getDateList">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDateList" />
+    <java classname="com.almis.awe.service.DummyService" method="getDateList"/>
   </service>
 
   <service id="getElapsedTimeList">
-    <java classname="com.almis.awe.test.service.DummyService" method="getElapsedTimeList" />
+    <java classname="com.almis.awe.service.DummyService" method="getElapsedTimeList"/>
   </service>
 
   <service id="returnDatalistNoParams">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnDatalistNoParams">
+    <java classname="com.almis.awe.service.DummyService" method="returnDatalistNoParams">
     </java>
   </service>
 
   <service id="returnStringArrayNoParams">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayNoParams">
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayNoParams">
     </java>
   </service>
 
   <service id="returnStringArrayTwoStringParams">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayTwoStringParams">
-      <service-parameter type="STRING" name="qryNam" />
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayTwoStringParams">
+      <service-parameter type="STRING" name="qryNam"/>
       <service-parameter type="STRING" name="fldLst" list="true"/>
     </java>
   </service>
 
   <service id="returnStringArrayNumberParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayNumberParam">
-      <service-parameter type="INTEGER" name="variable" />
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayNumberParam">
+      <service-parameter type="INTEGER" name="variable"/>
     </java>
   </service>
 
   <service id="returnStringArrayLongParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayLongParam">
-      <service-parameter type="LONG" name="variable" />
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayLongParam">
+      <service-parameter type="LONG" name="variable"/>
     </java>
   </service>
 
   <service id="returnStringArrayDoubleParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayDoubleParam">
-      <service-parameter type="DOUBLE" name="variable" />
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayDoubleParam">
+      <service-parameter type="DOUBLE" name="variable"/>
     </java>
   </service>
 
   <service id="returnStringArrayFloatParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayFloatParam">
-      <service-parameter type="FLOAT" name="variable" />
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayFloatParam">
+      <service-parameter type="FLOAT" name="variable"/>
     </java>
   </service>
 
   <service id="returnStringArrayBooleanParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnStringArrayBooleanParam">
-      <service-parameter type="BOOLEAN" name="variable" />
+    <java classname="com.almis.awe.service.DummyService" method="returnStringArrayBooleanParam">
+      <service-parameter type="BOOLEAN" name="variable"/>
     </java>
   </service>
 
   <service id="returnMaintainOkNoParams">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnMaintainOkNoParams">
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkNoParams">
     </java>
   </service>
 
   <service id="returnMaintainOkMessageParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnMaintainOkMessageParam">
-      <service-parameter type="STRING" name="message" />
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkMessageParam">
+      <service-parameter type="STRING" name="message"/>
     </java>
   </service>
 
   <service id="returnMaintainOkTitleMessageParam">
-    <java classname="com.almis.awe.test.service.DummyService" method="returnMaintainOkTitleMessageParam">
-      <service-parameter type="STRING" name="title" />
-      <service-parameter type="STRING" name="message" />
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkTitleMessageParam">
+      <service-parameter type="STRING" name="title"/>
+      <service-parameter type="STRING" name="message"/>
     </java>
   </service>
 
@@ -116,7 +116,7 @@
   </service>
   <service id="storeTestDialog">
     <java classname="com.almis.awe.test.Dialog" method="storeTestDialog">
-      <service-parameter type="OBJECT" name="denominations" bean-class="com.almis.awe.test.bean.Denominations" />
+      <service-parameter type="OBJECT" name="denominations" bean-class="com.almis.awe.model.Denominations"/>
       <service-parameter type="JSON" name="address"/>
       <service-parameter name="column" type="STRING"/>
     </java>
@@ -199,7 +199,8 @@
   </service>
 
   <service id="simpleGETMicroserviceWithWrapper">
-    <microservice name="alu-microservice" method="GET" endpoint="/invoke" wrapper="com.almis.awe.test.service.dto.ServiceDataWrapper" />
+    <microservice name="alu-microservice" method="GET" endpoint="/invoke"
+                  wrapper="com.almis.awe.service.dto.ServiceDataWrapper"/>
   </service>
   
   <service id="simpleGETMicroserviceWithParameter">
@@ -267,7 +268,7 @@
   </service>
   
   <service id="sendMail">
-    <java classname="com.almis.awe.test.service.DummyService" method="sendMail" />
+    <java classname="com.almis.awe.service.DummyService" method="sendMail"/>
   </service>
 
   <service id="convertIcon">
@@ -283,19 +284,19 @@
   </service>
 
   <service id="testSimpleRestGet">
-    <rest method="GET" endpoint="http://localhost:18081/testapi/simple"/>
+    <rest method="GET" server="local" endpoint="/testapi/simple"/>
   </service>
 
   <service id="testSimpleRestPost">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/simple"/>
+    <rest method="POST" server="local" endpoint="/testapi/simple"/>
   </service>
 
   <service id="testComplexRestGet">
-    <rest method="GET" endpoint="http://localhost:18081/testapi/complex/QtyTst"/>
+    <rest method="GET" server="local" endpoint="/testapi/complex/QtyTst"/>
   </service>
 
   <service id="testComplexRestPost">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/complex/testInclude"/>
+    <rest method="POST" server="local" endpoint="/testapi/complex/testInclude"/>
   </service>
 
   <service id="testComplexRestGetParameters">
@@ -306,13 +307,13 @@
   </service>
 
   <service id="testComplexRestPostParameters">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/complex/parameters/testRestParameters">
-      <service-parameter type="INTEGER" name="value" />
+    <rest method="POST" server="local" endpoint="/testapi/complex/parameters/testRestParameters">
+      <service-parameter type="INTEGER" name="value"/>
     </rest>
   </service>
 
   <service id="testComplexRestPostParametersList">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/complex/parameterList">
+    <rest method="POST" server="local" endpoint="/testapi/complex/parameterList">
       <service-parameter type="INTEGER" name="integerList" list="true"/>
       <service-parameter type="STRING" name="stringList" list="true"/>
       <service-parameter type="DATE" name="dateList" list="true"/>
@@ -328,7 +329,7 @@
   </service>
 
   <service id="testComplexRestPostParametersListJson">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/complex/parameterListJson" content-type="JSON">
+    <rest method="POST" server="local" endpoint="/testapi/complex/parameterListJson" content-type="JSON">
       <service-parameter type="INTEGER" name="integerList" list="true"/>
       <service-parameter type="STRING" name="stringList" list="true"/>
       <service-parameter type="DATE" name="dateList" list="true"/>
@@ -336,27 +337,27 @@
   </service>
 
   <service id="TestComplexJavaParametersPOJO">
-    <java classname="com.almis.awe.test.service.DummyQualifierService" method="testComplexRestParametersPOJO">
-      <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Concert"/>
+    <java classname="com.almis.awe.service.DummyQualifierService" method="testComplexRestParametersPOJO">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.model.Concert"/>
     </java>
   </service>
 
   <service id="TestComplexJavaParametersPOJOList">
-    <java classname="com.almis.awe.test.service.DummyQualifierService" method="testComplexRestParametersPOJOList">
-      <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Concert" list="true"/>
+    <java classname="com.almis.awe.service.DummyQualifierService" method="testComplexRestParametersPOJOList">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.model.Concert" list="true"/>
     </java>
   </service>
 
   <service id="TestComplexRestParametersPOJO">
     <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSON/{tutu}" content-type="JSON">
       <service-parameter type="STRING" name="tutu"/>
-      <service-parameter type="OBJECT" name="concert" bean-class="com.almis.awe.test.bean.Concert"/>
+      <service-parameter type="OBJECT" name="concert" bean-class="com.almis.awe.model.Concert"/>
     </rest>
   </service>
 
   <service id="TestComplexRestParametersPOJOList">
     <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSONList" content-type="JSON">
-      <service-parameter type="OBJECT" name="concertList" bean-class="com.almis.awe.test.bean.Concert" list="true"/>
+      <service-parameter type="OBJECT" name="concertList" bean-class="com.almis.awe.model.Concert" list="true"/>
     </rest>
   </service>
 
@@ -367,63 +368,64 @@
   </service>
 
   <service id="testExternalRest">
-    <rest server="islandia" method="GET" endpoint="/concerts" wrapper="com.almis.awe.test.bean.Concerts"/>
+    <rest server="islandia" method="GET" endpoint="/concerts" wrapper="com.almis.awe.model.Concerts"/>
   </service>
 
   <service id="testExternalRestSecurity">
-    <rest server="postman-security" method="GET" endpoint="/basic-auth" wrapper="com.almis.awe.test.bean.PostmanAuth"/>
+    <rest server="postman-security" method="GET" endpoint="/basic-auth" wrapper="com.almis.awe.model.PostmanAuth"/>
   </service>
 
   <service id="testPostman">
-    <rest server="postman" method="GET" endpoint="/gzip" wrapper="com.almis.awe.test.bean.Postman"/>
+    <rest server="postman" method="GET" endpoint="/gzip" wrapper="com.almis.awe.model.Postman"/>
   </service>
 
   <service id="testServiceByQualifier">
-    <java classname="com.almis.awe.test.service.DummyQualifierService" method="getInstance" qualifier="CustomQualifierNameService"/>
+    <java classname="com.almis.awe.service.DummyQualifierService" method="getInstance"
+          qualifier="CustomQualifierNameService"/>
   </service>
 
   <service id="testServiceBeanParameter">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
-      <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Planet"/>
+    <java classname="com.almis.awe.service.DummyService" method="getDummyData">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.model.Planet"/>
     </java>
   </service>
 
   <service id="testServiceBeanParameterList">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
-      <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Planet" list="true"/>
+    <java classname="com.almis.awe.service.DummyService" method="getDummyData">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.model.Planet" list="true"/>
     </java>
   </service>
 
   <service id="testServiceBeanListParameter">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
-      <service-parameter type="OBJECT" bean-class="com.almis.awe.test.bean.Planets"/>
+    <java classname="com.almis.awe.service.DummyService" method="getDummyData">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.model.Planets"/>
     </java>
   </service>
 
   <service id="testServiceJsonBeanParameter">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
-      <service-parameter name="value" type="JSON" bean-class="com.almis.awe.test.bean.Planet"/>
+    <java classname="com.almis.awe.service.DummyService" method="getDummyData">
+      <service-parameter name="value" type="JSON" bean-class="com.almis.awe.model.pojo.Planet"/>
     </java>
   </service>
 
   <service id="testServiceJsonParameter">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDummyData">
+    <java classname="com.almis.awe.service.DummyService" method="getDummyData">
       <service-parameter name="value" type="JSON"/>
     </java>
   </service>
 
   <service id="waitSomeSeconds">
-    <java classname="com.almis.awe.test.service.DummyService" method="waitSomeSeconds">
+    <java classname="com.almis.awe.service.DummyService" method="waitSomeSeconds">
       <service-parameter name="secondsToWait" type="INTEGER"/>
     </java>
   </service>
 
   <service id="testLaunchServiceOnEndApplication" launch-phase="APPLICATION_END">
-    <java classname="com.almis.awe.test.service.DummyService" method="doNothing"/>
+    <java classname="com.almis.awe.service.DummyService" method="doNothing"/>
   </service>
 
   <service id="getDataListWithOutPostProcessed">
-    <java classname="com.almis.awe.test.service.DummyService" method="getDummyUnprocessedData"/>
+    <java classname="com.almis.awe.service.DummyService" method="getDummyUnprocessedData"/>
   </service>
 
 </services>

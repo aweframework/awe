@@ -30,12 +30,11 @@
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
+    <jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>
     <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
     <sonar.exclusions>src/**</sonar.exclusions>
     <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
     <sonar.tests>${project.basedir}/src/test</sonar.tests>
-    <surefire.suite>**/AllTestsSuite.class</surefire.suite>
-    <failsafe.suite>**/AllTestsSuiteIT.class</failsafe.suite>
     <browser>headless-chrome</browser>
     <skip.main>false</skip.main>
     <skip.selenium>true</skip.selenium>
@@ -176,25 +175,27 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <!-- junit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-testing</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.jsmart</groupId>
-      <artifactId>zerocode-tdd</artifactId>
-      <version>1.3.16</version>
+      <artifactId>zerocode-tdd-jupiter</artifactId>
+      <version>1.3.24</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -216,6 +217,10 @@
         <exclusion>
           <groupId>org.mongodb</groupId>
           <artifactId>mongodb-driver-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -398,11 +403,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <skip>${skip.junit}</skip>
-          <includes>
-            <include>${surefire.suite}</include>
-          </includes>
-          <parallel>suites</parallel>
-          <useUnlimitedThreads>true</useUnlimitedThreads>
+          <groups>integration</groups>
         </configuration>
       </plugin>
     </plugins>
@@ -571,9 +572,6 @@
                 <configuration>
                   <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                   <skip>${skip.selenium}</skip>
-                  <includes>
-                    <include>${failsafe.suite}</include>
-                  </includes>
                   <systemPropertyVariables>
                     <failsafe.browser>${browser}</failsafe.browser>
                   </systemPropertyVariables>
@@ -584,6 +582,7 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${plugin-jacoco.version}</version>
           </plugin>
           <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -612,51 +611,6 @@
                 <goals>
                   <goal>stop</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Coverage report profile -->
-    <profile>
-      <id>generate-coverage-report</id>
-      <activation>
-        <property>
-          <name>generateCoverageReport</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>report-integration</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-                <configuration>
-                  <dataFileIncludes>
-                    <dataFileInclude>target/jacoco-all-ut.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-oracle-ut.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-sqlserver-ut.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-mysql-ut.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-chrome-application-integration-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-chrome-crud-criteria-matrix-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-chrome-regression-websocket-print-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-chrome-scheduler-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-firefox-application-integration-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-firefox-crud-criteria-matrix-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-firefox-regression-websocket-print-it.exec</dataFileInclude>
-                    <dataFileInclude>target/jacoco-firefox-scheduler-it.exec</dataFileInclude>
-                  </dataFileIncludes>
-                  <outputDirectory>${jacoco.reportPaths}</outputDirectory>
-                </configuration>
               </execution>
             </executions>
           </plugin>

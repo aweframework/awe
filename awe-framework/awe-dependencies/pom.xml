@@ -43,7 +43,6 @@
     <modelmapper.version>2.4.0</modelmapper.version>
     <querydsl.version>4.3.1</querydsl.version>
     <swagger.version>3.0.0</swagger.version>
-    <jacoco.version>0.8.6</jacoco.version>
 
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,8 +55,8 @@
     <plugin-compiler.version>3.5.1</plugin-compiler.version>
     <plugin-war.version>3.3.1</plugin-war.version>
     <plugin-sonar.version>3.5.0.1254</plugin-sonar.version>
-    <plugin-surefire.version>3.0.0-M5</plugin-surefire.version>
-    <plugin-failsafe.version>3.0.0-M5</plugin-failsafe.version>
+    <plugin-surefire.version>2.22.2</plugin-surefire.version>
+    <plugin-failsafe.version>2.22.2</plugin-failsafe.version>
     <plugin-xml-maven.version>1.0.1</plugin-xml-maven.version>
     <plugin-jar.version>3.1.0</plugin-jar.version>
     <plugin-ant.version>1.8</plugin-ant.version>
@@ -79,6 +78,7 @@
 
     <!-- Jacoco configuration -->
     <jacoco.port>6300</jacoco.port>
+    <jacoco.file.name>jacoco.exec</jacoco.file.name>
   </properties>
 
   <dependencies>
@@ -540,11 +540,6 @@
           <artifactId>flatten-maven-plugin</artifactId>
           <version>${plugin-flatten-maven.version}</version>
         </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco.version}</version>
-        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -700,6 +695,7 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${plugin-jacoco.version}</version>
             <executions>
               <execution>
                 <id>prepare-unit-agent</id>
@@ -708,7 +704,7 @@
                 </goals>
                 <configuration>
                   <append>true</append>
-                  <destFile>${jacoco.base.reports}/jacoco.exec</destFile>
+                  <destFile>target/${jacoco.file.name}</destFile>
                 </configuration>
               </execution>
               <execution>

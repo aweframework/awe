@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
@@ -20,7 +19,6 @@ import java.util.Optional;
  * Util class to manage authentication with JWT tokens.
  * @see <a href="https://jwt.io/">https://jwt.io/</a>
  */
-@Service
 @Getter
 @Setter
 public class JWTTokenService extends ServiceConfig {

@@ -10,6 +10,7 @@ import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
+import com.almis.awe.security.authentication.filter.PublicQueryMaintainFilter;
 import com.almis.awe.security.handler.AweAccessDeniedHandler;
 import com.almis.awe.security.handler.AweLogoutHandler;
 import com.almis.awe.service.AccessService;
@@ -189,6 +190,9 @@ public class SecurityConfig extends ServiceConfig {
               .and().authorizeRequests()
               // Web
               .antMatchers(AUTH_LIST).permitAll()
+              // Filter public queries and maintains
+              .antMatchers("/action/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
+              .antMatchers("/action/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
               .anyRequest().authenticated()
               // Login redirect
               .and().formLogin().loginPage("/").permitAll()
@@ -316,6 +320,17 @@ public class SecurityConfig extends ServiceConfig {
         request.getRequestDispatcher("/action/loginRedirect").forward(request, response);
       });
       return authenticationFilter;
+    }
+
+    /**
+     * Query and Maintain public filter.
+     * Filter /action/maintain or /action/data to verify if target is public
+     *
+     * @return PublicQueryMaintainFilter
+     */
+    @Bean
+    public PublicQueryMaintainFilter publicQueryMaintainFilter() {
+      return new PublicQueryMaintainFilter(elements);
     }
 
     /**

@@ -22,10 +22,10 @@
   <tag source="center">
     <window label="ELEMENT_TYPE_GRID" icon="filter" style="expand" expandible="vertical">
       <grid id="GrdStrLit" server-action="data" style="expand" target-action="HavTst">
-        <column label="COLUMN_TYPE" name="typ" align="left" charlength="25"/>
-        <column label="COLUMN_VALUE" name="act" align="left" charlength="25"/>
-        <button label="BUTTON_ACCEPT" id="ButGrdEdiDel">
-          <button-action type="filter" target="GrdStrLit" />
+        <column label="COLUMN_COUNTRY" name="country" align="left" charlength="25"/>
+        <column label="COLUMN_VALUE" name="value" align="left" charlength="25"/>
+        <button label="BUTTON_ACCEPT" id="ButGrdAccept">
+          <button-action type="filter" target="GrdStrLit"/>
         </button>
       </grid>
     </window>

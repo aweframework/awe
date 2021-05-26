@@ -8,6 +8,7 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.*;
  *
  * @author jbellon
  */
+@Log4j2
 abstract class AbstractServiceConnector extends ServiceConfig implements ServiceConnector {
 
   private static final String CANT_CREATE_INSTANCE = "Can't create instance of ";
@@ -103,6 +105,7 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
         try {
           return Class.forName(parameter.getBeanClass());
         } catch (Exception exc) {
+          log.error("Error loading parameter class {}, return default Object.class value", parameter.getBeanClass());
           return Object.class;
         }
       case JSON:
