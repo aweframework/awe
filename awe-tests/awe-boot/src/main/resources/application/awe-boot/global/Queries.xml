@@ -256,6 +256,11 @@
     <union type="ALL" query="SimpleGetAllNoAlias"/>
   </query>
 
+  <query id="GetCountries" public="true">
+    <table id="TST_COUNTRY"/>
+    <field id="COUNTRY_NAME"/>
+  </query>
+
   <query id="SimpleLeftJoin">
     <table id="AweMod"/>
     <field id="Nam" table="AweMod" alias="db_name"/>
@@ -1114,18 +1119,22 @@
   </query>
 
   <!-- TEST HAVING -->
-  <query id="HavTst" public="true">
-    <table id="HisAweEmlSrv"/>
-    <field id="HISact" alias="typ"/>
-    <field variable="one" function="SUM" alias="act"/>
-    <group-by field="HISact"/>
+  <query id="HavTst">
+    <table id="TST_CUSTOMER" alias="customers"/>
+    <field id="COUNTRY_NAME" alias="country"/>
+    <field id="COUNTRY_ID" function="CNT" alias="value"/>
+    <join>
+      <table id="TST_COUNTRY" alias="Countries"/>
+      <and>
+        <filter left-field="ID" left-table="Countries" condition="eq" right-field="COUNTRY_ID" right-table="customers"/>
+      </and>
+    </join>
+    <group-by field="COUNTRY_NAME"/>
     <having>
       <and>
-        <filter left-variable="one" left-function="SUM" condition="gt" right-variable="top"/>
+        <filter left-field="COUNTRY_ID" left-function="CNT" condition="gt" right-variable="one"/>
       </and>
     </having>
-    <order-by field="HISact"/>
-    <variable id="top" type="INTEGER" value="1"/>
     <variable id="one" type="INTEGER" value="1"/>
   </query>
 

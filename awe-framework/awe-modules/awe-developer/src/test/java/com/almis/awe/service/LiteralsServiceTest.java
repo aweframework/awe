@@ -1,0 +1,257 @@
+package com.almis.awe.service;
+
+import com.almis.awe.developer.service.LiteralsService;
+import com.almis.awe.developer.service.LocaleFileService;
+import com.almis.awe.developer.service.TranslationService;
+import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.Global;
+import com.almis.awe.model.entities.locale.Locales;
+import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.util.data.DataListUtil;
+import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+
+/**
+ * Class used for testing translation service
+ *
+ * @author pvidal
+ */
+@Log4j2
+@ExtendWith(MockitoExtension.class)
+class LiteralsServiceTest {
+
+  @InjectMocks
+  private LiteralsService literalsService;
+
+  @Mock
+  private ApplicationContext context;
+
+  @Mock
+  private AweElements aweElements;
+
+  @Mock
+  private TranslationService translationService;
+
+  @Mock
+  private LocaleFileService localeFileService;
+
+  /**
+   * Initializes beans for tests
+   */
+  @BeforeEach
+  void initBeans() {
+    literalsService.setApplicationContext(context);
+    ReflectionTestUtils.setField(literalsService, "defaultLanguage", "en");
+  }
+
+  /**
+   * Test translate a text with the same language from/to
+   * Skip call api request
+   *
+   * @throws AWException AWE exception
+   */
+  @Test
+  void translateSameLanOriginDestination() throws AWException {
+    // Launch
+    ServiceData serviceData = literalsService.translate("This is a test", "en", "en");
+
+    // Asserts and verifications
+    assertNotNull(serviceData.getDataList());
+    assertEquals("This is a test", DataListUtil.getData(serviceData.getDataList(), 0, "value"));
+  }
+
+  /**
+   * Test translate a text
+   *
+   * @throws AWException AWE exception
+   */
+  @Test
+  void translate() throws AWException {
+    // Mockito actions
+    when(translationService.getTranslation(anyString(), anyString(), anyString())).thenReturn("Esto es una prueba");
+
+    // Launch
+    ServiceData serviceData = literalsService.translate("This is a test", "en", "es");
+
+    // Asserts and verifications
+    assertNotNull(serviceData.getDataList());
+    assertEquals("Esto es una prueba", DataListUtil.getData(serviceData.getDataList(), 0, "value"));
+  }
+
+  /**
+   * Test switch Languages
+   */
+  @Test
+  void switchLanguages() {
+    ServiceData serviceData = literalsService.switchLanguages("EN", "ES", "en", "es");
+    assertEquals(2, serviceData.getClientActionList().size());
+  }
+
+  /**
+   * Test switch Languages
+   */
+  @Test
+  void newLiteral() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
+    ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
+    assertEquals("OK", serviceData.getTitle());
+  }
+
+  /**
+   * Test switch Languages
+   */
+  @Test
+  void newLiteralWithError() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(translationService.getTranslation(anyString(), anyString(), anyString())).thenThrow(new AWException("ERROR", "VAYA"));
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
+    ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
+    assertEquals(AnswerType.ERROR, serviceData.getType());
+    assertEquals("ERROR", serviceData.getTitle());
+    assertEquals("VAYA", serviceData.getMessage());
+  }
+
+  /**
+   * Test store updated locale
+   */
+  @Test
+  void saveTranslation() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
+    ServiceData serviceData = literalsService.saveTranslation("TEXT", "texto", null, "es", "en", "TEXTO");
+    assertEquals(AnswerType.OK, serviceData.getType());
+  }
+
+  /**
+   * Test store updated locale with markdown
+   */
+  @Test
+  void saveTranslationWithMarkdown() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
+    ServiceData serviceData = literalsService.saveTranslation("MARKDOWN", null, "texto", "es", "es", "TEXTO");
+    assertEquals(AnswerType.OK, serviceData.getType());
+  }
+
+  /**
+   * Test store updated locale with markdown
+   */
+  @Test
+  void saveTranslationErrorStoring() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(localeFileService.readLocalesFromFile(anyString())).thenThrow(new AWException("ea"));
+    assertThrows(AWException.class, () -> literalsService.saveTranslation("MARKDOWN", null, "texto", "es", "es", "TEXTO"));
+  }
+
+  /**
+   * Test store updated locale with markdown
+   */
+  @Test
+  void getSelectedLocale() throws Exception {
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
+            new Global().setName("TATA").setValue("lala"),
+            new Global().setName("TEXT").setValue("eeeo"),
+            new Global().setName("LOLO").setValue("lalo")
+    )));
+    ServiceData serviceData = literalsService.getSelectedLocale("es", "TEXT");
+    assertEquals(AnswerType.OK, serviceData.getType());
+    assertEquals(4, serviceData.getClientActionList().size());
+  }
+
+  /**
+   * Test store updated locale with markdown
+   */
+  @Test
+  void getSelectedLocaleWithMarkdown() throws Exception {
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
+            new Global().setName("TATA").setMarkdown("lala"),
+            new Global().setName("TEXT").setMarkdown("eeeo"),
+            new Global().setName("LOLO").setMarkdown("lalo")
+    )));
+    ServiceData serviceData = literalsService.getSelectedLocale("es", "TEXT");
+    assertEquals(AnswerType.OK, serviceData.getType());
+    assertEquals(4, serviceData.getClientActionList().size());
+  }
+
+  /**
+   * Test delete literal
+   */
+  @Test
+  void deleteLiteral() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
+            new Global().setName("TATA").setMarkdown("lala"),
+            new Global().setName("TEXT").setMarkdown("eeeo"),
+            new Global().setName("LOLO").setMarkdown("lalo")
+    )));
+    ServiceData serviceData = literalsService.deleteLiteral("TEXT");
+    assertEquals("OK", serviceData.getTitle());
+  }
+
+  /**
+   * Test get locale matches
+   */
+  @Test
+  void getLocaleMatches() throws Exception {
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
+            new Global().setName("TATA").setMarkdown("lala"),
+            new Global().setName("TEXT").setMarkdown("eeeo"),
+            new Global().setName("LOLO").setMarkdown("lalo")
+    )));
+    ServiceData serviceData = literalsService.getLocaleMatches("la", "en");
+    assertEquals(AnswerType.OK, serviceData.getType());
+    assertEquals(2, serviceData.getDataList().getRows().size());
+  }
+
+  /**
+   * Test get locale matches
+   */
+  @Test
+  void getTranslationList() throws Exception {
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
+            new Global().setName("TATA").setMarkdown("lala"),
+            new Global().setName("TEXT").setMarkdown("eeeo"),
+            new Global().setName("LOLO").setMarkdown("lalo")
+    )));
+    ServiceData serviceData = literalsService.getTranslationList("TEXT");
+    assertEquals(AnswerType.OK, serviceData.getType());
+    assertEquals(3, serviceData.getDataList().getRows().size());
+    log.info(serviceData.getDataList());
+  }
+
+  /**
+   * Test get locale matches
+   */
+  @Test
+  void getUsingLanguage() {
+    ServiceData serviceData = literalsService.getUsingLanguage();
+    assertEquals(AnswerType.OK, serviceData.getType());
+    assertEquals(1, serviceData.getDataList().getRows().size());
+    log.info(serviceData.getDataList());
+  }
+}

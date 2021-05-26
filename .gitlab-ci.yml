@@ -17,7 +17,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
   IT_OPTS: "-f awe-tests/awe-boot/pom.xml -Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
-  UT_OPTS: "-f awe-tests/awe-boot/pom.xml -Dskip.frontend=true -DgenerateIntegrationReport=true"
+  UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CHROME_OPTS: "-Dbrowser=headless-chrome"
   FIREFOX_OPTS: "-Dbrowser=headless-firefox"
@@ -116,26 +116,26 @@ Build website:
   allow_failure: false
   needs: [ "Build project" ]
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Dsurefire.suite=**/$UNIT_TEST_SUITE -P$TEST_NAME
-    - cp awe-tests/awe-boot/target/jacoco.exec awe-tests/awe-boot/target/jacoco-${TEST_NAME}-ut.exec
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Dgroups="${TEST_TAGS}" -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
   rules:
     - <<: *if-default
   artifacts:
     paths:
-      - awe-tests/awe-boot/target/surefire-reports/
-      - awe-tests/awe-boot/target/jacoco-${TEST_NAME}-ut.exec
+      - "**/target/*.exec"
+      - "**/target/surefire-reports/"
     expire_in: 1 day
     reports:
       junit:
-        - awe-tests/awe-boot/target/surefire-reports/TEST-*.xml
+        - "**/target/surefire-reports/TEST-*.xml"
 
 All UT:
   extends: .unit-testing
+  script:
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME
   variables:
-    UNIT_TEST_SUITE: AllTestsSuite.class
     TEST_NAME: all
 
-Oracle UT:
+Oracle Tests:
   extends: .unit-testing
   services:
     - epiclabs/docker-oracle-xe-11g
@@ -143,20 +143,20 @@ Oracle UT:
     ORACLE_ALLOW_REMOTE: "true"
     ORACLE_PASSWORD: "$DATABASE_PASSWORD"
     RELAX_SECURITY: "1"
-    UNIT_TEST_SUITE: SpringOracleTestsSuite.class
+    TEST_TAGS: Oracle
     TEST_NAME: oracle
 
-MySQL UT:
+MySQL Tests:
   extends: .unit-testing
   variables:
     MYSQL_DATABASE: "awetestdb"
     MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
-    UNIT_TEST_SUITE: SpringMySQLTestsSuite.class
+    TEST_TAGS: Mysql
     TEST_NAME: mysql
   services:
     - mysql
 
-SQL Server UT:
+SQL Server Tests:
   extends: .unit-testing
   before_script:
     - npm install
@@ -165,7 +165,7 @@ SQL Server UT:
     MSSQL_HOST: microsoft-mssql-server-linux
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
-    UNIT_TEST_SUITE: SpringSQLServerTestsSuite.class
+    TEST_TAGS: Sqlserver
     TEST_NAME: sqlserver
   services:
     - microsoft/mssql-server-linux
@@ -209,7 +209,7 @@ Javadoc test:
   allow_failure: true
   needs: [ "Build project" ]
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dfailsafe.suite=**/${TEST_CLASS}.class -Djacoco.port=$TEST_PORT
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   after_script:
@@ -246,56 +246,56 @@ Firefox IT Application and Integration:
   extends: .firefox-testing
   variables:
     TEST_NAME: firefox-application-integration
-    TEST_CLASS: ApplicationIntegrationTestsIT
+    TEST_TAGS: ApplicationIntegrationIT
     TEST_PORT: 6301
 
 Firefox IT CRUD Criteria and Matrix:
   extends: .firefox-testing
   variables:
     TEST_NAME: firefox-crud-criteria-matrix
-    TEST_CLASS: CRUDCriteriaMatrixTestsIT
+    TEST_TAGS: CRUDCriteriaMatrixIT
     TEST_PORT: 6302
 
 Firefox IT Regression Websocket and Print:
   extends: .firefox-testing
   variables:
     TEST_NAME: firefox-regression-websocket-print
-    TEST_CLASS: RegressionWebsocketPrintTestsIT
+    TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: 6303
 
 Firefox IT Scheduler:
   extends: .firefox-testing
   variables:
     TEST_NAME: firefox-scheduler
-    TEST_CLASS: SchedulerTestsIT
+    TEST_TAGS: SchedulerIT
     TEST_PORT: 6304
 
 Chrome IT Application and Integration:
   extends: .chrome-testing
   variables:
     TEST_NAME: chrome-application-integration
-    TEST_CLASS: ApplicationIntegrationTestsIT
+    TEST_TAGS: ApplicationIntegrationIT
     TEST_PORT: 6305
 
 Chrome IT CRUD Criteria and Matrix:
   extends: .chrome-testing
   variables:
     TEST_NAME: chrome-crud-criteria-matrix
-    TEST_CLASS: CRUDCriteriaMatrixTestsIT
+    TEST_TAGS: CRUDCriteriaMatrixIT
     TEST_PORT: 6306
 
 Chrome IT Regression Websocket and Print:
   extends: .chrome-testing
   variables:
     TEST_NAME: chrome-regression-websocket-print
-    TEST_CLASS: RegressionWebsocketPrintTestsIT
+    TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: 6307
 
 Chrome IT Scheduler:
   extends: .chrome-testing
   variables:
     TEST_NAME: chrome-scheduler
-    TEST_CLASS: SchedulerTestsIT
+    TEST_TAGS: SchedulerIT
     TEST_PORT: 6308
 
 ##############################
@@ -307,9 +307,9 @@ Launch Sonar:
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   needs:
     - job: All UT
-    - job: Oracle UT
-    - job: SQL Server UT
-    - job: MySQL UT
+    - job: Oracle Tests
+    - job: SQL Server Tests
+    - job: MySQL Tests
     - job: Frontend UT
     - job: Firefox IT Application and Integration
     - job: Firefox IT CRUD Criteria and Matrix

@@ -141,7 +141,7 @@ public class FileManagerService implements InitializingBean {
     }
 
     // Build zip
-    ZipFileUtil.create(zipFileName.toString(), fileList);
+    ZipFileUtil.zip(zipFileName.toString(), fileList);
 
     return zipFileName.toFile();
   }
@@ -622,7 +622,7 @@ public class FileManagerService implements InitializingBean {
       }
 
       // Compress
-      ZipFileUtil.create(pathZipFile.toString(), fileNames);
+      ZipFileUtil.zip(pathZipFile.toString(), fileNames);
 
       return success();
 

@@ -448,57 +448,60 @@ condition="NOT IN" => condition="not in"
 * Web services calls have been changed to microservices calls:
 
 Examples:
+
 ```xml
-  <service id="simpleGETMicroservice">
-    <microservice name="alu-microservice" method="GET" endpoint="/invoke"  content-type="JSON"/>
-  </service>
-  
-  <service id="simpleGETMicroservice2">
-    <microservice name="alu-microservice2" method="GET" endpoint="/invoke"  content-type="JSON"/>
-  </service>
-  
-  <service id="simpleGETMicroserviceWithWrapper">
-    <microservice name="alu-microservice" method="GET" endpoint="/invoke" wrapper="com.almis.awe.test.service.dto.ServiceDataWrapper"  content-type="JSON"/>
-  </service>
-  
-  <service id="simpleGETMicroserviceWithParameter">
-    <microservice name="alu-microservice" method="GET" endpoint="/invoke" content-type="JSON">
-      <service-parameter name="param1" type="STRING"/>
-    </microservice>
-  </service>
-  
-  <service id="simpleGETMicroserviceWithWildcard">
-    <microservice name="alu-microservice" method="GET" endpoint="/invoke/{param1}" content-type="JSON">
-      <service-parameter name="param1" type="STRING"/>
-    </microservice>
-  </service>
-  
-  <service id="simpleGETMicroserviceWithWildcardAndParameter">
-    <microservice name="alu-microservice" method="GET" endpoint="/invoke/{param1}" content-type="JSON">
-      <service-parameter name="param1" type="STRING"/>
-      <service-parameter name="param2" type="STRING"/>
-    </microservice>
-  </service>
-  
-  <service id="simplePOSTMicroserviceWithParameters">
-    <microservice name="alu-microservice" method="POST" endpoint="/invoke" content-type="JSON">
-      <service-parameter name="param1" type="STRING"/>
-      <service-parameter name="param2" type="STRING"/>
-    </microservice>
-  </service>
-  
-  <service id="simplePUTMicroserviceWithParameters">
-    <microservice name="alu-microservice" method="PUT" endpoint="/invoke" content-type="JSON">
-      <service-parameter name="param1" type="STRING"/>
-      <service-parameter name="param2" type="STRING"/>
-    </microservice>
-  </service>
-  
-  <service id="simpleDELETEMicroserviceWithWildcard">
-    <microservice name="alu-microservice" method="DELETE" endpoint="/invoke/{param1}" content-type="JSON">
-      <service-parameter name="param1" type="STRING"/>
-    </microservice>
-  </service>
+
+<service id="simpleGETMicroservice">
+  <microservice name="alu-microservice" method="GET" endpoint="/invoke" content-type="JSON"/>
+</service>
+
+<service id="simpleGETMicroservice2">
+<microservice name="alu-microservice2" method="GET" endpoint="/invoke" content-type="JSON"/>
+</service>
+
+<service id="simpleGETMicroserviceWithWrapper">
+<microservice name="alu-microservice" method="GET" endpoint="/invoke"
+              wrapper="com.almis.awe.service.dto.ServiceDataWrapper" content-type="JSON"/>
+</service>
+
+<service id="simpleGETMicroserviceWithParameter">
+<microservice name="alu-microservice" method="GET" endpoint="/invoke" content-type="JSON">
+  <service-parameter name="param1" type="STRING"/>
+</microservice>
+</service>
+
+<service id="simpleGETMicroserviceWithWildcard">
+<microservice name="alu-microservice" method="GET" endpoint="/invoke/{param1}" content-type="JSON">
+  <service-parameter name="param1" type="STRING"/>
+</microservice>
+</service>
+
+<service id="simpleGETMicroserviceWithWildcardAndParameter">
+<microservice name="alu-microservice" method="GET" endpoint="/invoke/{param1}" content-type="JSON">
+  <service-parameter name="param1" type="STRING"/>
+  <service-parameter name="param2" type="STRING"/>
+</microservice>
+</service>
+
+<service id="simplePOSTMicroserviceWithParameters">
+<microservice name="alu-microservice" method="POST" endpoint="/invoke" content-type="JSON">
+  <service-parameter name="param1" type="STRING"/>
+  <service-parameter name="param2" type="STRING"/>
+</microservice>
+</service>
+
+<service id="simplePUTMicroserviceWithParameters">
+<microservice name="alu-microservice" method="PUT" endpoint="/invoke" content-type="JSON">
+  <service-parameter name="param1" type="STRING"/>
+  <service-parameter name="param2" type="STRING"/>
+</microservice>
+</service>
+
+<service id="simpleDELETEMicroserviceWithWildcard">
+<microservice name="alu-microservice" method="DELETE" endpoint="/invoke/{param1}" content-type="JSON">
+  <service-parameter name="param1" type="STRING"/>
+</microservice>
+</service>
 ```
 
 ###  **Locales**

@@ -93,30 +93,54 @@ Insert into ope (IdeOpe, l1_nom, l1_pas, l1_con, l1_dev, l1_act, l1_trt, l1_uti,
 Insert into ope (IdeOpe, l1_nom, l1_pas, l1_con, l1_dev, l1_act, l1_trt, l1_uti, l1_opr, l1_dat, imp_nom, dat_mod, l1_psd, l1_lan, l1_sgn, PcPrn, EmlSrv, EmlAdr, OpeNam, IdePro, IdeThm) values (1702,'jaimito','5e52fee47e6b070565f74372468cdc699de89107',0,null,1,null,0,null,null,'none',null,null,'ENG',1,null,null,'jaimito@test.com','Jaimito',(select IdePro from AwePro where Nam = 'administrator'),(select IdeThm from AweThm where Nam = 'sunset'));
 
 -- Insert AweSit
-insert into AweSit (IdeSit, Nam, Ord, Act) values (10,	'Madrid',	2,	1);
-insert into AweSit (IdeSit, Nam, Ord, Act) values (17,	'Onate',	1,	1);
+insert into AweSit (IdeSit, Nam, Ord, Act)
+values (10, 'Madrid', 2, 1);
+insert into AweSit (IdeSit, Nam, Ord, Act)
+values (17, 'Onate', 1, 1);
 
 -- Insert AweMod
-insert into AweMod (IdeMod, Nam, ScrIni, IdeThm, Act, Ord) values (916,	'Test',	'Dbs',	4,	1, 2);
-insert into AweMod (IdeMod, Nam, ScrIni, IdeThm, Act, Ord) values (28,	'Base',	'Sit',	2,	1, 1);
+insert into AweMod (IdeMod, Nam, ScrIni, IdeThm, Act, Ord)
+values (916, 'Test', 'Dbs', 4, 1, 2);
+insert into AweMod (IdeMod, Nam, ScrIni, IdeThm, Act, Ord)
+values (28, 'Base', 'Sit', 2, 1, 1);
 
 -- Insert AweDbs
-insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (9	,'awesybase1','AWE SYBASE 1','J','syb','com.sybase.jdbc3.jdbc.SybDriver',null, null,'Des','jdbc:sybase:Tds:localhost:5005?ServiceName=awesybase1',	1	);
-insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (8	,'awesqs1','AWE SQL SERVER 1','J','sqs','com.microsoft.sqlserver.jdbc.SQLServerDriver',null, null,'Des','	jdbc:sqlserver://localhost;databaseName=awesqs1',	1	);
-insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (6	,'aweora1','AWE ORACLE 1','J','ora','oracle.jdbc.driver.OracleDriver',null, null,'Des','jdbc:oracle:thin:@localhost:1521:oracle1',	1	);
-insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (7	,'aweora2','AWE ORACLE 2','J','ora','oracle.jdbc.driver.OracleDriver',null, null,'Des','jdbc:oracle:thin:@localhost:1521:oracle2',	1	);
-insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (15  , 'awesqs2','AWE SQL SERVER 2','J','sqs','com.microsoft.sqlserver.jdbc.SQLServerDriver',null, null,'Des','	jdbc:sqlserver://localhost;databaseName=awealmsqs05',	1	);
-insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act) values (16  , 'awesybase2','AWE SYBASE 2','J','syb','com.sybase.jdbc3.jdbc.SybDriver',null, null,'Des','jdbc:sybase:Tds:localhost:5005?ServiceName=awesybase2',	1	);
+insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act)
+values (9, 'awesybase1', 'AWE SYBASE 1', 'J', 'syb', 'com.sybase.jdbc3.jdbc.SybDriver', null, null, 'Des',
+        'jdbc:sybase:Tds:localhost:5005?ServiceName=awesybase1', 0);
+insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act)
+values (8, 'awesqs1', 'AWE SQL SERVER 1', 'J', 'sqs', 'com.microsoft.sqlserver.jdbc.SQLServerDriver', null, null, 'Des',
+        '	jdbc:sqlserver://localhost;databaseName=awesqs1', 0);
+insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act)
+values (6, 'aweora1', 'AWE ORACLE 1', 'J', 'ora', 'oracle.jdbc.driver.OracleDriver', null, null, 'Des',
+        'jdbc:oracle:thin:@localhost:1521:oracle1', 0);
+insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act)
+values (7, 'aweora2', 'AWE ORACLE 2', 'J', 'ora', 'oracle.jdbc.driver.OracleDriver', null, null, 'Des',
+        'jdbc:oracle:thin:@localhost:1521:oracle2', 0);
+insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act)
+values (15, 'awesqs2', 'AWE SQL SERVER 2', 'J', 'sqs', 'com.microsoft.sqlserver.jdbc.SQLServerDriver', null, null,
+        'Des', '	jdbc:sqlserver://localhost;databaseName=awealmsqs05', 0);
+insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, Act)
+values (16, 'awesybase2', 'AWE SYBASE 2', 'J', 'syb', 'com.sybase.jdbc3.jdbc.SybDriver', null, null, 'Des',
+        'jdbc:sybase:Tds:localhost:5005?ServiceName=awesybase2', 0);
 
 -- Insert AweSitModDbs
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (2579,	17,	916,	7,	1);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (2580,	10,	916,	6,	1);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (2581,	17,	916,	15,	2);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (2582,	10,	916,	8,	2);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (2583,	17,	916,	16,	3);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (2584,	10,	916,	9,	3);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (75,	10,	28,	6,	1);
-insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (60,	17,	28,	7,	1);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (2579, 17, 916, 7, 1);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (2580, 10, 916, 6, 1);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (2581, 17, 916, 15, 2);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (2582, 10, 916, 8, 2);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (2583, 17, 916, 16, 3);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (2584, 10, 916, 9, 3);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (75, 10, 28, 6, 1);
+insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord)
+values (60, 17, 28, 7, 1);
 insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (76,	10,	28,	8,	2);
 insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (78,	17,	28,	15,	2);
 insert into AweSitModDbs (IdeSitModDbs, IdeSit, IdeMod, IdeDbs, Ord) values (77,	10,	28,	9,	3);

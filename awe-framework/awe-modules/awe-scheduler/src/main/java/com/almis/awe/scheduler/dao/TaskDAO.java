@@ -1202,7 +1202,7 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
-   * Set task status checking sependencies status and task configuration
+   * Set task status checking dependencies status and task configuration
    *
    * @param execution Task execution
    */

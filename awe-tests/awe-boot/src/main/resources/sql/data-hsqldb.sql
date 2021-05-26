@@ -3,43 +3,84 @@
 --  DDL for INSERT DATA
 --------------------------------------------------------
 
-Delete From AweSitModDbs;
-Delete From AweAppPar;
-Delete From AweModPro;
-Delete From Ope;
-Delete From AwePro;
-Delete From AweMod;
-Delete From AweDbs;
-Delete From AweThm;
-Delete From AweKey;
+Delete
+From AweSitModDbs;
+Delete
+From AweAppPar;
+Delete
+From AweModPro;
+Delete
+From Ope;
+Delete
+From AwePro;
+Delete
+From AweMod;
+Delete
+From AweDbs;
+Delete
+From AweThm;
+Delete
+From AweKey;
+Delete
+From TstCustomers;
+Delete
+From TstCountries;
 
 -- Insert sequences
-Insert into AweKey (KeyNam, KeyVal) values ('OpeKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ThmKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ProKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ModKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('DbsKey', 4);
-Insert into AweKey (KeyNam, KeyVal) values ('SitKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ModOpeKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ModProKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('SitModDbsKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ScrOpeKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ScrProKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('EmlSrvKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('AppParKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('JmsKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ScrCnfKey', 1);
-Insert into AweKey (KeyNam, KeyVal) values ('ScrResKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('OpeKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ThmKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ProKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ModKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('DbsKey', 4);
+Insert into AweKey (KeyNam, KeyVal)
+values ('SitKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ModOpeKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ModProKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('SitModDbsKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ScrOpeKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ScrProKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('EmlSrvKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('AppParKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('JmsKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ScrCnfKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ScrResKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('CustomerKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('CountryKey', 1);
 
 -- Insert themes
-Insert into AweThm (IdeThm, Nam, Act) values ('1','sunset','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('2','sky','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('3','eclipse','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('4','grass','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('5','sunny','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('6','purple-hills','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('7','frost','1');
-Insert into AweThm (IdeThm, Nam, Act) values ('8','fresh','1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('1', 'sunset', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('2', 'sky', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('3', 'eclipse', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('4', 'grass', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('5', 'sunny', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('6', 'purple-hills', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('7', 'frost', '1');
+Insert into AweThm (IdeThm, Nam, Act)
+values ('8', 'fresh', '1');
 Insert into AweThm (IdeThm, Nam, Act) values ('9','silver','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('10','clean','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('11','default','1');
@@ -105,14 +146,58 @@ Insert into AweDbs (IdeDbs, Als, Des, Dct, Dbt, Drv, DbsUsr, DbsPwd, Typ, Dbc, A
 -- Insert AweModPro
 insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord) values (937,	916,	1,	null);
 insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord) values (62,	28,	1,	null);
-insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord) values (65,	28,	2,	null);
-insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord) values (74,	28,	3,	null);
+insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord)
+values (65, 28, 2, null);
+insert into AweModPro (IdeModPro, IdeMod, IdePro, Ord)
+values (74, 28, 3, null);
 
 -- Scheduler sequences
-Insert into AweKey (KeyNam, KeyVal) values ('SchTskSrv', (select coalesce(max(Ide),0) + 1 from AweSchSrv));
-Insert into AweKey (KeyNam, KeyVal) values ('SchTskCal', (select coalesce(max(Ide),0) + 1 from AweSchCal));
-Insert into AweKey (KeyNam, KeyVal) values ('SchTskCalDat', (select coalesce(max(Ide),0) + 1 from AweSchCalDat));
-Insert into AweKey (KeyNam, KeyVal) values ('SchTskKey', (select coalesce(max(Ide),0) + 1 from AweSchTsk));
-Insert into AweKey (KeyNam, KeyVal) values ('SchTskLch', (select coalesce(max(Ide),0) + 1 from AweSchTskLch));
-Insert into AweKey (KeyNam, KeyVal) values ('SchTskPar', (select coalesce(max(Ide),0) + 1 from AweSchTskPar));
+Insert into AweKey (KeyNam, KeyVal)
+values ('SchTskSrv', (select coalesce(max(Ide), 0) + 1 from AweSchSrv));
+Insert into AweKey (KeyNam, KeyVal)
+values ('SchTskCal', (select coalesce(max(Ide), 0) + 1 from AweSchCal));
+Insert into AweKey (KeyNam, KeyVal)
+values ('SchTskCalDat', (select coalesce(max(Ide), 0) + 1 from AweSchCalDat));
+Insert into AweKey (KeyNam, KeyVal)
+values ('SchTskKey', (select coalesce(max(Ide), 0) + 1 from AweSchTsk));
+Insert into AweKey (KeyNam, KeyVal)
+values ('SchTskLch', (select coalesce(max(Ide), 0) + 1 from AweSchTskLch));
+Insert into AweKey (KeyNam, KeyVal)
+values ('SchTskPar', (select coalesce(max(Ide), 0) + 1 from AweSchTskPar));
+
+-- Insert Countries
+Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
+values ('1', 'Spain', 'ESP');
+Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
+values ('2', 'France', 'FRA');
+Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
+values ('3', 'United States', 'USA');
+Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
+values ('4', 'Portugal', 'POR');
+Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
+values ('5', 'Italy', 'ITA');
+Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
+values ('6', 'United Kingdom', 'UK');
+
+UPDATE AweKey
+SET KeyVal = '7'
+where KeyNam = 'CountryKey';
+
+-- Insert Customers
+Insert into TST_CUSTOMER (ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, COUNTRY_ID, CUSTOMER_DATE)
+values ('1', 'Customer1', 'Liverpool Street 4, London', '6', '2021-02-10 00:00:00');
+Insert into TST_CUSTOMER (ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, COUNTRY_ID, CUSTOMER_DATE)
+values ('2', 'Customer2', 'Gran Vía 1, Madrid', '1', '2020-08-14 00:00:00');
+Insert into TST_CUSTOMER (ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, COUNTRY_ID, CUSTOMER_DATE)
+values ('3', 'Customer3', 'Santa Clara 34, Zamora', '1', '2021-06-05 00:00:00');
+Insert into TST_CUSTOMER (ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, COUNTRY_ID, CUSTOMER_DATE)
+values ('4', 'Customer4', '5th Ave 112, New York', '3', '2021-01-18 00:00:00');
+Insert into TST_CUSTOMER (ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, COUNTRY_ID, CUSTOMER_DATE)
+values ('5', 'Customer5', 'Via del Corso 29, Rome', '5', '2020-06-28 00:00:00');
+
+UPDATE AweKey
+SET KeyVal = '6'
+where KeyNam = 'CustomerKey';
+
+
 

@@ -391,6 +391,15 @@
       </where>
       <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
     </delete>
+    <delete>
+      <table id="AweThm"/>
+      <where>
+        <and>
+          <filter left-field="Nam" condition="like" right-variable="variable"/>
+        </and>
+      </where>
+      <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
+    </delete>
   </target>
 
   <target name="CleanUpSequence" public="true">

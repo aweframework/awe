@@ -6,7 +6,7 @@
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
     <version>4.3.7-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>awe-scheduler</artifactId>
@@ -46,6 +46,18 @@
       <artifactId>commons-net</artifactId>
       <version>3.3</version>
     </dependency>
+    <!-- Test dependencies -->
+    <!-- Junit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -58,7 +70,7 @@
     </resources>
 
     <plugins>
-      <!-- Delombok plugin -->
+      <!-- Lombok plugin -->
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>

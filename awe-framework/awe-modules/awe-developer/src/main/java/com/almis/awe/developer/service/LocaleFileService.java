@@ -84,9 +84,10 @@ public class LocaleFileService extends ServiceConfig {
       // Unmarshall XML
       File file = new File(path);
       if (file.exists()) {
-        InputStream resourceInputStream = new FileInputStream(file);
-        xml = serializer.getObjectFromXml((Class<? extends XMLFile>) Locales.class, resourceInputStream);
-        log.debug("Reading '{}' - OK", path);
+        try (InputStream resourceInputStream = new FileInputStream(file)) {
+          xml = serializer.getObjectFromXml((Class<? extends XMLFile>) Locales.class, resourceInputStream);
+          log.debug("Reading '{}' - OK", path);
+        }
       } else {
         log.debug("Reading '{}' - NOT FOUND", path);
       }

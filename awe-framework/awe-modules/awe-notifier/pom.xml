@@ -7,7 +7,7 @@
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
     <version>4.3.7-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>awe-notifier</artifactId>
@@ -28,11 +28,23 @@
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-builder-spring-boot-starter</artifactId>
     </dependency>
+    <!-- Test dependencies -->
+    <!-- Junit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
-      <!-- Delombok plugin -->
+      <!-- Lombok plugin -->
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
