@@ -78,21 +78,23 @@ stages:
     - mvn $MAVEN_CLI_OPTS clean install $SKIP_TESTS
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - echo "PROJECT_VERSION=$version" >> build.env
+  rules:
+    - <<: *if-default
+
+Build project:
+  extends: .build
   artifacts:
     reports:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
     expire_in: 1 day
-  rules:
-    - <<: *if-default
-
-Build project:
-  extends: .build
 
 Build project (jdk 14):
   extends: .build
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk14-node-maven:latest
+  cache:
+    policy: pull
 
 Build website:
   stage: build
