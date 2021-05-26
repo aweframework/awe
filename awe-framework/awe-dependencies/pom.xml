@@ -55,8 +55,8 @@
     <plugin-compiler.version>3.5.1</plugin-compiler.version>
     <plugin-war.version>3.3.1</plugin-war.version>
     <plugin-sonar.version>3.5.0.1254</plugin-sonar.version>
-    <plugin-surefire.version>2.22.2</plugin-surefire.version>
-    <plugin-failsafe.version>2.22.2</plugin-failsafe.version>
+    <plugin-surefire.version>3.0.0-M5</plugin-surefire.version>
+    <plugin-failsafe.version>3.0.0-M5</plugin-failsafe.version>
     <plugin-xml-maven.version>1.0.1</plugin-xml-maven.version>
     <plugin-jar.version>3.1.0</plugin-jar.version>
     <plugin-ant.version>1.8</plugin-ant.version>

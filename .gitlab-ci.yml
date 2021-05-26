@@ -134,7 +134,7 @@ Build website:
 All UT:
   extends: .unit-testing
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS
   variables:
     TEST_NAME: all
 
