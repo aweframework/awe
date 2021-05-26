@@ -119,7 +119,7 @@ Build website:
   allow_failure: false
   needs: [ "Build project" ]
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Dgroups="${TEST_TAGS}" -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Dtest.tags=${TEST_TAGS} -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
   rules:
     - <<: *if-default
   artifacts:
