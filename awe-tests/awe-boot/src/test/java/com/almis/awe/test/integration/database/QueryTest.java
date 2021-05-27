@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -2712,7 +2711,6 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @Tag(value = "NotCIDatabase")
   void testOverPartitionOrderNotSupported() throws Exception {
     String queryName = "testOverPartitionOrder";
     assumeTrue(isInMemoryDatabase());
@@ -2727,7 +2725,6 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @Tag(value = "CIDatabase")
   void testOverPartitionOrder() throws Exception {
     String queryName = "testOverPartitionOrder";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":\"donald\",\"rankValue\":1},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":\"jaimito\",\"rankValue\":1},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":\"jorgito\",\"rankValue\":1},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":\"juanito\",\"rankValue\":1},{\"name\":\"test\",\"id\":5,\"rowNumber\":null,\"rankValue\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
@@ -2743,7 +2740,6 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @Tag(value = "CIDatabase")
   void testOverPartitionOrderOperation() throws Exception {
     String queryName = "testOverPartitionOrderOperation";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":2},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":4},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":6},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":8},{\"name\":\"test\",\"id\":5,\"rowNumber\":10}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";

@@ -119,7 +119,7 @@ Build website:
   allow_failure: false
   needs: [ "Build project" ]
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Dtest.tags=${TEST_TAGS} -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
   rules:
     - <<: *if-default
   artifacts:
@@ -146,7 +146,6 @@ Oracle Tests:
     ORACLE_ALLOW_REMOTE: "true"
     ORACLE_PASSWORD: "$DATABASE_PASSWORD"
     RELAX_SECURITY: "1"
-    TEST_TAGS: Oracle
     TEST_NAME: oracle
 
 MySQL Tests:
@@ -154,7 +153,6 @@ MySQL Tests:
   variables:
     MYSQL_DATABASE: "awetestdb"
     MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_TAGS: Mysql
     TEST_NAME: mysql
   services:
     - mysql
@@ -168,7 +166,6 @@ SQL Server Tests:
     MSSQL_HOST: microsoft-mssql-server-linux
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_TAGS: Sqlserver
     TEST_NAME: sqlserver
   services:
     - microsoft/mssql-server-linux
