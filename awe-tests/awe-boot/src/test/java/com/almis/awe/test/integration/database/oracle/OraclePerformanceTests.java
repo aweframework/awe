@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith({ParallelLoadExtension.class})
 @Tag("Oracle")
 @TestPropertySource("classpath:oracle.properties")
-@Sql(scripts = "classpath:sql/performancedata-oracledb.sql")
 class OraclePerformanceTests extends AbstractSpringAppIntegrationTest {
 
   @Test
