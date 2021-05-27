@@ -1,13 +1,23 @@
 --------------------------------------------------------
+--  DDL for TRUNCATE DATA
+--------------------------------------------------------
+Truncate table HISAweDbs;
+--------------------------------------------------------
 --  DDL for INSERT DATA
 --------------------------------------------------------
 -- Insert sequences
-Insert into AweKey (KeyNam, KeyVal) values ('OpeKey', 6);
-Insert into AweKey (KeyNam, KeyVal) values ('ThmKey', 17);
-Insert into AweKey (KeyNam, KeyVal) values ('ProKey', 5);
-Insert into AweKey (KeyNam, KeyVal) values ('ModKey', 917);
-Insert into AweKey (KeyNam, KeyVal) values ('DbsKey', 17);
-Insert into AweKey (KeyNam, KeyVal) values ('SitKey', 18);
+Insert into AweKey (KeyNam, KeyVal)
+values ('OpeKey', 6);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ThmKey', 17);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ProKey', 5);
+Insert into AweKey (KeyNam, KeyVal)
+values ('ModKey', 917);
+Insert into AweKey (KeyNam, KeyVal)
+values ('DbsKey', 17);
+Insert into AweKey (KeyNam, KeyVal)
+values ('SitKey', 18);
 Insert into AweKey (KeyNam, KeyVal) values ('ModOpeKey', 0);
 Insert into AweKey (KeyNam, KeyVal) values ('ModProKey', 938);
 Insert into AweKey (KeyNam, KeyVal) values ('SitModDbsKey', 2585);

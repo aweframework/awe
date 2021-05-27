@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.*;
 @Tag("integration")
 @DisplayName("Maintain service Tests")
 @WithMockUser(username = "test", password = "test")
+@Transactional
 class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired

@@ -165,6 +165,15 @@ values ('SchTskLch', (select coalesce(max(Ide), 0) + 1 from AweSchTskLch));
 Insert into AweKey (KeyNam, KeyVal)
 values ('SchTskPar', (select coalesce(max(Ide), 0) + 1 from AweSchTskPar));
 
+--------------------------------------------------------
+--  TESTING DATA TABLES
+--------------------------------------------------------
+-- Insert Sequences
+Insert into AweKey (KeyNam, KeyVal)
+values ('CustomerKey', 1);
+Insert into AweKey (KeyNam, KeyVal)
+values ('CountryKey', 1);
+
 -- Insert Countries
 Insert into TST_COUNTRY (ID, COUNTRY_NAME, COUNTRY_CODE)
 values ('1', 'Spain', 'ESP');
@@ -198,6 +207,3 @@ values ('5', 'Customer5', 'Via del Corso 29, Rome', '5', '2020-06-28 00:00:00');
 UPDATE AweKey
 SET KeyVal = '6'
 where KeyNam = 'CustomerKey';
-
-
-
