@@ -10,12 +10,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +41,13 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired
   private MaintainService maintainService;
+
+  private MockHttpSession session;
+
+  @BeforeEach
+  void setUp() throws Exception {
+    session = new MockHttpSession();
+  }
 
   @AfterEach
   void cleanData() throws Exception {
@@ -101,7 +106,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    */
   private String launchPostRequest(String type, String name, String variables, String expected) throws Exception {
     MvcResult mvcResult = mockMvc.perform(post("/action/" + type + "/" + name)
-            .with(csrf())
+      .with(csrf())
+      .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content("{" + variables + "\"max\":30}")
             .accept(MediaType.APPLICATION_JSON))
@@ -301,6 +307,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
     String maintainName = "SimpleSingleInsertAudit";
     String variables = "";
+    setParameter("user", "LaloElMalo");
     String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
@@ -842,6 +849,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
     String maintainName = "testRetrieveDataAndInsertAfter";
     String variables = "";
+    setParameter("user", "LaloElMalo");
     String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1}]}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
@@ -864,15 +872,30 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
     try {
       mockMvc.perform(post("/action/maintain/" + maintainName)
-              .header("Authorization", "16617f0d-97ee-4f6b-ad54-905d6ce3c328")
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{" + variables + "\"max\":30}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andReturn();
+        .header("Authorization", "16617f0d-97ee-4f6b-ad54-905d6ce3c328")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{" + variables + "\"max\":30}")
+        .accept(MediaType.APPLICATION_JSON))
+        .andReturn();
     } catch (Exception e) {
       ex = e;
     }
 
     assertNull(ex);
+  }
+
+  /**
+   * Set parameter in session
+   *
+   * @param name  Parameter name
+   * @param value Parameter value
+   */
+  private void setParameter(String name, String value) throws Exception {
+    MvcResult mvcResult = mockMvc.perform(post(String.format("/session/set/%s", name))
+      .with(csrf())
+      .param("value", value)
+      .session(session))
+      .andReturn();
+    mvcResult.getResponse().getContentAsString();
   }
 }

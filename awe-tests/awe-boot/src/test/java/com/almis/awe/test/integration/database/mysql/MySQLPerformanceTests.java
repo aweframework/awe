@@ -1,5 +1,6 @@
 package com.almis.awe.test.integration.database.mysql;
 
+import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.jsmart.zerocode.core.domain.LoadWith;
 import org.jsmart.zerocode.core.domain.TestMapping;
 import org.jsmart.zerocode.jupiter.extension.ParallelLoadExtension;
@@ -8,15 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith({SpringExtension.class, ParallelLoadExtension.class})
+@ExtendWith({ParallelLoadExtension.class})
 @Tag("Mysql")
 @TestPropertySource("classpath:mysql.properties")
 @Sql(scripts = "classpath:sql/performancedata-hsqldb.sql")
-class MySQLPerformanceTests {
+class MySQLPerformanceTests extends AbstractSpringAppIntegrationTest {
 
   @Test
   @LoadWith("performance.properties")

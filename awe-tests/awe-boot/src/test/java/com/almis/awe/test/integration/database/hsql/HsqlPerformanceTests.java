@@ -10,11 +10,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-@ExtendWith({SpringExtension.class, ParallelLoadExtension.class})
+@ExtendWith({ParallelLoadExtension.class})
 @DisplayName("HSQL Performance Tests")
 @Tag("integration")
 @Sql(scripts = "classpath:sql/performancedata-hsqldb.sql")

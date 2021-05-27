@@ -25,6 +25,7 @@ import java.sql.DatabaseMetaData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author pgarcia
@@ -59,8 +60,15 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
   // Validation query
   @Value("${spring.datasource.validation-query:}")
   private String validationQuery;
+  // Pool size min
+  @Value("${spring.datasource.hikari.minimumIdle:10}")
+  private Integer minimumIdle;
+  // Pool size max
+  @Value("${spring.datasource.hikari.maximumPoolSize:10}")
+  private Integer maximumPoolSize;
   // Store datasources list
   private Map<Object, Object> dataSourceMap;
+
   /**
    * Autowired constructor
    *
@@ -120,14 +128,16 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
       dataSource = dsLookup.getDataSource(Objects.requireNonNull(resolver.resolveStringValue(jndi)));
     } else if (url != null && !url.isEmpty()) {
       HikariDataSource hikariDataSource = (HikariDataSource) DataSourceBuilder.create()
-              .driverClassName(resolver.resolveStringValue(driver))
-              .url(resolver.resolveStringValue(url))
-              .username(resolver.resolveStringValue(user))
-              .password(resolver.resolveStringValue(pass))
-              .build();
+        .driverClassName(resolver.resolveStringValue(driver))
+        .url(resolver.resolveStringValue(url))
+        .username(resolver.resolveStringValue(user))
+        .password(resolver.resolveStringValue(pass))
+        .build();
       // Config advanced properties
       hikariDataSource.setConnectionTestQuery(validationQuery);
-      String poolName = alias != null ? alias : datasourceName;
+      hikariDataSource.setMinimumIdle(minimumIdle);
+      hikariDataSource.setMaximumPoolSize(maximumPoolSize);
+      String poolName = Optional.ofNullable(alias).orElse(datasourceName);
       hikariDataSource.setPoolName(poolName);
       dataSource = hikariDataSource;
     }
