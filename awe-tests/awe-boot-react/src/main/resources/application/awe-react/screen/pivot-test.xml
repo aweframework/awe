@@ -25,7 +25,7 @@ and open the template in the editor.
     </window>
     <window label="SCREEN_TEXT_DATA" style="expand" expandible="vertical">
       <tag type="div" style="panel-body expand scrollable-both" expandible="vertical">
-        <pivot-table id="listaDatos" decimal-numbers="3" thousand-separator="." decimal-separator="," initial-load="query" target-action="QryUniTstId" cols="Als" renderer="Table" aggregator="Custom Sum" aggregation-field="Prg1" total-column-placement="left" total-row-placement="top" sort-method="absolute" style="expand"></pivot-table>
+        <pivot-table id="listaDatos" initial-load="query" target-action="QryUniTstId" cols="Als" aggregation-field="Prg1" style="expand"></pivot-table>
       </tag>
     </window>
   </tag>
