@@ -31,7 +31,7 @@ public class AweRoutingDataSource extends AbstractRoutingDataSource {
   @Override
   public void afterPropertiesSet() {
     // Set default target datasource
-    setDefaultTargetDataSource(contextHolder.getDataSource());
+    setDefaultTargetDataSource(contextHolder.getDefaultDataSource());
 
     // Load datasources
     setTargetDataSources(new HashMap<>());
@@ -53,7 +53,7 @@ public class AweRoutingDataSource extends AbstractRoutingDataSource {
    * Load datasources from current connection
    */
   public void reloadDataSources() {
-    // Set loaded datasources to true
+    // Set loaded dataSources to true
     loadedDatasources = true;
 
     // Redefine target datasources

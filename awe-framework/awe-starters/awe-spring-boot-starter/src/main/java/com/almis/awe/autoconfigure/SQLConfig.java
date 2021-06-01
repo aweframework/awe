@@ -16,13 +16,10 @@ import com.almis.awe.template.FixedOracleTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
 import com.querydsl.sql.*;
 import com.querydsl.sql.types.ClobType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.actuate.jdbc.DataSourceHealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 
@@ -35,46 +32,34 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(name = "awe.database.enabled", havingValue = "true")
 public class SQLConfig {
 
-  @Value("${spring.datasource.validation-query:}")
-  private String validationQuery;
-
   /**
    * Database context holder
    *
-   * @param elements       Awe elements
-   * @param queryService   Query service
-   * @param sessionService Session service
-   * @param logger         Awe logger
+   * @param elements             Awe elements
+   * @param queryService         Query service
+   * @param sessionService       Session service
+   * @param logger               Awe logger
+   * @param dataSourceProperties DataSource properties
    * @return Database context holder bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public AweDatabaseContextHolder aweDatabaseContextHolder(AweElements elements, QueryService queryService,
-                                                           SessionService sessionService, LogUtil logger) {
-    return new AweDatabaseContextHolder(elements, queryService, sessionService, logger);
+  @ConfigurationProperties("spring.datasource.hikari")
+  public AweDatabaseContextHolder aweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, LogUtil logger, DataSourceProperties dataSourceProperties) {
+    return new AweDatabaseContextHolder(elements, queryService, sessionService, logger, dataSourceProperties);
   }
 
   /**
-   * Datasource
+   * Abstract Routing Datasource.
    *
    * @param databaseContextHolder Database context holder
    * @return Datasource bean
    */
   @Bean
+  @ConditionalOnProperty(name = "awe.database.multi-database.enable", havingValue = "true")
   @ConditionalOnMissingBean
   public AweRoutingDataSource aweRoutingDataSource(AweDatabaseContextHolder databaseContextHolder) {
     return new AweRoutingDataSource(databaseContextHolder);
-  }
-
-  /**
-   * Health Indicator
-   *
-   * @param dataSource Datasource
-   * @return DB Health indicator
-   */
-  @Bean("aweDBHealthIndicator")
-  public HealthIndicator aweDBHealthIndicator(@Qualifier("aweRoutingDataSource") @Autowired DataSource dataSource) {
-    return new DataSourceHealthIndicator(dataSource, validationQuery);
   }
 
   /**
