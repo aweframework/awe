@@ -201,6 +201,17 @@
       <artifactId>awe-builder</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.h-thurow</groupId>
+      <artifactId>simple-jndi</artifactId>
+      <version>0.23.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

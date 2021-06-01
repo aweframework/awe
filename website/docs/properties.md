@@ -453,13 +453,17 @@ Here you can define the database connection
 # Enable database
 awe.database.enabled=false
 
+# Enable multi database
+awe.database.multi-database.enable=true
+
 # Database criterion name
 awe.database.parameter.name=_database_
 
 # Limit log size (0 to disable)
 awe.database.limit.log.size=0
 
-# Datasource
+# Spring datasource properties
+# Datasource jndi name
 spring.datasource.jndi-name=
 # Datasource server url
 spring.datasource.url=

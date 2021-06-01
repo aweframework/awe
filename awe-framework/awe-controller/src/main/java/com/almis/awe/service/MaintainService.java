@@ -53,6 +53,9 @@ public class MaintainService extends ServiceConfig {
   @Value("${awe.database.parameter.name:_database_}")
   private String databaseParameterName;
 
+  @Value("${awe.database.multi-database.enable}")
+  private boolean multiDatabaseEnable;
+
   /**
    * Autowired constructor
    *
@@ -240,7 +243,7 @@ public class MaintainService extends ServiceConfig {
    * @throws AWException Error retrieving database connection
    */
   private DatabaseConnection getSafeDatabaseConnection(String alias) throws AWException {
-    return alias == null ? getSessionDatabaseConnection() : getDatabaseConnection(alias);
+    return alias == null || !multiDatabaseEnable ? getSessionDatabaseConnection() : getDatabaseConnection(alias);
   }
 
   /**

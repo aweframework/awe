@@ -188,6 +188,7 @@ Frontend UT:
     - <<: *if-default
 
 Javadoc test:
+  image: maven:3.6-jdk-8
   stage: unit test
   needs: [ "Build project" ]
   script:
