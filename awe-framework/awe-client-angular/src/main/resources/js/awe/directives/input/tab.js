@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import "../plugins/uiTabdrop";
 import "../tabcontainer";
 import "../../services/panelable";
@@ -9,11 +9,10 @@ const template =
     <awe-context-menu ng-cloak></awe-context-menu>
     <div class="{{::criterionClass}} expand expandible-vertical">
       <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}">
-          <li ng-class="{'active':$parent.model.selected === tab.value}" ng-repeat="tab in model.values track by tab.value"
-              ng-attr-id="tab-{{::tab.value}}">
+          <li ng-class="{'active':$parent.model.selected === tab.value}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}">
           <a ng-click="clickTab(tab.value)">
-            <i ng-if="::tab.icon" class="panel-title-icon fa fa-{{::tab.icon}}"></i>
-            <span translate-multiple="{{::tab.label}}"></span>
+            <i ng-if="tab.icon" class="panel-title-icon fa fa-{{tab.icon}}"></i>
+            <span translate-multiple="{{tab.label}}"></span>
           </a>
         </li>
         <li ng-if="::maximize" class="maximize-handler pull-right active">
