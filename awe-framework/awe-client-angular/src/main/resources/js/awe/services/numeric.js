@@ -127,25 +127,6 @@ aweApplication.factory('Numeric',
           /**********************************************************************/
 
           /**
-           * Extra data function (overwrite criterion getData function)
-           * @returns {Object} Data from criteria
-           */
-          component.getData = function () {
-            // Initialize data
-            var data = {};
-            if (component.model.selected === null) {
-              data[component.address.component] = null;
-            } else {
-              data[component.address.component] = parseFloat(component.model.selected);
-            }
-
-            if (component.getExtraData) {
-              data[component.address.component + $settings.get("dataSuffix")] = component.getExtraData();
-            }
-            return data;
-          };
-
-          /**
            * Call update model
            * @returns {undefined}
            */

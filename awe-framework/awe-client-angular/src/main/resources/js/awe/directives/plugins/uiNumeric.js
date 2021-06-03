@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "../../awe";
 import "autonumeric";
 
 
@@ -74,7 +74,7 @@ aweApplication.directive('uiNumeric',
                 elem.on("change", function () {
                   Utilities.timeout(function () {
                     let model = Control.getAddressModel(scope.component.address);
-                    model.selected = elem.autoNumeric('get');
+                    model.selected = parseFloat(elem.autoNumeric('get'));
                     updateModelValues();
                     scope.component.modelChange();
                   });
