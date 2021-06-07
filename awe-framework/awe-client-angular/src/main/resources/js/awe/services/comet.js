@@ -33,7 +33,7 @@ aweApplication.factory('Comet',
          * @private
          */
         getWebsocketClient: function() {
-          let client = Stomp.over(new SockJS('/websocket', undefined, {timeout: 10 * 1000}));
+          let client = Stomp.over(new SockJS($utilities.getContextPath() + '/websocket', undefined, {timeout: 10 * 1000}));
           client.connectHeaders = {'Authorization': connectionToken};
           return client;
         },
