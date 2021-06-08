@@ -11,8 +11,9 @@ You can put as many operations as you want inside a target. I.e. an insert opera
 
 <img alt="Maintain engine" src={require('@docusaurus/useBaseUrl').default('img/Maintain_engine.png')}/>
 
-> **Note:** All maintains are defined in the `Maintain.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder) for more info.
-
+:::info
+**Note:** All maintains are defined in the `Maintain.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder) for more info.
+:::
 
 ## Maintain
 

@@ -1,5 +1,5 @@
 {
-  "version-4.2.0/docs": [
+  "version-4.4.0/docs": [
     {
       "collapsed": false,
       "type": "category",
@@ -7,15 +7,19 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-4.2.0/intro"
+          "id": "version-4.4.0/intro"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/purpose"
+          "id": "version-4.4.0/purpose"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/architecture"
+          "id": "version-4.4.0/architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/security"
         }
       ]
     },
@@ -26,7 +30,7 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-4.2.0/installation"
+          "id": "version-4.4.0/installation"
         },
         {
           "collapsed": true,
@@ -35,7 +39,7 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-4.2.0/maven"
+              "id": "version-4.4.0/maven"
             },
             {
               "collapsed": true,
@@ -44,47 +48,51 @@
               "items": [
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/annotations"
+                  "id": "version-4.4.0/annotations"
                 },
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/developer-tools"
+                  "id": "version-4.4.0/developer-tools"
                 },
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/builder"
+                  "id": "version-4.4.0/builder"
                 },
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/rest"
+                  "id": "version-4.4.0/rest"
                 },
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/scheduler"
+                  "id": "version-4.4.0/scheduler"
                 },
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/notifier"
+                  "id": "version-4.4.0/notifier"
                 },
                 {
                   "type": "doc",
-                  "id": "version-4.2.0/database-migration"
+                  "id": "version-4.4.0/database-migration"
                 }
               ]
             },
             {
               "type": "doc",
-              "id": "version-4.2.0/properties"
+              "id": "version-4.4.0/properties"
             },
             {
               "type": "doc",
-              "id": "version-4.2.0/application-options"
+              "id": "version-4.4.0/application-options"
             },
             {
               "type": "doc",
-              "id": "version-4.2.0/session"
+              "id": "version-4.4.0/session"
             }
           ]
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/deployment"
         }
       ]
     },
@@ -95,39 +103,39 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/project-structure"
+          "id": "version-4.4.0/guides/project-structure"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/scheduler"
+          "id": "version-4.4.0/guides/scheduler"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/notifier"
+          "id": "version-4.4.0/guides/notifier"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/selenium-testing"
+          "id": "version-4.4.0/guides/selenium-testing"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/print-engine"
+          "id": "version-4.4.0/guides/print-engine"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/debugging"
+          "id": "version-4.4.0/guides/debugging"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/validation"
+          "id": "version-4.4.0/guides/validation"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/v4-migration"
+          "id": "version-4.4.0/guides/v4-migration"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/default-screens"
+          "id": "version-4.4.0/guides/default-screens"
         }
       ]
     },
@@ -138,43 +146,47 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-4.2.0/api/screens"
+          "id": "version-4.4.0/api/screens"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/menu"
+          "id": "version-4.4.0/api/menu"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/query"
+          "id": "version-4.4.0/api/enumerate"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/maintain"
+          "id": "version-4.4.0/api/query"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/service"
+          "id": "version-4.4.0/api/maintain"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/queues"
+          "id": "version-4.4.0/api/service"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/email"
+          "id": "version-4.4.0/api/queues"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/i18n-internationalization"
+          "id": "version-4.4.0/api/email"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/api/i18n-internationalization"
         }
       ]
     }
   ],
-  "version-4.2.0/screens": [
+  "version-4.4.0/screens": [
     {
       "type": "ref",
-      "id": "version-4.2.0/api/screens"
+      "id": "version-4.4.0/api/screens"
     },
     {
       "collapsed": false,
@@ -183,95 +195,95 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-4.2.0/api/screen"
+          "id": "version-4.4.0/api/screen"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/template"
+          "id": "version-4.4.0/api/template"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/layout"
+          "id": "version-4.4.0/api/layout"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/tags"
+          "id": "version-4.4.0/api/tags"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/window"
+          "id": "version-4.4.0/api/window"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/resizable"
+          "id": "version-4.4.0/api/resizable"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/button"
+          "id": "version-4.4.0/api/button"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/criteria"
+          "id": "version-4.4.0/api/criteria"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/tab-and-tabcontainer"
+          "id": "version-4.4.0/api/tab-and-tabcontainer"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/wizard-and-wizard-panel"
+          "id": "version-4.4.0/api/wizard-and-wizard-panel"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/accordion"
+          "id": "version-4.4.0/api/accordion"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/grids"
+          "id": "version-4.4.0/api/grids"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/pivot-table"
+          "id": "version-4.4.0/api/pivot-table"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/context-menu"
+          "id": "version-4.4.0/api/context-menu"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/messages"
+          "id": "version-4.4.0/api/messages"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/info"
+          "id": "version-4.4.0/api/info"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/include"
+          "id": "version-4.4.0/api/include"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/dialog"
+          "id": "version-4.4.0/api/dialog"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/chart"
+          "id": "version-4.4.0/api/chart"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/actions"
+          "id": "version-4.4.0/api/actions"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/api/dependencies"
+          "id": "version-4.4.0/api/dependencies"
         }
       ]
     }
   ],
-  "version-4.2.0/schedule": [
+  "version-4.4.0/schedule": [
     {
       "type": "ref",
-      "id": "version-4.2.0/guides/scheduler"
+      "id": "version-4.4.0/guides/scheduler"
     },
     {
       "collapsed": false,
@@ -280,29 +292,53 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/schedule-configuration"
+          "id": "version-4.4.0/guides/schedule-configuration"
         },
         {
           "type": "doc",
-          "id": "version-4.2.0/guides/dependency-task"
+          "id": "version-4.4.0/guides/dependency-task"
         }
       ]
     }
   ],
-  "version-4.2.0/training": [
+  "version-4.4.0/training": [
     {
+      "collapsed": false,
       "type": "category",
       "label": "Basic tutorials",
-      "collapsed": false,
       "items": [
-        "version-4.2.0/training/awe-101",
-        "version-4.2.0/training/awe-102",
-        "version-4.2.0/training/awe-103",
-        "version-4.2.0/training/awe-104",
-        "version-4.2.0/training/awe-105",
-        "version-4.2.0/training/awe-106",
-        "version-4.2.0/training/awe-107",
-        "version-4.2.0/training/awe-108"
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-101"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-102"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-103"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-104"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-105"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-106"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-107"
+        },
+        {
+          "type": "doc",
+          "id": "version-4.4.0/training/awe-108"
+        }
       ]
     }
   ]

@@ -5,9 +5,11 @@ Title: I18N (Internationalization)
 
 AWE implements a i18n system for internationalization of web applications. For this reason, AWE uses locale files containing literals in different languages.
 
-Also you can add `CDATA` tag inside locale in **markdown** language to show rich text. Very useful when you want to show a lot of formatting information. For example in the help screen application. You can view all markdown syntax in [this](https://wiki.almis.com/help/markdown/markdown) page.
+Also you can add `CDATA` tag inside local in **markdown** language to show rich text. Very useful when you want to show a lot of formatting information. For example in the help screen application. You can view all markdown syntax in [this](https://wiki.almis.com/help/markdown/markdown) page.
 
-> **Note:** All locales are defined in the `Locale-[Country code].xml` files at **locale folder**. The country codes must be two capital letters.  View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::info
+**Note:** All locales are defined in the `Locale-[Country code].xml` files at **locale folder**. The country codes must be two capital letters.  View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## Locales XML structure
 
@@ -19,7 +21,7 @@ The full locale structure is the next one:
   <locale name="[locale-name]" value=[locale-value]" />
     <![CDATA[ Markdown content ]]>
   <locale name="[locale-name]" value=[locale-value]">
-  </locale>
+  </local>
   ... (More <locale>)
 </locales>
 ```

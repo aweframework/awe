@@ -1,24 +1,13 @@
 ---
 id: enumerate
 title: Enumerate definition
-
 ---
-
-# **Enumerated definition**
-
-## Table of Contents
-
-* **[Introduction](#introduction)**
-* **[Enumerated XML structure](#enumerated-xml-query)**
-  * [Group element](#group-element)
-  * [Option element](#option-element)
-* **[Examples](#examples)**
-
-## Introduction
 
 Enumerated components are structures to define `label` - `value` lists. They are useful i.e. for translations.
 
-> **Note:** All enumerateds are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::info
+**Note:** All enumerateds are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## Enumerated XML structure
 

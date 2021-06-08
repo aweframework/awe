@@ -195,6 +195,8 @@ connection.timeout=60000000
 ################################################
 # Rows per page (Set to 0 to avoid pagination)
 application.data.rowsPerPage=30
+# Rows per page for criteria (Set to 0 to avoid pagination)
+application.data.rowsPerPageOnCriteria=100
 # Pixels per char in grids
 application.data.pixelsPerCharacter=8
 # Empty computed values if one of the wildcards are empty
@@ -269,6 +271,11 @@ application.log.users.level=info
 application.log.users.enabled=true
 # Flag to build log path within system user home directory (true | false)
 application.log.users.home=false
+
+################################################
+# Chart properties
+################################################
+highcharts.server.url=http://export.highcharts.com
 ```
 
 ## Library properties
@@ -446,10 +453,17 @@ Here you can define the database connection
 # Enable database
 awe.database.enabled=false
 
+# Enable multi database
+awe.database.multi-database.enable=true
+
+# Database criterion name
+awe.database.parameter.name=_database_
+
 # Limit log size (0 to disable)
 awe.database.limit.log.size=0
 
-# Datasource
+# Spring datasource properties
+# Datasource jndi name
 spring.datasource.jndi-name=
 # Datasource server url
 spring.datasource.url=
@@ -575,8 +589,8 @@ security.auth.ldap.timeout=5000
 ################################################
 # Avoid cross domain frame requests
 security.headers.frameOptions.sameOrigin=true
-# Allowed origins when starting websocket connection
-security.headers.allowedOrigins=*
+# Allowed origins patterns when starting websocket connection
+security.headers.allowedOriginsPatterns=*
 ```
 
 ## Session properties

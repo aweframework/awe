@@ -7,8 +7,9 @@ The AWE query engine is used for querying data on external systems. It works as 
 
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/Data_engine.png')}/>
 
-> **Note:** All queries are defined in the `queries.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
-
+:::info
+**Note:** All queries are defined in the `queries.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder)  for more info.
+:::
 
 ## SQL query
 
@@ -289,6 +290,7 @@ These are the possible values for the `operator` attribute:
 * **DIV**: Divides two fields
 * **MOD**: Operator `MOD`
 * **POWER**: Power of two fields
+* **ROUND**: Operator 'ROUND'
 * **ADD_SECONDS**: Adds seconds to a date field
 * **ADD_MINUTES**: Adds minutes to a date field
 * **ADD_HOURS**: Adds hours to a date field
@@ -332,6 +334,14 @@ Add 1 to a field: `(pro.Nam + 1) as parent`
   <constant value="1" type="INTEGER"/>
 </field>
 ```
+
+Round field with 2 decimals: 'round(column, 2)'
+```xml
+<operation operator="ROUND" alias="roundField">
+  <field id="Rate" table="User" />
+  <constant value="2" type="INTEGER"/>
+</field>
+``` 
 
 ### Case element
 
@@ -812,7 +822,9 @@ These are the possible variable types:
 * **SYSTEM_TIMESTAMP**: Server Date (stored as timestamp with milliseconds) (`dd/MM/aaaa HH:mm:ss.SSS`)
 * **NULL**: To pass a `null` value
 * **OBJECT**: To define a variable as a java object
+* **CLOB**: To define a variable as a big text file
 * **LIST_TO_STRING**: Retrieve a list of values and manage them as a comma separated values in a string
+* **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values
 	
      
 ## Enumerated query

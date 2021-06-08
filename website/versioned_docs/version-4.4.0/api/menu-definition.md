@@ -7,7 +7,9 @@ Navigation menu for an AWE application is defined in XML files. The two menu XML
 * **public.xml:** Contains the public screens (those who can be accessed without log into the system).
 * **private.xml:** Screens inside the log protection
 
-> **Note:** All menu XML descriptors are defined at **menu folder**. View [project structure](../guides/project-structure.md#menu-folder) for more info.
+:::info
+**Note:** All menu XML descriptors are defined at **menu folder**. View [project structure](../guides/project-structure.md#menu-folder) for more info.
+:::
 
 ## Menu structure
 

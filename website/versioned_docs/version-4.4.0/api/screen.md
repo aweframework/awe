@@ -3,7 +3,6 @@ id: screen
 title: Screen Element
 ---
 
-
 The `screen` is the container tag for all screen components. In this tag you have to define the JSP `template` the screen is going to render, the screen title (`label`), and some other features like the `target`, which is a list of queries to launch that will fill the criteria values.
 
 ## XML skeleton
