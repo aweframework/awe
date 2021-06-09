@@ -101,9 +101,7 @@ module.exports = {
 		algolia: {
 			apiKey: 'bbb756b741640f975ac0158bcedcefcb',
 			indexName: 'aweframework_awe',
-			searchParameters: {
-				facetFilters: [`version:${versions[0]}`],
-			},
+			contextualSearch: true,
 		},
 		hideableSidebar: true,
 		colorMode: {
