@@ -1,4 +1,4 @@
-import { aweApplication } from "../awe";
+import {aweApplication} from "../awe";
 
 // Control service
 aweApplication.factory('Control',
@@ -335,6 +335,14 @@ aweApplication.factory('Control',
               formattedData = dataList;
           }
           return formattedData;
+        },
+        /**
+         * Format an array of selected values
+         * @param {object} values Data array
+         * @return {Array} Selected values
+         */
+        formatSelectedValues: function (values) {
+          return values.map(row => (_.isPlainObject(row) ? row : {}).value || row);
         },
         /**
          * Change a controller attribute

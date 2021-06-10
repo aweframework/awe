@@ -117,26 +117,16 @@ aweApplication.factory('Selector',
       }
       /**
        * Format select data
-       * @param {Array} model
-       * @return {Array} formatted data
+       * @param {object} model
        */
       function filterSuggestModel(model) {
-        let data = [];
-        let stored = [];
         if (model.selected !== null) {
           let selected = Utilities.asArray(model.selected).map(String);
-          _.each([model.storedValues, model.values], function (values) {
-            _.each(values, function (element) {
-              let stringValue = String(element.value);
-              if ($.inArray(stringValue, selected) > -1 && $.inArray(stringValue, stored) === -1) {
-                data.push(element);
-                stored.push(stringValue);
-              }
-            });
-          });
+          model.values = [...Utilities.asArray(model.storedValues), ...model.values]
+            .reduce((prev, element) => prev.map(e => String(e.value)).includes(String(element.value)) ? prev : [...prev, element], [])
+            .filter(element => selected.includes(String(element.value)));
         }
-        model.storedValues = _.cloneDeep(data);
-        model.values = data;
+        model.storedValues = _.cloneDeep([...model.values]);
       }
 
       /**
@@ -349,7 +339,7 @@ aweApplication.factory('Selector',
           /* API METHODS                                                        */
           /**********************************************************************/
           /**
-           * Update selected values
+           * Update model values
            * @param {type} data
            */
           component.api.updateModelValues = function (data) {
@@ -361,23 +351,13 @@ aweApplication.factory('Selector',
               }
               // If selected in data, update selected values
               if ("selected" in data) {
-                // Store component model
-                model.selectedValues = Utilities.asArray(data.selected);
-                // Store value list
-                let valueList = [];
-                _.each(model.selectedValues, function (selected) {
-                  if (selected !== null) {
-                    if (typeof selected === "object" && "value" in selected) {
-                      valueList.push(selected.value);
-                    } else {
-                      valueList.push(selected);
-                    }
-                  }
-                });
                 // Filter selected values
-                model.selected = filterSelectedValues(model.values, valueList, selector.multiple);
+                model.selected = filterSelectedValues(model.values, Control.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
                 selector.selectData(model.selected);
               }
+
+              // Store updated model
+              Control.setAddressModel(component.address, model);
             }
           };
           /******************************************************************************

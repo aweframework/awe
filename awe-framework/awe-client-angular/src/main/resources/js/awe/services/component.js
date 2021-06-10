@@ -232,28 +232,18 @@ aweApplication.factory('Component',
             }
 
             component.api[methodName] = function (data) {
-              var model = Control.getAddressModel(component.address);
+              let model = Control.getAddressModel(component.address);
               if (model) {
-                _.merge(model, data);
-                model.values = _.uniqBy(model.values, 'value');
-
                 // If selected in data, update selected values
                 if ("selected" in data) {
-                  // Store component model
-                  model.selectedValues = Utilities.asArray(data.selected);
+                  model.selected = Control.formatDataList(Control.formatSelectedValues(Utilities.asArray(data.selected)));
+                }
 
-                  // Store value list
-                  var valueList = [];
-                  _.each(model.selectedValues, function (row) {
-                    if (typeof row === "object" && "value" in row) {
-                      valueList.push(row.value);
-                    } else {
-                      valueList.push(row);
-                    }
-                  });
-
-                  // Store selected values
-                  model.selected = Control.formatDataList(valueList);
+                if ("values" in data) {
+                  let selected = Utilities.asArray(model.selected).map(String);
+                  model.values = model.values.filter(item => selected.includes(String(item.value)));
+                  _.merge(model, data);
+                  model.values = _.uniqBy(model.values, 'value');
                 }
               }
             };
