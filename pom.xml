@@ -118,6 +118,7 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc-plugin.version}</version>
           <configuration>
+            <source>8</source>
             <skip>${skip.javadoc}</skip>
           </configuration>
           <executions>

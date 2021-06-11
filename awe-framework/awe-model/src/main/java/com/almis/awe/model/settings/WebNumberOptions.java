@@ -1,6 +1,6 @@
 package com.almis.awe.model.settings;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -12,29 +12,63 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author pgarcia
  */
 @Setter
+@Getter
 @Accessors(chain = true)
 @ConfigurationProperties(prefix = "settings.numbers.options")
 public class WebNumberOptions {
-  @Getter(onMethod = @__(@JsonGetter("aSep")))
+  /**
+   * Thousands separator
+   */
+  @JsonProperty("aSep")
   private String aSep;
-  @Getter(onMethod = @__(@JsonGetter("dGroup")))
+  /**
+   * Digits group
+   */
+  @JsonProperty("dGroup")
   private Integer dGroup;
-  @Getter(onMethod = @__(@JsonGetter("aDec")))
+  /**
+   * Decimals separator
+   */
+  @JsonProperty("aDec")
   private String aDec;
-  @Getter(onMethod = @__(@JsonGetter("aSign")))
+  /**
+   * Post sign
+   */
+  @JsonProperty("aSign")
   private String aSign;
-  @Getter(onMethod = @__(@JsonGetter("pSign")))
+  /**
+   * Pre sign
+   */
+  @JsonProperty("pSign")
   private String pSign;
-  @Getter(onMethod = @__(@JsonGetter("vMin")))
+  /**
+   * Min value
+   */
+  @JsonProperty("vMin")
   private Float vMin;
-  @Getter(onMethod = @__(@JsonGetter("vMax")))
+  /**
+   * Max value
+   */
+  @JsonProperty("vMax")
   private Float vMax;
-  @Getter(onMethod = @__(@JsonGetter("mDec")))
+  /**
+   * Decimal numbers
+   */
+  @JsonProperty("mDec")
   private Integer mDec;
-  @Getter(onMethod = @__(@JsonGetter("mRound")))
+  /**
+   * Round method
+   */
+  @JsonProperty("mRound")
   private String mRound;
-  @Getter(onMethod = @__(@JsonGetter("aPad")))
+  /**
+   * Padding
+   */
+  @JsonProperty("aPad")
   private Boolean aPad;
-  @Getter(onMethod = @__(@JsonGetter("wEmpty")))
+  /**
+   * Empty values
+   */
+  @JsonProperty("wEmpty")
   private String wEmpty;
 }
