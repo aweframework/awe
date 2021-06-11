@@ -381,6 +381,7 @@ Build package:
 ##############################
 
 Deploy snapshot:
+  image: maven:3.5-jdk-11
   stage: deploy
   needs: [ "Launch Sonar" ]
   script:
@@ -389,6 +390,7 @@ Deploy snapshot:
     - <<: *if-develop
 
 Deploy Maven Central:
+  image: maven:3.5-jdk-11
   stage: deploy
   before_script:
     ## Add gpg key to sign
