@@ -1,22 +1,22 @@
 package com.almis.awe.test.performance;
 
+import org.jsmart.zerocode.core.domain.LoadWith;
 import org.jsmart.zerocode.core.domain.Scenario;
 import org.jsmart.zerocode.core.domain.TargetEnv;
-import org.jsmart.zerocode.core.runner.ZeroCodeUnitRunner;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.jsmart.zerocode.jupiter.extension.ParallelLoadExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@LoadWith("performance_load.properties")
 @TargetEnv("performance_connection.properties")
-@RunWith(ZeroCodeUnitRunner.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PerformanceTest {
+@ExtendWith({ParallelLoadExtension.class})
+class PerformanceTest {
+
   @Test
   @Scenario("performance/test-eval-big-performance.yml")
-  public void testEvalBigPerformance() throws Exception {
+  void testEvalBigPerformance() {
     assertTrue(true);
   }
 }

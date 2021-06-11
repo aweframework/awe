@@ -7,14 +7,15 @@ const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib")
 // Fix webpack for karma
 module.exports = (config) => {
   config.set({
-    basePath: path.join(__dirname, "target", "reports", "karma"),
+    basePath: path.join(__dirname),
     frameworks: ['detectBrowsers', 'jasmine'],
-    reporters: ['spec', 'sonarqubeUnit', 'coverage-istanbul'],
+    reporters: ['spec', 'sonarqubeUnit', 'coverage-istanbul', 'junit'],
     //concurrency: 1,
+    // browsers: ['Chrome', 'Firefox'],
     browserConsoleLogOptions: { level: 'info', format: '%b %T: %m', terminal: true},
     reportSlowerThan: 500,
     singleRun: true,
-    files: [ tests ],
+    files: [tests],
     preprocessors: {
       [tests]: ['webpack', 'sourcemap']
     },
@@ -103,10 +104,14 @@ module.exports = (config) => {
     },
     sonarQubeUnitReporter: {
       sonarQubeVersion: 'LATEST',
-      outputFile: path.join("junit", "javascriptUnitTests.xml"),
+      outputFile: path.join("target", "reports", "karma", "junit", "javascriptUnitTests.xml"),
       overrideTestDescription: false,
       testFilePattern: '.js',
       useBrowserName: false
     },
+    junitReporter: {
+      outputDir: path.join("target", "reports", "junit"),
+      useBrowserName: false, // add browser name to report and classes names
+    }
   });
 };

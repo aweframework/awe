@@ -15,7 +15,6 @@ import org.springframework.cache.annotation.Cacheable;
  * QueryLauncher Class
  * Factory class of interface QueryConnector
  *
- * @author Jorge BELLON 24-02-2017
  */
 public class QueryLauncher extends ServiceConfig {
 

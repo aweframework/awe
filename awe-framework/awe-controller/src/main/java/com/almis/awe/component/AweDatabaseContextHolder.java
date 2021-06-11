@@ -1,5 +1,6 @@
 package com.almis.awe.component;
 
+import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
@@ -11,73 +12,68 @@ import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.jdbc.DatabaseDriver;
-import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.util.StringValueResolver;
 
 import javax.sql.DataSource;
 import java.sql.DatabaseMetaData;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author pgarcia
  */
-public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
+@Getter
+@Setter
+public class AweDatabaseContextHolder extends ServiceConfig {
 
   private static final String ERROR_TITLE_INVALID_CONNECTION = "ERROR_TITLE_INVALID_CONNECTION";
+
   // Autowired services
   private final AweElements elements;
   private final QueryService queryService;
   private final SessionService sessionService;
   private final LogUtil logger;
-  private StringValueResolver resolver;
-  // Datasource name
-  @Value("${spring.datasource.name:default}")
-  private String datasourceName;
-  // Database jndi-url
-  @Value("${spring.datasource.jndi-name}")
-  private String databaseJndi;
-  // Database url
-  @Value("${spring.datasource.url:}")
-  private String databaseUrl;
-  // Database user
-  @Value("${spring.datasource.username:}")
-  private String databaseUser;
-  // Database passwordEsql
-  @Value("${spring.datasource.password:}")
-  private String databasePassword;
-  // Database driver
-  @Value("${spring.datasource.driver-class-name:}")
-  private String databaseDriver;
-  // Validation query
-  @Value("${spring.datasource.validation-query:}")
-  private String validationQuery;
-  // Store datasources list
+  private DataSourceProperties properties;
+
+  @Value("${awe.database.multi-database.enable}")
+  private boolean multiDatabaseEnable;
+
+  // Store dataSource list
   private Map<Object, Object> dataSourceMap;
+
+  // Pool properties
+  private int minimumIdle = 10;
+  private int maximumPoolSize = 10;
+  private long connectionTimeOut = 30000;
+  private String connectionTestQuery;
+
   /**
    * Autowired constructor
    *
-   * @param elements       Awe elements
-   * @param queryService   Query service
-   * @param sessionService Session Service
-   * @param logger         Logger
+   * @param elements             Awe elements
+   * @param queryService         Query service
+   * @param sessionService       Session Service
+   * @param logger               Logger
+   * @param dataSourceProperties DataSource properties
    */
-  public AweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, LogUtil logger) {
+  public AweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, LogUtil logger, DataSourceProperties dataSourceProperties) {
     this.elements = elements;
     this.queryService = queryService;
     this.sessionService = sessionService;
     this.logger = logger;
+    this.properties = dataSourceProperties;
+    this.dataSourceMap = new HashMap<>();
   }
 
   /**
-   * Load datasources from current connection
+   * Load dataSources from current connection
    *
    * @return datasource map
    */
@@ -85,18 +81,23 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
     Map<Object, Object> dataSources = new HashMap<>();
     Map<String, DatabaseConnectionInfo> connectionInfoMap = loadDataSources();
 
-    // Retrieve datasources
+    // Retrieve dataSources
     for (DatabaseConnectionInfo connectionInfo : connectionInfoMap.values()) {
       try {
-        dataSources.put(connectionInfo.getAlias(), getDataSource(connectionInfo.getAlias(), connectionInfo.getJndi(), connectionInfo.getUrl(),
-          connectionInfo.getUser(), connectionInfo.getPassword(), connectionInfo.getDriver(), validationQuery));
+        // Redefine dataSource properties
+        properties = new DataSourceProperties();
+        properties.setJndiName(connectionInfo.getJndi());
+        properties.setUrl(connectionInfo.getUrl());
+        properties.setUsername(connectionInfo.getUser());
+        properties.setPassword(connectionInfo.getPassword());
+        dataSources.put(connectionInfo.getAlias(), getDataSource(properties));
       } catch (Exception exc) {
         // Log datasource failure
         logger.log(AweDatabaseContextHolder.class, Level.ERROR, "Error retrieving datasource ''{0}''", exc, connectionInfo.getAlias());
       }
     }
 
-    // Redefine target datasources
+    // Redefine target dataSources
     dataSourceMap = dataSources;
     return dataSources;
   }
@@ -104,34 +105,24 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
   /**
    * Retrieve datasource definition
    *
-   * @param alias  Database alias
-   * @param jndi   JNDI
-   * @param url    URL
-   * @param user   User
-   * @param pass   Password
-   * @param driver Driver
+   * @param properties DataSource properties
    * @return Datasource
    */
-  DataSource getDataSource(String alias, String jndi, String url, String user, String pass, String driver, String validationQuery) {
-    DataSource dataSource = null;
-    if (jndi != null && !jndi.isEmpty()) {
+  DataSource getDataSource(DataSourceProperties properties) {
+    HikariDataSource dataSource;
+    if (properties.getJndiName() != null) {
       final JndiDataSourceLookup dsLookup = new JndiDataSourceLookup();
       dsLookup.setResourceRef(true);
-      dataSource = dsLookup.getDataSource(Objects.requireNonNull(resolver.resolveStringValue(jndi)));
-    } else if (url != null && !url.isEmpty()) {
-      HikariDataSource hikariDataSource = (HikariDataSource) DataSourceBuilder.create()
-              .driverClassName(resolver.resolveStringValue(driver))
-              .url(resolver.resolveStringValue(url))
-              .username(resolver.resolveStringValue(user))
-              .password(resolver.resolveStringValue(pass))
-              .build();
-      // Config advanced properties
-      hikariDataSource.setConnectionTestQuery(validationQuery);
-      String poolName = alias != null ? alias : datasourceName;
-      hikariDataSource.setPoolName(poolName);
-      dataSource = hikariDataSource;
+      return dsLookup.getDataSource(properties.getJndiName());
+    } else {
+      dataSource = (HikariDataSource) properties.initializeDataSourceBuilder().build();
+      // Customize pool
+      dataSource.setMinimumIdle(minimumIdle);
+      dataSource.setMaximumPoolSize(maximumPoolSize);
+      dataSource.setConnectionTimeout(connectionTimeOut);
+      dataSource.setConnectionTestQuery(connectionTestQuery);
+      return dataSource;
     }
-    return dataSource;
   }
 
   /**
@@ -141,11 +132,14 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
    * @return Datasource connection
    */
   DataSource getDataSource(String alias) throws AWException {
-    if (dataSourceMap.containsKey(alias)) {
+    if (!multiDatabaseEnable) {
+      // Get default datasource
+      return getBean(DataSource.class);
+    } else if (dataSourceMap.containsKey(alias)) {
       return (DataSource) dataSourceMap.get(alias);
     } else {
       throw new AWException(elements.getLocaleWithLanguage(ERROR_TITLE_INVALID_CONNECTION, elements.getLanguage()),
-        elements.getLocaleWithLanguage("ERROR_MESSAGE_UNDEFINED_DATASOURCE", elements.getLanguage(), alias));
+              elements.getLocaleWithLanguage("ERROR_MESSAGE_UNDEFINED_DATASOURCE", elements.getLanguage(), alias));
     }
   }
 
@@ -154,12 +148,12 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
    *
    * @return Datasource connection
    */
-  public DataSource getDataSource() {
-    return getDataSource(null, databaseJndi, databaseUrl, databaseUser, databasePassword, databaseDriver, validationQuery);
+  public DataSource getDefaultDataSource() {
+    return getDataSource(properties);
   }
 
   /**
-   * Load datasources from current connection
+   * Load dataSources from current connection
    *
    * @return datasource map
    */
@@ -169,10 +163,10 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
     try {
       serviceData = queryService.launchPrivateQuery(AweConstants.DATABASE_CONNECTIONS_QUERY, "1", "0");
     } catch (AWException exc) {
-      logger.log(AweDatabaseContextHolder.class, Level.ERROR, "Error retrieving datasources from default connection", exc);
+      logger.log(AweDatabaseContextHolder.class, Level.ERROR, "Error retrieving dataSources from default connection", exc);
     }
 
-    // Retrieve datasources
+    // Retrieve dataSources
     if (serviceData != null && serviceData.getDataList() != null) {
       for (Map<String, CellData> row : serviceData.getDataList().getRows()) {
         DatabaseConnectionInfo connectionInfo = new DatabaseConnectionInfo(row);
@@ -185,7 +179,7 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
       }
     }
 
-    // Redefine target datasources
+    // Redefine target dataSources
     return connectionMap;
   }
 
@@ -238,10 +232,5 @@ public class AweDatabaseContextHolder implements EmbeddedValueResolverAware {
   public DatabaseConnection getDatabaseConnection(String alias) throws AWException {
     DataSource dataSource = getDataSource(alias);
     return new DatabaseConnection(getDatabaseType(dataSource), dataSource, alias);
-  }
-
-  @Override
-  public void setEmbeddedValueResolver(StringValueResolver stringValueResolver) {
-    resolver = stringValueResolver;
   }
 }

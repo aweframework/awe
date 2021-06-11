@@ -3,7 +3,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.3.6</version>
+  <version>4.4.0</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -12,7 +12,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.3.6</revision>
+    <revision>4.4.0</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -26,8 +26,9 @@
     <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
 
     <!-- Jacoco configuration -->
-    <jacoco.base.reports>${project.basedir}/../../awe-tests/awe-boot/target</jacoco.base.reports>
+    <jacoco.base.reports>target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
+    <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -36,7 +37,7 @@
     <sonar.links.issue>https://gitlab.com/aweframework/awe/issues</sonar.links.issue>
     <sonar.links.scm>https://gitlab.com/aweframework/awe.git</sonar.links.scm>
     <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
-    <sonar.coverage.jacoco.xmlReportPaths>${jacoco.reportPaths}/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>${jacoco.joined.coverage.path}/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.testExecutionReportPaths>
       ${project.basedir}/awe-framework/awe-client-angular/target/reports/karma/junit/javascriptUnitTests.xml
     </sonar.testExecutionReportPaths>
@@ -58,6 +59,7 @@
     <plugin-site.version>3.5.1</plugin-site.version>
     <plugin-info-reports.version>2.9</plugin-info-reports.version>
     <plugin-dependency.version>3.0.2</plugin-dependency.version>
+    <plugin-jacoco.version>0.8.7</plugin-jacoco.version>
     <gitflow-maven-plugin.version>1.13.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->
@@ -163,6 +165,37 @@
   </build>
 
   <profiles>
+    <!-- Coverage report profile -->
+    <profile>
+      <id>generate-coverage-report</id>
+      <activation>
+        <property>
+          <name>generateCoverageReport</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${plugin-jacoco.version}</version>
+            <executions>
+              <execution>
+                <id>report-integration</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>report-aggregate</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${jacoco.reportPaths}</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- GPG Signature on release -->
     <profile>
       <id>release-sign-artifacts</id>

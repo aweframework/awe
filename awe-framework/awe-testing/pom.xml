@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.3.6</version>
+    <version>4.4.0</version>
     <relativePath>../awe-dependencies/pom.xml</relativePath>
   </parent>
 
@@ -21,7 +21,7 @@
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <webdrivermanager.version>3.4.0</webdrivermanager.version>
     <testng.version>6.14.3</testng.version>
-    <testcontainers.version>1.12.4</testcontainers.version>
+    <testcontainers.version>1.15.3</testcontainers.version>
     <sonar.exclusions>src/**</sonar.exclusions>
     <skip.delombok>false</skip.delombok>
   </properties>
@@ -47,10 +47,6 @@
       <artifactId>spring-security-test</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
       <groupId>xmlunit</groupId>
       <artifactId>xmlunit</artifactId>
       <version>1.6</version>
@@ -58,6 +54,11 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>selenium</artifactId>
+      <version>${testcontainers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
       <version>${testcontainers.version}</version>
     </dependency>
     <dependency>

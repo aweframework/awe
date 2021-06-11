@@ -9,13 +9,10 @@ import com.almis.awe.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-
-import static com.almis.awe.model.constant.AweConstants.SESSION_CONNECTION_HEADER;
 
 /**
  * Manage settings request
@@ -46,14 +43,12 @@ public class SettingsController extends ServiceConfig {
   /**
    * Retrieve application settings
    *
-   * @param token              initial token
    * @param httpServletRequest Servlet request
    * @return WebSettings
    * @throws AWException Error generating settings
    */
   @PostMapping
-  public WebSettings getSettings(@RequestHeader(SESSION_CONNECTION_HEADER) String token,
-                                 HttpServletRequest httpServletRequest) throws AWException {
+  public WebSettings getSettings(HttpServletRequest httpServletRequest) throws AWException {
     WebSettings settings = getBean(WebSettings.class).toBuilder().build();
 
     // Launch client start service

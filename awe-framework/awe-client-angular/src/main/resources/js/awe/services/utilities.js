@@ -695,7 +695,7 @@ aweApplication.factory('AweUtilities',
         },
         /**
          * Manage parameter as array
-         * @param {Mixed} value
+         * @param {*} value
          * @return {Array} value as array
          */
         asArray: function (value) {

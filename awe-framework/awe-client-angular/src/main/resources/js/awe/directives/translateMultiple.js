@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 
 // Translate multiple directive
 aweApplication.directive('translateMultiple',
@@ -11,19 +11,10 @@ aweApplication.directive('translateMultiple',
            */
           var updateTranslation = function () {
             var value = attrs.translateMultiple;
-            var translatedValue = value;
-            var update = false;
             if (value && typeof value === "string") {
               // Split value into multiple elements
-              translatedValue = value
-                .split(" ")
-                .map(function (text) {
-                  return $translate.instant(text);
-                })
-                .join(" ");
-              update = true;
-            }
-            if (update) {
+              let translatedValue = value.split(" ").map($translate.instant).join(" ");
+
               // Put the translated value in the element
               element.html(translatedValue);
               if ($translate.isPostCompilingEnabled()) {

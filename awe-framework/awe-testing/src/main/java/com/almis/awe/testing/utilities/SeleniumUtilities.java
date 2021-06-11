@@ -4,9 +4,9 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -22,11 +22,7 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.BrowserWebDriverContainer;
-import org.testcontainers.containers.BrowserWebDriverContainer.VncRecordingMode;
-import org.testcontainers.containers.DefaultRecordingFileFactory;
-import org.testcontainers.containers.Network;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -40,14 +36,14 @@ import java.util.Date;
 import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
  * Utilities suite for selenium testing
  */
 @Log4j2
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:test.properties")
 public class SeleniumUtilities {
   private static WebDriver driver;
@@ -101,7 +97,7 @@ public class SeleniumUtilities {
   /**
    * Set up test
    */
-  @Before
+  @BeforeEach
   public void setUpTest() {
     // Setup window size
     String windowSize = "--window-size=" + browserWidth + "," + browserHeight;
@@ -121,10 +117,6 @@ public class SeleniumUtilities {
     // Define browser web driver container
     if (getDriver() == null) {
       switch (browser) {
-        case "docker-firefox":
-          startURL = "http://" + getHost() + ":" + serverPort + contextPath;
-          setDriver(getDockerWebDriver(firefoxOptions));
-          break;
         case "firefox":
           WebDriverManager.firefoxdriver().setup();
           setDriver(new FirefoxDriver(firefoxOptions));
@@ -133,10 +125,6 @@ public class SeleniumUtilities {
           firefoxOptions.addArguments("--headless");
           WebDriverManager.firefoxdriver().setup();
           setDriver(new FirefoxDriver(firefoxOptions));
-          break;
-        case "docker-chrome":
-          startURL = "http://" + getHost() + ":" + serverPort + contextPath;
-          setDriver(getDockerWebDriver(chromeOptions));
           break;
         case "headless-chrome":
           WebDriverManager.chromedriver().setup();
@@ -171,24 +159,6 @@ public class SeleniumUtilities {
     }
   }
 
-  /**
-   * Get browser web driver
-   *
-   * @return Docker webdriver
-   */
-  private WebDriver getDockerWebDriver(MutableCapabilities capabilities) {
-    try (BrowserWebDriverContainer webDriverContainer = (BrowserWebDriverContainer) new BrowserWebDriverContainer()
-      .withCapabilities(capabilities)
-      .withRecordingMode(VncRecordingMode.RECORD_FAILING, new File(screenshotPath))
-      .withRecordingFileFactory(new DefaultRecordingFileFactory())
-      .withPrivilegedMode(true)
-      .withSharedMemorySize(2000000000L)
-      .withNetwork(Network.SHARED)) {
-      webDriverContainer.start();
-      return webDriverContainer.getWebDriver();
-    }
-  }
-
   private String getHost() {
     return SystemUtils.IS_OS_LINUX ? "172.17.0.1" : "host.docker.internal";
   }
@@ -196,7 +166,7 @@ public class SeleniumUtilities {
   /**
    * Clean driver after a test suite
    */
-  @AfterClass
+  @AfterAll
   public static void cleanDrivers() {
     if (getDriver() != null) {
       log.info("Disposing web driver...");
@@ -292,7 +262,7 @@ public class SeleniumUtilities {
     try {
       new WebDriverWait(driver, timeout).until(condition);
       // Assert true on condition
-      assertTrue(message, true);
+      assertTrue(true, message);
       log.debug(message);
     } catch (Exception exc) {
       assertWithScreenshot(message, false, exc);
@@ -329,7 +299,7 @@ public class SeleniumUtilities {
     }
 
     // Assert false
-    assertTrue(message, condition);
+    assertTrue(condition, message);
   }
 
   private boolean isWritable(By selector) {
@@ -357,7 +327,7 @@ public class SeleniumUtilities {
         .perform();
 
       // Assert true on condition
-      assertTrue(conditionMessage, true);
+      assertTrue(true, conditionMessage);
     } catch (Exception exc) {
       assertWithScreenshot("Error sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
     }
@@ -396,7 +366,7 @@ public class SeleniumUtilities {
         .perform();
 
       // Assert true on condition
-      assertTrue(conditionMessage, true);
+      assertTrue(true, conditionMessage);
     } catch (Exception exc) {
       assertWithScreenshot("Error clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
     }
@@ -412,11 +382,11 @@ public class SeleniumUtilities {
     try {
       WebElement element = getElement(selector);
       new Actions(driver)
-        .moveToElement(element)
-        .contextClick(element)
-        .pause(100)
-        .perform();
-      assertTrue(conditionMessage, true);
+              .moveToElement(element)
+              .contextClick(element)
+              .pause(100)
+              .perform();
+      assertTrue(true, conditionMessage);
     } catch (Exception exc) {
       assertWithScreenshot("Error right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
     }

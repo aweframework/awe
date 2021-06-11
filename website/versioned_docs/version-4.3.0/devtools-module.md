@@ -197,7 +197,7 @@ To use this tool, follow these steps (after adding the dependency):
 </screen>
 ```
 
-- Add this screen as **new menu option** with your own local and the option file-manager
+- Add this screen as **new menu option** with your own locale and the option file-manager
 ```xml
     <option name="filemanager-test" label="MENU_TEST_FILEMANAGER" screen="filemanager-test" icon="folder" />
     <option name="file-manager" screen="file-manager" invisible="true"/>

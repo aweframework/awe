@@ -5803,7 +5803,7 @@
           </thead>
           <tbody>
           <tr>
-            <td><strong translate-multiple="COLUMN_TYPE"></strong></td>
+            <td><strong translate-multiple="COLUMN_COUNTRY"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>

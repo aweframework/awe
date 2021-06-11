@@ -1,6 +1,6 @@
 import {aweApplication} from "../awe";
+import {Stomp} from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import Stomp from "@stomp/stompjs";
 
 // Comet service
 aweApplication.factory('Comet',
@@ -15,7 +15,6 @@ aweApplication.factory('Comet',
 
       // Service variables
       let connection = null;
-      let connected = false;
       let encodeTransmission = false;
       let connectionToken = null;
       let events = {};
@@ -33,6 +32,15 @@ aweApplication.factory('Comet',
          * Retrieve connection
          * @private
          */
+        getWebsocketClient: function() {
+          let client = Stomp.over(new SockJS($utilities.getContextPath() + '/websocket', undefined, {timeout: 10 * 1000}));
+          client.connectHeaders = {'Authorization': connectionToken};
+          return client;
+        },
+        /**
+         * Retrieve connection
+         * @private
+         */
         getConnection: function() {
           return connection;
         },
@@ -41,11 +49,12 @@ aweApplication.factory('Comet',
          * @private
          */
         isConnected: function () {
-          return connected;
+          return $comet.getConnection() !== null && $comet.getConnection().active;
         },
         /**
          * Init WebSocket Connection
-         * @param encode
+         * @param encode Encode transmission
+         * @param token Connection token
          */
         init: function (encode, token) {
           encodeTransmission = encode;
@@ -64,17 +73,9 @@ aweApplication.factory('Comet',
          * Disconnect comet connection
          */
         disconnect: function () {
-          if ($comet._isConnected()) {
+          if ($comet.isConnected()) {
             return $comet._disconnect();
           }
-        },
-        /**
-         * Retrieve if connection is still alive
-         * @returns {boolean}
-         * @private
-         */
-        _isConnected() {
-          return $comet.getConnection() !== null && connected && $comet.getConnection().connected;
         },
         /**
          * Connection Management
@@ -85,59 +86,50 @@ aweApplication.factory('Comet',
           events["connect"] = $utilities.q.defer();
 
           // Set connection
-          $comet.setConnection(Stomp.over(new SockJS($utilities.getContextPath() + '/websocket')));
-          //connection.reconnect_delay = 500;
+          $comet.setConnection($comet.getWebsocketClient());
 
-          // Connect
-          $comet.getConnection().connect({'Authorization': connectionToken}, () => {
-            connected = true;
-            // Subscribe to broadcast
+          // On connection
+          $comet.getConnection().onConnect = function (frame) {
+            // Subscribe to all broadcasted messages
             $comet.subscribe("broadcast");
 
-            // Subscribe to token
+            // Subscribe to own connection
             $comet.subscribe(connectionToken);
 
             // Resolve initialization
             events["connect"].resolve();
-          }, () => {
-            $comet._disconnect();
+          };
 
+          // On connection error
+          $comet.getConnection().onStompError = function (frame) {
             // Reject initialization
             events["connect"].reject();
-          }, () => {
-            connected = false;
-          });
 
+            // Will be invoked in case of error encountered at Broker
+            // Bad login/passcode typically will cause an error
+            // Complaint brokers will set `message` header with a brief message. Body may contain details.
+            // Compliant brokers will terminate the connection after any error
+            console.log('Broker reported error: ' + frame.headers['message']);
+            console.log('Additional details: ' + frame.body);
+          };
+
+          // Activate client
+          $comet.getConnection().activate();
+
+          // Return connection promise
           return events["connect"].promise;
         },
         _disconnect: function () {
-          // Disable connection
-          connected = false;
-
-          events["disconnect"] = $utilities.q.defer();
-          // Set connection
-          try {
-            $comet.getConnection().disconnect(() => {
-              $comet.setConnection(null);
-
-              // Resolve disconnection
-              events["disconnect"].resolve();
-            }, () => {
-              events["disconnect"].reject();
-            });
-          } catch (e) {
-            $utilities.timeout(() => events["disconnect"].resolve());
-          }
-
-          return events["disconnect"].promise;
+          // Deactivate client
+          return $comet.getConnection().deactivate();
         },
         /**
          * Reconnect connection
          */
         _reconnect: function () {
           // Set connection
-          if ($comet._isConnected()) {
-            return $comet._disconnect().then($comet._connect);
+          if ($comet.isConnected()) {
+            $comet._disconnect().then($comet._connect);
           } else {
             return $comet._connect();
           }

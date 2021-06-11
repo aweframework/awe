@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.3.6</version>
+    <version>4.4.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -19,9 +19,6 @@
   <properties>
     <!-- Sonar properties -->
     <application.folder>.</application.folder>
-    <sonar.sources>src</sonar.sources>
-    <sonar.inclusions>src/main/java/**</sonar.inclusions>
-    <sonar.language>java</sonar.language>
     <performancetest.host>localhost</performancetest.host>
     <performancetest.port>18080</performancetest.port>
     <performancetest.path/>
@@ -181,11 +178,45 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
     </dependency>
+
+    <!-- Test dependencies -->
+    <!-- Junit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-builder</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.h-thurow</groupId>
+      <artifactId>simple-jndi</artifactId>
+      <version>0.23.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <!-- Delombok plugin -->
+      <!-- Lombok plugin -->
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>

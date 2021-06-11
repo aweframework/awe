@@ -1,4 +1,4 @@
-# Use an official Open jdk runtime as a parent image
+﻿# Use an official Open jdk runtime as a parent image
 FROM openjdk:8-jdk-alpine
 
 # Add fonts package
