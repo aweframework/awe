@@ -1,24 +1,4 @@
 
-# Changelog for awe 4.4.0
-*11/06/2021*
-
-- The algolia search engine not working. [MR #316](https://gitlab.com/aweframework/awe/-/merge_requests/316) (Pablo Vidal Otero)
-- Update documentation of awe migration guide. [MR #315](https://gitlab.com/aweframework/awe/-/merge_requests/315) (Pablo Vidal Otero)
-- Update version to next minor and generate documentation. [MR #314](https://gitlab.com/aweframework/awe/-/merge_requests/314) (Pablo Vidal Otero)
-- Update ade version to use openPdf instead of Itext. [MR #313](https://gitlab.com/aweframework/awe/-/merge_requests/313) (Pablo Vidal Otero)
-- Update ade library. [MR #312](https://gitlab.com/aweframework/awe/-/merge_requests/312) (Pablo Vidal Otero)
-- Websocket generation failing due is not using application context-path. [MR #311](https://gitlab.com/aweframework/awe/-/merge_requests/311) (Pablo Javier García Mora)
-- Suggest value list not updated correctly when depends in other criteria. [MR #310](https://gitlab.com/aweframework/awe/-/merge_requests/310) (Pablo Javier García Mora)
-- Dynamically filled tabs (via java service) are not showing tab labels on Firefox or Edge.. [MR #309](https://gitlab.com/aweframework/awe/-/merge_requests/309) (Pablo Javier García Mora)
-- Numeric is not sending Integer value. [MR #308](https://gitlab.com/aweframework/awe/-/merge_requests/308) (Pablo Javier García Mora)
-- **[HAS IMPACTS]** Modify AWE Datasource strategy. [MR #307](https://gitlab.com/aweframework/awe/-/merge_requests/307) (Pablo Vidal Otero)
-- Update spring boot version to 2.4.6. [MR #306](https://gitlab.com/aweframework/awe/-/merge_requests/306) (Pablo Vidal Otero)
-- First trying to migrate junit5. [MR #305](https://gitlab.com/aweframework/awe/-/merge_requests/305) (Pablo Vidal Otero)
-- Query totalisation fails if there is any null CellData. [MR #304](https://gitlab.com/aweframework/awe/-/merge_requests/304) (Pablo Javier García Mora)
-- Websocket initialization fails on first deployment. [MR #303](https://gitlab.com/aweframework/awe/-/merge_requests/303) (Pablo Javier García Mora)
-- Allow `/screen-data` and `/locales` endpoints access for react engine. [MR #302](https://gitlab.com/aweframework/awe/-/merge_requests/302) (Pablo Javier García Mora)
-- Error highlight java block code. [MR #301](https://gitlab.com/aweframework/awe/-/merge_requests/301) (Pablo Vidal Otero)
-
 # Changelog for awe 4.3.6
 *04/05/2021*
 

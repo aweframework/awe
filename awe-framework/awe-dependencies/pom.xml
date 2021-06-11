@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.4.1-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -39,7 +39,7 @@
     <xtream.version>1.4.14</xtream.version>
     <graalvm.version>20.2.0</graalvm.version>
     <selenium.version>3.141.59</selenium.version>
-    <lombok.version>1.18.16</lombok.version>
+    <lombok.version>1.18.20</lombok.version>
     <modelmapper.version>2.4.0</modelmapper.version>
     <querydsl.version>4.3.1</querydsl.version>
     <swagger.version>3.0.0</swagger.version>
