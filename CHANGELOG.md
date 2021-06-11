@@ -18,6 +18,7 @@
 - Websocket initialization fails on first deployment. [MR #303](https://gitlab.com/aweframework/awe/-/merge_requests/303) (Pablo Javier García Mora)
 - Allow `/screen-data` and `/locales` endpoints access for react engine. [MR #302](https://gitlab.com/aweframework/awe/-/merge_requests/302) (Pablo Javier García Mora)
 - Error highlight java block code. [MR #301](https://gitlab.com/aweframework/awe/-/merge_requests/301) (Pablo Vidal Otero)
+
 # Changelog for awe 4.3.6
 *04/05/2021*
 
