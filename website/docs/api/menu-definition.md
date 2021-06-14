@@ -1,6 +1,7 @@
 ---
 id: menu
 title: Menu definition
+sidebar_label: Menu definition
 ---
 
 Navigation menu for an AWE application is defined in XML files. The two menu XML files are:

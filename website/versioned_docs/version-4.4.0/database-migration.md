@@ -1,6 +1,7 @@
 ---
 id: database-migration
 title: Database migration
+sidebar_label: Database migration
 ---
 
 AWE uses [Flyway](https://flywaydb.org/) as default tool for database script version control.

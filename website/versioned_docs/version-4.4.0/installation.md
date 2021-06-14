@@ -1,6 +1,7 @@
 ---
 id: installation
 title: Installation
+sidebar_label: Installation
 ---
 
 To install an AWE-based application just deploy it on an application server, like Apache Tomcat, Wildfly (old JBoss) or IBM WebSphere

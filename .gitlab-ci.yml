@@ -81,6 +81,15 @@ stages:
   rules:
     - <<: *if-default
 
+.build-website:
+  stage: build
+  script:
+    - npm install --prefix website
+  artifacts:
+    paths:
+      - website/build
+    expire_in: 1 day
+
 Build project:
   extends: .build
   artifacts:
@@ -97,17 +106,23 @@ Build project (jdk 14):
     policy: pull
 
 Build website:
-  stage: build
-  cache: { }
+  extends: .build-website
   script:
     - npm install --prefix website
     - npm run build --prefix website
-  artifacts:
-    paths:
-      - website/build
-    expire_in: 1 day
   rules:
-    - <<: *if-default
+    - <<: *if-merge-request
+
+Build website with i18n:
+  extends: .build-website
+  script:
+    - npm install --prefix website
+    # Do translations
+    - npm run crowdin:sync --prefix website
+    - npm run build --prefix website
+  rules:
+    - <<: *if-develop
+    - <<: *if-master
 
 ##############################
 # Unit testing stage
@@ -461,7 +476,7 @@ pages:
   cache: { }
   needs:
     - job: Generate javadoc & schemas
-    - job: Build website
+    - job: Build website with i18n
   script:
     - mkdir -p .public/docs/schemas
     - cp -r awe-framework/target/site/apidocs .public/javadoc-api/

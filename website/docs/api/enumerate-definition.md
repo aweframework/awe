@@ -1,6 +1,7 @@
 ---
 id: enumerate
 title: Enumerate definition
+sidebar_label: Enumerate definition
 ---
 
 Enumerated components are structures to define `label` - `value` lists. They are useful i.e. for translations.

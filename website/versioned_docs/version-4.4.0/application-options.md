@@ -1,6 +1,7 @@
 ---
 id: application-options
 title: Application Options
+sidebar_label: Application Options
 ---
 
 Application options are a way to add property values via database. Application options 

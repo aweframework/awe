@@ -1,6 +1,7 @@
 ---
 id: queues
 title: Queues definition
+sidebar_label: Queues definition
 ---
 
 The AWE Jms engine allows integration with queue servers. Both JMS typologies, **point to point** and **publish/subscribe**.

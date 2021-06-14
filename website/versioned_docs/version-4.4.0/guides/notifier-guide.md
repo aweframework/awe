@@ -1,6 +1,7 @@
 ---
 id: notifier
 title: Notifications
+sidebar_label: Notifications
 ---
 
 The **notifier** module improves AWE with a notification system. This system works the following way:

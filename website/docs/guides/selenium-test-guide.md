@@ -1,6 +1,7 @@
 ---
 id: selenium-testing
 title: Selenium Tests
+sidebar_label: Selenium Tests
 ---
 
 This document gives a basic insight on how to start developing *Selenium* tests for applications developed with AWE. Before starting test development, make sure to read the *Selenium Test Development Guide*, specially the *Optimization/Help tips* section. Basic aspects you should know before starting to develop *Selenium* tests, such as general configurations and integration with *Jenkins*, are not treated in this document.

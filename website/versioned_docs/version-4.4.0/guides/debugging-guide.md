@@ -1,6 +1,7 @@
 ---
 id: debugging
 title: Debugging
+sidebar_label: Debugging
 ---
 
 ## Debugging tools
@@ -19,6 +20,7 @@ We can add a breakpoint anywhere in the code by right clicking at the side, and 
 
 For more information about debugging see eclipse documentation:
 
+````mdx-code-block
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -35,6 +37,7 @@ import TabItem from '@theme/TabItem';
   <TabItem value="Netbeans"><a target="_blank" rel="noopener noreferrer" href="https://netbeans.org/features/java/debugger.html">Netbeans debugging</a></TabItem>
   <TabItem value="Visual Studio Code"><a target="_blank" rel="noopener noreferrer" href="https://code.visualstudio.com/docs/editor/debugging">Visual Studio Code debugging</a></TabItem>
 </Tabs>
+````
 
 ### Browser debug
 We can see the information flow between the server and the client by pressing F12 key and entering the network tab. 

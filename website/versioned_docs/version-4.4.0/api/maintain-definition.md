@@ -1,6 +1,7 @@
 ---
 id: maintain
 title: Maintain definition
+sidebar_label: Maintain definition
 ---
 
 The maintain engine is used to do operations that don't return data. These operations are valid for updating data in the server. They **only return** the result of proccess, if operation has been **ok** or if there has been a **problem** while doing the operation.

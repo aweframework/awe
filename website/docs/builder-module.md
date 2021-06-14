@@ -1,6 +1,7 @@
 ---
 id: builder
 title: Builder Module
+sidebar_label: Builder Module
 ---
 
 Builder module is a set of Java utilities designed to cover some functionalities:

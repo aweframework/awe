@@ -1,6 +1,7 @@
 ---
 id: scheduler
 title: Scheduler Module
+sidebar_label: Scheduler Module
 ---
 
 Scheduler module adds a powerful scheduling tool to your application

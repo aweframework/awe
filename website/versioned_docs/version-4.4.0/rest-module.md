@@ -1,6 +1,7 @@
 ---
 id: rest 
 title: Rest API Module
+sidebar_label: Rest API Module
 ---
 
 What's a REST api? REST stands for **Re**presentational **S**tate **T**ransfer. (It is sometimes spelled "REST".) It

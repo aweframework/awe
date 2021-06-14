@@ -1,7 +1,7 @@
 ---
 id: deployment
-sidebar_label: Deployment
 title: Deploying AWE Applications
+sidebar_label: Deployment
 ---
 
 ## Intro

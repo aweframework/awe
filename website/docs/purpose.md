@@ -1,6 +1,7 @@
 ---
 id: purpose
 title: Purpose
+sidebar_label: Purpose
 ---
 
 ## Table of Contents

@@ -1,6 +1,7 @@
 ---
 id: scheduler
 title: Scheduler
+sidebar_label: Scheduler
 ---
 
 This document gives a minimum base to start with the AWE Scheduler module, and explains how to automate and schedule tasks inside AWE in a simple way.

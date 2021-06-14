@@ -1,6 +1,7 @@
 ---
 id: annotations
 title: Annotations Module
+sidebar_label: Annotations Module
 ---
 
 The `annotations` module includes a set of Spring-oriented annotations to make it easier to manage some AWE features.

@@ -1,6 +1,7 @@
 ---
 id: default-screens
 title: Default screens
+sidebar_label: Default screens
 ---
 
 ## Introduction
