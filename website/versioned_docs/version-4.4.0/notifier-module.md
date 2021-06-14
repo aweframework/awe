@@ -1,6 +1,7 @@
 ---
 id: notifier
 title: Notifier Module
+sidebar_label: Notifier Module
 ---
 
 The notifier module allows your users to subscribe to notifications in your application.

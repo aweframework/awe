@@ -1,6 +1,7 @@
 ---
 id: project-structure
 title: Project Structure
+sidebar_label: Project Structure
 ---
 
 AWE (Almis Web Engine) is a web application development tool which allows the developer to create web application screens by describing the screen behaviour on a XML file.

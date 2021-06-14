@@ -1,6 +1,7 @@
 ---
 id: properties
 title: Properties
+sidebar_label: Properties
 ---
 
 ## Introduction

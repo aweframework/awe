@@ -1,5 +1,3 @@
-const versions = require('./versions.json');
-
 module.exports = {
 	title: 'Awe framework',
 	tagline: 'Low coding complete functional web applications',
@@ -26,6 +24,10 @@ module.exports = {
 				},
 				{
 					type: 'docsVersionDropdown',
+					position: 'right',
+				},
+				{
+					type: 'localeDropdown',
 					position: 'right',
 				},
 				{
@@ -112,6 +114,20 @@ module.exports = {
 		prism: {
 			additionalLanguages: ['java'],
 		},
+	},
+	i18n: {
+		defaultLocale: 'en',
+		locales: ['en', 'es'],
+		localeConfigs: {
+			en: {
+				label: 'English',
+				direction: 'ltr',
+			},
+			es: {
+				label: 'Español',
+				direction: 'ltr',
+			},
+		}
 	},
 	presets: [
 		[

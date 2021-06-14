@@ -1,6 +1,7 @@
 ---
 id: maven
 title: Maven
+sidebar_label: Maven
 ---
 
 The maven dependencies needed to run an application with AWE engine are the next ones:

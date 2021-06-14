@@ -1,6 +1,7 @@
 ---
 id: email
 title: Email definition
+sidebar_label: Email definition
 ---
 
 :::info

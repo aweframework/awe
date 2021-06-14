@@ -1,6 +1,7 @@
 ---
 id: i18n-internationalization
 Title: I18N (Internationalization)
+sidebar_label: I18N (Internationalization)
 ---
 
 AWE implements a i18n system for internationalization of web applications. For this reason, AWE uses locale files containing literals in different languages.

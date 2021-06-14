@@ -39,7 +39,7 @@
   margin: 0;
 }
 
-.heroProjectKeywords {
+.heroTitleTextHtml b {
   color: var(--ifm-color-primary);
 }
 
@@ -155,6 +155,7 @@
   }
 
   .heroProjectTagline {
+    color: #fff;
     font-size: 36px;
     text-align: center;
   }
