@@ -441,7 +441,6 @@ Deploy Maven Central:
     - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
     - sed -i "s/__CI_PROJECT_PATH_SLUG__/${CI_PROJECT_PATH_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
     - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - kubectl delete --all pods --namespace=$CI_ENVIRONMENT_SLUG
     - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-config.yaml
     - kubectl apply -f awe-tests/awe-boot/kubernetes/deployment.yaml
 
