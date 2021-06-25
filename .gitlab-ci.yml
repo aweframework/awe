@@ -443,7 +443,7 @@ Deploy Maven Central:
     - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/kubernetes/deployment.yaml
     - kubectl delete --all pods --namespace=$CI_ENVIRONMENT_SLUG
     - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-config.yaml
-    - kubectl apply -f awe-tests/awe-boot/deployment.yaml
+    - kubectl apply -f awe-tests/awe-boot/kubernetes/deployment.yaml
 
 Deploy staging:
   extends: .k8s_deploy
