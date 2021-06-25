@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: awe-boot
+  labels:
+    app: awe-boot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: awe-boot
+  template:
+    metadata:
+      labels:
+        name: awe-boot
+    spec:
+      containers:
+      - name: awe-boot
+        image: awe-boot
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: cloud
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            memory: 256Mi

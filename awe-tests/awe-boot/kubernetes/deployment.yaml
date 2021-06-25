@@ -30,6 +30,10 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+          protocol: TCP
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: cloud
         resources:
           limits:
             memory: 2Gi

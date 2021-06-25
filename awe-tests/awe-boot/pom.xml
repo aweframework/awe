@@ -40,6 +40,7 @@
     <skip.selenium>true</skip.selenium>
     <skip.junit>false</skip.junit>
     <test.tags>integration</test.tags>
+    <failsafe.argLine/>
 
     <!-- Build environment -->
     <build.environment>development</build.environment>
@@ -63,9 +64,27 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+    <!-- Kubernetes config -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
+    </dependency>
+
+    <!-- Redis cache server -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-data-redis</artifactId>
+    </dependency>
+
+    <!-- Wavefront metrics -->
     <dependency>
       <groupId>com.wavefront</groupId>
       <artifactId>wavefront-spring-boot-starter</artifactId>
+      <version>${wavefront.version}</version>
     </dependency>
 
     <dependency>
@@ -347,6 +366,12 @@
         </configuration>
         <executions>
           <execution>
+            <id>build-info</id>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+          <execution>
             <id>repackage</id>
             <goals>
               <goal>repackage</goal>
@@ -625,7 +650,6 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${plugin-jacoco.version}</version>
           </plugin>
           <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -664,13 +688,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring-cloud.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>com.wavefront</groupId>
         <artifactId>wavefront-spring-boot-bom</artifactId>
