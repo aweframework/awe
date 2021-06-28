@@ -33,7 +33,7 @@ spec:
           protocol: TCP
         env:
           - name: SPRING_PROFILES_ACTIVE
-            value: cloud,kubernetes
+            value: cloud
         resources:
           limits:
             memory: 2Gi
