@@ -28,8 +28,8 @@ variables:
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
-  DAST_WEBSITE: http://staging.aweframework.com
-  DAST_AUTH_URL: http://staging.aweframework.com/
+  DAST_WEBSITE: https://staging.aweframework.com
+  DAST_AUTH_URL: https://staging.aweframework.com/
   DAST_USERNAME: test
   DAST_PASSWORD: $DAST_PASSWORD
   DAST_USERNAME_FIELD: cod_usr # the name of username field at the sign-in HTML form
@@ -449,7 +449,7 @@ Deploy staging:
   extends: .k8s_deploy
   environment:
     name: staging
-    url: http://staging.aweframework.com
+    url: https://staging.aweframework.com
     kubernetes:
       namespace: staging
   only:
@@ -460,7 +460,7 @@ Deploy production:
   extends: .k8s_deploy
   environment:
     name: production
-    url: http://demo.aweframework.com
+    url: https://demo.aweframework.com
     kubernetes:
       namespace: production
   only:
