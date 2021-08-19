@@ -185,7 +185,7 @@ SQL Server Tests:
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
   services:
-    - microsoft/mssql-server-linux
+    - mcr.microsoft.com/mssql/server:2019-latest
 
 Frontend UT:
   stage: unit test
