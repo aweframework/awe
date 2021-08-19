@@ -185,8 +185,8 @@ SQL Server Tests:
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
   services:
-    - mcr.microsoft.com/mssql/server:2019-latest
-    alias: mssqlserver
+    - name: mcr.microsoft.com/mssql/server:2019-latest
+      alias: mssqlserver
 
 Frontend UT:
   stage: unit test
