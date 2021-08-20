@@ -180,11 +180,11 @@ SQL Server Tests:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
+  before_script:
+    - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
-      command:
-        - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
 
 Frontend UT:
   stage: unit test
