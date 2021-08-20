@@ -184,9 +184,8 @@ SQL Server Tests:
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
-      entrypoint:
-        - /bin/bash
-        - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "CREATE DATABASE awetestdb"
+      command:
+        - sudo docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=dbPwd1212#31x" -p 1433:1433 --name mssqlserver -h mssqlserver -d mcr.microsoft.com/mssql/server:2019-latest
 
 Frontend UT:
   stage: unit test
