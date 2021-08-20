@@ -177,16 +177,16 @@ MySQL Tests:
 SQL Server Tests:
   extends: .unit-testing
   variables:
-    MSSQL_HOST: mssqlserver
     MSSQL_PID: Developer
-    DB_HOST: mssqlserver
-    DB_DATABASE: awetestdb
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
+      entrypoint:
+        - /bin/bash
+        - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "CREATE DATABASE awetestdb"
 
 Frontend UT:
   stage: unit test
