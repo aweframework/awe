@@ -181,7 +181,8 @@ SQL Server Tests:
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
   before_script:
-    - docker exec -it mssqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
+    - sudo apt-get install mssql-tools
+    - sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
