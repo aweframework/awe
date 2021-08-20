@@ -177,7 +177,6 @@ MySQL Tests:
 SQL Server Tests:
   extends: .unit-testing
   variables:
-    MSSQL_PID: Developer
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
@@ -185,7 +184,7 @@ SQL Server Tests:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
       command:
-        - sudo docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=dbPwd1212#31x" -p 1433:1433 --name mssqlserver -h mssqlserver -d mcr.microsoft.com/mssql/server:2019-latest
+        - /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
 
 Frontend UT:
   stage: unit test
