@@ -181,7 +181,8 @@ SQL Server Tests:
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
   before_script:
-    - ./setupSqlServer.sh
+    - ls -lrt
+    - sh setupSqlserver.sh
     - sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
