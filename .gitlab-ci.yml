@@ -181,8 +181,9 @@ SQL Server Tests:
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
   before_script:
-    - sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)"
-    - sudo apt-get update & install mssql-tools
+    - sudo curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+    - sudo curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+    - sudo apt-get update && sudo apt-get install -y msodbcsql17 mssql-tools
     - sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
