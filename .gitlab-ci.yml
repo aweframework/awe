@@ -180,9 +180,8 @@ SQL Server Tests:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
-  script:
-    - sqlcmd -S msSqlServer -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
+  before_script:
+    - /opt/mssql-tools/bin/sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
