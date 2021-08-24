@@ -176,16 +176,15 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
-  before_script:
-    - npm install
-    - node createDb.js "$DATABASE_PASSWORD"
   variables:
-    MSSQL_HOST: microsoft-mssql-server-linux
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
+  before_script:
+    - /opt/mssql-tools/bin/sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
-    - microsoft/mssql-server-linux
+    - name: mcr.microsoft.com/mssql/server:2019-latest
+      alias: mssqlserver
 
 Frontend UT:
   stage: unit test
