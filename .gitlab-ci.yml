@@ -182,7 +182,7 @@ SQL Server Tests:
     TEST_NAME: sqlserver
   before_script:
     - sudo sh setupSqlserver.sh
-    - sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
+    - sqlcmd -S msSqlServer -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
