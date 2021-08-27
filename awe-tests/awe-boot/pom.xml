@@ -82,7 +82,7 @@
       <artifactId>spring-session-data-redis</artifactId>
     </dependency>
 
-<!--    &lt;!&ndash; Wavefront metrics &ndash;&gt;-->
+<!--    Wavefront metrics -->
 <!--    <dependency>-->
 <!--      <groupId>com.wavefront</groupId>-->
 <!--      <artifactId>wavefront-spring-boot-starter</artifactId>-->
@@ -131,6 +131,16 @@
     <dependency>
       <groupId>javax.cache</groupId>
       <artifactId>cache-api</artifactId>
+    </dependency>
+    <!-- API, java.xml.bind module -->
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
+    <!-- Runtime, com.sun.xml.bind module -->
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
     </dependency>
     <dependency>
       <groupId>com.almis.awe</groupId>
