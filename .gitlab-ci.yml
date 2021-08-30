@@ -8,9 +8,11 @@ include:
 image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
 
 variables:
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -P!devtools"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools"
+  MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
@@ -36,7 +38,7 @@ variables:
 
 cache:
   paths:
-    - .m2/repository/
+    - .m2/repository
 
 stages:
   - build
