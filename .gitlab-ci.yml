@@ -9,7 +9,7 @@ image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:l
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
-  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true"
   MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
@@ -29,14 +29,6 @@ variables:
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   DAST_WEBSITE: https://staging.aweframework.com
-  #DAST_AUTH_URL: https://staging.aweframework.com/
-  #DAST_AUTH_VERIFICATION_URL: https://staging.aweframework.com/screen/private/home/information
-  #DAST_USERNAME: test
-  #DAST_PASSWORD: $DAST_PASSWORD
-  #DAST_USERNAME_FIELD: xpath://input[@id='cod_usr'] # the name of username field at the sign-in HTML form
-  #DAST_PASSWORD_FIELD: xpath://input[@id='pwd_usr'] # the name of password field at the sign-in HTML form
-  #DAST_SUBMIT_FIELD: xpath://button[@id='ButLogIn'] # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
-
 cache:
   paths:
     - .m2/repository/
@@ -469,10 +461,6 @@ Deploy production:
   only:
     refs:
       - master
-
-dast:
-  rules:
-    - <<: *if-merge-request
 
 pages:
   image: docker:latest
