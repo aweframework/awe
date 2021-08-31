@@ -9,7 +9,7 @@ image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:l
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
-  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true"
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
@@ -29,6 +29,7 @@ variables:
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   DAST_WEBSITE: https://staging.aweframework.com
+
 cache:
   paths:
     - .m2/repository/
@@ -461,6 +462,11 @@ Deploy production:
   only:
     refs:
       - master
+
+dast:
+  needs: ["Deploy staging"]
+  rules:
+    - <<: *if-develop
 
 pages:
   image: docker:latest
