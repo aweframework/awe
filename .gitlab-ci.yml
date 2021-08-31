@@ -8,11 +8,11 @@ include:
 image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
 
 variables:
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
@@ -29,17 +29,11 @@ variables:
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   DAST_WEBSITE: https://staging.aweframework.com
-  DAST_AUTH_URL: https://staging.aweframework.com/
-  DAST_USERNAME: test
-  DAST_PASSWORD: $DAST_PASSWORD
-  DAST_USERNAME_FIELD: cod_usr # the name of username field at the sign-in HTML form
-  DAST_PASSWORD_FIELD: pwd_usr # the name of password field at the sign-in HTML form
-  DAST_SUBMIT_FIELD: ButLogIn # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
 
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .m2/repository/
+  key: "$CI_PIPELINE_ID"
 
 stages:
   - build
@@ -85,6 +79,8 @@ stages:
   stage: build
   script:
     - npm install --prefix website
+  cache:
+    policy: pull
   artifacts:
     paths:
       - website/build
@@ -468,6 +464,7 @@ Deploy production:
       - master
 
 dast:
+  needs: ["Deploy staging"]
   rules:
     - <<: *if-develop
 
