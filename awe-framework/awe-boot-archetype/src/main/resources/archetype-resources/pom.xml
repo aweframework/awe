@@ -7,7 +7,6 @@
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
     <version>${project.version}</version>
-    <relativePath />
   </parent>
 
   <groupId>\${groupId}</groupId>
