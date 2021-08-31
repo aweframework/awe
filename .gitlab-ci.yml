@@ -32,9 +32,9 @@ variables:
   DAST_AUTH_URL: https://staging.aweframework.com/
   DAST_USERNAME: test
   DAST_PASSWORD: $DAST_PASSWORD
-  DAST_USERNAME_FIELD: id:cod_usr # the name of username field at the sign-in HTML form
-  DAST_PASSWORD_FIELD: id:pwd_usr # the name of password field at the sign-in HTML form
-  DAST_SUBMIT_FIELD: id:ButLogIn # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
+  DAST_USERNAME_FIELD: xpath://input[@id='cod_usr'] # the name of username field at the sign-in HTML form
+  DAST_PASSWORD_FIELD: xpath://input[@id='pwd_usr'] # the name of password field at the sign-in HTML form
+  DAST_SUBMIT_FIELD: xpath://button[@id='ButLogIn'] # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
 
 cache:
   paths:
