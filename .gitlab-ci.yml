@@ -30,6 +30,7 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   DAST_WEBSITE: https://staging.aweframework.com
   DAST_AUTH_URL: https://staging.aweframework.com/
+  DAST_AUTH_VERIFICATION_URL: https://staging.aweframework.com/screen/private/home/information
   DAST_USERNAME: test
   DAST_PASSWORD: $DAST_PASSWORD
   DAST_USERNAME_FIELD: xpath://input[@id='cod_usr'] # the name of username field at the sign-in HTML form
