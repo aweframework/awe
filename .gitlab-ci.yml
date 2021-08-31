@@ -85,6 +85,8 @@ stages:
   stage: build
   script:
     - npm install --prefix website
+  cache:
+    policy: pull
   artifacts:
     paths:
       - website/build
