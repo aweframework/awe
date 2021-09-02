@@ -2,16 +2,18 @@ package com.almis.awe.service.data.builder;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.enumerated.EnumeratedGroup;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import java.util.HashMap;
 import java.util.List;
 
-import static com.almis.awe.model.constant.AweConstants.JSON_LABEL_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_VALUE_PARAMETER;
+import static com.almis.awe.model.constant.AweConstants.*;
 
 /**
  * Generate enumerated datalists
@@ -65,7 +67,7 @@ public class EnumBuilder extends ServiceConfig {
   }
 
   /**
-   * Launches a query (must be defined in APP or awe Queries.xml file) and generates the output Query comes defined in target-action variable
+   * Get enumerated element as Json
    *
    * @return Enumerated as Json
    * @throws AWException Error retrieving enumerated
@@ -77,6 +79,31 @@ public class EnumBuilder extends ServiceConfig {
               getLocale(ERROR_MESSAGE_RETRIEVING_ELEMENT, enumeratedId));
     }
     return getOptionListAsJson(enumerated);
+  }
+
+  /**
+   * Get enumerated element as DataList
+   *
+   * @return Enumerated element as DataList
+   * @throws AWException Error retrieving enumerated
+   */
+  public DataList getEnumeratedAsDataList () throws AWException {
+    EnumeratedGroup enumerated = getEnumerated();
+    if (enumerated == null) {
+      throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_ELEMENT),
+              getLocale(ERROR_MESSAGE_RETRIEVING_ELEMENT, enumeratedId));
+    }
+    return getOptionListAsDataList(enumerated);
+  }
+
+  private DataList getOptionListAsDataList(EnumeratedGroup enumerated) {
+    DataList output = new DataList();
+    int rowIndex = 1;
+    for (Global option : enumerated.getOptionList()) {
+      output.addRow(getDataListRow(option, rowIndex));
+      rowIndex++;
+    }
+    return output;
   }
 
   /**
@@ -127,5 +154,24 @@ public class EnumBuilder extends ServiceConfig {
     }
 
     return data;
+  }
+
+
+  /**
+   * Retrieve the data as a datalist row
+   *
+   * @param option option
+   * @param rowIndex row index
+   * @return Datalist row
+   */
+  private HashMap<String, CellData> getDataListRow(Global option, int rowIndex) {
+    HashMap<String, CellData> row = new HashMap<>();
+    if (option != null) {
+      // Add index
+      row.put(JSON_ID_PARAMETER, new CellData(rowIndex));
+      row.put(JSON_LABEL_PARAMETER, new CellData(option.getLabel()));
+      row.put(JSON_VALUE_PARAMETER,  new CellData(option.getValue()));
+    }
+    return row;
   }
 }
