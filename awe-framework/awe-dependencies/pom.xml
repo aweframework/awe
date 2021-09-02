@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.4.0</version>
+    <version>4.4.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -19,12 +19,9 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.0.17</ade.version>
-    <spring-boot.version>2.4.6</spring-boot.version>
+    <spring-boot.version>2.4.10</spring-boot.version>
     <spring-cloud.version>2020.0.1</spring-cloud.version>
-    <ehcache.version>3.8.1</ehcache.version>
     <javax.activation.version>1.2.0</javax.activation.version>
-    <jaxb.api.version>2.3.1</jaxb.api.version>
-    <jaxb.api-impl.version>3.0.0-M5</jaxb.api-impl.version>
     <node.version>v12.1.0</node.version>
     <yarn.version>v1.15.2</yarn.version>
     <npm.version>v6.9.0</npm.version>
@@ -267,26 +264,10 @@
         <artifactId>javax.annotation-api</artifactId>
         <version>${annotation-api.version}</version>
       </dependency>
-      <!-- Jaxb-api for ehcache > Jdk11 -->
-      <dependency>
-        <groupId>org.ehcache</groupId>
-        <artifactId>ehcache</artifactId>
-        <version>${ehcache.version}</version>
-      </dependency>
       <dependency>
         <groupId>com.sun.activation</groupId>
         <artifactId>javax.activation</artifactId>
         <version>${javax.activation.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>${jaxb.api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.xml.bind</groupId>
-        <artifactId>jaxb-impl</artifactId>
-        <version>${jaxb.api-impl.version}</version>
       </dependency>
       <dependency>
         <groupId>org.graalvm.js</groupId>

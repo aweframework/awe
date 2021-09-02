@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: __CI_PROJECT_PATH_SLUG__
+  name: awe-boot
   annotations:
     app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
     app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
   labels:
-    app: __CI_PROJECT_PATH_SLUG__
+    app: awe-boot
     env: __CI_ENVIRONMENT_SLUG__
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: __CI_PROJECT_PATH_SLUG__
+      app: awe-boot
       env: __CI_ENVIRONMENT_SLUG__
   template:
     metadata:
@@ -21,7 +21,7 @@ spec:
         app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
         version: __VERSION__
       labels:
-        app: __CI_PROJECT_PATH_SLUG__
+        app: awe-boot
         env: __CI_ENVIRONMENT_SLUG__
     spec:
       containers:
@@ -30,6 +30,10 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+          protocol: TCP
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: cloud
         resources:
           limits:
             memory: 2Gi

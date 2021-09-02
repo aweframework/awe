@@ -1,6 +1,7 @@
 ---
 id: session
 title: Session config
+sidebar_label: Session config
 ---
 
 AWE allows developers to configure the application session in two ways: Using the default `HttpSession` (Basic session) 

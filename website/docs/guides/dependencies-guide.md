@@ -1,6 +1,7 @@
 ---
 id: dependency-task
 title: Dependencies between tasks
+sidebar_label: Dependencies between tasks
 ---
 
 Another powerful feature of the Scheduler module is the possibility of adding dependencies to a task. The dependencies are tasks that will be launched just after the parent task finishes. These dependencies can also contain other dependencies, creating a workflow.

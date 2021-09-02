@@ -8,11 +8,11 @@ include:
 image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
 
 variables:
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools"
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
@@ -28,18 +28,12 @@ variables:
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
-  DAST_WEBSITE: http://staging.aweframework.com
-  DAST_AUTH_URL: http://staging.aweframework.com/
-  DAST_USERNAME: test
-  DAST_PASSWORD: $DAST_PASSWORD
-  DAST_USERNAME_FIELD: cod_usr # the name of username field at the sign-in HTML form
-  DAST_PASSWORD_FIELD: pwd_usr # the name of password field at the sign-in HTML form
-  DAST_SUBMIT_FIELD: ButLogIn # the `id` or `name` of the element that when clicked will submit the login form or the password form of a multi-page login process
+  DAST_WEBSITE: https://staging.aweframework.com
 
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .m2/repository/
+  key: "$CI_PIPELINE_ID"
 
 stages:
   - build
@@ -81,6 +75,17 @@ stages:
   rules:
     - <<: *if-default
 
+.build-website:
+  stage: build
+  script:
+    - npm install --prefix website
+  cache:
+    policy: pull
+  artifacts:
+    paths:
+      - website/build
+    expire_in: 1 day
+
 Build project:
   extends: .build
   artifacts:
@@ -97,17 +102,23 @@ Build project (jdk 14):
     policy: pull
 
 Build website:
-  stage: build
-  cache: { }
+  extends: .build-website
   script:
     - npm install --prefix website
     - npm run build --prefix website
-  artifacts:
-    paths:
-      - website/build
-    expire_in: 1 day
   rules:
-    - <<: *if-default
+    - <<: *if-merge-request
+
+Build website with i18n:
+  extends: .build-website
+  script:
+    - npm install --prefix website
+    # Do translations
+    - npm run crowdin:sync --prefix website
+    - npm run build --prefix website
+  rules:
+    - <<: *if-develop
+    - <<: *if-master
 
 ##############################
 # Unit testing stage
@@ -161,16 +172,15 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
-  before_script:
-    - npm install
-    - node createDb.js "$DATABASE_PASSWORD"
   variables:
-    MSSQL_HOST: microsoft-mssql-server-linux
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
     TEST_NAME: sqlserver
+  before_script:
+    - /opt/mssql-tools/bin/sqlcmd -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
-    - microsoft/mssql-server-linux
+    - name: mcr.microsoft.com/mssql/server:2019-latest
+      alias: mssqlserver
 
 Frontend UT:
   stage: unit test
@@ -423,17 +433,19 @@ Deploy Maven Central:
     - kubectl config use-context default-system
     - kubectl delete secret registry.gitlab.com --ignore-not-found
     - kubectl create secret docker-registry registry.gitlab.com --docker-server=https://registry.gitlab.com --docker-username=$CI_USERNAME --docker-password=$CI_PASSWORD --docker-email=$CI_EMAIL
-    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" awe-tests/awe-boot/deployment.yaml
-    - sed -i "s/__CI_PROJECT_PATH_SLUG__/${CI_PROJECT_PATH_SLUG}/" awe-tests/awe-boot/deployment.yaml
-    - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/deployment.yaml
-    - kubectl delete --all pods --namespace=$CI_ENVIRONMENT_SLUG
-    - kubectl apply -f awe-tests/awe-boot/deployment.yaml
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
+    - sed -i "s/__CI_PROJECT_PATH_SLUG__/${CI_PROJECT_PATH_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
+    - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/kubernetes/deployment.yaml
+    - kubectl delete pods -l app=awe-boot --namespace=$CI_ENVIRONMENT_SLUG
+    - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-config.yaml
+    - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-role.yaml
+    - kubectl apply -f awe-tests/awe-boot/kubernetes/deployment.yaml
 
 Deploy staging:
   extends: .k8s_deploy
   environment:
     name: staging
-    url: http://staging.aweframework.com
+    url: https://staging.aweframework.com
     kubernetes:
       namespace: staging
   only:
@@ -444,7 +456,7 @@ Deploy production:
   extends: .k8s_deploy
   environment:
     name: production
-    url: http://demo.aweframework.com
+    url: https://demo.aweframework.com
     kubernetes:
       namespace: production
   only:
@@ -452,6 +464,7 @@ Deploy production:
       - master
 
 dast:
+  needs: ["Deploy staging"]
   rules:
     - <<: *if-develop
 
@@ -461,7 +474,7 @@ pages:
   cache: { }
   needs:
     - job: Generate javadoc & schemas
-    - job: Build website
+    - job: Build website with i18n
   script:
     - mkdir -p .public/docs/schemas
     - cp -r awe-framework/target/site/apidocs .public/javadoc-api/

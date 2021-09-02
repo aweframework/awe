@@ -1,6 +1,7 @@
 ---
 id: rest 
 title: Rest API Module
+sidebar_label: Rest API Module
 ---
 
 What's a REST api? REST stands for **Re**presentational **S**tate **T**ransfer. (It is sometimes spelled "REST".) It
@@ -54,7 +55,7 @@ requires authentication) and `Public API` (if the queries or maintenance are pub
 AWE REST module, uses [JWT](https://jwt.io/) (Json Web Token) as authentication method
 
 :::info Complete *swagger* documentation of awe rest services is
-available [here](http://staging.aweframework.com/swagger-ui/).
+available [here](https://staging.aweframework.com/swagger-ui/).
 :::
 
 | Service | Method |  Path | Require authentication  | Description                                        |

@@ -1,6 +1,7 @@
 ---
 id: print-engine
 title: Print engine
+sidebar_label: Print engine
 ---
 
 AWE has a generic printing engine in order to print the content of a screen. This printing engine allows printing the content of a screen in pdf, excel and doc formats.

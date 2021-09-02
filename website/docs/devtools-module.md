@@ -1,6 +1,7 @@
 ---
 id: developer-tools
 title: DevTools Module
+sidebar_label: DevTools Module
 ---
 
 This module has some very useful management tools to manage server resources: 

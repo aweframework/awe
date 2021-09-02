@@ -1,6 +1,7 @@
 ---
 id: v4-migration
 title: v4.0 Migration Guide
+sidebar_label: v4.0 Migration Guide
 ---
 
 ## **Application Structure**

@@ -1,6 +1,7 @@
 ---
 id: service
 title: Services Definition
+sidebar_label: Services Definition
 ---
 
 Service operations are designed to perform specific treatments and calculations out of the AWE utilities.

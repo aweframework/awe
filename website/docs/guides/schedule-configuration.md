@@ -1,6 +1,7 @@
 ---
 id: schedule-configuration
-title: Schedule Tasks Configuration 
+title: Schedule Tasks Configuration
+sidebar_label: Schedule Tasks Configuration
 ---
 
 The scheduler is a powerful tool which allows to create any kind of schedule in a simple way. 

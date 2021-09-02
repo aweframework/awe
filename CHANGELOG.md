@@ -1,4 +1,17 @@
 
+# Changelog for awe 4.4.1
+*02/09/2021*
+
+- Add getEnumeratedAsDataList to EnumBuilder. [MR #327](https://gitlab.com/aweframework/awe/-/merge_requests/327) (Pablo Vidal Otero)
+- Error DAST job in gitlab pipeline. [MR #324](https://gitlab.com/aweframework/awe/-/merge_requests/324) (Pablo Vidal Otero)
+- Update Spring Boot libs to v2.4.10. [MR #323](https://gitlab.com/aweframework/awe/-/merge_requests/323) (Pablo Vidal Otero)
+- Clean internal dependencies  to removing spring boot actuator starter. [MR #322](https://gitlab.com/aweframework/awe/-/merge_requests/322) (Pablo Vidal Otero)
+- Create redis deployment to awe-boot kubernetes deploy. [MR #321](https://gitlab.com/aweframework/awe/-/merge_requests/321) (Pablo Vidal Otero)
+- CVE report published for Spring Security. [MR #320](https://gitlab.com/aweframework/awe/-/merge_requests/320) (Pablo Vidal Otero)
+- Configure HTTPS in AWE enviroments. [MR #319](https://gitlab.com/aweframework/awe/-/merge_requests/319) (Pablo Vidal Otero)
+- Add redis as database cache for persist user sessions. [MR #318](https://gitlab.com/aweframework/awe/-/merge_requests/318) (Pablo Vidal Otero)
+- Add i18n support for awe doc website. [MR #317](https://gitlab.com/aweframework/awe/-/merge_requests/317) (Pablo Vidal Otero)
+
 # Changelog for awe 4.4.0
 *11/06/2021*
 

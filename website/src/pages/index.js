@@ -5,65 +5,105 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
+import Translate from '@docusaurus/Translate';
+import {translate} from "@docusaurus/core/lib/client/exports/Translate";
 
 const features = [
   {
-    title: <>Easy to Use</>,
+    title:  translate({
+      id: 'homepage.features.easy-to-use.title',
+      message: 'Easy to Use',
+      description: 'Title of feature of Easy to use on the home page',
+    }),
     imageUrl: 'img/undraw_just_browsing.svg',
     description: (
-      <>
+      <Translate
+        id="homepage.features.easy-to-use"
+        description="Feature easy to use">
         AWE framework is designed from the ground up to be easily installed and
         used to build your website up and running quickly.
-      </>
+      </Translate>
     ),
   },
   {
-    title: <>Modern UI</>,
+    title:  translate({
+      id: 'homepage.features.modern-ui.title',
+      message: 'Modern UI',
+      description: 'Title of feature of Modern UI on the home page',
+    }),
     imageUrl: 'img/undraw_responsive.svg',
     description: (
-      <>
-        All AWE web components let you design modern and responsive user interfaces using a declarative API.
-        Works with <code>AngularJS</code> and <code>ReactJS</code>.
-      </>
+      <Translate
+        values={{angularJS: (<code>AngularJS</code>), reactJS: (<code>ReactJS</code>)}}
+        id="homepage.features.modern-ui"
+        description="Modern UI">
+        {`All AWE web components let you design modern and responsive user interfaces using a declarative API.
+        Works with {angularJS} and {reactJS}.`}
+      </Translate>
     ),
   },
   {
-    title: <>Pluggable and Extensible</>,
+    title:  translate({
+      id: 'homepage.features.pluggable-extensible.title',
+      message: 'Pluggable and Extensible',
+      description: 'Title of feature of pluggable and extensible on the home page',
+    }),
     imageUrl: 'img/undraw_switches.svg',
     description: (
-      <>
-        Extend or customize all AWE features. The Spring Boot <code>starters</code> design lets you to enable the modules
-        and features that you need.
-      </>
+      <Translate
+        values={{starters: (<code>starters</code>)}}
+        id="homepage.features.pluggable-extensible"
+        description="Feature Pluggable and Extensible">
+        {`Extend or customize all AWE features. The Spring Boot {starters} design lets you to enable the modules and features that you need.`}
+      </Translate>
     ),
   },
   {
-    title: <>Connect your information</>,
+    title:  translate({
+      id: 'homepage.features.connect-information.title',
+      message: 'Connect your information',
+      description: 'Title of feature of Connect your information on the home page',
+    }),
     imageUrl: 'img/undraw_online_connection.svg',
     description: (
-      <>
+      <Translate
+        id="homepage.features.connect-information"
+        description="Feature Connect your information">
         Bind your data to web forms easily. AWE allows to connect to different data sources
         like SQL and NoSQL databases, Rest APIs, JavaBeans, etc.
-      </>
+      </Translate>
     ),
   },
   {
-    title: <>Customize easy</>,
+    title:  translate({
+      id: 'homepage.features.customize-easy.title',
+      message: 'Customize easy',
+      description: 'Title of feature of Customize easy on the home page',
+    }),
     imageUrl: 'img/undraw_add_color.svg',
     description: (
-      <>
+      <Translate
+        id="homepage.features.customize-easy"
+        description="Feature Customize easy">
         AWE has multiple preconfigured themes and multi-language support.
         You can add custom CSS according to your needs.
-      </>
+      </Translate>
     ),
   },
   {
-    title: <>Powered by Spring Boot with AngularJS</>,
+    title:  translate({
+      id: 'homepage.features.powered-by.title',
+      message: 'Powered by Spring Boot with AngularJS',
+      description: 'Title of feature of Powered By on the home page',
+    }),
     imageUrl: 'img/undraw_code_review.svg',
     description: (
-      <>
-        Uses Spring 5 and Spring Boot 2. <code>@Autowired</code> is available for AWE components and layouts.
-      </>
+      <Translate
+        values={{autowired: (<code>@Autowired</code>)}}
+        id="homepage.features.powered-by"
+        description="Powered by Spring Boot with AngularJS">
+        {`Uses Spring 5 and Spring Boot 2. {autowired} is available for AWE components and layouts.`}
+      </Translate>
     ),
   },
 ];
@@ -85,11 +125,9 @@ function Feature({imageUrl, title, description}) {
 
 function Home() {
   const context = useDocusaurusContext();
-  const {siteConfig = {}} = context;
+  const {siteConfig: {customFields = {}, tagline} = {}} = context;
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+    <Layout title={tagline} description={customFields.description}>
       <div className={styles.hero}>
         <div className={styles.heroInner}>
           <h1 className={styles.heroProjectTagline}>
@@ -98,33 +136,38 @@ function Home() {
               className={styles.heroLogo}
               src={useBaseUrl('img/logo.svg')}
             />
-            Build{' '}
-            <span className={styles.heroProjectKeywords}>light-weight</span>{' '} and{' '}
-            <span className={styles.heroProjectKeywords}>functional</span> websites{' '}
-            <span className={styles.heroProjectKeywords}>quickly</span>. Focus
-            on your{' '}
-            <span className={styles.heroProjectKeywords}>content.</span>
+            <span className={styles.heroTitleTextHtml}
+                  dangerouslySetInnerHTML={{
+                    __html: translate({
+                      id: 'homepage.hero.title',
+                      message: 'Build <b>light-weight</b> and <b>functional</b> websites <b>quickly</b>. Focus on your <b>content</b>',
+                      description: 'Home page hero title, can contain simple html tags',
+                }),
+              }}
+            />
           </h1>
           <div className={styles.indexCtas}>
-            <Link
-              className={styles.indexCtasGetStartedButton}
-              to={useBaseUrl('docs/')}>
-              Start using AWE
+            <Link className={styles.indexCtasGetStartedButton} to={useBaseUrl('docs/')}>
+              <Translate>Start using AWE</Translate>
             </Link>
-            <Link
-              className={clsx('margin-left--md', styles.indexTryMeButton)}
-              to="http://demo.aweframework.com">
-              Try a Demo
+            <Link className={clsx('margin-left--md', styles.indexTryMeButton)} to="http://demo.aweframework.com">
+              <Translate>Try a Demo</Translate>
             </Link>
           </div>
         </div>
       </div>
       <div className={clsx(styles.announcement, styles.announcementDark)}>
         <div className={styles.announcementInner}>
-          Coming from v3? Check out our{' '}
-          <Link to={useBaseUrl('/docs/guides/v4-migration')}>
-            v3 to v4 migration guide
-          </Link>
+          <Translate
+            values={{
+              migrationGuideLink: (
+                <Link to="/docs/guides/v4-migration">
+                  <Translate>v3 to v4 migration guide</Translate>
+                </Link>
+              ),
+            }}>
+            {`Coming from v3? Check out our {migrationGuideLink}`}
+          </Translate>
           .
         </div>
       </div>

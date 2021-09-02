@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.4.0</version>
+    <version>4.4.1</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -40,6 +40,7 @@
     <skip.selenium>true</skip.selenium>
     <skip.junit>false</skip.junit>
     <test.tags>integration</test.tags>
+    <failsafe.argLine/>
 
     <!-- Build environment -->
     <build.environment>development</build.environment>
@@ -58,15 +59,35 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!-- Actuator -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+    <!-- Kubernetes config -->
     <dependency>
-      <groupId>com.wavefront</groupId>
-      <artifactId>wavefront-spring-boot-starter</artifactId>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
     </dependency>
+
+    <!-- Redis cache server -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-data-redis</artifactId>
+    </dependency>
+
+<!--    Wavefront metrics -->
+<!--    <dependency>-->
+<!--      <groupId>com.wavefront</groupId>-->
+<!--      <artifactId>wavefront-spring-boot-starter</artifactId>-->
+<!--      <version>${wavefront.version}</version>-->
+<!--    </dependency>-->
 
     <dependency>
       <groupId>com.almis.awe</groupId>
@@ -110,6 +131,16 @@
     <dependency>
       <groupId>javax.cache</groupId>
       <artifactId>cache-api</artifactId>
+    </dependency>
+    <!-- API, java.xml.bind module -->
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
+    <!-- Runtime, com.sun.xml.bind module -->
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
     </dependency>
     <dependency>
       <groupId>com.almis.awe</groupId>
@@ -346,6 +377,12 @@
           </profiles>
         </configuration>
         <executions>
+          <execution>
+            <id>build-info</id>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
           <execution>
             <id>repackage</id>
             <goals>
@@ -625,7 +662,6 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${plugin-jacoco.version}</version>
           </plugin>
           <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -664,13 +700,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-dependencies</artifactId>
-        <version>${spring-cloud.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>com.wavefront</groupId>
         <artifactId>wavefront-spring-boot-bom</artifactId>

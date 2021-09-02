@@ -1,6 +1,7 @@
 ---
 id: validation
 title: Validation
+sidebar_label: Validation
 ---
 
 The validation action checks the conditions of each criterion with a value under the validation attribute. This action is related with a `validate` type button (see [button actions](../api/button.md#button-actions)).

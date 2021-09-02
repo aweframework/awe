@@ -1,6 +1,7 @@
 ---
 id: query
 title: Query definition
+sidebar_label: Query definition
 ---
 
 The AWE query engine is used for querying data on external systems. It works as an interface.
