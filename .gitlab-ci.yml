@@ -464,6 +464,10 @@ Deploy production:
       - master
 
 dast:
+  stage: dast
+  dast_configuration:
+    site_profile: "AWE Staging"
+    scanner_profile: "AWE DAST scanner"
   needs: ["Deploy staging"]
   rules:
     - <<: *if-develop
