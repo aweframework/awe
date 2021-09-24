@@ -128,7 +128,8 @@ Build website with i18n:
 .unit-testing:
   stage: unit test
   allow_failure: false
-  needs: [ ]
+  needs:
+    - job: Build project
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
   rules:
