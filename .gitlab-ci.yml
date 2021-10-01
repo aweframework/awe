@@ -95,9 +95,9 @@ Build project:
       - awe-tests/awe-boot/target/awe-boot.war
     expire_in: 1 day
 
-Build project (jdk 14):
+Build project (jdk latest):
   extends: .build
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk14-node-maven:latest
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk-latest-node-maven:latest
   cache:
     policy: pull
 
@@ -128,7 +128,8 @@ Build website with i18n:
 .unit-testing:
   stage: unit test
   allow_failure: false
-  needs: [ "Build project" ]
+  needs:
+    - job: Build project
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
   rules:
@@ -200,7 +201,7 @@ Frontend UT:
 Javadoc test:
   image: maven:3.6-jdk-8
   stage: unit test
-  needs: [ "Build project" ]
+  needs: [ ]
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
@@ -218,7 +219,8 @@ Javadoc test:
 .browser-testing:
   stage: integration test
   allow_failure: true
-  needs: [ "Build project" ]
+  needs:
+    - job: Build project
   script:
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
@@ -346,7 +348,7 @@ Launch Sonar:
 Generate javadoc & schemas:
   image: maven:3.6-jdk-8
   stage: site
-  needs: [ "Build project" ]
+  needs: [ ]
   script:
     - mvn $MAVEN_CLI_OPTS install site javadoc:aggregate $SKIP_TESTS -Darchetype.test.skip=true -Dskip.javadoc=false -Dskip.main=true -Dskip.frontend=true -Dbuild.environment=production -f awe-framework/pom.xml
   artifacts:
@@ -393,7 +395,8 @@ Build package:
 Deploy snapshot:
   image: maven:3.5-jdk-11
   stage: deploy
-  needs: [ "Launch Sonar" ]
+  needs:
+    - job: Launch Sonar
   script:
     - mvn $MAVEN_CLI_OPTS deploy $DEPLOY_OPTS
   rules:
@@ -464,7 +467,12 @@ Deploy production:
       - master
 
 dast:
-  needs: ["Deploy staging"]
+  stage: dast
+  dast_configuration:
+    site_profile: "AWE Staging"
+    scanner_profile: "AWE DAST scanner"
+  needs:
+    - job: Deploy staging
   rules:
     - <<: *if-develop
 
