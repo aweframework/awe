@@ -468,9 +468,6 @@ Deploy production:
 
 dast:
   stage: dast
-  variables:
-    DAST_DEBUG: true
-    DAST_TARGET_AVAILABILITY_TIMEOUT: 30
   dast_configuration:
     site_profile: "AWE Staging"
     scanner_profile: "AWE DAST scanner"
