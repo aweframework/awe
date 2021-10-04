@@ -468,8 +468,15 @@ Deploy production:
 
 dast:
   variables:
+    DAST_BROWSER_SCAN: "true"
     DAST_AUTH_REPORT: "true"
+    DAST_BROWSER_LOG: "brows:debug,auth:debug"
     DAST_SUBMIT_FIELD: "css:button[type='submit']"
+    DAST_BROWSER_NAVIGATION_TIMEOUT: "30s"
+    DAST_BROWSER_STABILITY_TIMEOUT: "15s"
+    DAST_BROWSER_NAVIGATION_STABILITY_TIMEOUT: "15s"
+    DAST_BROWSER_ACTION_TIMEOUT: "15s"
+    DAST_BROWSER_ACTION_STABILITY_TIMEOUT: "10s"
   stage: dast
   dast_configuration:
     site_profile: "AWE Staging"
