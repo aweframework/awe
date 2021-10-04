@@ -467,12 +467,18 @@ Deploy production:
       - master
 
 dast:
+  variables:
+    DAST_AUTH_REPORT: "true"
+    DAST_SUBMIT_FIELD: "css:button[type='submit']"
   stage: dast
   dast_configuration:
     site_profile: "AWE Staging"
     scanner_profile: "AWE DAST scanner"
   needs:
     - job: Deploy staging
+  artifacts:
+    paths: [ gl-dast-debug-auth-report.html ]
+    when: always
   rules:
     - <<: *if-develop
 
