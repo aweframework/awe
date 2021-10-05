@@ -207,6 +207,7 @@ The *field* element has the following attributes:
 - `HOUR`: Retrieve hours from date
 - `MINUTE`: Retrieve minutes from date
 - `SECOND`: Retrieve seconds from date
+- `TRIM`: Remove spaces from left and right of the string
 
 #### Transform attribute
 
