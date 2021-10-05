@@ -28,7 +28,14 @@ variables:
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
-  DAST_WEBSITE: https://staging.aweframework.com
+  # DAST config
+  DAST_WEBSITE: "https://staging.aweframework.com"
+  DAST_BROWSER_SCAN: "true"
+  DAST_BROWSER_NAVIGATION_TIMEOUT: "30s"
+  DAST_BROWSER_STABILITY_TIMEOUT: "15s"
+  DAST_BROWSER_NAVIGATION_STABILITY_TIMEOUT: "15s"
+  DAST_BROWSER_ACTION_TIMEOUT: "15s"
+  DAST_BROWSER_ACTION_STABILITY_TIMEOUT: "10s"
 
 cache:
   paths:
@@ -467,23 +474,12 @@ Deploy production:
       - master
 
 dast:
-  variables:
-    DAST_WEBSITE: "https://staging.aweframework.com"
-    DAST_BROWSER_SCAN: "true"
-    DAST_AUTH_REPORT: "true"
-    DAST_BROWSER_LOG: "brows:debug,auth:debug"
-    DAST_SUBMIT_FIELD: "css:button[type='submit']"
-    DAST_BROWSER_NAVIGATION_TIMEOUT: "30s"
-    DAST_BROWSER_STABILITY_TIMEOUT: "15s"
-    DAST_BROWSER_NAVIGATION_STABILITY_TIMEOUT: "15s"
-    DAST_BROWSER_ACTION_TIMEOUT: "15s"
-    DAST_BROWSER_ACTION_STABILITY_TIMEOUT: "10s"
-  stage: dast
+  script:
+    - export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}
+    - if [ -z "$DAST_WEBSITE$DAST_API_SPECIFICATION" ]; then echo "Either DAST_WEBSITE or DAST_API_SPECIFICATION must be set. See https://docs.gitlab.com/ee/user/application_security/dast/#configuration for more details." && exit 1; fi
+    - /analyze
   needs:
     - job: Deploy staging
-  artifacts:
-    paths: [ gl-dast-debug-auth-report.html ]
-    when: always
   rules:
     - <<: *if-develop
 
