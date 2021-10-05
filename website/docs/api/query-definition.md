@@ -302,8 +302,8 @@ These are the possible values for the `operator` attribute:
 * `DIV`: Divides two fields (`/`)
 * `MOD`: Returns the remainder or signed remainder of a division, after one number is divided by another (called the
   modulus of the operation). (`%`)
-* `POWER`: Power of two fields (`^`)
-* `ROUND`: Operator 'ROUND'
+* `POWER`: The first field is raised to the second field power (`^`)
+* `ROUND`: Replacing a number with an approximate value
 * `ADD_SECONDS`: Adds seconds to a date field
 * `ADD_MINUTES`: Adds minutes to a date field
 * `ADD_HOURS`: Adds hours to a date field
