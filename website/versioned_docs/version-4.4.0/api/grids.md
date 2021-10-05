@@ -58,7 +58,6 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | help        | Optional     | String    | Help text for the grid | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | help-image  | Optional     | String    | Help image for the grid | This **must** be a image path |
 | icon-loading | Optional    | String    | Set the loading icon | `spinner` (default), `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none` |
-| report-title | Optional | String    | Title of the report generated when printing the screen. If not defined, report title will be taken from label attribute | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
 
 ## Column structure
 
