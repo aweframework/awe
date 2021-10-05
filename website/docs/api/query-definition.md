@@ -207,37 +207,48 @@ The *field* element has the following attributes:
 - `HOUR`: Retrieve hours from date
 - `MINUTE`: Retrieve minutes from date
 - `SECOND`: Retrieve seconds from date
+- `TRIM`: Remove all spaces from both sides of the string
 
 #### Transform attribute
 
 These are the possible values for the `transform` attribute:
 
-* **DATE**: Transforms the output field **(Date/String)** into a web date field (`dd/MM/yyyy`)
-* **DATE_MS**: Transforms the output field **(Date/String)** into a java date in milliseconds (for chart datetime axes)
-* **TIME**: Transforms the output field **(Date/String)** into a web time field (`HH:mm:ss`)
-* **TIMESTAMP**: Transforms the output field **(Date/String)** into a web timestamp field (`dd/MM/yyyy HH:mm:ss`)
-* **TIMESTAMP_MS**: Transforms the output field **(Date/String)** into a web timestamp field with milliseconds (`dd/MM/yyyy HH:mm:ss.SSS`)
-* **JS_DATE**: Transforms the output field **(Date/String)** into a javascript date field (for chart axes) (`MM/dd/yyyy`)
-* **JS_TIMESTAMP**: Transforms the output field **(Date/String)** into a javascript timestamp field (`MM/dd/yyyy HH:mm:ss`)
-* **GENERIC_DATE**: Transforms the output field **(String)** from a date format defined on `format-from` to a date format defined on `format-to`
-* **DATE_RDB**: Transforms the output field **(String)** from an English RDF format (`dd-MMM-yyyy`) to a web date field (`dd/MM/yyyy`)
-* **ELAPSED_TIME**: Transforms the output field **(Long)** from a long millisecond value to a localized string indicating the elapsed time (`12h`)
-* **DATE_SINCE**: Transforms the output field **(Date)** into a localized string with the time difference from now (`5 min ago`)
-* **NUMBER**: Transforms the output field as a number with a pattern. **IMPORTANT**:
- *  When using this transform, the associated pattern has to have thousands separator. For instance: ###,###.00
- * **NEVER** use this transform if the retrieved data is for a numeric component
- * This transform is normally used when we want to show a numeric value in a visualization grid (columns without component)
-* **NUMBER_PLAIN**: Transforms the output field as a number with a raw pattern (without thousand separator). **IMPORTANT**:
- * When using this transform, the associated pattern must not have a thousands separator (e.g: ###.00)
- * It can be used for numeric components and elements that have no component.
- * This transform is normally used when we want to print numeric components and specify the number of decimals we want to see in the pdf file. Usually, the number of decimals of the pattern will match the "precision" defined in the number-format attribute of the numeric component.
-* **BOOLEAN**: Transforms the output field as a boolean value (`true`/`false`):
-* **TEXT_HTML**: Transforms the output field into HTML text (to be showed in a HTML page)
-* **TEXT_PLAIN**: Transforms the output field into plain text (to be showed inside a document)
-* **TEXT_UNILINE**: Transforms the output field into a plain text without line breaks
-* **MARKDOWN_HTML**: Transforms the output field from Markdown into HTML text (to be showed in a HTML page)
-* **DECRYPT**: Decrypts a column value which is encrypted in the database
-* **ARRAY**: Splits a string value with the string in `pattern` attribute
+* `DATE`: Transforms the output field **(Date/String)** into a web date field (`dd/MM/yyyy`)
+* `DATE_MS`: Transforms the output field **(Date/String)** into a java date in milliseconds (for chart datetime axes)
+* `TIME`: Transforms the output field **(Date/String)** into a web time field (`HH:mm:ss`)
+* `TIMESTAMP`: Transforms the output field **(Date/String)** into a web timestamp field (`dd/MM/yyyy HH:mm:ss`)
+* `TIMESTAMP_MS`: Transforms the output field **(Date/String)** into a web timestamp field with
+  milliseconds (`dd/MM/yyyy HH:mm:ss.SSS`)
+* `JS_DATE`: Transforms the output field **(Date/String)** into a javascript date field (for chart axes) (`MM/dd/yyyy`)
+* `JS_TIMESTAMP`: Transforms the output field **(Date/String)** into a javascript timestamp
+  field (`MM/dd/yyyy HH:mm:ss`)
+* `GENERIC_DATE`: Transforms the output field **(String)** from a date format defined on `format-from` to a date format
+  defined on `format-to`
+* `DATE_RDB`: Transforms the output field **(String)** from an English RDF format (`dd-MMM-yyyy`) to a web date
+  field (`dd/MM/yyyy`)
+* `ELAPSED_TIME`: Transforms the output field **(Long)** from a long millisecond value to a localized string indicating
+  the elapsed time (`12h`)
+* `DATE_SINCE`: Transforms the output field **(Date)** into a localized string with the time difference from
+  now (`5 min ago`)
+* `NUMBER`: Transforms the output field as a number with a pattern. **IMPORTANT**:
+* When using this transform, the associated pattern has to have thousands separator. For instance: ###,###.00
+* **NEVER** use this transform if the retrieved data is for a numeric component
+* This transform is normally used when we want to show a numeric value in a visualization grid (columns without
+  component)
+* `NUMBER_PLAIN`: Transforms the output field as a number with a raw pattern (without thousand separator). **
+  IMPORTANT**:
+* When using this transform, the associated pattern must not have a thousands separator (e.g: ###.00)
+* It can be used for numeric components and elements that have no component.
+* This transform is normally used when we want to print numeric components and specify the number of decimals we want to
+  see in the pdf file. Usually, the number of decimals of the pattern will match the "precision" defined in the
+  number-format attribute of the numeric component.
+* `BOOLEAN`: Transforms the output field as a boolean value (`true`/`false`):
+* `TEXT_HTML`: Transforms the output field into HTML text (to be showed in a HTML page)
+* `TEXT_PLAIN`: Transforms the output field into plain text (to be showed inside a document)
+* `TEXT_UNILINE`: Transforms the output field into a plain text without line breaks
+* `MARKDOWN_HTML`: Transforms the output field from Markdown into HTML text (to be showed in a HTML page)
+* `DECRYPT`: Decrypts a column value which is encrypted in the database
+* `ARRAY`: Splits a string value with the string in `pattern` attribute
 
 ### Constant element
 
@@ -282,37 +293,38 @@ The *operation* element allows to define operations between fields and will be r
 
 These are the possible values for the `operator` attribute:
 
-* **CONCAT**: Concats some string fields
-* **NULLIF**: Sets null if equals to second operand
-* **COALESCE**: Given a set of fields, returns the first one which is **NOT NULL**
-* **ADD**: Sums two fields
-* **SUB**: Substracts two fields
-* **MULT**: Multiplies two fields
-* **DIV**: Divides two fields
-* **MOD**: Operator `MOD`
-* **POWER**: Power of two fields
-* **ROUND**: Operator 'ROUND'
-* **ADD_SECONDS**: Adds seconds to a date field
-* **ADD_MINUTES**: Adds minutes to a date field
-* **ADD_HOURS**: Adds hours to a date field
-* **ADD_DAYS**: Adds days to a date field
-* **ADD_WEEKS**: Adds weeks to a date field
-* **ADD_MONTHS**: Adds months to a date field
-* **ADD_YEARS**: Adds years to a date field
-* **DIFF_SECONDS**: Calculates the difference in seconds between two dates
-* **DIFF_MINUTES**: Calculates the difference in minutes between two dates
-* **DIFF_HOURS**: Calculates the difference in hours between two dates
-* **DIFF_DAYS**: Calculates the difference in days between two dates
-* **DIFF_WEEKS**: Calculates the difference in weeks between two dates
-* **DIFF_MONTHS**: Calculates the difference in months between two dates
-* **DIFF_YEARS**: Calculates the difference in years between two dates
-* **SUB_SECONDS**: Substracts seconds from a date field
-* **SUB_MINUTES**: Substracts minutes from a date field
-* **SUB_HOURS**: Substracts hours from a date field
-* **SUB_DAYS**: Substracts days from a date field
-* **SUB_WEEKS**: Substracts weeks from a date field
-* **SUB_MONTHS**: Substracts months from a date field
-* **SUB_YEARS**: Substracts years from a date field
+* `CONCAT`: Concats some string fields
+* `NULLIF`: Sets null if equals to second operand
+* `COALESCE`: Given a set of fields, returns the first one which is **NOT NULL**
+* `ADD`: Sums two fields (`+`)
+* `SUB`: Substracts two fields (`-`)
+* `MULT`: Multiplies two fields (`*`)
+* `DIV`: Divides two fields (`/`)
+* `MOD`: Returns the remainder or signed remainder of a division, after one number is divided by another (called the
+  modulus of the operation). (`%`)
+* `POWER`: The first field is raised to the second field power (`^`)
+* `ROUND`: Replacing a number with an approximate value
+* `ADD_SECONDS`: Adds seconds to a date field
+* `ADD_MINUTES`: Adds minutes to a date field
+* `ADD_HOURS`: Adds hours to a date field
+* `ADD_DAYS`: Adds days to a date field
+* `ADD_WEEKS`: Adds weeks to a date field
+* `ADD_MONTHS`: Adds months to a date field
+* `ADD_YEARS`: Adds years to a date field
+* `DIFF_SECONDS`: Calculates the difference in seconds between two dates
+* `DIFF_MINUTES`: Calculates the difference in minutes between two dates
+* `DIFF_HOURS`: Calculates the difference in hours between two dates
+* `DIFF_DAYS`: Calculates the difference in days between two dates
+* `DIFF_WEEKS`: Calculates the difference in weeks between two dates
+* `DIFF_MONTHS`: Calculates the difference in months between two dates
+* `DIFF_YEARS`: Calculates the difference in years between two dates
+* `SUB_SECONDS`: Substracts seconds from a date field
+* `SUB_MINUTES`: Substracts minutes from a date field
+* `SUB_HOURS`: Substracts hours from a date field
+* `SUB_DAYS`: Substracts days from a date field
+* `SUB_WEEKS`: Substracts weeks from a date field
+* `SUB_MONTHS`: Substracts months from a date field
+* `SUB_YEARS`: Substracts years from a date field
 
 #### Operation examples
 
