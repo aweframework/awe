@@ -42,4 +42,3 @@ Screen element has the following attributes:
 | onload        | Optional     | String  | Maintain target to launch on screen load | Maintain target identifier       |
 | onunload      | Optional     | String  | Maintain target to launch on screen unload | Maintain target identifier     |
 |schema-location| **Required** | String  | Location for XSD files | Example for awe screens: "../../sch/awe/screen.xsd"
-| report-title  | Optional     | String  | Title of the report generated when printing the screen. If the report-title is not defined, it will be taken from <code>label</code> attribute | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)   |
