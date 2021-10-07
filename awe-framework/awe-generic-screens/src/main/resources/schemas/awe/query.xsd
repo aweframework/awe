@@ -194,10 +194,10 @@
 
   <!-- Case Else type -->
   <xs:complexType name="caseType">
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="when" />
-      <xs:element ref="else" />
-    </xs:choice>
+    <xs:sequence>
+      <xs:element ref="when" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="else" minOccurs="0"/>
+    </xs:sequence>
     <xs:attributeGroup ref="caseQueryAttr"/>
   </xs:complexType>
 
@@ -217,12 +217,12 @@
 
   <!-- Operand Type -->
   <xs:complexType name="operandType">
-    <xs:choice minOccurs="1" maxOccurs="1">
-      <xs:element ref="field" />
-      <xs:element ref="constant" />
-      <xs:element ref="operation" />
-      <xs:element ref="case" />
-      <xs:element ref="over" />
+    <xs:choice>
+      <xs:element ref="field"/>
+      <xs:element ref="constant"/>
+      <xs:element ref="operation"/>
+      <xs:element ref="case"/>
+      <xs:element ref="over"/>
     </xs:choice>
   </xs:complexType>
 
@@ -267,31 +267,33 @@
 
   <!-- Case When type -->
   <xs:complexType name="caseWhenType">
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="left-operand" />
-      <xs:element ref="right-operand" />
-      <xs:element ref="then" />
-    </xs:choice>
+    <xs:sequence>
+      <xs:element ref="left-operand" minOccurs="0"/>
+      <xs:element ref="right-operand" minOccurs="0"/>
+      <xs:element ref="then"/>
+    </xs:sequence>
     <xs:attributeGroup ref="filterAttr"/>
   </xs:complexType>
 
   <!-- Filter Type -->
   <xs:complexType name="filterType">
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="left-operand" />
-      <xs:element ref="right-operand" />
-    </xs:choice>
+    <xs:sequence>
+      <xs:element ref="left-operand" minOccurs="0"/>
+      <xs:element ref="right-operand" minOccurs="0"/>
+    </xs:sequence>
     <xs:attributeGroup ref="filterAttr"/>
   </xs:complexType>
 
   <!-- Join Element -->
   <xs:complexType name="joinType">
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="table" />
-      <xs:element ref="or" />
-      <xs:element ref="and" />
-    </xs:choice>
-    <xs:attribute name="type" type="joinElementType" />
+    <xs:sequence>
+      <xs:element ref="table"/>
+      <xs:choice>
+        <xs:element ref="or"/>
+        <xs:element ref="and"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="type" type="joinElementType"/>
   </xs:complexType>
 
   <!-- Union Element -->
@@ -355,15 +357,15 @@
     <xs:attribute name="translate" type="xs:string"/>
     <xs:attribute name="format-from" type="xs:string"/>
     <xs:attribute name="format-to" type="xs:string" />
-    <xs:attribute name="alias" type="xs:string"/>
+    <xs:attribute name="alias" type="identifierType"/>
     <xs:attribute name="audit" type="booleanEnum"/>
     <xs:attribute name="key" type="booleanEnum"/>
   </xs:attributeGroup>
 
   <!-- AllFieldsAttr -->
   <xs:attributeGroup name="allFieldsAttr">
-    <xs:attribute name="id" type="xs:string"/>
-    <xs:attribute name="table" type="xs:string"/>
+    <xs:attribute name="id" type="identifierType"/>
+    <xs:attribute name="table" type="identifierType"/>
     <xs:attribute name="function" type="functionTypeEnum"/>
     <xs:attribute name="cast" type="castType"/>
   </xs:attributeGroup>
@@ -434,9 +436,9 @@
 
   <!-- Order Call Attributes -->
   <xs:attributeGroup name="orderAttr">
-    <xs:attribute name="field" use="required" type="xs:string" />
-    <xs:attribute name="table" type="xs:string" />
-    <xs:attribute name="function" type="functionTypeEnum" />
+    <xs:attribute name="field" use="required" type="xs:string"/>
+    <xs:attribute name="table" type="xs:string"/>
+    <xs:attribute name="function" type="functionTypeEnum"/>
   </xs:attributeGroup>
 
   <!--
@@ -445,11 +447,18 @@
   ==============================================================================
   -->
 
+  <!-- Query identifiers -->
+  <xs:simpleType name="identifierType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="([0-9a-zA-Z_\-]+)"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <!-- Totalize Style Enumeration -->
   <xs:simpleType name="totalizeStyleType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="TOTAL" />
-      <xs:enumeration value="SUBTOTAL" />
+      <xs:enumeration value="TOTAL"/>
+      <xs:enumeration value="SUBTOTAL"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -580,6 +589,7 @@
   <xs:simpleType name="operationRestriction">
     <xs:restriction base="xs:string">
       <xs:enumeration value="CONCAT" />
+      <xs:enumeration value="REPLACE"/>
       <xs:enumeration value="NULLIF" />
       <xs:enumeration value="COALESCE" />
       <xs:enumeration value="ADD" />
