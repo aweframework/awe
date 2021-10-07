@@ -36,7 +36,8 @@ variables:
 cache:
   paths:
     - .m2/repository/
-  key: "$CI_PIPELINE_ID"
+    - .yarn
+  key: $CI_COMMIT_REF_SLUG
 
 stages:
   - build
@@ -204,7 +205,7 @@ Frontend UT:
 Javadoc test:
   image: maven:3.6-jdk-8
   stage: unit test
-  needs: [ ]
+  needs: [ "Build project" ]
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
