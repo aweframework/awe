@@ -1,4 +1,11 @@
 
+# Changelog for awe 4.4.2
+*08/10/2021*
+
+- Remove `report-title` from available attributes on documentation. [MR #330](https://gitlab.com/aweframework/awe/-/merge_requests/330) (Pablo Javier García Mora)
+- Add `TRIM` function to docs. [MR #329](https://gitlab.com/aweframework/awe/-/merge_requests/329) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Add a new validation to avoid inserting code in query attributes `id` and `alias`. [MR #328](https://gitlab.com/aweframework/awe/-/merge_requests/328) (Pablo Javier García Mora)
+
 # Changelog for awe 4.4.1
 *02/09/2021*
 

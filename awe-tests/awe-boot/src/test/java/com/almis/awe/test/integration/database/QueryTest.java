@@ -773,10 +773,24 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseOperationCoalesce() throws Exception {
     testDatabaseRequest(
-            "testCoalesce",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"nameNotNull\":\"test\",\"name\":\"test\",\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            1);
+      "testCoalesce",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"nameNotNull\":\"test\",\"name\":\"test\",\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
+  }
+
+  /**
+   * Test of replace operation
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationReplace() throws Exception {
+    testDatabaseRequest(
+      "testReplace",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"nameWithoutSpaces\":\"namewithspaces\",\"name\":\"test\",\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**

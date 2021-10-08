@@ -207,6 +207,7 @@ The *field* element has the following attributes:
 - `HOUR`: Retrieve hours from date
 - `MINUTE`: Retrieve minutes from date
 - `SECOND`: Retrieve seconds from date
+- `TRIM`: Remove spaces from left and right of the string
 
 #### Transform attribute
 
@@ -283,6 +284,7 @@ The *operation* element allows to define operations between fields and will be r
 These are the possible values for the `operator` attribute:
 
 * **CONCAT**: Concats some string fields
+* **REPLACE**: Replace on the first field the string defined on second place with the string defined on third place
 * **NULLIF**: Sets null if equals to second operand
 * **COALESCE**: Given a set of fields, returns the first one which is **NOT NULL**
 * **ADD**: Sums two fields

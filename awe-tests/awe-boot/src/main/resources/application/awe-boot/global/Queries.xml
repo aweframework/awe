@@ -2911,6 +2911,27 @@
     <order-by field="l1_nom" type="ASC"/>
   </query>
 
+  <query id="testReplace">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <operation operator="REPLACE" alias="nameWithoutSpaces">
+      <constant value="name with spaces"/>
+      <constant value=" "/>
+      <constant value=""/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
   <query id="testCastToNumber">
     <table id="ope"/>
     <field id="l1_nom" alias="name"/>
