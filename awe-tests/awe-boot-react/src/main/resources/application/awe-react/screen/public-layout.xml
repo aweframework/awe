@@ -45,7 +45,7 @@
   </tag>
   <tag source="center">
     <window label="SCREEN_TEXT_USER" maximize="true" icon="camera-retro">
-      <tag type="div" style="p-grid p-fluid">
+      <tag type="div" style="grid p-fluid">
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="cod_usr" readonly="true" style="col-xs-6 col-sm-4 col-md-2" value="Hola, Adios"/>
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="epa" style="col-xs-6 col-sm-4 col-md-2"/>
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu" style="col-xs-6 col-sm-4 col-md-2"/>
@@ -53,8 +53,8 @@
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="prueba" style="col-xs-6 col-sm-4 col-md-2"/>
         <criteria placeholder="SCREEN_TEXT_PASS" component="password" icon="key" id="pwd_usr" style="col-xs-6 col-sm-4 col-md-2"/>
       </tag>
-      <tag type="div" style="p-grid">
-        <button button-type="reset" style="p-ml-auto" label="BUTTON_RESET" icon="undo" id="ButRes">
+      <tag type="div" style="grid">
+        <button button-type="reset" style="ml-auto" label="BUTTON_RESET" icon="undo" id="ButRes">
           <button-action type="restore"/>
         </button>
         <button button-type="submit" label="BUTTON_LOGIN" icon="sign-in" id="ButLogIn">
@@ -139,7 +139,7 @@
           </dependency>
         </context-button>
       </grid>
-      <tag type="div" style="p-grid p-fluid">
+      <tag type="div" style="grid p-fluid">
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="cod_usr2" readonly="true" style="col-xs-6 col-sm-4 col-md-2" value="Hola, Adios"/>
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="epa2" style="col-xs-6 col-sm-4 col-md-2"/>
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu2" style="col-xs-6 col-sm-4 col-md-2"/>
@@ -147,8 +147,8 @@
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="prueba2" style="col-xs-6 col-sm-4 col-md-2"/>
         <criteria placeholder="SCREEN_TEXT_PASS" component="password" icon="key" id="pwd_usr2" style="col-xs-6 col-sm-4 col-md-2"/>
       </tag>
-      <tag type="div" style="p-grid">
-        <button button-type="reset" style="p-ml-auto" label="BUTTON_RESET" icon="undo" id="ButRes2">
+      <tag type="div" style="grid">
+        <button button-type="reset" style="ml-auto" label="BUTTON_RESET" icon="undo" id="ButRes2">
           <button-action type="restore"/>
         </button>
         <button button-type="submit" label="BUTTON_LOGIN" icon="sign-in" id="ButLogIn2">
