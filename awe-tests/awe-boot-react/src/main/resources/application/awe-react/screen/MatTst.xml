@@ -497,7 +497,7 @@
       <tabcontainer id="DepMat">
         <tag type="div" style="expand expandible-vertical">
           <resizable directions="bottom">
-            <resizable directions="right" style="p-p-0">
+            <resizable directions="right" style="p-0">
               <grid id="MatSel" style="expand" initial-load="query" server-action="data" target-action="QryUniTst" max="10">
                 <column label="COLUMN_SIT" sort-field="Als" name="Als5" charlength="25" />
               </grid>

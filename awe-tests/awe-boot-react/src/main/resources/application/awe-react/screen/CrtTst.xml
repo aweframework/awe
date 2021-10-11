@@ -176,14 +176,14 @@
           </dependency>
         </criteria>
         <criteria label="PARAMETER_SUGGEST_MULTIPLE_READONLY" id="SugMulRea" variable="SugMul" component="suggest-multiple" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="UsrEmlLstTstSugDelay" readonly="true" value="test" />
-        <tag type="div" style="p-d-flex col-xs-12 col-sm-6">
+        <tag type="div" style="flex col-xs-12 col-sm-6">
           <criteria label="PARAMETER_CHECKBOX_1" id="ChkBoxVa1" group="ChkBoxVa" variable="ChkBoxVa1" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" />
           <criteria label="PARAMETER_CHECKBOX_2" id="ChkBoxVa2" group="ChkBoxVa" variable="ChkBoxVa2" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}"/>
           <criteria label="PARAMETER_CHECKBOX_3" id="ChkBoxVa3" group="ChkBoxVa" variable="ChkBoxVa3" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" readonly="true" />
           <criteria label="PARAMETER_CHECKBOX" id="ChkBoxVa4" group="ChkBoxVa" variable="ChkBoxVa4" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" />
           <criteria label="PARAMETER_CHECKBOX" id="ChkBoxVa5" group="ChkBoxVa" variable="ChkBoxVa5" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" checked="true" />
         </tag>
-        <tag type="div" style="p-d-flex col-xs-12 col-sm-6">
+        <tag type="div" style="flex col-xs-12 col-sm-6">
           <criteria label="PARAMETER_RADIO_1" id="RadBox1" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio1" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="required" />
           <criteria label="PARAMETER_RADIO_2" id="RadBox2" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio2" style="col-xs-6 col-sm-4 col-lg-2 no-label" readonly="true" />
           <criteria label="PARAMETER_RADIO_3" id="RadBox3" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio3" style="col-xs-6 col-sm-4 col-lg-2 no-label">
@@ -195,7 +195,7 @@
           <criteria label="PARAMETER_RADIO_1" id="RadBox5" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio5" style="col-xs-6 col-sm-4 col-lg-2 no-label" checked="true"/>
         </tag>
         <criteria id="ChkBoxButGrp" component="button-checkbox" style="col-xs-6" validation="{checkAtLeast:2}" initial-load="enum" target-action="ButtonCheckbox"/>
-        <!--<tag type="div" style="p-d-flex col-xs-12 col-sm-6 form-group">
+        <!--<tag type="div" style="flex col-xs-12 col-sm-6 form-group">
           <criteria label="PARAMETER_CHECKBOX_1" id="ChkBoxVa21" group="ChkBoxVa2" variable="ChkBoxVa21" component="button-checkbox" style="col-xs-2" validation="{checkAtLeast:2}"/>
           <criteria label="PARAMETER_CHECKBOX_2" id="ChkBoxVa22" group="ChkBoxVa2" variable="ChkBoxVa22" component="button-checkbox" style="col-xs-2" validation="{checkAtLeast:2}" checked="true"/>
           <criteria label="PARAMETER_CHECKBOX_3" id="ChkBoxVa23" group="ChkBoxVa2" variable="ChkBoxVa23" component="button-checkbox" style="col-xs-2" readonly="true" />
@@ -207,7 +207,7 @@
             <dependency-element id="Txt" condition="eq" value="radiohidden"/>
           </dependency>
         </criteria>
-        <!--<tag type="div" style="p-d-flex col-xs-12 col-sm-6 form-group">
+        <!--<tag type="div" style="flex col-xs-12 col-sm-6 form-group">
           <criteria label="PARAMETER_RADIO_1" id="RadBox21" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio1" style="col-xs-2" validation="required" />
           <criteria label="PARAMETER_RADIO_2" id="RadBox22" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio2" style="col-xs-2" readonly="true"/>
           <criteria label="PARAMETER_RADIO_3" id="RadBox23" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio3" style="col-xs-2"/>

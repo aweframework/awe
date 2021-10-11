@@ -112,7 +112,7 @@
                 </dependency>
               </info-criteria>
             </info>
-            <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT" style="p-m-2 p-button-text p-button-secondary">
+            <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT" style="m-2 p-button-text p-button-secondary">
               <button-action type="logout"/>
             </info-button>
           </tag>

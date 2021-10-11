@@ -15,15 +15,15 @@
   <!-- Center Zone: Show menu and reports -->
   <tag source="center">
     <tag type="div" id="page-home" style="expand" expandible="vertical">
-      <tag type="div" style="layout-header p-d-flex">
+      <tag type="div" style="layout-header flex">
         <tag type="div" style="layout-header-left">
           <tag type="h1" style="application-logo">
             <tag type="span" label="APP_CLIENT"/>
           </tag>
         </tag>
-        <tag type="div" style="layout-header-right p-ml-auto">
+        <tag type="div" style="layout-header-right ml-auto">
           <!-- Profile -->
-          <tag type="ul" style="navbar p-p-2">
+          <tag type="ul" style="navbar p-2">
             <include target-screen="notification-panel" target-source="notification-panel"/>
             <info id="ButSetTog" icon="cog" title="SCREEN_TEXT_SETTINGS" dropdown-style="dropdown-lg">
               <info-criteria icon="puzzle-piece" title="SCREEN_TEXT_MODULE" component="select" id="module"
