@@ -820,7 +820,7 @@ These are the possible variable types:
 * **DATE**: web date (`dd/MM/aaaa`)
 * **TIME**: web time (`HH:mm:ss`)
 * **TIMESTAMP**: web timestamp (`dd/MM/aaaa HH:mm:ss`)
-* **SYSTEM_DATE**: Server Date (stored as timestamp) (`dd/MM/aaaa HH:mm:ss`)
+* **SYSTEM_DATE**: Server Date (stored as date) (`dd/MM/aaaa`)
 * **SYSTEM_TIME**: Server time (Stored as string) (`HH:mm:ss`)
 * **SYSTEM_TIMESTAMP**: Server Date (stored as timestamp with milliseconds) (`dd/MM/aaaa HH:mm:ss.SSS`)
 * **NULL**: To pass a `null` value
