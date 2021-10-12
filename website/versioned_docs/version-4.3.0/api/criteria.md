@@ -138,8 +138,10 @@ This attribute is used to format the numeric criterion and the slider. It is spe
 | min         | Optional | Number    | The minimum possible value | Ex: `{min: 5}`                                          |
 | max         | Optional | Number    | The maximum possible value     | Ex: `{max: 5}`                                          |
 | aSign       | Optional | String    | Desired currency symbol  | Ex: `{aSign: ' €'}`                                       |
-| pSign       | Optional | String    | Controls the placement of the currency symbol | pSign: 'p' to prefix (**default**) or pSign: 's' to suffix |
-| aPad        | Optional | Boolean    | Controls padding of the decimal places | **true** always pads the decimal with zeros or **false**  (**default**) to no padding |
+| pSign       | Optional | String    | Controls the placement of the currency symbol | pSign: 'p' to prefix or pSign: 's' to suffix (**
+default**)|
+| aPad        | Optional | Boolean    | Controls padding of the decimal places | **
+true** always pads the decimal with zeros or **false**  (**default**) to no padding |
 | precision   | Optional | Number    | Number of decimals |  **Note:** The thousand & decimal separators can not be the same |
 | step        | Optional | Number    | Slider increment step | Ex: `{step: 5}`                                       |
 | ticks       | Optional | Array    | Used to define the values of ticks in slider. Tick marks are indicators to denote special values in the range. This option overwrites min and max options | Ex: `{ticks: [-1000, -500, 0, 500, 1000]}` |
