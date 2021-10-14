@@ -54,11 +54,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
     </dependency>
-    <!-- Hikari datasource -->
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-    </dependency>
     <!-- Spring security -->
     <dependency>
       <groupId>org.springframework.security</groupId>
