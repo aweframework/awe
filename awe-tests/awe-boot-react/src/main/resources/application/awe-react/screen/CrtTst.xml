@@ -44,7 +44,7 @@
             <dependency-action type="value" target="RadBoxButGrp" value="Radio1"/>
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true,maxlength:4}"/>
+        <criteria label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true,maxlength:{value: 4, type: 'integer'}}"/>
         <criteria label="PARAMETER_TEXT_READONLY" id="TxtRea" variable="TxtRea" component="text" readonly="true" style="col-xs-6 col-sm-3 col-lg-2" initial-load="value" target-action="FilCalDat" unit="PARAMETER_TEXT">
           <dependency source-type="launcher" target-type="input" target-action="language">
             <dependency-element id="language" view="base" attribute="text" alias="language"/>
