@@ -436,8 +436,7 @@ Deploy Maven Central:
       artifacts: false
   stage: deploy
   script:
-    - echo "$GOOGLE_KEY" > key.json
-    - gcloud auth activate-service-account --key-file key.json
+    - gcloud auth activate-service-account --key-file $GOOGLE_KEY
     - gcloud config set project $KUBERNETES_PROJECT_ID
     - gcloud config set compute/zone $KUBE_ZONE
     - gcloud config set container/use_client_certificate True
