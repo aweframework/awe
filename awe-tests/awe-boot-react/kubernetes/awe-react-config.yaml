@@ -4,5 +4,6 @@ metadata:
   name: awe-react
 data:
   application.properties: |-
+    server.servlet.context-path=/react
     info.app.name=Awe React Application
     info.app.description=This is an awe application example with react engine
