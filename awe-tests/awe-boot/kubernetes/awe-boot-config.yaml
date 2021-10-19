@@ -4,5 +4,6 @@ metadata:
   name: awe-boot
 data:
   application.properties: |-
+    server.servlet.context-path=/angular
     info.app.name=Awe Boot Application
     info.app.description=This is an awe application example
