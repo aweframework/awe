@@ -70,6 +70,13 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
+      <exclusions>
+        <!-- Use log4j2 lib -->
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Redis cache server -->
@@ -82,12 +89,12 @@
       <artifactId>spring-session-data-redis</artifactId>
     </dependency>
 
-<!--    Wavefront metrics -->
-<!--    <dependency>-->
-<!--      <groupId>com.wavefront</groupId>-->
-<!--      <artifactId>wavefront-spring-boot-starter</artifactId>-->
-<!--      <version>${wavefront.version}</version>-->
-<!--    </dependency>-->
+    <!--  Wavefront metrics -->
+    <dependency>
+      <groupId>com.wavefront</groupId>
+      <artifactId>wavefront-spring-boot-starter</artifactId>
+      <version>${wavefront.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.almis.awe</groupId>

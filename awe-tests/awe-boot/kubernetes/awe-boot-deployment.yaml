@@ -8,11 +8,11 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      name: awe-boot
+      app: awe-boot
   template:
     metadata:
       labels:
-        name: awe-boot
+        app: awe-boot
     spec:
       containers:
       - name: awe-boot
