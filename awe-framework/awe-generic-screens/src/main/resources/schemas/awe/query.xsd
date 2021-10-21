@@ -162,7 +162,7 @@
   <xs:complexType name="queryType">
     <xs:group ref="queryGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="queryBaseAttributes" />
-    <xs:attribute name="id" use="required" type="xs:string" />
+    <xs:attribute name="id" use="required" type="identifierType" />
   </xs:complexType>
 
   <!-- Table Type -->
@@ -261,7 +261,7 @@
     <xs:attribute name="nullValue" type="xs:string" />
     <xs:attribute name="transform" type="transformType" />
     <xs:attribute name="pattern" type="xs:string" />
-    <xs:attribute name="translate" type="xs:string" />
+    <xs:attribute name="translate" type="identifierType" />
     <xs:attribute name="label" type="xs:string" />
   </xs:complexType>
 
@@ -298,7 +298,7 @@
 
   <!-- Union Element -->
   <xs:complexType name="unionType">
-    <xs:attribute name="query" use="required" type="xs:string" />
+    <xs:attribute name="query" use="required" type="identifierType" />
     <xs:attribute name="type" type="unionElementType" />
   </xs:complexType>
 
@@ -310,25 +310,25 @@
     </xs:choice>
     <xs:attribute name="function" use="required" type="aggregationFunctions" />
     <xs:attribute name="label" use="required" type="xs:string" />
-    <xs:attribute name="field" use="required" type="xs:string" />
+    <xs:attribute name="field" use="required" type="identifierType" />
     <xs:attribute name="style" use="required" type="totalizeStyleType" />
   </xs:complexType>
 
   <!-- Totalize Element Type -->
   <xs:complexType name="totalizeElementType">
-    <xs:attribute name="field" use="required" type="xs:string" />
+    <xs:attribute name="field" use="required" type="identifierType" />
   </xs:complexType>
 
   <!-- Table Attributes -->
   <xs:attributeGroup name="tableAttr">
-    <xs:attribute name="id" type="xs:string"/>
-    <xs:attribute name="schema" type="xs:string"/> 
+    <xs:attribute name="id" type="identifierType"/>
+    <xs:attribute name="schema" type="identifierType"/>
   </xs:attributeGroup>
 
   <!-- Table Attributes -->
   <xs:attributeGroup name="tableQueryAttr">
     <xs:attributeGroup ref="tableAttr"/>
-    <xs:attribute name="query" type="xs:string"/>
+    <xs:attribute name="query" type="identifierType"/>
     <xs:attribute name="alias" type="xs:string"/>
   </xs:attributeGroup>
 
@@ -339,9 +339,9 @@
 
   <xs:attributeGroup name="queryBaseAttributes">
     <xs:attribute name="distinct" type="booleanEnum" />
-    <xs:attribute name="enumerated" type="xs:string" />
-    <xs:attribute name="service" type="xs:string" />
-    <xs:attribute name="queue" type="xs:string" />
+    <xs:attribute name="enumerated" type="identifierType" />
+    <xs:attribute name="service" type="identifierType" />
+    <xs:attribute name="queue" type="identifierType" />
     <xs:attribute name="cacheable" type="booleanEnum" />
     <xs:attribute name="managed-pagination" type="booleanEnum" />
     <xs:attribute name="post-process" type="booleanEnum" />
@@ -372,9 +372,9 @@
 
   <!-- Base Field Attributes -->
   <xs:attributeGroup name="fieldAttr">
-    <xs:attribute name="query" type="xs:string"/>
-    <xs:attribute name="variable" type="xs:string"/>
-    <xs:attribute name="sequence" type="xs:string"/>
+    <xs:attribute name="query" type="identifierType"/>
+    <xs:attribute name="variable" type="identifierType"/>
+    <xs:attribute name="sequence" type="identifierType"/>
   </xs:attributeGroup>
 
   <!-- Field Attributes -->
@@ -419,25 +419,25 @@
   <!-- Filter Attributes -->
   <xs:attributeGroup name="filterAttr">
     <xs:attribute name="condition" use="required" type="conditionEnum"/>
-    <xs:attribute name="left-field" type="xs:string"/>
-    <xs:attribute name="left-table" type="xs:string"/>
-    <xs:attribute name="left-variable" type="xs:string"/>
+    <xs:attribute name="left-field" type="identifierType"/>
+    <xs:attribute name="left-table" type="identifierType"/>
+    <xs:attribute name="left-variable" type="identifierType"/>
     <xs:attribute name="left-function" type="functionTypeEnum"/>
-    <xs:attribute name="right-field" type="xs:string"/>
-    <xs:attribute name="right-table" type="xs:string"/>
-    <xs:attribute name="right-variable" type="xs:string"/>
+    <xs:attribute name="right-field" type="identifierType"/>
+    <xs:attribute name="right-table" type="identifierType"/>
+    <xs:attribute name="right-variable" type="identifierType"/>
     <xs:attribute name="right-function" type="functionTypeEnum"/>
     <xs:attribute name="ignorecase" type="booleanEnum"/>
     <xs:attribute name="trim" type="booleanEnum"/>
     <xs:attribute name="optional" type="booleanEnum"/>
-    <xs:attribute name="query" type="xs:string"/>
+    <xs:attribute name="query" type="identifierType"/>
     <xs:attribute name="type" type="valueTypeEnum"/>
   </xs:attributeGroup>
 
   <!-- Order Call Attributes -->
   <xs:attributeGroup name="orderAttr">
-    <xs:attribute name="field" use="required" type="xs:string"/>
-    <xs:attribute name="table" type="xs:string"/>
+    <xs:attribute name="field" use="required" type="identifierType"/>
+    <xs:attribute name="table" type="identifierType"/>
     <xs:attribute name="function" type="functionTypeEnum"/>
   </xs:attributeGroup>
 
