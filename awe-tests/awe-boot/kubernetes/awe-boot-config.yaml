@@ -6,3 +6,6 @@ data:
   application.properties: |-
     info.app.name=Awe Boot Application
     info.app.description=This is an awe application example
+    # Redis key prefix
+    spring.cache.redis.key-prefix=awe-boot::
+    spring.session.redis.namespace=awe-boot:session
