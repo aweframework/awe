@@ -1,3 +1,4 @@
+# Spring Cloud Kubernetes disabled
 spring:
   cloud:
     kubernetes:

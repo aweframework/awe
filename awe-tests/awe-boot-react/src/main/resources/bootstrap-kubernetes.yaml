@@ -1,0 +1,5 @@
+# Spring Cloud Kubernetes enabled
+spring:
+  cloud:
+    kubernetes:
+      enabled: true
