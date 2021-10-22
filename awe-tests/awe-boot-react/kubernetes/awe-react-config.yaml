@@ -8,3 +8,4 @@ data:
     info.app.description=This is an awe application example with react engine
     spring.session.redis.namespace=awe-react:session
     spring.cache.redis.key-prefix=awe-react::
+    server.servlet.context-path=/react
