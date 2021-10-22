@@ -19,8 +19,8 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.0.17</ade.version>
-    <spring-boot.version>2.4.10</spring-boot.version>
-    <spring-cloud.version>2020.0.1</spring-cloud.version>
+    <spring-boot.version>2.4.12</spring-boot.version>
+    <spring-cloud.version>2020.0.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v12.1.0</node.version>
     <yarn.version>v1.15.2</yarn.version>
@@ -36,9 +36,8 @@
     <xtream.version>1.4.14</xtream.version>
     <graalvm.version>20.2.0</graalvm.version>
     <selenium.version>3.141.59</selenium.version>
-    <lombok.version>1.18.20</lombok.version>
     <modelmapper.version>2.4.0</modelmapper.version>
-    <querydsl.version>4.3.1</querydsl.version>
+    <querydsl.version>4.4.0</querydsl.version>
     <swagger.version>3.0.0</swagger.version>
 
     <!-- Compilation -->
@@ -60,7 +59,7 @@
     <plugin-flatten-maven.version>1.1.0</plugin-flatten-maven.version>
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
     <plugin-resources.version>3.1.0</plugin-resources.version>
-    <plugin-lombok.version>${lombok.version}.0</plugin-lombok.version>
+    <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
     <plugin-maven-archetype.version>3.2.0</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.0.0-M1</plugin-maven-install.version>
     <!-- Karma configuration -->
@@ -286,13 +285,7 @@
         <artifactId>xstream</artifactId>
         <version>${xtream.version}</version>
       </dependency>
-      <!-- Lombok -->
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-        <scope>provided</scope>
-      </dependency>
+
       <!-- ModelMapper -->
       <dependency>
         <groupId>org.modelmapper</groupId>
