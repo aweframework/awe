@@ -4,6 +4,8 @@
 
 include:
   - template: DAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
 
 image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
 
@@ -41,7 +43,7 @@ cache:
 
 stages:
   - build
-  - unit test
+  - test
   - integration test
   - analysis
   - site
@@ -125,12 +127,12 @@ Build website with i18n:
     - <<: *if-master
 
 ##############################
-# Unit testing stage
+# testing stage
 ##############################
 
 # Unit testing extension
 .unit-testing:
-  stage: unit test
+  stage: test
   allow_failure: false
   needs:
     - job: Build project
@@ -188,7 +190,7 @@ SQL Server Tests:
       alias: mssqlserver
 
 Frontend UT:
-  stage: unit test
+  stage: test
   needs: [ ]
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
@@ -204,7 +206,7 @@ Frontend UT:
 
 Javadoc test:
   image: maven:3.6-jdk-8
-  stage: unit test
+  stage: test
   needs: [ "Build project" ]
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
