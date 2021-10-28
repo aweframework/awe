@@ -100,7 +100,6 @@ Build project:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
-      - "**/target/"
       - .m2
     expire_in: 1 day
 
@@ -240,7 +239,6 @@ spotbugs-sast:
     - job: Build project
   variables:
     MAVEN_REPO_PATH: /builds/aweframework/awe/.m2/repository
-    COMPILE: "false"
     SAST_JAVA_VERSION: 11
   artifacts:
     reports:
