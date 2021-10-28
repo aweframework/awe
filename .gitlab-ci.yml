@@ -100,7 +100,6 @@ Build project:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
-      - .m2
     expire_in: 1 day
 
 Build project (jdk latest):
@@ -233,16 +232,8 @@ sast:
   stage: unit test
   needs: []
   variables:
+    SAST_EXCLUDED_ANALYZERS: spotbugs-sast
     VALIDATE_SCHEMA: "true"
-spotbugs-sast:
-  needs:
-    - job: Build project
-  variables:
-    MAVEN_REPO_PATH: /builds/aweframework/awe/.m2/repository
-    SAST_JAVA_VERSION: 11
-  artifacts:
-    reports:
-      sast: gl-sast-report.json
 
 ##############################
 # Integration testing stage
