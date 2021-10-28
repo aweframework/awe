@@ -45,7 +45,6 @@ cache:
 stages:
   - build
   - unit test
-  - security scan
   - integration test
   - analysis
   - site
@@ -221,22 +220,18 @@ Javadoc test:
   rules:
     - <<: *if-merge-request
 
-##############################
-# Security scan
-##############################
-
 dependency_scanning:
-  stage: security scan
+  stage: unit test
   needs: []
   variables:
     DS_EXCLUDED_ANALYZERS: gemnasium-maven-dependency_scanning
 license_scanning:
-  stage: security scan
+  stage: unit test
   needs: []
   rules:
     - <<: *if-default
 sast:
-  stage: security scan
+  stage: unit test
   needs: []
   variables:
     VALIDATE_SCHEMA: "true"
