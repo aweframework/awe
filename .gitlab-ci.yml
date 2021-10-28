@@ -3,7 +3,7 @@
 ##############################
 
 include:
-  - template: DAST.gitlab-ci.yml
+  - template: Security/DAST.gitlab-ci.yml
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
@@ -44,7 +44,8 @@ cache:
 
 stages:
   - build
-  - test
+  - unit test
+  - security scan
   - integration test
   - analysis
   - site
@@ -100,6 +101,8 @@ Build project:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
+      - target
+      - .m2
     expire_in: 1 day
 
 Build project (jdk latest):
@@ -133,7 +136,7 @@ Build website with i18n:
 
 # Unit testing extension
 .unit-testing:
-  stage: test
+  stage: unit test
   allow_failure: false
   needs:
     - job: Build project
@@ -191,7 +194,7 @@ SQL Server Tests:
       alias: mssqlserver
 
 Frontend UT:
-  stage: test
+  stage: unit test
   needs: [ ]
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
@@ -207,7 +210,7 @@ Frontend UT:
 
 Javadoc test:
   image: maven:3.6-jdk-8
-  stage: test
+  stage: unit test
   needs: [ "Build project" ]
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
@@ -217,6 +220,36 @@ Javadoc test:
     expire_in: 1 day
   rules:
     - <<: *if-merge-request
+
+##############################
+# Security scan
+##############################
+
+dependency_scanning:
+  stage: security scan
+  needs: []
+  variables:
+    DS_EXCLUDED_ANALYZERS: gemnasium-maven-dependency_scanning
+license_scanning:
+  stage: security scan
+  needs: []
+  rules:
+    - <<: *if-default
+sast:
+  stage: security scan
+  needs: []
+  variables:
+    VALIDATE_SCHEMA: "true"
+spotbugs-sast:
+  needs:
+    - job: Build project
+  variables:
+    MAVEN_REPO_PATH: /builds/aweframework/awe/.m2/repository
+    COMPILE: "false"
+    SAST_JAVA_VERSION: 11
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
 
 ##############################
 # Integration testing stage
