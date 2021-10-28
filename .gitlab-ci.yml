@@ -100,7 +100,7 @@ Build project:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
-      - target
+      - "**/target/"
       - .m2
     expire_in: 1 day
 
