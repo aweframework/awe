@@ -25,19 +25,57 @@ spec:
         env: __CI_ENVIRONMENT_SLUG__
     spec:
       containers:
-      - name: awe-boot
-        image: registry.gitlab.com/aweframework/awe/awe-boot:__VERSION__
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        env:
-          - name: SPRING_PROFILES_ACTIVE
-            value: cloud
-        resources:
-          limits:
-            memory: 2Gi
-          requests:
-            memory: 256Mi
+        - name: awe-boot
+          image: registry.gitlab.com/aweframework/awe/awe-boot:__VERSION__
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /mnt/secrets
+              name: secrets
+              readOnly: true
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: cloud
+            - name: MYSQL_URL
+              valueFrom:
+                secretKeyRef:
+                  key: mysql-url
+                  name: awe-boot
+                - name: MYSQL_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: mysql-username
+                      name: awe-boot
+                - name: MYSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: mysql-password
+                      name: awe-boot
+                - name: MYSQL_CLIENT_KEYSTORE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: client-keystore-password
+                      name: awe-boot
+                - name: TRUSTSTORE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: truststore-password
+                      name: awe-boot
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 256Mi
+      volumes:
+        - name: secrets
+          secret:
+            secretName: awe-boot
+            items:
+              - key: truststore.jks
+                path: truststore.jks
+              - key: mysql-client-keystore.p12
+                path: mysql-client-keystore.p12
       imagePullSecrets:
         - name: registry.gitlab.com

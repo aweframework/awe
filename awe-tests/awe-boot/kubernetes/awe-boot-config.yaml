@@ -9,3 +9,10 @@ data:
     # Redis key prefix
     spring.cache.redis.key-prefix=awe-boot::
     spring.session.redis.namespace=awe-boot:session
+    ## Database MYSQL
+    spring.datasource.url=jdbc:mysql://${MYSQL_URL}?\
+      &verifyServerCertificate=true&useSSL=true&requireSSL=true\
+      &clientCertificateKeyStoreUrl=file:/mnt/secrets/mysql-client-keystore.p12&clientCertificateKeyStorePassword=${MYSQL_CLIENT_KEYSTORE_PASSWORD}\
+      &trustCertificateKeyStoreUrl=file:/mnt/secrets/truststore.jks&trustCertificateKeyStorePassword=${TRUSTSTORE_PASSWORD}
+    spring.datasource.username=${MYSQL_USERNAME}
+    spring.datasource.password=${MYSQL_PASSWORD}

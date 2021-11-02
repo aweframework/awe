@@ -3,3 +3,7 @@ spring:
   cloud:
     kubernetes:
       enabled: true
+    gcp:
+      secretmanager:
+        enabled: true
+        project-id: wired-armor-229610

@@ -1,9 +1,4 @@
 -- ------------------------------------------------------
---  DDL for Schema AWE
--- ------------------------------------------------------
-CREATE SCHEMA AWE;
-
--- ------------------------------------------------------
 --  DDL for Table AweAppPar
 --  Application parameters table: Allows to configure specific parameters in the application
 -- ------------------------------------------------------
