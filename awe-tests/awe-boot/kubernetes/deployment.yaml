@@ -43,26 +43,26 @@ spec:
                 secretKeyRef:
                   key: mysql-url
                   name: awe-boot
-                - name: MYSQL_USERNAME
-                  valueFrom:
-                    secretKeyRef:
-                      key: mysql-username
-                      name: awe-boot
-                - name: MYSQL_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: mysql-password
-                      name: awe-boot
-                - name: MYSQL_CLIENT_KEYSTORE_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: client-keystore-password
-                      name: awe-boot
-                - name: TRUSTSTORE_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: truststore-password
-                      name: awe-boot
+            - name: MYSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: mysql-username
+                  name: awe-boot
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mysql-password
+                  name: awe-boot
+            - name: MYSQL_CLIENT_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: client-keystore-password
+                  name: awe-boot
+            - name: TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: truststore-password
+                  name: awe-boot
           resources:
             limits:
               memory: 2Gi
