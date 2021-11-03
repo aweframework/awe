@@ -3,30 +3,30 @@ kind: Deployment
 metadata:
   name: awe-boot
   annotations:
-    app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
-    app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
+    app.gitlab.com/env: staging
+    app.gitlab.com/app: aweframework-awe
   labels:
     app: awe-boot
-    env: __CI_ENVIRONMENT_SLUG__
+    env: staging
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: awe-boot
-      env: __CI_ENVIRONMENT_SLUG__
+      env: staging
   template:
     metadata:
       annotations:
-        app.gitlab.com/env: __CI_ENVIRONMENT_SLUG__
-        app.gitlab.com/app: __CI_PROJECT_PATH_SLUG__
-        version: __VERSION__
+        app.gitlab.com/env: staging
+        app.gitlab.com/app: aweframework-awe
+        version: 4.4.3-SNAPSHOT
       labels:
         app: awe-boot
-        env: __CI_ENVIRONMENT_SLUG__
+        env: staging
     spec:
       containers:
         - name: awe-boot
-          image: registry.gitlab.com/aweframework/awe/awe-boot:__VERSION__
+          image: registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
