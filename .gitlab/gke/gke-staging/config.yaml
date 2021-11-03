@@ -1,0 +1,5 @@
+gitops:
+  manifest_projects:
+    - id: "aweframework/awe"
+      paths:
+        - glob: '/awe-tests/awe-boot/kubernetes/staging/*.{yaml,yml,json}'
