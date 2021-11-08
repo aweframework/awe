@@ -4,6 +4,7 @@ metadata:
   name: awe-boot-service
   namespace: staging
 spec:
+  type: NodePort
   ports:
     - port: 80
       protocol: TCP
