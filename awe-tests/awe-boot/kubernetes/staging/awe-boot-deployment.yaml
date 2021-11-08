@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: awe-boot
+  namespace: staging
   annotations:
     app.gitlab.com/env: staging
     app.gitlab.com/app: aweframework-awe
