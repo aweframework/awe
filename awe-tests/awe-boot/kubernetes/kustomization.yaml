@@ -2,8 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 images:
-- name: gcr.io/google-samples/hello-app
-  newTag: "2.0"
+- name: registry.gitlab.com/aweframework/awe/awe-boot
+  newTag: "4.4.3-SNAPSHOT"
 
 resources:
-- staging/test-deployment.yaml
+- staging/awe-boot-deployment.yaml
