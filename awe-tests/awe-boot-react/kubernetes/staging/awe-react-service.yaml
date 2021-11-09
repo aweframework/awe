@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: awe-react-service-staging
+  name: awe-react-service
   namespace: staging
 spec:
   type: NodePort
