@@ -95,7 +95,7 @@ stages:
     - <<: *if-default
 
 .build-website:
-  image: awesometic/docusaurus
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: build
   script:
     - npm install --prefix website
@@ -193,6 +193,7 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
