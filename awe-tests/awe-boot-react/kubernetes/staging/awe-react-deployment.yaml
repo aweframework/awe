@@ -43,27 +43,27 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: mysql-url
-                  name: awe-boot
+                  name: awe-react
             - name: MYSQL_USERNAME
               valueFrom:
                 secretKeyRef:
                   key: mysql-username
-                  name: awe-boot
+                  name: awe-react
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: mysql-password
-                  name: awe-boot
+                  name: awe-react
             - name: MYSQL_CLIENT_KEYSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: client-keystore-password
-                  name: awe-boot
+                  name: awe-react
             - name: TRUSTSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: truststore-password
-                  name: awe-boot
+                  name: awe-react
           resources:
             limits:
               memory: 2Gi
@@ -72,7 +72,7 @@ spec:
       volumes:
         - name: secrets
           secret:
-            secretName: awe-boot
+            secretName: awe-react
             items:
               - key: truststore.jks
                 path: truststore.jks
