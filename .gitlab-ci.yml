@@ -8,7 +8,7 @@ include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
 
-image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+image: maven:3.8-openjdk-11-slim
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -95,6 +95,7 @@ stages:
     - <<: *if-default
 
 .build-website:
+  image: node:14.18.1-alpine
   stage: build
   script:
     - npm install --prefix website
@@ -116,7 +117,7 @@ Build project:
 
 Build project (jdk latest):
   extends: .build
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk-latest-node-maven:latest
+  image: maven:3.8-openjdk-17-slim
   cache:
     policy: pull
 
@@ -218,7 +219,6 @@ Frontend UT:
     - <<: *if-default
 
 Javadoc test:
-  image: maven:3.6-jdk-8
   stage: unit test
   needs: [ "Build project" ]
   script:
@@ -253,6 +253,7 @@ sast:
 
 # Browser testing extension
 .browser-testing:
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: integration test
   allow_failure: true
   needs:
@@ -389,7 +390,6 @@ Launch Sonar:
 ##############################
 
 Generate javadoc & schemas:
-  image: maven:3.6-jdk-8
   stage: site
   needs: [ ]
   script:
@@ -441,7 +441,6 @@ Build package:
 ##############################
 
 Deploy snapshot:
-  image: maven:3.5-jdk-11
   stage: deploy
   needs:
     - job: Launch Sonar
@@ -451,7 +450,6 @@ Deploy snapshot:
     - <<: *if-develop
 
 Deploy Maven Central:
-  image: maven:3.5-jdk-11
   stage: deploy
   before_script:
     ## Add gpg key to sign
