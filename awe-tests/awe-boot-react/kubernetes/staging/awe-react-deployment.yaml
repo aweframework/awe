@@ -72,7 +72,7 @@ spec:
       volumes:
         - name: secrets
           secret:
-            secretName: awe-react
+            secretName: awe-boot
             items:
               - key: truststore.jks
                 path: truststore.jks
