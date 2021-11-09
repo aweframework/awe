@@ -423,7 +423,7 @@ Build package:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker build -t registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
-    - digest=docker images --no-trunc --quiet registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
+    - digest=$(docker images --no-trunc --quiet registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION)
     - echo "PACKAGE_DIGEST=$digest" >> build.env
     # Docker Hub container
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_TOKEN
