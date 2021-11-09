@@ -2,9 +2,11 @@ gitops:
   manifest_projects:
     - id: "aweframework/awe"
       paths:
-        - glob: '/awe-tests/awe-boot/kubernetes/staging/*.{yaml,yml,json}'
-        - glob: '/awe-tests/awe-boot/kubernetes/production/*.{yaml,yml,json}'
+        - glob: '/awe-tests/awe-boot/kubernetes/staging/awe*.{yaml,yml,json}'
+        - glob: '/awe-tests/awe-boot/kubernetes/production/awe*.{yaml,yml,json}'
+        - glob: '/awe-tests/awe-boot/kubernetes/staging/redis*.{yaml,yml,json}'
+        - glob: '/awe-tests/awe-boot/kubernetes/production/redis*.{yaml,yml,json}'
     - id: "aweframework/awe-react"
       paths:
-        - glob: '/test-react/kubernetes/staging/*.{yaml,yml,json}'
-        - glob: '/test-react/kubernetes/production/*.{yaml,yml,json}'
+        - glob: '/test-react/kubernetes/staging/awe*.{yaml,yml,json}'
+        - glob: '/test-react/kubernetes/production/awe*.{yaml,yml,json}'
