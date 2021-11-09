@@ -7,8 +7,8 @@ metadata:
     name: awe-ingress
     env: production
   annotations:
-    kubernetes.io/ingress.class: gce
-    kubernetes.io/ingress.global-static-ip-name: staging-static-ip
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: demo-static-ip
     networking.gke.io/managed-certificates: aweframework-demo-certs
 spec:
   rules:
