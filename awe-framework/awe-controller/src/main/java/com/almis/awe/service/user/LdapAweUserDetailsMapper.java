@@ -144,7 +144,7 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
    * object creation.
    * <p>
    * The default implementation converts string attributes to roles, making use of the
-   * <tt>rolePrefix</tt> and <tt>convertToUpperCase</tt> properties. Non-String
+   * rolePrefix and convertToUpperCase properties. Non-String
    * attributes are ignored.
    * </p>
    *
@@ -184,7 +184,7 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
 
   /**
    * The names of any attributes in the user's entry which represent application roles.
-   * These will be converted to <tt>GrantedAuthority</tt>s and added to the list in the
+   * These will be converted to GrantedAuthorities and added to the list in the
    * returned LdapUserDetails object. The attribute values must be Strings by default.
    *
    * @param roleAttributes the names of the role attributes.

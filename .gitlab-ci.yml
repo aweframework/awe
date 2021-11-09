@@ -95,7 +95,7 @@ stages:
     - <<: *if-default
 
 .build-website:
-  image: node:14.18.1-alpine
+  image: awesometic/docusaurus
   stage: build
   script:
     - npm install --prefix website
