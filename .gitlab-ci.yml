@@ -52,6 +52,20 @@ stages:
   - dast
   - release
 
+.git_credentials_template: &git_credentials
+  before_script:
+    ## Push git credentials
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - git config --global user.email no-reply@almis.com
+    - git config --global user.name "Gitlab CI"
+    - git remote set-url $CI_PROJECT_URL_SSH
+
 ##############################
 # Pipeline rules
 ##############################
@@ -66,7 +80,6 @@ stages:
   if: '$CI_MERGE_REQUEST_IID'
 .if-tag: &if-tag
   if: '$CI_COMMIT_TAG'
-
 
 ##############################
 # Build stage
@@ -410,10 +423,15 @@ Build package:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker build -t registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
+    - digest=docker images --no-trunc --quiet registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
+    - echo "PACKAGE_DIGEST=$digest" >> build.env
     # Docker Hub container
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_TOKEN
     - docker build -t aweframework/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push aweframework/awe-boot:$PROJECT_VERSION
+  artifacts:
+    reports:
+      dotenv: build.env
   rules:
     - <<: *if-develop
     - <<: *if-master
@@ -445,27 +463,21 @@ Deploy Maven Central:
 
 # Kubernetes deployment
 .k8s_deploy:
-  image: google/cloud-sdk
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   cache: { }
   needs:
     - job: Build project
     - job: Build package
     - job: Launch Sonar
-      artifacts: false
   stage: deploy
+  <<: *git_credentials
   script:
-    - gcloud auth login --cred-file=$GOOGLE_KEY
-    - gcloud container clusters get-credentials $KUBERNETES_CLUSTER_NAME --zone $KUBE_ZONE --project $KUBERNETES_PROJECT_ID
-    - kubectl config set-context --current --namespace=$CI_ENVIRONMENT_SLUG
-    - kubectl delete secret registry.gitlab.com --ignore-not-found
-    - kubectl create secret docker-registry registry.gitlab.com --docker-server=https://registry.gitlab.com --docker-username=$CI_USERNAME --docker-password=$CI_PASSWORD --docker-email=$CI_EMAIL
-    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - sed -i "s/__CI_PROJECT_PATH_SLUG__/${CI_PROJECT_PATH_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - kubectl delete pods -l app=awe-boot
-    - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-config.yaml
-    - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-role.yaml
-    - kubectl apply -f awe-tests/awe-boot/kubernetes/deployment.yaml
+    - cd awe-tests/awe-boot/kubernetes/${CI_ENVIRONMENT_SLUG}
+    - kustomize edit set registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
+    - kustomize edit set annotation version:${PROJECT_VERSION}
+    - kustomize build -o awe-boot-deployment.yaml
+    - git commit -m "Updated kubernetes deployment ${CI_ENVIRONMENT_SLUG} [skip ci]"
+    - git push
 
 Deploy staging:
   extends: .k8s_deploy
@@ -474,9 +486,8 @@ Deploy staging:
     url: https://staging.aweframework.com
     kubernetes:
       namespace: staging
-  only:
-    refs:
-      - develop
+  rules:
+    - <<: *if-develop
 
 Deploy production:
   extends: .k8s_deploy
@@ -485,9 +496,8 @@ Deploy production:
     url: https://demo.aweframework.com
     kubernetes:
       namespace: production
-  only:
-    refs:
-      - master
+  rules:
+    - <<: *if-master
 
 dast:
   script:
@@ -524,22 +534,8 @@ pages:
 # Release stage
 ##############################
 
-.git_credentials_template: &git_credentials
-  before_script:
-    ## Push git credentials
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - git config --global user.email no-reply@almis.com
-    - git config --global user.name "Gitlab CI"
-    - git remote set-url $CI_PROJECT_URL_SSH
-
 Generate a new milestone:
-  image: registry.gitlab.com/aweframework/docker-tools/maven-jdk8-jq-git:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
   <<: *git_credentials
   script:
@@ -552,7 +548,7 @@ Generate a new milestone:
     - <<: *if-tag
 
 Start a new release:
-  image: registry.gitlab.com/aweframework/docker-tools/maven-jdk8-jq-git:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   cache: { }
   dependencies: [ ]
   stage: release
@@ -575,7 +571,7 @@ Start a new release:
       allow_failure: true
 
 Notify new release:
-  image: cfmanteiga/alpine-bash-curl-jq:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
   script:
     ## Generate milestone

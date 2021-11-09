@@ -4,6 +4,10 @@ kind: Kustomization
 images:
 - name: registry.gitlab.com/aweframework/awe/awe-boot
   newTag: "4.4.3-SNAPSHOT"
+  digest: sha256:24a0c4b4a4c0eb97a1aabb8e29f18e917d05abfe1b7a7c07857230879ce7d3d3
+
+commonAnnotations:
+  version: "4.4.3-SNAPSHOT"
 
 resources:
 - awe-boot-deployment.yaml
