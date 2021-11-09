@@ -146,6 +146,7 @@ Build website with i18n:
 
 # Unit testing extension
 .unit-testing:
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: unit test
   allow_failure: false
   needs:
@@ -193,7 +194,6 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
@@ -205,6 +205,7 @@ SQL Server Tests:
       alias: mssqlserver
 
 Frontend UT:
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: unit test
   needs: [ ]
   script:
