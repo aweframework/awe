@@ -6,4 +6,4 @@ images:
   newTag: "4.4.3-SNAPSHOT"
 
 resources:
-- staging/awe-boot-deployment.yaml
+- awe-boot-deployment.yaml
