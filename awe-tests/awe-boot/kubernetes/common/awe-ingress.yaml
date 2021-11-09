@@ -14,14 +14,14 @@ spec:
     - host: staging.aweframework.com
       http:
         paths:
-          - path: /
+          - path: /*
             backend:
               serviceName: awe-boot-service
               servicePort: 80
     - host: react-staging.aweframework.com
       http:
         paths:
-          - path: /
+          - path: /*
             backend:
               serviceName: awe-react-service
               servicePort: 80
