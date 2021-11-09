@@ -2,23 +2,23 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: awe-ingress
-  namespace: staging
+  namespace: production
   labels:
     name: awe-ingress
-    env: staging
+    env: production
   annotations:
     kubernetes.io/ingress.class: gce
     kubernetes.io/ingress.global-static-ip-name: staging-static-ip
-    networking.gke.io/managed-certificates: aweframework-certs
+    networking.gke.io/managed-certificates: aweframework-demo-certs
 spec:
   rules:
-    - host: staging.aweframework.com
+    - host: demo.aweframework.com
       http:
         paths:
         - backend:
             serviceName: awe-boot-service
             servicePort: 80
-    - host: react-staging.aweframework.com
+    - host: react-demo.aweframework.com
       http:
         paths:
         - backend:

@@ -2,32 +2,32 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: awe-boot
-  namespace: staging
+  namespace: production
   annotations:
-    app.gitlab.com/env: staging
+    app.gitlab.com/env: production
     app.gitlab.com/app: aweframework-awe
   labels:
     app: awe-boot
-    env: staging
+    env: production
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: awe-boot
-      env: staging
+      env: production
   template:
     metadata:
       annotations:
-        app.gitlab.com/env: staging
+        app.gitlab.com/env: production
         app.gitlab.com/app: aweframework-awe
-        version: 4.4.3-SNAPSHOT
+        version: 4.4.2
       labels:
         app: awe-boot
-        env: staging
+        env: production
     spec:
       containers:
         - name: awe-boot
-          image: registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT
+          image: registry.gitlab.com/aweframework/awe/awe-boot:4.4.2
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
