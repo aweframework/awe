@@ -8,20 +8,14 @@ metadata:
     env: staging
   annotations:
     kubernetes.io/ingress.global-static-ip-name: staging-static-ip
-    networking.gke.io/managed-certificates: awe-framework-certs
+    networking.gke.io/managed-certificates: aweframework-certs
 spec:
   rules:
     - host: staging.aweframework.com
-      http:
-        paths:
-          - path: /*
-            backend:
-              serviceName: awe-boot-service
-              servicePort: 80
+      backend:
+        serviceName: awe-boot-service
+        servicePort: 80
     - host: react-staging.aweframework.com
-      http:
-        paths:
-          - path: /*
-            backend:
-              serviceName: awe-react-service
-              servicePort: 80
+      backend:
+        serviceName: awe-react-service
+        servicePort: 80
