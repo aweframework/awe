@@ -84,6 +84,23 @@ stages:
 # Build stage
 ##############################
 
+# Kubernetes deployment
+Test deployment:
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  cache: { }
+  variables:
+    GIT_STRATEGY: none
+  stage: build
+  <<: *git_credentials
+  script:
+    - git clone ${GIT_REPO_AWE_CONFIG}
+    - cd awe-gke-config/staging/awe-boot
+    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@digest
+    - kustomize edit set annotation version:4.4.3-SNAPSHOT
+    - kustomize build -o awe-boot-deployment.yaml
+    - git commit . -m "Updated awe-boot kubernetes deployment staging [skip ci]"
+    - git push
+
 .build:
   stage: build
   script:
@@ -487,6 +504,8 @@ Deploy Maven Central:
 .k8s_deploy:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   cache: { }
+  variables:
+    GIT_STRATEGY: none
   needs:
     - job: Build project
     - job: Launch Sonar
@@ -495,13 +514,12 @@ Deploy Maven Central:
   stage: deploy
   <<: *git_credentials
   script:
-    - git checkout -f develop
-    - git pull --rebase
-    - cd awe-tests/awe-boot/kubernetes/${KUBE_ENVIRONMENT}
+    - git clone ${GIT_REPO_AWE_CONFIG}
+    - cd awe-gke-config/${KUBE_ENVIRONMENT}/awe-boot
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
+    - git commit . -m "Updated awe-boot kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
     - git push
 
 Deploy staging:
