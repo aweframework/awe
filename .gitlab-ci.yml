@@ -477,30 +477,24 @@ Deploy Maven Central:
   stage: deploy
   <<: *git_credentials
   script:
-    - cd awe-tests/awe-boot/kubernetes/${CI_ENVIRONMENT_SLUG}
+    - cd awe-tests/awe-boot/kubernetes/${KUBE_ENVIRONMENT}
     - kustomize edit set registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit -m "Updated kubernetes deployment ${CI_ENVIRONMENT_SLUG} [skip ci]"
+    - git commit -m "Updated kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
     - git push
 
 Deploy staging:
   extends: .k8s_deploy
-  environment:
-    name: staging
-    url: https://staging.aweframework.com
-    kubernetes:
-      namespace: staging
+  variables:
+    KUBE_ENVIRONMENT: staging
   rules:
     - <<: *if-develop
 
 Deploy production:
   extends: .k8s_deploy
-  environment:
-    name: production
-    url: https://demo.aweframework.com
-    kubernetes:
-      namespace: production
+  variables:
+    KUBE_ENVIRONMENT: production
   rules:
     - <<: *if-master
 
