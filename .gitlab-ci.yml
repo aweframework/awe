@@ -37,9 +37,9 @@ variables:
   DAST_BROWSER_SCAN: "true"
 
 cache:
-  paths:
-    - .m2/repository/
-  key: $CI_COMMIT_REF_SLUG
+  - key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .m2/repository/
 
 stages:
   - build
@@ -107,6 +107,13 @@ stages:
 
 Build project:
   extends: .build
+  cache:
+    - key: ${CI_COMMIT_REF_SLUG}
+      paths:
+        - .m2/repository/
+    - key: ${CI_PIPELINE_ID}
+      paths:
+        - .m2/repository/
   artifacts:
     reports:
       dotenv: build.env
@@ -146,6 +153,10 @@ Build website with i18n:
 # Unit testing extension
 .unit-testing:
   stage: unit test
+  cache:
+    - key: ${CI_PIPELINE_ID}
+      paths:
+        - .m2/repository/
   allow_failure: false
   needs:
     - job: Build project
@@ -240,7 +251,10 @@ Javadoc test:
 .browser-testing:
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: integration test
-  cache: {}
+  cache:
+    - key: ${CI_PIPELINE_ID}
+      paths:
+        - .m2/repository/
   allow_failure: true
   needs:
     - job: Build project
@@ -420,6 +434,7 @@ Build package:
   needs:
     - job: Build project
     - job: Launch Sonar
+      artifacts: false
   services:
     - docker:dind
   tags:
