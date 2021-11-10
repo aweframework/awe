@@ -8,7 +8,7 @@ include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
 
-image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+image: maven:3.8-openjdk-11-slim
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -152,7 +152,7 @@ Build website with i18n:
     - job: Build project
       artifacts: false
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.timezoneAsRegion=false
   rules:
     - <<: *if-default
   artifacts:
