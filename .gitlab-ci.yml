@@ -96,7 +96,7 @@ Test deployment:
     - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
     - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
     - cd awe-gke-config/staging/awe-boot
-    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@digest
+    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@digest2
     - kustomize edit set annotation version:4.4.3-SNAPSHOT
     - kustomize build -o awe-boot-deployment.yaml
     - git commit . -m "Updated awe-boot kubernetes deployment staging"
@@ -513,15 +513,16 @@ Deploy Maven Central:
       artifacts: false
     - job: Build package
   stage: deploy
-  <<: *git_credentials
   script:
     - git clone ${GIT_REPO_AWE_CONFIG}
+    - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
+    - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
     - cd awe-gke-config/${KUBE_ENVIRONMENT}/awe-boot
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
     - git commit . -m "Updated awe-boot kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
-    - git push
+    - git push origin master
 
 Deploy staging:
   extends: .k8s_deploy
