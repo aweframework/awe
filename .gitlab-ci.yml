@@ -91,7 +91,6 @@ Test deployment:
   variables:
     GIT_STRATEGY: none
   stage: build
-  <<: *git_credentials
   script:
     - git clone ${GIT_REPO_AWE_CONFIG}
     - cd awe-gke-config/staging/awe-boot
