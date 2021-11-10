@@ -95,7 +95,7 @@ stages:
     - <<: *if-default
 
 .build-website:
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest
   stage: build
   script:
     - npm install --prefix website
