@@ -8,7 +8,7 @@ include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
 
-image: maven:3.8-jdk-11-slim
+image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -19,7 +19,7 @@ variables:
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
-  IT_OPTS: "-f awe-tests/awe-boot/pom.xml war:exploded -Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
+  IT_OPTS: "-f awe-tests/awe-boot/pom.xml -Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
   UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CHROME_OPTS: "-Dbrowser=headless-chrome"
@@ -151,6 +151,7 @@ Build website with i18n:
   allow_failure: false
   needs:
     - job: Build project
+      artifacts: false
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
   rules:
@@ -260,6 +261,7 @@ sast:
   allow_failure: true
   needs:
     - job: Build project
+      artifacts: false
   script:
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
