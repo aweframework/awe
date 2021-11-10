@@ -133,7 +133,7 @@ Build website:
 Build website with i18n:
   extends: .build-website
   script:
-    - npm install --prefix website
+    - yarn --cwd website install
     # Do translations
     - yarn --cwd website crowdin:sync
     - yarn --cwd website build
