@@ -84,24 +84,6 @@ stages:
 # Build stage
 ##############################
 
-# Kubernetes deployment
-Test deployment:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
-  cache: { }
-  variables:
-    GIT_STRATEGY: none
-  stage: build
-  script:
-    - git clone ${GIT_REPO_AWE_CONFIG}
-    - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
-    - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
-    - cd awe-gke-config/staging/awe-boot
-    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@sha256:db6697a61d5679b7ca69dbde3dad6be0d17064d5b6b0e9f7be8d456ebb444444
-    - kustomize edit set annotation version:4.4.3-SNAPSHOT
-    - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated awe-boot kubernetes deployment staging"
-    - git push origin master
-
 .build:
   stage: build
   script:
