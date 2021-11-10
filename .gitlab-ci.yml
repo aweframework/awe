@@ -391,6 +391,7 @@ dependency_scanning:
   needs: []
   variables:
     DS_EXCLUDED_ANALYZERS: gemnasium-maven-dependency_scanning
+    DS_EXCLUDED_PATHS: spec,test,tests,tmp,website,*/target,*/node_modules,*/node
 license_scanning:
   stage: analysis
   needs: []
@@ -401,7 +402,7 @@ sast:
   needs: []
   variables:
     SAST_EXCLUDED_ANALYZERS: spotbugs-sast
-    SAST_EXCLUDED_PATHS: spec, test, tests, tmp, website, "**/target/**", "**/node_modules/**", "**/node/**"
+    SAST_EXCLUDED_PATHS: spec,test,tests,tmp,website,*/target,*/node_modules,*/node
     VALIDATE_SCHEMA: "true"
 
 ##############################
