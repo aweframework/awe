@@ -92,21 +92,15 @@ Test deployment:
     GIT_STRATEGY: none
   stage: build
   script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - git config --global user.email no-reply@almis.com
-    - git config --global user.name "Gitlab CI"
     - git clone ${GIT_REPO_AWE_CONFIG}
+    - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
+    - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
     - cd awe-gke-config/staging/awe-boot
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@digest
     - kustomize edit set annotation version:4.4.3-SNAPSHOT
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated awe-boot kubernetes deployment staging [skip ci]"
-    - git push
+    - git commit . -m "Updated awe-boot kubernetes deployment staging"
+    - git push origin master
 
 .build:
   stage: build
