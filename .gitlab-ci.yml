@@ -99,7 +99,7 @@ Test deployment:
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot=registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@sha256:db6697a61d5679b7ca69dbde3dad6be0d17064d5b6b0e9f7be8d456ebb337209
     - kustomize edit set annotation version:4.4.3-SNAPSHOT
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated awe-boot kubernetes deployment staging"
+    - git commit -m "Updated awe-boot kubernetes deployment staging"
     - git push origin master
 
 .build:
