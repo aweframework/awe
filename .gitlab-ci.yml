@@ -84,6 +84,13 @@ stages:
 # Build stage
 ##############################
 
+Test git credentials:
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  stage: build
+  <<: *git_credentials
+  script:
+    - echo "FUNCIONA"
+
 .build:
   stage: build
   script:
