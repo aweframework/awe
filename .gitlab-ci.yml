@@ -8,7 +8,7 @@ include:
   - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
 
-image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+image: maven:3.8-openjdk-11-slim
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -146,7 +146,6 @@ Build website with i18n:
 
 # Unit testing extension
 .unit-testing:
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: unit test
   allow_failure: false
   needs:
@@ -195,6 +194,7 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
@@ -471,6 +471,7 @@ Deploy Maven Central:
     - job: Build project
     - job: Build package
     - job: Launch Sonar
+      artifacts: false
   stage: deploy
   <<: *git_credentials
   script:
