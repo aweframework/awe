@@ -84,6 +84,19 @@ stages:
 # Build stage
 ##############################
 
+# Kubernetes deployment
+Test deployment:
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  stage: build
+  <<: *git_credentials
+  script:
+    - cd awe-tests/awe-boot/kubernetes/staging
+    - kustomize edit set registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@sha256:aaaaaaaaaaaa
+    - kustomize edit set annotation version:4.4.3-SNAPSHOT
+    - kustomize build -o awe-boot-deployment.yaml
+    - git commit -m "Updated kubernetes deployment staging [skip ci]"
+    - git push
+
 .build:
   stage: build
   script:
@@ -355,6 +368,7 @@ Chrome IT Scheduler:
 ##############################
 
 Launch Sonar:
+  image: registry.gitlab.com/aweframework/docker-tools/sonar:latest
   stage: analysis
   needs:
     - job: All UT
