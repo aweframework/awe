@@ -232,23 +232,6 @@ Javadoc test:
   rules:
     - <<: *if-merge-request
 
-dependency_scanning:
-  stage: unit test
-  needs: []
-  variables:
-    DS_EXCLUDED_ANALYZERS: gemnasium-maven-dependency_scanning
-license_scanning:
-  stage: unit test
-  needs: []
-  rules:
-    - <<: *if-default
-sast:
-  stage: unit test
-  needs: []
-  variables:
-    SAST_EXCLUDED_ANALYZERS: spotbugs-sast
-    VALIDATE_SCHEMA: "true"
-
 ##############################
 # Integration testing stage
 ##############################
@@ -387,6 +370,23 @@ Launch Sonar:
     expire_in: 1 week
   rules:
     - <<: *if-default
+
+dependency_scanning:
+  stage: analysis
+  needs: []
+  variables:
+    DS_EXCLUDED_ANALYZERS: gemnasium-maven-dependency_scanning
+license_scanning:
+  stage: analysis
+  needs: []
+  rules:
+    - <<: *if-default
+sast:
+  stage: analysis
+  needs: []
+  variables:
+    SAST_EXCLUDED_ANALYZERS: spotbugs-sast
+    VALIDATE_SCHEMA: "true"
 
 ##############################
 # Site stage
