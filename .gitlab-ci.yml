@@ -94,7 +94,7 @@ Test deployment:
     - kustomize edit set registry.gitlab.com/aweframework/awe/awe-boot:4.4.3-SNAPSHOT@sha256:aaaaaaaaaaaa
     - kustomize edit set annotation version:4.4.3-SNAPSHOT
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit -m "Updated kubernetes deployment staging [skip ci]"
+    - git commit . -m "Updated kubernetes deployment staging [skip ci]"
     - git push
 
 .build:
@@ -512,7 +512,7 @@ Deploy Maven Central:
     - kustomize edit set registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit -m "Updated kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
+    - git commit . -m "Updated kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
     - git push
 
 Deploy staging:
