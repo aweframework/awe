@@ -240,6 +240,7 @@ Javadoc test:
 .browser-testing:
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: integration test
+  cache: {}
   allow_failure: true
   needs:
     - job: Build project
