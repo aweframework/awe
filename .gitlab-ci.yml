@@ -386,6 +386,7 @@ sast:
   needs: []
   variables:
     SAST_EXCLUDED_ANALYZERS: spotbugs-sast
+    SAST_EXCLUDED_PATHS: spec, test, tests, tmp, build, target, node_modules, node
     VALIDATE_SCHEMA: "true"
 
 ##############################
