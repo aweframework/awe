@@ -252,8 +252,8 @@ Javadoc test:
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: integration test
   cache:
-    policy: pull
     - key: ${CI_PIPELINE_ID}
+      policy: pull
       paths:
         - .m2/repository/
   allow_failure: true
