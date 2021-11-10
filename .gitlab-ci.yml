@@ -471,9 +471,9 @@ Deploy Maven Central:
   cache: { }
   needs:
     - job: Build project
-    - job: Build package
     - job: Launch Sonar
       artifacts: false
+    - job: Build package
   stage: deploy
   <<: *git_credentials
   script:
