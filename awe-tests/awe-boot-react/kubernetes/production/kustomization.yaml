@@ -1,9 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-images:
-- name: registry.gitlab.com/aweframework/awe-react/awe-react
-  newTag: "1.0.0-SNAPSHOT"
-
-resources:
-- awe-react-deployment.yaml
