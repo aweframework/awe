@@ -109,6 +109,11 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
+      <!-- Use log4j2 lib -->
+      <exclusion>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-logging</artifactId>
+      </exclusion>
     </dependency>
 
     <!-- Redis cache server -->
