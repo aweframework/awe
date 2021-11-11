@@ -19,8 +19,8 @@ variables:
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
-  IT_OPTS: "-f awe-tests/awe-boot/pom.xml -Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
-  UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
+  IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
+  UT_OPTS: "-Dskip.frontend=true -DgenerateUnitReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CHROME_OPTS: "-Dbrowser=headless-chrome"
   FIREFOX_OPTS: "-Dbrowser=headless-firefox"
@@ -261,11 +261,10 @@ Javadoc test:
     - job: Build project
       artifacts: false
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.port=$TEST_PORT
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   after_script:
-    - cp awe-tests/awe-boot/target/jacoco-it.exec awe-tests/awe-boot/target/jacoco-${TEST_NAME}-it.exec
     - search=`cat awe-tests/awe-boot/target/surefire-reports/TEST-*.${TEST_CLASS}.xml`
     - errors=`echo $search | grep 'errors="[^"]*' | sed -e 's/.*errors="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
     - failures=`echo $search | grep 'failures="[^"]*' | sed -e 's/.*failures="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`

@@ -654,12 +654,12 @@
   </build>
 
   <profiles>
-    <!-- Integration report profile -->
+    <!-- Unit report profile -->
     <profile>
-      <id>generate-integration-report</id>
+      <id>generate-unit-report</id>
       <activation>
         <property>
-          <name>generateIntegrationReport</name>
+          <name>generateUnitReport</name>
           <value>true</value>
         </property>
       </activation>
@@ -679,20 +679,6 @@
                 <configuration>
                   <append>true</append>
                   <destFile>target/${jacoco.file.name}</destFile>
-                </configuration>
-              </execution>
-              <execution>
-                <id>prepare-integration-agent</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>prepare-agent-integration</goal>
-                </goals>
-                <configuration>
-                  <skip>${skip.selenium}</skip>
-                  <dumpOnExit>true</dumpOnExit>
-                  <port>${jacoco.port}</port>
-                  <destFile>${jacoco.base.reports}/jacoco-it.exec</destFile>
-                  <propertyName>failsafe.argLine</propertyName>
                 </configuration>
               </execution>
             </executions>
