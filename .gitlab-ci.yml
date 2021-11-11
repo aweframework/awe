@@ -179,9 +179,7 @@ Build website with i18n:
 All UT:
   extends: .unit-testing
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS
-  variables:
-    TEST_NAME: all
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec
 
 Oracle Tests:
   extends: .unit-testing
