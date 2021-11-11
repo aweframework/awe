@@ -499,24 +499,30 @@ Deploy Maven Central:
     - git clone ${GIT_REPO_AWE_CONFIG}
     - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
     - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
-    - cd awe-gke-config/${KUBE_ENVIRONMENT}/awe-boot
+    - cd awe-gke-config/${CI_ENVIRONMENT_SLUG}/awe-boot
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated awe-boot kubernetes deployment ${KUBE_ENVIRONMENT}"
+    - git commit . -m "Updated awe-boot kubernetes deployment ${CI_ENVIRONMENT_SLUG}"
     - git push origin master
 
 Deploy staging:
   extends: .k8s_deploy
-  variables:
-    KUBE_ENVIRONMENT: staging
+  environment:
+    name: staging
+    url: https://staging.aweframework.com
+    kubernetes:
+      namespace: staging
   rules:
     - <<: *if-develop
 
 Deploy production:
   extends: .k8s_deploy
-  variables:
-    KUBE_ENVIRONMENT: production
+  environment:
+    name: production
+    url: https://demo.aweframework.com
+    kubernetes:
+      namespace: production
   rules:
     - <<: *if-master
 
