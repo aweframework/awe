@@ -503,7 +503,7 @@ Deploy Maven Central:
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
-    - git commit . -m "Updated awe-boot kubernetes deployment ${KUBE_ENVIRONMENT} [skip ci]"
+    - git commit . -m "Updated awe-boot kubernetes deployment ${KUBE_ENVIRONMENT}"
     - git push origin master
 
 Deploy staging:
