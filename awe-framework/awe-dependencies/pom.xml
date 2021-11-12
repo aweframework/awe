@@ -74,7 +74,6 @@
 
     <!-- Jacoco configuration -->
     <jacoco.port>6300</jacoco.port>
-    <jacoco.file.name>jacoco.exec</jacoco.file.name>
   </properties>
 
   <dependencies>
