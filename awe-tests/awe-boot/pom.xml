@@ -407,6 +407,28 @@
               <goal>repackage</goal>
             </goals>
           </execution>
+          <execution>
+            <id>start-application</id>
+            <phase>integration-test</phase>
+            <configuration>
+              <skip>${skip.selenium}</skip>
+              <wait>1000</wait>
+              <maxAttempts>180</maxAttempts>
+            </configuration>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-application</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+            <configuration>
+              <skip>${skip.selenium}</skip>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
@@ -655,28 +677,9 @@
               </execution>
             </executions>
           </plugin>
-          <!-- Jacoco coverage -->
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${plugin-jacoco.version}</version>
-            <executions>
-              <execution>
-                <id>prepare-integration-agent</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>prepare-agent-integration</goal>
-                </goals>
-                <configuration>
-                  <skip>${skip.selenium}</skip>
-                  <append>true</append>
-                  <dumpOnExit>true</dumpOnExit>
-                  <port>${jacoco.port}</port>
-                  <destFile>${jacoco.base.reports}/${jacoco.file.name}</destFile>
-                  <propertyName>failsafe.argLine</propertyName>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
           <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -684,11 +687,11 @@
             <executions>
               <execution>
                 <id>start-application</id>
-                <phase>pre-integration-test</phase>
+                <phase>integration-test</phase>
                 <configuration>
                   <arguments>
-                    <argument>--management.metrics.export.wavefront.enabled=false</argument>
                     <argument>--integration-test</argument>
+                    <argument>--management.metrics.export.wavefront.enabled=false</argument>
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>

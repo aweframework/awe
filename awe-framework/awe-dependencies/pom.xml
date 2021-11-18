@@ -22,8 +22,8 @@
     <spring-boot.version>2.4.12</spring-boot.version>
     <spring-cloud.version>2020.0.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
-    <node.version>v12.1.0</node.version>
-    <yarn.version>v1.15.2</yarn.version>
+    <node.version>v16.13.0</node.version>
+    <yarn.version>v1.22.15</yarn.version>
     <npm.version>v6.9.0</npm.version>
     <guava.version>27.0.1-jre</guava.version>
     <st.version>4.0.8</st.version>
@@ -653,12 +653,12 @@
   </build>
 
   <profiles>
-    <!-- Unit report profile -->
+    <!-- Integration report profile -->
     <profile>
-      <id>generate-unit-report</id>
+      <id>generate-integration-report</id>
       <activation>
         <property>
-          <name>generateUnitReport</name>
+          <name>generateIntegrationReport</name>
           <value>true</value>
         </property>
       </activation>
@@ -678,6 +678,20 @@
                 <configuration>
                   <append>true</append>
                   <destFile>target/${jacoco.file.name}</destFile>
+                </configuration>
+              </execution>
+              <execution>
+                <id>prepare-integration-agent</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>prepare-agent-integration</goal>
+                </goals>
+                <configuration>
+                  <skip>${skip.selenium}</skip>
+                  <dumpOnExit>true</dumpOnExit>
+                  <port>${jacoco.port}</port>
+                  <destFile>${jacoco.base.reports}/${jacoco.file.name}</destFile>
+                  <propertyName>failsafe.argLine</propertyName>
                 </configuration>
               </execution>
             </executions>
