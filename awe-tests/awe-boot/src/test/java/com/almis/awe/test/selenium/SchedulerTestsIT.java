@@ -1088,6 +1088,9 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
+    // Wait for loading bar
+    waitForLoadingBar();
+
     // Wait for button
     waitForButton("restartScheduler");
 
@@ -1097,6 +1100,9 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
+    // Wait for loading bar
+    waitForLoadingBar();
+
     // Wait for button
     waitForButton("stopScheduler");
 
@@ -1105,6 +1111,9 @@ class SchedulerTestsIT extends SeleniumUtilities {
 
     // Wait for message
     checkAndCloseMessage("success");
+
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Wait for button
     waitForButton("startScheduler");
