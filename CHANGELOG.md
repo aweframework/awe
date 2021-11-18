@@ -1,15 +1,4 @@
 
-# Changelog for AWE 4.4.3
-*18/11/2021*
-
-- Update spring security patterns to cover all data actions. [MR #338](https://gitlab.com/aweframework/awe/-/merge_requests/338) (Pablo Javier García Mora)
-- Configure Cloud SQL for awe-boot project on the CLOUD. [MR #337](https://gitlab.com/aweframework/awe/-/merge_requests/337) (Pablo Vidal Otero)
-- Update spring-boot and spring-cloud versions. [MR #336](https://gitlab.com/aweframework/awe/-/merge_requests/336) (Pablo Vidal Otero)
-- Add bootstrap.yaml to kubernetes profile. [MR #335](https://gitlab.com/aweframework/awe/-/merge_requests/335) (Pablo Vidal Otero)
-- Add validations to `left-field` and `right-field` attributes on `filter` and `when` tags. [MR #334](https://gitlab.com/aweframework/awe/-/merge_requests/334) (Pablo Javier García Mora)
-- Update H2 flyway Awe init script. [MR #333](https://gitlab.com/aweframework/awe/-/merge_requests/333) (Pablo Vidal Otero)
-- Fix in documentation that the pSign default value is 's' instead of 'p'. [MR #332](https://gitlab.com/aweframework/awe/-/merge_requests/332) (Pablo Javier García Mora)
-
 # Changelog for awe 4.4.2
 *08/10/2021*
 
