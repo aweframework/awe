@@ -560,7 +560,7 @@ Generate a new milestone:
     - <<: *if-tag
 
 Start a new release:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
   cache: { }
   dependencies: [ ]
   stage: release
