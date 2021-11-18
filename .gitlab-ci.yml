@@ -460,6 +460,7 @@ Deploy snapshot:
 
 Deploy Maven Central:
   stage: deploy
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
   before_script:
     ## Add gpg key to sign
     - gpg --batch --import <(echo "$GPG_PRIVATE_KEY")
