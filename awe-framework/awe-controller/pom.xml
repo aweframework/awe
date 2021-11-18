@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.4.2</version>
+    <version>4.4.3</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -53,11 +53,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
-    </dependency>
-    <!-- Hikari datasource -->
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
     </dependency>
     <!-- Spring security -->
     <dependency>

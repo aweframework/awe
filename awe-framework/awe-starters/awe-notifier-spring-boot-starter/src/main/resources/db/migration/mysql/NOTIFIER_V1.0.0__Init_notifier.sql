@@ -1,11 +1,11 @@
---------------------------------------------------------
+-- ------------------------------------------------------
 --  NOTIFIER DDL
---------------------------------------------------------
+-- ------------------------------------------------------
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSub
 --  Subscriptions
---------------------------------------------------------
+-- ------------------------------------------------------
 create TABLE IF NOT EXISTS AweSub
 (
     Ide INTEGER           not NULL,
@@ -15,10 +15,10 @@ create TABLE IF NOT EXISTS AweSub
     Act INTEGER DEFAULT 1 not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSubUsr
 --  User subscriptions
---------------------------------------------------------
+-- ------------------------------------------------------
 create TABLE IF NOT EXISTS AweSubUsr
 (
     Ide    INTEGER   not NULL,
@@ -28,10 +28,10 @@ create TABLE IF NOT EXISTS AweSubUsr
     SubEma INTEGER DEFAULT 0 not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweNot
 --  Notifications
---------------------------------------------------------
+-- ------------------------------------------------------
 create TABLE IF NOT EXISTS AweNot
 (
     Ide    INTEGER     not NULL,
@@ -45,10 +45,10 @@ create TABLE IF NOT EXISTS AweNot
     Dat    DATE        not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweNotUsr
 --  User notifications
---------------------------------------------------------
+-- ------------------------------------------------------
 create TABLE IF NOT EXISTS AweNotUsr
 (
     Ide    INTEGER           not NULL,
@@ -57,9 +57,9 @@ create TABLE IF NOT EXISTS AweNotUsr
     Unr    INTEGER DEFAULT 1 not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for HISTORIC TABLES
---------------------------------------------------------
+-- ------------------------------------------------------
 
 create TABLE IF NOT EXISTS HisAweSub
 (
@@ -112,22 +112,22 @@ create TABLE IF NOT EXISTS HisAweNotUsr
     Unr       INTEGER
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for CONSTRAINTS
---------------------------------------------------------
+-- ------------------------------------------------------
 
-create UNIQUE INDEX IF NOT EXISTS PK_AWESUB ON AweSub (Ide);
-create UNIQUE INDEX IF NOT EXISTS PK_AWESUBUSR ON AweSubUsr (Ide);
-create UNIQUE INDEX IF NOT EXISTS PK_AWENOT ON AweNot (Ide);
-create UNIQUE INDEX IF NOT EXISTS PK_AWENOTUSR ON AweNotUsr (Ide);
-create INDEX IF NOT EXISTS HisAweSubI1 ON HisAweSub (HISope, HISdat, HISact);
-create INDEX IF NOT EXISTS HisAweSubUsrI1 ON HisAweSubUsr (HISope, HISdat, HISact);
-create INDEX IF NOT EXISTS HisAweNotI1 ON HisAweNot (HISope, HISdat, HISact);
-create INDEX IF NOT EXISTS HisAweNotUsrI1 ON HisAweNotUsr (HISope, HISdat, HISact);
-alter table AweSub add CONSTRAINT IF NOT EXISTS PK_AWESUB PRIMARY KEY (Ide);
-alter table AweSubUsr add CONSTRAINT IF NOT EXISTS PK_AWESUBUSR PRIMARY KEY (Ide);
-alter table AweNot add CONSTRAINT IF NOT EXISTS PK_AWENOT PRIMARY KEY (Ide);
-alter table AweNotUsr add CONSTRAINT IF NOT EXISTS PK_AWENOTUSR PRIMARY KEY (Ide);
+create UNIQUE INDEX PK_AWESUB ON AweSub (Ide);
+create UNIQUE INDEX PK_AWESUBUSR ON AweSubUsr (Ide);
+create UNIQUE INDEX PK_AWENOT ON AweNot (Ide);
+create UNIQUE INDEX PK_AWENOTUSR ON AweNotUsr (Ide);
+create INDEX HisAweSubI1 ON HisAweSub (HISope, HISdat, HISact);
+create INDEX HisAweSubUsrI1 ON HisAweSubUsr (HISope, HISdat, HISact);
+create INDEX HisAweNotI1 ON HisAweNot (HISope, HISdat, HISact);
+create INDEX HisAweNotUsrI1 ON HisAweNotUsr (HISope, HISdat, HISact);
+alter table AweSub add CONSTRAINT PK_AWESUB PRIMARY KEY (Ide);
+alter table AweSubUsr add CONSTRAINT PK_AWESUBUSR PRIMARY KEY (Ide);
+alter table AweNot add CONSTRAINT PK_AWENOT PRIMARY KEY (Ide);
+alter table AweNotUsr add CONSTRAINT PK_AWENOTUSR PRIMARY KEY (Ide);
 
 -- Notifier sequences
 insert into AweKey (KeyNam, KeyVal) values ('Sub', (select coalesce(max(Ide),0) + 1 from AweSub));

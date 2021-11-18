@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.4.2</version>
+    <version>4.4.3</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -26,7 +26,8 @@
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <webdrivermanager.version>3.2.0</webdrivermanager.version>
     <testng.version>6.14.3</testng.version>
-    <wavefront.version>2.1.0</wavefront.version>
+    <wavefront.version>2.2.0</wavefront.version>
+    <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
@@ -40,7 +41,6 @@
     <skip.selenium>true</skip.selenium>
     <skip.junit>false</skip.junit>
     <test.tags>integration</test.tags>
-    <failsafe.argLine/>
 
     <!-- Build environment -->
     <build.environment>development</build.environment>
@@ -70,6 +70,19 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
+      <exclusions>
+        <!-- Use log4j2 lib -->
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- Secret management -->
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
     </dependency>
 
     <!-- Redis cache server -->
@@ -82,12 +95,12 @@
       <artifactId>spring-session-data-redis</artifactId>
     </dependency>
 
-<!--    Wavefront metrics -->
-<!--    <dependency>-->
-<!--      <groupId>com.wavefront</groupId>-->
-<!--      <artifactId>wavefront-spring-boot-starter</artifactId>-->
-<!--      <version>${wavefront.version}</version>-->
-<!--    </dependency>-->
+    <!--  Wavefront metrics -->
+    <dependency>
+      <groupId>com.wavefront</groupId>
+      <artifactId>wavefront-spring-boot-starter</artifactId>
+      <version>${wavefront.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.almis.awe</groupId>
@@ -204,6 +217,11 @@
       <artifactId>hsqldb</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>runtime</scope>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -227,7 +245,7 @@
     <dependency>
       <groupId>org.jsmart</groupId>
       <artifactId>zerocode-tdd-jupiter</artifactId>
-      <version>1.3.24</version>
+      <version>1.3.28</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -700,10 +718,19 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Add Wavefront Cloud Dependency BOM -->
       <dependency>
         <groupId>com.wavefront</groupId>
         <artifactId>wavefront-spring-boot-bom</artifactId>
         <version>${wavefront.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Spring Cloud GCP -->
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>spring-cloud-gcp-dependencies</artifactId>
+        <version>2.0.5</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: awe-boot
-data:
-  application.properties: |-
-    info.app.name=Awe Boot Application
-    info.app.description=This is an awe application example

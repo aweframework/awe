@@ -1,11 +1,11 @@
---------------------------------------------------------
+-- ------------------------------------------------------
 --  SCHEDULER DDL
---------------------------------------------------------
+-- ------------------------------------------------------
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchCal
 --  Calendar list
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchCal
 (
     Ide INTEGER not NULL,
@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS AweSchCal
     Nom VARCHAR(100) not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchTskFilMod
 --  Calendar dates
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchTskFilMod
 (
     IdeTsk INTEGER not NULL,
@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS AweSchTskFilMod
     ModDat DATE
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchCalDat
 --  Task file
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchCalDat
 (
     Ide    INTEGER not NULL,
@@ -37,10 +37,10 @@ CREATE TABLE IF NOT EXISTS AweSchCalDat
     Dat    DATE not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchExe
 --  Task executions
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchExe
 (
     IdeTsk INTEGER not NULL,
@@ -54,10 +54,10 @@ CREATE TABLE IF NOT EXISTS AweSchExe
     Des    VARCHAR(2000)
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchSrv
 --  Scheduler servers
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchSrv
 (
     Ide INTEGER not NULL,
@@ -68,10 +68,10 @@ CREATE TABLE IF NOT EXISTS AweSchSrv
     Act INTEGER DEFAULT 1 not NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchTsk
 --  Scheduler tasks
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchTsk
 (
     Ide       INTEGER not NULL,
@@ -98,10 +98,10 @@ CREATE TABLE IF NOT EXISTS AweSchTsk
     CmdExePth VARCHAR(200)
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchTskDpn
 --  Task dependencies
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchTskDpn
 (
     IdeTsk INTEGER NOT NULL,
@@ -110,10 +110,10 @@ CREATE TABLE IF NOT EXISTS AweSchTskDpn
     DpnOrd INTEGER
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchTskLch
 --  Task launchers
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchTskLch
 (
     Ide      INTEGER NOT NULL,
@@ -142,10 +142,10 @@ CREATE TABLE IF NOT EXISTS AweSchTskLch
     SrvPwd   VARCHAR(200)
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for Table AweSchTskPar
 --  Task parameters
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweSchTskPar
 (
     Ide    INTEGER NOT NULL,
@@ -156,9 +156,9 @@ CREATE TABLE IF NOT EXISTS AweSchTskPar
     Typ    VARCHAR(100) NOT NULL
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for HISTORIC TABLES
---------------------------------------------------------
+-- ------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS HisAweSchCal
 (
@@ -270,34 +270,33 @@ CREATE TABLE IF NOT EXISTS HisAweSchTskPar
     Typ    VARCHAR(100)
 );
 
---------------------------------------------------------
+-- ------------------------------------------------------
 --  DDL for CONSTRAINTS
---------------------------------------------------------
+-- ------------------------------------------------------
 
-CREATE UNIQUE INDEX NOM_UQ ON AWESCHCAL (Nom);
-CREATE UNIQUE INDEX PK_AWESCHCAL ON AWESCHCAL (Ide);
-CREATE UNIQUE INDEX PK_AWESCHCALDAT ON AWESCHCALDAT (Ide);
-CREATE INDEX AWESCHEXEI1 ON AWESCHEXE (IdeTsk, GrpTsk, ExeTsk, IniDat);
-CREATE UNIQUE INDEX PK_AWESCHSRV ON AWESCHSRV (Ide);
-CREATE UNIQUE INDEX PK_AWESCHTSK ON AWESCHTSK (Ide);
-CREATE UNIQUE INDEX SYS_C00164575 ON AWESCHTSKDPN (IdeTsk, IDEPRN);
-CREATE UNIQUE INDEX PK_AWESCHTSKLCH ON AWESCHTSKLCH (Ide);
-CREATE UNIQUE INDEX PK_AWESCHTSKPAR ON AWESCHTSKPAR (Ide);
+CREATE UNIQUE INDEX NOM_UQ ON AweSchCal (Nom);
+CREATE UNIQUE INDEX PK_AWESCHCAL ON AweSchCal (Ide);
+CREATE UNIQUE INDEX PK_AWESCHCALDAT ON AweSchCalDat (Ide);
+CREATE INDEX AWESCHEXEI1 ON AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat);
+CREATE UNIQUE INDEX PK_AWESCHSRV ON AweSchSrv (Ide);
+CREATE UNIQUE INDEX PK_AWESCHTSK ON AweSchTsk (Ide);
+CREATE UNIQUE INDEX SYS_C00164575 ON AweSchTskDpn (IdeTsk, IDEPRN);
+CREATE UNIQUE INDEX PK_AWESCHTSKLCH ON AweSchTskLch (Ide);
+CREATE UNIQUE INDEX PK_AWESCHTSKPAR ON AweSchTskPar (Ide);
 CREATE INDEX HisAweSchCalI1 ON HisAweSchCal (HISope, HISdat, HISact);
 CREATE INDEX HisAweSchCalDatI1 ON HisAweSchCalDat (HISope, HISdat, HISact);
 CREATE INDEX HisAweSchSrvI1 ON HisAweSchSrv (HISope, HISdat, HISact);
 CREATE INDEX HisAweSchTskI1 ON HisAweSchTsk (HISope, HISdat, HISact);
 CREATE INDEX HisAweSchTskLchI1 ON HisAweSchTskLch (HISope, HISdat, HISact);
 CREATE INDEX HisAweSchTskParI1 ON HisAweSchTskPar (HISope, HISdat, HISact);
-ALTER TABLE AWESCHCAL ADD CONSTRAINT NOM_UQ UNIQUE (Nom);
-ALTER TABLE AWESCHCAL ADD CONSTRAINT PK_AWESCHCAL PRIMARY KEY (Ide);
-ALTER TABLE AWESCHCALDAT ADD CONSTRAINT PK_AWESCHCALDAT PRIMARY KEY (Ide);
-ALTER TABLE AWESCHTSKFILMOD ADD PRIMARY KEY (IdeTsk, FILPTH);
-ALTER TABLE AWESCHSRV ADD CONSTRAINT PK_AWESCHSRV PRIMARY KEY (Ide);
-ALTER TABLE AWESCHTSK ADD CONSTRAINT PK_AWESCHTSK PRIMARY KEY (Ide);
-ALTER TABLE AWESCHTSKDPN ADD PRIMARY KEY (IdeTsk, IDEPRN);
-ALTER TABLE AWESCHTSKLCH ADD CONSTRAINT PK_AWESCHTSKLCH PRIMARY KEY (Ide);
-ALTER TABLE AWESCHTSKPAR ADD CONSTRAINT PK_AWESCHTSKPAR PRIMARY KEY (Ide);
+ALTER TABLE AweSchCal ADD CONSTRAINT PK_AWESCHCAL PRIMARY KEY (Ide);
+ALTER TABLE AweSchCalDat ADD CONSTRAINT PK_AWESCHCALDAT PRIMARY KEY (Ide);
+ALTER TABLE AweSchTskFilMod ADD PRIMARY KEY (IdeTsk, FILPTH);
+ALTER TABLE AweSchSrv ADD CONSTRAINT PK_AWESCHSRV PRIMARY KEY (Ide);
+ALTER TABLE AweSchTsk ADD CONSTRAINT PK_AWESCHTSK PRIMARY KEY (Ide);
+ALTER TABLE AweSchTskDpn ADD PRIMARY KEY (IdeTsk, IDEPRN);
+ALTER TABLE AweSchTskLch ADD CONSTRAINT PK_AWESCHTSKLCH PRIMARY KEY (Ide);
+ALTER TABLE AweSchTskPar ADD CONSTRAINT PK_AWESCHTSKPAR PRIMARY KEY (Ide);
 
 -- Scheduler sequences
 Insert into AweKey (KeyNam, KeyVal) values ('SchTskSrv', (select coalesce(max(Ide),0) + 1 from AweSchSrv));

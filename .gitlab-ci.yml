@@ -3,9 +3,10 @@
 ##############################
 
 include:
-  - template: DAST.gitlab-ci.yml
+  - template: Security/DAST.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
 
-image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+image: maven:3.8-openjdk-11-slim
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -16,7 +17,7 @@ variables:
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
-  IT_OPTS: "-f awe-tests/awe-boot/pom.xml -Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
+  IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
   UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CHROME_OPTS: "-Dbrowser=headless-chrome"
@@ -34,10 +35,10 @@ variables:
   DAST_BROWSER_SCAN: "true"
 
 cache:
-  paths:
-    - .m2/repository/
-    - .yarn
-  key: $CI_COMMIT_REF_SLUG
+  - key: ${CI_PIPELINE_ID}
+    policy: pull
+    paths:
+      - .m2/repository/
 
 stages:
   - build
@@ -49,6 +50,19 @@ stages:
   - deploy
   - dast
   - release
+
+.git_credentials_template: &git_credentials
+  before_script:
+    ## Push git credentials
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - git config --global user.email no-reply@almis.com
+    - git config --global user.name "Gitlab CI"
+    - git remote set-url $CI_PROJECT_URL_SSH
 
 ##############################
 # Pipeline rules
@@ -65,7 +79,6 @@ stages:
 .if-tag: &if-tag
   if: '$CI_COMMIT_TAG'
 
-
 ##############################
 # Build stage
 ##############################
@@ -80,11 +93,11 @@ stages:
     - <<: *if-default
 
 .build-website:
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest
   stage: build
   script:
-    - npm install --prefix website
-  cache:
-    policy: pull
+    - yarn --cwd website install
+  cache: { }
   artifacts:
     paths:
       - website/build
@@ -92,6 +105,15 @@ stages:
 
 Build project:
   extends: .build
+  cache:
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull
+      paths:
+        - .m2/repository/
+    - key: ${CI_PIPELINE_ID}
+      policy: push
+      paths:
+        - .m2/repository/
   artifacts:
     reports:
       dotenv: build.env
@@ -101,31 +123,34 @@ Build project:
 
 Build project (jdk latest):
   extends: .build
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk-latest-node-maven:latest
+  image: maven:3.8-openjdk-17-slim
   cache:
-    policy: pull
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull
+      paths:
+        - .m2/repository/
 
 Build website:
   extends: .build-website
   script:
-    - npm install --prefix website
-    - npm run build --prefix website
+    - yarn --cwd website install
+    - yarn --cwd website build
   rules:
     - <<: *if-merge-request
 
 Build website with i18n:
   extends: .build-website
   script:
-    - npm install --prefix website
+    - yarn --cwd website install
     # Do translations
-    - npm run crowdin:sync --prefix website
-    - npm run build --prefix website
+    - yarn --cwd website crowdin:sync
+    - yarn --cwd website build
   rules:
     - <<: *if-develop
     - <<: *if-master
 
 ##############################
-# Unit testing stage
+# testing stage
 ##############################
 
 # Unit testing extension
@@ -134,8 +159,9 @@ Build website with i18n:
   allow_failure: false
   needs:
     - job: Build project
+      artifacts: false
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.timezoneAsRegion=false
   rules:
     - <<: *if-default
   artifacts:
@@ -152,9 +178,7 @@ Build website with i18n:
 All UT:
   extends: .unit-testing
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS
-  variables:
-    TEST_NAME: all
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec
 
 Oracle Tests:
   extends: .unit-testing
@@ -177,6 +201,7 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
+  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
@@ -189,7 +214,9 @@ SQL Server Tests:
 
 Frontend UT:
   stage: unit test
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   needs: [ ]
+  cache: { }
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
   artifacts:
@@ -203,7 +230,6 @@ Frontend UT:
     - <<: *if-default
 
 Javadoc test:
-  image: maven:3.6-jdk-8
   stage: unit test
   needs: [ "Build project" ]
   script:
@@ -225,12 +251,12 @@ Javadoc test:
   allow_failure: true
   needs:
     - job: Build project
+      artifacts: false
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.port=$TEST_PORT
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   after_script:
-    - cp awe-tests/awe-boot/target/jacoco-it.exec awe-tests/awe-boot/target/jacoco-${TEST_NAME}-it.exec
     - search=`cat awe-tests/awe-boot/target/surefire-reports/TEST-*.${TEST_CLASS}.xml`
     - errors=`echo $search | grep 'errors="[^"]*' | sed -e 's/.*errors="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
     - failures=`echo $search | grep 'failures="[^"]*' | sed -e 's/.*failures="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
@@ -251,11 +277,13 @@ Javadoc test:
 
 .firefox-testing:
   extends: .browser-testing
+  image: registry.gitlab.com/aweframework/docker-tools/firefox:latest
   variables:
     BROWSER_OPTS: $FIREFOX_OPTS
 
 .chrome-testing:
   extends: .browser-testing
+  image: registry.gitlab.com/aweframework/docker-tools/chrome:latest
   variables:
     BROWSER_OPTS: $CHROME_OPTS
 
@@ -320,6 +348,7 @@ Chrome IT Scheduler:
 ##############################
 
 Launch Sonar:
+  image: registry.gitlab.com/aweframework/docker-tools/sonar:latest
   stage: analysis
   needs:
     - job: All UT
@@ -335,6 +364,18 @@ Launch Sonar:
     - job: Chrome IT CRUD Criteria and Matrix
     - job: Chrome IT Regression Websocket and Print
     - job: Chrome IT Scheduler
+  cache:
+    - key: ${CI_PIPELINE_ID}
+      policy: pull
+      paths:
+        - .m2/repository/
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: push
+      paths:
+        - .m2/repository/
+    - key: ${CI_JOB_NAME}
+      paths:
+        - .sonar/cache
   script:
     - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Darchetype.test.skip=true $SONAR_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
@@ -342,6 +383,12 @@ Launch Sonar:
     paths:
       - awe-tests/awe-boot/target/coverage-reports/
     expire_in: 1 week
+  rules:
+    - <<: *if-default
+
+license_scanning:
+  stage: analysis
+  needs: []
   rules:
     - <<: *if-default
 
@@ -375,6 +422,7 @@ Build package:
   needs:
     - job: Build project
     - job: Launch Sonar
+      artifacts: false
   services:
     - docker:dind
   tags:
@@ -384,10 +432,15 @@ Build package:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
     - docker build -t registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
+    - digest=$(docker images registry.gitlab.com/aweframework/awe/awe-boot --format="{{.Digest}}" --digests)
+    - echo "PACKAGE_DIGEST=$digest" >> build.env
     # Docker Hub container
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_TOKEN
     - docker build -t aweframework/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push aweframework/awe-boot:$PROJECT_VERSION
+  artifacts:
+    reports:
+      dotenv: build.env
   rules:
     - <<: *if-develop
     - <<: *if-master
@@ -397,7 +450,6 @@ Build package:
 ##############################
 
 Deploy snapshot:
-  image: maven:3.5-jdk-11
   stage: deploy
   needs:
     - job: Launch Sonar
@@ -407,7 +459,6 @@ Deploy snapshot:
     - <<: *if-develop
 
 Deploy Maven Central:
-  image: maven:3.5-jdk-11
   stage: deploy
   before_script:
     ## Add gpg key to sign
@@ -419,34 +470,26 @@ Deploy Maven Central:
 
 # Kubernetes deployment
 .k8s_deploy:
-  image: google/cloud-sdk
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   cache: { }
+  variables:
+    GIT_STRATEGY: none
   needs:
     - job: Build project
-    - job: Build package
     - job: Launch Sonar
       artifacts: false
+    - job: Build package
   stage: deploy
   script:
-    - echo "$GOOGLE_KEY" > key.json
-    - gcloud auth activate-service-account --key-file key.json
-    - gcloud config set project $KUBERNETES_PROJECT_ID
-    - gcloud config set compute/zone $KUBE_ZONE
-    - gcloud config set container/use_client_certificate True
-    - gcloud container clusters get-credentials $KUBERNETES_CLUSTER_NAME
-    - kubectl config set-cluster $KUBERNETES_CLUSTER_NAME --server="$KUBE_URL" --insecure-skip-tls-verify=true
-    - kubectl config set-credentials admin --username="$KUBE_USER" --password="$KUBE_PASSWORD"
-    - kubectl config set-context default-system --cluster=$KUBERNETES_CLUSTER_NAME --user=admin --namespace=$CI_ENVIRONMENT_SLUG
-    - kubectl config use-context default-system
-    - kubectl delete secret registry.gitlab.com --ignore-not-found
-    - kubectl create secret docker-registry registry.gitlab.com --docker-server=https://registry.gitlab.com --docker-username=$CI_USERNAME --docker-password=$CI_PASSWORD --docker-email=$CI_EMAIL
-    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - sed -i "s/__CI_PROJECT_PATH_SLUG__/${CI_PROJECT_PATH_SLUG}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - sed -i "s/__VERSION__/${PROJECT_VERSION}/" awe-tests/awe-boot/kubernetes/deployment.yaml
-    - kubectl delete pods -l app=awe-boot --namespace=$CI_ENVIRONMENT_SLUG
-    - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-config.yaml
-    - kubectl apply -f awe-tests/awe-boot/kubernetes/awe-boot-role.yaml
-    - kubectl apply -f awe-tests/awe-boot/kubernetes/deployment.yaml
+    - git clone ${GIT_REPO_AWE_CONFIG}
+    - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
+    - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
+    - cd awe-gke-config/${CI_ENVIRONMENT_SLUG}/awe-boot
+    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
+    - kustomize edit set annotation version:${PROJECT_VERSION}
+    - kustomize build -o awe-boot-deployment.yaml
+    - git commit . -m "Updated awe-boot kubernetes deployment ${CI_ENVIRONMENT_SLUG}"
+    - git push origin master
 
 Deploy staging:
   extends: .k8s_deploy
@@ -455,9 +498,8 @@ Deploy staging:
     url: https://staging.aweframework.com
     kubernetes:
       namespace: staging
-  only:
-    refs:
-      - develop
+  rules:
+    - <<: *if-develop
 
 Deploy production:
   extends: .k8s_deploy
@@ -466,9 +508,8 @@ Deploy production:
     url: https://demo.aweframework.com
     kubernetes:
       namespace: production
-  only:
-    refs:
-      - master
+  rules:
+    - <<: *if-master
 
 dast:
   script:
@@ -505,22 +546,8 @@ pages:
 # Release stage
 ##############################
 
-.git_credentials_template: &git_credentials
-  before_script:
-    ## Push git credentials
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - git config --global user.email no-reply@almis.com
-    - git config --global user.name "Gitlab CI"
-    - git remote set-url $CI_PROJECT_URL_SSH
-
 Generate a new milestone:
-  image: registry.gitlab.com/aweframework/docker-tools/maven-jdk8-jq-git:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
   <<: *git_credentials
   script:
@@ -533,7 +560,7 @@ Generate a new milestone:
     - <<: *if-tag
 
 Start a new release:
-  image: registry.gitlab.com/aweframework/docker-tools/maven-jdk8-jq-git:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
   cache: { }
   dependencies: [ ]
   stage: release
@@ -556,7 +583,7 @@ Start a new release:
       allow_failure: true
 
 Notify new release:
-  image: cfmanteiga/alpine-bash-curl-jq:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
   script:
     ## Generate milestone

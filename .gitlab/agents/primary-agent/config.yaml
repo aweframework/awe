@@ -1,5 +1,0 @@
-gitops:
-  manifest_projects:
-    - id: "aweframework/awe"
-      paths:
-        - glob: '/**/*.{yaml,yml,json}'

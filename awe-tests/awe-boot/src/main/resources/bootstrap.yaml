@@ -1,4 +1,10 @@
+# Spring Cloud Kubernetes disabled
 spring:
   cloud:
     kubernetes:
       enabled: false
+    gcp:
+      secretmanager:
+        enabled: false
+      core:
+        enabled: false

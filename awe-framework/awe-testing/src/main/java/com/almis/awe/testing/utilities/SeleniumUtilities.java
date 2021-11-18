@@ -3,7 +3,7 @@ package com.almis.awe.testing.utilities;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,10 +46,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 @ExtendWith(SpringExtension.class)
 @TestPropertySource("classpath:test.properties")
 public class SeleniumUtilities {
-  private static WebDriver driver;
-  private static String currentOption;
   private static final Integer RETRY_COUNT = 10;
-
   // Constants
   private static final String PARENT_ELEMENT = "')]/..";
   private static final String TEXT_VALUE = " text: '";
@@ -66,7 +63,9 @@ public class SeleniumUtilities {
   private static final By SELECT_DROP_RESULTS = By.cssSelector("#select2-drop .select2-results li");
   private static final ExpectedCondition<Boolean> GRID_LOADER_IS_NOT_VISIBLE = invisibilityOfElementLocated(GRID_LOADER_SELECTOR);
   private static final ExpectedCondition<Boolean> LOADER_IS_NOT_VISIBLE = invisibilityOfElementLocated(By.cssSelector(".loader"));
-
+  private static WebDriver driver;
+  private static WebDriverManager webDriverManager;
+  private static String currentOption;
   @Value("${selenium.start.url}")
   private String startURL;
 
@@ -95,75 +94,6 @@ public class SeleniumUtilities {
   private Boolean showMouseCursor;
 
   /**
-   * Set up test
-   */
-  @BeforeEach
-  public void setUpTest() {
-    // Setup window size
-    String windowSize = "--window-size=" + browserWidth + "," + browserHeight;
-
-    // Setup firefox options
-    FirefoxOptions firefoxOptions = new FirefoxOptions();
-    FirefoxProfile firefoxProfile = new FirefoxProfile();
-    firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
-    firefoxOptions.setProfile(firefoxProfile);
-    firefoxOptions.addArguments(windowSize);
-    firefoxOptions.setLogLevel(FirefoxDriverLogLevel.ERROR);
-
-    // Setup chrome options
-    ChromeOptions chromeOptions = new ChromeOptions();
-    chromeOptions.addArguments(windowSize);
-
-    // Define browser web driver container
-    if (getDriver() == null) {
-      switch (browser) {
-        case "firefox":
-          WebDriverManager.firefoxdriver().setup();
-          setDriver(new FirefoxDriver(firefoxOptions));
-          break;
-        case "headless-firefox":
-          firefoxOptions.addArguments("--headless");
-          WebDriverManager.firefoxdriver().setup();
-          setDriver(new FirefoxDriver(firefoxOptions));
-          break;
-        case "headless-chrome":
-          WebDriverManager.chromedriver().setup();
-          chromeOptions.setHeadless(true);
-          chromeOptions.addArguments("--no-sandbox");
-          chromeOptions.addArguments("--disable-dev-shm-usage");
-          setDriver(new ChromeDriver(chromeOptions));
-          break;
-        case "opera":
-          WebDriverManager.operadriver().setup();
-          setDriver(new OperaDriver());
-          break;
-        case "edge":
-          WebDriverManager.edgedriver().setup();
-          setDriver(new EdgeDriver());
-          break;
-        case "ie":
-          WebDriverManager.iedriver().setup();
-          setDriver(new InternetExplorerDriver());
-          break;
-        case "chrome":
-        default:
-          WebDriverManager.chromedriver().setup();
-          setDriver(new ChromeDriver(chromeOptions));
-          break;
-      }
-
-      // Set dimension if defined
-      if (browserWidth != null && browserHeight != null) {
-        driver.manage().window().setSize(new Dimension(browserWidth, browserHeight));
-      }
-    }
-  }
-
-  private String getHost() {
-    return SystemUtils.IS_OS_LINUX ? "172.17.0.1" : "host.docker.internal";
-  }
-
-  /**
    * Clean driver after a test suite
    */
   @AfterAll
@@ -176,6 +106,12 @@ public class SeleniumUtilities {
       getDriver().quit();
       setDriver(null);
       log.info("Web driver disposed");
+    }
+
+    if (getWebDriverManager() != null) {
+      log.info("Disposing web driver manager...");
+      getWebDriverManager().quit();
+      log.info("Web driver manager disposed");
     }
   }
 
@@ -198,6 +134,24 @@ public class SeleniumUtilities {
   }
 
   /**
+   * Get current driver manager
+   *
+   * @return Web driver manager
+   */
+  public static WebDriverManager getWebDriverManager() {
+    return webDriverManager;
+  }
+
+  /**
+   * Set current driver manager
+   *
+   * @param newWebDriverManager New web driver manager
+   */
+  public static void setWebDriverManager(WebDriverManager newWebDriverManager) {
+    webDriverManager = newWebDriverManager;
+  }
+
+  /**
    * Get current option
    *
    * @return Current option
@@ -216,12 +170,97 @@ public class SeleniumUtilities {
   }
 
   /**
+   * Set up test
+   */
+  @BeforeEach
+  public void setUpTest() {
+    // Setup window size
+    String windowSize = "--window-size=" + browserWidth + "," + browserHeight;
+
+    // Setup firefox options
+    FirefoxProfile firefoxProfile = new FirefoxProfile();
+    firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
+    FirefoxOptions firefoxOptions = new FirefoxOptions()
+      .setProfile(firefoxProfile)
+      .addArguments(windowSize)
+      .setLogLevel(FirefoxDriverLogLevel.ERROR);
+
+    // Setup chrome options
+    ChromeOptions chromeOptions = new ChromeOptions()
+      .addArguments(windowSize);
+
+    // Define browser web driver container
+    if (getDriver() == null) {
+      switch (browser) {
+        case "firefox":
+          WebDriverManager.firefoxdriver().setup();
+          setDriver(new FirefoxDriver(firefoxOptions));
+          break;
+        case "headless-firefox":
+          firefoxOptions.addArguments("--headless");
+          WebDriverManager.firefoxdriver().setup();
+          setDriver(new FirefoxDriver(firefoxOptions));
+          break;
+        case "headless-chrome":
+          WebDriverManager.chromedriver().setup();
+          chromeOptions.setHeadless(true);
+          chromeOptions.addArguments("--no-sandbox");
+          chromeOptions.addArguments("--disable-dev-shm-usage");
+          setDriver(new ChromeDriver(chromeOptions));
+          break;
+        case "remote-firefox":
+          setWebDriverManager(WebDriverManager.firefoxdriver()
+            .browserInDocker().enableRecording().recordingOutput(screenshotPath)
+            .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
+          );
+          setDriver(getWebDriverManager().create());
+          break;
+        case "remote-chrome":
+          setWebDriverManager(WebDriverManager.chromedriver()
+            .browserInDocker().enableRecording().recordingOutput(screenshotPath)
+            .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
+          );
+          setDriver(getWebDriverManager().create());
+          break;
+        case "opera":
+          WebDriverManager.operadriver().setup();
+          setDriver(new OperaDriver());
+          break;
+        case "edge":
+          WebDriverManager.edgedriver().setup();
+          setDriver(new EdgeDriver());
+          break;
+        case "ie":
+          WebDriverManager.iedriver().setup();
+          setDriver(new InternetExplorerDriver());
+          break;
+        case "chrome":
+        default:
+          WebDriverManager.chromedriver().setup();
+          setDriver(new ChromeDriver(chromeOptions));
+          break;
+      }
+
+      // Set dimension if defined
+      if (browserWidth != null && browserHeight != null) {
+        getDriver().manage().window().setSize(new Dimension(browserWidth, browserHeight));
+      }
+    }
+  }
+
+  /**
    * Get current base url
    *
    * @return Start url
    */
   public String getBaseUrl() {
-    return startURL;
+    switch (browser) {
+      case "remote-chrome":
+      case "remote-firefox":
+        return "http://" + (SystemUtils.IS_OS_LINUX ? "172.17.0.1" : "host.docker.internal") + ":" + serverPort + contextPath;
+      default:
+        return startURL;
+    }
   }
 
   /**
@@ -382,10 +421,10 @@ public class SeleniumUtilities {
     try {
       WebElement element = getElement(selector);
       new Actions(driver)
-              .moveToElement(element)
-              .contextClick(element)
-              .pause(100)
-              .perform();
+        .moveToElement(element)
+        .contextClick(element)
+        .pause(100)
+        .perform();
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
       assertWithScreenshot("Error right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
@@ -664,12 +703,12 @@ public class SeleniumUtilities {
   private void moveMouseOutOfCriterion() {
     try {
       // Move mouse out of criterion (up)
-        new Actions(driver)
-          .moveByOffset(0, -30)
-          .click()
-          .pause(100)
-          .build()
-          .perform();
+      new Actions(driver)
+        .moveByOffset(0, -30)
+        .click()
+        .pause(100)
+        .build()
+        .perform();
     } catch (Exception exc) {
       // Assert error moving mouse
       assertWithScreenshot(exc.getMessage(), true);
@@ -2346,13 +2385,13 @@ public class SeleniumUtilities {
   protected void checkLogin(String username, String password, String cssSelector, String checkText) {
     assertNotNull(driver);
 
-    log.info("Launching tests with '" + browser + "' browser: " + startURL);
+    log.info("Launching tests with '{}' browser: {}'", browser, getBaseUrl());
 
     // Set driver timeout
     driver.manage().timeouts().setScriptTimeout(timeout, SECONDS);
 
     // Open page in different browsers
-    driver.get(startURL);
+    driver.get(getBaseUrl());
 
     // Show mouse if defined
     if (showMouseCursor) {

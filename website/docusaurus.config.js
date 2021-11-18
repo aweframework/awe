@@ -44,7 +44,6 @@ module.exports = {
 				},
 				{
 					href: 'https://forum.aweframework.com/',
-					to: 'community',
 					label: 'Forum', position: 'left'
 				},
 				{

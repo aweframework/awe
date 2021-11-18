@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS AweMod (
                                       Nam varchar(100) not NULL, --- Module name
                                       ScrIni varchar(40) NULL, --- Module initial screen (deprecated)
                                       IdeThm int NULL, --- Module theme (deprecated)
+                                      Ord int NULL, --- value to recover modules sorted as convenience
                                       Act int default 1 not NULL --- Active (1) or not (0)
 );
 CREATE UNIQUE INDEX AweModI1 ON AweMod (Nam);

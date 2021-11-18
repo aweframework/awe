@@ -191,8 +191,8 @@ public class SecurityConfig extends ServiceConfig {
               // Web
               .antMatchers(AUTH_LIST).permitAll()
               // Filter public queries and maintains
-              .antMatchers("/action/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
-              .antMatchers("/action/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
+              .antMatchers("/action/data*/**", "/action/update*/**", "/action/control*/**", "/action/unique*/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
+              .antMatchers("/action/maintain*/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
               .anyRequest().authenticated()
               // Login redirect
               .and().formLogin().loginPage("/").permitAll()
