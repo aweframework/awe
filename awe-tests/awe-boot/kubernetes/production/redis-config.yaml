@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: awe-redis-config
-  namespace: production
-data:
-  redis-config: |
-    maxmemory 100mb
-    maxmemory-policy allkeys-lru

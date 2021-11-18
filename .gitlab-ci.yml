@@ -4,8 +4,6 @@
 
 include:
   - template: Security/DAST.gitlab-ci.yml
-  - template: Security/SAST.gitlab-ci.yml
-  - template: Security/Dependency-Scanning.gitlab-ci.yml
   - template: Security/License-Scanning.gitlab-ci.yml
 
 image: maven:3.8-openjdk-11-slim
@@ -20,7 +18,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
   IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
-  UT_OPTS: "-Dskip.frontend=true -DgenerateUnitReport=true"
+  UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CHROME_OPTS: "-Dbrowser=headless-chrome"
   FIREFOX_OPTS: "-Dbrowser=headless-firefox"
@@ -37,7 +35,8 @@ variables:
   DAST_BROWSER_SCAN: "true"
 
 cache:
-  - key: ${CI_COMMIT_REF_SLUG}
+  - key: ${CI_PIPELINE_ID}
+    policy: pull
     paths:
       - .m2/repository/
 
@@ -98,8 +97,7 @@ stages:
   stage: build
   script:
     - yarn --cwd website install
-  cache:
-    policy: pull
+  cache: { }
   artifacts:
     paths:
       - website/build
@@ -109,9 +107,11 @@ Build project:
   extends: .build
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull
       paths:
         - .m2/repository/
     - key: ${CI_PIPELINE_ID}
+      policy: push
       paths:
         - .m2/repository/
   artifacts:
@@ -125,7 +125,10 @@ Build project (jdk latest):
   extends: .build
   image: maven:3.8-openjdk-17-slim
   cache:
-    policy: pull
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull
+      paths:
+        - .m2/repository/
 
 Build website:
   extends: .build-website
@@ -153,10 +156,6 @@ Build website with i18n:
 # Unit testing extension
 .unit-testing:
   stage: unit test
-  cache:
-    - key: ${CI_PIPELINE_ID}
-      paths:
-        - .m2/repository/
   allow_failure: false
   needs:
     - job: Build project
@@ -202,7 +201,7 @@ MySQL Tests:
 
 SQL Server Tests:
   extends: .unit-testing
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
@@ -214,9 +213,10 @@ SQL Server Tests:
       alias: mssqlserver
 
 Frontend UT:
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: unit test
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   needs: [ ]
+  cache: { }
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
   artifacts:
@@ -247,13 +247,7 @@ Javadoc test:
 
 # Browser testing extension
 .browser-testing:
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   stage: integration test
-  cache:
-    - key: ${CI_PIPELINE_ID}
-      policy: pull
-      paths:
-        - .m2/repository/
   allow_failure: true
   needs:
     - job: Build project
@@ -283,11 +277,13 @@ Javadoc test:
 
 .firefox-testing:
   extends: .browser-testing
+  image: registry.gitlab.com/aweframework/docker-tools/firefox:latest
   variables:
     BROWSER_OPTS: $FIREFOX_OPTS
 
 .chrome-testing:
   extends: .browser-testing
+  image: registry.gitlab.com/aweframework/docker-tools/chrome:latest
   variables:
     BROWSER_OPTS: $CHROME_OPTS
 
@@ -369,7 +365,12 @@ Launch Sonar:
     - job: Chrome IT Regression Websocket and Print
     - job: Chrome IT Scheduler
   cache:
+    - key: ${CI_PIPELINE_ID}
+      policy: pull
+      paths:
+        - .m2/repository/
     - key: ${CI_COMMIT_REF_SLUG}
+      policy: push
       paths:
         - .m2/repository/
     - key: ${CI_JOB_NAME}
@@ -385,24 +386,11 @@ Launch Sonar:
   rules:
     - <<: *if-default
 
-dependency_scanning:
-  stage: analysis
-  needs: []
-  variables:
-    DS_EXCLUDED_ANALYZERS: gemnasium-maven-dependency_scanning
-    DS_EXCLUDED_PATHS: spec,test,tests,tmp,website,*/target,*/node_modules,*/node
 license_scanning:
   stage: analysis
   needs: []
   rules:
     - <<: *if-default
-sast:
-  stage: analysis
-  needs: []
-  variables:
-    SAST_EXCLUDED_ANALYZERS: spotbugs-sast
-    SAST_EXCLUDED_PATHS: spec,test,tests,tmp,website,*/target,*/node_modules,*/node
-    VALIDATE_SCHEMA: "true"
 
 ##############################
 # Site stage
