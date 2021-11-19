@@ -234,7 +234,7 @@ public class SchedulerDAO extends ServiceConfig {
       // Retrieve all jobs but TIMEOUT ones
       List<Trigger> schedulerJobs = getAllJobs()
         .stream()
-        .filter(t -> (boolean) t.getJobDataMap().get(TASK_VISIBLE))
+        .filter(t -> (boolean) Optional.ofNullable(t.getJobDataMap().get(TASK_VISIBLE)).orElse(false))
         .collect(Collectors.toList());
 
       for (Trigger currentTrigger : schedulerJobs) {

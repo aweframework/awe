@@ -6,9 +6,10 @@ import com.almis.awe.scheduler.bean.task.TaskExecution;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-import org.quartz.Job;
+import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.UnableToInterruptJobException;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
@@ -16,7 +17,7 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
 @Log4j2
 @Getter
 @Setter
-public abstract class ReportJob extends ServiceConfig implements Job {
+public abstract class ReportJob extends ServiceConfig implements InterruptableJob {
 
   private Task task;
   private TaskExecution execution;
@@ -35,5 +36,10 @@ public abstract class ReportJob extends ServiceConfig implements Job {
   protected boolean checkSendStatus(Task task) {
     // check status
     return task.getReport().getReportSendStatus().contains(String.valueOf(task.getStatus().getValue()));
+  }
+
+  @Override
+  public void interrupt() throws UnableToInterruptJobException {
+    // Do nothing
   }
 }
