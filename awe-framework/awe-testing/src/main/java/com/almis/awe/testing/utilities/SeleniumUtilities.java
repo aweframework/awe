@@ -4,6 +4,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,10 +28,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -66,6 +67,7 @@ public class SeleniumUtilities {
   private static WebDriver driver;
   private static WebDriverManager webDriverManager;
   private static String currentOption;
+  private static Date startTime;
   @Value("${selenium.start.url}")
   private String startURL;
 
@@ -209,18 +211,24 @@ public class SeleniumUtilities {
           setDriver(new ChromeDriver(chromeOptions));
           break;
         case "remote-firefox":
+          firefoxOptions.addArguments("--headless");
           setWebDriverManager(WebDriverManager.firefoxdriver()
             .browserInDocker().enableRecording().recordingOutput(screenshotPath)
+            .recordingPrefix(getClass().getSimpleName() + "-")
             .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
           );
-          setDriver(getWebDriverManager().create());
+          setDriver(getWebDriverManager().capabilities(firefoxOptions).create());
           break;
         case "remote-chrome":
+          chromeOptions.setHeadless(true);
+          chromeOptions.addArguments("--no-sandbox");
+          chromeOptions.addArguments("--disable-dev-shm-usage");
           setWebDriverManager(WebDriverManager.chromedriver()
             .browserInDocker().enableRecording().recordingOutput(screenshotPath)
+            .recordingPrefix(getClass().getSimpleName() + "-")
             .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
           );
-          setDriver(getWebDriverManager().create());
+          setDriver(getWebDriverManager().capabilities(chromeOptions).create());
           break;
         case "opera":
           WebDriverManager.operadriver().setup();
@@ -253,11 +261,15 @@ public class SeleniumUtilities {
    *
    * @return Start url
    */
-  public String getBaseUrl() {
+  public String getBaseUrl()  {
     switch (browser) {
       case "remote-chrome":
       case "remote-firefox":
-        return "http://" + (SystemUtils.IS_OS_LINUX ? "172.17.0.1" : "host.docker.internal") + ":" + serverPort + contextPath;
+        try {
+          return "http://" + (SystemUtils.IS_OS_LINUX ? Inet4Address.getLocalHost().getHostAddress() : "host.docker.internal") + ":" + serverPort + contextPath;
+        } catch (Exception exc) {
+          return startURL;
+        }
       default:
         return startURL;
     }
@@ -322,9 +334,10 @@ public class SeleniumUtilities {
         .toLowerCase()
         .replaceAll("[\\W\\s]+", "_")
         .replaceAll("_+", "_");
-      messageSanitized = messageSanitized.length() > 100 ? messageSanitized.substring(0, 100) : messageSanitized;
-      String timestamp = new SimpleDateFormat("HHmmssSSS").format(new Date());
-      Path path = Paths.get(screenshotPath, getCurrentOption() + "-" + timestamp + "-" + messageSanitized + ".png");
+      messageSanitized = messageSanitized.length() > 100 ? messageSanitized.substring(0, 80) : messageSanitized;
+      long diff = new Date().getTime() - startTime.getTime();
+      String timestamp = DurationFormatUtils.formatDuration(diff, "H:mm:ss", true);
+      Path path = Paths.get(screenshotPath, getClass().getSimpleName() + "-" + getCurrentOption() + "-" + timestamp + "-" + messageSanitized + ".png");
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);
 
@@ -684,6 +697,7 @@ public class SeleniumUtilities {
         new Actions(driver)
           .pause(100)
           .moveToElement(popovers.get(0))
+          .moveByOffset(0, 30)
           .pause(100)
           .build()
           .perform();
@@ -1192,10 +1206,10 @@ public class SeleniumUtilities {
     if (waitForLoadingBar) {
       // Wait for loading bar
       waitForLoadingBar();
-    } else {
-      // Move mouse
-      moveMouse();
     }
+
+    // Move mouse
+    moveMouse();
   }
 
   /**
@@ -2384,6 +2398,8 @@ public class SeleniumUtilities {
    */
   protected void checkLogin(String username, String password, String cssSelector, String checkText) {
     assertNotNull(driver);
+    startTime = new Date();
+    setCurrentOption("login");
 
     log.info("Launching tests with '{}' browser: {}'", browser, getBaseUrl());
 

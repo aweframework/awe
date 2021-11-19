@@ -1,7 +1,8 @@
 
 # Changelog for AWE 4.4.3
-*18/11/2021*
+*19/11/2021*
 
+- Run selenium tests on docker containers to record on video the execution. [MR #340](https://gitlab.com/aweframework/awe/-/merge_requests/340) (Pablo Javier García Mora)
 - Update spring security patterns to cover all data actions. [MR #338](https://gitlab.com/aweframework/awe/-/merge_requests/338) (Pablo Javier García Mora)
 - Configure Cloud SQL for awe-boot project on the CLOUD. [MR #337](https://gitlab.com/aweframework/awe/-/merge_requests/337) (Pablo Vidal Otero)
 - Update spring-boot and spring-cloud versions. [MR #336](https://gitlab.com/aweframework/awe/-/merge_requests/336) (Pablo Vidal Otero)

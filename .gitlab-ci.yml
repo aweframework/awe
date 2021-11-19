@@ -20,8 +20,8 @@ variables:
   IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
   UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
-  CHROME_OPTS: "-Dbrowser=headless-chrome"
-  FIREFOX_OPTS: "-Dbrowser=headless-firefox"
+  CHROME_OPTS: "-Dbrowser=remote-chrome"
+  FIREFOX_OPTS: "-Dbrowser=remote-firefox"
   CI_PROJECT_URL_SSH: "origin git@gitlab.com:aweframework/awe.git"
   DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: gitlab-ci
@@ -60,8 +60,8 @@ stages:
     - chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - git config --global user.email no-reply@almis.com
-    - git config --global user.name "Gitlab CI"
+    - git config --global user.email awe@almis.com
+    - git config --global user.name "AWE Robot"
     - git remote set-url $CI_PROJECT_URL_SSH
 
 ##############################
@@ -231,7 +231,9 @@ Frontend UT:
 
 Javadoc test:
   stage: unit test
-  needs: [ "Build project" ]
+  needs:
+    - job: Build project
+      artifacts: false
   script:
     - mvn -f awe-framework/pom.xml $MAVEN_CLI_OPTS javadoc:aggregate-no-fork -Dskip.javadoc=false -Ptest-javadoc
   artifacts:
@@ -277,13 +279,17 @@ Javadoc test:
 
 .firefox-testing:
   extends: .browser-testing
-  image: registry.gitlab.com/aweframework/docker-tools/firefox:latest
+  image: registry.gitlab.com/aweframework/docker-tools/maven-docker:latest
+  services:
+    - docker:dind
   variables:
     BROWSER_OPTS: $FIREFOX_OPTS
 
 .chrome-testing:
   extends: .browser-testing
-  image: registry.gitlab.com/aweframework/docker-tools/chrome:latest
+  image: registry.gitlab.com/aweframework/docker-tools/maven-docker:latest
+  services:
+    - docker:dind
   variables:
     BROWSER_OPTS: $CHROME_OPTS
 
