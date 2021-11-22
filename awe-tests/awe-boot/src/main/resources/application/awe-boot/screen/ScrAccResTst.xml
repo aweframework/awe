@@ -22,7 +22,6 @@
       <button-action type="validate" target="AllCriteria" />
       <button-action type="validate" target="AllScreen" />
       <button-action type="confirm" target="UpdMsg" />
-      <button-action type="server" server-action="maintain-silent" target-action="ClrCchPrf" />
       <button-action type="server" server-action="maintain" target-action="ScrAccUpd" />
       <button-action type="filter" target="GrdScrAccLst" />
     </button>

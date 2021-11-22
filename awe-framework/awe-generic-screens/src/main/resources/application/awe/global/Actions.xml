@@ -996,11 +996,6 @@
     </answer>
   </action>
 
-  <!-- GET GENERATED FILE -->
-  <action id="get-file" format="FILE">
-    <call service="GetGenFil" />
-  </action>
-
   <!-- GET GENERATED FILE (VIA SERVICE CALL) -->
   <action id="get-file-maintain" format="FILESTREAM">
     <call service="launchMaintain" />
@@ -1035,71 +1030,9 @@
     </answer>
   </action>
 
-  <!-- RELOAD SCREEN ACTION -->
-  <action id="reload" format="HTML">
-    <call service="ScrRel" />
-  </action>
-
-  <!-- CLEAR ALL CACHES -->
-  <action id="clear-cache" format="TEXT">
-    <call service="ClrAllCch" />
-  </action>
-
-  <!-- CLEAR DATA CACHE -->
-  <action id="clear-data-cache" format="TEXT">
-    <call service="ClrDatCch" />
-  </action>
-
-  <!-- CLEAR FILE CACHE -->
-  <action id="clear-file-cache" format="TEXT">
-    <call service="ClrFilCch" />
-  </action>
-
   <!-- ENCRYPT TEXT -->
   <action id="encrypt" format="TEXT">
     <call service="EncTxt" />
-  </action>
-
-  <!-- UPLOAD FILE -->
-  <action id="upload-file" format="JSON">
-    <call service="UplFil" />
-  </action>
-
-  <!-- GET UPLOADING STATUS -->
-  <action id="file-status" format="JSON">
-    <call service="StaFil" />
-    <answer type="ok">
-      <response>
-        <type>file-uploaded</type>
-        <parameters>
-          <parameter name="name" variable="FILE_NAME" />
-          <parameter name="size" variable="FILE_SIZE" />
-          <parameter name="path" variable="FILE_PATH" />
-          <parameter name="type" variable="FILE_TYPE" />
-        </parameters>
-      </response>
-    </answer>
-    <answer type="info">
-      <response>
-        <type>file-status</type>
-        <parameters>
-          <parameter name="percent" variable="FILE_PERCENT" />
-        </parameters>
-      </response>
-    </answer>
-    <answer type="error">
-      <response>
-        <type>message</type>
-        <parameters>
-          <parameter name="type" variable="MESSAGE_TYPE" />
-          <parameter name="title" variable="MESSAGE_TITLE" />
-          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
-        </parameters>
-      </response>
-      <response>
-        <type>clear-file</type>
-      </response>
-    </answer>
   </action>
 
   <!-- GET UPLOADING STATUS -->
@@ -1154,19 +1087,9 @@
     </answer>
   </action>
 
-  <!-- GET UPLOADED FILE -->
-  <action id="download-file" format="FILE">
-    <call service="GetUplFil" />
-  </action>
-
   <!-- VIEW PDF FILE -->
   <action id="view-pdf-file" format="PDF_VIEWER">
     <call service="viewPdf" />
-  </action>
-
-  <!-- GET FILE FROM SERVER -->
-  <action id="get-server-file" format="FILE">
-    <call service="GetServerFile" />
   </action>
 
   <!-- APPLICATION LOCALS RETRIEVAL -->
