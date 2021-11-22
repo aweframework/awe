@@ -62,11 +62,85 @@ import java.util.Map;
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig extends ServiceConfig {
 
+  // White list urls
+  private static final String[] AUTH_LIST = {
+    "/websocket/**",
+    "/template/**",
+    "/settings",
+    "/action/get-locals",
+    "/action/screen-data",
+    "/action/encrypt",
+    "/action/get-file",
+    "/action/file-info",
+    "/action/delete-file",
+    "/action/view-pdf-file",
+    "/screen/public/**",
+    // File and upload controllers
+    "/file/text",
+    "/file/stream",
+    "/file/download",
+    "/file/upload",
+    "/file/delete",
+    // React engine
+    "/screen-data",
+    "/locales/**"
+  };
+
+  // Data list urls
+  private static final String[] DATA_LIST = {
+    "/action/data*/**",
+    "/action/update*/**",
+    "/action/control*/**",
+    "/action/unique*/**",
+    "/action/value*/**",
+    "/action/validate*/**",
+    "/action/subscribe*/**",
+    "/action/tree-branch*/**"
+  };
+
+  // Maintain list urls
+  private static final String[] MAINTAIN_LIST = {
+    "/action/maintain*/**",
+    "/action/get-file-maintain/**",
+    "/file/stream/maintain/**",
+    "/file/download/maintain/**"
+  };
+
   // Autowired services
   private final AweSessionDetails aweSessionDetails;
   private final LogUtil logger;
   private final AweElements elements;
   private final ObjectMapper objectMapper;
+  @Value("${screen.parameter.username:cod_usr}")
+  private String usernameParameter;
+  @Value("${screen.parameter.password:pwd_usr}")
+  private String passwordParameter;
+  @Value("${language.default}:en")
+  private String defaultLocale;
+  @Value("${security.auth.mode:bbdd}")
+  private String authenticationProviderSource;
+  @Value("${security.role.prefix:ROLE_}")
+  private String rolePrefix;
+  // Custom authentication
+  @Value("#{'${security.auth.custom.providers:}'.split(',')}")
+  private List<String> authenticationProviders;
+  // LDAP authentication
+  @Value("#{'${security.auth.ldap.url:}'.split(',')}")
+  private List<String> ldapUrl;
+  @Value("${security.auth.ldap.user:}")
+  private String ldapUserFilter;
+  @Value("${security.auth.ldap.password.bind:}")
+  private String ldapPassword;
+  @Value("${security.auth.ldap.user.bind:}")
+  private String ldapUserDN;
+  @Value("${security.auth.ldap.basedn:}")
+  private String ldapBaseDN;
+  @Value("${security.auth.ldap.timeout:}")
+  private String ldapConnectTimeout;
+  @Value("${security.headers.frameOptions.sameOrigin:true}")
+  private boolean sameOrigin;
+  @Value("${session.cookie.name:JSESSIONID}")
+  private String cookieName;
 
   /**
    * Autowired constructor
@@ -96,10 +170,6 @@ public class SecurityConfig extends ServiceConfig {
       this.mode = mode;
     }
 
-    public String getValue() {
-      return mode;
-    }
-
     public static AUTHENTICATION_MODE fromValue(String value) {
       if (value.equalsIgnoreCase(LDAP.getValue())) {
         return LDAP;
@@ -112,64 +182,11 @@ public class SecurityConfig extends ServiceConfig {
       }
       return null;
     }
+
+    public String getValue() {
+      return mode;
+    }
   }
-
-  @Value("${screen.parameter.username:cod_usr}")
-  private String usernameParameter;
-
-  @Value("${screen.parameter.password:pwd_usr}")
-  private String passwordParameter;
-
-  @Value("${language.default}:en")
-  private String defaultLocale;
-
-  @Value("${security.auth.mode:bbdd}")
-  private String authenticationProviderSource;
-
-  @Value("${security.role.prefix:ROLE_}")
-  private String rolePrefix;
-
-  // Custom authentication
-  @Value("#{'${security.auth.custom.providers:}'.split(',')}")
-  private List<String> authenticationProviders;
-
-  // LDAP authentication
-  @Value("#{'${security.auth.ldap.url:}'.split(',')}")
-  private List<String> ldapUrl;
-
-  @Value("${security.auth.ldap.user:}")
-  private String ldapUserFilter;
-
-  @Value("${security.auth.ldap.password.bind:}")
-  private String ldapPassword;
-
-  @Value("${security.auth.ldap.user.bind:}")
-  private String ldapUserDN;
-
-  @Value("${security.auth.ldap.basedn:}")
-  private String ldapBaseDN;
-
-  @Value("${security.auth.ldap.timeout:}")
-  private String ldapConnectTimeout;
-
-  @Value("${security.headers.frameOptions.sameOrigin:true}")
-  private boolean sameOrigin;
-
-  @Value("${session.cookie.name:JSESSIONID}")
-  private String cookieName;
-
-  // White list urls
-  private static final String[] AUTH_LIST = {
-          "/websocket/**",
-          "/template/**",
-          "/settings",
-          "/action/get-locals",
-          "/action/screen-data",
-          "/screen/public/**",
-          // React engine
-          "/screen-data",
-          "/locales/**",
-  };
 
   /**
    * Configuration class for spring security
@@ -186,29 +203,29 @@ public class SecurityConfig extends ServiceConfig {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http.antMatcher("/**")
-              .headers().xssProtection().block(false).and()
-              .and().authorizeRequests()
-              // Web
-              .antMatchers(AUTH_LIST).permitAll()
-              // Filter public queries and maintains
-              .antMatchers("/action/data*/**", "/action/update*/**", "/action/control*/**", "/action/unique*/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
-              .antMatchers("/action/maintain*/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
-              .anyRequest().authenticated()
-              // Login redirect
-              .and().formLogin().loginPage("/").permitAll()
-              // Exceptions handling
-              .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-              .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
-              // Add a filter to parse login parameters
-              .and().addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
-              // Add logout handler
-              .logout().logoutUrl("/action/logout")
-              .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-              .addLogoutHandler(getBean(AweLogoutHandler.class))
-              // CSRF
-              .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-              // ignore our stomp endpoints since they are protected using Stomp headers
-              .ignoringAntMatchers("/websocket/**");
+        .headers().xssProtection().block(false).and()
+        .and().authorizeRequests()
+        // Web
+        .antMatchers(AUTH_LIST).permitAll()
+        // Filter public queries and maintains
+        .antMatchers(DATA_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
+        .antMatchers(MAINTAIN_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
+        .anyRequest().authenticated()
+        // Login redirect
+        .and().formLogin().loginPage("/").permitAll()
+        // Exceptions handling
+        .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+        .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
+        // Add a filter to parse login parameters
+        .and().addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
+        // Add logout handler
+        .logout().logoutUrl("/action/logout")
+        .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
+        .addLogoutHandler(getBean(AweLogoutHandler.class))
+        // CSRF
+        .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+        // ignore our stomp endpoints since they are protected using Stomp headers
+        .ignoringAntMatchers("/websocket/**");
 
       if (sameOrigin) {
         http.headers().frameOptions().sameOrigin();
@@ -221,14 +238,14 @@ public class SecurityConfig extends ServiceConfig {
     @Override
     public void configure(WebSecurity web) throws Exception {
       web.ignoring().antMatchers(
-              // Web resources
-              "/css/**",
-              "/js/**",
-              "/images/**",
-              "/fonts/**",
-              "/*.ico",
-              "/*.html",
-              "/*.map");
+        // Web resources
+        "/css/**",
+        "/js/**",
+        "/images/**",
+        "/fonts/**",
+        "/*.ico",
+        "/*.html",
+        "/*.map");
     }
 
     /**
@@ -359,6 +376,7 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Authentication entry point.
      * Handle exceptions for awe actions
+     *
      * @param sessionDetails AWE session details
      * @return AuthenticationEntryPoint
      */
@@ -374,12 +392,13 @@ public class SecurityConfig extends ServiceConfig {
      * @return Access denied handler
      */
     @Bean
-    public AccessDeniedHandler accessDeniedHandler(){
+    public AccessDeniedHandler accessDeniedHandler() {
       return new AweAccessDeniedHandler();
     }
 
     /**
      * Logout handler
+     *
      * @param sessionDetails AWE session details
      * @return AweLogoutHandler
      */
