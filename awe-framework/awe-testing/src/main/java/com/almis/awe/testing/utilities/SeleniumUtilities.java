@@ -336,7 +336,7 @@ public class SeleniumUtilities {
         .replaceAll("_+", "_");
       messageSanitized = messageSanitized.length() > 100 ? messageSanitized.substring(0, 80) : messageSanitized;
       long diff = new Date().getTime() - startTime.getTime();
-      String timestamp = DurationFormatUtils.formatDuration(diff, "H:mm:ss", true);
+      String timestamp = DurationFormatUtils.formatDuration(diff, "H'h'_m'm'_s's'", false);
       Path path = Paths.get(screenshotPath, getClass().getSimpleName() + "-" + getCurrentOption() + "-" + timestamp + "-" + messageSanitized + ".png");
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);

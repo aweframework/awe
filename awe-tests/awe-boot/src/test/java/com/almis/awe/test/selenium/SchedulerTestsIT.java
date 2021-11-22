@@ -979,7 +979,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test file");
 
     // Execute task now
-    clickButton("ButAct");
+    clickButton("ButAct", true);
 
     // Check success execution
     checkNotVisible("#ButAct");
@@ -1000,7 +1000,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test scheduled");
 
     // Execute task now
-    clickButton("ButRun");
+    clickButton("ButRun", true);
 
     // Wait 5 seconds to finish the task
     pause(5000);
@@ -1032,7 +1032,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test Calendar");
 
     // Execute task now
-    clickButton("ButDea");
+    clickButton("ButDea", true);
 
     // Check success execution
     checkNotVisible("#ButDea");
@@ -1059,7 +1059,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test Calendar");
 
     // Execute task now
-    clickButton("ButAct");
+    clickButton("ButAct", true);
 
     // Check success execution
     checkNotVisible("#ButAct");
