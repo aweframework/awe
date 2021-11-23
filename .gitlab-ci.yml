@@ -251,6 +251,9 @@ Javadoc test:
 .browser-testing:
   stage: integration test
   allow_failure: true
+  image: registry.gitlab.com/aweframework/docker-tools/maven-docker:latest
+  services:
+    - docker:dind
   needs:
     - job: Build project
       artifacts: false
@@ -279,17 +282,11 @@ Javadoc test:
 
 .firefox-testing:
   extends: .browser-testing
-  image: registry.gitlab.com/aweframework/docker-tools/maven-docker:latest
-  services:
-    - docker:dind
   variables:
     BROWSER_OPTS: $FIREFOX_OPTS
 
 .chrome-testing:
   extends: .browser-testing
-  image: registry.gitlab.com/aweframework/docker-tools/maven-docker:latest
-  services:
-    - docker:dind
   variables:
     BROWSER_OPTS: $CHROME_OPTS
 

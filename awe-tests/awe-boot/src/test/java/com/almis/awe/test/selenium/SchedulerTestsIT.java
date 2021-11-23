@@ -979,7 +979,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test file");
 
     // Execute task now
-    clickButton("ButAct", true);
+    clickButton("ButAct");
 
     // Check success execution
     checkNotVisible("#ButAct");
@@ -995,6 +995,9 @@ class SchedulerTestsIT extends SeleniumUtilities {
   void t052_runTaskNow() {
     // Title
     setTestTitle("Run task immediately");
+
+    // Delete the task
+    gotoScreen("scheduler", "scheduler-tasks");
 
     // Select the scheduled task
     clickRowContents("Test scheduled");
@@ -1079,8 +1082,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Delete the task
     gotoScreen("scheduler", "scheduler-management");
 
-    // Wait for button
-    waitForButton("clearAndStopScheduler");
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Click button
     clickButton("clearAndStopScheduler");
@@ -1091,9 +1094,6 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for loading bar
     waitForLoadingBar();
 
-    // Wait for button
-    waitForButton("restartScheduler");
-
     // Click button
     clickButton("restartScheduler");
 
@@ -1103,9 +1103,6 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for loading bar
     waitForLoadingBar();
 
-    // Wait for button
-    waitForButton("stopScheduler");
-
     // Click button
     clickButton("stopScheduler");
 
@@ -1114,9 +1111,6 @@ class SchedulerTestsIT extends SeleniumUtilities {
 
     // Wait for loading bar
     waitForLoadingBar();
-
-    // Wait for button
-    waitForButton("startScheduler");
 
     // Click button
     clickButton("startScheduler");
