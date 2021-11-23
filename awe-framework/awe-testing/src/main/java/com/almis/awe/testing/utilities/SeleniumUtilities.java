@@ -93,7 +93,7 @@ public class SeleniumUtilities {
   private String browser;
 
   @Value("${show.mouse:true}")
-  private Boolean showMouseCursor;
+  private boolean showMouseCursor;
 
   /**
    * Clean driver after a test suite
@@ -169,6 +169,24 @@ public class SeleniumUtilities {
    */
   public static void setCurrentOption(String option) {
     currentOption = option;
+  }
+
+  /**
+   * Get start date
+   *
+   * @return Start date
+   */
+  public static Date getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * Set start date
+   *
+   * @param date new date
+   */
+  public static void setStartTime(Date date) {
+    startTime = date;
   }
 
   /**
@@ -316,7 +334,7 @@ public class SeleniumUtilities {
       assertTrue(true, message);
       log.debug(message);
     } catch (Exception exc) {
-      assertWithScreenshot(message, false, exc);
+      assertWithScreenshot(message, false, timeout * 1000, exc);
     }
   }
 
@@ -327,17 +345,17 @@ public class SeleniumUtilities {
    * @param condition Assert condition
    * @param throwable Throwable list
    */
-  private void assertWithScreenshot(String message, boolean condition, Throwable... throwable) {
+  private void assertWithScreenshot(String message, boolean condition, int rewind, Throwable... throwable) {
     if (!condition) {
       File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
       String messageSanitized = message
         .toLowerCase()
-        .replaceAll("[\\W\\s]+", "_")
+        .replaceAll("[\\W]+", "_")
         .replaceAll("_+", "_");
-      messageSanitized = messageSanitized.length() > 100 ? messageSanitized.substring(0, 80) : messageSanitized;
-      long diff = new Date().getTime() - startTime.getTime();
-      String timestamp = DurationFormatUtils.formatDuration(diff, "H'h'_m'm'_s's'", false);
-      Path path = Paths.get(screenshotPath, getClass().getSimpleName() + "-" + getCurrentOption() + "-" + timestamp + "-" + messageSanitized + ".png");
+      messageSanitized = messageSanitized.length() > 80 ? messageSanitized.substring(0, 80) : messageSanitized;
+      long diff = new Date().getTime() - getStartTime().getTime() - rewind;
+      String timestamp = DurationFormatUtils.formatDuration(diff, "H'h'_mm'm'_ss's'", false);
+      Path path = Paths.get(screenshotPath, String.format("%s-%s-%s-%s.png", getClass().getSimpleName(), timestamp, getCurrentOption(), messageSanitized));
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);
 
@@ -381,7 +399,7 @@ public class SeleniumUtilities {
       // Assert true on condition
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
-      assertWithScreenshot("Error sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, 200, exc);
     }
   }
 
@@ -420,7 +438,7 @@ public class SeleniumUtilities {
       // Assert true on condition
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
-      assertWithScreenshot("Error clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, 100, exc);
     }
   }
 
@@ -440,7 +458,7 @@ public class SeleniumUtilities {
         .perform();
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
-      assertWithScreenshot("Error right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, 100, exc);
     }
   }
 
@@ -707,7 +725,7 @@ public class SeleniumUtilities {
       }
     } catch (Exception exc) {
       // Assert error moving mouse
-      assertWithScreenshot(exc.getMessage(), true);
+      assertWithScreenshot("Moving mouse: " + exc.getMessage(), true, RETRY_COUNT * 200);
     }
   }
 
@@ -725,7 +743,7 @@ public class SeleniumUtilities {
         .perform();
     } catch (Exception exc) {
       // Assert error moving mouse
-      assertWithScreenshot(exc.getMessage(), true);
+      assertWithScreenshot("Moving mouse after criterion: " + exc.getMessage(), true, 100);
     }
   }
 
@@ -978,7 +996,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' isn't equal to " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, nodeText.equalsIgnoreCase(text));
+    assertWithScreenshot(message, nodeText.equalsIgnoreCase(text), 0);
   }
 
   /**
@@ -992,7 +1010,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text));
+    assertWithScreenshot(message, nodeText.contains(text), 0);
   }
 
   /**
@@ -1006,7 +1024,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' contains " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, !nodeText.contains(text));
+    assertWithScreenshot(message, !nodeText.contains(text), 0);
   }
 
   /**
@@ -1020,7 +1038,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text));
+    assertWithScreenshot(message, nodeText.contains(text), 0);
   }
 
   // ===================================================================================================================
@@ -1087,7 +1105,6 @@ public class SeleniumUtilities {
    * Wait for loading bar to hide
    */
   protected void waitForLoadingBar() {
-    // Wait for element not visible
     waitUntil(invisibilityOfElementLocated(By.id("loading-bar")));
   }
 
@@ -2094,9 +2111,6 @@ public class SeleniumUtilities {
   protected void checkAndCloseMessage(String messageType) {
     By messageSelector = By.cssSelector(".alert-zone .alert-" + messageType + " button.close");
 
-    // Pause 250 ms
-    pause(250);
-
     // Wait for message selector
     waitUntil(elementToBeClickable(messageSelector));
 
@@ -2225,7 +2239,7 @@ public class SeleniumUtilities {
     ExpectedCondition<Boolean> condition = and(invisibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE);
 
     // Assert element is not located
-    assertWithScreenshot(condition.toString(), condition.apply(driver));
+    assertWithScreenshot(condition.toString(), condition.apply(driver), 0);
   }
 
   /**
@@ -2289,7 +2303,7 @@ public class SeleniumUtilities {
     selectClick(getCriterionSelectorCss(criterionName));
 
     // Assert element is not located
-    assertWithScreenshot("Number of elements doesn't match", number == getElements(SELECT_DROP_RESULTS).size());
+    assertWithScreenshot("Number of elements doesn't match", number == getElements(SELECT_DROP_RESULTS).size(), 0);
   }
 
   /**
@@ -2389,16 +2403,12 @@ public class SeleniumUtilities {
   }
 
   /**
-   * Log into the application
-   *
-   * @param username    User name
-   * @param password    Password
-   * @param cssSelector Selector to check
-   * @param checkText   Text to check inside selector
+   * Starting point; Go to a determined url
+   * @param url Start url
    */
-  protected void checkLogin(String username, String password, String cssSelector, String checkText) {
+  protected void goToUrl(String url) {
     assertNotNull(driver);
-    startTime = new Date();
+    setStartTime(new Date());
     setCurrentOption("login");
 
     log.info("Launching tests with '{}' browser: {}'", browser, getBaseUrl());
@@ -2407,7 +2417,7 @@ public class SeleniumUtilities {
     driver.manage().timeouts().setScriptTimeout(timeout, SECONDS);
 
     // Open page in different browsers
-    driver.get(getBaseUrl());
+    driver.get(url);
 
     // Show mouse if defined
     if (showMouseCursor) {
@@ -2416,6 +2426,19 @@ public class SeleniumUtilities {
 
     // Wait for load
     waitForLoad();
+  }
+
+  /**
+   * Log into the application
+   *
+   * @param username    User name
+   * @param password    Password
+   * @param cssSelector Selector to check
+   * @param checkText   Text to check inside selector
+   */
+  protected void checkLogin(String username, String password, String cssSelector, String checkText) {
+    // Go to base URL
+    goToUrl(getBaseUrl());
 
     // Test title
     setTestTitle("Login test: Log into the application");
