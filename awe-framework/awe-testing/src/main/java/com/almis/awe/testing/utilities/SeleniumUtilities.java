@@ -229,24 +229,20 @@ public class SeleniumUtilities {
           setDriver(new ChromeDriver(chromeOptions));
           break;
         case "remote-firefox":
-          firefoxOptions.addArguments("--headless");
           setWebDriverManager(WebDriverManager.firefoxdriver()
             .browserInDocker().enableRecording().recordingOutput(screenshotPath)
             .recordingPrefix(getClass().getSimpleName() + "-")
             .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
           );
-          setDriver(getWebDriverManager().capabilities(firefoxOptions).create());
+          setDriver(getWebDriverManager().create());
           break;
         case "remote-chrome":
-          chromeOptions.setHeadless(true);
-          chromeOptions.addArguments("--no-sandbox");
-          chromeOptions.addArguments("--disable-dev-shm-usage");
           setWebDriverManager(WebDriverManager.chromedriver()
             .browserInDocker().enableRecording().recordingOutput(screenshotPath)
             .recordingPrefix(getClass().getSimpleName() + "-")
             .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
           );
-          setDriver(getWebDriverManager().capabilities(chromeOptions).create());
+          setDriver(getWebDriverManager().create());
           break;
         case "opera":
           WebDriverManager.operadriver().setup();
