@@ -42,7 +42,7 @@ This module provides the following properties to overwrite the `awe-rest-spring-
 | Key | Default value | Description |
 |-----|---------------|-------------|
 | awe.rest.jwt.authorization-header | `Authorization` | Authentication header name |
-| awe.rest.jwt.jwt-prefix |  | JWT token prefix |
+| awe.rest.jwt.jwt-prefix | `Bearer` | JWT token prefix |
 | awe.rest.jwt.jwt-secret | `${security.master.key}` security property  | JWT secret password for sign token |
 | awe.rest.jwt.jwt-issuer | `AWE ISSUER` | JWT issuer name |
 | awe.rest.jwt.jwt-expiration-time | `60m` | JWT time valid token to expire |
@@ -173,7 +173,7 @@ public void protectedQueryAuthorized() {
     String queryId = "query";
     
     //Authenticate user (call /api/authenticate to get jwt token)
-    headers.add("Authorization", jwtToken);
+    headers.add("Authorization", "Bearer " + jwtToken);
 
     HttpEntity<String> entity = new HttpEntity<>(headers);
     
@@ -196,7 +196,7 @@ public void protectedQueryParametersAuthorized() {
     String queryId = "query";
     
     //Authenticate user (call /api/authenticate to get jwt token)
-    headers.add("Authorization", jwtToken);
+    headers.add("Authorization", "Bearer " + jwtToken);
 
     // Build parameters request
     headers.setContentType(MediaType.APPLICATION_JSON);
@@ -229,7 +229,7 @@ public void protectedMaintainAuthorized() {
     String maintainId = "MAINTAIN";
 
     //Authenticate user (call /api/authenticate to get jwt token)
-    headers.add("Authorization", jwtToken);
+    headers.add("Authorization", "Bearer " + jwtToken);
 
     HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -259,7 +259,7 @@ public void protectedMaintainParametersAuthorized() {
     parameters.setParameters(paramMap);
 
     //Authenticate user (call /api/authenticate to get jwt token)
-    headers.add("Authorization", jwtToken);
+    headers.add("Authorization", "Bearer " + jwtToken);
 
     HttpEntity<RequestParameter> entity = new HttpEntity<>(parameters, headers);
     ResponseEntity<AweRestResponse> response = restTemplate.exchange("http://localhost:8080/api/maintain/" + maintainId,

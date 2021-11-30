@@ -1,6 +1,6 @@
 package com.almis.awe.rest.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Map;
@@ -8,8 +8,8 @@ import java.util.Map;
 @Data
 public class RequestParameter {
 
-  @ApiModelProperty(value = "Parameters map in Json format.",
-          notes = "Parameter values can be a list", allowEmptyValue = true,
+  @Schema(title = "Parameters map in Json format",
+          description = "Parameter values can be a list",
           example = "{\"parName1\":\"value1\", \"parName2\":\"value2\", \"parName3\":[\"valueList1\",\"valueList2\", \"valueList3\"]}")
   private Map<String, Object> parameters;
 }

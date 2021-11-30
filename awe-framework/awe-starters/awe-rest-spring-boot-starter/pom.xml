@@ -6,7 +6,7 @@
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starters</artifactId>
     <version>4.4.4-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>awe-rest-spring-boot-starter</artifactId>
@@ -49,7 +49,6 @@
     </dependency>
 
     <!-- AWE dependencies -->
-
     <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-rest</artifactId>
