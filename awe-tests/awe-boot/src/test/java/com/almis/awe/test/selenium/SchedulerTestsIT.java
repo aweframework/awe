@@ -996,11 +996,14 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Title
     setTestTitle("Run task immediately");
 
+    // Delete the task
+    gotoScreen("scheduler", "scheduler-tasks");
+
     // Select the scheduled task
     clickRowContents("Test scheduled");
 
     // Execute task now
-    clickButton("ButRun");
+    clickButton("ButRun", true);
 
     // Wait 5 seconds to finish the task
     pause(5000);
@@ -1032,7 +1035,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test Calendar");
 
     // Execute task now
-    clickButton("ButDea");
+    clickButton("ButDea", true);
 
     // Check success execution
     checkNotVisible("#ButDea");
@@ -1059,7 +1062,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test Calendar");
 
     // Execute task now
-    clickButton("ButAct");
+    clickButton("ButAct", true);
 
     // Check success execution
     checkNotVisible("#ButAct");
@@ -1079,8 +1082,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Delete the task
     gotoScreen("scheduler", "scheduler-management");
 
-    // Wait for button
-    waitForButton("clearAndStopScheduler");
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Click button
     clickButton("clearAndStopScheduler");
@@ -1091,9 +1094,6 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for loading bar
     waitForLoadingBar();
 
-    // Wait for button
-    waitForButton("restartScheduler");
-
     // Click button
     clickButton("restartScheduler");
 
@@ -1103,9 +1103,6 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for loading bar
     waitForLoadingBar();
 
-    // Wait for button
-    waitForButton("stopScheduler");
-
     // Click button
     clickButton("stopScheduler");
 
@@ -1114,9 +1111,6 @@ class SchedulerTestsIT extends SeleniumUtilities {
 
     // Wait for loading bar
     waitForLoadingBar();
-
-    // Wait for button
-    waitForButton("startScheduler");
 
     // Click button
     clickButton("startScheduler");

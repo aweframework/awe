@@ -1,4 +1,14 @@
 
+# Changelog for AWE 4.4.4
+*30/11/2021*
+
+- Update awe-rest to OpenApi. [MR #347](https://gitlab.com/aweframework/awe/-/merge_requests/347) (Pablo Vidal Otero)
+- Set screenshot time to the moment when it started. [MR #345](https://gitlab.com/aweframework/awe/-/merge_requests/345) (Pablo Javier García Mora)
+- Change colon in screenshot names to underscore character (windows runners breaks on files with colon characters). [MR #344](https://gitlab.com/aweframework/awe/-/merge_requests/344) (Pablo Javier García Mora)
+- Allow file actions without authentication. [MR #343](https://gitlab.com/aweframework/awe/-/merge_requests/343) (Pablo Javier García Mora)
+- There is an error when generating, updating or deleting a Queue. [MR #342](https://gitlab.com/aweframework/awe/-/merge_requests/342) (Pablo Javier García Mora)
+- Make all Jobs in scheduler as InterruptableJobs, because ReportJobs can't be interrupted and it fails when stopping scheduler. [MR #341](https://gitlab.com/aweframework/awe/-/merge_requests/341) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.4.3
 *19/11/2021*
 

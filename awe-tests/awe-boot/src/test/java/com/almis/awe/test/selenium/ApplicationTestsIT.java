@@ -833,12 +833,111 @@ class ApplicationTestsIT extends SeleniumUtilities {
   }
 
   /**
+   * Add a new queue
+   */
+  @Test
+  void t061_newQueue() {
+    // Title
+    setTestTitle("Add a new queue");
+
+    addNew("tools", "queues");
+
+    // Insert text
+    writeText("Als", "Queue test");
+
+    // Insert text
+    writeText("JmsBrk", "Broker");
+
+    // Insert text
+    writeText("DstNam", "Destination");
+
+    // Select on selector
+    selectContain("ConTyp", "JNDI");
+
+    // Insert text
+    writeText("Des", "Queue description");
+
+    // Store and confirm
+    clickButtonAndConfirm("ButCnf");
+
+    // Wait for button
+    clickButton("ButRst");
+
+    // Suggest on column selector
+    suggest("CrtAls", "test", "test");
+
+    // Search on grid
+    searchAndWait();
+
+    // Check contents
+    checkRowContents("Queue test", "Broker", "Destination", "JNDI", "Queue description");
+  }
+
+  /**
+   * Update a theme
+   *
+   * @
+   */
+  @Test
+  void t063_updateQueue() {
+    // Title
+    setTestTitle("Update a queue");
+
+    // Go to update
+    update("CrtAls", "test", "tools", "queues");
+
+    // Insert text
+    writeText("Als", "Queue changed");
+
+    // Insert text
+    writeText("JmsBrk", "New broker");
+
+    // Insert text
+    writeText("DstNam", "New destination");
+
+    // Insert text
+    writeText("Des", "Queue changed description");
+
+    // Store and confirm
+    clickButtonAndConfirm("ButCnf");
+
+    // Wait for button
+    clickButton("ButRst");
+
+    // Suggest on column selector
+    suggest("CrtAls", "changed", "changed");
+
+    // Search on grid
+    searchAndWait();
+
+    // Check contents
+    checkRowContents("Queue changed", "New broker", "New destination", "JNDI", "Queue changed description");
+  }
+
+  /**
+   * Delete a queue
+   *
+   * @
+   */
+  @Test
+  void t065_deleteQueue() {
+    // Title
+    setTestTitle("Delete a queue");
+
+    // Delete a theme
+    delete("CrtAls", "Queue changed", "tools", "queues");
+
+    // Verify
+    verifyDeleted("Queue changed");
+  }
+
+  /**
    * Encrypt text with encryption tools
    *
    * @
    */
   @Test
-  void t061_encryptText() {
+  void t071_encryptText() {
     // Title
     setTestTitle("Encrypt text with encryption tools");
 
@@ -868,7 +967,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    * @
    */
   @Test
-  void t063_viewLog() {
+  void t081_viewLog() {
     // Title
     setTestTitle("View a log file");
 

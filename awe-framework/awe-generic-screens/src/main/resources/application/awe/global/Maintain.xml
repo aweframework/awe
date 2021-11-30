@@ -556,13 +556,6 @@
     </multiple>
   </target>
 
-  <!-- Clear profile Cache -->
-  <target name="ClrCchPrf">
-    <serve service="ClrCch">
-      <variable id="cache" type="STRING" value="PROFILE" />
-    </serve>
-  </target>
-
   <!-- AweKey Update Multiple -->
   <target name="AweKeyUpd">
     <multiple grid="GrdKeyLst">
@@ -1144,8 +1137,6 @@
       <variable id="DstNam" type="STRING" name="DstNam" />
       <variable id="Act" type="INTEGER" name="Act" value="1" />
     </insert>
-    <commit />
-    <serve service="RelJmsCon" />
   </target>
 
   <target name="QueUpd">
@@ -1191,8 +1182,6 @@
       <variable id="JmsPwd" type="STRING_ENCRYPT" name="JmsPwd" />
       <variable id="FlgPwdUpd" type="INTEGER" name="FlgPwdUpd" />
     </update>
-    <commit />
-    <serve service="RelJmsCon" />
   </target>
 
   <target name="QueDel">
@@ -1224,8 +1213,6 @@
       <variable id="DstNam" type="STRING" name="DstNam" />
       <variable id="Act" type="INTEGER" name="Act" />
     </delete>
-    <commit />
-    <serve service="RelJmsCon" />
   </target>
 
   <!--
@@ -1247,24 +1234,9 @@
     </serve>
   </target>
 
-  <!--
-  CACHE
-  -->
-  <!-- Launch Clear Cache Process -->
-  <target name="ClrCch">
-    <serve service="ClrDatCch" />
-  </target>
-
   <!-- Reload properties of application -->
   <target name="refreshDatabaseProperties">
     <serve service="refreshDatabaseProperties" />
-  </target>
-
-  <!-- Launch Clear Cache Process -->
-  <target name="ClrGenCch">
-    <serve service="ClrCch">
-      <variable id="cache" type="STRING" name="cache" />
-    </serve>
   </target>
 
 </maintain>

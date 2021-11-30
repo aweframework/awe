@@ -25,10 +25,10 @@ public class JWTTokenService extends ServiceConfig {
 
   // JWT properties
   private String authorizationHeader;
-  private String jwtPrefix;
-  private String jwtSecret;
-  private String jwtIssuer;
-  private Duration jwtExpiration;
+  private String prefix;
+  private String secret;
+  private String issuer;
+  private Duration expiration;
 
   // Fields
   private JWTVerifier jwtVerifier;
@@ -36,17 +36,17 @@ public class JWTTokenService extends ServiceConfig {
   /**
    * JWTTokenService constructor
    * @param authorizationHeader HTTP Auth header name
-   * @param jwtPrefix JWT token prefix
-   * @param jwtSecret JWT token secret
-   * @param jwtIssuer JWT token issuer
-   * @param jwtExpirationTime JWT token expiration
+   * @param prefix JWT token prefix
+   * @param secret JWT token secret
+   * @param issuer JWT token issuer
+   * @param expiration JWT token expiration
    */
-  public JWTTokenService(String authorizationHeader, String jwtPrefix, String jwtSecret, String jwtIssuer, Duration jwtExpirationTime) {
+  public JWTTokenService(String authorizationHeader, String prefix, String secret, String issuer, Duration expiration) {
     this.authorizationHeader = authorizationHeader;
-    this.jwtPrefix = jwtPrefix;
-    this.jwtSecret = jwtSecret;
-    this.jwtIssuer = jwtIssuer;
-    this.jwtExpiration = jwtExpirationTime;
+    this.prefix = prefix;
+    this.secret = secret;
+    this.issuer = issuer;
+    this.expiration = expiration;
   }
 
   /**
@@ -54,7 +54,7 @@ public class JWTTokenService extends ServiceConfig {
    */
   public JWTVerifier getJWTVerifier() {
     return Optional.ofNullable(jwtVerifier)
-            .orElse(JWT.require(Algorithm.HMAC512(jwtSecret)).withIssuer(jwtIssuer).build());
+            .orElse(JWT.require(Algorithm.HMAC512(secret)).withIssuer(issuer).build());
   }
 
   /**
@@ -65,20 +65,29 @@ public class JWTTokenService extends ServiceConfig {
   public void generateToken(Authentication authentication, HttpServletResponse response) {
     String token = JWT.create()
             .withSubject(((UserDetails) authentication.getPrincipal()).getUsername())
-            .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpiration.toMillis()))
-            .withIssuer(jwtIssuer)
-            .sign(Algorithm.HMAC512(jwtSecret.getBytes()));
+            .withExpiresAt(new Date(System.currentTimeMillis() + expiration.toMillis()))
+            .withIssuer(issuer)
+            .sign(Algorithm.HMAC512(secret.getBytes()));
 
     // Add auth header
-    response.addHeader(authorizationHeader, jwtPrefix + token);
+    response.addHeader(authorizationHeader, prefix + " " + token);
   }
 
   /**
-   * Verify token. Check if has JWT format and if not expired
+   * Verify token. Check if it has JWT format and if not expiredh
    * @param token JWT token
    * @return Decode JWT token
    */
   public DecodedJWT verifyToken(String token) {
     return this.getJWTVerifier().verify(token);
+  }
+
+  /**
+   * Extract token from http Authorization header
+   * @param authorizationHeader Authorization header value
+   * @return JWT Token
+   */
+  public String extractToken(String authorizationHeader) {
+    return authorizationHeader.substring(prefix.length() + 1);
   }
 }

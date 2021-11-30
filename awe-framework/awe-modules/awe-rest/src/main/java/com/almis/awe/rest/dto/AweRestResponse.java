@@ -4,7 +4,7 @@ import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.type.AnswerType;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,7 +18,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
  */
 @Data
 @NoArgsConstructor
-@ApiModel("AWE rest response model")
+@Schema(title = "AWE rest response model")
 public class AweRestResponse {
   private AnswerType type;
   private String title;
