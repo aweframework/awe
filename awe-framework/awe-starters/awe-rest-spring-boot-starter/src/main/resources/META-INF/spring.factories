@@ -1,4 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.almis.awe.rest.autoconfigure.RestSecurityConfiguration,\
-com.almis.awe.rest.autoconfigure.SwaggerConfiguration,\
+com.almis.awe.rest.autoconfigure.OpenAPIConfiguration,\
 com.almis.awe.rest.controller.AweRestController

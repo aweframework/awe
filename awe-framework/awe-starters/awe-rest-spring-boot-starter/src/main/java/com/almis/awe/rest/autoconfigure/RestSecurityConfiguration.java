@@ -2,6 +2,7 @@ package com.almis.awe.rest.autoconfigure;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.rest.autoconfigure.config.AweRestConfigProperties;
+import com.almis.awe.rest.autoconfigure.config.JWTProperties;
 import com.almis.awe.rest.security.JWTAuthenticationEntryPoint;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
@@ -25,8 +26,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
  * REST security configuration
  */
 @DependsOn("aweUserDetailsService")
+@EnableConfigurationProperties({AweRestConfigProperties.class, JWTProperties.class})
 @Configuration
-@EnableConfigurationProperties(AweRestConfigProperties.class)
 public class RestSecurityConfiguration extends ServiceConfig {
 
   // Autowire services
@@ -73,13 +74,12 @@ public class RestSecurityConfiguration extends ServiceConfig {
     @Override
     public void configure(WebSecurity web) throws Exception {
       web.ignoring().antMatchers(
-              // -- swagger ui
+              // -- Swagger 2
               "/v2/api-docs",
-              "/swagger-resources/**",
-              "/swagger-ui/",
+              // -- Open API
+              "/v3/api-docs/**",
               "/swagger-ui/**",
-              "/swagger-ui.html",
-              "/webjars/**");
+              "/swagger-ui.html");
     }
 
     @Bean
@@ -89,17 +89,15 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
     /**
      * JWT Token service
-     *
-     * @param restConfigProperties Rest config properties
      * @return JWTTokenService
      */
     @Bean
-    JWTTokenService jwtTokenService(AweRestConfigProperties restConfigProperties) {
-      return new JWTTokenService(restConfigProperties.getAuthorizationHeader(),
-              restConfigProperties.getJwtPrefix(),
-              restConfigProperties.getJwtSecret(),
-              restConfigProperties.getJwtIssuer(),
-              restConfigProperties.getJwtExpirationTime());
+    JWTTokenService jwtTokenService(JWTProperties jwtProperties) {
+      return new JWTTokenService(jwtProperties.getAuthorizationHeader(),
+              jwtProperties.getPrefix(),
+              jwtProperties.getSecret(),
+              jwtProperties.getIssuer(),
+              jwtProperties.getExpirationTime());
     }
   }
 }

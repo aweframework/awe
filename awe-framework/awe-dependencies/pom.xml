@@ -38,7 +38,6 @@
     <selenium.version>3.141.59</selenium.version>
     <modelmapper.version>2.4.0</modelmapper.version>
     <querydsl.version>4.4.0</querydsl.version>
-    <swagger.version>3.0.0</swagger.version>
 
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

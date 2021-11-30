@@ -4,6 +4,7 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.rest.dto.RequestParameter;
+import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
@@ -38,8 +39,8 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
   TestRestTemplate restTemplate = new TestRestTemplate();
   HttpHeaders headers = new HttpHeaders();
 
-  @Value("${security.master.key}")
-  private String jwtSecret;
+  @Autowired
+  private JWTTokenService jwtTokenService;
 
   // Constants
   private final String queryIdAuth = "SimpleEnum";
@@ -193,8 +194,8 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               .withSubject("test")
               .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
               .withIssuer("AWE ISSUER")
-              .sign(Algorithm.HMAC512(jwtSecret.getBytes()));
-      headers.add("Authorization", jwtToken);
+              .sign(Algorithm.HMAC512(jwtTokenService.getSecret().getBytes()));
+      headers.add("Authorization", jwtTokenService.getPrefix() + " " + jwtToken);
     }
   }
 
@@ -312,8 +313,8 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               .withSubject("test")
               .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
               .withIssuer("AWE ISSUER")
-              .sign(Algorithm.HMAC512(jwtSecret.getBytes()));
-      headers.add("Authorization", jwtToken);
+              .sign(Algorithm.HMAC512(jwtTokenService.getSecret().getBytes()));
+      headers.add("Authorization", jwtTokenService.getPrefix() + " " + jwtToken);
     }
   }
 }
