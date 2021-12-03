@@ -489,7 +489,7 @@ Deploy Maven Central:
     - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
     - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
     - cd awe-gke-config/${CI_ENVIRONMENT_SLUG}/awe-boot
-    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
+    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
     - git commit . -m "Updated awe-boot kubernetes deployment ${CI_ENVIRONMENT_SLUG}"
