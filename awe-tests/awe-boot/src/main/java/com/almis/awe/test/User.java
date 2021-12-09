@@ -132,7 +132,7 @@ public class User {
 
   /**
    * Transform user in datalist row
-   * 
+   *
    * @return User as datalist row
    */
   public Map<String, CellData> toDatalistRow() {

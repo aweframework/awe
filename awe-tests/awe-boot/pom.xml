@@ -26,7 +26,7 @@
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <webdrivermanager.version>3.2.0</webdrivermanager.version>
     <testng.version>6.14.3</testng.version>
-    <wavefront.version>2.2.0</wavefront.version>
+    <wavefront.version>2.2.2</wavefront.version>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
@@ -279,6 +279,13 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+    </dependency>
+
+    <!-- Get maven failsafe plugin dependency on m2 -->
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-failsafe-plugin</artifactId>
+      <version>${plugin-failsafe.version}</version>
     </dependency>
   </dependencies>
 
@@ -671,7 +678,8 @@
                   <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                   <skip>${skip.selenium}</skip>
                   <systemPropertyVariables>
-                    <failsafe.browser>${browser}</failsafe.browser>
+                    <test.browser>${browser}</test.browser>
+                    <!--<java.awt.headless>true</java.awt.headless>-->
                   </systemPropertyVariables>
                 </configuration>
               </execution>
