@@ -24,6 +24,7 @@ public class File extends ServiceConfig {
 
   /**
    * Given a file identifier, download a file
+   *
    * @param filedata File data
    * @return Service data
    * @throws AWException error retrieving file
@@ -49,6 +50,7 @@ public class File extends ServiceConfig {
 
   /**
    * Given a file identifier, retrieve file information
+   *
    * @param filedata File data
    * @return File information
    * @throws AWException Error generating file info
@@ -58,7 +60,7 @@ public class File extends ServiceConfig {
     FileData fileData = fileUtil.stringToFileData(filedata);
 
     // Set variables
-    String[] out = { filedata, fileData.getFileName() };
+    String[] out = {filedata, fileData.getFileName()};
 
     // Set variables
     return serviceData.setData(out);

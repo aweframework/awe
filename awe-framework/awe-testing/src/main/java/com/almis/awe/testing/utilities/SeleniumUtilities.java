@@ -1,24 +1,14 @@
 package com.almis.awe.testing.utilities;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+import com.almis.awe.testing.extensions.SeleniumExtension;
+import com.almis.awe.testing.model.SeleniumModel;
+import com.almis.awe.testing.selenium.IAweInstructions;
+import com.almis.awe.testing.selenium.InstructionsFactory;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.opera.OperaDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,10 +18,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -44,9 +34,9 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
  * Utilities suite for selenium testing
  */
 @Log4j2
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, SeleniumExtension.class})
 @TestPropertySource("classpath:test.properties")
-public class SeleniumUtilities {
+public class SeleniumUtilities implements IAweInstructions {
   private static final Integer RETRY_COUNT = 10;
   // Constants
   private static final String PARENT_ELEMENT = "')]/..";
@@ -56,7 +46,6 @@ public class SeleniumUtilities {
   private static final String DAY = "day";
   private static final String MONTH = "month";
   private static final String YEAR = "year";
-  private static final By BODY = By.cssSelector("body");
   private static final By DATEPICKER = By.cssSelector(".datepicker");
   private static final By GRID_LOADER_SELECTOR = By.cssSelector(".grid-loader");
   private static final By SELECT_DROP_INPUT = By.cssSelector("#select2-drop input.select2-input");
@@ -64,229 +53,105 @@ public class SeleniumUtilities {
   private static final By SELECT_DROP_RESULTS = By.cssSelector("#select2-drop .select2-results li");
   private static final ExpectedCondition<Boolean> GRID_LOADER_IS_NOT_VISIBLE = invisibilityOfElementLocated(GRID_LOADER_SELECTOR);
   private static final ExpectedCondition<Boolean> LOADER_IS_NOT_VISIBLE = invisibilityOfElementLocated(By.cssSelector(".loader"));
-  private static WebDriver driver;
-  private static WebDriverManager webDriverManager;
-  private static String currentOption;
-  private static Date startTime;
-  @Value("${selenium.start.url}")
-  private String startURL;
 
-  @Value("${server.port}")
-  private Integer serverPort;
+  private SeleniumModel seleniumModel;
+  private IAweInstructions instructions;
 
-  @Value("${server.servlet.context-path}")
-  private String contextPath;
+  @Value("${test.browser-host}")
+  private String browserHost;
 
-  @Value("${failsafe.timeout:30}")
-  private Integer timeout;
+  @Value("${test.browser-display}")
+  private Integer browserDisplay;
 
-  @Value("${browser.resolution.width}")
-  private Integer browserWidth;
+  @Value("${test.browser-port}")
+  private Integer browserPort;
 
-  @Value("${browser.resolution.height}")
-  private Integer browserHeight;
+  @Value("${test.recorder-url}")
+  private String recorderUrl;
 
-  @Value("${screenshot.path}")
-  private String screenshotPath;
-
-  @Value("${failsafe.browser:headless-chrome}")
+  @Value("${test.browser}")
   private String browser;
 
-  @Value("${show.mouse:true}")
-  private boolean showMouseCursor;
+  @Value("${test.browser-width}")
+  private Integer browserWidth;
+
+  @Value("${test.browser-height}")
+  private Integer browserHeight;
+
+  @Value("${test.screenshot-path}")
+  private String screenshotPath;
+
+  @Value("${test.video-format}")
+  private String videoFormat;
+
+  @Value("${test.video-save:FAILED}")
+  private String videoSave;
+
+  @Value("${test.start-url}")
+  private String startUrl;
+
+  @Value("${test.server-port}")
+  private Integer serverPort;
+
+  @Value("${test.context-path}")
+  private String contextPath;
+
+  @Value("${test.timeout:30}")
+  private Integer timeout;
+
+  @Value("${test.show-mouse:true}")
+  private boolean showMouse;
+
+  @Value("${test.frontend:angular}")
+  private String frontend;
 
   /**
-   * Clean driver after a test suite
-   */
-  @AfterAll
-  public static void cleanDrivers() {
-    if (getDriver() != null) {
-      log.info("Disposing web driver...");
-      if (getDriver() instanceof ChromeDriver) {
-        getDriver().close();
-      }
-      getDriver().quit();
-      setDriver(null);
-      log.info("Web driver disposed");
-    }
-
-    if (getWebDriverManager() != null) {
-      log.info("Disposing web driver manager...");
-      getWebDriverManager().quit();
-      log.info("Web driver manager disposed");
-    }
-  }
-
-  /**
-   * Get current driver
+   * Get driver
    *
-   * @return Web driver
+   * @return Get driver
    */
-  public static WebDriver getDriver() {
-    return driver;
+  public WebDriver getDriver() {
+    return this.instructions.getDriver();
   }
 
   /**
-   * Set current driver
+   * Get base URL
    *
-   * @param newDriver New web driver
+   * @return Get base URL
    */
-  public static void setDriver(WebDriver newDriver) {
-    driver = newDriver;
+  public String getBaseUrl() {
+    return seleniumModel.getBaseUrl();
   }
 
   /**
-   * Get current driver manager
+   * Store selenium model
    *
-   * @return Web driver manager
+   * @param model Selenium model
    */
-  public static WebDriverManager getWebDriverManager() {
-    return webDriverManager;
-  }
+  public IAweInstructions setSeleniumModel(SeleniumModel model) {
+    seleniumModel = model;
+    model
+      .setBrowserHost(browserHost)
+      .setBrowserDisplay(browserDisplay)
+      .setBrowserPort(browserPort)
+      .setRecorderUrl(recorderUrl)
+      .setBrowser(browser)
+      .setBrowserWidth(browserWidth)
+      .setBrowserHeight(browserHeight)
+      .setScreenshotPath(screenshotPath)
+      .setVideoFormat(videoFormat)
+      .setVideoSave(videoSave)
+      .setStartUrl(startUrl)
+      .setServerPort(serverPort)
+      .setContextPath(contextPath)
+      .setTimeout(timeout)
+      .setShowMouse(showMouse);
 
-  /**
-   * Set current driver manager
-   *
-   * @param newWebDriverManager New web driver manager
-   */
-  public static void setWebDriverManager(WebDriverManager newWebDriverManager) {
-    webDriverManager = newWebDriverManager;
-  }
+    this.instructions = InstructionsFactory
+      .getInstance(frontend)
+      .setSeleniumModel(seleniumModel);
 
-  /**
-   * Get current option
-   *
-   * @return Current option
-   */
-  public static String getCurrentOption() {
-    return currentOption;
-  }
-
-  /**
-   * Set current option
-   *
-   * @param option new option
-   */
-  public static void setCurrentOption(String option) {
-    currentOption = option;
-  }
-
-  /**
-   * Get start date
-   *
-   * @return Start date
-   */
-  public static Date getStartTime() {
-    return startTime;
-  }
-
-  /**
-   * Set start date
-   *
-   * @param date new date
-   */
-  public static void setStartTime(Date date) {
-    startTime = date;
-  }
-
-  /**
-   * Set up test
-   */
-  @BeforeEach
-  public void setUpTest() {
-    // Setup window size
-    String windowSize = "--window-size=" + browserWidth + "," + browserHeight;
-
-    // Setup firefox options
-    FirefoxProfile firefoxProfile = new FirefoxProfile();
-    firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
-    FirefoxOptions firefoxOptions = new FirefoxOptions()
-      .setProfile(firefoxProfile)
-      .addArguments(windowSize)
-      .setLogLevel(FirefoxDriverLogLevel.ERROR);
-
-    // Setup chrome options
-    ChromeOptions chromeOptions = new ChromeOptions()
-      .addArguments(windowSize);
-
-    // Define browser web driver container
-    if (getDriver() == null) {
-      switch (browser) {
-        case "firefox":
-          WebDriverManager.firefoxdriver().setup();
-          setDriver(new FirefoxDriver(firefoxOptions));
-          break;
-        case "headless-firefox":
-          firefoxOptions.addArguments("--headless");
-          WebDriverManager.firefoxdriver().setup();
-          setDriver(new FirefoxDriver(firefoxOptions));
-          break;
-        case "headless-chrome":
-          WebDriverManager.chromedriver().setup();
-          chromeOptions.setHeadless(true);
-          chromeOptions.addArguments("--no-sandbox");
-          chromeOptions.addArguments("--disable-dev-shm-usage");
-          setDriver(new ChromeDriver(chromeOptions));
-          break;
-        case "remote-firefox":
-          setWebDriverManager(WebDriverManager.firefoxdriver()
-            .browserInDocker().enableRecording().recordingOutput(screenshotPath)
-            .recordingPrefix(getClass().getSimpleName() + "-")
-            .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
-          );
-          setDriver(getWebDriverManager().create());
-          break;
-        case "remote-chrome":
-          setWebDriverManager(WebDriverManager.chromedriver()
-            .browserInDocker().enableRecording().recordingOutput(screenshotPath)
-            .recordingPrefix(getClass().getSimpleName() + "-")
-            .dockerScreenResolution(browserWidth + "x" + browserHeight + "x24")
-          );
-          setDriver(getWebDriverManager().create());
-          break;
-        case "opera":
-          WebDriverManager.operadriver().setup();
-          setDriver(new OperaDriver());
-          break;
-        case "edge":
-          WebDriverManager.edgedriver().setup();
-          setDriver(new EdgeDriver());
-          break;
-        case "ie":
-          WebDriverManager.iedriver().setup();
-          setDriver(new InternetExplorerDriver());
-          break;
-        case "chrome":
-        default:
-          WebDriverManager.chromedriver().setup();
-          setDriver(new ChromeDriver(chromeOptions));
-          break;
-      }
-
-      // Set dimension if defined
-      if (browserWidth != null && browserHeight != null) {
-        getDriver().manage().window().setSize(new Dimension(browserWidth, browserHeight));
-      }
-    }
-  }
-
-  /**
-   * Get current base url
-   *
-   * @return Start url
-   */
-  public String getBaseUrl()  {
-    switch (browser) {
-      case "remote-chrome":
-      case "remote-firefox":
-        try {
-          return "http://" + (SystemUtils.IS_OS_LINUX ? Inet4Address.getLocalHost().getHostAddress() : "host.docker.internal") + ":" + serverPort + contextPath;
-        } catch (Exception exc) {
-          return startURL;
-        }
-      default:
-        return startURL;
-    }
+    return this.instructions;
   }
 
   /**
@@ -296,7 +161,7 @@ public class SeleniumUtilities {
    * @return Element found
    */
   private WebElement getElement(By selector) {
-    return driver.findElement(selector);
+    return seleniumModel.getDriver().findElement(selector);
   }
 
   /**
@@ -306,7 +171,7 @@ public class SeleniumUtilities {
    * @return Element found
    */
   private List<WebElement> getElements(By selector) {
-    return driver.findElements(selector);
+    return seleniumModel.getDriver().findElements(selector);
   }
 
   /**
@@ -325,12 +190,12 @@ public class SeleniumUtilities {
   private void waitUntil(ExpectedCondition<?> condition) {
     String message = condition.toString();
     try {
-      new WebDriverWait(driver, timeout).until(condition);
+      new WebDriverWait(seleniumModel.getDriver(), seleniumModel.getTimeout()).until(condition);
       // Assert true on condition
       assertTrue(true, message);
       log.debug(message);
     } catch (Exception exc) {
-      assertWithScreenshot(message, false, timeout * 1000, exc);
+      assertWithScreenshot(message, false, exc);
     }
   }
 
@@ -341,17 +206,13 @@ public class SeleniumUtilities {
    * @param condition Assert condition
    * @param throwable Throwable list
    */
-  private void assertWithScreenshot(String message, boolean condition, int rewind, Throwable... throwable) {
+  private void assertWithScreenshot(String message, boolean condition, Throwable... throwable) {
     if (!condition) {
-      File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-      String messageSanitized = message
-        .toLowerCase()
-        .replaceAll("[\\W]+", "_")
-        .replaceAll("_+", "_");
-      messageSanitized = messageSanitized.length() > 80 ? messageSanitized.substring(0, 80) : messageSanitized;
-      long diff = new Date().getTime() - getStartTime().getTime() - rewind;
-      String timestamp = DurationFormatUtils.formatDuration(diff, "H'h'_mm'm'_ss's'", false);
-      Path path = Paths.get(screenshotPath, String.format("%s-%s-%s-%s.png", getClass().getSimpleName(), timestamp, getCurrentOption(), messageSanitized));
+      File scrFile = ((TakesScreenshot) seleniumModel.getDriver()).getScreenshotAs(OutputType.FILE);
+      String messageSanitized = TextUtilities.sanitizeMessage(message);
+      String timestamp = new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date());
+      String screenshotName = String.format("%s-%s-[ERROR]-%s-%s", getClass().getSimpleName(), timestamp, seleniumModel.getCurrentOption(), messageSanitized);
+      Path path = Paths.get(seleniumModel.getScreenshotPath(), screenshotName + ".png");
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);
 
@@ -387,7 +248,7 @@ public class SeleniumUtilities {
     String conditionMessage = "";
     try {
       WebElement element = getElement(selector);
-      new Actions(driver)
+      new Actions(seleniumModel.getDriver())
         .sendKeys(element, text)
         .pause(200)
         .perform();
@@ -395,7 +256,7 @@ public class SeleniumUtilities {
       // Assert true on condition
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
-      assertWithScreenshot("Sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, 200, exc);
+      assertWithScreenshot("Sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -425,7 +286,7 @@ public class SeleniumUtilities {
   private void click(WebElement element) {
     String conditionMessage = "";
     try {
-      new Actions(driver)
+      new Actions(seleniumModel.getDriver())
         .moveToElement(element)
         .click(element)
         .pause(100)
@@ -434,7 +295,7 @@ public class SeleniumUtilities {
       // Assert true on condition
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
-      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, 100, exc);
+      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -447,14 +308,14 @@ public class SeleniumUtilities {
     String conditionMessage = "";
     try {
       WebElement element = getElement(selector);
-      new Actions(driver)
+      new Actions(seleniumModel.getDriver())
         .moveToElement(element)
         .contextClick(element)
         .pause(100)
         .perform();
       assertTrue(true, conditionMessage);
     } catch (Exception exc) {
-      assertWithScreenshot("Right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, 100, exc);
+      assertWithScreenshot("Right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -586,7 +447,7 @@ public class SeleniumUtilities {
     writeTextFromSelector(getCriterionInputSelector(parentSelector), dateValue, true, activeSelector);
 
     // Make click twice if datepicker is still visible
-    if (!driver.findElements(activeSelector).isEmpty()) {
+    if (!seleniumModel.getDriver().findElements(activeSelector).isEmpty()) {
       clickSelector(activeSelector);
     }
 
@@ -708,7 +569,7 @@ public class SeleniumUtilities {
       // Move mouse while help is being displayed
       List<WebElement> popovers = getElements(popoverSelector);
       while (!popovers.isEmpty() && safecheck < RETRY_COUNT) {
-        new Actions(driver)
+        new Actions(seleniumModel.getDriver())
           .pause(100)
           .moveToElement(popovers.get(0))
           .moveByOffset(0, 30)
@@ -721,7 +582,7 @@ public class SeleniumUtilities {
       }
     } catch (Exception exc) {
       // Assert error moving mouse
-      assertWithScreenshot("Moving mouse: " + exc.getMessage(), true, RETRY_COUNT * 200);
+      assertWithScreenshot("Moving mouse: " + exc.getMessage(), true);
     }
   }
 
@@ -731,7 +592,7 @@ public class SeleniumUtilities {
   private void moveMouseOutOfCriterion() {
     try {
       // Move mouse out of criterion (up)
-      new Actions(driver)
+      new Actions(seleniumModel.getDriver())
         .moveByOffset(0, -30)
         .click()
         .pause(100)
@@ -739,7 +600,7 @@ public class SeleniumUtilities {
         .perform();
     } catch (Exception exc) {
       // Assert error moving mouse
-      assertWithScreenshot("Moving mouse after criterion: " + exc.getMessage(), true, 100);
+      assertWithScreenshot("Moving mouse after criterion: " + exc.getMessage(), true);
     }
   }
 
@@ -992,7 +853,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' isn't equal to " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, nodeText.equalsIgnoreCase(text), 0);
+    assertWithScreenshot(message, nodeText.equalsIgnoreCase(text));
   }
 
   /**
@@ -1006,7 +867,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text), 0);
+    assertWithScreenshot(message, nodeText.contains(text));
   }
 
   /**
@@ -1020,7 +881,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' contains " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, !nodeText.contains(text), 0);
+    assertWithScreenshot(message, !nodeText.contains(text));
   }
 
   /**
@@ -1034,7 +895,7 @@ public class SeleniumUtilities {
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text), 0);
+    assertWithScreenshot(message, nodeText.contains(text));
   }
 
   // ===================================================================================================================
@@ -1051,6 +912,7 @@ public class SeleniumUtilities {
     log.info("======================================================================================");
     log.info("| " + title);
     log.info("======================================================================================");
+    seleniumModel.setTestTitle(title);
   }
 
   /**
@@ -1071,7 +933,7 @@ public class SeleniumUtilities {
         // Click on screen
         click(By.name(option));
       }
-      setCurrentOption(option);
+      seleniumModel.setCurrentOption(option);
       optionNumber++;
     }
 
@@ -1178,7 +1040,7 @@ public class SeleniumUtilities {
    * @param time Milliseconds
    */
   protected void pause(Integer time) {
-    new Actions(driver)
+    new Actions(seleniumModel.getDriver())
       .pause(time)
       .build()
       .perform();
@@ -1240,8 +1102,8 @@ public class SeleniumUtilities {
       waitForContextButton(contextButtonOption);
 
       // Mouse over context button
-      new Actions(driver)
-        .moveToElement(driver.findElement(contextButtonSelector))
+      new Actions(seleniumModel.getDriver())
+        .moveToElement(seleniumModel.getDriver().findElement(contextButtonSelector))
         .build()
         .perform();
     }
@@ -2047,8 +1909,8 @@ public class SeleniumUtilities {
    * @param vertical   Vertical scroll in pixels
    */
   protected void scrollGrid(String gridId, int horizontal, int vertical) {
-    JavascriptExecutor js = ((JavascriptExecutor) driver);
-    WebElement grid = driver.findElement(getGridScrollZone(gridId));
+    JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
+    WebElement grid = seleniumModel.getDriver().findElement(getGridScrollZone(gridId));
     js.executeScript("arguments[0].scrollTo(arguments[1], arguments[2]);", grid, horizontal, vertical);
   }
 
@@ -2056,7 +1918,7 @@ public class SeleniumUtilities {
    * Show mouse
    */
   protected void showMouse() {
-    JavascriptExecutor js = ((JavascriptExecutor) driver);
+    JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
     js.executeScript("var seleniumFollowerImg=document.createElement(\"span\");" +
       "seleniumFollowerImg.setAttribute('id', 'selenium_mouse');" +
       "seleniumFollowerImg.setAttribute('style', 'position: absolute; z-index: 99999999999; pointer-events: none; transition: all .1s ease, text-shadow .1s linear; -moz-transition: all .01s linear, text-shadow .1s linear; color: white;-webkit-text-stroke-width: 2px;-webkit-text-stroke-color: #000;');" +
@@ -2235,7 +2097,7 @@ public class SeleniumUtilities {
     ExpectedCondition<Boolean> condition = and(invisibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE);
 
     // Assert element is not located
-    assertWithScreenshot(condition.toString(), condition.apply(driver), 0);
+    assertWithScreenshot(condition.toString(), condition.apply(seleniumModel.getDriver()));
   }
 
   /**
@@ -2299,7 +2161,7 @@ public class SeleniumUtilities {
     selectClick(getCriterionSelectorCss(criterionName));
 
     // Assert element is not located
-    assertWithScreenshot("Number of elements doesn't match", number == getElements(SELECT_DROP_RESULTS).size(), 0);
+    assertWithScreenshot("Number of elements doesn't match", number == getElements(SELECT_DROP_RESULTS).size());
   }
 
   /**
@@ -2400,23 +2262,23 @@ public class SeleniumUtilities {
 
   /**
    * Starting point; Go to a determined url
+   *
    * @param url Start url
    */
   protected void goToUrl(String url) {
-    assertNotNull(driver);
-    setStartTime(new Date());
-    setCurrentOption("login");
+    assertNotNull(seleniumModel.getDriver());
+    seleniumModel.setCurrentOption("login");
 
-    log.info("Launching tests with '{}' browser: {}'", browser, getBaseUrl());
+    log.info("Launching tests with '{}' browser: {}'", seleniumModel.getBrowser(), seleniumModel.getBaseUrl());
 
     // Set driver timeout
-    driver.manage().timeouts().setScriptTimeout(timeout, SECONDS);
+    seleniumModel.getDriver().manage().timeouts().setScriptTimeout(seleniumModel.getTimeout(), SECONDS);
 
     // Open page in different browsers
-    driver.get(url);
+    seleniumModel.getDriver().get(url);
 
     // Show mouse if defined
-    if (showMouseCursor) {
+    if (seleniumModel.isShowMouse()) {
       showMouse();
     }
 
@@ -2434,7 +2296,7 @@ public class SeleniumUtilities {
    */
   protected void checkLogin(String username, String password, String cssSelector, String checkText) {
     // Go to base URL
-    goToUrl(getBaseUrl());
+    goToUrl(seleniumModel.getBaseUrl());
 
     // Test title
     setTestTitle("Login test: Log into the application");

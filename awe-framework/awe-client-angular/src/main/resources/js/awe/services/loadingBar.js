@@ -1,9 +1,9 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Loading bar service
 aweApplication.factory('LoadingBar',
-  ['cfpLoadingBar',
-    function (loadingBarPlugin) {
+  ['cfpLoadingBar', 'Control',
+    function (loadingBarPlugin, Control) {
       // Call number
       var calls = 0;
       var showing = false;
@@ -15,16 +15,7 @@ aweApplication.factory('LoadingBar',
          */
         startTask: function () {
           // If not showing, start loading bar
-          if (!showing) {
-            $window.scrollTop(0);
-            loadingBarPlugin.start();
-            showing = true;
-            calls = 1;
-            // Else add a call
-          } else {
-            calls++;
-            loadingBarPlugin.inc();
-          }
+          LoadingBar.startTasks(1);
         },
         /**
          * Starts some server tasks
@@ -34,12 +25,14 @@ aweApplication.factory('LoadingBar',
           // If not showing, start loading bar
           if (!showing) {
             $window.scrollTop(0);
+            Control.publish('hideHelp');
             loadingBarPlugin.start();
             showing = true;
             calls = tasks;
             // Else add a call
           } else {
             calls += tasks;
+            loadingBarPlugin.inc();
           }
         },
         /**

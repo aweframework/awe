@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Test wrapper for JMS sending
- * 
+ *
  * @author pgarcia and pvidal
  */
 @XStreamAlias("Casa")
@@ -37,10 +37,10 @@ public class Casa implements RequestWrapper, ResponseWrapper {
     List<Integer> listaVentanas = Arrays.asList(new Integer[]{ventanas});
     List<Integer> listaPuertas = Arrays.asList(new Integer[]{puertas});
     DataList datalist = new DataListBuilder()
-        .addColumn("OutFld1", listaVentanas, "INTEGER")
-        .addColumn("OutFld2", listaPuertas, "INTEGER")
-        .build();
+      .addColumn("OutFld1", listaVentanas, "INTEGER")
+      .addColumn("OutFld2", listaPuertas, "INTEGER")
+      .build();
     return new ServiceData()
-            .setDataList(datalist);
+      .setDataList(datalist);
   }
 }

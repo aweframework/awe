@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 /**
  * Test wrapper for JMS sending
- * 
+ *
  * @author pgarcia and pvidal
  */
 public class Topic implements ResponseWrapper {
@@ -36,6 +36,7 @@ public class Topic implements ResponseWrapper {
 
   /**
    * Get date
+   *
    * @return date
    */
   public String getDate() {
@@ -44,6 +45,7 @@ public class Topic implements ResponseWrapper {
 
   /**
    * Set date
+   *
    * @param date Date
    * @return this
    */
@@ -54,6 +56,7 @@ public class Topic implements ResponseWrapper {
 
   /**
    * Get serie 1
+   *
    * @return Serie 1
    */
   public Float getSerie1() {
@@ -62,6 +65,7 @@ public class Topic implements ResponseWrapper {
 
   /**
    * Set serie 1
+   *
    * @param serie1 Serie 1
    * @return this
    */
@@ -72,6 +76,7 @@ public class Topic implements ResponseWrapper {
 
   /**
    * Get serie 2
+   *
    * @return Serie 2
    */
   public Float getSerie2() {
@@ -80,6 +85,7 @@ public class Topic implements ResponseWrapper {
 
   /**
    * Set serie 2
+   *
    * @param serie2 Serie 2
    * @return this
    */
