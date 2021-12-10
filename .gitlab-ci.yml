@@ -34,8 +34,9 @@ variables:
 
 cache:
   - key: ${CI_COMMIT_REF_SLUG}
+    policy: pull
     paths:
-      - .m2/repository
+      - .m2/repository/
 
 stages:
   - build
@@ -108,15 +109,15 @@ Build project:
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
     expire_in: 1 day
+  cache:
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull-push
+      paths:
+        - .m2/repository/
 
 Build project (jdk latest):
   extends: .build
   image: maven:3.8-openjdk-17-slim
-  cache:
-    - key: ${CI_COMMIT_REF_SLUG}
-      policy: pull
-      paths:
-        - .m2/repository/
 
 Build website:
   extends: .build-website
@@ -368,6 +369,7 @@ Launch Sonar:
     - job: Chrome IT Scheduler
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull
       paths:
         - .m2/repository/
     - key: ${CI_JOB_NAME}
