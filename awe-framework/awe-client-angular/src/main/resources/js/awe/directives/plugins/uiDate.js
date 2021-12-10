@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "bootstrap-datepicker";
 
 // Date plugin
@@ -58,7 +58,7 @@ aweApplication.directive('uiDate',
                 if (elem.val() !== selected) {
                   elem.datepicker('setDate', selected);
                   if (selected !== elem.children().val()) {
-                    component.model.selected = elem.children().val();
+                    component.model.selected = Utilities.isEmpty(elem.children().val()) ? null : elem.children().val();
                   }
                 }
               };
