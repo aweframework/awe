@@ -672,7 +672,6 @@
                   <skip>${skip.selenium}</skip>
                   <systemPropertyVariables>
                     <test.browser>${browser}</test.browser>
-                    <!--<java.awt.headless>true</java.awt.headless>-->
                   </systemPropertyVariables>
                 </configuration>
               </execution>
