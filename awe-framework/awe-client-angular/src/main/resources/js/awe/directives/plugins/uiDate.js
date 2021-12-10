@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import "bootstrap-datepicker";
 
 // Date plugin
@@ -57,9 +57,6 @@ aweApplication.directive('uiDate',
                 let selected = component.model.selected;
                 if (elem.val() !== selected) {
                   elem.datepicker('setDate', selected);
-                  if (selected !== elem.children().val()) {
-                    component.model.selected = Utilities.isEmpty(elem.children().val()) ? null : elem.children().val();
-                  }
                 }
               };
 
@@ -90,8 +87,8 @@ aweApplication.directive('uiDate',
               listeners["languageChanged"] = scope.$on('languageChanged', updatePlugin);
 
               // Update model on change
-              elem.datepicker().on("changeDate", () => {
-                component.model.selected = elem.children().val()
+              elem.datepicker().on("changeDate", (event) => {
+                component.model.selected = Utilities.isEmpty(event.format()) ? null : event.format();
               });
             }
 
