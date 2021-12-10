@@ -3,6 +3,54 @@ import "../directives/plugins/uiDate";
 import "../directives/plugins/uiTime";
 import moment from "moment";
 
+export const calendarTemplate =
+`<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies"
+     ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      {{controller.label | translateMultiple}}
+    </label>
+    <div class="validator input-group input-append date {{::validatorGroup}} focus-target" ui-date="aweDateOptions"
+         initialized="initialized" ng-readonly="controller.readonly">
+      <span ng-if="::controller.icon" ng-class="::iconClass" ng-cloak></span>
+      <input type="text" class="form-control {{classes}}"
+             placeholder="{{controller.placeholder| translateMultiple}}" autoComplete="off" ng-click="click($event)"
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
+             ng-model="model.selected" ng-change="component.modelChange()"
+             ng-model-options="{updateOn: 'change'}" ng-focus="focus()" ng-blur="blur()"
+             ng-press-enter="submit($event)"/>
+      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <span class="input-group-addon add-on">
+        <i class="fa fa-calendar"></i>
+      </span>
+    </div>
+  </div>
+</div>`;
+
+export const timeTemplate =
+`<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-class="labelClass" ng-style="::labelStyle" ng-cloak>
+      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      {{controller.label| translateMultiple}}
+    </label>
+    <div class="validator input-group input-append date {{::validatorGroup}} focus-target">
+      <span ng-if="::controller.icon" ng-class="::iconClass" ng-cloak></span>
+      <input type="text" ui-time="aweTimeOptions" class="form-control add-on {{classes}}" autocomplete="off" ng-click="click($event)"
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-model="model.selected"
+             ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}" ng-press-enter="submit($event)"
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"/>
+      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <span class="input-group-addon add-on">
+        <i class="fa fa-clock-o"></i>
+      </span>
+    </div>
+  </div>
+</div>`;
+
 // Date and time service
 aweApplication.factory('DateTime',
   ['Criterion', 'AweUtilities', 'AweSettings',

@@ -1,5 +1,5 @@
-import { DefaultSettings } from "./../../../main/resources/js/awe/data/options";
-import { launchScreenAction } from "../utils";
+import {DefaultSettings} from "./../../../main/resources/js/awe/data/options";
+import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', function() {
   let $injector, $rootScope, $compile, $httpBackend, $actionController, $storage, $control, $utilities;
@@ -50,7 +50,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyOn($control, "checkComponent").and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -72,7 +72,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyOn($control, "checkComponent").and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -127,7 +127,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -151,7 +151,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -175,7 +175,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -199,7 +199,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -223,7 +223,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -247,7 +247,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: emptyModel}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -271,7 +271,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: emptyModel}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -295,7 +295,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: emptyModel}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -319,7 +319,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: emptyModel}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -343,7 +343,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: emptyModel}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -366,7 +366,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
 
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "wizardId", controller: controller, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
@@ -390,7 +390,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope.$new());
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope.$new());
     $rootScope.$digest();
 
     let $scope = element.isolateScope() || element.scope();
@@ -413,7 +413,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope.$new());
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope.$new());
     $rootScope.$digest();
 
     let $ctrl = element.controller("aweInputWizard");
@@ -430,7 +430,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     spyControls();
 
     // Compile a piece of HTML containing the directive
-    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope.$new());
+    let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope.$new());
     $rootScope.$digest();
 
     let $scope = element.isolateScope() || element.scope();

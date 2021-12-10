@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import "../../services/dateTime";
+import {aweApplication} from "../../awe";
+import {calendarTemplate} from "../../services/dateTime";
 
 // Datepicker directive
 aweApplication.directive('aweInputDate',
@@ -8,9 +8,7 @@ aweApplication.directive('aweInputDate',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/date');
-        },
+        template: calendarTemplate,
         scope: {
           'criterionId': '@inputDateId'
         },
