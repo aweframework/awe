@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.4.4</version>
+    <version>4.4.5</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -26,7 +26,7 @@
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <webdrivermanager.version>3.2.0</webdrivermanager.version>
     <testng.version>6.14.3</testng.version>
-    <wavefront.version>2.2.0</wavefront.version>
+    <wavefront.version>2.2.2</wavefront.version>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
@@ -671,7 +671,7 @@
                   <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                   <skip>${skip.selenium}</skip>
                   <systemPropertyVariables>
-                    <failsafe.browser>${browser}</failsafe.browser>
+                    <test.browser>${browser}</test.browser>
                   </systemPropertyVariables>
                 </configuration>
               </execution>

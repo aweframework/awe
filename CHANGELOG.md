@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.4.5
+*13/12/2021*
+
+- Fix log4j2 vulnerability. [MR #351](https://gitlab.com/aweframework/awe/-/merge_requests/351) (Pablo Vidal Otero)
+- Fix datepicker coverage. [MR #350](https://gitlab.com/aweframework/awe/-/merge_requests/350) (Pablo Javier García Mora)
+- Reset dependency over date criteria sets value to empty instead of null. [MR #349](https://gitlab.com/aweframework/awe/-/merge_requests/349) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.4.4
 *30/11/2021*
 

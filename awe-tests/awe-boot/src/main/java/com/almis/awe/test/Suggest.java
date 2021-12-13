@@ -20,9 +20,10 @@ public class Suggest extends ServiceConfig {
 
   /**
    * Get suggest with a delay
+   *
    * @param queryName Query name
    * @return User list
-   * @throws AWException error in query
+   * @throws AWException          error in query
    * @throws InterruptedException Error in thread wait
    */
   public ServiceData delayedSuggest(String queryName) throws AWException, InterruptedException {

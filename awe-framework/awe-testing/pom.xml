@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.4.4</version>
+    <version>4.4.5</version>
     <relativePath>../awe-dependencies/pom.xml</relativePath>
   </parent>
 
@@ -20,19 +20,11 @@
     <java.version>1.8</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <webdrivermanager.version>5.0.3</webdrivermanager.version>
-    <testng.version>6.14.3</testng.version>
-    <testcontainers.version>1.16.2</testcontainers.version>
     <sonar.exclusions>src/**</sonar.exclusions>
     <skip.delombok>false</skip.delombok>
   </properties>
 
   <dependencies>
-    <!-- Log4j2 -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-
     <!-- Testing -->
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -47,24 +39,15 @@
       <artifactId>spring-security-test</artifactId>
     </dependency>
     <dependency>
-      <groupId>xmlunit</groupId>
-      <artifactId>xmlunit</artifactId>
-      <version>1.6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>selenium</artifactId>
-      <version>${testcontainers.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
-    </dependency>
-    <dependency>
       <groupId>io.github.bonigarcia</groupId>
       <artifactId>webdrivermanager</artifactId>
       <version>${webdrivermanager.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
@@ -73,6 +56,17 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.automation-remarks</groupId>
+      <artifactId>video-recorder-junit5</artifactId>
+      <version>2.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

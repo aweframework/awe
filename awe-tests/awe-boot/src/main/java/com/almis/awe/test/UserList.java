@@ -16,9 +16,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- *
  * @author pvidal
- *
  */
 @Service
 public class UserList extends ServiceConfig {
@@ -32,6 +30,7 @@ public class UserList extends ServiceConfig {
 
   /**
    * Load users Json file
+   *
    * @return User list
    * @throws AWException Error retrieving user list
    */
@@ -70,6 +69,7 @@ public class UserList extends ServiceConfig {
 
   /**
    * Load tree Json file
+   *
    * @return User list
    * @throws AWException Error retrieving user list
    */
@@ -87,7 +87,8 @@ public class UserList extends ServiceConfig {
         ObjectMapper objectMapper = new ObjectMapper();
 
         // convert json string to object
-        List<TreeData> treeDataList = objectMapper.readValue(resourceInputStream, new TypeReference<List<TreeData>>() {});
+        List<TreeData> treeDataList = objectMapper.readValue(resourceInputStream, new TypeReference<List<TreeData>>() {
+        });
 
         // Get datalist
         DataList dataList = DataListUtil.fromBeanList(treeDataList);

@@ -20,8 +20,6 @@ variables:
   IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
   UT_OPTS: "-Dskip.frontend=true -DgenerateIntegrationReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
-  CHROME_OPTS: "-Dbrowser=remote-chrome"
-  FIREFOX_OPTS: "-Dbrowser=remote-firefox"
   CI_PROJECT_URL_SSH: "origin git@gitlab.com:aweframework/awe.git"
   DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: gitlab-ci
@@ -35,7 +33,7 @@ variables:
   DAST_BROWSER_SCAN: "true"
 
 cache:
-  - key: ${CI_PIPELINE_ID}
+  - key: ${CI_COMMIT_REF_SLUG}
     policy: pull
     paths:
       - .m2/repository/
@@ -105,30 +103,21 @@ stages:
 
 Build project:
   extends: .build
-  cache:
-    - key: ${CI_COMMIT_REF_SLUG}
-      policy: pull
-      paths:
-        - .m2/repository/
-    - key: ${CI_PIPELINE_ID}
-      policy: push
-      paths:
-        - .m2/repository/
   artifacts:
     reports:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.war
     expire_in: 1 day
+  cache:
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull-push
+      paths:
+        - .m2/repository/
 
 Build project (jdk latest):
   extends: .build
   image: maven:3.8-openjdk-17-slim
-  cache:
-    - key: ${CI_COMMIT_REF_SLUG}
-      policy: pull
-      paths:
-        - .m2/repository/
 
 Build website:
   extends: .build-website
@@ -249,23 +238,21 @@ Javadoc test:
 
 # Browser testing extension
 .browser-testing:
+  # Important! Do not use slim version (it doesn't have the necessary fonts)
+  image: maven:3.8-openjdk-11
   stage: integration test
   allow_failure: true
-  image: registry.gitlab.com/aweframework/docker-tools/maven-docker:latest
-  services:
-    - docker:dind
+  variables:
+    SCREEN_WIDTH: 1440
+    SCREEN_HEIGHT: 1080
+    FF_NETWORK_PER_BUILD: "true"
   needs:
     - job: Build project
       artifacts: false
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS $BROWSER_OPTS -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dbrowser=${BROWSER} -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
-  after_script:
-    - search=`cat awe-tests/awe-boot/target/surefire-reports/TEST-*.${TEST_CLASS}.xml`
-    - errors=`echo $search | grep 'errors="[^"]*' | sed -e 's/.*errors="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
-    - failures=`echo $search | grep 'failures="[^"]*' | sed -e 's/.*failures="//g' | sed -e 's/".*//g' | awk 'BEGIN { FPAT="[0-9]+"} {printf $1}'`
-    - echo "$errors errors and $failures failures found"
   artifacts:
     expose_as: 'Selenium reports'
     paths:
@@ -282,13 +269,23 @@ Javadoc test:
 
 .firefox-testing:
   extends: .browser-testing
+  services:
+    - name: selenoid/firefox
+      alias: browser
+    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest
+      alias: recorder
   variables:
-    BROWSER_OPTS: $FIREFOX_OPTS
+    BROWSER: service-firefox
 
 .chrome-testing:
   extends: .browser-testing
+  services:
+    - name: selenoid/chrome
+      alias: browser
+    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest
+      alias: recorder
   variables:
-    BROWSER_OPTS: $CHROME_OPTS
+    BROWSER: service-chrome
 
 Firefox IT Application and Integration:
   extends: .firefox-testing
@@ -368,12 +365,8 @@ Launch Sonar:
     - job: Chrome IT Regression Websocket and Print
     - job: Chrome IT Scheduler
   cache:
-    - key: ${CI_PIPELINE_ID}
-      policy: pull
-      paths:
-        - .m2/repository/
     - key: ${CI_COMMIT_REF_SLUG}
-      policy: push
+      policy: pull
       paths:
         - .m2/repository/
     - key: ${CI_JOB_NAME}
@@ -400,7 +393,6 @@ license_scanning:
 ##############################
 
 Generate javadoc & schemas:
-  image: maven:3.6-jdk-8
   stage: site
   needs: [ ]
   script:
@@ -489,7 +481,7 @@ Deploy Maven Central:
     - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
     - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
     - cd awe-gke-config/${CI_ENVIRONMENT_SLUG}/awe-boot
-    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot:${PROJECT_VERSION}@${PACKAGE_DIGEST}
+    - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
     - git commit . -m "Updated awe-boot kubernetes deployment ${CI_ENVIRONMENT_SLUG}"

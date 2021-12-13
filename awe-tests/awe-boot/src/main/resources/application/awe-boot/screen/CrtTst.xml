@@ -70,6 +70,9 @@
             <dependency-action type="server" server-action="data" target-action="ProAllLst" target="SelReq" />
             <dependency-action type="server" server-action="data" target-action="ProAllLst" target="SelMulReq" />
           </dependency>
+          <dependency source-type="reset" target-type="input">
+            <dependency-element id="Txt" condition="eq" value="reset"/>
+          </dependency>
         </criteria>
         <criteria label="PARAMETER_DATE_READONLY" id="CalRea" variable="CalRea" component="date" style="col-xs-6 col-sm-3 col-lg-2" readonly="true"/>
         <criteria label="PARAMETER_TIME" id="Tim" variable="Tim" component="time" style="col-xs-6 col-sm-3 col-lg-2">

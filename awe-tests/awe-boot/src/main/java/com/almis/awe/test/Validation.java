@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * Validation test service
+ *
  * @author pgarcia
  */
 @Service
@@ -22,6 +23,7 @@ public class Validation extends ServiceConfig {
 
   /**
    * Validate bank account
+   *
    * @param bankAccount Bank account
    * @return Validation
    * @throws AWException Error validating

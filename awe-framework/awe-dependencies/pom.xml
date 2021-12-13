@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.4.4</version>
+    <version>4.4.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -38,7 +38,7 @@
     <selenium.version>3.141.59</selenium.version>
     <modelmapper.version>2.4.0</modelmapper.version>
     <querydsl.version>4.4.0</querydsl.version>
-
+    <log4j2.version>2.15.0</log4j2.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -277,6 +277,18 @@
         <version>${graalvm.version}</version>
       </dependency>
 
+      <!-- Log4j 2 -->
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j2.version}</version>
+      </dependency>
+
       <!-- Xstream -->
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
@@ -467,7 +479,6 @@
             </catalogs>
           </configuration>
         </plugin>
-
         <!-- Compiler -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

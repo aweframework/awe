@@ -997,5 +997,8 @@ class ApplicationTestsIT extends SeleniumUtilities {
 
     // Check text
     checkTextContains(".visible-text", "[SCHEDULER]");
+
+    // Click back button
+    clickButton("ButBck", true);
   }
 }

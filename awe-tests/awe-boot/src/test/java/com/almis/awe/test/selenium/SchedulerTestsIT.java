@@ -1079,7 +1079,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Title
     setTestTitle("Test scheduler management screen");
 
-    // Delete the task
+    // Go to management screen
     gotoScreen("scheduler", "scheduler-management");
 
     // Wait for loading bar
@@ -1091,6 +1091,12 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
+    // Go to calendars screen
+    gotoScreen("scheduler", "scheduler-calendars");
+
+    // Go to management screen
+    gotoScreen("scheduler", "scheduler-management");
+
     // Wait for loading bar
     waitForLoadingBar();
 
@@ -1100,6 +1106,12 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
+    // Go to calendars screen
+    gotoScreen("scheduler", "scheduler-calendars");
+
+    // Go to management screen
+    gotoScreen("scheduler", "scheduler-management");
+
     // Wait for loading bar
     waitForLoadingBar();
 
@@ -1108,6 +1120,12 @@ class SchedulerTestsIT extends SeleniumUtilities {
 
     // Wait for message
     checkAndCloseMessage("success");
+
+    // Go to calendars screen
+    gotoScreen("scheduler", "scheduler-calendars");
+
+    // Go to management screen
+    gotoScreen("scheduler", "scheduler-management");
 
     // Wait for loading bar
     waitForLoadingBar();
