@@ -25,12 +25,6 @@
   </properties>
 
   <dependencies>
-    <!-- Log4j2 -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-
     <!-- Testing -->
     <dependency>
       <groupId>com.google.guava</groupId>
