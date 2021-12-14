@@ -67,6 +67,7 @@ public class SecurityConfig extends ServiceConfig {
     "/websocket/**",
     "/template/**",
     "/settings",
+    "/css/**",
     "/action/get-locals",
     "/action/screen-data",
     "/action/encrypt",
@@ -238,8 +239,7 @@ public class SecurityConfig extends ServiceConfig {
     @Override
     public void configure(WebSecurity web) throws Exception {
       web.ignoring().antMatchers(
-        // Web resources
-        "/css/**",
+        // Web resources (except css)
         "/js/**",
         "/images/**",
         "/fonts/**",
