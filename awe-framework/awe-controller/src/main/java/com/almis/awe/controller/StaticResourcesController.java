@@ -45,7 +45,7 @@ public class StaticResourcesController {
    * @param model
    * @return
    */
-  @GetMapping("/css/styles.css")
+  @GetMapping("/css/styles{xxx}.css")
   public String getStyles(Model model) {
     model.addAttribute("startupLogo", startupLogo);
     model.addAttribute("startupBackground", startupBackground);
