@@ -44,7 +44,7 @@
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>3.3</version>
+      <version>20030805.205232</version>
     </dependency>
     <!-- Test dependencies -->
     <!-- Junit 5 -->
