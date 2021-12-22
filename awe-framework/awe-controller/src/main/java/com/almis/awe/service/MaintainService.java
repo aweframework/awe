@@ -31,6 +31,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Provides methods to insert/update/delete application data
@@ -377,11 +378,13 @@ public class MaintainService extends ServiceConfig {
    * @throws AWException Error retrieving next sequence value
    */
   public Integer getNextSequenceValue(String sequence, DatabaseConnection databaseConnection) throws AWException {
+    final Connection connection = databaseConnection.getConnection();
+    Supplier<Connection> connSupplier = () -> connection;
     Configuration configuration = (Configuration) getBean(databaseConnection.getConfigurationBean());
 
     // Get maintain builder
     Integer result = Integer.valueOf(getBean(SQLMaintainBuilder.class)
-      .setFactory(new SQLQueryFactory(configuration, databaseConnection.getDataSource()))
+      .setFactory(new SQLQueryFactory(configuration, connSupplier))
       .getSequence(sequence));
 
     // Release connection
