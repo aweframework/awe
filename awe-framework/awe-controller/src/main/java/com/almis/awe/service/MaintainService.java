@@ -27,11 +27,11 @@ import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
-import javax.inject.Provider;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * Provides methods to insert/update/delete application data
@@ -379,12 +379,12 @@ public class MaintainService extends ServiceConfig {
    */
   public Integer getNextSequenceValue(String sequence, DatabaseConnection databaseConnection) throws AWException {
     final Connection connection = databaseConnection.getConnection();
-    Provider<Connection> connProvider = () -> connection;
+    Supplier<Connection> connSupplier = () -> connection;
     Configuration configuration = (Configuration) getBean(databaseConnection.getConfigurationBean());
 
     // Get maintain builder
     Integer result = Integer.valueOf(getBean(SQLMaintainBuilder.class)
-      .setFactory(new SQLQueryFactory(configuration, connProvider))
+      .setFactory(new SQLQueryFactory(configuration, connSupplier))
       .getSequence(sequence));
 
     // Release connection
@@ -744,8 +744,8 @@ public class MaintainService extends ServiceConfig {
             .build();
 
           // If variable is a string, ignorecase it
-          Variable var = origin.getVariableDefinition(field.getVariable());
-          switch (ParameterType.valueOf(var.getType())) {
+          Variable variable = origin.getVariableDefinition(field.getVariable());
+          switch (ParameterType.valueOf(variable.getType())) {
             case STRING:
             case STRINGB:
             case STRINGL:

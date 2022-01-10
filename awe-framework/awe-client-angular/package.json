@@ -92,5 +92,8 @@
     "karma-coverage-istanbul-reporter": "^2.0.5",
     "karma-spec-reporter": "^0.0.32",
     "karma-junit-reporter": "^2.0.1"
+  },
+  "resolutions": {
+    "colors": "1.4.0"
   }
 }
