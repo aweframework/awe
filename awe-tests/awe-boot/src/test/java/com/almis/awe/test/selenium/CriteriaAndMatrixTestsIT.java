@@ -648,6 +648,9 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     // Click on tab
     clickTab("TabSelMat", "ENUM_MATRIX_EDITABLE");
 
+    // Pause for 5 seconds
+    pause(5000);
+
     // Click on grid
     clickRowContents("GrdEdi", "adminflare");
 

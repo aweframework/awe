@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.4.6
+*14/12/2021*
+
+- Fix styles.css issue (not working when context-path is defined). [MR #353](https://gitlab.com/aweframework/awe/-/merge_requests/353) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.4.5
 *13/12/2021*
 
