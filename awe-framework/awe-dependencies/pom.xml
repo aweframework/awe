@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.4.6</version>
+    <version>4.4.7</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -19,26 +19,25 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.0.17</ade.version>
-    <spring-boot.version>2.4.12</spring-boot.version>
+    <spring-boot.version>2.5.8</spring-boot.version>
     <spring-cloud.version>2020.0.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v16.13.0</node.version>
     <yarn.version>v1.22.15</yarn.version>
     <npm.version>v6.9.0</npm.version>
-    <guava.version>27.0.1-jre</guava.version>
-    <st.version>4.0.8</st.version>
-    <flexmark.version>0.50.46</flexmark.version>
+    <st.version>4.3.1</st.version>
+    <flexmark.version>0.62.2</flexmark.version>
     <mail.version>1.4.7</mail.version>
-    <commons-io.version>2.6</commons-io.version>
-    <commons-text.version>1.8</commons-text.version>
+    <jasypt.version>3.0.4</jasypt.version>
+    <commons-io.version>2.11.0</commons-io.version>
+    <commons-text.version>1.9</commons-text.version>
     <annotation-api.version>1.3.2</annotation-api.version>
     <aspectjweaver.version>1.9.2</aspectjweaver.version>
-    <xtream.version>1.4.14</xtream.version>
-    <graalvm.version>20.2.0</graalvm.version>
+    <xtream.version>1.4.18</xtream.version>
+    <graalvm.version>21.3.0</graalvm.version>
     <selenium.version>3.141.59</selenium.version>
-    <modelmapper.version>2.4.0</modelmapper.version>
-    <querydsl.version>4.4.0</querydsl.version>
-    <log4j2.version>2.15.0</log4j2.version>
+    <modelmapper.version>2.4.5</modelmapper.version>
+    <querydsl.version>5.0.0</querydsl.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -217,19 +216,18 @@
       <!-- Tools -->
       <dependency>
         <groupId>com.querydsl</groupId>
-        <artifactId>querydsl-sql</artifactId>
+        <artifactId>querydsl-core</artifactId>
         <version>${querydsl.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
+        <groupId>com.querydsl</groupId>
+        <artifactId>querydsl-sql</artifactId>
+        <version>${querydsl.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ulisesbocchio</groupId>
+        <artifactId>jasypt-spring-boot-starter</artifactId>
+        <version>${jasypt.version}</version>
       </dependency>
       <dependency>
         <groupId>org.antlr</groupId>
@@ -275,18 +273,6 @@
         <groupId>org.graalvm.js</groupId>
         <artifactId>js-scriptengine</artifactId>
         <version>${graalvm.version}</version>
-      </dependency>
-
-      <!-- Log4j 2 -->
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>${log4j2.version}</version>
       </dependency>
 
       <!-- Xstream -->

@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
-    <version>4.4.6</version>
+    <version>4.4.7</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>3.3</version>
+      <version>20030805.205232</version>
     </dependency>
     <!-- Test dependencies -->
     <!-- Junit 5 -->

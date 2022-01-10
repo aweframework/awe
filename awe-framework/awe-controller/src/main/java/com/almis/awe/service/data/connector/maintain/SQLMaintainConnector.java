@@ -25,10 +25,10 @@ import com.querydsl.sql.dml.SQLUpdateClause;
 import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.inject.Provider;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Maintain connector for SQL
@@ -66,18 +66,19 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     queryUtil.addToVariableMap(parameterMap, query, parameters);
 
     final Connection connection = databaseConnection.getConnection();
-    Provider<Connection> connProvider = () -> connection;
+    Supplier<Connection> supplierConnection = () -> connection;
+
     Configuration configurationBean = (Configuration) getBean(databaseConnection.getConfigurationBean());
 
     // Multiple (multiple maintain + multiple AUDIT)
     if ("true".equalsIgnoreCase(query.getMultiple())) {
-      mntOut = launchMultipleMaintain(query, connProvider, configurationBean, parameterMap, parameters);
+      mntOut = launchMultipleMaintain(query, supplierConnection, configurationBean, parameterMap, parameters);
       // Multiple for AUDIT (single maintain + multiple AUDIT)
     } else if ("audit".equalsIgnoreCase(query.getMultiple())) {
-      mntOut = launchMultipleAudit(query, connProvider, configurationBean, parameterMap, parameters);
+      mntOut = launchMultipleAudit(query, supplierConnection, configurationBean, parameterMap, parameters);
       // Simple (single maintain + single AUDIT)
     } else {
-      mntOut = launchSingleMaintain(query, connProvider, configurationBean, parameterMap, parameters);
+      mntOut = launchSingleMaintain(query, supplierConnection, configurationBean, parameterMap, parameters);
     }
 
     return mntOut;
@@ -87,13 +88,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * Launches a multiple SQL statement with multiple AUDIT statement
    *
    * @param query              Maintain Query
-   * @param connectionProvider Connection provider
+   * @param supplierConnection Connection supplier
    * @param configurationBean  Configuration bean
    * @param parameterMap       Parameter map
    * @return Maintain output
    * @throws AWException Error launching maintain
    */
-  private ServiceData launchMultipleMaintain(MaintainQuery query, Provider<Connection> connectionProvider, Configuration configurationBean, Map<String, QueryParameter> parameterMap, ObjectNode parameters) throws AWException {
+  private ServiceData launchMultipleMaintain(MaintainQuery query, Supplier<Connection> supplierConnection, Configuration configurationBean, Map<String, QueryParameter> parameterMap, ObjectNode parameters) throws AWException {
 
     // Variable definition
     long rowsUpdated;
@@ -108,7 +109,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     maintainOut.getResultDetails();
 
     // Initialize SQL query factory
-    SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, connectionProvider);
+    SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, supplierConnection);
 
     // Get maintain builder
     SQLMaintainBuilder builder = getBean(SQLMaintainBuilder.class)
@@ -178,16 +179,16 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * Launches a single SQL statement with multiple AUDIT statement
    *
    * @param query              Maintain query
-   * @param connectionProvider Connection provider
+   * @param supplierConnection Connection supplier
    * @param configurationBean  Configuration bean
    * @param parameterMap       Parameter map
    * @return Maintain output
    * @throws AWException Error launching multiple audit
    */
-  private ServiceData launchMultipleAudit(MaintainQuery query, Provider<Connection> connectionProvider, Configuration configurationBean, Map<String, QueryParameter> parameterMap, ObjectNode parameters) throws AWException {
+  private ServiceData launchMultipleAudit(MaintainQuery query, Supplier<Connection> supplierConnection, Configuration configurationBean, Map<String, QueryParameter> parameterMap, ObjectNode parameters) throws AWException {
 
     // Variable definition
-    Long rowsUpdated;
+    long rowsUpdated;
     boolean auditActive;
     boolean isBatch = query.isBatch();
 
@@ -199,7 +200,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     maintainOut.getResultDetails();
 
     // Initialize SQL query factory
-    SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, connectionProvider);
+    SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, supplierConnection);
 
     // Check if operation should be audited
     auditActive = audit && query.getAuditTable() != null;
@@ -248,16 +249,16 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * Launches a single SQL statement with a single AUDIT statement
    *
    * @param query              Maintain query
-   * @param connectionProvider Connection provider
+   * @param supplierConnection Connection supplier
    * @param configurationBean  Configuration bean
    * @param parameterMap       Parameter map
    * @return Maintain output
    * @throws AWException Maintain error
    */
-  private ServiceData launchSingleMaintain(MaintainQuery query, Provider<Connection> connectionProvider, Configuration configurationBean, Map<String, QueryParameter> parameterMap, ObjectNode parameters) throws AWException {
+  private ServiceData launchSingleMaintain(MaintainQuery query, Supplier<Connection> supplierConnection, Configuration configurationBean, Map<String, QueryParameter> parameterMap, ObjectNode parameters) throws AWException {
     // Variable definition
-    Long rowsUpdated;
-    boolean auditActive = false;
+    long rowsUpdated;
+    boolean auditActive;
 
     // Store service data
     ServiceData maintainOut = new ServiceData();
@@ -265,7 +266,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     maintainOut.getResultDetails();
 
     // Initialize SQL query factory
-    SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, connectionProvider);
+    SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, supplierConnection);
 
     // Check if operation should be audited
     auditActive = audit && query.getAuditTable() != null;
@@ -302,10 +303,10 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * @param query         Maintain query
    * @param addIndex      Add index to builder
    * @return Query built
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private AbstractSQLClause<?> launchBatchOperation(int index, AbstractSQLClause<?> previousQuery, SQLMaintainBuilder builder, ServiceData maintainOut, MaintainQuery query, boolean addIndex, boolean isAudit) throws AWException {
-    Long rowsUpdated;
+    long rowsUpdated;
     AbstractSQLClause<?> queryBuilt;
 
     // Batch block
@@ -361,7 +362,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * @param addIndex    Add index to builder
    * @param isAudit     Query is an audit query
    * @return Operation builder
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private AbstractSQLClause<?> launchSingleOperation(Integer index, SQLMaintainBuilder builder, ServiceData maintainOut, MaintainQuery query, boolean addIndex, boolean isAudit) throws AWException {
     MaintainType maintainType = isAudit ? MaintainType.AUDIT : query.getMaintainType();
@@ -403,7 +404,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
 
     // Audit message
     String auditMessage = isAudit ? "[AUDIT] " : "";
-    String indexMessage = index == null ? "" : " (" + index.toString() + ")";
+    String indexMessage = index == null ? "" : " (" + index + ")";
     SQLBindings bindings = statement.getSQL().get(statement.getSQL().size() - 1);
     String sql = StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings()));
 

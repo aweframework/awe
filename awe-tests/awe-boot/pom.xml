@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.4.6</version>
+    <version>4.4.7</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -546,36 +546,11 @@
       </activation>
       <dependencies>
         <dependency>
-          <groupId>com.oracle.jdbc</groupId>
-          <artifactId>ojdbc8</artifactId>
-          <version>18.3.0.0</version>
-          <scope>test</scope>
+          <groupId>com.oracle.database.jdbc</groupId>
+          <artifactId>ojdbc11</artifactId>
+          <version>21.4.0.0.1</version>
         </dependency>
       </dependencies>
-      <repositories>
-        <repository>
-          <id>maven.oracle.com</id>
-          <name>oracle-maven-repo</name>
-          <url>https://maven.oracle.com</url>
-          <layout>default</layout>
-          <releases>
-            <enabled>true</enabled>
-            <updatePolicy>always</updatePolicy>
-          </releases>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>maven.oracle.com</id>
-          <name>oracle-maven-repo</name>
-          <url>https://maven.oracle.com</url>
-          <layout>default</layout>
-          <releases>
-            <enabled>true</enabled>
-            <updatePolicy>always</updatePolicy>
-          </releases>
-        </pluginRepository>
-      </pluginRepositories>
       <build>
         <plugins>
           <!-- JUnit -->

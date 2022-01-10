@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.4.7
+*10/01/2022*
+
+- **[HAS IMPACTS]** Update spring boot version to 2.5.x branch. [MR #352](https://gitlab.com/aweframework/awe/-/merge_requests/352) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.4.6
 *14/12/2021*
 
