@@ -1,39 +1,37 @@
 package com.almis.awe.test.integration;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.Calendar;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SchedulerTestsIT extends SeleniumUtilities {
+@Tag("SchedulerIT")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class SchedulerTestsIT extends SeleniumUtilities {
 
   /**
    * Log into the application
-   *
-   * @throws Exception
    */
   @Test
-  public void t000_loginTest() throws Exception {
+  void t000_loginTest() {
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
   }
 
   /**
    * Log out from the application
-   *
-   * @throws Exception
    */
   @Test
-  public void t999_logoutTest() throws Exception {
+  void t999_logoutTest() {
     checkLogout(".slogan", "Almis Web Engine");
   }
 
   /**
    * Go to a screen to add a new option
    *
-   * @param options
+   * @param options Screen option
    */
   private void addNew(String checkButton, String... options) {
     // Go to screen
@@ -197,7 +195,7 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Verify deleted
    *
-   * @param search
+   * @param search search
    */
   private void verifyDeleted(String search) {
     // Wait for button
@@ -213,10 +211,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Generate a new scheduler server
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t001_newSchedulerServer() throws Exception {
+  void t001_newSchedulerServer() {
     // Title
     setTestTitle("Generate a new scheduler server");
 
@@ -245,10 +243,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Generate a new scheduler calendar
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t002_newSchedulerCalendar() throws Exception {
+  void t002_newSchedulerCalendar() {
     // Title
     setTestTitle("Generate a new scheduler calendar");
 
@@ -274,10 +272,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Generate a new manual task
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t003_newManualTask() throws Exception {
+  void t003_newManualTask() {
     // Title
     setTestTitle("Generate a new manual task");
 
@@ -353,10 +351,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Generate a new scheduled task
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t004_newScheduledTask() throws Exception {
+  void t004_newScheduledTask() {
     // Title
     setTestTitle("Generate a new scheduled task");
 
@@ -450,10 +448,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Generate a new file triggered task
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t005_newFileTask() throws Exception {
+  void t005_newFileTask() {
     // Title
     setTestTitle("Generate a new file triggered task");
 
@@ -556,10 +554,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update a scheduler server
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t011_updateSchedulerServer() throws Exception {
+  void t011_updateSchedulerServer() {
     // Title
     setTestTitle("Update a scheduler server");
 
@@ -582,15 +580,15 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update a scheduler calendar
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t012_updateSchedulerCalendar() throws Exception {
+  void t012_updateSchedulerCalendar() {
     // Title
     setTestTitle("Update a scheduler calendar");
 
     // New server
-    update("CrtCal", "Test Calendar","ButCnf", "scheduler", "scheduler-calendars");
+    update("CrtCal", "Test Calendar", "ButCnf", "scheduler", "scheduler-calendars");
 
     // Insert text
     writeText("Nom", "Test Calendar updated");
@@ -632,10 +630,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the manual task
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t021_updateManualTask() throws Exception {
+  void t021_updateManualTask() {
     // Title
     setTestTitle("Update the manual task");
 
@@ -704,10 +702,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (minutes)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t031_updateScheduledTaskMinutes() throws Exception {
+  void t031_updateScheduledTaskMinutes() {
     // Title
     setTestTitle("Update the scheduled task in minutes");
 
@@ -730,10 +728,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (hours)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t032_updateScheduledTaskHours() throws Exception {
+  void t032_updateScheduledTaskHours() {
     // Title
     setTestTitle("Update the scheduled task in hours");
 
@@ -756,10 +754,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (days)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t033_updateScheduledTaskDays() throws Exception {
+  void t033_updateScheduledTaskDays() {
     // Title
     setTestTitle("Update the scheduled task in days");
 
@@ -782,10 +780,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (months)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t034_updateScheduledTaskMonths() throws Exception {
+  void t034_updateScheduledTaskMonths() {
     // Title
     setTestTitle("Update the scheduled task in months");
 
@@ -808,10 +806,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (years)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t035_updateScheduledTaskYears() throws Exception {
+  void t035_updateScheduledTaskYears() {
     // Title
     setTestTitle("Update the scheduled task in years");
 
@@ -834,10 +832,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (once)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t036_updateScheduledTaskOnce() throws Exception {
+  void t036_updateScheduledTaskOnce() {
     // Title
     setTestTitle("Update the scheduled task once");
 
@@ -869,10 +867,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task (custom)
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t037_updateScheduledTaskCustom() throws Exception {
+  void t037_updateScheduledTaskCustom() {
     // Title
     setTestTitle("Update the scheduled task custom");
 
@@ -929,10 +927,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Update the scheduled task dependencies
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t038_updateScheduledTaskDependencies() throws Exception {
+  void t038_updateScheduledTaskDependencies() {
     // Title
     setTestTitle("Update the scheduled task dependencies");
 
@@ -964,10 +962,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Activate a task
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t051_activateTask() throws Exception {
+  void t051_activateTask() {
     // Title
     setTestTitle("Activate task");
 
@@ -991,18 +989,21 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Run a task immediately
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t052_runTaskNow() throws Exception {
+  void t052_runTaskNow() {
     // Title
     setTestTitle("Run task immediately");
+
+    // Delete the task
+    gotoScreen("scheduler", "scheduler-tasks");
 
     // Select the scheduled task
     clickRowContents("Test scheduled");
 
     // Execute task now
-    clickButton("ButRun");
+    clickButton("ButRun", true);
 
     // Wait 5 seconds to finish the task
     pause(5000);
@@ -1014,10 +1015,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Deactivate a calendar
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t053_deactivateCalendar() throws Exception {
+  void t053_deactivateCalendar() {
     // Title
     setTestTitle("Deactivate calendar");
 
@@ -1034,7 +1035,7 @@ public class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test Calendar");
 
     // Execute task now
-    clickButton("ButDea");
+    clickButton("ButDea", true);
 
     // Check success execution
     checkNotVisible("#ButDea");
@@ -1044,10 +1045,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Deactivate a calendar
    *
-   * @throws Exception Error on test
+   * @ Error on test
    */
   @Test
-  public void t054_activateCalendar() throws Exception {
+  void t054_activateCalendar() {
     // Title
     setTestTitle("Activate calendar");
 
@@ -1061,7 +1062,7 @@ public class SchedulerTestsIT extends SeleniumUtilities {
     clickRowContents("Test Calendar");
 
     // Execute task now
-    clickButton("ButAct");
+    clickButton("ButAct", true);
 
     // Check success execution
     checkNotVisible("#ButAct");
@@ -1071,18 +1072,18 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Test scheduler management screen
    *
-   * @throws Exception
+   * @
    */
   @Test
-  public void t061_testSchedulerManagementScreen() throws Exception {
+  void t061_testSchedulerManagementScreen() {
     // Title
     setTestTitle("Test scheduler management screen");
 
-    // Delete the task
+    // Go to management screen
     gotoScreen("scheduler", "scheduler-management");
 
-    // Wait for button
-    waitForButton("clearAndStopScheduler");
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Click button
     clickButton("clearAndStopScheduler");
@@ -1090,8 +1091,14 @@ public class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
-    // Wait for button
-    waitForButton("restartScheduler");
+    // Go to calendars screen
+    gotoScreen("scheduler", "scheduler-calendars");
+
+    // Go to management screen
+    gotoScreen("scheduler", "scheduler-management");
+
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Click button
     clickButton("restartScheduler");
@@ -1099,8 +1106,14 @@ public class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
-    // Wait for button
-    waitForButton("stopScheduler");
+    // Go to calendars screen
+    gotoScreen("scheduler", "scheduler-calendars");
+
+    // Go to management screen
+    gotoScreen("scheduler", "scheduler-management");
+
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Click button
     clickButton("stopScheduler");
@@ -1108,8 +1121,14 @@ public class SchedulerTestsIT extends SeleniumUtilities {
     // Wait for message
     checkAndCloseMessage("success");
 
-    // Wait for button
-    waitForButton("startScheduler");
+    // Go to calendars screen
+    gotoScreen("scheduler", "scheduler-calendars");
+
+    // Go to management screen
+    gotoScreen("scheduler", "scheduler-management");
+
+    // Wait for loading bar
+    waitForLoadingBar();
 
     // Click button
     clickButton("startScheduler");
@@ -1121,10 +1140,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Delete the manual task
    *
-   * @throws Exception
+   * @
    */
   @Test
-  public void t901_deleteManualTask() throws Exception {
+  void t901_deleteManualTask() {
     // Title
     setTestTitle("Delete the manual task");
 
@@ -1138,10 +1157,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Delete the scheduled task
    *
-   * @throws Exception
+   * @
    */
   @Test
-  public void t902_deleteScheduledTask() throws Exception {
+  void t902_deleteScheduledTask() {
     // Title
     setTestTitle("Delete the scheduled task");
 
@@ -1155,10 +1174,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Delete the file task
    *
-   * @throws Exception
+   * @
    */
   @Test
-  public void t903_deleteFileTask() throws Exception {
+  void t903_deleteFileTask() {
     // Title
     setTestTitle("Delete the file task");
 
@@ -1172,10 +1191,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Delete the scheduler calendar
    *
-   * @throws Exception
+   * @
    */
   @Test
-  public void t911_deleteSchedulerCalendar() throws Exception {
+  void t911_deleteSchedulerCalendar() {
     // Title
     setTestTitle("Delete the scheduler calendar");
 
@@ -1189,10 +1208,10 @@ public class SchedulerTestsIT extends SeleniumUtilities {
   /**
    * Delete the scheduler server
    *
-   * @throws Exception
+   * @
    */
   @Test
-  public void t921_deleteSchedulerServer() throws Exception {
+  void t921_deleteSchedulerServer() {
     // Title
     setTestTitle("Delete the scheduler server");
 

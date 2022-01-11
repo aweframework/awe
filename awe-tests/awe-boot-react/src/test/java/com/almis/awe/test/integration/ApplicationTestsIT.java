@@ -1,34 +1,36 @@
 package com.almis.awe.test.integration;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ApplicationTestsIT extends SeleniumUtilities {
+@Tag("ApplicationIntegrationIT")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Log into the application
-   * @throws Exception
    */
   @Test
-  public void t000_loginTest() throws Exception {
+  void t000_loginTest() {
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
   }
 
   /**
    * Log out from the application
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t999_logoutTest() throws Exception {
+  void t999_logoutTest() {
     checkLogout(".slogan", "Almis Web Engine");
   }
 
   /**
    * Go to a screen to add a new option
-   * @param options
+   * @param options Options
    */
   private void addNew(String... options) {
     // Go to screen
@@ -43,7 +45,10 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Go to a screen to add a new option
-   * @param options
+   *
+   * @param suggest Suggest criteria
+   * @param search Search
+   * @param options Options
    */
   private void update(String suggest, String search, String... options) {
     // Go to screen
@@ -122,7 +127,7 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Verify deleted
-   * @param search
+   * @param search Search
    */
   private void verifyDeleted(String search) {
     // Wait for button
@@ -137,10 +142,9 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Add a new theme
-   * @throws Exception
    */
   @Test
-  public void t001_newTheme() throws Exception {
+  void t001_newTheme() {
     // Title
     setTestTitle("Add a new theme");
 
@@ -161,10 +165,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Update a theme
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t003_updateTheme() throws Exception {
+  void t003_updateTheme() {
     // Title
     setTestTitle("Update a theme");
 
@@ -186,10 +191,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Delete a theme
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t005_deleteTheme() throws Exception {
+  void t005_deleteTheme() {
     // Title
     setTestTitle("Delete a theme");
 
@@ -202,10 +208,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Add a new sequence
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t011_newSequence() throws Exception {
+  void t011_newSequence() {
     // Title
     setTestTitle("Add a new sequence");
 
@@ -248,10 +255,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Update a sequence
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t013_updateSequence() throws Exception {
+  void t013_updateSequence() {
     // Title
     setTestTitle("Update a sequence");
 
@@ -294,10 +302,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Delete a sequence
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t015_deleteSequence() throws Exception {
+  void t015_deleteSequence() {
     // Title
     setTestTitle("Delete a sequence");
 
@@ -328,10 +337,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Add a new screen restriction
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t021_newRestriction() throws Exception {
+  void t021_newRestriction() {
     // Title
     setTestTitle("Add a new screen restriction");
 
@@ -383,10 +393,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Update a screen restriction
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t023_updateRestriction() throws Exception {
+  void t023_updateRestriction() {
     // Title
     setTestTitle("Update a screen restriction");
 
@@ -438,10 +449,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Delete a screen restriction
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t025_deleteRestriction() throws Exception {
+  void t025_deleteRestriction() {
     // Title
     setTestTitle("Delete a screen restriction");
 
@@ -475,10 +487,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Add a new email server
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t031_newEmailServer() throws Exception {
+  void t031_newEmailServer() {
     // Title
     setTestTitle("Add a new email server");
 
@@ -509,9 +522,10 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Verify an email server has been added
-   * @throws Exception
+   *
+   * @
    */
-  private void verifyNewEmailServer() throws Exception {
+  private void verifyNewEmailServer() {
     // Wait for button
     clickButton("ButRst");
 
@@ -527,10 +541,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Update an email server
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t033_updateEmailServer() throws Exception {
+  void t033_updateEmailServer() {
     // Title
     setTestTitle("Update an email server");
 
@@ -558,10 +573,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Delete an email server
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t035_deleteEmailServer() throws Exception {
+  void t035_deleteEmailServer() {
     // Title
     setTestTitle("Delete an email server");
 
@@ -574,10 +590,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Add a new email server without authentication
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t041_newEmailServerNoAuth() throws Exception {
+  void t041_newEmailServerNoAuth() {
     // Title
     setTestTitle("Add a new email server without authentication");
 
@@ -599,10 +616,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Update an email server without authentication
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t043_updateEmailServerNoAuth() throws Exception {
+  void t043_updateEmailServerNoAuth() {
     // Title
     setTestTitle("Update an email server without authentication");
 
@@ -621,9 +639,10 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Verify an email server without authentication has been updated
-   * @throws Exception
+   *
+   * @
    */
-  private void verifyUpdatedEmailServerNoAuth() throws Exception {
+  private void verifyUpdatedEmailServerNoAuth() {
     // Wait for button
     clickButton("ButRst");
 
@@ -639,10 +658,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Delete an email server without authentication
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t045_deleteEmailServerNoAuth() throws Exception {
+  void t045_deleteEmailServerNoAuth() {
     // Title
     setTestTitle("Delete an email server without authentication");
 
@@ -655,10 +675,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Add a new screen configuration
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t051_newScreenConfiguration() throws Exception {
+  void t051_newScreenConfiguration() {
     // Title
     setTestTitle("Add a new screen configuration");
 
@@ -719,10 +740,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Update a screen configuration
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t053_updateScreenConfiguration() throws Exception {
+  void t053_updateScreenConfiguration() {
     // Title
     setTestTitle("Update a screen configuration");
 
@@ -774,10 +796,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * Delete a screen configuration
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t055_deleteScreenConfiguration() throws Exception {
+  void t055_deleteScreenConfiguration() {
     // Title
     setTestTitle("Delete a screen configuration");
 
@@ -810,11 +833,111 @@ public class ApplicationTestsIT extends SeleniumUtilities {
   }
 
   /**
-   * Encrypt text with encryption tools
-   * @throws Exception
+   * Add a new queue
    */
   @Test
-  public void t061_encryptText() throws Exception {
+  void t061_newQueue() {
+    // Title
+    setTestTitle("Add a new queue");
+
+    addNew("tools", "queues");
+
+    // Insert text
+    writeText("Als", "Queue test");
+
+    // Insert text
+    writeText("JmsBrk", "Broker");
+
+    // Insert text
+    writeText("DstNam", "Destination");
+
+    // Select on selector
+    selectContain("ConTyp", "JNDI");
+
+    // Insert text
+    writeText("Des", "Queue description");
+
+    // Store and confirm
+    clickButtonAndConfirm("ButCnf");
+
+    // Wait for button
+    clickButton("ButRst");
+
+    // Suggest on column selector
+    suggest("CrtAls", "test", "test");
+
+    // Search on grid
+    searchAndWait();
+
+    // Check contents
+    checkRowContents("Queue test", "Broker", "Destination", "JNDI", "Queue description");
+  }
+
+  /**
+   * Update a theme
+   *
+   * @
+   */
+  @Test
+  void t063_updateQueue() {
+    // Title
+    setTestTitle("Update a queue");
+
+    // Go to update
+    update("CrtAls", "test", "tools", "queues");
+
+    // Insert text
+    writeText("Als", "Queue changed");
+
+    // Insert text
+    writeText("JmsBrk", "New broker");
+
+    // Insert text
+    writeText("DstNam", "New destination");
+
+    // Insert text
+    writeText("Des", "Queue changed description");
+
+    // Store and confirm
+    clickButtonAndConfirm("ButCnf");
+
+    // Wait for button
+    clickButton("ButRst");
+
+    // Suggest on column selector
+    suggest("CrtAls", "changed", "changed");
+
+    // Search on grid
+    searchAndWait();
+
+    // Check contents
+    checkRowContents("Queue changed", "New broker", "New destination", "JNDI", "Queue changed description");
+  }
+
+  /**
+   * Delete a queue
+   *
+   * @
+   */
+  @Test
+  void t065_deleteQueue() {
+    // Title
+    setTestTitle("Delete a queue");
+
+    // Delete a theme
+    delete("CrtAls", "Queue changed", "tools", "queues");
+
+    // Verify
+    verifyDeleted("Queue changed");
+  }
+
+  /**
+   * Encrypt text with encryption tools
+   *
+   * @
+   */
+  @Test
+  void t071_encryptText() {
     // Title
     setTestTitle("Encrypt text with encryption tools");
 
@@ -830,6 +953,9 @@ public class ApplicationTestsIT extends SeleniumUtilities {
     // Wait for reset button
     clickButton("ButEnc", true);
 
+    // Wait for reset button
+    waitForButton("ButRst");
+
     // Check criterion contents
     checkCriterionContents("CrtEnc", "dOakAf2lwfqAke4O41A0Ww==");
   }
@@ -837,10 +963,11 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
   /**
    * View a log file
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t063_viewLog() throws Exception {
+  void t081_viewLog() {
     // Title
     setTestTitle("View a log file");
 
@@ -870,5 +997,8 @@ public class ApplicationTestsIT extends SeleniumUtilities {
 
     // Check text
     checkTextContains(".visible-text", "[SCHEDULER]");
+
+    // Click back button
+    clickButton("ButBck", true);
   }
 }

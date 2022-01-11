@@ -1,38 +1,37 @@
 package com.almis.awe.test.integration;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openqa.selenium.By;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class RegressionTestsIT extends SeleniumUtilities {
+@Tag("RegressionWebsocketPrintIT")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Log into the application
-   * @throws Exception
    */
   @Test
-  public void t000_loginTest() throws Exception {
+  void t000_loginTest() {
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
   }
 
   /**
    * Log out from the application
-   * @throws Exception
    */
   @Test
-  public void t999_logoutTest() throws Exception {
+  void t999_logoutTest() {
     checkLogout(".slogan", "Almis Web Engine");
   }
 
   /**
    * Select test module on select criterion
-   * @throws Exception Error on test
    */
   @Test
-  public void t001_selectTestModule() throws Exception {
+  void t001_selectTestModule() {
     // Title
     setTestTitle("Select test module: Test to select test module");
 
@@ -48,15 +47,17 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Load suggest on grid: Test to check suggest initial load on grid (#30648)
-   * @throws Exception Error on test
    */
   @Test
-  public void t002_loadSuggestOnGrid() throws Exception {
+  void t002_loadSuggestOnGrid() {
     // Title
     setTestTitle("Load suggest on grid: Test to check suggest initial load on grid (#30648)");
 
     // Go to matrix test
     gotoScreen("test", "matrix", "matrix-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
 
     // Click on tab
     clickTab("TabSelMat", "EDITABLE");
@@ -67,10 +68,9 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Test to check suggest criteria with 'strict' attribute set to false
-   * @throws Exception Error on test
    */
   @Test
-  public void t003_suggestStrict() throws Exception {
+  void t003_suggestStrict() {
     // Title
     setTestTitle("Suggest Strict: Test to check suggest criteria with 'strict' attribute set to false");
 
@@ -95,15 +95,14 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Test for read dependency
-   * @throws Exception Error on test
    */
   @Test
-  public void t004_readDependency() throws Exception {
+  void t004_readDependency() {
     // Title
     setTestTitle("Test for read dependency");
 
     // Go to screen
-    gotoScreen("test","criteria", "criteria-test");
+    gotoScreen("test", "criteria", "criteria-test");
 
     // Wait for button
     waitForButton("ButPrn");
@@ -120,10 +119,9 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Quote check on unit label
-   * @throws Exception Error on test
    */
   @Test
-  public void t005_quoteCheckUnitLabel() throws Exception {
+  void t005_quoteCheckUnitLabel() {
     // Title
     setTestTitle("Quote check on unit label");
 
@@ -139,10 +137,9 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Check filtered date dependency (#31141)
-   * @throws Exception Error on test
    */
   @Test
-  public void t006_checkFilteredDateDependency() throws Exception {
+  void t006_checkFilteredDateDependency() {
     // Title
     setTestTitle("Check filtered date dependency (#31141)");
 
@@ -161,15 +158,14 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Keep criteria test
-   * @throws Exception Error on test
    */
   @Test
-  public void t007_keepCriteria() throws Exception {
+  void t007_keepCriteria() {
     // Title
     setTestTitle("Keep criteria test");
 
     // Go to screen
-    gotoScreen("tools","users");
+    gotoScreen("tools", "users");
 
     // Wait for button
     clickButton("ButRst");
@@ -198,15 +194,14 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Delayed suggest
-   * @throws Exception Error on test
    */
   @Test
-  public void t008_delayedSuggest() throws Exception {
+  void t008_delayedSuggest() {
     // Title
     setTestTitle("Delayed suggest");
 
     // Go to screen
-    gotoScreen("test","criteria", "criteria-test");
+    gotoScreen("test", "criteria", "criteria-test");
 
     // Click button
     clickButton("ButRst");
@@ -224,10 +219,9 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Wrong login
-   * @throws Exception Error on test
    */
   @Test
-  public void t009_wrongLogin() throws Exception {
+  void t009_wrongLogin() {
     // Title
     setTestTitle("Wrong login");
 
@@ -241,20 +235,19 @@ public class RegressionTestsIT extends SeleniumUtilities {
     checkLogin("tutu", "lala", ".alert.alert-warning div", "Wrong username  Username -tutu- is wrong or inactive");
 
     // Do right login
-    checkLogin("test", "test", "span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
   }
 
   /**
    * Sort a grid using a component column
-   * @throws Exception Error on test
    */
   @Test
-  public void t010_sortComponentColumn() throws Exception {
+  void t010_sortComponentColumn() {
     // Title
     setTestTitle("Sort a grid using a component column");
 
     // Go to screen
-    gotoScreen("tools","users");
+    gotoScreen("tools", "users");
 
     // Wait for button
     clickButton("ButRst");
@@ -295,15 +288,14 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Sort a grid using a component column
-   * @throws Exception Error on test
    */
   @Test
-  public void t011_suggestRepeatsValues() throws Exception {
+  void t011_suggestRepeatsValues() {
     // Title
     setTestTitle("Check that suggested values are not repeated");
 
     // Go to screen
-    gotoScreen("tools","themes");
+    gotoScreen("tools", "themes");
 
     // Wait for button
     clickButton("ButRst");
@@ -344,17 +336,16 @@ public class RegressionTestsIT extends SeleniumUtilities {
 
   /**
    * Test for fill over select
-   * @throws Exception Error on test
    */
   @Test
-  public void t012_fillOverSelect() throws Exception {
+  void t012_fillOverSelect() {
     t001_selectTestModule();
 
     // Title
     setTestTitle("Test filling a select with less values than usual");
 
     // Go to screen
-    gotoScreen("test","criteria", "criteria-test");
+    gotoScreen("test", "criteria", "criteria-test");
 
     // Wait for button
     waitForButton("ButPrn");
@@ -397,13 +388,74 @@ public class RegressionTestsIT extends SeleniumUtilities {
   }
 
   /**
-   * Suggest delayed
-   * @param selector Selector
-   * @param search1 Search on first case
-   * @param search2 Search on second case
-   * @param match Match result
-   * @param pause Pause
+   * Test for fill over select
    */
+  @Test
+  void t020_checkDependenciesAfterRestore() {
+    t001_selectTestModule();
+
+    // Title
+    setTestTitle("Check if dependencies are working after restore (issue #279)");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Write on criterion
+    writeText("Txt", "4decimales");
+
+    // Check that Num criterion contains JPY
+    checkCriterionContents("Num", "JPY");
+
+    // Wait for button
+    waitForButton("ButRst");
+
+    // Click on button
+    clickButton("ButRst");
+
+    // Check that Txt criterion has been restored
+    checkCriterionContents("Txt", "test");
+
+    // Check that Num criterion contains EUR
+    checkCriterionContents("Num", "EUR");
+
+    // Write on criterion
+    writeText("Txt", "4decimales");
+
+    // Check that Num criterion contains JPY
+    checkCriterionContents("Num", "JPY");
+  }
+
+  /**
+   * Test for select all rows of grid
+   */
+  @Test
+  void t030_selectAllRowsOfGrid() {
+
+    // Title
+    setTestTitle("Test select all rows of multi select grid");
+
+    // Go to screen
+    gotoScreen("tools", "users");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Click to select all rows of grid
+    selectAllRowsOfGrid("GrdUsrLst");
+
+    // Wait for button
+    checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked");
+  }
+
+
+    /**
+     * Suggest delayed
+     * @param selector Selector
+     * @param search1 Search on first case
+     * @param search2 Search on second case
+     * @param match Match result
+     * @param pause Pause
+     */
   private void suggestDelayed(String selector, String search1, String search2, String match, Integer pause) {
     // Write text
     writeText(By.cssSelector(selector + " input.select2-input"), search1);

@@ -1,38 +1,37 @@
 package com.almis.awe.test.integration;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openqa.selenium.JavascriptExecutor;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class WebsocketTestsIT extends SeleniumUtilities {
+@Tag("RegressionWebsocketPrintIT")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class WebsocketTestsIT extends SeleniumUtilities {
 
   /**
    * Log into the application
-   * @throws Exception
    */
   @Test
-  public void t000_loginTest() throws Exception {
+  void t000_loginTest() {
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
   }
 
   /**
    * Log out from the application
-   * @throws Exception
    */
   @Test
-  public void t999_logoutTest() throws Exception {
+  void t999_logoutTest() {
     checkLogout(".slogan", "Almis Web Engine");
   }
 
   /**
    * Websocket message send test
-   * @throws Exception Error on test
    */
   @Test
-  public void t001_checkWebsocketMessageSend() throws Exception {
+  void t001_checkWebsocketMessageSend() {
     // Title
     setTestTitle("Websocket message send test");
 
@@ -52,7 +51,7 @@ public class WebsocketTestsIT extends SeleniumUtilities {
     checkAndCloseMessage("danger");
 
     // Do login
-    checkLogin("test", "test", "span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
 
     // Do broadcast test
     broadcastMessageToUser("test", "This is a broadcast message test");
@@ -63,10 +62,9 @@ public class WebsocketTestsIT extends SeleniumUtilities {
 
   /**
    * Send websocket message to all users
-   * @throws Exception Error on test
    */
   @Test
-  public void t002_sendWebsocketMessageToAllUsers() throws Exception {
+  void t002_sendWebsocketMessageToAllUsers() {
     // Title
     setTestTitle("Send websocket message to all users");
 
