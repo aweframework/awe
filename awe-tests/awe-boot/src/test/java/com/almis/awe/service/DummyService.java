@@ -274,7 +274,7 @@ public class DummyService extends ServiceConfig {
         .setCco(Arrays.asList(new InternetAddress("dovixmancosas@gmail.com")))
         .setSubject("Test message")
         .setBody("<div style='background-color:red;'>Test div message</div>")
-        .addAttachment("FileName.test", new File("C:\\Users\\dfuentes\\Pictures\\Saved Pictures\\tst.jpg"));
+        .addAttachment("FileName.test", new File("tst.jpg"));
       getBean(EmailService.class).sendEmail(email);
     } catch (AddressException e) {
       e.printStackTrace();
