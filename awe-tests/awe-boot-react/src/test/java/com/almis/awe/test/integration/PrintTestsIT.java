@@ -1,42 +1,45 @@
 package com.almis.awe.test.integration;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PrintTestsIT extends SeleniumUtilities {
+@Tag("RegressionWebsocketPrintIT")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class PrintTestsIT extends SeleniumUtilities {
 
   /**
    * Log into the application
-   * @throws Exception
    */
   @Test
-  public void t000_loginTest() throws Exception {
+  void t000_loginTest() {
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
   }
 
   /**
    * Log out from the application
-   * @throws Exception
+   *
+   * @
    */
   @Test
-  public void t999_logoutTest() throws Exception {
+  void t999_logoutTest() {
     checkLogout(".slogan", "Almis Web Engine");
   }
 
   /**
    * Select test module on select criterion
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t001_selectTestModule() throws Exception {
+  void t001_selectTestModule() {
     // Title
     setTestTitle("Select test module: Test to select test module");
 
@@ -52,23 +55,25 @@ public class PrintTestsIT extends SeleniumUtilities {
 
   /**
    * Print user list
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t010_printUserList() throws Exception {
+  void t010_printUserList() {
     // Title
     setTestTitle("Print user list");
 
     // Print screen
-    verifyPrintScreen(false,"tools", "users");
+    verifyPrintScreen(false, "tools", "users");
   }
 
   /**
    * Print profile list
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t020_printProfilesList() throws Exception {
+  void t020_printProfilesList() {
     // Title
     setTestTitle("Print profiles list");
 
@@ -78,10 +83,11 @@ public class PrintTestsIT extends SeleniumUtilities {
 
   /**
    * Print matrix selected tab
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t030_printMatrixSelectedTab() throws Exception {
+  void t030_printMatrixSelectedTab() {
     // Title
     setTestTitle("Print matrix selected tab");
 
@@ -91,41 +97,44 @@ public class PrintTestsIT extends SeleniumUtilities {
 
   /**
    * Print matrix all tabs
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t040_printMatrixAllTabs() throws Exception {
+  void t040_printMatrixAllTabs() {
     // Title
     setTestTitle("Print all matrix tabs");
 
     // Print screen
-    verifyPrintScreen(true,"test", "matrix", "matrix-test");
+    verifyPrintScreen(true, "test", "matrix", "matrix-test");
   }
 
   /**
    * Print chart screen
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t050_printChartScreen() throws Exception {
+  void t050_printChartScreen() {
     // Title
     setTestTitle("Print chart screen");
 
     // Print screen
-    verifyPrintScreen(false,"test", "chart", "chart-test");
+    verifyPrintScreen(false, "test", "chart", "chart-test");
   }
 
   /**
    * Print chart and grid screen
-   * @throws Exception Error on test
+   *
+   * @ Error on test
    */
   @Test
-  public void t060_printChartAndGrid() throws Exception {
+  void t060_printChartAndGrid() {
     // Title
     setTestTitle("Print chart and grid");
 
     // Print screen
-    verifyPrintScreen(false,"test", "chart", "grid-and-chart");
+    verifyPrintScreen(false, "test", "chart", "grid-and-chart");
 
     // Check for pager values selector
     Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
@@ -134,13 +143,37 @@ public class PrintTestsIT extends SeleniumUtilities {
   }
 
   /**
+   * Print chart and grid screen
+   *
+   * @ Error on test
+   */
+  @Test
+  void t070_printLayout2() {
+    // Title
+    setTestTitle("Print layout 2");
+
+    // Print screen
+    verifyPrintScreen(false, "test", "layout", "layout2-test");
+  }
+
+  /**
    * Go to a screen and print the options
-   * @param allTabs print all tabs
+   *
+   * @param allTabs     print all tabs
    * @param menuOptions Menu options
    */
   private void verifyPrintScreen(boolean allTabs, String... menuOptions) {
     // Go to matrix test
     gotoScreen(menuOptions);
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Wait for button (again)
+    waitForButton("ButPrn");
+
+    // Wait 1 second
+    pause(1000);
 
     // Click print button
     clickButton("ButPrn");
