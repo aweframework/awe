@@ -75,7 +75,7 @@ public class SecurityConfig extends ServiceConfig {
     "/action/file-info",
     "/action/delete-file",
     "/action/view-pdf-file",
-    "/screen/public/**",
+    "/screen/**",
     // File and upload controllers
     "/file/text",
     "/file/stream",
