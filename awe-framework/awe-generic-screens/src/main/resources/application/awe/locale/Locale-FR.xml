@@ -609,6 +609,7 @@
   <locale name="ERROR_TITLE_LAUNCHING_EMAIL" value="Erreur dans l&apos;execution d&apos;un mail"/>
   <locale name="ERROR_TITLE_LAUNCHING_MAINTAIN" value="Erreur dans la maintenance"/>
   <locale name="ERROR_TITLE_LAUNCHING_QUEUE" value="Erreur d&apos;envoi de message à queue"/>
+  <locale name="ERROR_TITLE_LAUNCHING_REST" value="Erreur dans le REST service"/>
   <locale name="ERROR_TITLE_LAUNCHING_SERVICE" value="Erreur dans le service"/>
   <locale name="ERROR_TITLE_LAUNCHING_SQL_QUERY" value="Erreur dans la requête"/>
   <locale name="ERROR_TITLE_LDAP_CONNECTION" value="LDAP connection error"/>
