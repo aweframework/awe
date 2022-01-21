@@ -3,7 +3,7 @@ package com.almis.awe.model.util.data;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.type.NumericType;
 import com.almis.awe.model.type.RoundingType;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 
 import java.text.DecimalFormat;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  *
  * @author Pablo GARCIA - 16/APR/2012
  */
-@Log4j2
+@Slf4j
 public final class NumericUtil {
 
   // Static variables

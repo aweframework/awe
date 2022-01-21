@@ -5,7 +5,6 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
@@ -21,7 +20,7 @@ import com.almis.awe.service.user.LdapAweUserDetailsMapper;
 import com.almis.awe.session.AweSessionDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -60,6 +59,7 @@ import java.util.Map;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@Slf4j
 public class SecurityConfig extends ServiceConfig {
 
   // White list urls
@@ -109,7 +109,6 @@ public class SecurityConfig extends ServiceConfig {
 
   // Autowired services
   private final AweSessionDetails aweSessionDetails;
-  private final LogUtil logger;
   private final AweElements elements;
   private final ObjectMapper objectMapper;
   @Value("${screen.parameter.username:cod_usr}")
@@ -147,14 +146,12 @@ public class SecurityConfig extends ServiceConfig {
    * Autowired constructor
    *
    * @param sessionDetails AWE session details
-   * @param logger         Log utility
    * @param elements       Awe elements
    * @param objectMapper   Object mapper
    */
   @Autowired
-  public SecurityConfig(AweSessionDetails sessionDetails, LogUtil logger, AweElements elements, ObjectMapper objectMapper) {
+  public SecurityConfig(AweSessionDetails sessionDetails, AweElements elements, ObjectMapper objectMapper) {
     this.aweSessionDetails = sessionDetails;
-    this.logger = logger;
     this.elements = elements;
     this.objectMapper = objectMapper;
   }
@@ -258,7 +255,7 @@ public class SecurityConfig extends ServiceConfig {
 
       AUTHENTICATION_MODE mode = AUTHENTICATION_MODE.fromValue(authenticationProviderSource);
       mode = mode == null ? AUTHENTICATION_MODE.BBDD : mode;
-      logger.log(getClass(), Level.INFO, "Using authentication mode: " + mode);
+      log.info("Using authentication mode: " + mode);
 
       switch (mode) {
         case CUSTOM:
@@ -270,7 +267,7 @@ public class SecurityConfig extends ServiceConfig {
                 auth.authenticationProvider((AuthenticationProvider) beanObj);
               }
             } catch (Exception exc) {
-              logger.log(this.getClass(), Level.ERROR, "Couldn't load authentication provider bean with name [{0}]", exc, provider);
+              log.error("Couldn't load authentication provider bean with name [{}]", provider, exc);
             }
           }
           break;

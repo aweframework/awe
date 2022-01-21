@@ -1,7 +1,7 @@
 package com.almis.awe.scheduler.bean.trigger;
 
 import lombok.Data;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -16,7 +16,7 @@ import static com.almis.awe.scheduler.constant.CronConstants.*;
  * @author dfuentes
  */
 @Data
-@Log4j2
+@Slf4j
 public class CronPattern implements Serializable {
 
   // Cron pattern values
@@ -32,9 +32,9 @@ public class CronPattern implements Serializable {
    * Returns a String with the pattern to repeat a parameter a number of times
    * with a starting point
    *
-   * @param start
-   * @param repeatEach
-   * @return String
+   * @param start start field of pattern
+   * @param repeatEach repeat field of pattern
+   * @return String with the pattern
    */
   public String repeatEach(int start, int repeatEach) {
     return start + SLASH + repeatEach;
@@ -43,8 +43,8 @@ public class CronPattern implements Serializable {
   /**
    * Returns a String with the pattern to repeat a parameter a number of times
    *
-   * @param repeatEach
-   * @return String
+   * @param repeatEach repeat field of pattern
+   * @return String with the pattern
    */
   public String repeatEach(int repeatEach) {
     return ALL + SLASH + repeatEach;
@@ -75,8 +75,8 @@ public class CronPattern implements Serializable {
 
   /**
    * Set time to calendar
-   * @param calendar
-   * @param format
+   * @param calendar calendar
+   * @param format date format
    */
   private void setTimeToCalendar(Calendar calendar, DateFormat format) {
     try {

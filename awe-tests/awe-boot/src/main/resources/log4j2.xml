@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="info">
-  <Properties>
-    <Property name="log.basepath">
-      ${bundle:log4j2-app:log.path}/${bundle:log4j2-app:log.app.version}/${bundle:log4j2-app:application.log.type}
-    </Property>
-    <Property name="log.execution.basepath">
-      ${bundle:log4j2-app:log.path}/${bundle:log4j2-app:log.app.version}/scheduler
-    </Property>
-  </Properties>
+
   <Appenders>
     <!-- Console appender -->
     <Console name="CONSOLE" target="SYSTEM_OUT">
-      <PatternLayout charset="${bundle:log4j2-app:log.charset}" pattern="${bundle:log4j2-app:log.pattern.layout}" disableAnsi="false"/>
+      <PatternLayout charset="${spring:application.log.charset}" pattern="${spring:application.log.layout-pattern}" disableAnsi="false"/>
     </Console>
 
     <!-- Null appender (avoid log) -->
@@ -19,20 +12,20 @@
 
     <!-- Application file log -->
     <RollingFile name="APPLICATION"
-                 fileName="${log.basepath}/${bundle:log4j2-app:log.app}${bundle:log4j2-app:log.ext}"
-                 filePattern="${log.basepath}/${bundle:log4j2-app:log.app}${bundle:log4j2-app:log.pattern.file}${bundle:log4j2-app:log.ext}">
-      <PatternLayout charset="${bundle:log4j2-app:log.charset}"
-                     pattern="${bundle:log4j2-app:log.pattern.layout}"/>
+                 fileName="${spring:application.log.file.path}/${spring:spring.application.name}.log"
+                 filePattern="${spring:application.log.file.path}/${spring:spring.application.name}${spring:application.log.file-pattern}.log">
+      <PatternLayout charset="${spring:application.log.charset}"
+                     pattern="${spring:application.log.layout-pattern}"/>
       <Policies>
-        <TimeBasedTriggeringPolicy interval="${bundle:log4j2-app:log.date.rolling}" modulate="true"/>
-        <SizeBasedTriggeringPolicy size="${bundle:log4j2-app:log.size.rolling}"/>
+        <TimeBasedTriggeringPolicy interval="${spring:application.log.date-rolling}" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="${spring:application.log.size-rolling}"/>
       </Policies>
-      <DefaultRolloverStrategy max="${bundle:log4j2-app:log.num.file.rolling}">
-        <Delete basePath="${log.basepath}">
-          <IfFileName glob="${bundle:log4j2-app:log.app}_*.log">
+      <DefaultRolloverStrategy max="${spring:application.log.num-file-rolling}">
+        <Delete basePath="${spring:application.log.file.path}">
+          <IfFileName glob="${spring:spring.application.name}_*.log">
             <IfAny>
-              <IfLastModified age="${bundle:log4j2-app:log.delete.if.days.exceeds}"/>
-              <IfAccumulatedFileSize exceeds="${bundle:log4j2-app:log.delete.if.size.exceeds}"/>
+              <IfLastModified age="${spring:application.log.delete-if-days-exceeds}"/>
+              <IfAccumulatedFileSize exceeds="${spring:application.log.delete-if-size-exceeds}"/>
             </IfAny>
           </IfFileName>
         </Delete>
@@ -41,19 +34,19 @@
 
     <!-- Ade Reports file log  -->
     <RollingFile name="ADE"
-                 fileName="${log.basepath}/${bundle:log4j2-app:log.ade}${bundle:log4j2-app:log.ext}"
-                 filePattern="${log.basepath}/${bundle:log4j2-app:log.ade}${bundle:log4j2-app:log.pattern.file}${bundle:log4j2-app:log.ext}">
-      <PatternLayout charset="${bundle:log4j2-app:log.charset}" pattern="${bundle:log4j2-app:log.pattern.layout}"/>
+                 fileName="${spring:application.log.file.path}/ADE.log"
+                 filePattern="${spring:application.log.file.path}/ADE${spring:application.log.file-pattern}.log">
+      <PatternLayout charset="${spring:application.log.charset}" pattern="${spring:application.log.layout-pattern}"/>
       <Policies>
-        <TimeBasedTriggeringPolicy interval="${bundle:log4j2-app:log.date.rolling}" modulate="true"/>
-        <SizeBasedTriggeringPolicy size="${bundle:log4j2-app:log.size.rolling}"/>
+        <TimeBasedTriggeringPolicy interval="${spring:application.log.date-rolling}" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="${spring:application.log.size-rolling}"/>
       </Policies>
-      <DefaultRolloverStrategy max="${bundle:log4j2-app:log.num.file.rolling}">
-        <Delete basePath="${log.basepath}">
-          <IfFileName glob="${bundle:log4j2-app:log.ade}_*.log">
+      <DefaultRolloverStrategy max="${spring:application.log.num-file-rolling}">
+        <Delete basePath="${spring:application.log.file.path}">
+          <IfFileName glob="ADE_*.log">
             <IfAny>
-              <IfLastModified age="${bundle:log4j2-app:log.delete.if.days.exceeds}"/>
-              <IfAccumulatedFileSize exceeds="${bundle:log4j2-app:log.delete.if.size.exceeds}"/>
+              <IfLastModified age="${spring:application.log.delete-if-days-exceeds}"/>
+              <IfAccumulatedFileSize exceeds="${spring:application.log.delete-if-size-exceeds}"/>
             </IfAny>
           </IfFileName>
         </Delete>
@@ -62,20 +55,20 @@
 
     <!-- Scheduler file log -->
     <RollingFile name="SCHEDULER"
-                 fileName="${log.basepath}/${bundle:log4j2-app:log.scheduler}${bundle:log4j2-app:log.ext}"
-                 filePattern="${log.basepath}/${bundle:log4j2-app:log.scheduler}${bundle:log4j2-app:log.pattern.file}${bundle:log4j2-app:log.ext}">
-      <PatternLayout charset="${bundle:log4j2-app:log.charset}"
-                     pattern="${bundle:log4j2-app:log.pattern.layout}"/>
+                 fileName="${spring:application.log.file.path}/SCHEDULER.log"
+                 filePattern="${spring:application.log.file.path}/SCHEDULER${spring:application.log.file-pattern}.log">
+      <PatternLayout charset="${spring:application.log.charset}"
+                     pattern="${spring:application.log.layout-pattern}"/>
       <Policies>
-        <TimeBasedTriggeringPolicy interval="${bundle:log4j2-app:log.date.rolling}" modulate="true"/>
-        <SizeBasedTriggeringPolicy size="${bundle:log4j2-app:log.size.rolling}"/>
+        <TimeBasedTriggeringPolicy interval="${spring:application.log.date-rolling}" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="${spring:application.log.size-rolling}"/>
       </Policies>
-      <DefaultRolloverStrategy max="${bundle:log4j2-app:log.num.file.rolling}">
-        <Delete basePath="${log.basepath}">
-          <IfFileName glob="${bundle:log4j2-app:log.scheduler}_*.log">
+      <DefaultRolloverStrategy max="${spring:application.log.num-file-rolling}">
+        <Delete basePath="${spring:application.log.file.path}">
+          <IfFileName glob="SCHEDULER_*.log">
             <IfAny>
-              <IfLastModified age="${bundle:log4j2-app:log.delete.if.days.exceeds}"/>
-              <IfAccumulatedFileSize exceeds="${bundle:log4j2-app:log.delete.if.size.exceeds}"/>
+              <IfLastModified age="${spring:application.log.delete-if-days-exceeds}"/>
+              <IfAccumulatedFileSize exceeds="${spring:application.log.delete-if-size-exceeds}"/>
             </IfAny>
           </IfFileName>
         </Delete>
@@ -84,26 +77,26 @@
 
     <!-- Routing appender -->
     <Routing name="USER">
-      <Routes pattern="$${ctx:user}">
+      <Routes pattern="${ctx:user}">
         <!-- User not found -->
-        <Route key="$${ctx:user}" ref="APPLICATION"/>
+        <Route key="${ctx:user}" ref="APPLICATION"/>
         <!-- User file appenders. Check variable user in ThreadContext -->
         <Route>
-          <RollingFile name="${bundle:log4j2-app:log.app}_${ctx:user}"
-                       fileName="${log.basepath}/${bundle:log4j2-app:log.app}_${ctx:user}${bundle:log4j2-app:log.ext}"
-                       filePattern="${log.basepath}/${bundle:log4j2-app:log.app}_${ctx:user}${bundle:log4j2-app:log.pattern.file}${bundle:log4j2-app:log.ext}">
-            <PatternLayout charset="${bundle:log4j2-app:log.charset}"
-                           pattern="${bundle:log4j2-app:log.pattern.layout}"/>
+          <RollingFile name="${spring:spring.application.name}_${ctx:user}"
+                       fileName="${spring:application.log.file.path}/${spring:spring.application.name}_${ctx:user}.log"
+                       filePattern="${spring:application.log.file.path}/${spring:spring.application.name}_${ctx:user}${spring:application.log.file-pattern}.log">
+            <PatternLayout charset="${spring:application.log.charset}"
+                           pattern="${spring:application.log.layout-pattern}"/>
             <Policies>
-              <TimeBasedTriggeringPolicy interval="${bundle:log4j2-app:log.date.rolling}" modulate="true"/>
-              <SizeBasedTriggeringPolicy size="${bundle:log4j2-app:log.size.rolling}"/>
+              <TimeBasedTriggeringPolicy interval="${spring:application.log.date-rolling}" modulate="true"/>
+              <SizeBasedTriggeringPolicy size="${spring:application.log.size-rolling}"/>
             </Policies>
-            <DefaultRolloverStrategy max="${bundle:log4j2-app:log.num.file.rolling}">
-              <Delete basePath="${log.basepath}">
-                <IfFileName glob="${bundle:log4j2-app:log.app}_${ctx:user}_*.log">
+            <DefaultRolloverStrategy max="${spring:application.log.num-file-rolling}">
+              <Delete basePath="${spring:application.log.file.path}">
+                <IfFileName glob="${spring:spring.application.name}_${ctx:user}_*.log">
                   <IfAny>
-                    <IfLastModified age="${bundle:log4j2-app:log.delete.if.days.exceeds}"/>
-                    <IfAccumulatedFileSize exceeds="${bundle:log4j2-app:log.delete.if.size.exceeds}"/>
+                    <IfLastModified age="${spring:application.log.delete-if-days-exceeds}"/>
+                    <IfAccumulatedFileSize exceeds="${spring:application.log.delete-if-size-exceeds}"/>
                   </IfAny>
                 </IfFileName>
               </Delete>
@@ -114,15 +107,15 @@
     </Routing>
 
     <Routing name="SCHEDULER_FILTERED_JOBS">
-      <Routes pattern="$${ctx:execution}">
+      <Routes pattern="${ctx:execution}">
         <!-- Execution not found -->
-        <Route key="$${ctx:execution}" ref="SCHEDULER"/>
+        <Route key="${ctx:execution}" ref="SCHEDULER"/>
         <!-- Execution file appenders. Check variable user in ThreadContext -->
         <Route>
           <!-- Scheduler execution log -->
-          <RandomAccessFile name="JOB_EXECUTION" fileName="${log.execution.basepath}/execution_${ctx:execution}${bundle:log4j2-app:log.ext}">
-            <PatternLayout charset="${bundle:log4j2-app:log.charset}">
-              <Pattern>${bundle:log4j2-app:log.pattern.execution.layout}</Pattern>
+          <RandomAccessFile name="JOB_EXECUTION" fileName="${spring:scheduler.execution.log.path}/execution_${ctx:execution}.log">
+            <PatternLayout charset="${spring:application.log.charset}">
+              <Pattern>${spring:scheduler.log.layout-pattern}</Pattern>
             </PatternLayout>
           </RandomAccessFile>
         </Route>
@@ -130,21 +123,20 @@
     </Routing>
 
     <Routing name="SCHEDULER_EXECUTION_JOBS">
-      <Routes pattern="$${ctx:execution}">
+      <Routes pattern="${ctx:execution}">
         <!-- Execution not found -->
-        <Route key="$${ctx:execution}" ref="AVOID_LOGS"/>
+        <Route key="${ctx:execution}" ref="AVOID_LOGS"/>
         <!-- Execution file appenders. Check variable user in ThreadContext -->
         <Route>
           <!-- Scheduler execution log -->
-          <RandomAccessFile name="JOB_EXECUTION" fileName="${log.execution.basepath}/execution_${ctx:execution}${bundle:log4j2-app:log.ext}">
-            <PatternLayout charset="${bundle:log4j2-app:log.charset}">
-              <Pattern>${bundle:log4j2-app:log.pattern.execution.layout}</Pattern>
+          <RandomAccessFile name="JOB_EXECUTION" fileName="${spring:scheduler.execution.log.path}/execution_${ctx:execution}.log">
+            <PatternLayout charset="${spring:application.log.charset}">
+              <Pattern>${spring:scheduler.log.layout-pattern}</Pattern>
             </PatternLayout>
           </RandomAccessFile>
         </Route>
       </Routes>
     </Routing>
-
   </Appenders>
 
   <Loggers>
@@ -155,11 +147,6 @@
     <Logger name="com.almis.ade" includeLocation="true" level="info">
       <AppenderRef ref="ADE"/>
     </Logger>
-
-    <!-- Ehcache logger -->
-<!--    <Logger name="org.ehcache" includeLocation="true" level="debug">-->
-<!--      <AppenderRef ref="CONSOLE"/>-->
-<!--    </Logger>-->
 
     <!-- Scheduler logger -->
     <Logger name="com.almis.awe.scheduler" includeLocation="true" level="info" additivity="false">

@@ -40,7 +40,7 @@ import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -61,7 +61,7 @@ import static com.almis.awe.scheduler.constant.MaintainConstants.*;
 import static com.almis.awe.scheduler.constant.QueryConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
 
-@Log4j2
+@Slf4j
 public class TaskDAO extends ServiceConfig {
 
   // locales

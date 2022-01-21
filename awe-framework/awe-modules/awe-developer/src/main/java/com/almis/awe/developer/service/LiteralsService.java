@@ -17,14 +17,14 @@ import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.util.Strings;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Log4j2
+@Slf4j
 public class LiteralsService extends ServiceConfig {
 
   // Autowired services
@@ -261,7 +261,7 @@ public class LiteralsService extends ServiceConfig {
       .filter(global -> code.equalsIgnoreCase(global.getName()))
       .forEach(global -> {
         // Add actions to list
-        FormatType format = Strings.isBlank(global.getMarkdown()) ? FormatType.TEXT : FormatType.MARKDOWN;
+        FormatType format = StringUtils.isBlank(global.getMarkdown()) ? FormatType.TEXT : FormatType.MARKDOWN;
         String value = FormatType.TEXT.equals(format) ? global.getValue() : global.getMarkdown();
         serviceData.addClientAction(new SelectActionBuilder("litTxt", value).setAsync(true).build());
         serviceData.addClientAction(new SelectActionBuilder("litMrk", value).setAsync(true).build());
@@ -445,7 +445,7 @@ public class LiteralsService extends ServiceConfig {
   private void fixMarkdown(List<Global> globals) {
     // Fix markdown attribute
     globals.stream()
-      .filter(global -> Strings.isBlank(global.getMarkdown()))
+      .filter(global -> StringUtils.isBlank(global.getMarkdown()))
       .forEach(global -> global.setMarkdown(null));
   }
 }

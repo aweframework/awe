@@ -5,7 +5,7 @@ import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.trigger.CronPattern;
 import lombok.Data;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronScheduleBuilder;
 
 import java.io.Serializable;
@@ -21,7 +21,7 @@ import static com.almis.awe.scheduler.constant.CronConstants.*;
  * @author dfuentes
  */
 @Data
-@Log4j2
+@Slf4j
 public class CronPatternBuilder implements Serializable {
   // Schedule
   private Schedule schedule;
@@ -29,7 +29,7 @@ public class CronPatternBuilder implements Serializable {
   /**
    * CronPattern
    *
-   * @param schedule
+   * @param schedule schedule
    */
   public CronPatternBuilder(Schedule schedule) {
     this.schedule = schedule;
@@ -37,9 +37,9 @@ public class CronPatternBuilder implements Serializable {
 
   /**
    * Sets the value of each parameter depending on the selected value of 'Repeat
-   * type' wich can be: minutes,hours,days,week or years
+   * type' witch can be: minutes,hours,days,week or years
    *
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   public CronScheduleBuilder build() throws AWException {
     CronPattern cronPattern = new CronPattern();
@@ -122,7 +122,7 @@ public class CronPatternBuilder implements Serializable {
   /**
    * Set days of month parameter checking the days of week parameter
    *
-   * @param dayOfMonth
+   * @param dayOfMonth day of month
    */
   private void setDayOfMonth(CronPattern cronPattern, String dayOfMonth) {
     cronPattern.setDayOfMonth(dayOfMonth);
@@ -131,8 +131,8 @@ public class CronPatternBuilder implements Serializable {
   /**
    * Set days of week parameter checking the days of month parameter
    *
-   * @param daysOfWeek
-   * @param weeks
+   * @param daysOfWeek days of week
+   * @param weeks weeks
    */
   private void setDayOfWeek(CronPattern cronPattern, List<String> daysOfWeek, List<String> weeks, String defaultDayOfWeek) {
     String dayOfWeekPattern;
@@ -158,9 +158,9 @@ public class CronPatternBuilder implements Serializable {
    * Returns a String with the pattern to repeat a parameter a number of times
    * with a starting point
    *
-   * @param start
-   * @param repeatEach
-   * @return String
+   * @param start start field of pattern
+   * @param repeatEach repeat field of pattern
+   * @return String with the pattern
    */
   public String repeatEach(int start, int repeatEach) {
     return start + SLASH + repeatEach;
@@ -169,8 +169,8 @@ public class CronPatternBuilder implements Serializable {
   /**
    * Returns a String with the pattern to repeat a parameter a number of times
    *
-   * @param repeatEach
-   * @return String
+   * @param repeatEach repeat field of pattern
+   * @return String with the pattern
    */
   private String repeatEach(int repeatEach) {
     return ALL + SLASH + repeatEach;
@@ -224,8 +224,6 @@ public class CronPatternBuilder implements Serializable {
 
   /**
    * Sets the time of execution
-   *
-   * @return String
    */
   private void setTime(CronPattern cronPattern) {
     String hour;

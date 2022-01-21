@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.spi.OperableTrigger;
@@ -34,7 +34,10 @@ import static com.almis.awe.scheduler.constant.QueryConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.YEAR_LABEL;
 import static com.almis.awe.scheduler.constant.TaskConstants.YEAR_VALUE;
 
-@Log4j2
+/**
+ * DAO to manage schedule calendars
+ */
+@Slf4j
 public class CalendarDAO extends ServiceConfig {
 
   private static final String TITLE_SCHEDULER_DELETE_CALENDAR = "TITLE_SCHEDULER_DELETE_CALENDAR";

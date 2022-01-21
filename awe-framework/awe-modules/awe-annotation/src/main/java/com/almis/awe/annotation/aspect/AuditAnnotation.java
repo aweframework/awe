@@ -4,8 +4,7 @@ import com.almis.awe.annotation.entities.audit.Audit;
 import com.almis.awe.annotation.entities.audit.AuditParams;
 import com.almis.awe.annotation.util.AnnotationUtils;
 import com.almis.awe.exception.AWException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,11 +23,8 @@ import java.util.*;
  * @see AuditParams
  */
 @Aspect
+@Slf4j
 public class AuditAnnotation {
-
-  // Logger
-  private static final Logger logger = LogManager.getLogger(AuditAnnotation.class);
-
   /**
    * Pointcut for annotated methods
    */
@@ -86,7 +82,7 @@ public class AuditAnnotation {
    * @param args               Arguments
    * @param parameterNames     Parameter names
    * @param parameterClasses   Parameter classes
-   * @param currentExecutionId
+   * @param currentExecutionId Current execution ID
    */
   private void methodOutput(Method method, Object[] args, String[] parameterNames, Class[] parameterClasses, String currentExecutionId) {
     StringBuilder methodAudit = new StringBuilder();
@@ -115,7 +111,7 @@ public class AuditAnnotation {
       }
       methodAudit.append(i == args.length - 1 ? "" : ",")
               .append(")");
-      logger.info(methodAudit);
+      log.info(methodAudit.toString());
     }
   }
 
@@ -143,7 +139,7 @@ public class AuditAnnotation {
       } else {
         methodAudit.append(result.toString());
       }
-      logger.info(methodAudit);
+      log.info(methodAudit.toString());
     }
   }
 

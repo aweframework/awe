@@ -16,8 +16,8 @@ import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.file.FileUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JREmptyDataSource;
-import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 
@@ -33,6 +33,7 @@ import java.util.Optional;
 /**
  * Generate the component controllers of the screen
  */
+@Slf4j
 public class ReportGenerator extends ServiceConfig {
 
   // Autowired services
@@ -114,7 +115,7 @@ public class ReportGenerator extends ServiceConfig {
    *
    * @param printBean Print bean
    * @return Report exporter
-   * @throws AWException Error buiding report
+   * @throws AWException Error building report
    */
   private TemplateExporterBuilderService buildReport(PrintBean printBean, String fileName) throws AWException {
     try {
@@ -203,7 +204,7 @@ public class ReportGenerator extends ServiceConfig {
           break;
       }
     } catch (Exception exc) {
-      getLogger().log(ReportGenerator.class, Level.ERROR, "Error generating report file ({0}): {1}{2}", exc, format, basePath, fullFileName);
+      log.error("Error generating report file ({}): {}{}", format, basePath, fullFileName, exc);
       return new ClientAction("message")
         .addParameter("type", "error")
         .addParameter("title", getLocale("ERROR_TITLE_GENERATING_DOCUMENT"))
@@ -217,7 +218,7 @@ public class ReportGenerator extends ServiceConfig {
     fileData.setBasePath(basePath);
 
     // Log report
-    getLogger().log(ReportGenerator.class, Level.DEBUG, "Report file ({0}) generated: {1}{2}", mimeType, basePath, fullFileName);
+    log.debug("Report file ({}) generated: {}{}", mimeType, basePath, fullFileName);
 
     // Generate client action with file data
     return new ClientAction("get-file")
@@ -243,7 +244,7 @@ public class ReportGenerator extends ServiceConfig {
       Files.copy(reportFile.toPath(), Paths.get(historicPath.getAbsolutePath(), reportFile.getName()));
     } catch (IOException exc) {
       // Log report
-      getLogger().log(ReportGenerator.class, Level.ERROR, "Historic report file ({0}) NOT generated on {1}", reportFile.getAbsolutePath(), historicPath.getAbsolutePath(), exc);
+      log.error("Historic report file ({}) NOT generated on {}", reportFile.getAbsolutePath(), historicPath.getAbsolutePath(), exc);
     }
   }
 

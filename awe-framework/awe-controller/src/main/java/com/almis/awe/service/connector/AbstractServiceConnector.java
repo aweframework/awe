@@ -8,7 +8,7 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import java.util.*;
  *
  * @author jbellon
  */
-@Log4j2
+@Slf4j
 abstract class AbstractServiceConnector extends ServiceConfig implements ServiceConnector {
 
   private static final String CANT_CREATE_INSTANCE = "Can't create instance of ";

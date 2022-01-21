@@ -5,9 +5,7 @@ package com.almis.awe.exception;
 
 import com.almis.awe.model.type.AnswerType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Specific AWE Exception class
@@ -15,11 +13,11 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Pablo GARCIA - 24/JUN/2010
  */
+@Slf4j
 @JsonIgnoreProperties({"cause", "localizedMessage", "stackTrace", "suppressed", "variables"})
 public class AWException extends Exception {
 
   private static final long serialVersionUID = 7702204335666608962L;
-  private static final Logger logger = LogManager.getLogger(AWException.class);
 
   // Exception title
   private String title = "";
@@ -131,8 +129,7 @@ public class AWException extends Exception {
    */
   public AWException log() {
     // Log ERROR
-    String errorType = this.getType() == AnswerType.ERROR ? "ERROR" : "WARNING";
-    Level errorLevel = this.getType() == AnswerType.ERROR ? Level.ERROR : Level.WARN;
+    String errorType = AnswerType.ERROR.equals(this.getType()) ? "ERROR" : "WARNING";
 
     // Start log
     StringBuilder exceptionBuilder = new StringBuilder();
@@ -149,7 +146,12 @@ public class AWException extends Exception {
     exceptionBuilder.append("[")
       .append(errorType)
       .append("] [StackTrace]");
-    logger.log(errorLevel, exceptionBuilder, getCause());
+
+    if (AnswerType.ERROR.equals(this.getType())){
+      log.error(exceptionBuilder.toString(), getCause());
+    } else {
+      log.warn(exceptionBuilder.toString(), getCause());
+    }
     return this;
   }
 }

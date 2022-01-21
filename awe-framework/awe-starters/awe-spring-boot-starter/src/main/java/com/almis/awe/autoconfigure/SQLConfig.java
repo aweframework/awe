@@ -5,7 +5,6 @@ import com.almis.awe.component.AweRoutingDataSource;
 import com.almis.awe.listener.SpringSQLCloseListener;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.service.data.builder.SQLMaintainBuilder;
@@ -38,15 +37,14 @@ public class SQLConfig {
    * @param elements             Awe elements
    * @param queryService         Query service
    * @param sessionService       Session service
-   * @param logger               Awe logger
    * @param dataSourceProperties DataSource properties
    * @return Database context holder bean
    */
   @Bean
   @ConditionalOnMissingBean
   @ConfigurationProperties("spring.datasource.hikari")
-  public AweDatabaseContextHolder aweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, LogUtil logger, DataSourceProperties dataSourceProperties) {
-    return new AweDatabaseContextHolder(elements, queryService, sessionService, logger, dataSourceProperties);
+  public AweDatabaseContextHolder aweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, DataSourceProperties dataSourceProperties) {
+    return new AweDatabaseContextHolder(elements, queryService, sessionService, dataSourceProperties);
   }
 
   /**

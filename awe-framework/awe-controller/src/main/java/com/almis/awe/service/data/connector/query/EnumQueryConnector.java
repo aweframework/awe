@@ -10,10 +10,11 @@ import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.EnumBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Map;
  *
  * @author Jorge BELLON 27-03-2017
  */
+@Slf4j
 public class EnumQueryConnector extends AbstractQueryConnector {
 
   /**
@@ -53,7 +55,7 @@ public class EnumQueryConnector extends AbstractQueryConnector {
    *
    * @param enumId     Enumerated identifier
    * @param parameters Parameters
-   * @return Query output as servicedata
+   * @return Query output as service data
    * @throws AWException Error launching query
    */
   public ServiceData launchEnum(String enumId, ObjectNode parameters) throws AWException {
@@ -66,20 +68,20 @@ public class EnumQueryConnector extends AbstractQueryConnector {
    * @param query      Query to be launched
    * @param enumId     Enumerated id
    * @param parameters Parameters
-   * @return Query output as servicedata
+   * @return Query output as service data
    * @throws AWException Error launching query
    */
   private ServiceData launch(Query query, String enumId, ObjectNode parameters) throws AWException {
 
     // Log start query prepare time
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
     ServiceData result = new ServiceData();
 
     // Get query builder
     EnumBuilder builder = getBean(EnumBuilder.class);
 
     // Get query preparation time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Query launch
     List<Global> resultList;
@@ -93,7 +95,7 @@ public class EnumQueryConnector extends AbstractQueryConnector {
     }
 
     // Get elapsed query time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Generate results
     try {
@@ -105,16 +107,16 @@ public class EnumQueryConnector extends AbstractQueryConnector {
     }
 
     // Get elapsed datalist time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Log query
-    getLogger().log(EnumQueryConnector.class, Level.INFO, "[{0}] => {1} records. Create enumerated time: {2}s - Enumerated time: {3}s - Datalist time: {4}s - Total time: {5}s",
-      enumId,
-      result.getDataList().getRecords(),
-      getLogger().getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-      getLogger().getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
-      getLogger().getElapsed(timeLapse, AweConstants.RESULTS_TIME),
-      getLogger().getTotalTime(timeLapse));
+    log.info("[{}] => {} records. Create enumerated time: {}s - Enumerated time: {}s - Datalist time: {}s - Total time: {}s",
+            enumId,
+            result.getDataList().getRecords(),
+            LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+            LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
+            LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
+            LogUtil.getTotalTime(timeLapse));
 
     return result;
   }

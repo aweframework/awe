@@ -12,6 +12,7 @@ import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
+import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,7 +25,7 @@ import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.sql.DataSource;
@@ -38,6 +39,7 @@ import java.util.Optional;
  *
  * @author Jorge BELLON 24-02-2017
  */
+@Slf4j
 public class SQLQueryConnector extends AbstractQueryConnector {
 
   // Autowired services
@@ -72,7 +74,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
   public ServiceData launch(Query query, ObjectNode parameters) throws AWException {
 
     // Log start query prepare time
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
     // Generate the corresponding query factory
     SQLQueryFactory queryFactory = getQueryFactory(parameters);
@@ -96,7 +98,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong();
     boolean paginate = query.isPaginationManaged() && (elementsPerPage > 0);
 
-    // Generate query
+    // Build query
     SQLQuery<Tuple> queryBuilt = builder.build();
     SQLQuery<Tuple> queryCount = null;
     if (paginate) {
@@ -105,7 +107,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
 
     // Get query preparation time
     String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     List<Tuple> results;
     long records;
@@ -128,7 +130,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     }
 
     // Get query preparation time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     DataList datalist;
     try {
@@ -136,15 +138,15 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       datalist = fillDataList(results, records, query, queryBuilt.getMetadata().getProjection(), variableMap);
 
       // Get query preparation time
-      getLogger().checkpoint(timeLapse);
+      LogUtil.checkpoint(timeLapse);
 
       // Log query
-      getLogger().logWithDatabase(SQLQueryConnector.class, Level.INFO, getQueryUtil().getDatabaseAlias(variableMap), "[{0}] [{1}] => {2} records. Create query time: {3}s - Sql time: {4}s - Datalist time: {5}s - Total time: {6}s",
+      log.info("[{}] [{}] => {} records. Create query time: {}s - Sql time: {}s - Datalist time: {}s - Total time: {}s",
         query.getId(), sql, records,
-        getLogger().getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-        getLogger().getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
-        getLogger().getElapsed(timeLapse, AweConstants.RESULTS_TIME),
-        getLogger().getTotalTime(timeLapse));
+        LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+        LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
+        LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
+        LogUtil.getTotalTime(timeLapse));
     } catch (AWException exc) {
       throw new AWEQueryException(exc.getTitle(), exc.getMessage(), sql, exc);
     } catch (Exception exc) {

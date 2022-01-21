@@ -3,7 +3,7 @@ package com.almis.awe.scheduler.filechecker;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.FileDAO;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class FTPFileChecker extends Connector {
 
   // Autowired services

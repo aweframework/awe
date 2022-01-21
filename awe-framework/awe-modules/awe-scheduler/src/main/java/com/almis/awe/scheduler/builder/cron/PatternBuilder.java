@@ -2,14 +2,14 @@ package com.almis.awe.scheduler.builder.cron;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.ScheduleBuilder;
 import org.quartz.Trigger;
 
 /**
  * Default pattern builder
  */
-@Log4j2
+@Slf4j
 public class PatternBuilder {
   private final Schedule schedule;
 

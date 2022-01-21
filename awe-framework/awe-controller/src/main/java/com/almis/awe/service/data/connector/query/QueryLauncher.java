@@ -8,7 +8,7 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
  * Factory class of interface QueryConnector
  *
  */
+@Slf4j
 public class QueryLauncher extends ServiceConfig {
 
   /**
@@ -32,7 +33,7 @@ public class QueryLauncher extends ServiceConfig {
     try {
       queryLauncher = getQueryConnector(query);
     } catch (AWException exc) {
-      getLogger().log(QueryLauncher.class, Level.ERROR, exc.getMessage(), exc);
+      log.error(exc.getMessage(), exc);
       return new ServiceData().setDataList(new DataList());
     }
     return queryLauncher.launch(query, parameters);
@@ -52,7 +53,7 @@ public class QueryLauncher extends ServiceConfig {
     try {
       queryLauncher = getQueryConnector(query);
     } catch (AWException exc) {
-      getLogger().log(QueryLauncher.class, Level.ERROR, "Query connector not found. Perhaps database is not activated?", exc);
+      log.error("Query connector not found. Perhaps database is not activated?", exc);
       return new ServiceData().setDataList(new DataList());
     }
     return queryLauncher.subscribe(query, address, parameters);
@@ -66,7 +67,7 @@ public class QueryLauncher extends ServiceConfig {
    */
   private QueryConnector getQueryConnector(Query query) throws AWException {
 
-    QueryConnector connector = null;
+    QueryConnector connector;
 
     if (query.getService() != null) {
       connector = getBean(ServiceQueryConnector.class);

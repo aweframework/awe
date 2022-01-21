@@ -8,13 +8,13 @@ import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import static com.almis.awe.scheduler.constant.ReportConstants.*;
 
-@Log4j2
+@Slf4j
 public class EmailReportJob extends ReportJob {
 
   // Constants

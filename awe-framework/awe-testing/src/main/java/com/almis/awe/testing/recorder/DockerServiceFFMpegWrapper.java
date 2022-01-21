@@ -3,7 +3,7 @@ package com.almis.awe.testing.recorder;
 import com.almis.awe.testing.model.VideoRecorderStartRequest;
 import com.almis.awe.testing.model.VideoRecorderStopRequest;
 import com.automation.remarks.video.recorder.VideoRecorder;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 
-@Log4j2
+@Slf4j
 public class DockerServiceFFMpegWrapper {
 
   private String fileIdentifier;

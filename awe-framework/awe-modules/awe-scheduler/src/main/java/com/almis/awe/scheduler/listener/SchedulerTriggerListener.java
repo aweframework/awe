@@ -6,7 +6,7 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.enums.TaskStatus;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.TriggerListener;
@@ -16,7 +16,7 @@ import static com.almis.awe.scheduler.constant.ListenerConstants.TRIGGER_LISTENE
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class SchedulerTriggerListener extends ServiceConfig implements TriggerListener {
 
   // Autowired services

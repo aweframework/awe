@@ -6,14 +6,14 @@ import com.almis.awe.scheduler.job.execution.ProgressJob;
 import com.almis.awe.scheduler.job.execution.TimeoutJob;
 import com.almis.awe.scheduler.job.scheduled.CommandJob;
 import com.almis.awe.scheduler.job.scheduled.MaintainJob;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 
 import static com.almis.awe.scheduler.constant.TaskConstants.TASK_SEPARATOR;
 
-@Log4j2
+@Slf4j
 public class JobFactory {
 
   private static int instanceId = 1;

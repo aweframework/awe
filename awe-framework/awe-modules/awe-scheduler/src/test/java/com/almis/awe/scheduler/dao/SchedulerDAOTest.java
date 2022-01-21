@@ -1,7 +1,7 @@
 package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.model.dto.ServiceData;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 /**
  * Class used for testing SchedulerDAO class
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class SchedulerDAOTest {
 

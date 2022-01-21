@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!-- use Spring default values -->
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <property name="CONSOLE_LOG_PATTERN"
+            value="-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-30.30logger{29}){cyan} %clr(:){faint} %clr(%X{user}%X{database}%X{currentScreen}){magenta}%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+  <appender name="Console"
+            class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+    </layout>
+  </appender>
+
+  <!-- Awe logger -->
+  <logger name="com.almis.awe" level="info" additivity="false">
+    <appender-ref ref="Console"/>
+  </logger>
+
+  <!-- ROOT logger -->
+  <root level="info">
+    <appender-ref ref="Console"/>
+  </root>
+
+</configuration>

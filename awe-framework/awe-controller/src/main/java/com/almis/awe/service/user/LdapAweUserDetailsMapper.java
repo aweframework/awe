@@ -4,7 +4,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.User;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +22,7 @@ import java.util.Collection;
  * Custom ldap user details mapper
  * Used to set UserDetails
  */
-@Log4j2
+@Slf4j
 public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetailsContextMapper {
 
   private String userCredentialsAttribute = "userPassword";

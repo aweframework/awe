@@ -4,7 +4,6 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.entities.Element;
-import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.access.Profile;
 import com.almis.awe.model.entities.actions.Action;
 import com.almis.awe.model.entities.actions.Actions;
@@ -26,10 +25,9 @@ import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.entities.services.Services;
 import com.almis.awe.model.type.LaunchPhaseType;
-import com.almis.awe.model.util.log.LogUtil;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -49,11 +47,11 @@ import static com.almis.awe.model.constant.AweConstants.*;
 /**
  * @author pgarcia
  */
+@Slf4j
 public class AweElements {
 
   // Autowired services
   private final WebApplicationContext context;
-  private final LogUtil logger;
   private final AweElementsDao elementsDao;
   private final Environment environment;
 
@@ -158,11 +156,9 @@ public class AweElements {
    * Autowired constructor
    *
    * @param context Context
-   * @param logger  Logger
    */
-  public AweElements(WebApplicationContext context, LogUtil logger, AweElementsDao elementsDao) {
+  public AweElements(WebApplicationContext context, AweElementsDao elementsDao) {
     this.context = context;
-    this.logger = logger;
     this.elementsDao = elementsDao;
     this.environment = context.getEnvironment();
   }
@@ -172,29 +168,29 @@ public class AweElements {
    */
   @PostConstruct
   public void init() {
-    logger.log(AweElements.class, Level.INFO, LOG_LINE);
-    logger.log(AweElements.class, Level.INFO, "----------------------------- AWE starting ... -----------------------------------");
-    logger.log(AweElements.class, Level.INFO, LOG_LINE);
+    log.info(LOG_LINE);
+    log.info( "----------------------------- AWE starting ... -----------------------------------");
+    log.info(LOG_LINE);
 
     // Initialize Awe Elements (Read all XML sources)
-    logger.log(AweElements.class, Level.INFO, "=============================");
-    logger.log(AweElements.class, Level.INFO, "===== Reading XML Files =====");
-    logger.log(AweElements.class, Level.INFO, "=============================");
+    log.info("=============================");
+    log.info("===== Reading XML Files =====");
+    log.info("=============================");
 
     // Initialize global files
-    logger.log(AweElements.class, Level.INFO, " ===== Initializing global and screen files ===== ");
+    log.info(" ===== Initializing global and screen files ===== ");
     waitForTermination(initGlobalFiles(), "global");
-    logger.log(AweElements.class, Level.INFO, " ===== Finished loading global and screen files  ===== ");
+    log.info(" ===== Finished loading global and screen files  ===== ");
 
     // Initialize menu files
-    logger.log(AweElements.class, Level.INFO, " ===== Initializing menu files ===== ");
+    log.info(" ===== Initializing menu files ===== ");
     initMenuFiles();
-    logger.log(AweElements.class, Level.INFO, " ===== Finished loading menu files  ===== ");
+    log.info(" ===== Finished loading menu files  ===== ");
 
     // Initialize locale files
-    logger.log(AweElements.class, Level.INFO, " ===== Initializing locale files ===== ");
+    log.info(" ===== Initializing locale files ===== ");
     waitForTermination(initLocaleFiles(), "locale");
-    logger.log(AweElements.class, Level.INFO, " ===== Finished loading locale files  ===== ");
+    log.info(" ===== Finished loading locale files  ===== ");
   }
 
   /**
@@ -207,7 +203,7 @@ public class AweElements {
       try {
         result.get();
       } catch (InterruptedException | ExecutionException exc) {
-        logger.log(AweElements.class, Level.ERROR, " ===== ERROR loading {0} Files  ===== ", exc, fileType);
+        log.error(" ===== ERROR loading {} Files  ===== ", fileType, exc);
         Thread.currentThread().interrupt();
       }
     }
@@ -277,7 +273,7 @@ public class AweElements {
       menuList.put(publicMenuFileName, readMenuFile(publicMenuFileName));
       menuList.put(privateMenuFileName, readMenuFile(privateMenuFileName));
     } catch (AWException exc) {
-      logger.log(AweElements.class, Level.ERROR, "Error initializing menus", exc);
+      log.error("Error initializing menus", exc);
       exc.log();
     }
   }

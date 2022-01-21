@@ -4,12 +4,12 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.enums.ServerConnectionType;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class FileChecker extends ServiceConfig {
 
   // Autowired services

@@ -15,7 +15,7 @@ import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.service.BroadcastService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
 
-@Log4j2
+@Slf4j
 public class SchedulerEventListener {
 
   private final BroadcastService broadcastService;

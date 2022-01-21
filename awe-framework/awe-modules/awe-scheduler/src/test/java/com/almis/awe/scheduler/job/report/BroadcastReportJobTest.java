@@ -6,7 +6,7 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.service.BroadcastService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Class used for testing BroadcastReportJob class
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class BroadcastReportJobTest {
 

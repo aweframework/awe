@@ -5,12 +5,11 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.file.FileUtil;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -22,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/file")
+@Slf4j
 public class FileController extends ServiceConfig {
 
   // Autowired services
   private final FileService fileService;
-  private final LogUtil logger;
   private final MaintainService maintainService;
 
   /**
@@ -34,13 +33,11 @@ public class FileController extends ServiceConfig {
    *
    * @param fileService     File service
    * @param maintainService Maintain service
-   * @param logger          Logger service
    */
   @Autowired
-  public FileController(FileService fileService, MaintainService maintainService, LogUtil logger) {
+  public FileController(FileService fileService, MaintainService maintainService) {
     this.fileService = fileService;
     this.maintainService = maintainService;
-    this.logger = logger;
   }
 
   /**
@@ -169,6 +166,6 @@ public class FileController extends ServiceConfig {
   @ExceptionHandler(AWException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public void handleAWException(AWException exc) {
-    logger.log(FileController.class, Level.ERROR, exc.getTitle() + "\n" + exc.getMessage(), exc);
+    log.error(exc.getTitle() + "\n" + exc.getMessage(), exc);
   }
 }

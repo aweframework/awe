@@ -8,13 +8,12 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.DatabaseConnectionInfo;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.jdbc.DatabaseDriver;
@@ -31,6 +30,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@Slf4j
 public class AweDatabaseContextHolder extends ServiceConfig {
 
   private static final String ERROR_TITLE_INVALID_CONNECTION = "ERROR_TITLE_INVALID_CONNECTION";
@@ -39,7 +39,6 @@ public class AweDatabaseContextHolder extends ServiceConfig {
   private final AweElements elements;
   private final QueryService queryService;
   private final SessionService sessionService;
-  private final LogUtil logger;
   private DataSourceProperties properties;
 
   @Value("${awe.database.multi-database.enable}")
@@ -60,14 +59,12 @@ public class AweDatabaseContextHolder extends ServiceConfig {
    * @param elements             Awe elements
    * @param queryService         Query service
    * @param sessionService       Session Service
-   * @param logger               Logger
    * @param dataSourceProperties DataSource properties
    */
-  public AweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, LogUtil logger, DataSourceProperties dataSourceProperties) {
+  public AweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, DataSourceProperties dataSourceProperties) {
     this.elements = elements;
     this.queryService = queryService;
     this.sessionService = sessionService;
-    this.logger = logger;
     this.properties = dataSourceProperties;
     this.dataSourceMap = new HashMap<>();
   }
@@ -93,7 +90,7 @@ public class AweDatabaseContextHolder extends ServiceConfig {
         dataSources.put(connectionInfo.getAlias(), getDataSource(properties));
       } catch (Exception exc) {
         // Log datasource failure
-        logger.log(AweDatabaseContextHolder.class, Level.ERROR, "Error retrieving datasource ''{0}''", exc, connectionInfo.getAlias());
+        log.error("Error retrieving datasource '{}'", connectionInfo.getAlias(), exc);
       }
     }
 
@@ -163,7 +160,7 @@ public class AweDatabaseContextHolder extends ServiceConfig {
     try {
       serviceData = queryService.launchPrivateQuery(AweConstants.DATABASE_CONNECTIONS_QUERY, "1", "0");
     } catch (AWException exc) {
-      logger.log(AweDatabaseContextHolder.class, Level.ERROR, "Error retrieving dataSources from default connection", exc);
+      log.error("Error retrieving dataSources from default connection", exc);
     }
 
     // Retrieve dataSources
@@ -174,7 +171,7 @@ public class AweDatabaseContextHolder extends ServiceConfig {
           connectionMap.put(connectionInfo.getAlias(), connectionInfo);
         } catch (Exception exc) {
           // Log datasource failure
-          logger.log(AweDatabaseContextHolder.class, Level.ERROR, "Error retrieving datasource ''{0}''", exc, connectionInfo.getAlias());
+          log.error("Error retrieving datasource '{}'", connectionInfo.getAlias(), exc);
         }
       }
     }

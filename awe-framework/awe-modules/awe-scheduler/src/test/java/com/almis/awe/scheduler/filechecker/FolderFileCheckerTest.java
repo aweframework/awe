@@ -4,7 +4,7 @@ import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.file.Server;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.FileDAO;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.doNothing;
 /**
  * Class used for testing FolderFileChecker
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class FolderFileCheckerTest {
 

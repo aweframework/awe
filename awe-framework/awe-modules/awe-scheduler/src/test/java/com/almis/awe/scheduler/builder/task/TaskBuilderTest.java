@@ -5,7 +5,7 @@ import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.enums.TaskLaunchType;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * Class used for testing TaskBuilder class
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class TaskBuilderTest {
 

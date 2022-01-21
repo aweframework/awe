@@ -1,13 +1,13 @@
 package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-@Log4j2
+@Slf4j
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("CRUDCriteriaMatrixIT")
 class CRUDTestsIT extends SeleniumUtilities {

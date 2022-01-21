@@ -11,7 +11,7 @@ import com.almis.awe.model.entities.queues.ResponseMessage;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.processor.QueueProcessor;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -23,6 +23,7 @@ import java.util.Map;
  *
  * @author Pablos - 20/NOV/2013
  */
+@Slf4j
 public class QueueListener extends ServiceConfig implements MessageListener {
 
   // Autowired services
@@ -71,21 +72,19 @@ public class QueueListener extends ServiceConfig implements MessageListener {
       broadcastService.broadcastMessageToUID(address.getSession(), serviceData.getClientActionList());
 
       // Log sent message
-      getLogger().log(QueueListener.class, Level.DEBUG,
-        "New message received from subscription to address {0}. Content: {1}",
+      log.debug("New message received from subscription to address {}. Content: {}",
         getAddress().toString(), message.toString());
     } catch (AWException exc) {
       broadcastService.sendErrorToUID(address.getSession(), exc.getTitle(), exc.getMessage());
 
       // Log error
-      getLogger().log(QueueListener.class, Level.ERROR, "Error in message from subscription to address {0}. Content: {1}", exc,
-        getAddress().toString(), message.toString());
+      log.error("Error in message from subscription to address {}. Content: {}", getAddress().toString(), message.toString(), exc);
     } catch (Exception exc) {
       broadcastService.sendErrorToUID(address.getSession(), null, exc.getMessage());
 
       // Log error
-      getLogger().log(QueueListener.class, Level.ERROR, "Error in message from subscription to address {0}. Content: {1}", exc,
-        getAddress().toString(), message.toString());
+      log.error("Error in message from subscription to address {}. Content: {}",
+        getAddress().toString(), message.toString(), exc);
     }
   }
 

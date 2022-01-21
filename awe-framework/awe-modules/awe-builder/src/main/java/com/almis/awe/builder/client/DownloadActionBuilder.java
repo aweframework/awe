@@ -3,14 +3,14 @@ package com.almis.awe.builder.client;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.util.file.FileUtil;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Get file action builder
  *
  * @author pgarcia
  */
-@Log4j2
+@Slf4j
 public class DownloadActionBuilder extends ClientActionBuilder<DownloadActionBuilder> {
 
   private static final String TYPE = "get-file";

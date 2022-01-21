@@ -16,7 +16,7 @@ import com.almis.awe.model.type.QueueMessageType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.processor.QueueProcessor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jms.JmsProperties;
 import org.springframework.jms.core.JmsTemplate;
@@ -31,6 +31,7 @@ import java.util.Map;
 /**
  * Generate service datalist
  */
+@Slf4j
 public class QueueBuilder extends AbstractQueryBuilder {
 
   private Queue queue;
@@ -256,7 +257,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
       messageId = sendMessage(template, queue.getRequest(), parameterList);
 
       // Log sent message
-      getLogger().log(QueueBuilder.class, Level.INFO, "Message {0} sent to queue {1} with messageId {2}. Contents: {3}",
+      log.info("Message {} sent to queue {} with messageId {}. Contents: {}",
         queue.getId(), queue.getRequest().getDestination(), messageId, parameterList);
 
     } catch (AWException exc) {
@@ -279,7 +280,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
   public ServiceData receiveMessage(String correlationId) throws AWException {
 
     // Variable definition
-    ServiceData serviceData = null;
+    ServiceData serviceData;
     String selector = "JMSCorrelationID = '" + correlationId + "'";
 
     try {
@@ -310,8 +311,6 @@ public class QueueBuilder extends AbstractQueryBuilder {
       // Parse request parameters
       QueueProcessor responseProcessor = getBean(QueueProcessor.class);
       serviceData = responseProcessor.parseResponseMessage(queue.getResponse(), responseMessage);
-    } catch (AWException exc) {
-      throw exc;
     } catch (NumberFormatException exc) {
       throw new AWException(getLocale("ERROR_TITLE_RECEIVING_QUEUE_MESSAGE"),
         getLocale("ERROR_MESSAGE_RECEIVING_QUEUE_MESSAGE", queue.getId()),
@@ -332,7 +331,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
    */
   public String sendMessage(JmsTemplate template, RequestMessage request, Map<String, Object> parameterList) throws AWException {
     // Variable definition
-    MessageBuilder messageCreator = null;
+    MessageBuilder messageCreator;
     String correlationId;
 
     try {
