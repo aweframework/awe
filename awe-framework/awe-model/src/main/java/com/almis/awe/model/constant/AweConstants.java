@@ -15,6 +15,7 @@ public class AweConstants {
   // LOG
   public static final String DOUBLE_LOG_LINE = "======================================================";
   public static final String LOG_LINE = "----------------------------------------------------------------------------------";
+  public static final String LOG_BY_USER = "logUserName";
 
   // TEXT
   public static final String MESSAGE = "message";

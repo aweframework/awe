@@ -1,5 +1,7 @@
 # Spring Cloud Kubernetes disabled
 spring:
+  application:
+    name: awe-boot
   cloud:
     kubernetes:
       enabled: false
@@ -8,3 +10,7 @@ spring:
         enabled: false
       core:
         enabled: false
+# Logging
+logging:
+  file:
+    path: /logs

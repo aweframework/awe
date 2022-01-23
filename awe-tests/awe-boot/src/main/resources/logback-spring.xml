@@ -1,26 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration debug="true">
 
-  <!-- use Spring default values -->
-  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-  <property name="CONSOLE_LOG_PATTERN"
-            value="-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-30.30logger{29}){cyan} %clr(:){faint} %clr(%X{user}%X{database}%X{currentScreen}){magenta}%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <!-- Include Spring default values -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!-- Properties -->
+    <springProperty name="APPLICATION_NAME" scope="context" source="spring.application.name"/>
 
-  <appender name="Console"
-            class="ch.qos.logback.core.ConsoleAppender">
-    <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
-    </layout>
-  </appender>
+    <!-- CONSOLE Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
 
-  <!-- Awe logger -->
-  <logger name="com.almis.awe" level="info" additivity="false">
-    <appender-ref ref="Console"/>
-  </logger>
+    <!-- FILE Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APPLICATION_NAME}.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>${FILE_LOG_CHARSET}</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/${APPLICATION_NAME}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+            <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
+            <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
+            <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+            <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}</maxHistory>
+        </rollingPolicy>
+    </appender>
 
-  <!-- ROOT logger -->
-  <root level="info">
-    <appender-ref ref="Console"/>
-  </root>
+    <!-- USER Appender (logs by user)-->
+    <appender name="USER" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>logUserName</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${logUserName}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${LOG_PATH}/${APPLICATION_NAME}_${logUserName}.log</file>
+                <encoder>
+                    <pattern>${FILE_LOG_PATTERN}</pattern>
+                    <charset>${FILE_LOG_CHARSET}</charset>
+                </encoder>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/${APPLICATION_NAME}_${logUserName}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+                    <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
+                    <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
+                    <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+                    <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}</maxHistory>
+                </rollingPolicy>
+            </appender>
+        </sift>
+    </appender>
+
+    <!-- AWE logger -->
+    <logger name="com.almis.awe" level="INFO"/>
+
+    <!-- ROOT logger -->
+    <root level="info">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="USER"/>
+    </root>
 
 </configuration>

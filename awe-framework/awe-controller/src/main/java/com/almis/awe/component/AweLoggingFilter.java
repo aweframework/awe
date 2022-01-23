@@ -38,6 +38,7 @@ public class AweLoggingFilter implements Filter {
     if (logUsersEnabled && authentication != null && ! (authentication instanceof AnonymousAuthenticationToken)) {
       UserDetails principal = (UserDetails) authentication.getPrincipal();
       MDC.put(AweConstants.SESSION_USER, "[user: " + principal.getUsername() + "] ");
+      MDC.put(AweConstants.LOG_BY_USER, principal.getUsername());
     }
     // Add Database name
     String databaseValue = aweSession.getParameter(String.class, AweConstants.SESSION_DATABASE);
@@ -53,6 +54,7 @@ public class AweLoggingFilter implements Filter {
     filterChain.doFilter(servletRequest, servletResponse);
 
     // Clear info
+    MDC.remove(AweConstants.LOG_BY_USER);
     MDC.remove(AweConstants.SESSION_USER);
     MDC.remove(AweConstants.SESSION_DATABASE);
     MDC.remove(AweConstants.SESSION_CURRENT_SCREEN);
