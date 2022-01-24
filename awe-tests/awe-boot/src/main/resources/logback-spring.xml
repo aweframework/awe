@@ -3,6 +3,7 @@
 
     <!-- Include Spring default values -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property resource="config/scheduler.properties" />
     <!-- Properties -->
     <springProperty name="APPLICATION_NAME" scope="context" source="spring.application.name"/>
 
@@ -16,13 +17,13 @@
 
     <!-- FILE Appender -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/${APPLICATION_NAME}.log</file>
+        <file>${LOG_PATH}/application/${APPLICATION_NAME}.log</file>
         <encoder>
             <pattern>${FILE_LOG_PATTERN}</pattern>
             <charset>${FILE_LOG_CHARSET}</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/${APPLICATION_NAME}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${APPLICATION_LOG_PATH}/application/${APPLICATION_NAME}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
             <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
             <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
             <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
@@ -34,17 +35,57 @@
     <appender name="USER" class="ch.qos.logback.classic.sift.SiftingAppender">
         <discriminator>
             <key>logUserName</key>
-            <defaultValue>unknown</defaultValue>
+            <defaultValue>anonymous</defaultValue>
         </discriminator>
         <sift>
             <appender name="FILE-${logUserName}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>${LOG_PATH}/${APPLICATION_NAME}_${logUserName}.log</file>
+                <file>${LOG_PATH}/application/${APPLICATION_NAME}_${logUserName}.log</file>
                 <encoder>
                     <pattern>${FILE_LOG_PATTERN}</pattern>
                     <charset>${FILE_LOG_CHARSET}</charset>
                 </encoder>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                    <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/${APPLICATION_NAME}_${logUserName}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+                    <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${APPLICATION_LOG_PATH}/application/${APPLICATION_NAME}_${logUserName}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+                    <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
+                    <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
+                    <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+                    <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}</maxHistory>
+                </rollingPolicy>
+            </appender>
+        </sift>
+    </appender>
+
+    <!-- SCHEDULER FILE Appender -->
+    <appender name="SCHEDULER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/application/SCHEDULER.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>${FILE_LOG_CHARSET}</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/application/SCHEDULER.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+            <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
+            <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
+            <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+            <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- SCHEDULER EXECUTION Appender (logs by user)-->
+    <appender name="SCHEDULER_EXECUTION" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <key>logByTaskExecution</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${logByTaskExecution}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${LOG_PATH}/scheduler/execution_${logByTaskExecution}.log</file>
+                <encoder>
+                    <pattern>${scheduler.execution.log.pattern}</pattern>
+                    <charset>${FILE_LOG_CHARSET}</charset>
+                </encoder>
+                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                    <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/scheduler/execution_${logByTaskExecution}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
                     <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
                     <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
                     <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
@@ -57,11 +98,17 @@
     <!-- AWE logger -->
     <logger name="com.almis.awe" level="INFO"/>
 
+    <!-- Scheduler logger -->
+    <logger name="com.almis.awe.scheduler" level="INFO">
+        <appender-ref ref="SCHEDULER"/>
+    </logger>
+
     <!-- ROOT logger -->
     <root level="info">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="USER"/>
+        <appender-ref ref="SCHEDULER_EXECUTION"/>
     </root>
 
 </configuration>

@@ -7,6 +7,7 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
@@ -73,14 +74,14 @@ public abstract class JobService extends ServiceConfig {
    * @param execution Execution to log
    */
   void startLogging(TaskExecution execution) {
-    MDC.put("execution", execution.getKey());
+    MDC.put(TaskConstants.LOG_BY_TASK_EXECUTION, execution.getKey());
   }
 
   /**
    * End logging execution
    */
   void endLogging() {
-    MDC.remove("execution");
+    MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
   }
 
   public TaskExecution startTask(Task task) throws AWException {
