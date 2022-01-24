@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.autoconfigure;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
 import com.almis.awe.scheduler.dao.*;
 import com.almis.awe.scheduler.filechecker.FTPFileChecker;
 import com.almis.awe.scheduler.filechecker.FileChecker;
@@ -22,12 +23,14 @@ import com.almis.awe.scheduler.service.*;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
+import lombok.Data;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
@@ -35,8 +38,16 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  * Scheduler module configuration
  */
 @Configuration
-@PropertySource("classpath:config/scheduler.properties")
+@Data
+@EnableConfigurationProperties({SchedulerConfigProperties.class})
 public class SchedulerConfig {
+
+  private final SchedulerConfigProperties schedulerConfigProperties;
+
+  @Autowired
+  public SchedulerConfig(SchedulerConfigProperties schedulerConfigProperties) {
+    this.schedulerConfigProperties = schedulerConfigProperties;
+  }
 
   /**
    * Define Scheduler
@@ -247,7 +258,7 @@ public class SchedulerConfig {
   @Bean
   public SchedulerDAO schedulerDAO(Scheduler scheduler, CalendarDAO calendarDAO, TaskService taskService,
                                    SchedulerTriggerListener triggerListener, SchedulerJobListener jobListener) {
-    return new SchedulerDAO(scheduler, calendarDAO, taskService, triggerListener, jobListener);
+    return new SchedulerDAO(scheduler, schedulerConfigProperties.isTasksLoadOnStart(), schedulerConfigProperties.isTasksWaitOnStop(), calendarDAO, taskService, triggerListener, jobListener);
   }
 
   /**
@@ -259,7 +270,7 @@ public class SchedulerConfig {
   public TaskDAO taskDAO(Scheduler scheduler, QueryService queryService, MaintainService maintainService,
                          QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker,
                          DataListService dataListService) {
-    return new TaskDAO(scheduler, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, dataListService);
+    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), schedulerConfigProperties.getExecutionLogPath(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, dataListService);
   }
 
   /**

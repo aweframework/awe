@@ -1,23 +1,27 @@
 package com.almis.awe.scheduler.autoconfigure;
 
 import com.almis.awe.component.AweMDCTaskDecorator;
+import com.almis.awe.scheduler.autoconfigure.config.SchedulerTaskConfigProperties;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
-@ConfigurationProperties(prefix = "scheduler.task-pool")
 @EnableAsync
 @Data
+@EnableConfigurationProperties({SchedulerTaskConfigProperties.class})
 public class SchedulerTaskConfig {
 
-  private Integer size;
-  private Integer maxSize;
-  private Integer queueSize;
-  private Integer terminationSeconds;
+  private final SchedulerTaskConfigProperties schedulerTaskConfigProperties;
+
+  @Autowired
+  public SchedulerTaskConfig(SchedulerTaskConfigProperties schedulerTaskConfigProperties) {
+    this.schedulerTaskConfigProperties = schedulerTaskConfigProperties;
+  }
 
   /**
    * Returns the asynchronous executor task
@@ -27,10 +31,10 @@ public class SchedulerTaskConfig {
   @Bean("schedulerTaskPool")
   public ThreadPoolTaskExecutor getSchedulerTaskPoolExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(getSize());
-    executor.setMaxPoolSize(getMaxSize());
-    executor.setQueueCapacity(getQueueSize());
-    executor.setAwaitTerminationSeconds(getTerminationSeconds());
+    executor.setCorePoolSize(schedulerTaskConfigProperties.getSize());
+    executor.setMaxPoolSize(schedulerTaskConfigProperties.getMaxSize());
+    executor.setQueueCapacity(schedulerTaskConfigProperties.getQueueSize());
+    executor.setAwaitTerminationSeconds((int) schedulerTaskConfigProperties.getTermination().getSeconds());
     executor.setThreadNamePrefix("schedulerTaskPool");
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
@@ -44,10 +48,10 @@ public class SchedulerTaskConfig {
   @Bean("schedulerJobPool")
   public ThreadPoolTaskExecutor getSchedulerJobPoolExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(getSize());
-    executor.setMaxPoolSize(getMaxSize());
-    executor.setQueueCapacity(getQueueSize());
-    executor.setAwaitTerminationSeconds(getTerminationSeconds());
+    executor.setCorePoolSize(schedulerTaskConfigProperties.getSize());
+    executor.setMaxPoolSize(schedulerTaskConfigProperties.getMaxSize());
+    executor.setQueueCapacity(schedulerTaskConfigProperties.getQueueSize());
+    executor.setAwaitTerminationSeconds((int) schedulerTaskConfigProperties.getTermination().getSeconds());
     executor.setThreadNamePrefix("schedulerJobPool");
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
@@ -61,10 +65,10 @@ public class SchedulerTaskConfig {
   @Bean("schedulerTimeoutPool")
   public ThreadPoolTaskExecutor getSchedulerTimeoutPoolExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(getSize());
-    executor.setMaxPoolSize(getMaxSize());
-    executor.setQueueCapacity(getQueueSize());
-    executor.setAwaitTerminationSeconds(getTerminationSeconds());
+    executor.setCorePoolSize(schedulerTaskConfigProperties.getSize());
+    executor.setMaxPoolSize(schedulerTaskConfigProperties.getMaxSize());
+    executor.setQueueCapacity(schedulerTaskConfigProperties.getQueueSize());
+    executor.setAwaitTerminationSeconds((int) schedulerTaskConfigProperties.getTermination().getSeconds());
     executor.setThreadNamePrefix("schedulerTimeoutPool");
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;

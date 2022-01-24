@@ -14,7 +14,7 @@
     <subject label="RepTit" value="RepTit" />
     <body label="RepMsg" type="html" value="RepMsgHtml"/>
     <body label="RepMsg" type="text" value="RepMsgText"/>
-    <variable type="STRING" id="FromValue" property="scheduler.report.email.from.value" />
+    <variable type="STRING" id="FromValue" property="awe.scheduler.report-email-from-value" />
     <variable type="STRING" id="ToValue" name="ToValue"/>
     <variable type="STRING" id="RepTit" name="RepTit"/>
     <variable type="STRING" id="RepMsgHtml" name="RepMsgHtml"/>

@@ -14,8 +14,3 @@ spring:
 logging:
   file:
     path: ${project.basedir}/target/logs
-
-scheduler:
-  execution:
-    log:
-      pattern:

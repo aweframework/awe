@@ -12,7 +12,6 @@ import com.almis.awe.scheduler.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,10 +23,7 @@ public class SchedulerDAO extends ServiceConfig {
 
   private static final String SCHEDULER_STATUS = "schedulerStatus";
 
-  @Value("${scheduler.tasks.load.on.start:true}")
   private boolean loadSchedulerTasks;
-
-  @Value("${scheduler.tasks.wait.on.stop:true}")
   private boolean waitForTasksOnStop;
 
   // Autowired services
@@ -39,16 +35,19 @@ public class SchedulerDAO extends ServiceConfig {
 
   /**
    * Constructor
-   *
-   * @param scheduler       Scheduler
-   * @param calendarDAO     Calendar DAO
-   * @param taskService     Task service
-   * @param triggerListener Trigger listener
-   * @param jobListener     Job listener
+   * @param scheduler           Scheduler
+   * @param loadSchedulerTasks  Scheduler load task flag
+   * @param waitForTasksOnStop  Scheduler wait tasks flag
+   * @param calendarDAO         Calendar DAO
+   * @param taskService         Task service
+   * @param triggerListener     Trigger listener
+   * @param jobListener         Job listener
    */
-  public SchedulerDAO(Scheduler scheduler, CalendarDAO calendarDAO, TaskService taskService,
+  public SchedulerDAO(Scheduler scheduler, boolean loadSchedulerTasks, boolean waitForTasksOnStop, CalendarDAO calendarDAO, TaskService taskService,
                       SchedulerTriggerListener triggerListener, SchedulerJobListener jobListener) {
     this.scheduler = scheduler;
+    this.loadSchedulerTasks = loadSchedulerTasks;
+    this.waitForTasksOnStop = waitForTasksOnStop;
     this.calendarDAO = calendarDAO;
     this.taskService = taskService;
     this.triggerListener = triggerListener;

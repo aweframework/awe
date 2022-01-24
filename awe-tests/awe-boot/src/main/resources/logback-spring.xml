@@ -3,9 +3,9 @@
 
     <!-- Include Spring default values -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <property resource="config/scheduler.properties" />
     <!-- Properties -->
     <springProperty name="APPLICATION_NAME" scope="context" source="spring.application.name"/>
+    <springProperty name="EXECUTION_LOG_PATTERN" scope="context" source="awe.scheduler.execution-log-pattern"/>
 
     <!-- CONSOLE Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -23,7 +23,7 @@
             <charset>${FILE_LOG_CHARSET}</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${APPLICATION_LOG_PATH}/application/${APPLICATION_NAME}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+            <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/application/${APPLICATION_NAME}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
             <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
             <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
             <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
@@ -45,7 +45,7 @@
                     <charset>${FILE_LOG_CHARSET}</charset>
                 </encoder>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                    <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${APPLICATION_LOG_PATH}/application/${APPLICATION_NAME}_${logUserName}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+                    <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/application/${APPLICATION_NAME}_${logUserName}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
                     <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
                     <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
                     <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
@@ -81,7 +81,7 @@
             <appender name="FILE-${logByTaskExecution}" class="ch.qos.logback.core.rolling.RollingFileAppender">
                 <file>${LOG_PATH}/scheduler/execution_${logByTaskExecution}.log</file>
                 <encoder>
-                    <pattern>${scheduler.execution.log.pattern}</pattern>
+                    <pattern>${EXECUTION_LOG_PATTERN}</pattern>
                     <charset>${FILE_LOG_CHARSET}</charset>
                 </encoder>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">

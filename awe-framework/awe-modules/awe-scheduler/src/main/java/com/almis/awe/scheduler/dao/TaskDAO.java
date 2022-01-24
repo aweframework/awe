@@ -42,7 +42,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 
@@ -77,26 +76,28 @@ public class TaskDAO extends ServiceConfig {
   private final ServerDAO serverDAO;
   private final FileChecker fileChecker;
   private final DataListService dataListService;
-  @Value("${scheduler.execution.log.path}")
-  private String executionLogPath;
-  @Value("${scheduler.stored.executions:5}")
-  private Integer defaultStoredExecutions;
+  private final String executionLogPath;
+  private final int defaultStoredExecutions;
 
   /**
    * Autowired constructor
    *
-   * @param scheduler       Scheduler
-   * @param queryService    Query service
-   * @param maintainService Maintain service
-   * @param queryUtil       Query utilities
-   * @param calendarDAO     Calendar DAO
-   * @param serverDAO       Server DAO
-   * @param fileChecker     File checker
-   * @param dataListService Data list service
+   * @param scheduler         Scheduler
+   * @param storedExecutions  Stored execution
+   * @param executionLogPath  Execution log path
+   * @param queryService      Query service
+   * @param maintainService   Maintain service
+   * @param queryUtil         Query utilities
+   * @param calendarDAO       Calendar DAO
+   * @param serverDAO         Server DAO
+   * @param fileChecker       File checker
+   * @param dataListService   Data list service
    */
-  public TaskDAO(Scheduler scheduler, QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
+  public TaskDAO(Scheduler scheduler, int storedExecutions, String executionLogPath, QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
                  CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker, DataListService dataListService) {
     this.scheduler = scheduler;
+    this.defaultStoredExecutions = storedExecutions;
+    this.executionLogPath = executionLogPath;
     this.queryService = queryService;
     this.maintainService = maintainService;
     this.queryUtil = queryUtil;
