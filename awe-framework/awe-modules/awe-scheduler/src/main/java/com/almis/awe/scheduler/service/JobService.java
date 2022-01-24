@@ -75,12 +75,14 @@ public abstract class JobService extends ServiceConfig {
    */
   void startLogging(TaskExecution execution) {
     MDC.put(TaskConstants.LOG_BY_TASK_EXECUTION, execution.getKey());
+    MDC.put(TaskConstants.EXECUTION, "[execution: " + execution.getKey() + "] ");
   }
 
   /**
    * End logging execution
    */
   void endLogging() {
+    MDC.remove(TaskConstants.EXECUTION);
     MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
   }
 

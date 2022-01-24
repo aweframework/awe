@@ -10,6 +10,7 @@ public class TaskConstants {
 
   // Scheduler log
   public static final String LOG_BY_TASK_EXECUTION = "logByTaskExecution";
+  public static final String EXECUTION = "execution";
 
   // Task parameter constants
   public static final String TASK_IDE = "taskId";
