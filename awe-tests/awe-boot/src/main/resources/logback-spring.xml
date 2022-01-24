@@ -5,7 +5,7 @@
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <!-- Properties -->
     <springProperty name="APPLICATION_NAME" scope="context" source="spring.application.name"/>
-    <springProperty name="EXECUTION_LOG_PATTERN" scope="context" source="awe.scheduler.execution-log-pattern"/>
+    <springProperty name="EXECUTION_LOG_PATTERN" scope="context" source="awe.scheduler.execution-log-pattern" defaultValue="%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx"/>
 
     <!-- CONSOLE Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

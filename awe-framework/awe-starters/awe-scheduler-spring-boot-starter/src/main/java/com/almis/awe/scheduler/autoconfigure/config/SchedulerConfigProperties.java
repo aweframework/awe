@@ -16,11 +16,6 @@ public class SchedulerConfigProperties {
    */
   private boolean tasksLoadOnStart = true;
   /**
-   * Flag to set task has been waited on stop application
-   * Default value true
-   */
-  private boolean tasksWaitOnStop = true;
-  /**
    * Number of executions to stored in log
    * Default value 5
    */

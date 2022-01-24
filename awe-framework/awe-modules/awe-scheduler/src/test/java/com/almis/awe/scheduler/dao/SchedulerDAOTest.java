@@ -1,10 +1,13 @@
 package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.scheduler.listener.SchedulerJobListener;
+import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
+import com.almis.awe.scheduler.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.*;
@@ -26,14 +29,30 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class SchedulerDAOTest {
 
-  @InjectMocks
   private SchedulerDAO schedulerDAO;
 
   @Mock
   private Scheduler scheduler;
 
   @Mock
+  private CalendarDAO calendarDAO;
+
+  @Mock
+  private TaskService taskService;
+
+  @Mock
+  private SchedulerTriggerListener schedulerTriggerListener;
+
+  @Mock
+  private SchedulerJobListener schedulerJobListener;
+
+  @Mock
   private JobExecutionContext jobExecutionContext;
+
+  @BeforeEach
+  void setUp() {
+    schedulerDAO = new SchedulerDAO(scheduler, true, calendarDAO, taskService, schedulerTriggerListener, schedulerJobListener);
+  }
 
   /**
    * Test context loaded

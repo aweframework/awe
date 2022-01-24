@@ -258,7 +258,7 @@ public class SchedulerConfig {
   @Bean
   public SchedulerDAO schedulerDAO(Scheduler scheduler, CalendarDAO calendarDAO, TaskService taskService,
                                    SchedulerTriggerListener triggerListener, SchedulerJobListener jobListener) {
-    return new SchedulerDAO(scheduler, schedulerConfigProperties.isTasksLoadOnStart(), schedulerConfigProperties.isTasksWaitOnStop(), calendarDAO, taskService, triggerListener, jobListener);
+    return new SchedulerDAO(scheduler, schedulerConfigProperties.isTasksLoadOnStart(), calendarDAO, taskService, triggerListener, jobListener);
   }
 
   /**

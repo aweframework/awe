@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.Scheduler;
@@ -50,7 +49,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TaskDAOTest {
 
-  @InjectMocks
   private TaskDAO taskDAO;
 
   @Mock
@@ -72,6 +70,12 @@ class TaskDAOTest {
   private AweElements aweElements;
 
   @Mock
+  private CalendarDAO calendarDAO;
+
+  @Mock
+  private ServerDAO serverDAO;
+
+  @Mock
   private FileChecker fileChecker;
 
   @Mock
@@ -82,6 +86,7 @@ class TaskDAOTest {
    */
   @BeforeEach
   void initBeans() {
+    taskDAO = new TaskDAO(scheduler, 5, "", queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, dataListService);
     taskDAO.setApplicationContext(context);
   }
 

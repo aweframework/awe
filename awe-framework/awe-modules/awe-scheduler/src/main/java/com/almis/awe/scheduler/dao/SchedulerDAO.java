@@ -23,8 +23,7 @@ public class SchedulerDAO extends ServiceConfig {
 
   private static final String SCHEDULER_STATUS = "schedulerStatus";
 
-  private boolean loadSchedulerTasks;
-  private boolean waitForTasksOnStop;
+  private final boolean loadSchedulerTasks;
 
   // Autowired services
   private final Scheduler scheduler;
@@ -37,17 +36,15 @@ public class SchedulerDAO extends ServiceConfig {
    * Constructor
    * @param scheduler           Scheduler
    * @param loadSchedulerTasks  Scheduler load task flag
-   * @param waitForTasksOnStop  Scheduler wait tasks flag
    * @param calendarDAO         Calendar DAO
    * @param taskService         Task service
    * @param triggerListener     Trigger listener
    * @param jobListener         Job listener
    */
-  public SchedulerDAO(Scheduler scheduler, boolean loadSchedulerTasks, boolean waitForTasksOnStop, CalendarDAO calendarDAO, TaskService taskService,
+  public SchedulerDAO(Scheduler scheduler, boolean loadSchedulerTasks, CalendarDAO calendarDAO, TaskService taskService,
                       SchedulerTriggerListener triggerListener, SchedulerJobListener jobListener) {
     this.scheduler = scheduler;
     this.loadSchedulerTasks = loadSchedulerTasks;
-    this.waitForTasksOnStop = waitForTasksOnStop;
     this.calendarDAO = calendarDAO;
     this.taskService = taskService;
     this.triggerListener = triggerListener;
