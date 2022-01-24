@@ -27,10 +27,11 @@ public class SchedulerConfigProperties {
   /**
    * Scheduler execution log path
    */
-  @Value("${logging.file.path}/scheduler")
+  @Value("${logging.file.path:${java.io.tmpdir}}/scheduler")
   private String executionLogPath;
   /**
    * Scheduler execution log path
+   * Default value %d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx
    */
   private String executionLogPattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx";
 }
