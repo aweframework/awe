@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.4.8
+*25/01/2022*
+
+- Delete EXCEL 2010, RTF and WORD 2010 formats. [MR #356](https://gitlab.com/aweframework/awe/-/merge_requests/356) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Remove LogUtil and use Slf4j. [MR #355](https://gitlab.com/aweframework/awe/-/merge_requests/355) (Pablo Vidal Otero)
+- Improve exception message in Rest conector. [MR #354](https://gitlab.com/aweframework/awe/-/merge_requests/354) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.4.7
 *10/01/2022*
 
