@@ -16,11 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysema.commons.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
@@ -123,7 +123,7 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
     try {
       response = restTemplate.exchange(finalUrl, HttpMethod.valueOf(service.getMethod()), request, wrapper, urlParameters);
     } catch (RestClientException exc) {
-      throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_REST"), exc.getLocalizedMessage());
+      throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_REST"), exc.getLocalizedMessage(), exc);
     }
 
     // Handle response status
