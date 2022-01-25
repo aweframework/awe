@@ -166,11 +166,6 @@ public class ReportGenerator extends ServiceConfig {
 
     try {
       switch (OutputFormatType.valueOf(format.toUpperCase())) {
-        case XLS:
-          builderService.toXls();
-          mimeType = AweConstants.APPLICATION_EXCEL;
-          fullFileName += ".xls";
-          break;
         case XLSX:
           builderService.toXlsx();
           mimeType = AweConstants.APPLICATION_EXCEL;
@@ -180,11 +175,6 @@ public class ReportGenerator extends ServiceConfig {
           builderService.toCsv();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".csv";
-          break;
-        case RTF:
-          builderService.toRtf();
-          mimeType = AweConstants.APPLICATION_RTF;
-          fullFileName += ".rtf";
           break;
         case DOCX:
           builderService.toDocx();

@@ -91,10 +91,8 @@
   <!-- PRINTING FORMATS -->
   <group id="PrnFmt">
     <option label="ENUM_PRN_FMT_PDF" value="PDF" />
-    <option label="ENUM_PRN_FMT_XLS" value="XLS" />
     <option label="ENUM_PRN_FMT_XLSX" value="XLSX" />
     <option label="ENUM_PRN_FMT_CSV" value="CSV" />
-    <option label="ENUM_PRN_FMT_RTF" value="RTF" />
     <option label="ENUM_PRN_FMT_DOCX" value="DOCX" />
     <option label="ENUM_PRN_FMT_TEXT" value="TEXT" />
   </group>

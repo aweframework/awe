@@ -3,7 +3,7 @@ package com.almis.awe.scheduler.dao;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

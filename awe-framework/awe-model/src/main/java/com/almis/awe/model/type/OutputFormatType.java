@@ -10,10 +10,8 @@ package com.almis.awe.model.type;
  */
 public enum OutputFormatType {
   PDF,
-  XLS,
   XLSX,
   CSV,
-  RTF,
   DOCX,
   TEXT
 }

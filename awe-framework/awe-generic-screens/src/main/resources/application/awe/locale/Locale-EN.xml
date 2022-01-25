@@ -226,14 +226,14 @@
   <locale name="ENUM_PRN_FMT_AME_NO_THOU" value="American (no thousand)"/>
   <locale name="ENUM_PRN_FMT_CSV" value="CSV"/>
   <locale name="ENUM_PRN_FMT_DOC" value="DOC"/>
-  <locale name="ENUM_PRN_FMT_DOCX" value="WORD 2010"/>
+  <locale name="ENUM_PRN_FMT_DOCX" value="WORD"/>
   <locale name="ENUM_PRN_FMT_EUR" value="European"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="European (no thousand)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXT"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
-  <locale name="ENUM_PRN_FMT_XLSX" value="EXCEL 2010"/>
+  <locale name="ENUM_PRN_FMT_XLSX" value="EXCEL"/>
   <locale name="ENUM_PRN_TYP_ALL" value="All tabs"/>
   <locale name="ENUM_PRN_TYP_TAB" value="Selected tab"/>
   <locale name="ENUM_PWD_ALPHANUM" value="Alphanumeric with at least one number"/>
