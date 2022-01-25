@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Scheduler AWE module logback configuration provided for import
+-->
+
+<included>
+  <springProperty name="EXECUTION_LOG_PATTERN" scope="context" source="awe.scheduler.execution-log-pattern" defaultValue="%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx"/>
+  <property name="APPLICATION_LOG_PATH" value="${APPLICATION_LOG_PATH:-/application}"/>
+
+  <!-- SCHEDULER FILE Appender -->
+  <appender name="SCHEDULER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}${APPLICATION_LOG_PATH}/SCHEDULER.log</file>
+    <encoder>
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+      <charset>${FILE_LOG_CHARSET}</charset>
+    </encoder>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}${APPLICATION_LOG_PATH}/SCHEDULER.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+      <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
+      <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
+      <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+      <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- SCHEDULER EXECUTION Appender (logs by user)-->
+  <appender name="SCHEDULER_EXECUTION" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <discriminator>
+      <key>logByTaskExecution</key>
+      <defaultValue>unknown</defaultValue>
+    </discriminator>
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
+        <expression>
+          mdc.get("logByTaskExecution")!=null
+        </expression>
+      </evaluator>
+      <OnMismatch>DENY</OnMismatch>
+      <OnMatch>NEUTRAL</OnMatch>
+    </filter>
+    <sift>
+      <appender name="FILE-${logByTaskExecution}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/scheduler/execution_${logByTaskExecution}.log</file>
+        <encoder>
+          <pattern>${EXECUTION_LOG_PATTERN}</pattern>
+          <charset>${FILE_LOG_CHARSET}</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+          <fileNamePattern>${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_PATH}/scheduler/execution_${logByTaskExecution}.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
+          <cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
+          <maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}</maxFileSize>
+          <totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+          <maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}</maxHistory>
+        </rollingPolicy>
+      </appender>
+    </sift>
+  </appender>
+
+  <!-- Scheduler logger -->
+  <logger name="com.almis.awe.scheduler" level="INFO">
+    <appender-ref ref="SCHEDULER"/>
+  </logger>
+
+  <root level="info">
+    <appender-ref ref="SCHEDULER_EXECUTION"/>
+  </root>
+
+</included>

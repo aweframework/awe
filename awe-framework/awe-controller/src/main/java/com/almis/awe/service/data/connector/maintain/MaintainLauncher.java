@@ -9,7 +9,7 @@ import com.almis.awe.model.entities.maintain.Queue;
 import com.almis.awe.model.entities.maintain.Serve;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.cache.annotation.CacheRemoveAll;
 
@@ -19,6 +19,7 @@ import javax.cache.annotation.CacheRemoveAll;
  *
  * @author Jorge BELLON 24-02-2017
  */
+@Slf4j
 public class MaintainLauncher extends ServiceConfig {
 
   /**
@@ -35,7 +36,7 @@ public class MaintainLauncher extends ServiceConfig {
     try {
       maintainLauncher = getMaintainConnector(maintain);
     } catch (AWException exc) {
-      getLogger().log(MaintainLauncher.class, Level.ERROR, exc.getMessage(), exc);
+      log.error(exc.getMessage(), exc);
       return new ServiceData();
     }
     return maintainLauncher.launch(maintain, connection, parameters);

@@ -5,7 +5,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.type.AnswerType;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * @author Pablo GARCIA
  */
-@Log4j2
+@Slf4j
 public class BroadcastService extends ServiceConfig {
 
   // Autowired services

@@ -3,7 +3,7 @@ package com.almis.awe.testing.model;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.openqa.selenium.WebDriver;
 
 import java.net.InetAddress;

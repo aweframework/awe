@@ -2,7 +2,7 @@ package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Class used for testing CommandDao class
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class CommandDAOTest {
 

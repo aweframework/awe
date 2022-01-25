@@ -6,7 +6,7 @@ import com.almis.awe.model.entities.XMLFile;
 import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.util.data.StringUtil;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-@Log4j2
+@Slf4j
 public class AweElementsDao {
 
   private static final String OK = " - OK";

@@ -5,11 +5,11 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.service.BroadcastService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-@Log4j2
+@Slf4j
 public class BroadcastReportJob extends ReportJob {
 
   // Autowired services

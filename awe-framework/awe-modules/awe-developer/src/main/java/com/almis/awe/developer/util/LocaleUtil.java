@@ -1,7 +1,6 @@
 package com.almis.awe.developer.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 
 import java.io.File;
@@ -15,9 +14,8 @@ import java.util.regex.Pattern;
 /**
  * Utilities related to locale files
  */
+@Slf4j
 public final class LocaleUtil {
-
-  private static final Logger logger = LogManager.getLogger(LocaleUtil.class);
 
   // Static variables
   private static String extensionXML;
@@ -65,7 +63,7 @@ public final class LocaleUtil {
       }
 
     } catch (Exception e) {
-      logger.error(e.getMessage(), e);
+      log.error(e.getMessage(), e);
     }
 
     return languages;

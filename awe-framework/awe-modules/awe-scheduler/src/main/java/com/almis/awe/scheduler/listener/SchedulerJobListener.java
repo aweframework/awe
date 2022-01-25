@@ -5,7 +5,7 @@ import com.almis.awe.scheduler.bean.event.SchedulerTaskFinishedEvent;
 import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
@@ -17,7 +17,7 @@ import static com.almis.awe.scheduler.constant.ListenerConstants.JOB_LISTENER_NA
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class SchedulerJobListener extends ServiceConfig implements JobListener {
 
   // Autowired services

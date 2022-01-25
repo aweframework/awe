@@ -5,7 +5,7 @@ import com.almis.awe.developer.service.PathService;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.locale.Locales;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
  *
  * @author pvidal
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class LocaleFileServiceTest {
 

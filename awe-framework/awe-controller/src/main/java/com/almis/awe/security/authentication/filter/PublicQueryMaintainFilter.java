@@ -4,7 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.queries.Query;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ import java.util.Optional;
 /**
  * Filter class to authorize request if query or maintain are public
  */
-@Log4j2
+@Slf4j
 public class PublicQueryMaintainFilter {
 
   private final AweElements elements;

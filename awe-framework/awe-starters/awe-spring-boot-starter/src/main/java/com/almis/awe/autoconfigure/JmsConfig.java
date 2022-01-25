@@ -5,10 +5,9 @@ import com.almis.awe.listener.QueueListener;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.queues.MessageBuilder;
-import com.almis.awe.model.util.log.LogUtil;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
-import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.QueueBuilder;
 import com.almis.awe.service.data.connector.maintain.QueueMaintainConnector;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
@@ -57,14 +56,13 @@ public class JmsConfig {
    * AWE JMS Destination
    *
    * @param elements     Awe Elements
-   * @param logUtil      Logger
    * @param queryService Query service
    * @return JMS Destination
    */
   @Bean
   @ConditionalOnMissingBean
-  public AweJmsDestination aweJmsDestination(AweElements elements, LogUtil logUtil, QueryService queryService) {
-    return new AweJmsDestination(elements, logUtil, queryService);
+  public AweJmsDestination aweJmsDestination(AweElements elements, QueryService queryService) {
+    return new AweJmsDestination(elements, queryService);
   }
 
   /////////////////////////////////////////////

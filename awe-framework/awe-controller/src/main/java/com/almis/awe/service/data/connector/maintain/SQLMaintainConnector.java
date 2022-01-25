@@ -13,6 +13,7 @@ import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
+import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.sql.Configuration;
@@ -22,7 +23,7 @@ import com.querydsl.sql.dml.AbstractSQLClause;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
 /**
  * Maintain connector for SQL
  */
+@Slf4j
 public class SQLMaintainConnector extends ServiceConfig implements MaintainConnector {
 
   @Value("${awe.database.audit:false}")
@@ -394,13 +396,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * @return Elements modified
    */
   private long launchAsSingleOperation(AbstractSQLClause<?> statement, Integer index, boolean isAudit, String queryId, Map<String, QueryParameter> parametersMap) {
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
     // Launch as single operation
     long updated = statement.execute();
 
     // Get final query time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Audit message
     String auditMessage = isAudit ? "[AUDIT] " : "";
@@ -412,8 +414,8 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     String sqlShortened = StringUtil.shortenText(sql, logLimit, "...");
 
     // Log operation
-    getLogger().logWithDatabase(this.getClass(), Level.INFO, getBean(QueryUtil.class).getDatabaseAlias(parametersMap), "{0}[{1}{2}] [{3}] => {4} rows affected - Elapsed time: {5}s",
-      auditMessage, queryId, indexMessage, sqlShortened, updated, getLogger().getTotalTime(timeLapse));
+    log.info("{}[{}{}] [{}] => {} rows affected - Elapsed time: {}s",
+      auditMessage, queryId, indexMessage, sqlShortened, updated, LogUtil.getTotalTime(timeLapse));
 
     return updated;
   }

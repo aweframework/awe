@@ -226,14 +226,14 @@
   <locale name="ENUM_PRN_FMT_AME_NO_THOU" value="Américain (sans des milliers)"/>
   <locale name="ENUM_PRN_FMT_CSV" value="CSV"/>
   <locale name="ENUM_PRN_FMT_DOC" value="DOC"/>
-  <locale name="ENUM_PRN_FMT_DOCX" value="WORD 2010"/>
+  <locale name="ENUM_PRN_FMT_DOCX" value="WORD"/>
   <locale name="ENUM_PRN_FMT_EUR" value="Européen"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="Européen (sans des milliers)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXTE"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
-  <locale name="ENUM_PRN_FMT_XLSX" value="EXCEL 2010"/>
+  <locale name="ENUM_PRN_FMT_XLSX" value="EXCEL"/>
   <locale name="ENUM_PRN_TYP_ALL" value="Tous les onglets"/>
   <locale name="ENUM_PRN_TYP_TAB" value="Actual onglet"/>
   <locale name="ENUM_PWD_ALPHANUM" value="Alphanumérique avec au moins un numéro"/>
@@ -609,6 +609,7 @@
   <locale name="ERROR_TITLE_LAUNCHING_EMAIL" value="Erreur dans l&apos;execution d&apos;un mail"/>
   <locale name="ERROR_TITLE_LAUNCHING_MAINTAIN" value="Erreur dans la maintenance"/>
   <locale name="ERROR_TITLE_LAUNCHING_QUEUE" value="Erreur d&apos;envoi de message à queue"/>
+  <locale name="ERROR_TITLE_LAUNCHING_REST" value="Erreur dans le REST service"/>
   <locale name="ERROR_TITLE_LAUNCHING_SERVICE" value="Erreur dans le service"/>
   <locale name="ERROR_TITLE_LAUNCHING_SQL_QUERY" value="Erreur dans la requête"/>
   <locale name="ERROR_TITLE_LDAP_CONNECTION" value="LDAP connection error"/>

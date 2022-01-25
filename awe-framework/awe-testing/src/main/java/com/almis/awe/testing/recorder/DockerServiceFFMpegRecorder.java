@@ -2,14 +2,14 @@ package com.almis.awe.testing.recorder;
 
 import com.automation.remarks.video.exception.RecordingException;
 import com.automation.remarks.video.recorder.VideoRecorder;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionTimeoutException;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-@Log4j2
+@Slf4j
 public class DockerServiceFFMpegRecorder extends VideoRecorder {
   private final DockerServiceFFMpegWrapper ffmpegWrapper = new DockerServiceFFMpegWrapper();
 

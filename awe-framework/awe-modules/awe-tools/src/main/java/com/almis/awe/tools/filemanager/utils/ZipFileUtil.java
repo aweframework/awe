@@ -1,6 +1,6 @@
 package com.almis.awe.tools.filemanager.utils;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,7 +16,7 @@ import java.util.Map;
  * @author pvidal
  *
  */
-@Log4j2
+@Slf4j
 public class ZipFileUtil {
   private static final String CREATING_DIRECTORY = "Creating directory {}\n";
 

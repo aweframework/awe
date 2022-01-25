@@ -11,7 +11,7 @@ import com.thoughtworks.xstream.core.util.QuickWriter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author agomez
  */
-@Log4j2
+@Slf4j
 public class LocaleFileService extends ServiceConfig {
 
   private static final String FILE_DESCRIPTION = "Application Locales";

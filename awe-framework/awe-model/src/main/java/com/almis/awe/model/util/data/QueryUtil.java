@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 /**
  * Abstract query builder
  */
+@Slf4j
 public class QueryUtil extends ServiceConfig {
 
   @Value("${application.data.rowsPerPage:30}")
@@ -560,7 +561,7 @@ public class QueryUtil extends ServiceConfig {
         }
       } catch (NumberFormatException exc) {
         // If a parameter is an unparseable number, set it to NULL
-        getLogger().log(QueryUtil.class, Level.INFO, getLocale("INFO_MESSAGE_PARSING_NUMBER_NULL", name, value));
+        log.info(getLocale("INFO_MESSAGE_PARSING_NUMBER_NULL", name, value));
         parameter = nodeFactory.nullNode();
       }
     }

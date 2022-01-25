@@ -2,8 +2,8 @@ package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang.SystemUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Log4j2
+/**
+ * DAO to manage schedule commands
+ */
+@Slf4j
 public class CommandDAO {
 
   // Private services
@@ -33,13 +36,13 @@ public class CommandDAO {
   /**
    * Run a command task
    *
-   * @param commandTask
-   * @param envp
-   * @param timeout
-   * @return
+   * @param commandTask Task
+   * @param envp Enviroment variables
+   * @param timeout Timeout
+   * @return exit code
    */
   public Integer runCommand(Task commandTask, String[] envp, final long timeout) {
-    int exit = 1;
+    int exit;
     Process proc = null;
 
     String finalCommand = constructCommand(commandTask);
@@ -82,8 +85,8 @@ public class CommandDAO {
   /**
    * Construct the batch to execute
    *
-   * @param commandTask
-   * @return
+   * @param commandTask Task
+   * @return String with command
    */
   private String constructCommand(Task commandTask) {
     String finalCommand = commandTask.getAction() + generateParameterList(commandTask.getParameterList());
@@ -102,8 +105,8 @@ public class CommandDAO {
   /**
    * Generate parameter list
    *
-   * @param parameters
-   * @return
+   * @param parameters Task parameters
+   * @return Strin with list of parameters
    */
   private String generateParameterList(List<TaskParameter> parameters) {
     String parameterList = parameters.stream().map(TaskParameter::getValue).collect(Collectors.joining(" "));

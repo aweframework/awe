@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQueryFactory;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
@@ -38,6 +38,7 @@ import java.util.function.Supplier;
  *
  * @author Pablo GARCIA
  */
+@Slf4j
 public class MaintainService extends ServiceConfig {
 
   // Constants
@@ -657,7 +658,7 @@ public class MaintainService extends ServiceConfig {
         queryList.add(query);
       }
     } catch (AWException exc) {
-      getLogger().log(null, Level.ERROR, getLocale("ERROR_TITLE_MAINTAIN_MULTIPLE"), exc);
+      log.error(getLocale("ERROR_TITLE_MAINTAIN_MULTIPLE"), exc);
       throw exc;
     }
 

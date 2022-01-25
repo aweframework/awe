@@ -9,7 +9,7 @@ import com.almis.awe.scheduler.bean.file.Server;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,7 +25,7 @@ import static org.mockito.BDDMockito.given;
 /**
  * Class used for testing queries through ActionController
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class ServerDAOTest {
 

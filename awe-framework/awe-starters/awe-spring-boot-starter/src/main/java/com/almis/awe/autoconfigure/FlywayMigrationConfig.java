@@ -1,7 +1,7 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweRoutingDataSource;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
@@ -22,7 +22,7 @@ import javax.sql.DataSource;
  * Created by pvidal on 04/12/2019.
  */
 @Configuration
-@Log4j2
+@Slf4j
 @ConditionalOnProperty(name = "spring.flyway.enabled", havingValue = "true")
 public class FlywayMigrationConfig {
 

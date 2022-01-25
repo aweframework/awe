@@ -5,7 +5,7 @@ import com.almis.awe.scheduler.enums.ReportType;
 import com.almis.awe.scheduler.job.report.BroadcastReportJob;
 import com.almis.awe.scheduler.job.report.EmailReportJob;
 import com.almis.awe.scheduler.job.report.MaintainReportJob;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -13,7 +13,7 @@ import org.quartz.JobDetail;
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class ReportFactory extends ServiceConfig {
 
   // Private constructor

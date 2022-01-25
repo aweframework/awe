@@ -4,7 +4,7 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.FileDAO;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class FolderFileChecker extends Connector {
 
   // Autowired services

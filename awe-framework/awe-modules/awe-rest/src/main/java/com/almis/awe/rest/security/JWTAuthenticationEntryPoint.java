@@ -3,7 +3,7 @@ package com.almis.awe.rest.security;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
  * Custom Authentication EntryPoint.
  * Used to handle exceptions in authentication process in awe-rest api.
  */
-@Log4j2
+@Slf4j
 public class JWTAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   // Autowire

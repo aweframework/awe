@@ -1,7 +1,7 @@
 package com.almis.awe.model.util.data;
 
 import com.almis.awe.exception.AWException;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
@@ -14,7 +14,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * Compression utilities
  */
-@Log4j2
+@Slf4j
 public final class CompressionUtil {
 
   /**

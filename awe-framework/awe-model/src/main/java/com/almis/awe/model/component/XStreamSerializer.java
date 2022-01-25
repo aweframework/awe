@@ -1,6 +1,6 @@
 package com.almis.awe.model.component;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.oxm.XmlMappingException;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author pgarcia
  */
-@Log4j2
+@Slf4j
 public class XStreamSerializer {
 
   // Xml Xstream factory

@@ -1,12 +1,11 @@
 package com.almis.awe.scheduler.builder.task;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.task.Task;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.almis.awe.scheduler.constant.TaskConstants.DEPENDENCY_GROUP;
 
-@Log4j2
+@Slf4j
 public class DependantTaskBuilder extends TaskBuilder {
 
   /**
@@ -14,7 +13,7 @@ public class DependantTaskBuilder extends TaskBuilder {
    *
    * @param task Task data
    */
-  public DependantTaskBuilder(Task task) throws AWException {
+  public DependantTaskBuilder(Task task) {
     setData(task);
     getTask().setGroup(DEPENDENCY_GROUP);
   }

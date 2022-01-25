@@ -16,13 +16,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysema.commons.lang.Assert;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,12 +36,12 @@ import java.util.regex.Pattern;
 /**
  * Launches a Rest service
  */
-@Log4j2
+@Slf4j
 public abstract class AbstractRestConnector extends AbstractServiceConnector {
 
   // Autowired services
   private final ClientHttpRequestFactory requestFactory;
-  private ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
   /**
    * Autowired constructor
@@ -121,8 +122,8 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
     log.info("Doing {} request to url {}", service.getMethod(), finalUrl);
     try {
       response = restTemplate.exchange(finalUrl, HttpMethod.valueOf(service.getMethod()), request, wrapper, urlParameters);
-    } catch (Exception e) {
-      throw new AWException("Request failed", e);
+    } catch (RestClientException exc) {
+      throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_REST"), exc.getLocalizedMessage(), exc);
     }
 
     // Handle response status
@@ -141,7 +142,7 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
    * @param urlParameters        Url parameters
    * @param paramsMapFromRequest Request parameters
    * @return Request
-   * @throws com.fasterxml.jackson.core.JsonProcessingException {@link JsonProcessingException}
+   * @throws com.fasterxml.jackson.core.JsonProcessingException See {@link JsonProcessingException}
    */
   protected HttpEntity generateRequest(AbstractServiceRest rest, UriComponentsBuilder uriBuilder, Map<String, Object> urlParameters, Map<String, Object> paramsMapFromRequest) throws JsonProcessingException {
     // Define request headers

@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.4.7</version>
+    <version>4.4.8</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -48,14 +48,10 @@
       <groupId>javax.jms</groupId>
       <artifactId>javax.jms-api</artifactId>
     </dependency>
-    <!-- Log4j2 -->
+    <!-- Sl4j -->
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-web</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

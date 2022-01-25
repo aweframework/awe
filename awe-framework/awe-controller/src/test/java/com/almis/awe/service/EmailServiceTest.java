@@ -90,7 +90,7 @@ class EmailServiceTest {
       .setCco(singletonList(new InternetAddress("test@gmail.com")))
       .setSubject("Test message")
       .setBody("<div style='background-color:red;'>Test div message</div>")
-      .addAttachment("FileName.test", new File("C:\\Users\\test\\Pictures\\Saved Pictures\\test.jpg"));
+      .addAttachment("FileName.test", new File("test.jpg"));
     emailService.sendEmail(email);
     verify(mailSender).send(mimeMessage);
   }

@@ -18,7 +18,7 @@ import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 
@@ -30,6 +30,7 @@ import java.util.Map;
  *
  * @author Pablo GARCIA
  */
+@Slf4j
 public class QueryService extends ServiceConfig {
 
   // Autowired services
@@ -464,7 +465,7 @@ public class QueryService extends ServiceConfig {
         dataSource.loadDataSources();
       }
     } catch (Exception exc) {
-      getLogger().log(QueryService.class, Level.INFO, "AweRoutingDataSource not found. Using default datasource");
+      log.info("AweRoutingDataSource not found. Using default datasource");
     }
   }
 
@@ -478,7 +479,7 @@ public class QueryService extends ServiceConfig {
         dataSource.reloadDataSources();
       }
     } catch (Exception exc) {
-      getLogger().log(QueryService.class, Level.INFO, "AweRoutingDataSource not found. Using default datasource");
+      log.info("AweRoutingDataSource not found. Using default datasource");
     }
   }
 

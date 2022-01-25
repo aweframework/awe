@@ -2,11 +2,10 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by pgarcia on 12/06/2017.
  */
+@Slf4j
 public class PropertyService extends ServiceConfig {
 
   @Value("${awe.database.enabled:false}")
@@ -49,7 +49,7 @@ public class PropertyService extends ServiceConfig {
     // Retrieve properties from database if database is enabled
     if (databaseEnabled) {
       try {
-        getLogger().log(PropertyService.class, Level.INFO, "===== Loading database properties =====");
+        log.info("===== Loading database properties =====");
 
         // Retrieve application properties
         DataList dataList = queryService.launchPrivateQuery(AweConstants.APPLICATION_PARAMETERS_QUERY, "1", "0").getDataList();
@@ -68,9 +68,9 @@ public class PropertyService extends ServiceConfig {
           propertySources.addFirst(propertySource);
         }
 
-        getLogger().log(PropertyService.class, Level.INFO, "===== Database properties loaded ({0} properties) =====", dataList.getRows().size());
+        log.info("===== Database properties loaded ({} properties) =====", dataList.getRows().size());
       } catch (AWException exc) {
-        getLogger().log(AweElements.class, Level.ERROR, "Error loading database properties", exc);
+        log.error("Error loading database properties", exc);
       }
     }
 

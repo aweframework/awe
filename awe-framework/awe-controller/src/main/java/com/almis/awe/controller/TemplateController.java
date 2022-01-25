@@ -1,10 +1,9 @@
 package com.almis.awe.controller;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.HelpService;
 import com.almis.awe.service.TemplateService;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,12 +17,12 @@ import java.nio.file.Paths;
  */
 @Controller
 @RequestMapping("/template")
+@Slf4j
 public class TemplateController {
 
   // Autowired services
   private final TemplateService templateService;
   private final HelpService helpService;
-  private final LogUtil logger;
 
   // Angular templates path
   @Value("${application.paths.templates.angular:angular/}")
@@ -34,13 +33,11 @@ public class TemplateController {
    *
    * @param templateService Template service
    * @param helpService     Help service
-   * @param logger          Logger
    */
   @Autowired
-  public TemplateController(TemplateService templateService, HelpService helpService, LogUtil logger) {
+  public TemplateController(TemplateService templateService, HelpService helpService) {
     this.templateService = templateService;
     this.helpService = helpService;
-    this.logger = logger;
   }
 
   /**
@@ -123,7 +120,7 @@ public class TemplateController {
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public @ResponseBody
   String handleAWException(AWException exc) {
-    logger.log(TemplateController.class, Level.ERROR, exc.getTitle() + "\n" + exc.getMessage(), exc);
+    log.error(exc.getTitle() + "\n" + exc.getMessage(), exc);
     return templateService.generateErrorTemplate(exc);
   }
 }

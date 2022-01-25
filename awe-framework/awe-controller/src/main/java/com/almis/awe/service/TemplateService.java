@@ -15,7 +15,7 @@ import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.TagList;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.util.data.StringUtil;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.stringtemplate.v4.ST;
@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 /**
  * Manage AWE screen access
  */
+@Slf4j
 public class TemplateService extends ServiceConfig {
 
   // Autowired services
@@ -181,7 +182,7 @@ public class TemplateService extends ServiceConfig {
         applicationTemplate.add(AweConstants.TEMPLATE_CONTENT, content.get());
       } catch (Exception exc) {
         // Only show a log if a screen fails
-        getLogger().log(TemplateService.class, Level.ERROR, "Error generating application help", exc);
+        log.error("Error generating application help", exc);
         Thread.currentThread().interrupt();
       }
     }

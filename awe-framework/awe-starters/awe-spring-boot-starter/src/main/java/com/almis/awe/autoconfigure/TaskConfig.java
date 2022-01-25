@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.component.AweMDCTaskDecorator;
 import com.almis.awe.executor.ContextAwarePoolExecutor;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,31 +28,35 @@ public class TaskConfig {
 
   /**
    * Returns the asynchronous executor task
+   * @param aweMDCTaskDecorator AWE task decorator
    * @return Thread pool executor bean
    */
   @Bean("threadPoolTaskExecutor")
-  public ContextAwarePoolExecutor getContextAwareTaskExecutor() {
+  public ContextAwarePoolExecutor getContextAwareTaskExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ContextAwarePoolExecutor executor = new ContextAwarePoolExecutor();
     executor.setCorePoolSize(getSize());
     executor.setMaxPoolSize(getMaxSize());
     executor.setQueueCapacity(getQueueSize());
     executor.setAwaitTerminationSeconds(getTerminationSeconds());
     executor.setThreadNamePrefix(getThreadPrefix());
+    executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
 
   /**
    * Returns the asynchronous executor task
+   * @param aweMDCTaskDecorator AWE task decorator
    * @return Thread pool executor bean
    */
   @Bean("threadHelpPoolTaskExecutor")
-  public ContextAwarePoolExecutor getHelpContextAwareTaskExecutor() {
+  public ContextAwarePoolExecutor getHelpContextAwareTaskExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ContextAwarePoolExecutor executor = new ContextAwarePoolExecutor();
     executor.setCorePoolSize(getSize());
     executor.setMaxPoolSize(getMaxSize());
     executor.setQueueCapacity(getQueueSize());
     executor.setAwaitTerminationSeconds(getTerminationSeconds());
     executor.setThreadNamePrefix(getHelpThreadPrefix());
+    executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
 

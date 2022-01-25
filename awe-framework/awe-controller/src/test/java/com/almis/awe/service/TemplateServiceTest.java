@@ -4,7 +4,7 @@ import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.entities.screen.component.TagList;
 import com.almis.awe.model.util.data.DataListUtil;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 /**
  * Class used for testing TemplateService class
  */
-@Log4j2
+@Slf4j
 class TemplateServiceTest {
 
   @InjectMocks

@@ -1,8 +1,6 @@
 package com.almis.awe.model.component;
 
-import com.almis.awe.model.messages.AweMessage;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +14,7 @@ import java.util.Set;
 /**
  * Created by dfuentes on 13/04/2017.
  */
-@Log4j2
+@Slf4j
 public class AweSession implements Serializable {
 
   public static final String ROLE = "ROLE_";
@@ -111,7 +109,7 @@ public class AweSession implements Serializable {
    */
   public void setParameter(String name, Object value) {
     sessionStorage.store(name, value);
-    log.log(Level.TRACE, new AweMessage("Attribute added: {} = {} ", name, value));
+    log.trace("Attribute added: {} = {} ", name, value);
   }
 
   /**
@@ -122,7 +120,7 @@ public class AweSession implements Serializable {
    */
   public Object getParameter(String name) {
     Object value = sessionStorage.retrieve(name);
-    log.log(Level.TRACE, new AweMessage("Attribute retrieved: {} = {}", name, value));
+    log.trace("Attribute retrieved: {} = {}", name, value);
     return value;
   }
 
@@ -136,7 +134,7 @@ public class AweSession implements Serializable {
    */
   public <T> T getParameter(Class<T> clazz, String name) {
     T value = sessionStorage.retrieve(clazz, name);
-    log.log(Level.TRACE, new AweMessage("Attribute retrieved: {} = {}", name, value));
+    log.trace("Attribute retrieved: {} = {}", name, value);
     return value;
   }
 
@@ -147,7 +145,7 @@ public class AweSession implements Serializable {
    */
   public void removeParameter(String name) {
     sessionStorage.remove(name);
-    log.log(Level.TRACE, new AweMessage("Attribute removed: {}", name));
+    log.trace("Attribute removed: {}", name);
   }
 
   /**

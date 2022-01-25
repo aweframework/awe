@@ -9,21 +9,19 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Manage logs
  *
  * @author pgarcia
  */
+@Slf4j
 public class LogService extends ServiceConfig {
 
   // Autowired services
@@ -146,7 +144,7 @@ public class LogService extends ServiceConfig {
    */
   private void getFilesFromFolder(File folder, String fileName, Date startDate, Date endDate, DataList fileList) throws AWException {
     if (folder.isDirectory() && folder.listFiles() != null) {
-      for (File file : folder.listFiles()) {
+      for (File file : Objects.requireNonNull(folder.listFiles())) {
         checkFolderFile(file, fileName, startDate, endDate, fileList);
       }
     }
@@ -223,6 +221,6 @@ public class LogService extends ServiceConfig {
    * @param database New database
    */
   public void logChangeDatabase(String database) {
-    getLogger().log(LogService.class, Level.INFO, "Database changed to ''{0}''", database);
+    log.info("Database changed to '{}'", database);
   }
 }

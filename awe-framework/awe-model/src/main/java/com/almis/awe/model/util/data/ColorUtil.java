@@ -7,10 +7,9 @@ package com.almis.awe.model.util.data;
  * File Imports
  */
 
-import java.awt.Color;
+import lombok.extern.slf4j.Slf4j;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.awt.*;
 
 /**
  * ColorUtil Class
@@ -18,11 +17,11 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author Aitor UGARTE - 13/AUG/2013
  */
+@Slf4j
 public final class ColorUtil {
 
   // Class name
   private static final String UTILITY_NAME = "COLOR UTILITY";
-  private static final Logger logger = LogManager.getLogger(ColorUtil.class);
 
   /**
    * Private constructor to enclose the default one
@@ -40,7 +39,7 @@ public final class ColorUtil {
     try {
       output = Integer.valueOf(colorStr.substring(1, 3), 16) + "-" + Integer.valueOf(colorStr.substring(3, 5), 16) + "-" + Integer.valueOf(colorStr.substring(5, 7), 16);
     } catch (Exception exc) {
-      logger.error("[{0}] Error in color conversion from hexadecimal ({1}) to rgb string", new Object[] { UTILITY_NAME, colorStr }, exc);
+      log.error("[{}] Error in color conversion from hexadecimal ({}) to rgb string", UTILITY_NAME, colorStr, exc);
     }
 
     return output;
@@ -58,7 +57,7 @@ public final class ColorUtil {
       String rgb = hex2RgbStr(colorStr);
       output = getRgbCol(rgb);
     } catch (Exception exc) {
-      logger.error("[{0}] Error in color conversion from hexadecimal ({1}) to rgb color", new Object[] { UTILITY_NAME, colorStr }, exc);
+      log.error("[{}] Error in color conversion from hexadecimal ({}) to rgb color", UTILITY_NAME, colorStr, exc);
     }
     return output;
   }
@@ -77,7 +76,7 @@ public final class ColorUtil {
         output = new Color(Integer.parseInt(color[0]), Integer.parseInt(color[1]), Integer.parseInt(color[2]));
       }
     } catch (Exception exc) {
-      logger.error("[{0}] Error in color conversion from rgb string ({1}) to rgb color", new Object[] { UTILITY_NAME, rgb }, exc);
+      log.error("[{}] Error in color conversion from rgb string ({}) to rgb color", UTILITY_NAME, rgb, exc);
     }
     return output;
   }

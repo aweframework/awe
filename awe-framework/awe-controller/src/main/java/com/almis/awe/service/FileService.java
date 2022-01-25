@@ -9,10 +9,9 @@ import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.util.file.FileUtil;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -33,12 +32,12 @@ import java.util.List;
 /**
  * Manage application initialization
  */
+@Slf4j
 public class FileService extends ServiceConfig {
 
   // Autowired services
   private final BroadcastService broadcastService;
   private final FileUtil fileUtil;
-  private final LogUtil logger;
   private final AweRequest request;
 
   // Upload identifier
@@ -53,13 +52,11 @@ public class FileService extends ServiceConfig {
    *
    * @param broadcastService Broadcaster
    * @param fileUtil         File utilities
-   * @param logger           Logger
    * @param request          Request
    */
-  public FileService(BroadcastService broadcastService, FileUtil fileUtil, LogUtil logger, AweRequest request) {
+  public FileService(BroadcastService broadcastService, FileUtil fileUtil, AweRequest request) {
     this.broadcastService = broadcastService;
     this.fileUtil = fileUtil;
-    this.logger = logger;
     this.request = request;
   }
 
@@ -226,7 +223,7 @@ public class FileService extends ServiceConfig {
         Path destinationFile = Paths.get(fullPath, fileData.getFileName());
 
         // Log saving file
-        logger.log(FileService.class, Level.DEBUG, "Saving file on {0}", destinationFile);
+        log.debug("Saving file on {}", destinationFile);
 
         // Store file
         try (InputStream inputStream = file.getInputStream()) {

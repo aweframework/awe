@@ -11,7 +11,7 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.Parameter;
 import com.almis.awe.model.type.AnswerType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
@@ -19,6 +19,7 @@ import java.util.*;
 /**
  * Manage application action calls
  */
+@Slf4j
 public class ActionService extends ServiceConfig {
 
   // Autowired services
@@ -139,7 +140,7 @@ public class ActionService extends ServiceConfig {
       return new ArrayList<>();
     } finally {
       // Log current variables
-      getLogger().log(ActionService.class, Level.ERROR, "Call parameters: {0}", getParameterListAsString());
+      log.error("Call parameters: {}", getParameterListAsString());
 
       // Log exception error
       exception.log();
@@ -159,7 +160,7 @@ public class ActionService extends ServiceConfig {
       actionList = launchError(getAction("DEFAULT_ERROR"), exception);
     } catch (AWException exc) {
       // No encontrado el error por defecto. Error fatal!
-      getLogger().log(ActionService.class, Level.FATAL, "Default error not found", exc);
+      log.error("Default error not found", exc);
     }
     return actionList;
   }
@@ -245,7 +246,7 @@ public class ActionService extends ServiceConfig {
         buildParameterString(builder, key, value, password);
       }
     } catch (Exception exc) {
-      getLogger().log(ActionService.class, Level.ERROR, "Error filtering parameter list", exc);
+      log.error("Error filtering parameter list", exc);
     }
 
     // Return parameter list string

@@ -7,14 +7,15 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
 import com.almis.awe.service.MaintainService;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.ThreadContext;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.Future;
  *
  * @author pvidal
  */
-@Log4j2
+@Slf4j
 @Getter
 public abstract class JobService extends ServiceConfig {
 
@@ -73,14 +74,16 @@ public abstract class JobService extends ServiceConfig {
    * @param execution Execution to log
    */
   void startLogging(TaskExecution execution) {
-    ThreadContext.put("execution", execution.getKey());
+    MDC.put(TaskConstants.LOG_BY_TASK_EXECUTION, execution.getKey());
+    MDC.put(TaskConstants.EXECUTION, "[execution: " + execution.getKey() + "] ");
   }
 
   /**
    * End logging execution
    */
   void endLogging() {
-    ThreadContext.remove("execution");
+    MDC.remove(TaskConstants.EXECUTION);
+    MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
   }
 
   public TaskExecution startTask(Task task) throws AWException {

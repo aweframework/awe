@@ -4,12 +4,12 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.QueryService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Log4j2
+@Slf4j
 public class DatabaseDAO {
 
   private static final String DB_ALIAS_LIST = "databaseAliasList";
@@ -29,8 +29,8 @@ public class DatabaseDAO {
   /**
    * Get database alias list
    *
-   * @return
-   * @throws AWException
+   * @return Database name
+   * @throws AWException AWE exception
    */
   public List<String> getDBAliasList() throws AWException {
     // Launch on the first connection

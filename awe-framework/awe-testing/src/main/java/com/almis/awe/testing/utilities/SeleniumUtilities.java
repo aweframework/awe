@@ -4,7 +4,7 @@ import com.almis.awe.testing.extensions.SeleniumExtension;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
@@ -33,7 +33,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 /**
  * Utilities suite for selenium testing
  */
-@Log4j2
+@Slf4j
 @ExtendWith({SpringExtension.class, SeleniumExtension.class})
 @TestPropertySource("classpath:test.properties")
 public class SeleniumUtilities implements IAweInstructions {

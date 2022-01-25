@@ -1,7 +1,7 @@
 package com.almis.awe.security.handler;
 
 import com.almis.awe.session.AweSessionDetails;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * Logout access control bean
  * Created by pgarcia on 13/06/2019.
  */
-@Log4j2
+@Slf4j
 public class AweLogoutHandler extends SecurityContextLogoutHandler {
 
   private final AweSessionDetails sessionDetails;

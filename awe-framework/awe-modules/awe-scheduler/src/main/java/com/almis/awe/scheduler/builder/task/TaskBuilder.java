@@ -14,7 +14,7 @@ import com.almis.awe.scheduler.factory.TriggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 
@@ -24,7 +24,7 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 
 @Getter
 @Setter
-@Log4j2
+@Slf4j
 @Accessors(chain = true)
 public abstract class TaskBuilder {
 

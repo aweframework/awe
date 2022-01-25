@@ -7,7 +7,7 @@ import com.almis.awe.scheduler.constant.JobConstants;
 import com.almis.awe.scheduler.service.JobService;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.InterruptableJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -16,7 +16,7 @@ import org.quartz.JobExecutionException;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
-@Log4j2
+@Slf4j
 @Getter
 @Setter
 public abstract class SchedulerJob implements InterruptableJob {

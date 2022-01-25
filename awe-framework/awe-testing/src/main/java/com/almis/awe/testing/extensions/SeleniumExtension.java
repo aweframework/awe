@@ -6,7 +6,7 @@ import com.almis.awe.testing.utilities.TextUtilities;
 import com.automation.remarks.video.recorder.IVideoRecorder;
 import com.automation.remarks.video.recorder.VideoRecorder;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.*;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Utilities suite for selenium testing
  */
-@Log4j2
+@Slf4j
 public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, AfterEachCallback, TestInstancePostProcessor {
 
   public static final String VIDEO_SCREEN_SIZE = "video.screen.size";

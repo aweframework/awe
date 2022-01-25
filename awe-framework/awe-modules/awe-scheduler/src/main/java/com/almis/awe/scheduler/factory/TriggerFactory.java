@@ -6,7 +6,7 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.builder.cron.PatternBuilder;
 import com.almis.awe.scheduler.enums.TriggerType;
 import com.almis.awe.scheduler.util.TaskUtil;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
@@ -17,7 +17,7 @@ import java.util.Calendar;
 import static com.almis.awe.scheduler.constant.JobConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
 
-@Log4j2
+@Slf4j
 public class TriggerFactory {
 
   private static int instanceId = 1;

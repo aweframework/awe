@@ -3,7 +3,7 @@ package com.almis.awe.test.integration.database.hsql;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Class used for testing queries through ActionController
  */
-@Log4j2
+@Slf4j
 @Tag("integration")
 @WithMockUser(username = "test", password = "test")
 class SchedulerQueriesTest extends AbstractSpringAppIntegrationTest {

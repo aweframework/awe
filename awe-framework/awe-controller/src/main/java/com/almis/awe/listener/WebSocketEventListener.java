@@ -4,7 +4,7 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.type.LaunchPhaseType;
 import com.almis.awe.service.InitService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * Event when websocket is connected
  */
-@Log4j2
+@Slf4j
 public class WebSocketEventListener {
 
   // Autowired services

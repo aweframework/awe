@@ -3,12 +3,13 @@ package com.almis.awe.security.authentication.encoder;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Created by dfuentes on 19/06/2017.
  */
+@Slf4j
 public class Sha256PasswordEncoder implements PasswordEncoder {
 
   // Autowired services
@@ -28,7 +29,7 @@ public class Sha256PasswordEncoder implements PasswordEncoder {
     try {
       return EncodeUtil.hash(EncodeUtil.HashingAlgorithms.SHA_256, rawPassword.toString());
     } catch (AWException exc) {
-      logger.log(this.getClass(), Level.ERROR, "Error authenticating, could not hash given password", exc);
+      log.error("Error authenticating, could not hash given password", exc);
       return rawPassword.toString();
     }
   }
@@ -38,7 +39,7 @@ public class Sha256PasswordEncoder implements PasswordEncoder {
     try {
       return EncodeUtil.hash(EncodeUtil.HashingAlgorithms.SHA_256, rawPassword.toString()).equalsIgnoreCase(encodedPassword);
     } catch (AWException exc) {
-      logger.log(this.getClass(), Level.ERROR, "Error authenticating, could not hash given password", exc);
+      log.error("Error authenticating, could not hash given password", exc);
     }
     return false;
   }

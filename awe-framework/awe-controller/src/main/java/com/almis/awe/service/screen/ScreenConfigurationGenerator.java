@@ -12,7 +12,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.type.AttributeRestrictionType;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 /**
  * Manage the specific configuration of a screen
  */
-@Log4j2
+@Slf4j
 public class ScreenConfigurationGenerator extends ServiceConfig {
 
   /**

@@ -6,7 +6,7 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.entities.services.ServiceJava;
 import com.almis.awe.model.entities.services.ServiceType;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
@@ -19,6 +19,7 @@ import java.util.Objects;
 /**
  * Launches a Java service
  */
+@Slf4j
 public class JavaConnector extends AbstractServiceConnector {
 
   @Override
@@ -65,7 +66,7 @@ public class JavaConnector extends AbstractServiceConnector {
 
     // Method generation
     try {
-      getLogger().log(JavaConnector.class, Level.DEBUG, "[Java Service]: Calling Java Service {0} Method {1}", classNameReceived, methodReceived);
+      log.debug("[Java Service]: Calling Java Service {} Method {}", classNameReceived, methodReceived);
       serviceMethod = serviceInstance.getClass().getMethod(Objects.requireNonNull(methodReceived), paramsClassesToInvoke);
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_METHOD_NOT_DEFINED"),

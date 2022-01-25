@@ -9,7 +9,7 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
@@ -28,8 +28,8 @@ import static java.lang.Thread.sleep;
  *
  * @author jbellon
  */
-@Log4j2
 @Service
+@Slf4j
 public class DummyService extends ServiceConfig {
 
   // Autowired services
@@ -271,7 +271,7 @@ public class DummyService extends ServiceConfig {
               .setCco(Arrays.asList(new InternetAddress("dovixmancosas@gmail.com")))
               .setSubject("Test message")
               .setBody("<div style='background-color:red;'>Test div message</div>")
-              .addAttachment("FileName.test", new File("C:\\Users\\dfuentes\\Pictures\\Saved Pictures\\tst.jpg"));
+              .addAttachment("FileName.test", new File("tst.jpg"));
       getBean(EmailService.class).sendEmail(email);
     } catch (AddressException e) {
       e.printStackTrace();

@@ -27,8 +27,7 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Arrays;
@@ -41,7 +40,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 /**
  * Manage AWE screen access
  */
-@Log4j2
+@Slf4j
 public class ScreenService extends ServiceConfig {
 
   // Autowired services
@@ -301,7 +300,7 @@ public class ScreenService extends ServiceConfig {
     ScreenData data = new ScreenData();
 
     // Log error
-    getLogger().log(ScreenService.class, Level.ERROR, exc.getTitle(), exc.getMessage(), exc);
+    log.error("{} - {}", exc.getTitle(), exc.getMessage(), exc);
 
     // Generate screen properties
     return data
@@ -361,7 +360,7 @@ public class ScreenService extends ServiceConfig {
     }
 
     // Log screen parameters
-    getLogger().log(ScreenService.class, Level.INFO, "Screen parameters retrieved - {0} - {1}", keepCriteriaKey, screenParameters.toString());
+    log.info("Screen parameters retrieved - {} - {}", keepCriteriaKey, screenParameters.toString());
     return screenParameters;
   }
 
@@ -377,7 +376,7 @@ public class ScreenService extends ServiceConfig {
       String keepCriteriaKey = AweConstants.SESSION_KEEP_CRITERIA_HEADER + optionName;
       ObjectNode screenParameters = getRequest().getParametersSafe();
       session.setParameter(keepCriteriaKey, screenParameters);
-      getLogger().log(ScreenService.class, Level.INFO, "Screen parameters set - {0} - {1}", keepCriteriaKey, screenParameters.toString());
+      log.info("Screen parameters set - {} - {}", keepCriteriaKey, screenParameters.toString());
     }
   }
 

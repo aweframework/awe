@@ -23,7 +23,7 @@ import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Generate the component model of the screen
  */
+@Slf4j
 public class ScreenModelGenerator extends ServiceConfig {
 
   // Autowired services
@@ -226,7 +227,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       } catch (Exception exc) {
         String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", entry.getKey());
         data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
-        getLogger().log(ScreenModelGenerator.class, Level.ERROR, errorMessage, exc);
+        log.error(errorMessage, exc);
         Thread.currentThread().interrupt();
       }
     }
@@ -248,7 +249,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String screen = data.getScreenProperties().get(AweConstants.JSON_OPTION);
       String errorMessage = getLocale("ERROR_MESSAGE_SCREEN_RESTRICTIONS", screen);
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
-      getLogger().log(ScreenModelGenerator.class, Level.ERROR, errorMessage + screen, exc);
+      log.error(errorMessage + screen, exc);
       Thread.currentThread().interrupt();
     }
   }
@@ -327,7 +328,7 @@ public class ScreenModelGenerator extends ServiceConfig {
     } catch (Exception exc) {
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(errorMessage, exc));
-      getLogger().log(ScreenModelGenerator.class, Level.ERROR, errorMessage, exc);
+      log.error(errorMessage, exc);
       Thread.currentThread().interrupt();
     }
   }
