@@ -1,7 +1,7 @@
 package com.almis.awe.security.authentication.entrypoint;
 
 import com.almis.awe.session.AweSessionDetails;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
  * Action entry point.
  * Handle exceptions in actions request (/action/**).
  */
-@Log4j2
+@Slf4j
 public class ActionAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   // Constants

@@ -8,7 +8,7 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.service.QueryService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_LOAD_TASK_DETAILS_QUERY;
 
-@Log4j2
+@Slf4j
 public class TaskService {
 
   // Autowired services

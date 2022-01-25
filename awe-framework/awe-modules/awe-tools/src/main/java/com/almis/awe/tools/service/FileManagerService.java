@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * File Manager service
  */
-@Log4j2
+@Slf4j
 public class FileManagerService implements InitializingBean {
   private static final String SYSTEM_UNIX = "unix";
   private static final String SYSTEM_DOS = "dos";

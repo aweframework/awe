@@ -264,8 +264,6 @@ rest.request.timeout=5
 ################################################
 # Logger properties
 ################################################
-# Base paths where logs will be defined
-application.log.base.path=${user.home}/${project.artifactId}/logs/${project.version}
 # Default level for custom user file logs
 application.log.users.level=info
 # Flag to activate custom user file logs (true | false)

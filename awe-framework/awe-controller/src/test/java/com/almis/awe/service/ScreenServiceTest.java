@@ -1,6 +1,6 @@
 package com.almis.awe.service;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Class used for testing ScreenService class
  */
-@Log4j2
+@Slf4j
 class ScreenServiceTest {
 
   @InjectMocks

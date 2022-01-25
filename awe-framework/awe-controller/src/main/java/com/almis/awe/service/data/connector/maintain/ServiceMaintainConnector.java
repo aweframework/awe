@@ -7,22 +7,24 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
+import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.ServiceBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * Maintain connector for services
  */
+@Slf4j
 public class ServiceMaintainConnector extends ServiceConfig implements MaintainConnector {
 
   @Override
   public <T extends MaintainQuery> ServiceData launch(T query, DatabaseConnection connection, ObjectNode parameters) throws AWException {
 
     // Log start query prepare time
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
     // Get query builder
     ServiceBuilder builder = getBean(ServiceBuilder.class);
@@ -34,20 +36,20 @@ public class ServiceMaintainConnector extends ServiceConfig implements MaintainC
       .getVariables();
 
     // Get query preparation time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     ServiceData result;
     try {
       // Launch service
       result = builder.build();
-      getLogger().checkpoint(timeLapse);
+      LogUtil.checkpoint(timeLapse);
 
       // Log query
-      getLogger().log(ServiceMaintainConnector.class, Level.INFO, "[{0}] => Prepare service time: {1}s - Service time: {2}s - Total time: {3}s",
+      log.info("[{}] => Prepare service time: {}s - Service time: {}s - Total time: {}s",
         query.getService(),
-        getLogger().getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-        getLogger().getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
-        getLogger().getTotalTime(timeLapse));
+        LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+        LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
+        LogUtil.getTotalTime(timeLapse));
 
     } catch (AWException exc) {
       throw exc;

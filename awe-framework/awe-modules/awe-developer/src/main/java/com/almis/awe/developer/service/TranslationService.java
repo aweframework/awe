@@ -3,7 +3,7 @@ package com.almis.awe.developer.service;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.developer.model.TranslationResponse;
 import com.almis.awe.exception.AWException;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Objects;
 
-@Log4j2
+@Slf4j
 public class TranslationService extends ServiceConfig {
 
   // Services

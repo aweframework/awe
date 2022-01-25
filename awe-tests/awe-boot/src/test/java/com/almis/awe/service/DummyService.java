@@ -12,7 +12,7 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
@@ -31,7 +31,7 @@ import static java.lang.Thread.sleep;
  *
  * @author jbellon
  */
-@Log4j2
+@Slf4j
 @Service
 public class DummyService extends ServiceConfig {
 

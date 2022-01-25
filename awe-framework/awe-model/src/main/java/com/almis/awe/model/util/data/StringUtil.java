@@ -8,8 +8,8 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
@@ -512,6 +512,6 @@ public final class StringUtil {
    * @return locale parsed
    */
   public static String parseLocale(Global locale) {
-    return Strings.isBlank(locale.getMarkdown()) ? locale.getValue() : evalMarkdown(locale.getMarkdown());
+    return StringUtils.isBlank(locale.getMarkdown()) ? locale.getValue() : evalMarkdown(locale.getMarkdown());
   }
 }

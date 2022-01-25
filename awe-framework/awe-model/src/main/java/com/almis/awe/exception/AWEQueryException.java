@@ -2,9 +2,7 @@ package com.almis.awe.exception;
 
 import com.almis.awe.model.type.AnswerType;
 import lombok.Getter;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /*
  * File Imports
@@ -17,12 +15,12 @@ import org.apache.logging.log4j.Logger;
  * @author Pablo GARCIA - 24/JUN/2010
  */
 @Getter
+@Slf4j
 public class AWEQueryException extends AWException {
 
   private static final long serialVersionUID = -764683322805477265L;
   // Exception query
   private final String query;
-  private static final Logger logger = LogManager.getLogger(AWEQueryException.class);
 
   /**
    * Constructs an instance of <code>AWException</code> with the specified detail message and cause exception.
@@ -40,8 +38,7 @@ public class AWEQueryException extends AWException {
   @Override
   public AWException log() {
     // Log ERROR
-    String errorType = getType() == AnswerType.ERROR ? "ERROR" : "WARNING";
-    Level errorLevel = getType() == AnswerType.ERROR ? Level.ERROR : Level.WARN;
+    String errorType = AnswerType.ERROR.equals(this.getType()) ? "ERROR" : "WARNING";
 
     // Start log
     StringBuilder exceptionBuilder = new StringBuilder();
@@ -69,7 +66,11 @@ public class AWEQueryException extends AWException {
     exceptionBuilder.append("[")
       .append(errorType)
       .append("] [StackTrace]");
-    logger.log(errorLevel, exceptionBuilder, getCause());
+    if (AnswerType.ERROR.equals(this.getType())){
+      log.error(exceptionBuilder.toString(), getCause());
+    } else {
+      log.warn(exceptionBuilder.toString(), getCause());
+    }
     return this;
   }
 }

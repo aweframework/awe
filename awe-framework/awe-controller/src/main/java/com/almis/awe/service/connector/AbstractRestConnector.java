@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysema.commons.lang.Assert;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 /**
  * Launches a Rest service
  */
-@Log4j2
+@Slf4j
 public abstract class AbstractRestConnector extends AbstractServiceConnector {
 
   // Autowired services

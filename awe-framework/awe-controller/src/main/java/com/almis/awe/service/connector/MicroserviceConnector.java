@@ -8,7 +8,7 @@ import com.almis.awe.model.entities.services.ServiceType;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * Launches a Microservice
  */
-@Log4j2
+@Slf4j
 public class MicroserviceConnector extends AbstractRestConnector {
 
   public static final String MICROSERVICE = "microservice";

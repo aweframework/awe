@@ -1,13 +1,13 @@
 package com.almis.awe.scheduler.job.execution;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.UnableToInterruptJobException;
 
 import java.util.concurrent.Future;
 
-@Log4j2
+@Slf4j
 public class TimeoutJob implements InterruptableJob {
 
   @Override

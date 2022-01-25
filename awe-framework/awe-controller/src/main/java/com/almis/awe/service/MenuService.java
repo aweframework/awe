@@ -22,7 +22,7 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.cache.annotation.CacheRemoveAll;
@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 /**
  * Manage application Menus
  */
+@Slf4j
 public class MenuService extends ServiceConfig {
 
   // Public menu
@@ -348,7 +349,7 @@ public class MenuService extends ServiceConfig {
         // Set data into panelable
         panelable.setTabValues(panelableData);
       } catch (Exception exc) {
-        getLogger().log(MenuService.class, Level.ERROR, getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", panelable.getTargetAction()), exc);
+        log.error(getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", panelable.getTargetAction()), exc);
         Thread.currentThread().interrupt();
       }
     }

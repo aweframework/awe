@@ -4,8 +4,7 @@ import com.almis.awe.annotation.aspect.CryptoAnnotation;
 import com.almis.awe.annotation.entities.security.Crypto;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.security.EncodeUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Processor for the Crypto annotation
@@ -15,10 +14,8 @@ import org.apache.logging.log4j.Logger;
  * @author dfuentes
  * Created by dfuentes on 18/04/2017.
  */
+@Slf4j
 public class CryptoProcessor {
-
-  // Logger
-  private static Logger logger = LogManager.getLogger(CryptoProcessor.class);
 
   // Private constructor
   private CryptoProcessor() {}
@@ -44,7 +41,7 @@ public class CryptoProcessor {
           processedValue = text;
       }
     } catch (AWException exc) {
-      logger.error(exc.getMessage(), exc);
+      log.error(exc.getMessage(), exc);
     }
     return processedValue;
   }

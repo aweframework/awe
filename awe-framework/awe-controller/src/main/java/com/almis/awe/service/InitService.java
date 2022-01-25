@@ -4,8 +4,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.type.LaunchPhaseType;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -21,7 +20,7 @@ import static com.almis.awe.model.constant.AweConstants.LOG_LINE;
 /**
  * Manage application initialization
  */
-@Log4j2
+@Slf4j
 public class InitService extends ServiceConfig implements DisposableBean {
 
   // Autowired services
@@ -86,7 +85,7 @@ public class InitService extends ServiceConfig implements DisposableBean {
     try {
       serviceList = getElements().getPhaseServices(phase);
     } catch (AWException exc) {
-      getLogger().log(InitService.class, Level.ERROR, exc.getMessage(), exc);
+      log.error(exc.getMessage(), exc);
       serviceList = new ArrayList<>();
     }
 
@@ -103,7 +102,7 @@ public class InitService extends ServiceConfig implements DisposableBean {
       try {
         launcherService.callService(service.getId(), parameters);
       } catch (AWException exc) {
-        getLogger().log(InitService.class, Level.ERROR, exc.getMessage(), exc);
+        log.error(exc.getMessage(), exc);
       }
     }
   }

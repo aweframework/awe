@@ -11,7 +11,7 @@ import com.almis.awe.model.util.file.FileUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.AnnotationTestService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
  */
 @Tag("integration")
 @DisplayName("Annotations service Tests")
-@Log4j2
+@Slf4j
 class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired

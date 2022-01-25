@@ -9,7 +9,7 @@ import com.almis.awe.scheduler.bean.task.TaskParameter;
 import com.almis.awe.scheduler.dao.CommandDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.service.MaintainService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
 /**
  * @author dfuentes
  */
-@Log4j2
+@Slf4j
 public class CommandJobService extends JobService {
 
   // Autowired services

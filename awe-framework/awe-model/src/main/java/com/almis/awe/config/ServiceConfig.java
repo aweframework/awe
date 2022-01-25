@@ -3,7 +3,6 @@ package com.almis.awe.config;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
-import com.almis.awe.model.util.log.LogUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -142,14 +141,5 @@ public abstract class ServiceConfig implements ApplicationContextAware {
    */
   public <T> T getProperty(String property, Class<T> clazz) {
     return getElements().getProperty(property, clazz);
-  }
-
-  /**
-   * Retrieve logger
-   *
-   * @return Logger
-   */
-  public LogUtil getLogger() {
-    return getBean(LogUtil.class);
   }
 }

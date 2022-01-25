@@ -573,10 +573,10 @@ private static Logger logger=LogManager.getLogger(MyClass.class);
 
 * Alternate logger: Lombok
 
-1. Add `@Log4j2` annotation on top of the class:
+1. Add `@Slf4j` annotation on top of the class:
 
  ```java
-@Log4j2
+@Slf4j
 public MyClass{
         ...
         } 

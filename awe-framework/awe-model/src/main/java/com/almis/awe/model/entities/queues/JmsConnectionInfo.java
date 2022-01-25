@@ -5,7 +5,7 @@ import com.almis.awe.model.tracker.AweTrackable;
 import com.almis.awe.model.tracker.AweTracker;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 /**
@@ -16,7 +16,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
  */
 @Data
 @Accessors(chain = true)
-@Log4j2
+@Slf4j
 public class JmsConnectionInfo implements AweTrackable {
 
   private DefaultMessageListenerContainer listenerContainer;

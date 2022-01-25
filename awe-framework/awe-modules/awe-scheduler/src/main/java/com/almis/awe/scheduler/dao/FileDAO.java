@@ -7,7 +7,7 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.TriggerKey;
 
 import java.util.Date;
@@ -15,7 +15,7 @@ import java.util.Date;
 import static com.almis.awe.scheduler.constant.MaintainConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
 
-@Log4j2
+@Slf4j
 public class FileDAO extends ServiceConfig {
 
   // Autowired services

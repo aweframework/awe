@@ -3,7 +3,7 @@ package com.almis.awe.test.integration.service;
 import com.almis.awe.model.util.security.Crypto;
 import com.almis.awe.service.EncryptService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author pgarcia
  */
 @Tag("integration")
-@Log4j2
+@Slf4j
 @DisplayName("Encrypt service Tests")
 class EncryptServiceTest extends AbstractSpringAppIntegrationTest {
 

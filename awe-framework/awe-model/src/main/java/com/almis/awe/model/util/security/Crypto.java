@@ -2,8 +2,7 @@ package com.almis.awe.model.util.security;
 
 import com.almis.awe.exception.AWException;
 import lombok.NonNull;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
@@ -26,7 +25,7 @@ import java.util.Random;
  *
  * @author pgarcia
  */
-
+@Slf4j
 public final class Crypto {
 
   /**
@@ -40,14 +39,13 @@ public final class Crypto {
    */
   public static class Utils {
 
-    private static final Logger logger = LogManager.getLogger(Utils.class);
     private static Random random;
 
     static {
       try {
         random = SecureRandom.getInstance("SHA1PRNG");
       } catch (NoSuchAlgorithmException exc) {
-        logger.error("Error initializing secure random", exc);
+        log.error("Error initializing secure random", exc);
       }
     }
 
@@ -142,6 +140,7 @@ public final class Crypto {
   /**
    * AES encryption utilities
    */
+  @Slf4j
   public static class AES {
 
     private static final int GCM_IV_LENGTH = 12;
@@ -156,7 +155,6 @@ public final class Crypto {
     private static final String CIPHER_TRANSFORMATION = ALGORITHM + "/" + MODE + "/" + PADDING;
     private static final byte[] initialVector = Utils.getRandomBytes(GCM_IV_LENGTH);
 
-    private static final Logger logger = LogManager.getLogger(AES.class);
 
     /**
      * Constructor
@@ -176,7 +174,7 @@ public final class Crypto {
         cipher.init(mode, AES.getSecretKey(passphrase, iv), ivSpec);
         return cipher;
       } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException exc) {
-        logger.error("Error initializing cipher: {} - {}", CIPHER_TRANSFORMATION, passphrase, exc);
+        log.error("Error initializing cipher: {} - {}", CIPHER_TRANSFORMATION, passphrase, exc);
       }
       return null;
     }
@@ -195,7 +193,7 @@ public final class Crypto {
           return new SecretKeySpec(derivedKey.getEncoded(), ALGORITHM);
         }
       } catch (NoSuchAlgorithmException | InvalidKeySpecException exc) {
-        logger.error("Error generating secret key spec", exc);
+        log.error("Error generating secret key spec", exc);
       }
       return null;
     }
@@ -224,7 +222,7 @@ public final class Crypto {
           return Base64.getEncoder().encodeToString(encrypted);
         }
       } catch (IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException exc) {
-        logger.error("Error encoding string {}", plaintext, exc);
+        log.error("Error encoding string {}", plaintext, exc);
       }
       return null;
     }
@@ -251,7 +249,7 @@ public final class Crypto {
           return new String(ciphertext, encoding);
         }
       } catch (IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException exc) {
-        logger.error("Error decoding string {}", encrypted, exc);
+        log.error("Error decoding string {}", encrypted, exc);
       }
       return null;
     }

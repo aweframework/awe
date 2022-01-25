@@ -10,7 +10,7 @@ import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
  *
  * @author pvidal
  */
-@Log4j2
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class LiteralsServiceTest {
 
@@ -241,7 +241,7 @@ class LiteralsServiceTest {
     ServiceData serviceData = literalsService.getTranslationList("TEXT");
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(3, serviceData.getDataList().getRows().size());
-    log.info(serviceData.getDataList());
+    log.info(serviceData.getDataList().toString());
   }
 
   /**
@@ -252,6 +252,6 @@ class LiteralsServiceTest {
     ServiceData serviceData = literalsService.getUsingLanguage();
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(1, serviceData.getDataList().getRows().size());
-    log.info(serviceData.getDataList());
+    log.info(serviceData.getDataList().toString());
   }
 }

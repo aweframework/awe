@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
@@ -34,7 +34,7 @@ import static com.almis.awe.model.type.CellDataType.*;
  */
 @Data
 @Accessors(chain = true)
-@Log4j2
+@Slf4j
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class CellData implements Comparable<CellData>, Copyable {
 

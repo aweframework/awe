@@ -5,14 +5,14 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
 
-@Log4j2
+@Slf4j
 public class MaintainReportJob extends ReportJob {
 
   // Autowired services

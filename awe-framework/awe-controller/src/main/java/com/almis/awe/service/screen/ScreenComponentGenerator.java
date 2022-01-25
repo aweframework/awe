@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
@@ -38,6 +38,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_TAG;
 /**
  * Generate the component controllers of the screen
  */
+@Slf4j
 public class ScreenComponentGenerator extends ServiceConfig {
 
   // Autowired services
@@ -111,10 +112,10 @@ public class ScreenComponentGenerator extends ServiceConfig {
       screenModelGenerator.launchInitialLoadList(initializationList, componentMap, data);
     } catch (AWException error) {
       data.addError(error);
-      getLogger().log(ScreenComponentGenerator.class, Level.ERROR, getLocale("ERROR_MESSAGE_SCREEN_COMPONENT_MAP"), error);
+      log.error("ERROR_MESSAGE_SCREEN_COMPONENT_MAP", error);
     } catch (Exception error) {
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), error));
-      getLogger().log(ScreenComponentGenerator.class, Level.ERROR, getLocale("ERROR_MESSAGE_SCREEN_COMPONENT_MAP"), error);
+      log.error("ERROR_MESSAGE_SCREEN_COMPONENT_MAP", error);
     }
 
     return componentMap;
@@ -129,7 +130,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param componentMap       Component map
    * @param storedCriteria     Stored criteria
    * @param menu               Current menu
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void generateComponent(String containerId, Component component, List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ObjectNode storedCriteria, Menu menu) throws AWException {
     if (!NO_TAG.equalsIgnoreCase(component.getComponentTag())) {

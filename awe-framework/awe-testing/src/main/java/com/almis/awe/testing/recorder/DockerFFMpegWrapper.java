@@ -2,7 +2,7 @@ package com.almis.awe.testing.recorder;
 
 import com.automation.remarks.video.SystemUtils;
 import com.automation.remarks.video.recorder.VideoRecorder;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-@Log4j2
+@Slf4j
 public class DockerFFMpegWrapper {
 
   public static final String RECORDING_TOOL = "ffmpeg";

@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +32,8 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/fm")
+@Slf4j
 public class FileManagerController {
-
-  private static final Logger LOGGER = LogManager.getLogger(FileManagerController.class);
 
   // Autowired services
   private final FileManagerService service;
@@ -114,14 +112,14 @@ public class FileManagerController {
         output.write(buffer, 0, length);
       }
     } catch (Exception ex) {
-      LOGGER.error("Error opening resources", ex);
+      log.error("Error opening resources", ex);
     } finally {
       // Clean temp zip files
       if (mode.equals(FileModeEnum.DOWNLOADMULTIPLE)) {
         try {
           Files.deleteIfExists(Paths.get(file.toString()));
         } catch (IOException ex) {
-          LOGGER.error("Error deleting temporal zip", ex);
+          log.error("Error deleting temporal zip", ex);
         }
       }
     }
@@ -137,13 +135,13 @@ public class FileManagerController {
   @PostMapping("/{actionId}")
   @ResponseBody
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOGGER.debug("doPost");
+    log.debug("doPost");
     JsonNode responseNode = null;
     try {
       ObjectNode params = requestParamsToJSON(request);
       responseNode = service.fileOperation(params);
     } catch (Exception exc) {
-      LOGGER.error("Error handling post request", exc);
+      log.error("Error handling post request", exc);
       try {
         responseNode = service.error(exc);
       } catch (Exception ex) {
@@ -165,7 +163,7 @@ public class FileManagerController {
   @PostMapping("/uploadUrl")
   @ResponseBody
   public void doUploadPost(@RequestParam("files") List<MultipartFile> files, HttpServletRequest request, HttpServletResponse response) throws IOException {
-    LOGGER.debug("doUploadPost");
+    log.debug("doUploadPost");
     JsonNode responseNode = null;
     try {
       // if request contains multipart-form-data
@@ -174,7 +172,7 @@ public class FileManagerController {
         responseNode = service.uploadFile(destination, files);
       }
     } catch (Exception exc) {
-      LOGGER.error("Error handling post request", exc);
+      log.error("Error handling post request", exc);
       try {
         responseNode = service.error(exc);
       } catch (Exception ex) {
@@ -205,7 +203,7 @@ public class FileManagerController {
       paramJson = (ObjectNode) mapper.readTree(jb.toString());
 
     } catch (Exception ex) {
-      LOGGER.error("Error getting request parameters", ex);
+      log.error("Error getting request parameters", ex);
     }
     return paramJson;
   }

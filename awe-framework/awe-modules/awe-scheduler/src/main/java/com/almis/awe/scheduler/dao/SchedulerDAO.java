@@ -9,26 +9,21 @@ import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.service.TaskService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_VISIBLE;
 
-@Log4j2
+@Slf4j
 public class SchedulerDAO extends ServiceConfig {
 
   private static final String SCHEDULER_STATUS = "schedulerStatus";
 
-  @Value("${scheduler.tasks.load.on.start:true}")
-  private boolean loadSchedulerTasks;
-
-  @Value("${scheduler.tasks.wait.on.stop:true}")
-  private boolean waitForTasksOnStop;
+  private final boolean loadSchedulerTasks;
 
   // Autowired services
   private final Scheduler scheduler;
@@ -39,16 +34,17 @@ public class SchedulerDAO extends ServiceConfig {
 
   /**
    * Constructor
-   *
-   * @param scheduler       Scheduler
-   * @param calendarDAO     Calendar DAO
-   * @param taskService     Task service
-   * @param triggerListener Trigger listener
-   * @param jobListener     Job listener
+   * @param scheduler           Scheduler
+   * @param loadSchedulerTasks  Scheduler load task flag
+   * @param calendarDAO         Calendar DAO
+   * @param taskService         Task service
+   * @param triggerListener     Trigger listener
+   * @param jobListener         Job listener
    */
-  public SchedulerDAO(Scheduler scheduler, CalendarDAO calendarDAO, TaskService taskService,
+  public SchedulerDAO(Scheduler scheduler, boolean loadSchedulerTasks, CalendarDAO calendarDAO, TaskService taskService,
                       SchedulerTriggerListener triggerListener, SchedulerJobListener jobListener) {
     this.scheduler = scheduler;
+    this.loadSchedulerTasks = loadSchedulerTasks;
     this.calendarDAO = calendarDAO;
     this.taskService = taskService;
     this.triggerListener = triggerListener;

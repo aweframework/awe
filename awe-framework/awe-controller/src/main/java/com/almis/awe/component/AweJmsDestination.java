@@ -12,10 +12,9 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queues.JmsDestination;
 import com.almis.awe.model.type.JmsConnectionType;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.QueryService;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.jms.Destination;
 import javax.naming.Context;
@@ -31,11 +30,11 @@ import java.util.Map.Entry;
  *
  * @author pgarcia
  */
+@Slf4j
 public class AweJmsDestination {
 
   // Autowired services
   private final AweElements elements;
-  private final LogUtil logger;
   private final QueryService queryService;
   private Map<String, JmsDestination> destinationMap;
 
@@ -43,12 +42,10 @@ public class AweJmsDestination {
    * Autowired constructor
    *
    * @param elements     Awe Elements
-   * @param logger       Logger
    * @param queryService Query service
    */
-  public AweJmsDestination(AweElements elements, LogUtil logger, QueryService queryService) {
+  public AweJmsDestination(AweElements elements, QueryService queryService) {
     this.elements = elements;
-    this.logger = logger;
     this.queryService = queryService;
 
     // Load sources
@@ -84,7 +81,7 @@ public class AweJmsDestination {
         }
       }
     } catch (AWException exc) {
-      logger.log(AweJmsDestination.class, Level.ERROR, "Error getting queue connections info.", exc);
+      log.error("Error getting queue connections info.", exc);
     }
   }
 

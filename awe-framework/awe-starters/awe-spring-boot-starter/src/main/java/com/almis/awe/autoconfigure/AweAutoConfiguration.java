@@ -1,6 +1,8 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.ade.api.ADE;
+import com.almis.awe.component.AweLoggingFilter;
+import com.almis.awe.component.AweMDCTaskDecorator;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
@@ -10,7 +12,6 @@ import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.NumericUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.file.FileUtil;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.*;
 import com.almis.awe.service.connector.JavaConnector;
@@ -91,14 +92,12 @@ public class AweAutoConfiguration {
 
   /**
    * Awe Elements
-   *
-   * @param logger Logger
    * @return Awe Elements bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public AweElements aweElements(LogUtil logger, AweElementsDao elementsDao) {
-    return new AweElements(context, logger, elementsDao);
+  public AweElements aweElements(AweElementsDao elementsDao) {
+    return new AweElements(context, elementsDao);
   }
 
   /**
@@ -148,17 +147,6 @@ public class AweAutoConfiguration {
   /////////////////////////////////////////////
   // UTILITIES
   /////////////////////////////////////////////
-
-  /**
-   * Log utilities
-   *
-   * @return Log utilities bean
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  public LogUtil logUtil() {
-    return new LogUtil(context);
-  }
 
   /**
    * Query utilities
@@ -310,14 +298,13 @@ public class AweAutoConfiguration {
    *
    * @param broadcastService Broadcast service
    * @param fileUtil         File util
-   * @param logger           Logger
    * @param request          Request
    * @return File service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public FileService fileService(BroadcastService broadcastService, FileUtil fileUtil, LogUtil logger, AweRequest request) {
-    return new FileService(broadcastService, fileUtil, logger, request);
+  public FileService fileService(BroadcastService broadcastService, FileUtil fileUtil, AweRequest request) {
+    return new FileService(broadcastService, fileUtil, request);
   }
 
   /**
@@ -619,5 +606,23 @@ public class AweAutoConfiguration {
   @Scope("prototype")
   public ServiceBuilder serviceBuilder(LauncherService launcherService, QueryUtil queryUtil) {
     return new ServiceBuilder(launcherService, queryUtil);
+  }
+
+  /**
+   * Awe logging filter
+   * @return servlet filter
+   */
+  @Bean
+  public AweLoggingFilter aweLoggingFilter() {
+    return new AweLoggingFilter();
+  }
+
+  /**
+   * Awe MDC Task decorator
+   * @return awe MDC task decorator
+   */
+  @Bean
+  public AweMDCTaskDecorator aweMDCTaskDecorator (){
+    return new AweMDCTaskDecorator();
   }
 }

@@ -3,7 +3,6 @@ package com.almis.awe.autoconfigure;
 import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.listener.TemplateErrorListener;
 import com.almis.awe.model.dao.AweElementsDao;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.HelpService;
 import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
@@ -102,13 +101,11 @@ public class TemplateConfig {
 
   /**
    * Retrieve template error listener
-   *
-   * @param logger Logger
    * @return Error listener
    */
   @Bean
-  public STErrorListener templateErrorListener(LogUtil logger) {
-    return new TemplateErrorListener(logger);
+  public STErrorListener templateErrorListener() {
+    return new TemplateErrorListener();
   }
 
   /**

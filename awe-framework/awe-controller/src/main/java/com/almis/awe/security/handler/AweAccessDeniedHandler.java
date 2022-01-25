@@ -1,6 +1,6 @@
 package com.almis.awe.security.handler;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * Access denied handler
  */
-@Log4j2
+@Slf4j
 public class AweAccessDeniedHandler implements AccessDeniedHandler {
 
   // Constants

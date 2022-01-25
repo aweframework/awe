@@ -5,7 +5,6 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.entities.actions.ClientAction;
-import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.BroadcastService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +35,6 @@ class UploadControllerTest {
   private AweSession aweSession;
   @Mock
   private AweElements aweElements;
-  @Mock
-  private LogUtil logUtil;
 
   /**
    * Initializes json mapper for tests
@@ -46,7 +43,6 @@ class UploadControllerTest {
   public void initBeans() {
     uploadController.setApplicationContext(context);
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
-    when(context.getBean(LogUtil.class)).thenReturn(logUtil);
   }
 
   /**

@@ -2,10 +2,10 @@ package com.almis.awe.scheduler.builder.cron;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.SimpleScheduleBuilder;
 
-@Log4j2
+@Slf4j
 public class SimplePatternBuilder {
   // Schedule
   private Schedule schedule;
@@ -13,7 +13,7 @@ public class SimplePatternBuilder {
   /**
    * SimplePattern
    *
-   * @param schedule
+   * @param schedule schedule
    */
   public SimplePatternBuilder(Schedule schedule) {
     this.schedule = schedule;
@@ -21,9 +21,9 @@ public class SimplePatternBuilder {
 
   /**
    * Sets the value of each parameter depending on the selected value of 'Repeat
-   * type' wich can be: minutes,hours,days,week or years
+   * type' witch can be: minutes,hours,days,week or years
    *
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   public SimpleScheduleBuilder build() throws AWException {
     SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule();

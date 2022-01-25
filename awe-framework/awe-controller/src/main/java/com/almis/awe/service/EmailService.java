@@ -9,7 +9,7 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
-@Log4j2
+@Slf4j
 public class EmailService extends ServiceConfig {
 
   // Constants

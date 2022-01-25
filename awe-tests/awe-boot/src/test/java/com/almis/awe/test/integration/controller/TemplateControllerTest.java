@@ -3,7 +3,7 @@ package com.almis.awe.test.integration.controller;
 import com.almis.awe.controller.TemplateController;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @Tag("integration")
 @DisplayName("Template controller Tests")
-@Log4j2
+@Slf4j
 @WithAnonymousUser
 class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
 

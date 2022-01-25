@@ -2,7 +2,7 @@ package com.almis.awe.scheduler.bean.file;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,12 +14,12 @@ import java.util.Map;
  */
 @Data
 @Accessors(chain = true)
-@Log4j2
+@Slf4j
 public class File implements Serializable {
 
   // File modifications array, composed by String filepath+filename and the date
   // of the modification
-  private transient Map<String, Date> fileModifications = null;
+  private transient Map<String, Date> fileModifications;
   // Server to look in
   private Integer fileServerId = null;
   // Path of the files
@@ -45,8 +45,8 @@ public class File implements Serializable {
   /**
    * check if the file has changed
    *
-   * @param fileName
-   * @param newFileModification
+   * @param fileName Name of file
+   * @param newFileModification Modification file date
    * @return boolean
    */
   public boolean hasChanged(String fileName, Date newFileModification) {

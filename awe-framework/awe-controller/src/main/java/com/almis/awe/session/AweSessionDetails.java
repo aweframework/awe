@@ -13,8 +13,8 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.util.Strings;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -29,7 +29,7 @@ import static com.almis.awe.model.constant.AweConstants.*;
 /**
  * Session details
  */
-@Log4j2
+@Slf4j
 public class AweSessionDetails extends ServiceConfig {
 
   // Autowired services
@@ -118,7 +118,7 @@ public class AweSessionDetails extends ServiceConfig {
     // Send logout broadcast to other connections
     connectionTracker.getUserConnectionsFromSession(user, getSession().getSessionId())
       .stream()
-      .filter(Strings::isNotBlank)
+      .filter(StringUtils::isNotBlank)
       .filter(c -> !c.equalsIgnoreCase(getRequest().getToken()))
       .forEach(c -> broadcastService.broadcastMessageToUID(c, new ClientAction("logout")));
 
@@ -153,7 +153,7 @@ public class AweSessionDetails extends ServiceConfig {
    */
   private void initializeSessionVariables() {
     Optional.ofNullable(sessionParameters).orElse(Collections.emptyList())
-      .stream().filter(Strings::isNotBlank)
+      .stream().filter(StringUtils::isNotBlank)
       .forEach(this::evaluateSessionParameter);
   }
 
@@ -188,23 +188,23 @@ public class AweSessionDetails extends ServiceConfig {
 
     // Specific language
     String language = Optional.ofNullable(userDetails.getLanguage())
-      .filter(Strings::isNotBlank)
+      .filter(StringUtils::isNotBlank)
       .orElse(defaultLanguage)
       .substring(0, 2).toLowerCase();
 
     // Specific restriction
     String theme = Stream.of(userDetails.getUserTheme(), userDetails.getProfileTheme())
-      .filter(Strings::isNotBlank)
+      .filter(StringUtils::isNotBlank)
       .findFirst().orElse(defaultTheme);
 
     // Specific restriction
     String restriction = Stream.of(userDetails.getUserFileRestriction(), userDetails.getProfileFileRestriction())
-      .filter(Strings::isNotBlank)
+      .filter(StringUtils::isNotBlank)
       .findFirst().orElse(defaultRestriction);
 
     // Specific initial screen
     String initialScreen = Stream.of(userDetails.getUserInitialScreen(), userDetails.getProfileInitialScreen())
-      .filter(Strings::isNotBlank)
+      .filter(StringUtils::isNotBlank)
       .findFirst().orElse(defaultInitialScreen);
 
     // Store user data in session

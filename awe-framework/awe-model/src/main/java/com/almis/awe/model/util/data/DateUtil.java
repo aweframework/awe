@@ -5,8 +5,8 @@ package com.almis.awe.model.util.data;
  */
 
 import com.almis.awe.model.component.AweElements;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.core.util.datetime.FastDateFormat;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.text.ParseException;
 import java.util.*;
@@ -17,7 +17,7 @@ import java.util.*;
  *
  * @author Pablo GARCIA and Pablo Vidal - 13/JUL/2014
  */
-@Log4j2
+@Slf4j
 public final class DateUtil {
 
   /**

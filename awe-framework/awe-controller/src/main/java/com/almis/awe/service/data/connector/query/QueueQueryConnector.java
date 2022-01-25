@@ -8,9 +8,10 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.queues.Queue;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.QueueBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.Level;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.Map;
  *
  * @author Pablo GARCIA 25-07-2017
  */
+@Slf4j
 public class QueueQueryConnector extends AbstractQueryConnector {
 
   /**
@@ -36,37 +38,37 @@ public class QueueQueryConnector extends AbstractQueryConnector {
   public ServiceData launch(Query query, ObjectNode parameters) throws AWException {
 
     // Log start query prepare time
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
     // Get query builder
     QueueBuilder builder = getBean(QueueBuilder.class);
     Queue queue = getElements().getQueue(query.getQueue()).copy();
 
     // Get query preparation time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Query launch
     builder.setQueue(queue);
     ServiceData result = buildResults(builder, query);
 
     // Get elapsed query time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Generate results
     Map<String, QueryParameter> variableMap = getQueryUtil().getVariableMap(query, parameters);
     result = generateResults(result, query, variableMap);
 
     // // Get elapsed datalist time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Log query
-    getLogger().log(QueueQueryConnector.class, Level.INFO, "[{0}] =>  {1} records. Prepare queue time: {2}s - Queue time: {3}s - Datalist time: {4}s - Total time: {5}s",
+    log.info("[{}] =>  {} records. Prepare queue time: {}s - Queue time: {}s - Datalist time: {}s - Total time: {}s",
       query.getId(),
       result.getDataList().getRecords(),
-      getLogger().getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-      getLogger().getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
-      getLogger().getElapsed(timeLapse, AweConstants.RESULTS_TIME),
-      getLogger().getTotalTime(timeLapse));
+      LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+      LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
+      LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
+      LogUtil.getTotalTime(timeLapse));
     return result;
   }
 
@@ -74,14 +76,14 @@ public class QueueQueryConnector extends AbstractQueryConnector {
   public ServiceData subscribe(Query query, ComponentAddress address, ObjectNode parameters) throws AWException {
 
     // Log start query prepare time
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
     // Get query builder
     QueueBuilder builder = getBean(QueueBuilder.class);
     Queue queue = getElements().getQueue(query.getQueue()).copy();
 
     // Get query preparation time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Query launch
     Map<String, QueryParameter> variableMap = getQueryUtil().getVariableMap(query, parameters);
@@ -93,14 +95,14 @@ public class QueueQueryConnector extends AbstractQueryConnector {
       .subscribe();
 
     // // Get elapsed datalist time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Log query
-    getLogger().log(QueueQueryConnector.class, Level.INFO, "[{0}] =>  Prepare queue time: {1}s - Queue time: {2}s - Total time: {3}s",
+    log.info("[{}] =>  Prepare queue time: {}s - Queue time: {}s - Total time: {}s",
       query.getId(),
-      getLogger().getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-      getLogger().getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
-      getLogger().getTotalTime(timeLapse));
+      LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+      LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
+      LogUtil.getTotalTime(timeLapse));
     return result;
   }
 
@@ -116,19 +118,19 @@ public class QueueQueryConnector extends AbstractQueryConnector {
   public ServiceData onSubscriptionData(Query query, ServiceData subscriptionData, Map<String, QueryParameter> parameterMap) throws AWException {
 
     // Log start query prepare time
-    List<Long> timeLapse = getLogger().prepareTimeLapse();
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
     // Generate results
     ServiceData result = generateResults(subscriptionData, query, parameterMap);
 
     // // Get elapsed datalist time
-    getLogger().checkpoint(timeLapse);
+    LogUtil.checkpoint(timeLapse);
 
     // Log query
-    getLogger().log(QueueQueryConnector.class, Level.INFO, "[{0}] => Subscription data retrieved - Datalist time: {1}s - Total time: {2}s",
+    log.info("[{}] => Subscription data retrieved - Datalist time: {}s - Total time: {}s",
       query.getId(),
-      getLogger().getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-      getLogger().getTotalTime(timeLapse));
+      LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+      LogUtil.getTotalTime(timeLapse));
     return result;
   }
 }

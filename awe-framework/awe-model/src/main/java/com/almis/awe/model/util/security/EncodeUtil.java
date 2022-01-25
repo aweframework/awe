@@ -2,10 +2,9 @@ package com.almis.awe.model.util.security;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
@@ -29,9 +28,9 @@ import java.security.spec.KeySpec;
  *
  * @author Pablo GARCIA - 17/MAR/2011
  */
+@Slf4j
 public final class EncodeUtil {
 
-  private static final Logger logger = LogManager.getLogger(EncodeUtil.class);
   private static final String STRING_ENCODE_ERROR = "String encode error";
 
   /**
@@ -492,7 +491,7 @@ public final class EncodeUtil {
     try {
       return SecureRandom.getInstance(AweConstants.RANDOM_ALGORITHM);
     } catch (NoSuchAlgorithmException exc) {
-      logger.error("Selected algorithm does not exist: {}", AweConstants.RANDOM_ALGORITHM, exc);
+      log.error("Selected algorithm does not exist: {}", AweConstants.RANDOM_ALGORITHM, exc);
       return new SecureRandom();
     }
   }
@@ -528,8 +527,6 @@ public final class EncodeUtil {
    */
   public static String encrypt(String digest, String valueEnc, final String secretKey) {
 
-    String encryptedVal = null;
-
     try {
       SecretKey key = generateKeyFromString(digest, secretKey);
       final Cipher c = Cipher.getInstance(digest);
@@ -542,10 +539,9 @@ public final class EncodeUtil {
       final byte[] encValue = c.doFinal(valueEnc.getBytes());
       return base64Encode(encValue);
     } catch (Exception ex) {
-      logger.error(ex.getLocalizedMessage());
+      log.error(ex.getLocalizedMessage());
     }
-
-    return encryptedVal;
+    return null;
   }
 
   /**
@@ -573,7 +569,7 @@ public final class EncodeUtil {
       final byte[] decValue = c.doFinal(decorVal);
       decryptedValue = new String(decValue, encoding);
     } catch (Exception ex) {
-      logger.error(ex.getLocalizedMessage());
+      log.error(ex.getLocalizedMessage());
     }
 
     return decryptedValue;
