@@ -1,8 +1,7 @@
-package com.almis.awe.service;
+package com.almis.awe.developer.service;
 
-import com.almis.awe.developer.service.LiteralsService;
-import com.almis.awe.developer.service.LocaleFileService;
-import com.almis.awe.developer.service.TranslationService;
+import com.almis.awe.developer.model.Translation;
+import com.almis.awe.developer.model.TranslationResponse;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.ServiceData;
@@ -86,7 +85,7 @@ class LiteralsServiceTest {
   @Test
   void translate() throws AWException {
     // Mockito actions
-    when(translationService.getTranslation(anyString(), anyString(), anyString())).thenReturn("Esto es una prueba");
+    when(translationService.getTranslation(anyString(), anyString(), anyString())).thenReturn(new TranslationResponse().setResponseData(new Translation().setTranslatedText("Esto es una prueba")));
 
     // Launch
     ServiceData serviceData = literalsService.translate("This is a test", "en", "es");
@@ -114,6 +113,22 @@ class LiteralsServiceTest {
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
     when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
+    when(translationService.getTranslation(anyString(), anyString(), anyString())).thenReturn(new TranslationResponse().setResponseData(new Translation()));
+    ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
+    assertEquals("OK", serviceData.getTitle());
+  }
+
+  /**
+   * Test switch Languages
+   */
+  @Test
+  void newLiteralWithRemaining() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
+    when(translationService.getTranslation(anyString(), anyString(), eq("es"))).thenReturn(new TranslationResponse().setRemaining("9978").setResponseData(new Translation()));
+    when(translationService.getTranslation(anyString(), anyString(), eq("fr"))).thenReturn(new TranslationResponse().setRemaining("9975").setResponseData(new Translation()));
     ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
     assertEquals("OK", serviceData.getTitle());
   }

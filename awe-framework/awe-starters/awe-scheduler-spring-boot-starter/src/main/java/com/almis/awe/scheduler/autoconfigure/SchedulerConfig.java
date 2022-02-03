@@ -23,7 +23,6 @@ import com.almis.awe.scheduler.service.*;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import lombok.Data;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  * Scheduler module configuration
  */
 @Configuration
-@Data
 @EnableConfigurationProperties({SchedulerConfigProperties.class})
 public class SchedulerConfig {
 

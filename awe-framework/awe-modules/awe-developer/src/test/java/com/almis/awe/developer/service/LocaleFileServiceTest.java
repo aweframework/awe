@@ -1,7 +1,5 @@
-package com.almis.awe.service;
+package com.almis.awe.developer.service;
 
-import com.almis.awe.developer.service.LocaleFileService;
-import com.almis.awe.developer.service.PathService;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.locale.Locales;
