@@ -387,7 +387,7 @@
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="Il y avait un problème de récupération de l&apos;état du téléchargement de fichier"/>
   <locale name="ERROR_MESSAGE_FILENAME_SIZE_LIMIT" value="Le nom du fichier téléchargé a une taille de {0} chars, et au-dessus du maximum autorisé: 160 chars"/>
   <locale name="ERROR_MESSAGE_FILL_STATEMENT_VARIABLES" value="Erreur dans la variable. Index {0} - Type: {1} - Valeur: {2}"/>
-  <locale name="ERROR_MESSAGE_FORBIDDEN_ACCESS" value="L'accès à la ressource demandée est interdit"/>
+  <locale name="ERROR_MESSAGE_FORBIDDEN_ACCESS" value="L&apos;accès à la ressource demandée est interdit"/>
   <locale name="ERROR_MESSAGE_FORMAT_COMPUTED" value="Il y avait un problème de mise en champ calculé avec la valeur {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_SERVICE_DATA" value="Il ya eu un problème avec le formatage des donnees du service {0}"/>
   <locale name="ERROR_MESSAGE_FORMAT_TOTALIZED" value="Il ya eu un problème avec le formatage de la valeur totalisée {0} sur le terrain"/>
@@ -430,8 +430,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="Probleme executant une requette [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="Il ya eu un problème en envoyant un message à partir de la requte {0} à une queue"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="Probleme executant une requette SQL [{0}]. S&apos;il vous plaît voir le journal pour plus de détails"/>
-  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Probleme executant une requette privée [{0}] sans authorization"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Probleme executant l&apos;operation de maintenance privée [{0}] sans authorization"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Probleme executant une requette privée [{0}] sans authorization"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="LDAP connection parameters are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="The ldap credentials are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="L&apos;utilisateur {0} n&apos;existe pas ou est désactivé dans le LDAP"/>
@@ -863,6 +863,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="OK_MESSAGE_MAINTAIN_OPERATION" value="L&apos;operation de maintenence faite correctement"/>
   <locale name="OK_MESSAGE_MESSAGE_SENT" value="El mensaje ha sido enviado a los usuarios correctamente"/>
   <locale name="OK_MESSAGE_NEW_LOCAL" value="Le locale -{0}- a été généré avec succès"/>
+  <locale name="OK_MESSAGE_NEW_LOCAL_REMAINING" value="Les paramètres régionaux -{0}- ont été générés avec succès. Il reste {1} mots disponibles sur le service de traduction."/>
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="Le localee -{0}, a été supprimée avec succès"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Effacement de la memoire cache"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Mail envoye correctement"/>

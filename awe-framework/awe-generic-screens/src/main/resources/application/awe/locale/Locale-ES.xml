@@ -433,8 +433,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="Ha habido un problema al lanzar la consulta [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="Ha habido un problema enviando un mensaje a una cola desde la consulta {0}"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="Ha habido un problema al lanzar la consulta SQL [{0}]. Más información en el log de la aplicación"/>
-  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error lanzando la consulta privada [{0}] sin autorización"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Error lanzando el mantenimiento privado [{0}] sin autorización"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error lanzando la consulta privada [{0}] sin autorización"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="Los parametros de conexión de LDAP son incorrectos"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="Las credenciales de LDAP son incorrectas"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>
@@ -866,6 +866,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="OK_MESSAGE_MAINTAIN_OPERATION" value="La operación de mantenimiento ha sido realizada correctamente"/>
   <locale name="OK_MESSAGE_MESSAGE_SENT" value="El mensaje ha sido enviado a los usuarios correctamente"/>
   <locale name="OK_MESSAGE_NEW_LOCAL" value="El literal -{0}- se ha generado correctamente"/>
+  <locale name="OK_MESSAGE_NEW_LOCAL_REMAINING" value="La configuración regional -{0}- se ha generado correctamente. Quedan {1} palabras disponibles en el servicio de traducción."/>
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="El literal -{0}- se ha eliminado correctamente"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Borrado de cache"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Correo enviado correctamente"/>

@@ -4,6 +4,7 @@ import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.client.grid.UpdateCellActionBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.developer.comparator.CompareLocal;
+import com.almis.awe.developer.model.ITranslationResult;
 import com.almis.awe.developer.model.Literal;
 import com.almis.awe.developer.type.FormatType;
 import com.almis.awe.exception.AWException;
@@ -59,7 +60,7 @@ public class LiteralsService extends ServiceConfig {
 
     if (!Optional.ofNullable(fromLanguage).orElse("").equalsIgnoreCase(toLanguage)) {
       // Call translation API
-      result = translationService.getTranslation(text, fromLanguage, toLanguage);
+      result = translationService.getTranslation(text, fromLanguage, toLanguage).getTranslation();
     }
 
     return new ServiceData()
@@ -169,12 +170,13 @@ public class LiteralsService extends ServiceConfig {
       .collect(Collectors.toList());
 
     // Retrieve service data
+    Comparator<ServiceData> comparator = Comparator.comparingInt(serviceData -> Integer.parseInt(Optional.ofNullable((String) serviceData.getData()).orElse(String.valueOf(Integer.MAX_VALUE))));
     return resultList.stream()
       .filter(serviceData -> AnswerType.ERROR.equals(serviceData.getType()))
       .findAny()
       .orElse(resultList.stream()
         .filter(serviceData -> AnswerType.OK.equals(serviceData.getType()))
-        .findAny()
+        .min(comparator)
         .orElse(new ServiceData()
           .setTitle(getLocale("WARNING_TITLE_NEW_LOCAL"))
           .setMessage(getLocale("WARNING_MESSAGE_LOCAL_ALREADY_EXISTS", code))
@@ -188,14 +190,24 @@ public class LiteralsService extends ServiceConfig {
 
       // Check if local already exists
       if (localesFromFile.getLocale(code) == null) {
-        String newLiteral = oldLanguage.equalsIgnoreCase(language) ? literal : translationService.getTranslation(literal, oldLanguage.toUpperCase(), language);
+        String newLiteral = literal;
+        String remaining = null;
+        if (!oldLanguage.equalsIgnoreCase(language)) {
+          ITranslationResult result = translationService.getTranslation(literal, oldLanguage.toUpperCase(), language);
+          newLiteral = result.getTranslation();
+          remaining = result.getRemaining();
+          if (remaining != null) {
+            log.info("There are still {} words remaining on translate service", remaining);
+          }
+        }
 
         // Create new local in XML file
         storeNewLocale(language, code, newLiteral);
 
         return new ServiceData()
+          .setData(remaining)
           .setTitle(getLocale("OK_TITLE_NEW_LOCAL"))
-          .setMessage(getLocale("OK_MESSAGE_NEW_LOCAL", code));
+          .setMessage(remaining == null ? getLocale("OK_MESSAGE_NEW_LOCAL", code) : getLocale("OK_MESSAGE_NEW_LOCAL_REMAINING", code, remaining));
       }
     } catch (AWException exc) {
       log.error("Error trying to add a new locale ({}) on language {}", code, language, exc);
@@ -263,10 +275,11 @@ public class LiteralsService extends ServiceConfig {
         // Add actions to list
         FormatType format = StringUtils.isBlank(global.getMarkdown()) ? FormatType.TEXT : FormatType.MARKDOWN;
         String value = FormatType.TEXT.equals(format) ? global.getValue() : global.getMarkdown();
-        serviceData.addClientAction(new SelectActionBuilder("litTxt", value).setAsync(true).build());
-        serviceData.addClientAction(new SelectActionBuilder("litMrk", value).setAsync(true).build());
-        serviceData.addClientAction(new SelectActionBuilder("FormatSelector", format.toString()).setAsync(true).build());
-        serviceData.addClientAction(new SelectActionBuilder("FlgStoLit", format.toString()).setAsync(true).build());
+        serviceData
+          .addClientAction(new SelectActionBuilder("litTxt", value).setAsync(true).build())
+          .addClientAction(new SelectActionBuilder("litMrk", value).setAsync(true).build())
+          .addClientAction(new SelectActionBuilder("FormatSelector", format.toString()).setAsync(true).build())
+          .addClientAction(new SelectActionBuilder("FlgStoLit", format.toString()).setAsync(true).build());
       });
 
     return serviceData;
