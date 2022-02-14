@@ -150,7 +150,7 @@ Build website with i18n:
     - job: Build project
       artifacts: false
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.timezoneAsRegion=false
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false
   rules:
     - <<: *if-default
   artifacts:
