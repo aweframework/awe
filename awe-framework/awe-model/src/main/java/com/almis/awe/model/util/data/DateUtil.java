@@ -6,10 +6,17 @@ package com.almis.awe.model.util.data;
 
 import com.almis.awe.model.component.AweElements;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.text.ParseException;
-import java.util.*;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * DateUtil Class
@@ -26,63 +33,58 @@ public final class DateUtil {
   private DateUtil() {
   }
 
-  /* Util name */
+  // Util name
   private static final String UTILITY_NAME = "DATE UTILITY";
 
-  /* Date in Web Format */
-  private static final FastDateFormat DATE_FORMAT_WEB = FastDateFormat.getInstance("dd/MM/yyyy");
+  // Date in Web Format
+  public static final DateTimeFormatter DATE_FORMAT_WEB = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-  /* Date in Js Format */
-  private static final FastDateFormat DATE_FORMAT_JS = FastDateFormat.getInstance("MM/dd/yyyy");
+  // Date in Js Format
+  public static final DateTimeFormatter DATE_FORMAT_JS = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-  /* Date in SQL Format */
-  private static final FastDateFormat DATE_FORMAT_SQL = FastDateFormat.getInstance("yyyy-MM-dd");
+  // Date in SQL Format
+  public static final DateTimeFormatter DATE_FORMAT_SQL = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-  /* Date in Web Service Format */
-  private static final FastDateFormat DATE_FORMAT_WBS = FastDateFormat.getInstance("yyyy-MM-dd");
+  // Date in Web Service Format
+  public static final DateTimeFormatter DATE_FORMAT_WBS = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-  /* Date in RDB Format */
-  private static final FastDateFormat DATE_FORMAT_RDB = FastDateFormat.getInstance("dd-MMM-yyyy", Locale.ENGLISH);
+  // Date in RDB Format
+  public static final DateTimeFormatter DATE_FORMAT_RDB = new DateTimeFormatterBuilder()
+          .parseCaseInsensitive()
+          .appendPattern("dd-MMM-yyyy")
+          .toFormatter(Locale.ENGLISH);
 
-  /* Timestamp in SQL Format */
-  private static final FastDateFormat TMST_FORMAT_SQL_MS = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss.S");
+  // Timestamp in SQL Format
+  public static final DateTimeFormatter TIMESTAMP_FORMAT_SQL_MS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
-  /* Time in Web Format */
-  private static final FastDateFormat TIME_FORMAT_WEB = FastDateFormat.getInstance("HH:mm:ss");
+  // Timestamp in Web Format with Optional milliseconds
+  public static final DateTimeFormatter TIMESTAMP_FORMAT_WEB = new DateTimeFormatterBuilder().appendPattern("dd/MM/yyyy HH:mm:ss")
+                  .appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true).toFormatter();
 
-  /* Timestamp in Web Format */
-  private static final FastDateFormat TMST_FORMAT_WEB = FastDateFormat.getInstance("dd/MM/yyyy HH:mm:ss");
+  // Timestamp in Web Format
+  public static final DateTimeFormatter DATETIME_FORMAT_WEB = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-  /* Timestamp in Js Format */
-  private static final FastDateFormat TMST_FORMAT_JS = FastDateFormat.getInstance("MM/dd/yyyy HH:mm:ss");
+  // Timestamp in Js Format
+  public static final DateTimeFormatter TIMESTAMP_FORMAT_JS = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
 
-  /* Timestamp in Web Format with milliseconds */
-  private static final FastDateFormat TMST_FORMAT_WEB_MS = FastDateFormat.getInstance("dd/MM/yyyy HH:mm:ss.S");
+  // Timestamp in Web Format with milliseconds
+  public static final DateTimeFormatter TIMESTAMP_FORMAT_WEB_MS = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss.SSS");
 
-  /* Timestamp in Web Format with milliseconds */
-  private static final FastDateFormat JSON_DATE = FastDateFormat.getInstance("yyyy-MM-dd@HH:mm:ss.SSSZ");
+  // Time in Web Format
+  public static final DateTimeFormatter TIME_FORMAT_WEB = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+  // Timestamp in Web Format with milliseconds
+  public static final DateTimeFormatter JSON_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss.SSSZ");
 
   /**
    * Transforms a web date into a SQL Date
    *
    * @param date Web Date
    * @return SQL Date
-   * @throws ParseException Parse error
    */
-  public static java.sql.Date web2SqlDate(String date) throws ParseException {
-
-    /* Variable definition */
-    java.sql.Date sqlDat;
-    java.util.Date webDat;
-
-    /* Parse initial date */
-    webDat = DATE_FORMAT_WEB.parse(date);
-
-    /* Convert to sql Date */
-    sqlDat = java.sql.Date.valueOf(DATE_FORMAT_SQL.format(webDat));
-
-    /* Return sql Date */
-    return sqlDat;
+  public static java.sql.Date web2SqlDate(String date) {
+    // Convert to sql Date
+    return java.sql.Date.valueOf(LocalDate.parse(date, DATE_FORMAT_WEB));
   }
 
   /**
@@ -90,88 +92,52 @@ public final class DateUtil {
    *
    * @param time Web Timestamp
    * @return SQL Date
-   * @throws ParseException Parse error
    */
-  public static java.sql.Time web2SqlTime(String time) throws ParseException {
-
-    /* Variable definition */
-    java.sql.Time sqlDat;
-    java.util.Date webDat;
-
-    /* Parse initial date */
-    webDat = TIME_FORMAT_WEB.parse(time);
-
-    /* Convert to sql Time */
-    sqlDat = java.sql.Time.valueOf("00:00:00");
-    sqlDat.setTime(webDat.getTime());
-
-    /* Return sql Date */
-    return sqlDat;
+  public static java.sql.Time web2SqlTime(String time) {
+    LocalTime localTime = LocalTime.parse(time, TIME_FORMAT_WEB);
+    return Time.valueOf(localTime);
   }
 
   /**
    * Transforms a web date into a SQL Timestamp
    *
    * @param date Web Date
-   * @return SQL Date
-   * @throws ParseException Parse error
+   * @return SQL Timestamp
    */
-  public static java.sql.Timestamp webDate2SqlTimestamp(String date) throws ParseException {
-
-    // Variable definition
-    java.sql.Timestamp sqlDat;
-    java.util.Date webDat;
-
-    // Parse initial date
-    webDat = DATE_FORMAT_WEB.parse(date);
-
-    // Convert to sql Time
-    sqlDat = java.sql.Timestamp.valueOf(TMST_FORMAT_SQL_MS.format(webDat));
-    sqlDat.setTime(webDat.getTime());
-
-    // Return sql Date
-    return sqlDat;
+  public static java.sql.Timestamp webDate2SqlTimestamp(String date) {
+    // Parse date and format as Timestamp
+    return Timestamp.valueOf(LocalDate.parse(date, DATE_FORMAT_WEB).atStartOfDay());
   }
 
   /**
    * Transforms a web timestamp into a SQL Timestamp
    *
    * @param timestamp Web Timestamp
-   * @return SQL Date
-   * @throws ParseException Parse error
+   * @return SQL Timestamp
    */
-  public static java.sql.Timestamp web2SqlTimestamp(String timestamp) throws ParseException {
+  public static java.sql.Timestamp web2SqlTimestamp(String timestamp) {
 
-    /* Variable definition */
-    java.sql.Timestamp sqlDat;
-    java.util.Date webDat;
-
-    /* Parse initial date */
-    webDat = TMST_FORMAT_WEB.parse(timestamp);
-
-    /* Convert to sql Time */
-    sqlDat = java.sql.Timestamp.valueOf(TMST_FORMAT_SQL_MS.format(webDat));
-    sqlDat.setTime(webDat.getTime());
-
-    /* Return sql Date */
-    return sqlDat;
+    LocalDateTime localDateTime = LocalDateTime.parse(timestamp, TIMESTAMP_FORMAT_WEB);
+    return Timestamp.valueOf(localDateTime);
   }
 
   /**
    * Transforms a web date into a Date
+   * Return null if  date is not valid
    *
-   * @param date Web Date
-   * @return SQL Date
+   * @param date string Web date
+   * @return Date
    */
   public static java.util.Date web2Date(String date) {
 
-    /* Variable definition */
+    // Variable definition
     java.util.Date webDat = null;
 
     try {
-      /* Parse initial date */
+      // Parse initial date
       if (date != null && !"".equalsIgnoreCase(date)) {
-        webDat = DATE_FORMAT_WEB.parse(date);
+        LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WEB);
+        webDat = java.sql.Date.valueOf(localDate);
       }
     } catch (Exception exc) {
       log.error("[{}] Error parsing WEB date to date -{}-", UTILITY_NAME, date, exc);
@@ -183,48 +149,48 @@ public final class DateUtil {
 
   /**
    * Transforms a web time into a Date
+   * Return null if time is not valid
    *
-   * @param date Web Date
+   * @param time Web Time
    * @return SQL Date
    */
-  public static java.util.Date web2Time(String date) {
+  public static java.util.Date web2Time(String time) {
 
-    /* Variable definition */
+    // Variable definition
     java.util.Date webDat;
 
     try {
-      /* Parse initial date */
-      webDat = TIME_FORMAT_WEB.parse(date);
+      // Parse time
+      LocalTime localTime = LocalTime.parse(time, TIME_FORMAT_WEB);
+      webDat = Time.valueOf(localTime);
     } catch (Exception exc) {
       webDat = null;
-      log.error("[{}] Error parsing WEB TIME to date -{}-", UTILITY_NAME, date, exc);
+      log.error("[{}] Error parsing WEB TIME to date -{}-", UTILITY_NAME, time, exc);
     }
-
-    /* Return sql Date */
+    // Return sql Date
     return webDat;
   }
 
   /**
    * Transforms a web timestamp into a Date
    *
-   * @param date Web Date
-   * @return SQL Date
+   * @param timestamp Web Timestamp date
+   * @return timestamp Date
    */
-  public static java.util.Date web2Timestamp(String date) {
-
-    /* Variable definition */
+  public static java.util.Date web2Timestamp(String timestamp) {
+    // Variable definition
     java.util.Date webDat = null;
 
     try {
-      if (date != null) {
-        /* Parse initial date */
-        webDat = TMST_FORMAT_WEB.parse(date);
+      if (timestamp != null) {
+        // Parse initial date
+        LocalDateTime localDateTime = LocalDateTime.parse(timestamp, TIMESTAMP_FORMAT_WEB);
+        webDat = Timestamp.valueOf(localDateTime);
       }
     } catch (Exception exc) {
-      log.error("[{}] Error parsing WEB TIMESTAMP to date -{}-", UTILITY_NAME, date, exc);
+      log.error("[{}] Error parsing WEB TIMESTAMP to date -{}-", UTILITY_NAME, timestamp, exc);
     }
-
-    /* Return sql Date */
+    // Return sql Date
     return webDat;
   }
 
@@ -236,18 +202,14 @@ public final class DateUtil {
    */
   public static java.util.Date web2TimestampWithMs(String date) {
 
-    /* Variable definition */
-    java.util.Date webDat;
-
+    // Variable definition
+    java.util.Date webDat = null;
     try {
-      /* Parse initial date */
-      webDat = TMST_FORMAT_WEB_MS.parse(date);
+      LocalDateTime localDateTime = LocalDateTime.parse(date, TIMESTAMP_FORMAT_WEB_MS);
+      webDat = Timestamp.valueOf(localDateTime);
     } catch (Exception exc) {
-      webDat = null;
       log.error("[{}] Error parsing WEB TIMESTAMP WITH MS to date -{}-", UTILITY_NAME, date, exc);
     }
-
-    /* Return sql Date */
     return webDat;
   }
 
@@ -258,8 +220,8 @@ public final class DateUtil {
    * @return SQL Date
    */
   public static java.sql.Date dat2SqlDate(java.util.Date date) {
-    /* Return sql Date */
-    return java.sql.Date.valueOf(DATE_FORMAT_SQL.format(date));
+    // Return sql Date
+    return new java.sql.Date(date.getTime());
   }
 
   /**
@@ -269,8 +231,8 @@ public final class DateUtil {
    * @return SQL Date
    */
   public static String dat2SqlDateString(java.util.Date date) {
-    /* Return sql Date */
-    return DATE_FORMAT_SQL.format(date);
+    // Get localDate and format
+    return asLocalDate(date).format(DATE_FORMAT_SQL);
   }
 
   /**
@@ -311,64 +273,73 @@ public final class DateUtil {
    * @param date Date
    * @return SQL Timestamp
    */
-  public static java.sql.Timestamp dat2SqlTime(java.util.Date date) {
-    /* Return sql timestamp */
-    return java.sql.Timestamp.valueOf(TMST_FORMAT_SQL_MS.format(date));
+  public static java.sql.Timestamp dat2SqlTimestamp(java.util.Date date) {
+    // Get localDate and format
+    LocalDateTime localDateTime = asLocalDateTime(date);
+    // Return sql timestamp
+    return java.sql.Timestamp.valueOf(localDateTime.format(TIMESTAMP_FORMAT_SQL_MS));
   }
 
   /**
-   * Transforms a date into a SQL Time string
+   * Transforms a timestamp date into a SQL Timestamp string
    *
    * @param date Date
    * @return SQL Timestamp
    */
   public static String dat2SqlTimeString(java.util.Date date) {
-    /* Return sql timestamp */
-    return TMST_FORMAT_SQL_MS.format(date);
+    // Get localDate and format
+    LocalDateTime localDateTime = asLocalDateTime(date);
+    // Return sql timestamp
+    return localDateTime.format(TIMESTAMP_FORMAT_SQL_MS);
   }
 
   /**
-   * Transforms a date into a Web Timestamp
+   * Transforms a date time into a Web Timestamp
    *
-   * @param date Date
+   * @param dateTime Date
    * @return WEB Timestamp
    */
-  public static String dat2WebTimestamp(java.util.Date date) {
-    /* Convert to web timestamp */
-    return TMST_FORMAT_WEB.format(date);
+  public static String dat2WebTimestamp(java.util.Date dateTime) {
+    // Get localDate and format
+    LocalDateTime localDateTime = asLocalDateTime(dateTime);
+    return DATETIME_FORMAT_WEB.format(localDateTime);
   }
+
 
   /**
    * Transforms a date into a Web Timestamp with milliseconds
    *
-   * @param date Date
+   * @param date dateTime Date
    * @return WEB Timestamp
    */
   public static String dat2WebTimestampMs(java.util.Date date) {
-    /* Convert to web timestamp */
-    return TMST_FORMAT_WEB_MS.format(date);
+    // Get localDate and format
+    LocalDateTime localDateTime = asLocalDateTime(date);
+    return TIMESTAMP_FORMAT_WEB_MS.format(localDateTime);
   }
 
   /**
-   * Transforms a date into a Web Time
+   * Transforms a time as Date into a Web Time
    *
    * @param date Date
    * @return WEB Time
    */
   public static String dat2WebTime(java.util.Date date) {
-    /* Convert to web timestamp */
-    return TIME_FORMAT_WEB.format(date);
+    // Get localDate and format
+    LocalTime localTime = asLocalTime(date);
+    return TIME_FORMAT_WEB.format(localTime);
   }
 
   /**
    * Transforms a date into a Web Date
    *
    * @param date Date
-   * @return WEB Time
+   * @return String WEB date
    */
   public static String dat2WebDate(java.util.Date date) {
-    /* Convert to web timestamp */
-    return DATE_FORMAT_WEB.format(date);
+    // Get localDate and format
+    LocalDate localDate = asLocalDate(date);
+    return DATE_FORMAT_WEB.format(localDate);
   }
 
   /**
@@ -389,34 +360,29 @@ public final class DateUtil {
    * @return Web date formatted
    */
   public static String sql2WebDate(String date) {
-
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
-
     try {
-      /* Parse initial date */
-      webDat = TMST_FORMAT_SQL_MS.parse(date);
-      outDat = DATE_FORMAT_WEB.format(webDat);
+      // Parse initial date
+      LocalDateTime localDateTime = LocalDateTime.parse(date, TIMESTAMP_FORMAT_SQL_MS);
+      outDat = localDateTime.format(DATE_FORMAT_WEB);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing SQL date to WEB date -{}-", UTILITY_NAME, date, exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
   /**
    * Transforms a SQL String date into a java date
    *
-   * @param date SQL String Date
+   * @param timestamp SQL String Timestamp
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static java.util.Date sql2JavaDate(String date) throws ParseException {
-    /* Return web date string */
-    return TMST_FORMAT_SQL_MS.parse(date);
+  public static java.util.Date sql2JavaDate(String timestamp) {
+    LocalDateTime localDateTime = LocalDateTime.parse(timestamp, TIMESTAMP_FORMAT_SQL_MS);
+    return java.sql.Timestamp.valueOf(localDateTime);
   }
 
   /**
@@ -424,11 +390,10 @@ public final class DateUtil {
    *
    * @param date SQL String Date
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static java.util.Date sqlDate2JavaDate(String date) throws ParseException {
-    /* Return web date string */
-    return DATE_FORMAT_SQL.parse(date);
+  public static java.util.Date sqlDate2JavaDate(String date) {
+    LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_SQL);
+    return java.sql.Date.valueOf(localDate);
   }
 
   /**
@@ -436,11 +401,10 @@ public final class DateUtil {
    *
    * @param date SQL String Date
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static java.util.Date wbs2JavaDate(String date) throws ParseException {
-    /* Return web date string */
-    return DATE_FORMAT_WBS.parse(date);
+  public static java.util.Date wbs2JavaDate(String date) {
+    LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WBS);
+    return java.sql.Date.valueOf(localDate);
   }
 
   /**
@@ -448,36 +412,30 @@ public final class DateUtil {
    *
    * @param date SQL String Date
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static java.util.Date rdb2Date(String date) throws ParseException {
+  public static java.util.Date rdb2Date(String date) {
     /* Return web date string */
-    return DATE_FORMAT_RDB.parse(date);
+    return java.sql.Date.valueOf(LocalDate.parse(date, DATE_FORMAT_RDB));
   }
 
   /**
    * Transforms a SQL String date into a web time
    *
-   * @param date SQL String Date
+   * @param timestamp SQL String Date
    * @return Web time formatted
-   * @throws ParseException Parse error
    */
-  public static String sql2WebTime(String date) throws ParseException {
+  public static String sql2WebTime(String timestamp) {
 
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
-
     try {
-      /* Parse initial date */
-      webDat = TMST_FORMAT_SQL_MS.parse(date);
-      outDat = TIME_FORMAT_WEB.format(webDat);
+      LocalDateTime localDateTime = LocalDateTime.parse(timestamp, TIMESTAMP_FORMAT_SQL_MS);
+      outDat = TIME_FORMAT_WEB.format(localDateTime);
     } catch (Exception exc) {
-      outDat = date;
-      log.error("[{}] Error parsing SQL date to WEB TIME -{}-", UTILITY_NAME, date, exc);
+      outDat = timestamp;
+      log.error("[{}] Error parsing SQL date to WEB TIME -{}-", UTILITY_NAME, timestamp, exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -486,24 +444,22 @@ public final class DateUtil {
    *
    * @param date SQL String Date
    * @return Web timestamp formatted
-   * @throws ParseException Parse error
    */
-  public static String sql2WebTimestamp(String date) throws ParseException {
+  public static String sql2WebTimestamp(String date) {
 
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
 
     try {
-      /* Parse initial date */
-      webDat = TMST_FORMAT_SQL_MS.parse(date);
-      outDat = TMST_FORMAT_WEB.format(webDat);
+      // Parse initial date
+      LocalDateTime localDateTime = LocalDateTime.parse(date, TIMESTAMP_FORMAT_SQL_MS);
+      outDat = TIMESTAMP_FORMAT_WEB.format(localDateTime);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing SQL date to WEB TIMESTAMP -{}-", UTILITY_NAME, date, exc);
     }
 
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -512,24 +468,21 @@ public final class DateUtil {
    *
    * @param date SQL String Date
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static String sql2JsDate(String date) throws ParseException {
+  public static String sql2JsDate(String date) {
 
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
 
     try {
-      /* Parse initial date */
-      webDat = TMST_FORMAT_SQL_MS.parse(date);
-      outDat = DATE_FORMAT_JS.format(webDat);
+      // Parse initial date
+      LocalDateTime localDateTime = LocalDateTime.parse(date, TIMESTAMP_FORMAT_SQL_MS);
+      outDat = DATE_FORMAT_JS.format(localDateTime);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing SQL date to JS date -{}-", UTILITY_NAME, date, exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -540,13 +493,9 @@ public final class DateUtil {
    * @return Java date in milliseconds
    */
   public static String sql2DateMs(String val) {
-    String dateMs = null;
-    try {
-      Date date = sql2JavaDate(val);
-      dateMs = dat2DateMs(date);
-    } catch (ParseException ex) {
-      log.error("[{}] Error parsing SQL date to Java date in milliseconds -{}-", UTILITY_NAME, ex);
-    }
+    String dateMs;
+    Date date = sql2JavaDate(val);
+    dateMs = dat2DateMs(date);
     return dateMs;
   }
 
@@ -555,24 +504,20 @@ public final class DateUtil {
    *
    * @param date SQL String Date
    * @return Web timestamp formatted
-   * @throws ParseException Parse error
    */
-  public static String sql2JsTimestamp(String date) throws ParseException {
+  public static String sql2JsTimestamp(String date) {
 
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
-
     try {
-      /* Parse initial date */
-      webDat = TMST_FORMAT_SQL_MS.parse(date);
-      outDat = TMST_FORMAT_JS.format(webDat);
+      // Parse initial date
+      LocalDateTime localDateTime = LocalDateTime.parse(date, TIMESTAMP_FORMAT_SQL_MS);
+      outDat = TIMESTAMP_FORMAT_JS.format(localDateTime);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing SQL date to JS TIMESTAMP -{}-", UTILITY_NAME, date, exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -583,19 +528,14 @@ public final class DateUtil {
    * @return Web date formatted
    */
   public static String sqlDat2WebDate(java.sql.Date date) {
-
-    /* Variable definition */
-    java.util.Date webDat = dat2SqlDate(date);
     String outDat = null;
-
     try {
-      /* Parse initial date */
-      outDat = DATE_FORMAT_WEB.format(webDat);
+      // Parse initial date
+      outDat = DATE_FORMAT_WEB.format(date.toLocalDate());
     } catch (Exception exc) {
       log.error("[{}] Error parsing SQL date to WEB date -{}-", UTILITY_NAME, date.toString(), exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -607,13 +547,12 @@ public final class DateUtil {
    */
   public static String sqlDat2WebTime(java.sql.Time date) {
 
-    /* Variable definition */
-    java.util.Date webDat = dat2SqlTime(date);
+    // Variable definition
     String outDat = null;
 
     try {
       /* Parse initial date */
-      outDat = TIME_FORMAT_WEB.format(webDat);
+      outDat = TIME_FORMAT_WEB.format(date.toLocalTime());
     } catch (Exception exc) {
       log.error("[{}] Error parsing SQL date to WEB TIME -{}-", UTILITY_NAME, date.toString(), exc);
     }
@@ -630,18 +569,15 @@ public final class DateUtil {
    */
   public static String sqlDat2WebTimestamp(java.sql.Timestamp date) {
 
-    /* Variable definition */
-    java.util.Date webDat = dat2SqlTime(date);
+    // Variable definition
     String outDat = null;
-
     try {
       /* Parse initial date */
-      outDat = TMST_FORMAT_WEB.format(webDat);
+      outDat = TIMESTAMP_FORMAT_WEB.format(date.toLocalDateTime());
     } catch (Exception exc) {
       log.error("[{}] Error parsing SQL date to WEB TIMESTAMP -{}-", UTILITY_NAME, date.toString(), exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -653,18 +589,17 @@ public final class DateUtil {
    */
   public static String sqlDat2JsDate(java.sql.Date date) {
 
-    /* Variable definition */
-    java.util.Date webDat = dat2SqlDate(date);
+    // Variable definition
     String outDat = null;
 
     try {
-      /* Parse initial date */
-      outDat = DATE_FORMAT_JS.format(webDat);
+      // Parse and format date
+      outDat = DATE_FORMAT_JS.format(date.toLocalDate());
     } catch (Exception exc) {
       log.error("[{}] Error parsing SQL date to JS date -{}-", UTILITY_NAME, date.toString(), exc);
     }
 
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -676,18 +611,17 @@ public final class DateUtil {
    */
   public static String sqlDat2JsTimestamp(java.sql.Timestamp date) {
 
-    /* Variable definition */
-    java.util.Date webDat = dat2SqlTime(date);
+    // Variable definition
     String outDat = null;
 
     try {
-      /* Parse initial date */
-      outDat = TMST_FORMAT_JS.format(webDat);
+      // Parse and format date
+      outDat = TIMESTAMP_FORMAT_JS.format(date.toLocalDateTime());
     } catch (Exception exc) {
       log.error("[{}] Error parsing SQL date to JS TIMESTAMP -{}-", UTILITY_NAME, date.toString(), exc);
     }
 
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -698,8 +632,9 @@ public final class DateUtil {
    * @return Web timestamp formatted
    */
   public static String dat2JsDate(java.util.Date date) {
-    /* Return js date */
-    return DATE_FORMAT_JS.format(date);
+    // Get local date and format
+    LocalDate localDate = asLocalDate(date);
+    return DATE_FORMAT_JS.format(localDate);
   }
 
   /**
@@ -709,8 +644,9 @@ public final class DateUtil {
    * @return Web timestamp formatted
    */
   public static String dat2JsTimestamp(java.util.Date date) {
-    /* Return web date string */
-    return TMST_FORMAT_JS.format(date);
+    // Get local date and format
+    LocalDateTime localDateTime = asLocalDateTime(date);
+    return TIMESTAMP_FORMAT_JS.format(localDateTime);
   }
 
   /**
@@ -721,14 +657,12 @@ public final class DateUtil {
    */
   public static String sqlDat2WebTimestampWithMs(java.sql.Timestamp date) {
 
-    /* Variable definition */
+    // Variable definition
     String outDat = null;
 
     try {
-      java.util.Date webDat = dat2SqlTime(date);
-
-      /* Parse initial date */
-      outDat = TMST_FORMAT_WEB_MS.format(webDat);
+      // Parse initial date
+      outDat = TIMESTAMP_FORMAT_WEB_MS.format(date.toLocalDateTime());
 
     } catch (Exception exc) {
       log.error("[{}] Error parsing SQL date to WEB TIMESTAMP WITH MS -{}-", UTILITY_NAME, date.toString(), exc);
@@ -746,20 +680,19 @@ public final class DateUtil {
    */
   public static String web2WbsDate(String date) {
 
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
 
     try {
       /* Parse initial date */
-      webDat = DATE_FORMAT_WEB.parse(date);
-      outDat = DATE_FORMAT_WBS.format(webDat);
+      LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WEB);
+      outDat = DATE_FORMAT_WBS.format(localDate);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing WEB date to WBS date -{}-", UTILITY_NAME, date, exc);
     }
 
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -771,45 +704,43 @@ public final class DateUtil {
    */
   public static String dat2WbsDate(java.util.Date date) {
 
-    /* Variable definition */
+    // Variable definition
     String outDat;
 
     try {
-      /* Parse initial date */
-      outDat = DATE_FORMAT_WBS.format(date);
+      // Get local date and format
+      LocalDate localDate = asLocalDate(date);
+      outDat = DATE_FORMAT_WBS.format(localDate);
     } catch (Exception exc) {
       outDat = date.toString();
       log.error("[{}] Error parsing date to WBS date -{}-", UTILITY_NAME, date, exc);
     }
 
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
   /**
-   * Transforms a web date into a RDB date (23-OCT-1978)
+   * Transforms a web date into an RDB date (23-OCT-1978)
    *
    * @param date (Web formatted)
    * @return RDB date formatted
    */
   public static String web2RdbDate(String date) {
 
-    /* Variable definition */
-    java.util.Date webDat;
+    // Variable definition
     String outDat;
 
     try {
-      /* Parse initial date */
-      webDat = DATE_FORMAT_WEB.parse(date);
-
-      /* Generate rdb date string */
-      outDat = DATE_FORMAT_RDB.format(webDat);
+      // Parse initial date and format
+      LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WEB);
+      outDat = DATE_FORMAT_RDB.format(localDate);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing WEB date to RDB date -{}-", UTILITY_NAME, date, exc);
     }
 
-    /* Return rdb date string in UPPERCASE */
+    // Return rdb date string in UPPERCASE
     return outDat.toUpperCase();
   }
 
@@ -818,24 +749,20 @@ public final class DateUtil {
    *
    * @param date (Web service formatted)
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static String wbs2WebDate(String date) throws ParseException {
+  public static String wbs2WebDate(String date) {
 
-    /* Variable definition */
-    java.util.Date wbsDat;
+    // Variable definition
     String outDat;
-
     try {
-      /* Parse initial date */
-      wbsDat = DATE_FORMAT_WBS.parse(date);
-      outDat = DATE_FORMAT_WEB.format(wbsDat);
+      // Parse initial date and format
+      LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WBS);
+      outDat = DATE_FORMAT_WEB.format(localDate);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing WBS date to WEB date -{}-", UTILITY_NAME, date, exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
@@ -844,43 +771,31 @@ public final class DateUtil {
    *
    * @param date (Web service formatted)
    * @return Web date formatted
-   * @throws ParseException Parse error
    */
-  public static String wbs2JsDate(String date) throws ParseException {
+  public static String wbs2JsDate(String date) {
 
-    /* Variable definition */
-    java.util.Date wbsDat;
+    // Variable definition
     String outDat;
-
     try {
-      /* Parse initial date */
-      wbsDat = DATE_FORMAT_WBS.parse(date);
-      outDat = DATE_FORMAT_JS.format(wbsDat);
+      // Parse initial date and format
+      LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WBS);
+      outDat = DATE_FORMAT_JS.format(localDate);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing WBS date to JS date -{}-", UTILITY_NAME, date, exc);
     }
-
-    /* Return web date string */
+    // Return web date string
     return outDat;
   }
 
   /**
-   * Returns system date in SQL format
+   * Returns system date in SQL timestamp format (yyyy-MM-dd HH:mm:ss.SSS)
    *
    * @return String SQL system date
    */
   public static String getSystemDate() {
-
-    /* Variable definition */
-    String sysDat;
-    Calendar currentDate = Calendar.getInstance();
-
-    /* Convert to sql Date */
-    sysDat = TMST_FORMAT_SQL_MS.format(currentDate.getTime());
-
-    /* Return sql Date */
-    return sysDat;
+    // Return sql Date
+    return TIMESTAMP_FORMAT_SQL_MS.format(LocalDateTime.now());
   }
 
   /**
@@ -927,27 +842,27 @@ public final class DateUtil {
    * @return Is an SQL date
    */
   public static boolean isSqlDate(String date) {
-    return isXXX(date, TMST_FORMAT_SQL_MS);
+    return isXXX(date, TIMESTAMP_FORMAT_SQL_MS);
   }
 
   /**
-   * Returns true if date is an Web timestamp
+   * Returns true if date is a Web timestamp
    *
    * @param date (Web service formatted)
    * @return Is an WBS date
    */
   public static boolean isWebTimestamp(String date) {
-    return isXXX(date, TMST_FORMAT_WEB);
+    return isXXX(date, TIMESTAMP_FORMAT_WEB);
   }
 
   /**
-   * Returns true if date is an Web date with milliseconds
+   * Returns true if date is a Web date with milliseconds
    *
    * @param date (Web service formatted)
    * @return Is an WBS date
    */
   public static boolean isWebTimestampWithMs(String date) {
-    return isXXX(date, TMST_FORMAT_WEB_MS);
+    return isXXX(date, TIMESTAMP_FORMAT_WEB_MS);
   }
 
   /**
@@ -966,7 +881,7 @@ public final class DateUtil {
    * @param date (Web service formatted)
    * @return Is an WBS date
    */
-  private static boolean isXXX(String date, FastDateFormat format) {
+  private static boolean isXXX(String date, DateTimeFormatter format) {
     try {
       format.parse(date);
       return true;
@@ -980,11 +895,10 @@ public final class DateUtil {
    *
    * @param date JSON date
    * @return Date OBJECT
-   * @throws ParseException Parse error
    */
-  public static Date jsonDate(String date) throws ParseException {
-    /* Return web date string */
-    return JSON_DATE.parse(date);
+  public static Date jsonDate(String date) {
+    // Return web date string
+    return java.sql.Timestamp.valueOf(LocalDateTime.parse(date, JSON_DATE));
   }
 
   /**
@@ -994,8 +908,10 @@ public final class DateUtil {
    * @return Date OBJECT
    */
   public static String jsonDate(Date date) {
-    /* Return web date string */
-    return JSON_DATE.format(date);
+    // Get local date and format
+    ZonedDateTime zonedDateTime = asZonedDateTime(date);
+    // Return web date string
+    return JSON_DATE.format(zonedDateTime);
   }
 
   /**
@@ -1003,17 +919,12 @@ public final class DateUtil {
    *
    * @param date Date criteria [dd/MM/yyyy]
    * @param time Time criteria [HH:mm:ss]
-   * @return Object date from criterions or null value if any criterion are null
+   * @return Object date from criterion's or null value if any criterion are null
    * with format [dd/MM/yyyy HH:mm:ss]
    */
   public static Date getDateWithTimeFromCriteria(String date, String time) {
-    Date fullDate = null;
-    try {
-      fullDate = TMST_FORMAT_WEB.parse(date + " " + time);
-    } catch (ParseException ex) {
-      log.error("Parsing error.", ex);
-    }
-    return fullDate;
+    LocalDateTime localDateTime = LocalDateTime.parse(date + " " + time, TIMESTAMP_FORMAT_WEB);
+    return java.sql.Timestamp.valueOf(localDateTime);
   }
 
   /**
@@ -1026,12 +937,8 @@ public final class DateUtil {
    */
   public static Date addTimeToDate(Date date, String time) {
     Date fullDate = date;
-    try {
-      if (time != null && !time.isEmpty()) {
-        fullDate = TMST_FORMAT_WEB.parse(dat2WebDate(date) + " " + time);
-      }
-    } catch (ParseException ex) {
-      log.error("Parsing error.", ex);
+    if (time != null && !time.isEmpty()) {
+      fullDate = java.sql.Timestamp.valueOf(LocalDateTime.parse(dat2WebDate(date) + " " + time, TIMESTAMP_FORMAT_WEB));
     }
     return fullDate;
   }
@@ -1046,29 +953,34 @@ public final class DateUtil {
    */
   public static String generic2Date(String dateIn, String formatFrom, String formatTo) {
 
-    /* Variable definition */
-    String outDat = null;
-    java.util.Date auxDat;
+    // Variable definition
+    String outDat;
 
     try {
       // Create format from and format to
-      FastDateFormat formatFromFdt = FastDateFormat.getInstance(formatFrom);
-      FastDateFormat formatToFdt = FastDateFormat.getInstance(formatTo);
+      DateTimeFormatter fromDateTimeFormatter =
+              new DateTimeFormatterBuilder().appendPattern(formatFrom + "[ HH:mm:ss.SSS]")
+                      .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+                      .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+                      .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                      .appendFraction(ChronoField.MILLI_OF_SECOND, 0, 3, true)
+                      .parseCaseInsensitive()
+                      .toFormatter(Locale.ENGLISH);
+      DateTimeFormatter toDateTimeFormatter = DateTimeFormatter.ofPattern(formatTo).withLocale(Locale.ENGLISH);
 
-      /* Parse initial date */
-      auxDat = formatFromFdt.parse(dateIn);
-      outDat = formatToFdt.format(auxDat);
+      // Parse dates
+      LocalDateTime auxLocalDateTime = LocalDateTime.parse(dateIn, fromDateTimeFormatter);
+      outDat = toDateTimeFormatter.format(auxLocalDateTime);
 
     } catch (Exception ex) {
       outDat = dateIn;
-      log.error("[{}] Error parsing generic date from {2} to {3} -{}-", UTILITY_NAME, dateIn, formatFrom, formatTo, ex);
+      log.error("[{}] Error parsing generic date from {} to {} -{}-", UTILITY_NAME, dateIn, formatFrom, formatTo, ex);
     }
-
     return outDat;
   }
 
   /**
-   * Transforms a RDB date into a web date (23-OCT-1978)
+   * Transforms an RDB date into a web date (23-OCT-1978)
    *
    * @param date (Web formatted)
    * @return RDB date formatted
@@ -1076,21 +988,12 @@ public final class DateUtil {
   public static String rdbDate2Web(String date) {
 
     /* Variable definition */
-    java.util.Date webDat;
     String outDat;
 
     try {
-      String[] dateArray = date.split("-");
-      String month = dateArray[1];
-      dateArray[1] = month.substring(0, 1).toUpperCase() + month.substring(1).toLowerCase();
-
-      date = ("" + Arrays.asList(dateArray)).replaceAll("(^.|.$)", "").replace(", ", "-");
-
-      /* Parse initial date */
-      webDat = DATE_FORMAT_RDB.parse(date);
-
-      /* Generate rdb date string */
-      outDat = DATE_FORMAT_WEB.format(webDat);
+      // Parse initial date and format
+      LocalDate parse = LocalDate.parse(date, DATE_FORMAT_RDB);
+      outDat = DATE_FORMAT_WEB.format(parse);
     } catch (Exception exc) {
       outDat = date;
       log.error("[{}] Error parsing RDB date to WEB date -{}-", UTILITY_NAME, date, exc);
@@ -1101,27 +1004,25 @@ public final class DateUtil {
   }
 
   /**
-   * Transforms a RDB date into a web date (23-OCT-1978)
+   * Transforms Date into an RDB String  (23-OCT-1978)
    *
    * @param date (Web formatted)
    * @return RDB date formatted
    */
   public static String rdbDate2String(java.util.Date date) {
 
-    /* Variable definition */
-    String outDat;
+    // Variable definition
+    String outDat = null;
 
     try {
-
-      /* Generate rdb date string */
-      outDat = DATE_FORMAT_RDB.format(date);
+      // Generate rdb date string
+      outDat = asLocalDate(date).format(DATE_FORMAT_RDB).toUpperCase();
     } catch (Exception exc) {
-      outDat = date.toString();
-      log.error("[{}] Error parsing RDB date to WEB date -{}-", UTILITY_NAME, date.toString(), exc);
+      log.error("[{}] Error parsing RDB date to WEB date -{}-", UTILITY_NAME, date, exc);
     }
 
-    /* Return rdb date string in UPPERCASE */
-    return outDat.toUpperCase();
+    // Return rdb date string in UPPERCASE
+    return outDat;
   }
 
   /**
@@ -1176,30 +1077,146 @@ public final class DateUtil {
   }
 
   /**
-   * Autodetects date format and applies a format into java date
+   * Autodetect date format and applies a format into java date
    *
    * @param dateString String date
    * @return Date formatted
    */
   public static Date autoDetectDateFormat(String dateString) {
-    try {
-      if (isJsonDate(dateString)) {
-        return jsonDate(dateString);
-      } else if (isSqlDate(dateString)) {
-        return sql2JavaDate(dateString);
-      } else if (isWebDate(dateString)) {
-        return web2Date(dateString);
-      } else if (isWbsDate(dateString)) {
-        return wbs2JavaDate(dateString);
-      } else if (isWebTimestamp(dateString)) {
-        return web2Timestamp(dateString);
-      } else if (isWebTimestampWithMs(dateString)) {
-        return web2TimestampWithMs(dateString);
-      }
-    } catch (ParseException exc) {
-      log.error("Parsing date {}", dateString, exc);
+    if (isJsonDate(dateString)) {
+      return jsonDate(dateString);
+    } else if (isSqlDate(dateString)) {
+      return sql2JavaDate(dateString);
+    } else if (isWebDate(dateString)) {
+      return web2Date(dateString);
+    } else if (isWbsDate(dateString)) {
+      return wbs2JavaDate(dateString);
+    } else if (isWebTimestamp(dateString)) {
+      return web2Timestamp(dateString);
     }
     return null;
   }
 
+  /**
+   * Calls {@link #asLocalDate(Date, ZoneId)} with the system default time zone.
+   */
+  public static LocalDate asLocalDate(java.util.Date date) {
+    return asLocalDate(date, ZoneId.systemDefault());
+  }
+
+  /**
+   * Creates {@link LocalDate} from {@code java.util.Date} or it's subclasses.
+   */
+  public static LocalDate asLocalDate(java.util.Date date, ZoneId zone) {
+
+    if (date instanceof java.sql.Date)
+      return ((java.sql.Date) date).toLocalDate();
+    else
+      return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();
+  }
+
+  /**
+   * Calls {@link #asLocalTime(Date, ZoneId)} with the system default time zone.
+   */
+  public static LocalTime asLocalTime(java.util.Date date) {
+    return asLocalTime(date, ZoneId.systemDefault());
+  }
+
+  /**
+   * Creates {@link LocalTime} from {@code java.util.Date} or it's subclasses.
+   */
+  public static LocalTime asLocalTime(java.util.Date date, ZoneId zone) {
+
+    if (date instanceof java.sql.Time)
+      return ((java.sql.Time) date).toLocalTime();
+    else
+      return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalTime();
+  }
+
+  /**
+   * Calls {@link #asLocalDateTime(Date, ZoneId)} with the system default time zone.
+   */
+  public static LocalDateTime asLocalDateTime(java.util.Date date) {
+    return asLocalDateTime(date, ZoneId.systemDefault());
+  }
+
+  /**
+   * Creates {@link LocalDateTime} from {@code java.util.Date} or it's subclasses.
+   */
+  public static LocalDateTime asLocalDateTime(java.util.Date date, ZoneId zone) {
+
+    if (date instanceof java.sql.Timestamp)
+      return ((java.sql.Timestamp) date).toLocalDateTime();
+    else
+      return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDateTime();
+  }
+
+  /**
+   * Calls {@link #asUtilDate(Object, ZoneId)} with the system default time zone.
+   */
+  public static java.util.Date asUtilDate(Object date) {
+    return asUtilDate(date, ZoneId.systemDefault());
+  }
+
+  /**
+   * Creates a {@link java.util.Date} from various date objects. Is null-safe. Currently, supports:<ul>
+   * <li>{@link java.util.Date}
+   * <li>{@link java.sql.Date}
+   * <li>{@link java.sql.Timestamp}
+   * <li>{@link java.time.LocalDate}
+   * <li>{@link java.time.LocalDateTime}
+   * <li>{@link java.time.ZonedDateTime}
+   * <li>{@link java.time.Instant}
+   * </ul>
+   *
+   * @param zone Time zone, used only if the input object is LocalDate or LocalDateTime.
+   *
+   * @return {@link java.util.Date} (exactly this class, not a subclass, such as java.sql.Date)
+   */
+  public static java.util.Date asUtilDate(Object date, ZoneId zone) {
+    if (date == null)
+      return null;
+
+    if (date instanceof java.sql.Date || date instanceof java.sql.Timestamp)
+      return new java.util.Date(((java.util.Date) date).getTime());
+    if (date instanceof java.util.Date)
+      return (java.util.Date) date;
+    if (date instanceof LocalDate)
+      return java.util.Date.from(((LocalDate) date).atStartOfDay(zone).toInstant());
+    if (date instanceof LocalDateTime)
+      return java.util.Date.from(((LocalDateTime) date).atZone(zone).toInstant());
+    if (date instanceof ZonedDateTime)
+      return java.util.Date.from(((ZonedDateTime) date).toInstant());
+    if (date instanceof Instant)
+      return java.util.Date.from((Instant) date);
+
+    throw new UnsupportedOperationException("Don't know hot to convert " + date.getClass().getName() + " to java.util.Date");
+  }
+
+  /**
+   * Creates an {@link Instant} from {@code java.util.Date} or it's subclasses. Null-safe.
+   */
+  public static Instant asInstant(Date date) {
+    if (date == null)
+      return null;
+    else
+      return Instant.ofEpochMilli(date.getTime());
+  }
+
+  /**
+   * Calls {@link #asZonedDateTime(Date, ZoneId)} with the system default time zone.
+   */
+  public static ZonedDateTime asZonedDateTime(Date date) {
+    return asZonedDateTime(date, ZoneId.systemDefault());
+  }
+
+  /**
+   * Creates {@link ZonedDateTime} from {@code java.util.Date} or it's subclasses. Null-safe.
+   */
+  public static ZonedDateTime asZonedDateTime(Date date, ZoneId zone) {
+    if (date == null)
+      return null;
+    else
+      return asInstant(date).atZone(zone);
+  }
 }
