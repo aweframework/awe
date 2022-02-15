@@ -3,13 +3,11 @@ package com.almis.awe;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * Main class that launches the application.
  */
 @SpringBootApplication
-@EnableFeignClients
 public class AppBootApplication extends SpringBootServletInitializer {
 
   /**
