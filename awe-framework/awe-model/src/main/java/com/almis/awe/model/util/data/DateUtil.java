@@ -36,6 +36,14 @@ public final class DateUtil {
   // Util name
   private static final String UTILITY_NAME = "DATE UTILITY";
 
+  // Web Date time formatter
+  public static final DateTimeFormatter DATE_FORMAT_WEB_PARSER = new DateTimeFormatterBuilder()
+          .appendPattern("dd/MM/yyyy[ HH:mm:ss]")
+          .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+          .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+          .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+          .toFormatter();
+
   // Date in Web Format
   public static final DateTimeFormatter DATE_FORMAT_WEB = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -122,7 +130,7 @@ public final class DateUtil {
   }
 
   /**
-   * Transforms a web date into a Date
+   * Transforms a web date  (dd/MM/yyyy[ HH:mm:ss]) into a Date
    * Return null if  date is not valid
    *
    * @param date string Web date
@@ -136,7 +144,7 @@ public final class DateUtil {
     try {
       // Parse initial date
       if (date != null && !"".equalsIgnoreCase(date)) {
-        LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WEB);
+        LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WEB_PARSER);
         webDat = java.sql.Date.valueOf(localDate);
       }
     } catch (Exception exc) {

@@ -150,6 +150,16 @@ class DateUtilTest {
   }
 
   @Test
+  void web2Date() {
+    Date expectedDate1 = DateUtil.asUtilDate(LocalDate.parse("10/02/1985", DATE_FORMAT_WEB_PARSER));
+    Date expectedDate2 = DateUtil.asUtilDate(LocalDateTime.parse("10/02/1985 00:00:00", DATE_FORMAT_WEB_PARSER));
+    assertAll("Parse all string web Dates",
+            () -> assertEquals(expectedDate1, DateUtil.web2Date("10/02/1985")),
+            () -> assertEquals(expectedDate2, DateUtil.web2Date("10/02/1985 00:00:00"))
+    );
+  }
+
+  @Test
   void dat2SqlDate() {
     java.sql.Date expectedDate = java.sql.Date.valueOf(LocalDate.parse("10/02/1085", DATE_FORMAT_WEB));
     Date date = DateUtil.web2Date("10/02/1085");
