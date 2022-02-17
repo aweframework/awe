@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.4.9
+*17/02/2022*
+
+- DATE variable types use locale to set data into database. [MR #358](https://gitlab.com/aweframework/awe/-/merge_requests/358) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Improve and add new translation apis to developer. [MR #357](https://gitlab.com/aweframework/awe/-/merge_requests/357) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.4.8
 *25/01/2022*
 
