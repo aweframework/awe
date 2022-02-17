@@ -430,8 +430,8 @@
   <locale name="ERROR_MESSAGE_LAUNCHING_QUERY" value="There was a problem trying to execute a query [{0}]"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_QUEUE_FROM_QUERY" value="There was a problem sending a message to a queue from the query {0}"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_SQL_QUERY" value="There was a problem trying to execute an SQL query [{0}]. Please see log for more details"/>
-  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error launching query [{0}] without authorization"/>
   <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN" value="Error launching maintain [{0}] without authorization"/>
+  <locale name="ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY" value="Error launching query [{0}] without authorization"/>
   <locale name="ERROR_MESSAGE_LDAP_CONNECTION_PARAMETERS" value="LDAP connection parameters are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_INVALID_CREDENTIALS" value="The ldap credentials are invalid"/>
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>
@@ -863,6 +863,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="OK_MESSAGE_MAINTAIN_OPERATION" value="The selected maintain operation has been successfully performed"/>
   <locale name="OK_MESSAGE_MESSAGE_SENT" value="Message has been sent to the users sucessfully"/>
   <locale name="OK_MESSAGE_NEW_LOCAL" value="The locale -{0}- has been generated sucessfully"/>
+  <locale name="OK_MESSAGE_NEW_LOCAL_REMAINING" value="The locale -{0}- has been generated sucessfully. There are {1} words remaining available on translation service."/>
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="The localee -{0}- has been deleted sucessfully"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Cache cleared"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Email sent successfully"/>

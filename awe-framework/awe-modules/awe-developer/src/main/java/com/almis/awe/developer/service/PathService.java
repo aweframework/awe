@@ -5,12 +5,13 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DataListUtil;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -22,20 +23,31 @@ public class PathService extends ServiceConfig {
 
   private static final String ERROR_TITLE_UPDATE_WRK_DIR = "ERROR_TITLE_UPDATE_WRK_DIR";
   private static final String ERROR_MESSAGE_UPDATE_WRK_DIR = "ERROR_MESSAGE_UPDATE_WRK_DIR";
-  @Value("${developer.path}")
-  private String developerPath;
-  @Value("${developer.path.file:path.properties}")
-  private String developerPathFile;
-  @Value("${developer.path.property:path.project}")
-  private String developerPathProperty;
+
+  private final String developerPath;
+  private final String developerPathFile;
+  private final String developerPathProperty;
+
+  /**
+   * Autowired constructor
+   *
+   * @param developerPath         Developer path
+   * @param developerPathFile     Developer path file
+   * @param developerPathProperty Developer path property
+   */
+  public PathService(String developerPath, String developerPathFile, String developerPathProperty) {
+    this.developerPath = developerPath;
+    this.developerPathFile = developerPathFile;
+    this.developerPathProperty = developerPathProperty;
+  }
 
   /**
    * Retrieves property's value for final path
    *
    * @return Path
    */
-  private String getFinalPath() {
-    return developerPath + developerPathFile;
+  private Path getFinalPath() {
+    return Paths.get(developerPath,developerPathFile);
   }
 
   /**
@@ -74,7 +86,7 @@ public class PathService extends ServiceConfig {
     checkIfFileExists();
 
     // Retrieve properties file
-    try (FileInputStream in = new FileInputStream(getFinalPath())) {
+    try (FileInputStream in = new FileInputStream(getFinalPath().toFile())) {
       properties = new Properties();
       properties.load(in);
     } catch (IOException exc) {
@@ -88,10 +100,10 @@ public class PathService extends ServiceConfig {
    * Check if properties file exists, if not, create it
    */
   private void checkIfFileExists() throws AWException {
-    File propertiesFile = new File(getFinalPath());
+    File propertiesFile = getFinalPath().toFile();
     if (!propertiesFile.exists()) {
       try {
-        new File(developerPath).mkdirs();
+        Paths.get(developerPath).toFile().mkdirs();
         if (!propertiesFile.createNewFile()) {
           throw new AWException(getLocale(ERROR_TITLE_UPDATE_WRK_DIR),
             getLocale(ERROR_MESSAGE_UPDATE_WRK_DIR));
@@ -113,7 +125,7 @@ public class PathService extends ServiceConfig {
     Properties properties = getPropertiesFile();
     properties.setProperty(developerPathProperty, path);
 
-    try (FileOutputStream out = new FileOutputStream(getFinalPath())) {
+    try (FileOutputStream out = new FileOutputStream(getFinalPath().toFile())) {
       properties.store(out, null);
     } catch (IOException exc) {
       throw new AWException(getLocale(ERROR_TITLE_UPDATE_WRK_DIR),
