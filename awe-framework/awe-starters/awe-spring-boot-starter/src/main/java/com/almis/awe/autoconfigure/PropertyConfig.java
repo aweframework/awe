@@ -19,7 +19,6 @@ import org.springframework.core.annotation.Order;
 @PropertySource("classpath:config/base.properties")
 @PropertySource("classpath:config/library.properties")
 @PropertySource("classpath:config/numeric.properties")
-@PropertySource("classpath:config/email.properties")
 @PropertySource("classpath:config/database.properties")
 @PropertySource("classpath:config/microservices.properties")
 @PropertySource("classpath:config/session.properties")

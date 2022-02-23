@@ -18,7 +18,7 @@ public class SchedulerTaskConfigProperties {
   private Integer size = 20;
   /**
    * Schedule Task pool max size
-   * The Default value is 1000
+   * The Default value is 50
    */
   private Integer maxSize = 50;
   /**
