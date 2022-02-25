@@ -87,7 +87,9 @@ CREATE TABLE IF NOT EXISTS ope
     ShwPrn  int,                                --- Allow user to print (1) or not (0)
     WebPrn  varchar(255),                       --- User web printer
     PwdLck  int      DEFAULT 0,                 --- Password locked (1) or not (0)
-    NumLog  int      DEFAULT 0                  --- Number of times logged in concurrently
+    NumLog  int      DEFAULT 0,                 --- Number of times logged in concurrently
+    enable2fa int DEFAULT 0,                    --- Enable 2fa
+    secret2fa varchar(128)                      --- Secret 2fa
 );
 CREATE UNIQUE INDEX IF NOT EXISTS opeI1 ON ope (l1_nom);
 
@@ -345,7 +347,9 @@ CREATE TABLE IF NOT EXISTS HISope
     Res     varchar(40)  NULL,
     ShwPrn  int          NULL,
     PwdLck  int          NULL,
-    NumLog  int          NULL
+    NumLog  int          NULL,
+    enable2fa int        NULL,
+    secret2fa varchar(128) NULL
 );
 CREATE INDEX IF NOT EXISTS HISopeI1 ON HISope (HISope, HISdat, HISact);
 CREATE TABLE IF NOT EXISTS HISAweDbs

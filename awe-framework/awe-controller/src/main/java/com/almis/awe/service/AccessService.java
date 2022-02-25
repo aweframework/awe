@@ -1,8 +1,9 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
@@ -12,14 +13,14 @@ import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.session.AweSessionDetails;
+import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -28,43 +29,45 @@ import static com.almis.awe.model.constant.AweConstants.*;
  */
 public class AccessService extends ServiceConfig {
 
-  @Value("${security.master.key:fdvsd4@sdsa08}")
-  private String masterKey;
-
-  @Value("${language.default:en}")
-  private String defaultLanguage;
-
-  @Value("${application.theme:sky}")
-  private String defaultTheme;
-
-  @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
-  private String jasyptAlgorithm;
-
-  @Value("${jasypt.encryptor.keyObtentionIterations:1000}")
-  private Integer jasyptKeyObtentionIterations;
-
-  @Value("${jasypt.encryptor.poolSize:1}")
-  private Integer jasyptPoolSize;
-
-  @Value("${jasypt.encryptor.providerName:SunJCE}")
-  private String jasyptProviderName;
-
-  @Value("${jasypt.encryptor.saltGeneratorClassname:org.jasypt.salt.RandomSaltGenerator}")
-  private String jasyptSaltGeneratorClassname;
-
-  @Value("${jasypt.encryptor.stringOutputType:base64}")
-  private String jasyptStringOutputType;
-
+  public static final String SCREEN = "screen";
+  public static final String CHANGE_LANGUAGE = "change-language";
+  public static final String CHANGE_THEME = "change-theme";
   // Autowire
   private final MenuService menuService;
+  private final AweSessionDetails sessionDetails;
+  private final TotpConfigProperties totpConfigProperties;
+  private final TotpService totpService;
+
+  @Value("${security.master.key:fdvsd4@sdsa08}")
+  private String masterKey;
+  @Value("${language.default:en}")
+  private String defaultLanguage;
+  @Value("${application.theme:sky}")
+  private String defaultTheme;
+  @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
+  private String jasyptAlgorithm;
+  @Value("${jasypt.encryptor.keyObtentionIterations:1000}")
+  private Integer jasyptKeyObtentionIterations;
+  @Value("${jasypt.encryptor.poolSize:1}")
+  private Integer jasyptPoolSize;
+  @Value("${jasypt.encryptor.providerName:SunJCE}")
+  private String jasyptProviderName;
+  @Value("${jasypt.encryptor.saltGeneratorClassname:org.jasypt.salt.RandomSaltGenerator}")
+  private String jasyptSaltGeneratorClassname;
+  @Value("${jasypt.encryptor.stringOutputType:base64}")
+  private String jasyptStringOutputType;
 
   /**
    * Autowired constructor
    *
    * @param menuService menu service
    */
-  public AccessService(MenuService menuService) {
+  public AccessService(MenuService menuService, AweSessionDetails sessionDetails,
+                       TotpConfigProperties totpConfigProperties, TotpService totpService) {
     this.menuService = menuService;
+    this.sessionDetails = sessionDetails;
+    this.totpConfigProperties = totpConfigProperties;
+    this.totpService = totpService;
   }
 
   /**
@@ -75,35 +78,104 @@ public class AccessService extends ServiceConfig {
    */
   public ServiceData login() throws AWException {
 
-    // Variable definition
-    AweSession session = getSession();
-    ServiceData serviceData = new ServiceData();
-    AWException exc = (AWException) session.getParameter(SESSION_FAILURE);
+    // Get user details
+    AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
-    // Something failed
-    if (exc != null) {
-      session.setParameter(SESSION_FAILURE, null);
-      exc.setType(AnswerType.WARNING);
-      throw exc;
+    // Go to corresponding screen depending on second authentication factor
+    switch (totpConfigProperties.getEnabled()) {
+      case OPTIONAL:
+        if (userDetails.isEnabled2fa()) {
+          return goTo2faScreen(userDetails);
+        } else {
+          return goToHomeScreen(userDetails);
+        }
+      case FORCE:
+        if (StringUtils.isNotBlank(userDetails.getSecret2fa())) {
+          return goTo2faScreen(userDetails);
+        } else {
+          return goToActivate2faScreen(userDetails);
+        }
+      case DISABLED:
+      default:
+        return goToHomeScreen(userDetails);
     }
+  }
 
-    // User authenticated. No fails
-    if (isAuthenticated()) {
-      // Store screen parameters
-      Menu menu = menuService.getMenu();
-      String initialURL = "/" + menu.getScreenContext() + "/" + session.getParameter(SESSION_INITIAL_SCREEN);
-      session.setParameter(SESSION_INITIAL_URL, initialURL);
+  /**
+   * Go to home screen
+   *
+   * @param userDetails User details
+   * @return Service data
+   * @throws AWException
+   */
+  private ServiceData goToHomeScreen(AweUserDetails userDetails) throws AWException {
+    // Store session details
+    sessionDetails.onLoginSuccess();
 
-      serviceData
-        .addClientAction(new ClientAction("screen")
-          .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
-          .addParameter(JSON_SCREEN, initialURL))
-        .addClientAction(new ClientAction("change-language")
-          .addParameter(SESSION_LANGUAGE, session.getParameter(SESSION_LANGUAGE)))
-        .addClientAction(new ClientAction("change-theme")
-          .addParameter(SESSION_THEME, session.getParameter(SESSION_THEME)));
+    // Generate initial URL
+    Menu menu = menuService.getMenu();
+    String initialUrl = "/" + menu.getScreenContext() + "/" + userDetails.getInitialScreen();
+
+    // Store initial url in session
+    getSession().setParameter(SESSION_INITIAL_URL, initialUrl);
+
+    // Go to home screen
+    return new ServiceData()
+      .addClientAction(new ClientAction(SCREEN)
+        .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
+        .addParameter(JSON_SCREEN, initialUrl))
+      .addClientAction(new ClientAction(CHANGE_LANGUAGE)
+        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+      .addClientAction(new ClientAction(CHANGE_THEME)
+        .addParameter(SESSION_THEME, userDetails.getTheme()));
+  }
+
+  /**
+   * Go to second factor authentication screen
+   *
+   * @param userDetails User details
+   * @return Service data
+   */
+  private ServiceData goToActivate2faScreen(AweUserDetails userDetails) {
+    return new ServiceData()
+      .addClientAction(new ClientAction(SCREEN)
+        .setContext(SCREEN)
+        .addParameter(JSON_SCREEN, totpConfigProperties.getActivateScreen()))
+      .addClientAction(new ClientAction(CHANGE_LANGUAGE)
+        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+      .addClientAction(new ClientAction(CHANGE_THEME)
+        .addParameter(SESSION_THEME, userDetails.getTheme()));
+  }
+
+  /**
+   * Go to second factor authentication screen
+   *
+   * @param userDetails User details
+   * @return Service data
+   */
+  private ServiceData goTo2faScreen(AweUserDetails userDetails) {
+    return new ServiceData()
+      .addClientAction(new ClientAction(SCREEN)
+        .setContext(SCREEN)
+        .addParameter(JSON_SCREEN, totpConfigProperties.getInitialScreen()))
+      .addClientAction(new ClientAction(CHANGE_LANGUAGE)
+        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+      .addClientAction(new ClientAction(CHANGE_THEME)
+        .addParameter(SESSION_THEME, userDetails.getTheme()));
+  }
+
+  /**
+   * Retrieve QR Code in PNG format as String
+   *
+   * @return QR Code as string
+   */
+  public ServiceData verify2faCode(String code) throws AWException {
+    AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    if (totpService.verify2faCode(code)) {
+      return goToHomeScreen(userDetails);
+    } else {
+      throw new AWException(getLocale("ERROR_TITLE_INVALID_2FA_CODE"), getLocale("ERROR_MESSAGE_INVALID_2FA_CODE"), AnswerType.WARNING);
     }
-    return serviceData;
   }
 
   /**
@@ -114,12 +186,12 @@ public class AccessService extends ServiceConfig {
   public ServiceData logout() {
     // Return to home screen
     return new ServiceData()
-      .addClientAction(new ClientAction("screen")
+      .addClientAction(new ClientAction(SCREEN)
         .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
         .addParameter(JSON_SCREEN, "/"))
-      .addClientAction(new ClientAction("change-language")
+      .addClientAction(new ClientAction(CHANGE_LANGUAGE)
         .addParameter(SESSION_LANGUAGE, defaultLanguage))
-      .addClientAction(new ClientAction("change-theme")
+      .addClientAction(new ClientAction(CHANGE_THEME)
         .addParameter(SESSION_THEME, defaultTheme));
   }
 
@@ -195,10 +267,7 @@ public class AccessService extends ServiceConfig {
    */
   public ServiceData encryptProperty(String textToEncrypt, String phraseKey) {
 
-    String key = masterKey;
-    if (phraseKey != null && !phraseKey.isEmpty()) {
-      key = phraseKey;
-    }
+    String key = Optional.ofNullable(phraseKey).filter(StringUtils::isNotBlank).orElse(masterKey);
 
     // Get encode bean
     SimpleStringPBEConfig config = new SimpleStringPBEConfig();

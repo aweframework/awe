@@ -40,6 +40,7 @@
   <locale name="BUTTON_PRINT" value="Imprimer"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimer selectión"/>
   <locale name="BUTTON_RESET" value="Reset"/>
+  <locale name="BUTTON_RESET_2FA" value="Réinitialiser 2FA"/>
   <locale name="BUTTON_RUN" value="Commencer"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Enregistrer markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Sauvegarder ligne"/>
@@ -109,6 +110,7 @@
   <locale name="CONFIRM_MESSAGE_NEW" value="Donnees inserees vont etre sauvegardees. Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_NOT_UPDATED_DATA" value="Attention, les valeurs des critères sont vides. Voulez-vous continuer?"/>
   <locale name="CONFIRM_MESSAGE_PRINT_FILE" value="Imprimer les donnees de l&apos;ecran Etes-vous d&apos;accord?"/>
+  <locale name="CONFIRM_MESSAGE_RESET_2FA" value="Vous allez réinitialiser l&amp;#39;authentification à deux facteurs sur les utilisateurs sélectionnés. Êtes-vous sûr?"/>
   <locale name="CONFIRM_MESSAGE_SND_EML" value="Un mail va etre envoye aux utlisateurs actives. Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="Donnees modifies vont etre sauvegardees. Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Attention, les données modifiées seront perdues. Voulez-vous continuer?"/>
@@ -118,6 +120,7 @@
   <locale name="CONFIRM_TITLE_NEW" value="Confirmation de l&apos;insertion"/>
   <locale name="CONFIRM_TITLE_NOT_UPDATED_DATA" value="Donees inchangées"/>
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="Confirmation d&apos;impression de fichier"/>
+  <locale name="CONFIRM_TITLE_RESET_2FA" value="Réinitialisation de l&amp;#39;authentification à deux facteurs"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Confirmation d&apos;envoie"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Confirmatión de la modificatión"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Donees modifiées"/>
@@ -164,6 +167,7 @@
   <locale name="EMAIL_MESSAGE_TEXT_REPORT" value="Les fichiers suivants ont ete generes pour son envoie par courier\n"/>
   <locale name="EMAIL_SUBJECT_GENERAL" value="[#EmlSub#]"/>
   <locale name="EMAIL_SUBJECT_REPORT" value="Rapport de la fenêtre: [#ScrTit#]"/>
+  <locale name="ENABLE_2FA" value="Activer l&apos;authentification à deux facteurs"/>
   <locale name="ENUM_AUD_TYP_DEL" value="Effecer"/>
   <locale name="ENUM_AUD_TYP_INS" value="Insertion"/>
   <locale name="ENUM_AUD_TYP_UPD" value="Modification"/>
@@ -417,6 +421,7 @@
   <locale name="ERROR_MESSAGE_GRID_MULTIPLE_CONF" value="Pas trouvé les opérations de réseau poste de paramètres pour {0}. Vérifiez la configuration"/>
   <locale name="ERROR_MESSAGE_ILEGAL_TYPE_STATEMENT_VARIABLES" value="Undefined type de variable. Index {0} - Type: {1} - Valeur: {2}"/>
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="There has been a problem launching document engine initialization"/>
+  <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="Le code d&amp;#39;authentification du deuxième facteur n&amp;#39;est pas valide, veuillez vérifier votre application d&amp;#39;authentification ou envoyer un message au responsable de l&amp;#39;application pour réinitialiser votre compte."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="Les arguments introduits sont invalides"/>
   <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Probleme a la connexion"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="Les informations d&apos;identification saisies par l&apos;utilisateur -{0}- ne sont pas valides"/>
@@ -596,6 +601,7 @@
   <locale name="ERROR_TITLE_GETTING_USER_STYLE" value="Error getting user styles"/>
   <locale name="ERROR_TITLE_GETTING_VIEW" value="Error getting view"/>
   <locale name="ERROR_TITLE_INITIALIZING_JASPER" value="Error initilizing Jasper"/>
+  <locale name="ERROR_TITLE_INVALID_2FA_CODE" value="Code non valide"/>
   <locale name="ERROR_TITLE_INVALID_ARGUMENTS" value="Arguments invalides"/>
   <locale name="ERROR_TITLE_INVALID_CONNECTION" value="Conexion invalide"/>
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Informations d&apos;identification non valides"/>
@@ -720,6 +726,7 @@
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Sélectionnez le type de format que vous souhaitez appliquer aux données numériques"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Forcer l&apos;orientation du rapport"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Sélectionnez ce que vous voulez imprimer: Tous les onglets dans l&apos;écran ou seulement celui sélectionné"/>
+  <locale name="HELP_RESET_2FA_BUTTON" value="Réinitialiser l&amp;#39;authentification à deux facteurs sur les utilisateurs sélectionnés"/>
   <locale name="HELP_RESET_BUTTON" value="Effacer toutes les valeurs des critères"/>
   <locale name="HELP_ROWS_PER_PAGE" value="Lignes/page"/>
   <locale name="HELP_SCREEN_HELP" value="Dialogue avec la définition des composants de la fenêtre et assistance"/>
@@ -854,6 +861,8 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MONTH" value="{0} mois"/>
   <locale name="MONTHS" value="{0} mois"/>
   <locale name="MSG_PASSWD_NEW" value="Après avoir entré le appuyez sur le bouton de confirmation de mot de passe"/>
+  <locale name="NO_SUBSCRIPTIONS" value="Il n&amp;#39;y a aucun abonnement actif aux notifications"/>
+  <locale name="NOTIFICATIONS" value="NOTIFICATIONS"/>
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="Se han borrado todas las caches correctamente"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="La cache -{0}- a ete correctement effacee"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="Mail envoye"/>
@@ -871,6 +880,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch lance correctement"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Deal correctement realisée"/>
   <locale name="OK_TITLE_MESSAGE_SENT" value="Mensaje enviado correctamente"/>
+  <locale name="PARAMETER_2FA" value="2FA"/>
   <locale name="PARAMETER_ACC_ID" value="Account id"/>
   <locale name="PARAMETER_ACC_NAM" value="Account name"/>
   <locale name="PARAMETER_ACC_NUM" value="Account number"/>
@@ -975,6 +985,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="Septembre"/>
   <locale name="PARAMETER_MONTHS" value="Mois"/>
   <locale name="PARAMETER_NAME" value="Nom"/>
+  <locale name="PARAMETER_NEW_PASSWD" value="Nouveau mot de passe"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Prochaine exécution"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Type de notification"/>
   <locale name="PARAMETER_NUM_LOG" value="Tentatives de connexion"/>
@@ -1050,8 +1061,13 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_YEARS" value="Ans"/>
   <locale name="PRINT_TAB_ADVANCE" value="Paramètres avancés"/>
   <locale name="PRINT_TAB_GENERAL" value="Paramètres généraux"/>
+  <locale name="PROFILE" value="PROFIL"/>
+  <locale name="SCAN_QR_CODE"><![CDATA[Vous devrez installer une application d'authentification à deux facteurs sur votre mobile/tablette telle que Google Authenticator afin d'accéder à l'application.
+
+Ouvrez votre application d'authentification à deux facteurs et scannez le code QR suivant pour accéder à l'application:]]></locale>
   <locale name="SCREEN_APPLICATION_HELP" value="Application Help"/>
   <locale name="SCREEN_HELP" value="Screen Help"/>
+  <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Authentification à deux facteurs"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Ajouter le texte du paramètre régionaux"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Ajouter un identificateur de paramètres régionaux"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendrier"/>
@@ -1098,9 +1114,12 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="SCREEN_TEXT_SETTINGS" value="Réglages"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
   <locale name="SCREEN_TEXT_STEP" value="Étape"/>
+  <locale name="SCREEN_TEXT_TOTP_CODE" value="Insérer le code ici"/>
   <locale name="SCREEN_TEXT_USER" value="Utilisateur"/>
+  <locale name="SCREEN_TEXT_USER_DATA" value="Données d&apos;utilisateur"/>
   <locale name="SCREEN_TEXT_USERS" value="Utilisateurs"/>
   <locale name="SCREEN_TEXT_VERSION" value="Contexte"/>
+  <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activer l&apos;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Paramètres d&apos;application"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Secuencias"/>
@@ -1110,6 +1129,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="SCREEN_TITLE_CAL" value="Gestión de calendriers"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="Consultation de calendrier"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Changement de mot de passe"/>
+  <locale name="SCREEN_TITLE_CHECK_2FA" value="Vérification de l&amp;#39;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_COM" value="Gestion des commandes"/>
   <locale name="SCREEN_TITLE_COM_UPD" value="Modification de commande"/>
   <locale name="SCREEN_TITLE_COM_VIW" value="Consultation de commande"/>
@@ -1173,6 +1193,8 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="SCREEN_TITLE_USR_UPD" value="Modification des utilisateurs"/>
   <locale name="SCREEN_TITLE_USR_VIW" value="Consultation d&apos;utilisateur"/>
   <locale name="SECONDS" value="{0}s"/>
+  <locale name="SECRET_CODE" value="Si vous ne pouvez pas utiliser de code QR, utilisez ce code textuel:"/>
+  <locale name="SECURITY" value="SÉCURITÉ"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Chercher un valeur"/>
   <locale name="SELECT2_SELECT_VALUE" value="Sélectionner un valeur"/>
   <locale name="TIME_AGO" value="il y a {0}"/>

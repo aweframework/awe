@@ -1,5 +1,6 @@
 package com.almis.awe.test.integration.controller;
 
+import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
@@ -13,7 +14,6 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
@@ -39,6 +39,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("integration")
 class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @param method Clean up method
+   * @throws Exception Test error
+   */
+  protected void cleanUp(String method) throws Exception {
+
+    logger.debug("--------------------------------------------------------------------------------------");
+    logger.debug(" Cleaning up all the mess... ");
+    logger.debug("--------------------------------------------------------------------------------------");
+
+    MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + method)
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"max\":30}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn();
+    String result = mvcResult.getResponse().getContentAsString();
+    logger.debug(result);
+  }
+
   @Nested
   @DisplayName("Screen Data Controller Tests")
   class ScreenDataControllerTest {
@@ -52,12 +75,12 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     void testLaunchScreenDataAction() throws Exception {
       String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ButLogIn\",\"controller\":{\"actions\":[{\"type\":\"validate\"},{\"type\":\"server\",\"parameters\":{\"serverAction\":\"login\"}}],\"buttonType\":\"submit\",\"checkInitial\":true,\"checkTarget\":false,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"icon\":\"sign-in\",\"id\":\"ButLogIn\",\"label\":\"BUTTON_LOGIN\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"no-class btn btn-primary signin-btn bg-primary\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"pwd_usr\",\"controller\":{\"checkInitial\":true,\"checkTarget\":false,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"icon\":\"key signin-form-icon\",\"id\":\"pwd_usr\",\"optional\":false,\"placeholder\":\"SCREEN_TEXT_PASS\",\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"style\":\"no-label\",\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"cod_usr\",\"controller\":{\"checkInitial\":true,\"checkTarget\":false,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"icon\":\"user signin-form-icon\",\"id\":\"cod_usr\",\"optional\":false,\"placeholder\":\"SCREEN_TEXT_USER\",\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"style\":\"no-label\",\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}}],\"messages\":{},\"errors\":[],\"screen\":{\"name\":\"signin\",\"title\":\"SCREEN_TITLE_LOGIN\",\"option\":null}}}},{\"type\":\"end-load\"}]";
       MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"view\":\"base\"}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"view\":\"base\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
       logger.debug(expected);
@@ -99,14 +122,14 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     void testLaunchScreenDataActionError() throws Exception {
       String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"error\",\"title\":\"Option not defined\",\"option\":\"error\"}}}},{\"type\":\"end-load\"}]";
       MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"option\":\"pantalla-inexistente\",\"view\":\"base\"}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andDo(print())
-              .andExpect(content().json(expected))
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"option\":\"pantalla-inexistente\",\"view\":\"base\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print())
+        .andExpect(content().json(expected))
+        .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
     }
@@ -125,12 +148,12 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     void testLaunchGetLocalsAction() throws Exception {
 
       MvcResult mvcResult = mockMvc.perform(post("/action/get-locals")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"language\":\"es\"}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"language\":\"es\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       //logger.debug(result);
       ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
@@ -146,12 +169,12 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       int translationEsSize = translationsES.size();
 
       mockMvc.perform(post("/action/get-locals")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"language\":\"en\"}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"language\":\"en\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
 
       ObjectNode localsRetrievedActionEN = (ObjectNode) resultList.get(1);
       assertEquals("locals-retrieved", localsRetrievedActionEN.get("type").textValue());
@@ -161,12 +184,12 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(translationEsSize, translationsEN.size());
 
       mockMvc.perform(post("/action/get-locals")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"language\":\"fr\"}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"language\":\"fr\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
 
       ObjectNode localsRetrievedActionFR = (ObjectNode) resultList.get(1);
       assertEquals("locals-retrieved", localsRetrievedActionFR.get("type").textValue());
@@ -194,7 +217,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
   @DisplayName("Screen Restrictions Tests")
-  @WithMockUser(username = "test", password = "test")
+  @WithMockCustomUser(username = "test", password = "test")
   class ScreenRestrictionsTest {
 
     @BeforeEach
@@ -286,7 +309,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     private void restrictOption(ObjectNode option, String optionName, boolean restrict) {
       String searchFor = optionName;
       if (option.has("name") && optionName.equalsIgnoreCase(option.get("name").textValue()) ||
-              "*".equalsIgnoreCase(optionName)) {
+        "*".equalsIgnoreCase(optionName)) {
         option.put("restricted", restrict);
         searchFor = "*";
       }
@@ -309,18 +332,18 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       String maintainName = "updateScreenRestriction";
       String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"AUDIT\",\"rowsAffected\":1}]}}]";
       MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + maintainName)
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"module\":\"Test\",\"language\":\"en\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrAccLst\":1,\"GrdScrAccLst.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrRes\":[\"\"],\"IdeAweScrRes.selected\":null,\"Opt\":[\"" + option + "\"],\"Opt.selected\":null,\"IdeOpe\":[" + user + "],\"IdeOpe.selected\":null,\"IdePro\":[" + profile + "],\"IdePro.selected\":null,\"AccMod\":[\"" + value + "\"],\"AccMod.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrAccLst-id\":[\"new-row-1\"],\"GrdScrAccLst-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().json(expected))
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"module\":\"Test\",\"language\":\"en\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrAccLst\":1,\"GrdScrAccLst.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrRes\":[\"\"],\"IdeAweScrRes.selected\":null,\"Opt\":[\"" + option + "\"],\"Opt.selected\":null,\"IdeOpe\":[" + user + "],\"IdeOpe.selected\":null,\"IdePro\":[" + profile + "],\"IdePro.selected\":null,\"AccMod\":[\"" + value + "\"],\"AccMod.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrAccLst-id\":[\"new-row-1\"],\"GrdScrAccLst-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json(expected))
+        .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
 
       assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-              new MaintainResultDetails(MaintainType.valueOf(operation), 1L),
-              new MaintainResultDetails(MaintainType.AUDIT, 1L)
+        new MaintainResultDetails(MaintainType.valueOf(operation), 1L),
+        new MaintainResultDetails(MaintainType.AUDIT, 1L)
       });
     }
 
@@ -356,12 +379,12 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       // Check screen
       String expected = "[{\"type\":\"change-menu\",\"parameters\":" + parameters + "},{\"type\":\"end-load\"}]";
       MvcResult mvcResult = mockMvc.perform(post("/action/refresh-menu")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"view\":\"report\"}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"view\":\"report\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
       logger.debug(expected);
@@ -370,7 +393,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
   @DisplayName("Screen Configuration Tests")
-  @WithMockUser(username = "test", password = "test")
+  @WithMockCustomUser(username = "test", password = "test")
   class ScreenConfigurationTest {
 
     // Initialize parameters
@@ -397,17 +420,17 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       String maintainName = "updateScreenConfiguration";
       String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"" + operation + "\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
       MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + maintainName)
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{\"module\":\"Test\",\"language\":\"en\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrCnf\":1,\"GrdScrCnf.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrCnf\":[\"\"],\"IdeAweScrCnf.selected\":null,\"Scr\":[\"" + screen + "\"],\"Scr.selected\":null,\"IdeOpe\":[\"\"],\"IdeOpe.selected\":null,\"IdePro\":[\"\"],\"IdePro.selected\":null,\"Nam\":[\"" + component + "\"],\"Nam.selected\":null,\"Atr\":[\"" + attribute + "\"],\"Atr.selected\":null,\"Val\":[\"" + value + "\"],\"Val.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrCnf-id\":[\"new-row-1\"],\"GrdScrCnf-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(content().json(expected))
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{\"module\":\"Test\",\"language\":\"en\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrCnf\":1,\"GrdScrCnf.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrCnf\":[\"\"],\"IdeAweScrCnf.selected\":null,\"Scr\":[\"" + screen + "\"],\"Scr.selected\":null,\"IdeOpe\":[\"\"],\"IdeOpe.selected\":null,\"IdePro\":[\"\"],\"IdePro.selected\":null,\"Nam\":[\"" + component + "\"],\"Nam.selected\":null,\"Atr\":[\"" + attribute + "\"],\"Atr.selected\":null,\"Val\":[\"" + value + "\"],\"Val.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrCnf-id\":[\"new-row-1\"],\"GrdScrCnf-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json(expected))
+        .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
       assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-              new MaintainResultDetails(MaintainType.valueOf(operation), 1L)
+        new MaintainResultDetails(MaintainType.valueOf(operation), 1L)
       });
     }
 
@@ -437,15 +460,15 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
       // Check screen
       mockMvc.perform(post("/action/screen-data")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content(screenParameters)
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.records", is(Collections.singletonList(1))))
-              .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.values[0].label", is(Collections.singletonList("ENUM_YES"))))
-              .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.values[0].value", is(Collections.singletonList("1"))))
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(screenParameters)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.records", is(Collections.singletonList(1))))
+        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.values[0].label", is(Collections.singletonList("ENUM_YES"))))
+        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.values[0].value", is(Collections.singletonList("1"))))
+        .andReturn();
     }
 
     /**
@@ -555,15 +578,15 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       addRestriction("INSERT", "CrtTstLeft", "Txt", "targetAction", "TestComponentInitialLoadValue");
 
       MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content(screenParameters)
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].controller.initialLoad", is(Collections.singletonList("value"))))
-              .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].controller.targetAction", is(Collections.singletonList("TestComponentInitialLoadValue"))))
-              .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].model.records", is(Collections.singletonList(1))))
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(screenParameters)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].controller.initialLoad", is(Collections.singletonList("value"))))
+        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].controller.targetAction", is(Collections.singletonList("TestComponentInitialLoadValue"))))
+        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].model.records", is(Collections.singletonList(1))))
+        .andReturn();
 
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
@@ -610,39 +633,16 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     private void checkAttributeComponentMatcher(String componentId, String attribute, Matcher matcher) throws Exception {
       // Get screen action and check attribute
       MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content(screenParameters)
-              .accept(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(jsonPath(String.format("$[0].parameters.screenData.components[?(@.id == '%s')].controller.%s", componentId, attribute), matcher))
-              .andReturn();
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(screenParameters)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath(String.format("$[0].parameters.screenData.components[?(@.id == '%s')].controller.%s", componentId, attribute), matcher))
+        .andReturn();
 
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
     }
-  }
-
-  /**
-   * Test of launchAction method, of class ActionController.
-   *
-   * @param method Clean up method
-   * @throws Exception Test error
-   */
-  protected void cleanUp(String method) throws Exception {
-
-    logger.debug("--------------------------------------------------------------------------------------");
-    logger.debug(" Cleaning up all the mess... ");
-    logger.debug("--------------------------------------------------------------------------------------");
-
-    MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + method)
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"max\":30}")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-    String result = mvcResult.getResponse().getContentAsString();
-    logger.debug(result);
   }
 }

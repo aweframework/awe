@@ -9,6 +9,7 @@
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_USR" help="HELP_SCREEN_TITLE_USR" keep-criteria="true">
   <tag source="hidden">
     <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE" />
+    <message id="Rst2faMsg" title="CONFIRM_TITLE_RESET_2FA" message="CONFIRM_MESSAGE_RESET_2FA" />
   </tag>
   <tag source="buttons">
     <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
@@ -35,6 +36,15 @@
       <button-action type="check-some-selected" target="GrdUsrLst" />
       <button-action type="confirm" target="DelMsg" />
       <button-action type="server" server-action="maintain" target-action="UsrDel" />
+      <button-action type="filter" target="GrdUsrLst" />
+      <dependency target-type="disable" initial="true">
+        <dependency-element id="GrdUsrLst" condition="lt" value="1" />
+      </dependency>
+    </button>
+    <button label="BUTTON_RESET_2FA" icon="trash" id="ButRst2fa" help="HELP_RESET_2FA_BUTTON">
+      <button-action type="check-some-selected" target="GrdUsrLst" />
+      <button-action type="confirm" target="Rst2faMsg" />
+      <button-action type="server" server-action="maintain" target-action="reset2fa" />
       <button-action type="filter" target="GrdUsrLst" />
       <dependency target-type="disable" initial="true">
         <dependency-element id="GrdUsrLst" condition="lt" value="1" />
@@ -88,6 +98,7 @@
         <column label="PARAMETER_LANGUAGE" name="LanTxt" sort-field="Lan" align="center" charlength="12" />
         <column label="PARAMETER_BLOCKED" component="icon" name="BlkIco" sort-field="PwdLck" align="center" charlength="8" />
         <column label="PARAMETER_ACTIVE" component="icon" name="StaIco" sort-field="Sta" align="center" charlength="8" />
+        <column label="PARAMETER_2FA" component="icon" name="2faIco" sort-field="2fa" align="center" charlength="8" />
         <column name="IdeOpe" hidden="true" />
         <column name="Sta" hidden="true" />
         <column name="PwdLck" hidden="true" />

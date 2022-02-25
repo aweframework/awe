@@ -67,7 +67,7 @@ public class NotifierService {
    * @return Notifications
    */
   public ServiceData getNotifications() throws AWException {
-    ServiceData serviceData = queryService.launchQuery(USER_NOTIFICATIONS);
+    ServiceData serviceData = queryService.launchPrivateQuery(USER_NOTIFICATIONS);
 
     // Add client action to update bell controller
     return serviceData.addClientAction(new UpdateControllerActionBuilder("notifications", "unit", serviceData.getDataList().getRecords()).build());
@@ -82,7 +82,7 @@ public class NotifierService {
    * @throws AWException
    */
   public ServiceData toggleWebSubscription(String user, Integer subscription) throws AWException {
-    DataList dataList = queryService.launchQuery(GET_SUBSCRIPTION).getDataList();
+    DataList dataList = queryService.launchPrivateQuery(GET_SUBSCRIPTION).getDataList();
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     if (dataList.getRows().isEmpty()) {
       // Set insert parameters
@@ -110,7 +110,7 @@ public class NotifierService {
    * @throws AWException
    */
   public ServiceData toggleEmailSubscription(String user, Integer subscription) throws AWException {
-    DataList dataList = queryService.launchQuery(GET_SUBSCRIPTION).getDataList();
+    DataList dataList = queryService.launchPrivateQuery(GET_SUBSCRIPTION).getDataList();
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.put(SUBSCRIPTION, subscription);
     if (dataList.getRows().isEmpty()) {
@@ -135,7 +135,7 @@ public class NotifierService {
    * @return Service data
    */
   public ServiceData goToNotificationScreen(Integer notificationId) throws AWException {
-    DataList dataList = queryService.launchQuery(GET_NOTIFICATION, JsonNodeFactory.instance.objectNode().put("notification", notificationId)).getDataList();
+    DataList dataList = queryService.launchPrivateQuery(GET_NOTIFICATION, JsonNodeFactory.instance.objectNode().put("notification", notificationId)).getDataList();
     List<NotificationDto> notificationDtoList = dataListService.asBeanList(dataList, NotificationDto.class);
     return new ServiceData().addClientAction(new ScreenActionBuilder(notificationDtoList.get(0).getScreen(), true).setContext("screen/private/home").setAsync(true).setSilent(true).build());
   }

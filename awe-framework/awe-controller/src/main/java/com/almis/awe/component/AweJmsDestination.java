@@ -58,7 +58,7 @@ public class AweJmsDestination {
   private void loadJmsSources() {
     destinationMap = new HashMap<>();
     try {
-      ServiceData jmsConnections = queryService.launchQuery(AweConstants.JMS_CONNECTIONS_QUERY);
+      ServiceData jmsConnections = queryService.launchPrivateQuery(AweConstants.JMS_CONNECTIONS_QUERY);
 
       if (jmsConnections.getDataList() != null) {
         // Retrieve queue info

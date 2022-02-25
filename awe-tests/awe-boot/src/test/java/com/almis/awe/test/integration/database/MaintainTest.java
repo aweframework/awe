@@ -1,5 +1,6 @@
 package com.almis.awe.test.integration.database;
 
+import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.StringUtil;
@@ -11,10 +12,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @DisplayName("Maintain tests")
 @Slf4j
-@WithMockUser(username = "test", password = "test")
+@WithMockCustomUser
 @Transactional
 public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
@@ -62,11 +64,11 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     logger.debug("--------------------------------------------------------------------------------------");
 
     mockMvc.perform(post("/action/maintain/" + method)
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"max\":30}")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk());
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"max\":30}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk());
   }
 
   /**
@@ -106,14 +108,14 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    */
   private String launchPostRequest(String type, String name, String variables, String expected) throws Exception {
     MvcResult mvcResult = mockMvc.perform(post("/action/" + type + "/" + name)
-      .with(csrf())
-      .session(session)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{" + variables + "\"max\":30}")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(expected))
-            .andReturn();
+        .with(csrf())
+        .session(session)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{" + variables + "\"max\":30}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(content().json(expected))
+      .andReturn();
     return mvcResult.getResponse().getContentAsString();
   }
 
@@ -130,7 +132,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
     });
   }
 
@@ -148,7 +150,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
       String result = launchMaintain(maintainName, variables, expected);
       logger.debug(result);
       assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-              new MaintainResultDetails(MaintainType.INSERT, 1L)
+        new MaintainResultDetails(MaintainType.INSERT, 1L)
       });
     }
   }
@@ -166,7 +168,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
     });
   }
 
@@ -194,8 +196,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
     });
 
 
@@ -214,10 +216,10 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 2L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 2L)
     });
 
 
@@ -237,16 +239,16 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
     });
 
     variables = "\"variable\": [\"AWEBOOT-TEST-2\", \"AWEBOOT-TEST-3\"],";
     result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
     });
   }
 
@@ -263,7 +265,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
     });
 
     maintainName = "SimpleSingleUpdate";
@@ -272,7 +274,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 1L)
+      new MaintainResultDetails(MaintainType.UPDATE, 1L)
     });
 
 
@@ -291,8 +293,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.DELETE, 0L),
-            new MaintainResultDetails(MaintainType.DELETE, 0L)
+      new MaintainResultDetails(MaintainType.DELETE, 0L),
+      new MaintainResultDetails(MaintainType.DELETE, 0L)
     });
   }
 
@@ -312,8 +314,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
 
 
@@ -334,11 +336,9 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.info(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
-
-
   }
 
   /**
@@ -356,12 +356,12 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.info(result);
     assertResultJson(maintainName, result, 6, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
 
     });
 
@@ -381,7 +381,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
       String result = launchMaintain(maintainName, variables, expected);
       logger.debug(result);
       assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-              new MaintainResultDetails(MaintainType.INSERT, 1L)
+        new MaintainResultDetails(MaintainType.INSERT, 1L)
       });
     }
   }
@@ -399,9 +399,9 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 1L)
     });
   }
 
@@ -420,12 +420,12 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 6, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 5L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.UPDATE, 5L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
 
 
@@ -446,8 +446,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 5L),
-            new MaintainResultDetails(MaintainType.AUDIT, 5L)
+      new MaintainResultDetails(MaintainType.UPDATE, 5L),
+      new MaintainResultDetails(MaintainType.AUDIT, 5L)
     });
 
 
@@ -468,11 +468,11 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 5, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L)
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L)
     });
 
 
@@ -493,16 +493,16 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 10, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
 
 
@@ -523,8 +523,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 5L),
-            new MaintainResultDetails(MaintainType.AUDIT, 5L)
+      new MaintainResultDetails(MaintainType.UPDATE, 5L),
+      new MaintainResultDetails(MaintainType.AUDIT, 5L)
     });
 
 
@@ -543,9 +543,9 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 3, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 1L)
     });
 
 
@@ -564,11 +564,11 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 5, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 2L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 2L)
     });
 
 
@@ -588,7 +588,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
     });
   }
 
@@ -606,7 +606,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
     });
   }
 
@@ -623,7 +623,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.UPDATE, 0L),
+      new MaintainResultDetails(MaintainType.UPDATE, 0L),
     });
   }
 
@@ -680,10 +680,10 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
 
 
@@ -702,8 +702,8 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
 
 
@@ -723,10 +723,10 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 1L),
     });
   }
 
@@ -742,9 +742,9 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, "", expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 3, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.UPDATE, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 1L)
     });
 
 
@@ -765,10 +765,10 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.INSERT, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
 
     Set<String> keys = new HashSet<>();
@@ -789,10 +789,10 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
     assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
-            new MaintainResultDetails(MaintainType.DELETE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L),
-            new MaintainResultDetails(MaintainType.DELETE, 1L),
-            new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      new MaintainResultDetails(MaintainType.DELETE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.DELETE, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
   }
 
@@ -801,40 +801,14 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    *
    * @throws Exception Test error
    */
-  @Test
-  void testServiceNoParams() throws Exception {
-    String maintainName = "ServeNoParams";
-    String variables = "";
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
-    String result = launchMaintain(maintainName, variables, expected);
-    logger.debug(result);
-  }
-
-  /**
-   * Test of launchAction method, of class ActionController.
-   *
-   * @throws Exception Test error
-   */
-  @Test
-  void testServiceMessageParams() throws Exception {
-    String maintainName = "ServeMessageParams";
-    String variables = "";
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"message\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
-    String result = launchMaintain(maintainName, variables, expected);
-    logger.debug(result);
-  }
-
-  /**
-   * Test of launchAction method, of class ActionController.
-   *
-   * @throws Exception Test error
-   */
-  @Test
-  void testServiceTitleMessageParams() throws Exception {
-    String maintainName = "ServeTitleMessageParams";
-    String variables = "";
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"message\",\"title\":\"title\",\"type\":\"ok\"}}]";
-    String result = launchMaintain(maintainName, variables, expected);
+  @ParameterizedTest
+  @CsvSource(value = {
+    "ServeNoParams|[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]",
+    "ServeMessageParams|[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"message\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]",
+    "ServeTitleMessageParams|[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"message\",\"title\":\"title\",\"type\":\"ok\"}}]"
+  }, delimiter = '|')
+  void testService(String maintainName, String expected) throws Exception {
+    String result = launchMaintain(maintainName, "", expected);
     logger.debug(result);
   }
 
@@ -872,10 +846,10 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
     try {
       mockMvc.perform(post("/action/maintain/" + maintainName)
-        .header("Authorization", "16617f0d-97ee-4f6b-ad54-905d6ce3c328")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{" + variables + "\"max\":30}")
-        .accept(MediaType.APPLICATION_JSON))
+          .header("Authorization", "16617f0d-97ee-4f6b-ad54-905d6ce3c328")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content("{" + variables + "\"max\":30}")
+          .accept(MediaType.APPLICATION_JSON))
         .andReturn();
     } catch (Exception e) {
       ex = e;
@@ -892,9 +866,9 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    */
   private void setParameter(String name, String value) throws Exception {
     MvcResult mvcResult = mockMvc.perform(post(String.format("/session/set/%s", name))
-      .with(csrf())
-      .param("value", value)
-      .session(session))
+        .with(csrf())
+        .param("value", value)
+        .session(session))
       .andReturn();
     mvcResult.getResponse().getContentAsString();
   }

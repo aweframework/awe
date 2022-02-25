@@ -30,6 +30,11 @@
   <service id="logoutMaintain">
     <java classname="com.almis.awe.service.AccessService" method="logoutMaintain" />
   </service>
+  <service id="verify2faCode">
+    <java classname="com.almis.awe.service.AccessService" method="verify2faCode">
+      <service-parameter type="STRING" name="code" />
+    </java>
+  </service>
   <service id="EncTxt">
     <java classname="com.almis.awe.service.AccessService" method="encryptText" />
   </service>
@@ -60,7 +65,9 @@
     <java classname="com.almis.awe.service.PropertyService" method="refreshDatabaseProperties" />
   </service>
   <service id="ExpFil">
-    <java classname="com.almis.awe.service.ReportService" method="printScreen" />
+    <java classname="com.almis.awe.service.ReportService" method="printScreen">
+      <service-parameter name="screen" type="STRING" />
+    </java>
   </service>
   <service id="ShwPrn">
     <java classname="com.almis.awe.service.ReportService" method="getShowPrint" />
@@ -196,5 +203,17 @@
       <service-parameter type="STRING" name="taglist" />
     </java>
   </service>
-
+  <service id="qr-code">
+    <java classname="com.almis.awe.service.TotpService" method="getQRCodeList">
+      <service-parameter type="BOOLEAN" name="generate" />
+    </java>
+  </service>
+  <service id="generate-2fa-secret">
+    <java classname="com.almis.awe.service.TotpService" method="generate2faSecret"/>
+  </service>
+  <service id="update-2fa-status">
+    <java classname="com.almis.awe.service.TotpService" method="update2faStatus">
+      <service-parameter type="INTEGER" name="enable" />
+    </java>
+  </service>
 </services>

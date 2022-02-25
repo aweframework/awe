@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -41,11 +42,13 @@ class AweUserDetailServiceTest {
   @BeforeEach
   void setUp() {
     userDetailsService.setApplicationContext(context);
+    ReflectionTestUtils.setField(userDetailsService, "defaultLanguage", "ES");
+    ReflectionTestUtils.setField(userDetailsService, "defaultTheme", "sunset");
+    ReflectionTestUtils.setField(userDetailsService, "defaultRestriction", "restriction");
   }
 
   @Test
   void giveSomeUser_willReturnUserDetails() {
-    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProperty("PwdExp")).thenReturn("1");
     given(userDAO.findByUserName(anyString())).willReturn(User.builder()
@@ -66,7 +69,6 @@ class AweUserDetailServiceTest {
 
   @Test
   void giveSomeUserWithCredentialExpired_willReturnUserDetails() {
-    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProperty("PwdExp")).thenReturn("1");
     given(userDAO.findByUserName(anyString())).willReturn(User.builder()

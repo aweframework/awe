@@ -29,7 +29,7 @@ import java.security.spec.KeySpec;
  * @author Pablo GARCIA - 17/MAR/2011
  */
 @Slf4j
-public final class EncodeUtil {
+public final class  EncodeUtil {
 
   private static final String STRING_ENCODE_ERROR = "String encode error";
 

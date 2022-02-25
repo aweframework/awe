@@ -83,6 +83,8 @@ import "./input/wizard";
 import "./accordion";
 
 import "./video";
+import "./link";
+import "./image";
 
 import "./grid";
 import "./treegrid";
@@ -93,7 +95,6 @@ import "./plugins/uiToc";
 
 import "./map";
 import "./column/icon";
-import "./column/progress";
 import "./column/image";
 import "./viewers/fileViewer";
 import "./viewers/helpViewer";

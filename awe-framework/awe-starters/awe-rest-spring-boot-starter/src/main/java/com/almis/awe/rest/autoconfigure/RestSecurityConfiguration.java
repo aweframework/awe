@@ -7,7 +7,6 @@ import com.almis.awe.rest.security.JWTAuthenticationEntryPoint;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.rest.service.JWTTokenService;
-import com.almis.awe.service.user.AweUserDetailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * REST security configuration
@@ -30,22 +30,20 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @Configuration
 public class RestSecurityConfiguration extends ServiceConfig {
 
-  // Autowire services
-  private final AuthenticationManager authenticationManager;
-  private final AweUserDetailService aweUserDetailService;
-  private final ObjectMapper objectMapper;
-
   // White list urls
   private static final String[] AUTH_LIST = {
     // Rest API
-    "/api/authenticate",
-    "/api/public/**"
+    "/api/authenticate"
   };
+  // Autowire services
+  private final AuthenticationManager authenticationManager;
+  private final UserDetailsService userDetailsService;
+  private final ObjectMapper objectMapper;
 
   @Autowired
-  public RestSecurityConfiguration(AuthenticationManager authenticationManager, AweUserDetailService aweUserDetailService, ObjectMapper objectMapper) {
+  public RestSecurityConfiguration(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, ObjectMapper objectMapper) {
     this.authenticationManager = authenticationManager;
-    this.aweUserDetailService = aweUserDetailService;
+    this.userDetailsService = userDetailsService;
     this.objectMapper = objectMapper;
   }
 
@@ -59,27 +57,32 @@ public class RestSecurityConfiguration extends ServiceConfig {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http.csrf().disable().authorizeRequests()
-              .antMatchers(AUTH_LIST).permitAll()
-              .and().antMatcher("/api/**").sessionManagement()
-              // no session cookie for API endpoints
-              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-              .and().authorizeRequests().anyRequest().authenticated()
-              // Handles unauthorized attempts to access protected URLS
-              .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
-              // Add JWT (Json web token) filters
-              .and().addFilter(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)))
-              .addFilter(new JWTAuthorizationFilter(authenticationManager, aweUserDetailService, getBean(JWTTokenService.class)));
+        .antMatchers(AUTH_LIST).permitAll()
+        // Filter public queries and maintains
+        .antMatchers("/api/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
+        .antMatchers("/api/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
+        .antMatchers("/api/public/data/**").access("@publicQueryMaintainFilter.isPublicQuery(request)")
+        .antMatchers("/api/public/maintain/**").access("@publicQueryMaintainFilter.isPublicMaintain(request)")
+        .and().antMatcher("/api/**").sessionManagement()
+        // no session cookie for API endpoints
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and().authorizeRequests().anyRequest().authenticated()
+        // Handles unauthorized attempts to access protected URLS
+        .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
+        // Add JWT (Json web token) filters
+        .and().addFilter(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)))
+        .addFilter(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)));
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
       web.ignoring().antMatchers(
-              // -- Swagger 2
-              "/v2/api-docs",
-              // -- Open API
-              "/v3/api-docs/**",
-              "/swagger-ui/**",
-              "/swagger-ui.html");
+        // -- Swagger 2
+        "/v2/api-docs",
+        // -- Open API
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html");
     }
 
     @Bean
@@ -89,15 +92,16 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
     /**
      * JWT Token service
+     *
      * @return JWTTokenService
      */
     @Bean
     JWTTokenService jwtTokenService(JWTProperties jwtProperties) {
       return new JWTTokenService(jwtProperties.getAuthorizationHeader(),
-              jwtProperties.getPrefix(),
-              jwtProperties.getSecret(),
-              jwtProperties.getIssuer(),
-              jwtProperties.getExpirationTime());
+        jwtProperties.getPrefix(),
+        jwtProperties.getSecret(),
+        jwtProperties.getIssuer(),
+        jwtProperties.getExpirationTime());
     }
   }
 }

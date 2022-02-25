@@ -122,6 +122,22 @@ public class ActionService extends ServiceConfig {
   /**
    * Launch an error (action failed)
    *
+   * @param actionId    Action launched
+   * @param exception Exception with the error
+   * @return Client action list
+   */
+  public List<ClientAction> launchError(String actionId, AWException exception) {
+    try {
+      return launchError(getAction(actionId), exception);
+    } catch (AWException exc) {
+      exc.log();
+      return new ArrayList<>();
+    }
+  }
+
+  /**
+   * Launch an error (action failed)
+   *
    * @param action    Action launched
    * @param exception Exception with the error
    * @return Client action list

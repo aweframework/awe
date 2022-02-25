@@ -2,9 +2,8 @@ package com.almis.awe.security.authentication.filter;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.entities.maintain.Target;
-import com.almis.awe.model.entities.queries.Query;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AuthorizationServiceException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -32,15 +31,12 @@ public class PublicQueryMaintainFilter {
    *
    * @param request Request
    * @return query is public
+   * @throws AWException Error retrieving query
    */
-  public boolean isPublicQuery(HttpServletRequest request) {
+  public boolean isPublicQuery(HttpServletRequest request) throws AWException {
     String target = getTarget(request);
-    try {
-      return Optional.ofNullable(elements.getQuery(target)).orElse(new Query()).isPublic();
-    } catch (AWException ex) {
-      log.error("Error filtering query", ex);
-      return false;
-    }
+    return Optional.ofNullable(elements.getQuery(target))
+      .orElseThrow(() -> new AuthorizationServiceException("Query not found: " + target)).isPublic();
   }
 
   /**
@@ -48,16 +44,13 @@ public class PublicQueryMaintainFilter {
    *
    * @param request Request
    * @return maintain is public
+   * @throws AWException Error retrieving maintain
    */
-  public boolean isPublicMaintain(HttpServletRequest request) {
+  public boolean isPublicMaintain(HttpServletRequest request) throws AWException {
     // Check if target is a public maintain
     String target = getTarget(request);
-    try {
-      return Optional.ofNullable(elements.getMaintain(target)).orElse(new Target()).isPublic();
-    } catch (AWException ex) {
-      log.error("Error filtering maintain", ex);
-      return false;
-    }
+    return Optional.ofNullable(elements.getMaintain(target))
+      .orElseThrow(() -> new AuthorizationServiceException("Maintain target not found: " + target)).isPublic();
   }
 
   private String getTarget(HttpServletRequest request) {

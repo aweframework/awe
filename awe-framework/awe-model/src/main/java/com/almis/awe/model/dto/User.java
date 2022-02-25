@@ -1,6 +1,7 @@
 package com.almis.awe.model.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -60,4 +61,8 @@ public class User implements Serializable {
   private boolean passwordLocked;
   // Login attempts count (numLog)
   private Integer loginAttempts;
+  // Check if 2fa is enabled (enabled2fa)
+  private boolean enabled2fa;
+  // 2fa secret
+  private String secret2fa;
 }
