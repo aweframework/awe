@@ -12,6 +12,9 @@ public class AweConstants {
   private AweConstants() {
   }
 
+  // AUTH
+  public static final String AUTHENTICATION_RESULT = "authenticationResult";
+
   // LOG
   public static final String DOUBLE_LOG_LINE = "======================================================";
   public static final String LOG_LINE = "----------------------------------------------------------------------------------";
@@ -167,7 +170,6 @@ public class AweConstants {
   public static final String SESSION_CONNECTION_TOKEN = "token";
   public static final String SESSION_TOKEN = "sessionToken";
   public static final String SESSION_CONNECTION_HEADER = "Authorization";
-  public static final String SESSION_USER_DETAILS = "userDetails";
 
   // Action variables
   public static final String ACTION_MESSAGE_TYPE = "MESSAGE_TYPE";
@@ -233,7 +235,6 @@ public class AweConstants {
   public static final String XSD_LOCALES = "@awe.schemas@/locale.xsd";
 
   // Reporting
-  public static final String PRINT_SCREEN = "PrnScr";
   public static final String PRINT_ACTION = "ActPrn";
   public static final String PRINT_TABS = "TypPrn";
   public static final String PRINT_DOUBLE_FORMATTING = "DblFmtPrn";

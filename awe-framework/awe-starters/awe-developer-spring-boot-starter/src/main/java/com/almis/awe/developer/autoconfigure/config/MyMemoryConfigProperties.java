@@ -1,4 +1,4 @@
-package com.almis.awe.developer.autoconfigure;
+package com.almis.awe.developer.autoconfigure.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Scheduler module properties
  */
 @Data
-@ConfigurationProperties(prefix = "translation.mymemory")
+@ConfigurationProperties(prefix = "awe.translation.mymemory")
 public class MyMemoryConfigProperties {
   /**
    * Flag to load tasks on start application

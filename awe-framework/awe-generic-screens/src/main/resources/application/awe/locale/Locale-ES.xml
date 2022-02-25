@@ -40,6 +40,7 @@
   <locale name="BUTTON_PRINT" value="Imprimir"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimir selección"/>
   <locale name="BUTTON_RESET" value="Reset"/>
+  <locale name="BUTTON_RESET_2FA" value="Restablecer 2FA"/>
   <locale name="BUTTON_RUN" value="Comenzar"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Guardar markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Guardar fila"/>
@@ -109,6 +110,7 @@
   <locale name="CONFIRM_MESSAGE_NEW" value="Se van a almacenar los datos insertados. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_NOT_UPDATED_DATA" value="Atención, no se ha modificado ningún dato ¿Desea continuar?"/>
   <locale name="CONFIRM_MESSAGE_PRINT_FILE" value="Se va a lanzar una impresión de los datos de la pantalla ¿Está de acuerdo?"/>
+  <locale name="CONFIRM_MESSAGE_RESET_2FA" value="Va a restablecer la autenticación de dos factores en los usuarios seleccionados. ¿Está seguro?"/>
   <locale name="CONFIRM_MESSAGE_SND_EML" value="Se va a enviar un e-mail a los usuarios activos. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_TRIGGER_WITH_CALENDAR_EXIST" value="Los calendarios seleccionados están asociados a una o varias tareas. ¿Está seguro de que quiere continuar?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_KO" value="Se van a desbloquear los batches seleccionados marcándolos como no válidos. ¿Está de acuerdo?"/>
@@ -121,6 +123,7 @@
   <locale name="CONFIRM_TITLE_NEW" value="Confirmación de alta"/>
   <locale name="CONFIRM_TITLE_NOT_UPDATED_DATA" value="Datos no modificados"/>
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="Confirmación de impresión de fichero"/>
+  <locale name="CONFIRM_TITLE_RESET_2FA" value="Restablecimiento de autenticación de dos factores"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Confirmación de envío"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Confirmación de modificación"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Datos modificados"/>
@@ -167,6 +170,7 @@
   <locale name="EMAIL_MESSAGE_TEXT_REPORT" value="Se han generado los siguientes archivos para su envío por correo\n"/>
   <locale name="EMAIL_SUBJECT_GENERAL" value="[#EmlSub#]"/>
   <locale name="EMAIL_SUBJECT_REPORT" value="Informe de la ventana: [#ScrTit#]"/>
+  <locale name="ENABLE_2FA" value="Habilitar la autenticación en dos pasos"/>
   <locale name="ENUM_AUD_TYP_DEL" value="Borrado"/>
   <locale name="ENUM_AUD_TYP_INS" value="Alta"/>
   <locale name="ENUM_AUD_TYP_UPD" value="Modificación"/>
@@ -420,6 +424,7 @@
   <locale name="ERROR_MESSAGE_GRID_MULTIPLE_CONF" value="No se ha encontrado el parámetro de envío de operaciones para el grid {0}. Compruebe la configuración"/>
   <locale name="ERROR_MESSAGE_ILEGAL_TYPE_STATEMENT_VARIABLES" value="Tipo de variable no definida. Índice {0} - Tipo: {1} - Valor: {2}"/>
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="Ha habido un problema al lanzar la inicialización del motor de documentos"/>
+  <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="El código de autenticación del segundo factor no es válido, verifique su aplicación de autenticación o envíe un mensaje al gestor de la aplicación para restablecer su cuenta."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="Los argumentos introducidos son inválidos"/>
   <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Ha habido un problema a la hora de realizar la conexión"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="Las credenciales introducidas para el usuario -{0}- no son válidas"/>
@@ -599,6 +604,7 @@
   <locale name="ERROR_TITLE_GETTING_USER_STYLE" value="Error obteniendo los estilos del usuario"/>
   <locale name="ERROR_TITLE_GETTING_VIEW" value="Error obteniendo la vista"/>
   <locale name="ERROR_TITLE_INITIALIZING_JASPER" value="Error inicializando Jasper"/>
+  <locale name="ERROR_TITLE_INVALID_2FA_CODE" value="Código incorrecto"/>
   <locale name="ERROR_TITLE_INVALID_ARGUMENTS" value="Argumentos inválidos"/>
   <locale name="ERROR_TITLE_INVALID_CONNECTION" value="Conexión inválida"/>
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Credenciales inválidas"/>
@@ -723,6 +729,7 @@
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Seleccione el formato que desea aplicar a los datos numéricos"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Forzar la orientación del informe"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Seleccione lo que desea imprimir: Todas las pestañas en la pantalla o sólo la seleccionada"/>
+  <locale name="HELP_RESET_2FA_BUTTON" value="Restablecer la autenticación de dos factores en los usuarios seleccionados"/>
   <locale name="HELP_RESET_BUTTON" value="Borrar los datos de los criterios"/>
   <locale name="HELP_ROWS_PER_PAGE" value="Filas/página"/>
   <locale name="HELP_SCREEN_HELP" value="Diálogo con la definición de los componentes de la ventana y su ayuda"/>
@@ -857,6 +864,8 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MONTH" value="{0} mes"/>
   <locale name="MONTHS" value="{0} meses"/>
   <locale name="MSG_PASSWD_NEW" value="Despues de introducir la password pulsar boton confirmar"/>
+  <locale name="NO_SUBSCRIPTIONS" value="No hay suscripciones activas a notificaciones."/>
+  <locale name="NOTIFICATIONS" value="NOTIFICACIONES"/>
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="Se han borrado todas las caches correctamente"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="Se ha borrado la cache -{0}- correctamente"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="Se ha enviado un correo electrónico"/>
@@ -874,6 +883,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch lanzado correctamente"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Operación realizada correctamente"/>
   <locale name="OK_TITLE_MESSAGE_SENT" value="Mensaje enviado correctamente"/>
+  <locale name="PARAMETER_2FA" value="2FA"/>
   <locale name="PARAMETER_ACC_ID" value="Id cuenta"/>
   <locale name="PARAMETER_ACC_NAM" value="Nombre cuenta"/>
   <locale name="PARAMETER_ACC_NUM" value="Numero cuenta"/>
@@ -978,6 +988,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="Septiembre"/>
   <locale name="PARAMETER_MONTHS" value="Meses"/>
   <locale name="PARAMETER_NAME" value="Nombre"/>
+  <locale name="PARAMETER_NEW_PASSWD" value="Nueva contraseña"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Siguiente ejecución"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Tipo de notificación"/>
   <locale name="PARAMETER_NUM_LOG" value="Intentos de conexión"/>
@@ -1053,8 +1064,13 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_YEARS" value="Años"/>
   <locale name="PRINT_TAB_ADVANCE" value="Configuración avanzada"/>
   <locale name="PRINT_TAB_GENERAL" value="Configuración General"/>
+  <locale name="PROFILE" value="PERFIL"/>
+  <locale name="SCAN_QR_CODE"><![CDATA[Deberá instalar una aplicación de autenticación de dos factores en su dispositivo móvil/tableta, como Google Authenticator, para ingresar a la aplicación.
+
+Abra su aplicación de autenticación de dos factores y escanee el siguiente código QR para ingresar a la aplicación:]]></locale>
   <locale name="SCREEN_APPLICATION_HELP" value="Ayuda sobre la aplicación"/>
   <locale name="SCREEN_HELP" value="Pantalla de ayuda"/>
+  <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Autenticación en dos pasos"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Agregar el texto del literal"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Añadir un identificador de literal"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendario"/>
@@ -1101,9 +1117,12 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="SCREEN_TEXT_SETTINGS" value="Opciones"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
   <locale name="SCREEN_TEXT_STEP" value="Paso"/>
+  <locale name="SCREEN_TEXT_TOTP_CODE" value="Insertar código aquí"/>
   <locale name="SCREEN_TEXT_USER" value="Usuario"/>
+  <locale name="SCREEN_TEXT_USER_DATA" value="Datos del usuario"/>
   <locale name="SCREEN_TEXT_USERS" value="Usuarios"/>
   <locale name="SCREEN_TEXT_VERSION" value="Entorno"/>
+  <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activación de autenticación en dos pasos"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Información del aplicativo"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Parámetros de la aplicación"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Secuencias"/>
@@ -1113,6 +1132,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="SCREEN_TITLE_CAL" value="Gestión de calendarios"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="Consulta de calendario"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Cambio de contraseña"/>
+  <locale name="SCREEN_TITLE_CHECK_2FA" value="Comprobación del segundo factor de autenticación"/>
   <locale name="SCREEN_TITLE_COM" value="Gestión de comandos"/>
   <locale name="SCREEN_TITLE_COM_UPD" value="Modificación de comando"/>
   <locale name="SCREEN_TITLE_COM_VIW" value="Consulta de comando"/>
@@ -1176,6 +1196,8 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="SCREEN_TITLE_USR_UPD" value="Modificación de usuario"/>
   <locale name="SCREEN_TITLE_USR_VIW" value="Consulta de usuario"/>
   <locale name="SECONDS" value="{0}s"/>
+  <locale name="SECRET_CODE" value="Si no puede usar un código QR, use este código de texto:"/>
+  <locale name="SECURITY" value="SEGURIDAD"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Buscar un valor"/>
   <locale name="SELECT2_SELECT_VALUE" value="Seleccione un valor"/>
   <locale name="TIME_AGO" value="hace {0}"/>

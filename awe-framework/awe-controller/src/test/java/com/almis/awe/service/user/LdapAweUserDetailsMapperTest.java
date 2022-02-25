@@ -2,7 +2,7 @@ package com.almis.awe.service.user;
 
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.model.component.AweSession;
-import com.almis.awe.model.dto.User;
+import com.almis.awe.model.component.AweUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +14,7 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
 
@@ -42,10 +43,15 @@ class LdapAweUserDetailsMapperTest {
   DirContextAdapter contextAdapter;
   @Mock
   DirContextOperations contextOperations;
+  @Mock
+  UserDetailsService userDetailsService;
+  @Mock
+  AweUserDetails userDetails;
 
   @BeforeEach
   public void setUp() {
     ldapAweUserDetailsMapper.setApplicationContext(context);
+    when(userDetailsService.loadUserByUsername(anyString())).thenReturn(userDetails);
   }
 
   /**
@@ -53,15 +59,7 @@ class LdapAweUserDetailsMapperTest {
    */
   @Test
   void testLdapUserDetails() {
-    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     given(contextOperations.getNameInNamespace()).willReturn("test");
-    given(userDAO.findByUserName(anyString())).willReturn(User.builder()
-            .userName("test")
-            .userPassword("test")
-            .enabled(true)
-            .profile("ADM")
-            .passwordLocked(false)
-            .build());
     UserDetails details = ldapAweUserDetailsMapper.mapUserFromContext(contextOperations, "test", Collections.singletonList(new SimpleGrantedAuthority("ROLE_DUMMY")));
     assertNotNull(details);
   }
@@ -71,18 +69,10 @@ class LdapAweUserDetailsMapperTest {
    */
   @Test
   void testLdapUserDetailsWithPasswordRetrieved() {
-    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     given(contextOperations.getNameInNamespace()).willReturn("test");
     given(contextOperations.getObjectAttribute("userPassword")).willReturn("test");
     given(contextOperations.getObjectAttribute(PasswordPolicyControl.OID)).willReturn(mock(PasswordPolicyResponseControl.class));
     given(contextOperations.getStringAttributes("dummy")).willReturn(new String[]{"dummy", "dummy"});
-    given(userDAO.findByUserName(anyString())).willReturn(User.builder()
-            .userName("test")
-            .userPassword("test")
-            .enabled(true)
-            .profile("ADM")
-            .passwordLocked(false)
-            .build());
 
     ldapAweUserDetailsMapper.setRoleAttributes(new String[]{"dummy", "dummy"});
     UserDetails details = ldapAweUserDetailsMapper.mapUserFromContext(contextOperations, "test", singletonList(new SimpleGrantedAuthority("ROLE_DUMMY")));

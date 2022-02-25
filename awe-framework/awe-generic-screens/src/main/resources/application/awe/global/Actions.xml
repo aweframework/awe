@@ -36,8 +36,8 @@
     <call service="logout" />
   </action>
 
-  <!-- LOGIN ACTION -->
-  <action id="loginRedirect" format="JSON">
+  <!-- AFTER LOGIN ACTION -->
+  <action id="afterLogin" format="JSON">
     <call service="login"/>
     <answer type="ok">
       <response>

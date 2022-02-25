@@ -1,5 +1,5 @@
-import { DefaultSettings } from "./../../../main/resources/js/awe/data/options";
-import { launchScreenAction } from "../utils";
+import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
+import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', function() {
   var $injector, $rootScope, $compile, $httpBackend, $actionController, $control, $storage;

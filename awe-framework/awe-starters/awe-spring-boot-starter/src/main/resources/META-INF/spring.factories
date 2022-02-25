@@ -21,4 +21,5 @@ com.almis.awe.controller.TemplateController,\
 com.almis.awe.controller.ScreenDataController,\
 com.almis.awe.controller.LocalesController,\
 com.almis.awe.controller.StaticResourcesController,\
-com.almis.awe.controller.UploadController
+com.almis.awe.controller.UploadController,\
+com.almis.awe.controller.TotpController

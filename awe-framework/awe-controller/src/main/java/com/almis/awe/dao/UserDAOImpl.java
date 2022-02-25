@@ -6,6 +6,7 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.User;
 import com.almis.awe.service.QueryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 /**
  * User data implementation
  */
+@Slf4j
 public class UserDAOImpl extends ServiceConfig implements UserDAO {
 
   // Query service
@@ -60,12 +62,15 @@ public class UserDAOImpl extends ServiceConfig implements UserDAO {
           .userFileRestriction(userDataListMap.get("userRestriction").getStringValue())
           .profileFileRestriction(userDataListMap.get("profileRestriction").getStringValue())
           .loginAttempts(userDataListMap.get("loginAttempts").getIntegerValue())
+          .enabled2fa(userDataListMap.get("enable2fa").getIntegerValue().equals(1))
+          .secret2fa(userDataListMap.get("secret2fa").getStringValue())
           .build();
       } else {
         throw new UsernameNotFoundException(userName);
       }
       return user;
     } catch (Exception exc) {
+      log.error("Error retrieving user details", exc);
       throw new UsernameNotFoundException(userName, exc);
     }
   }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window">
+  <tag source="profile-panel">
+    <tag type="div" style="panel-padding">
+      <tag type="h3" label="SCREEN_TEXT_USER_DATA"/>
+      <tag type="hr" style="no-margin-t"/>
+      <tag id="update-user-data" type="div">
+        <criteria label="PARAMETER_NAME" component="text" id="name" icon="file-text-o"/>
+        <criteria label="PARAMETER_EMAIL" component="text" id="email" icon="envelope-o" validation="email"/>
+      </tag>
+      <tag type="div" style="text-right">
+        <button id="updateUserData" label="BUTTON_CONFIRM" type="button" style="btn-primary">
+          <button-action type="validate" target="update-user-data"/>
+          <button-action type="server" server-action="maintain" target-action="updateUserData"/>
+        </button>
+      </tag>
+    </tag>
+  </tag>
+  <tag source="security-panel">
+    <tag type="div" style="panel-padding">
+      <tag type="h3" label="SCREEN_TEXT_CHANGE_PWD"/>
+      <tag type="hr" style="no-margin-t"/>
+      <tag id="update-password" type="div">
+        <criteria label="PARAMETER_OLD_PASSWD" component="password" id="OldPas" validation="{eq:{criterion:'oldPassword', message:'VALIDATOR_MESSAGE_OLD_PASSWORD'}}" icon="key" />
+        <criteria label="PARAMETER_NEW_PASSWD" component="password" id="Pas" validation="{pattern:{setting:'passwordPattern'}, ne:{criterion:'OldPas', message:'VALIDATOR_MESSAGE_REPEAT_OLD_PASSWORD'}, minlength:{setting:'minlengthPassword'}}"
+                  icon="key" />
+        <criteria label="PARAMETER_RETYPE_PASSWD" component="password" id="RetPas" validation="{eq:{criterion:'Pas', message:'VALIDATOR_MESSAGE_REPEAT_PASSWORD'}}" icon="key"/>
+      </tag>
+      <tag type="div" style="text-right">
+        <button id="updatePassword" label="BUTTON_CONFIRM" type="button" style="btn-primary">
+          <button-action type="validate" target="update-password"/>
+          <button-action type="server" server-action="maintain" target-action="UsrUpdPwd"/>
+        </button>
+      </tag>
+      <tag type="h3" label="SCREEN_TEXT_2FA_SETTINGS"/>
+      <tag type="hr" style="no-margin-t"/>
+      <criteria label="ENABLE_2FA" component="checkbox" id="enable2fa" style="col-sm-12">
+        <dependency>
+          <dependency-element id="enable2fa" condition="eq" value="0"/>
+          <dependency-action type="server" server-action="maintain-silent" target-action="update2faStatus"/>
+          <dependency-action type="filter" target="2fa-code-list"/>
+        </dependency>
+        <dependency>
+          <dependency-element id="enable2fa" condition="eq" value="1"/>
+          <dependency-action type="server" server-action="maintain-silent" target-action="update2faStatus"/>
+          <dependency-action type="server" server-action="maintain-silent" target-action="generate2faSecret"/>
+          <dependency-action type="filter" target="2fa-code-list"/>
+        </dependency>
+      </criteria>
+      <tag-list type="div" id="2fa-code-list" target-action="qr-code" autoload="true">
+        <tag type="div">
+          <tag type="div" label="SCAN_QR_CODE" style="panel-padding"/>
+          <tag type="div" style="qr-code-container text-center">
+            <image id="qr-code" url="/access/qr-code?a=[random]" alternate-url="/images/logo/logo-awe-nuevo.svg" style="qr-code"/>
+          </tag>
+          <tag type="div" label="SECRET_CODE" style="panel-padding"/>
+          <tag type="div" style="panel panel-info panel-body-colorful">
+            <tag type="div" style="panel-body text-center text-bold">
+              <tag type="div" label="[secretCode]"/>
+            </tag>
+          </tag>
+        </tag>
+      </tag-list>
+    </tag>
+  </tag>
+</screen>

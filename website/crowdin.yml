@@ -24,4 +24,9 @@ files: [
     source: '/versioned_docs/**/*',
     translation: '/i18n/%two_letters_code%/docusaurus-plugin-content-docs/**/%original_file_name%',
   },
+  # Blog Markdown files
+  {
+    source: '/blog/**/*',
+    translation: '/i18n/%two_letters_code%/docusaurus-plugin-content-blog/**/%original_file_name%',
+  },
 ]

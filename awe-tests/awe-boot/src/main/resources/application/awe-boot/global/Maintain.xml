@@ -742,11 +742,11 @@
       <field id="IdeThm" variable="Thm"/>
       <field id="ScrIni" variable="Scr"/>
       <field id="Act" variable="Act"/>
-      <variable id="Nam" type="STRING" value="testIncludeTarget"/>
+      <variable id="Nam" type="STRING" value="testRestTarget"/>
       <variable id="Thm" type="INTEGER" name="value"/>
-      <variable id="Scr" type="STRING" value="testIncludeTarget"/>
+      <variable id="Scr" type="STRING" value="testRestTarget"/>
       <variable id="Act" type="INTEGER" name="value"/>
-      <variable id="User" type="STRING" value="testIncludeTarget"/>
+      <variable id="User" type="STRING" value="testRestTarget"/>
       <variable id="Date" type="SYSTEM_DATE"/>
       <variable id="Action" type="STRING" value="T"/>
     </insert>
@@ -758,7 +758,7 @@
           <filter left-field="HISact" condition="eq" right-variable="Action"/>
         </and>
       </where>
-      <variable id="User" type="STRING" value="testIncludeTarget"/>
+      <variable id="User" type="STRING" value="testRestTarget"/>
       <variable id="Action" type="STRING" value="T"/>
     </delete>
   </target>

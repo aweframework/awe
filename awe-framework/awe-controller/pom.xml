@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.4.10-SNAPSHOT</version>
+    <version>4.5.0-SNAPSHOT</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -49,6 +49,12 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- Check for properties -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
     <!-- Spring session and session repository dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -82,6 +88,11 @@
     <dependency>
       <groupId>com.github.ulisesbocchio</groupId>
       <artifactId>jasypt-spring-boot-starter</artifactId>
+    </dependency>
+    <!-- 2fa -->
+    <dependency>
+      <groupId>dev.samstevens.totp</groupId>
+      <artifactId>totp</artifactId>
     </dependency>
     <!-- Websocket -->
     <dependency>

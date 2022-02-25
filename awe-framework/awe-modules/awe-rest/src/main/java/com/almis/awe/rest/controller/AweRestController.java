@@ -124,7 +124,7 @@ public class AweRestController {
   public ResponseEntity<AweRestResponse> launchQuery(@Parameter(description = "Query ID", required = true) @PathVariable String queryId,
                                                      @Parameter(description = "Query parameters") @RequestBody(required = false) RequestParameter parameters) throws AWException {
     setParameters(parameters);
-    AweRestResponse aweRestResponse = convertServiceDataToDto(queryService.launchQuery(queryId));
+    AweRestResponse aweRestResponse = convertServiceDataToDto(queryService.launchPrivateQuery(queryId));
     // Clear context
     SecurityContextHolder.clearContext();
     return ResponseEntity.ok(aweRestResponse);

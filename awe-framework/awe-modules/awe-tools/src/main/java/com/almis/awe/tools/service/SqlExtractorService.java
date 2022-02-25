@@ -1,6 +1,5 @@
 package com.almis.awe.tools.service;
 
-import com.almis.awe.builder.client.FillActionBuilder;
 import com.almis.awe.builder.client.MessageActionBuilder;
 import com.almis.awe.builder.client.grid.ReplaceColumnsActionBuilder;
 import com.almis.awe.config.ServiceConfig;
@@ -35,8 +34,6 @@ public class SqlExtractorService extends ServiceConfig {
 
   private static final String[] WRITE_STATEMENTS = {"insert", "delete", "update", "drop", "create"};
   private static final String SELECTED_GRID = "selectGrid";
-  private static final Integer MIN_COLUMN_SIZE = 10;
-  private static final Integer MAX_COLUMN_SIZE = 30;
   private static final String USER_HOME = "user.home";
   private static final String SELECTS_PATH = AweConstants.FILE_SEPARATOR + "aweFiles" + AweConstants.FILE_SEPARATOR;
   private static final String DATABASE_MESSAGE_TITLE = "DATABASE_MESSAGE_TITLE";
@@ -324,16 +321,9 @@ public class SqlExtractorService extends ServiceConfig {
    */
   private ServiceData fillGrid(ResultSetMetaData rsMetaData, DataList datalist) throws AWException {
     // Variable initialization
-    ServiceData serviceData = new ServiceData();
-
-    try {
-      // Set variables
-      serviceData.addClientAction(new ReplaceColumnsActionBuilder(SELECTED_GRID, getColumnList(rsMetaData)).build());
-      serviceData.addClientAction(new FillActionBuilder(SELECTED_GRID, datalist).build());
-    } catch (AWException exc) {
-      throw new AWException(getLocale("ERROR_TITLE_SESSION_EXPIRED"), getLocale("ERROR_MESSAGE_SESSION_EXPIRED"), exc);
-    }
-    return serviceData;
+    return new ServiceData()
+      .addClientAction(new ReplaceColumnsActionBuilder(SELECTED_GRID, getColumnList(rsMetaData, datalist)).build())
+      .setDataList(datalist);
   }
 
   /**
@@ -344,22 +334,13 @@ public class SqlExtractorService extends ServiceConfig {
    * @return Column
    * @throws SQLException Error retrieving column
    */
-  private Column getColumn(ResultSetMetaData rsMetaData, Integer index) throws SQLException {
+  private Column getColumn(ResultSetMetaData rsMetaData, DataList dataList, Integer index) throws SQLException {
 
     // New column
     Column column = new Column();
-    Integer size;
     String columnName = rsMetaData.getColumnName(index);
 
-    if (rsMetaData.getPrecision(index) < MIN_COLUMN_SIZE) {
-      size = MIN_COLUMN_SIZE;
-    } else if (rsMetaData.getPrecision(index) > MAX_COLUMN_SIZE) {
-      size = MAX_COLUMN_SIZE;
-    } else {
-      size = rsMetaData.getPrecision(index);
-    }
-
-    column.setCharLength(size);
+    column.setCharLength(Math.max(dataList.getRows().stream().map(row -> row.get(columnName).getStringValue().length()).max(Integer::compareTo).orElse(6) + 2, columnName.length() + 3));
     column.setField(columnName);
     column.setName(columnName);
     column.setLabel(columnName);
@@ -388,13 +369,13 @@ public class SqlExtractorService extends ServiceConfig {
    * @return Column list
    * @throws AWException Error retrieving column list
    */
-  private List<Column> getColumnList(ResultSetMetaData rsMetaData) throws AWException {
+  private List<Column> getColumnList(ResultSetMetaData rsMetaData, DataList dataList) throws AWException {
 
     List<Column> columns = new ArrayList<>();
 
     try {
       for (int i = 1, t = rsMetaData.getColumnCount(); i <= t; i++) {
-        columns.add(getColumn(rsMetaData, i));
+        columns.add(getColumn(rsMetaData, dataList, i));
       }
 
     } catch (SQLException exc) {
