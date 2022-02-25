@@ -6,15 +6,16 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import Translate from '@docusaurus/Translate';
-import {translate} from "@docusaurus/core/lib/client/exports/Translate";
 
 const features = [
   {
-    title:  translate({
-      id: 'homepage.features.easy-to-use.title',
-      message: 'Easy to Use',
-      description: 'Title of feature of Easy to use on the home page',
-    }),
+    title: (
+      <Translate
+        id="homepage.features.easy-to-use.title"
+        description="Title of feature of Easy to use on the home page">
+        Easy to Use
+      </Translate>
+    ),
     imageUrl: 'img/undraw_just_browsing.svg',
     description: (
       <Translate
@@ -26,11 +27,13 @@ const features = [
     ),
   },
   {
-    title:  translate({
-      id: 'homepage.features.modern-ui.title',
-      message: 'Modern UI',
-      description: 'Title of feature of Modern UI on the home page',
-    }),
+    title: (
+      <Translate
+        id="homepage.features.modern-ui.title"
+        description="Title of feature of Modern UI on the home page">
+        Modern UI
+      </Translate>
+    ),
     imageUrl: 'img/undraw_responsive.svg',
     description: (
       <Translate
@@ -43,11 +46,13 @@ const features = [
     ),
   },
   {
-    title:  translate({
-      id: 'homepage.features.pluggable-extensible.title',
-      message: 'Pluggable and Extensible',
-      description: 'Title of feature of pluggable and extensible on the home page',
-    }),
+    title: (
+      <Translate
+        id="homepage.features.pluggable-extensible.title"
+        description="Title of feature of pluggable and extensible on the home page">
+        Pluggable and Extensible
+      </Translate>
+    ),
     imageUrl: 'img/undraw_switches.svg',
     description: (
       <Translate
@@ -59,11 +64,13 @@ const features = [
     ),
   },
   {
-    title:  translate({
-      id: 'homepage.features.connect-information.title',
-      message: 'Connect your information',
-      description: 'Title of feature of Connect your information on the home page',
-    }),
+    title: (
+      <Translate
+        id="homepage.features.connect-information.title"
+        description="Title of feature of Connect your information on the home page">
+        Connect your information
+      </Translate>
+    ),
     imageUrl: 'img/undraw_online_connection.svg',
     description: (
       <Translate
@@ -75,11 +82,13 @@ const features = [
     ),
   },
   {
-    title:  translate({
-      id: 'homepage.features.customize-easy.title',
-      message: 'Customize easy',
-      description: 'Title of feature of Customize easy on the home page',
-    }),
+    title:  (
+      <Translate
+        id="homepage.features.customize-easy.title"
+        description="Title of feature of Customize easy on the home page">
+        Easy to customize
+      </Translate>
+    ),
     imageUrl: 'img/undraw_add_color.svg',
     description: (
       <Translate
@@ -91,11 +100,13 @@ const features = [
     ),
   },
   {
-    title:  translate({
-      id: 'homepage.features.powered-by.title',
-      message: 'Powered by Spring Boot with AngularJS',
-      description: 'Title of feature of Powered By on the home page',
-    }),
+    title: (
+      <Translate
+        id="homepage.features.powered-by.title"
+        description="Title of feature of Powered By on the home page">
+        Powered by Spring Boot with AngularJS
+      </Translate>
+    ),
     imageUrl: 'img/undraw_code_review.svg',
     description: (
       <Translate
@@ -136,15 +147,17 @@ function Home() {
               className={styles.heroLogo}
               src={useBaseUrl('img/logo.svg')}
             />
-            <span className={styles.heroTitleTextHtml}
-                  dangerouslySetInnerHTML={{
-                    __html: translate({
-                      id: 'homepage.hero.title',
-                      message: 'Build <b>light-weight</b> and <b>functional</b> websites <b>quickly</b>. Focus on your <b>content</b>',
-                      description: 'Home page hero title, can contain simple html tags',
-                }),
-              }}
-            />
+            <span className={styles.heroTitleTextHtml}>
+              <Translate id="homepage.hero.title" description="Home page hero title, can contain simple html tags"
+                values={{
+                  lightWeight: (<b><Translate>light-weight</Translate></b>),
+                  functional: (<b><Translate>functional</Translate></b>),
+                  quickly: (<b><Translate>quickly</Translate></b>),
+                  content: (<b><Translate>content</Translate></b>)
+              }}>
+                {`Build {lightWeight} and {functional} websites {quickly}. Focus on your {content}`}
+              </Translate>
+            </span>
           </h1>
           <div className={styles.indexCtas}>
             <Link className={styles.indexCtasGetStartedButton} to={useBaseUrl('docs/')}>
