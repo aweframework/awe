@@ -12,6 +12,15 @@
     <message id="UniMsg" title="WARNING_TITLE_DUPLICATED_USER" message="WARNING_MESSAGE_DUPLICATED_USER" />
   </tag>
   <tag source="buttons">
+    <button button-type="button" label="BUTTON_TEST_RESET_SUGGEST" icon="eraser" id="ButtonResetSuggest">
+      <button-action type="reset" target="SugTst"/>
+    </button>
+    <button button-type="button" label="BUTTON_TEST_LOAD_SUGGEST 1" icon="pencil" id="ButtonLoadSuggest">
+      <button-action type="server" server-action="update-model" target-action="load-suggest" async="true"/>
+    </button>
+    <button button-type="button" label="BUTTON_TEST_LOAD_SUGGEST 2" icon="pencil" id="ButtonLoadSuggest2">
+      <button-action type="server" server-action="update-model" target-action="load-suggest-2" async="true"/>
+    </button>
     <button button-type="button" label="BUTTON_BACK" icon="arrow-circle-left" id="ButBck" help="HELP_BACK_BUTTON">
       <button-action type="confirm-updated-data" />
       <button-action type="back" />
@@ -275,6 +284,7 @@
             <dependency-element id="TxtVal"/>
           </dependency>
         </criteria>
+        <criteria left-label="18" label="PARAMETER_SUGGEST" id="SugTst" component="suggest" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="TstParSug"/>
       </tag>
     </window>
   </tag>

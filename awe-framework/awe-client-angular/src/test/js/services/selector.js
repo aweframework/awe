@@ -177,7 +177,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       expect(suggest.model.values).toEqual([{value: 2, label: "Other"}]);
     });
 
-    it('should update model values with stored values and duplicates', function () {
+    it('should filter on model changed selected with existing value', function () {
       // Define values to update
       suggest.model = {
         storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
@@ -187,10 +187,27 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
 
       // Update model values
       spyOn($control, "getAddressModel").and.returnValue(suggest.model);
-      suggest.onModelChangedValues();
+      suggest.onModelChangedSelected();
 
       // Check values updated
       expect(suggest.model.values).toEqual([{value: 2, label: "Other"}]);
+    });
+
+    it('should filter on model changed selected with another value', function () {
+      // Define values to update
+      suggest.model = {
+        storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
+        values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
+        selected: [3]
+      };
+
+      // Update model values
+      spyOn($control, "getAddressModel").and.returnValue(suggest.model);
+      spyOn(suggest, "reload").and.callFake(() => suggest.model.values = [{value: 3, label: "Another one bites the dust"}]);
+      suggest.onModelChangedSelected();
+
+      // Check values updated
+      expect(suggest.model.values).toEqual([{value: 3, label: "Another one bites the dust"}]);
     });
 
     it('should update model values with api - test 1', function () {

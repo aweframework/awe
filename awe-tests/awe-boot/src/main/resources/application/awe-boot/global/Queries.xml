@@ -2993,4 +2993,31 @@
     <constant value="Radio2" alias="RadBoxGrp2"/>
   </query>
 
+
+  <!-- USER SUGGEST (TEST) -->
+  <query id="TstParSug" cacheable="true">
+    <table id="AweAppPar"/>
+    <field id="IdeAweAppPar" alias="id"/>
+    <field id="ParNam" alias="value"/>
+    <field id="ParNam" alias="nom"/>
+    <computed format="[id] ([nom])" alias="label"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="ParNam" condition="like" right-variable="suggest" ignorecase="true"/>
+        </or>
+      </and>
+    </where>
+    <variable id="suggest" type="STRINGB" name="suggest"/>
+    <order-by field="IdeAweAppPar" type="ASC"/>
+  </query>
+
+  <query id="load-suggest">
+    <constant value="DjrRepPth" alias="SugTst"/>
+  </query>
+
+  <query id="load-suggest-2">
+    <constant value="DjrHdgPag" alias="SugTst"/>
+  </query>
+
 </queries>
