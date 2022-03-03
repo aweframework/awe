@@ -1,6 +1,6 @@
---------------------------------------------------------
+-- ------------------------------------------------------
 --  ADD enable2fa and secret2fa columns to ope table
---------------------------------------------------------
+-- ------------------------------------------------------
 ALTER TABLE ope ADD COLUMN enable2fa INT DEFAULT 0 NOT NULL;
 ALTER TABLE ope ADD COLUMN secret2fa VARCHAR(128) NULL;
 
