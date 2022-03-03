@@ -2,9 +2,9 @@ package com.almis.awe.dao;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.constant.AweConstants;
-import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.User;
 import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class UserDAOImpl extends ServiceConfig implements UserDAO {
 
   // Query service
+  private final QueryUtil queryUtil;
   private final QueryService queryService;
   private final DataListService dataListService;
 
@@ -24,7 +25,8 @@ public class UserDAOImpl extends ServiceConfig implements UserDAO {
    *
    * @param queryService Query service
    */
-  public UserDAOImpl(QueryService queryService, DataListService dataListService) {
+  public UserDAOImpl(QueryUtil queryUtil, QueryService queryService, DataListService dataListService) {
+    this.queryUtil = queryUtil;
     this.queryService = queryService;
     this.dataListService = dataListService;
   }
@@ -33,9 +35,12 @@ public class UserDAOImpl extends ServiceConfig implements UserDAO {
   public User findByUserName(String userName) {
     try {
       // Get user details from database
-      getRequest().setParameter("user", userName);
-      ServiceData userData = queryService.launchPrivateQuery(AweConstants.USER_DETAIL_QUERY);
-      return dataListService.asBeanList(userData.getDataList(), User.class).stream().findFirst()
+      return dataListService
+        .asBeanList(queryService.launchPrivateQuery(AweConstants.USER_DETAIL_QUERY, queryUtil.getParameters()
+            .put("user", userName))
+          .getDataList(), User.class)
+        .stream()
+        .findFirst()
         .orElseThrow(() -> new UsernameNotFoundException(userName));
     } catch (Exception exc) {
       log.error("Error retrieving user details", exc);
