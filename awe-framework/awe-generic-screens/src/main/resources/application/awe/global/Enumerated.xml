@@ -20,6 +20,11 @@
     <option label="ENUM_YES" value="Y" />
   </group>
 
+  <group id="TrueFalse">
+    <option label="false" value="0" />
+    <option label="true" value="1" />
+  </group>
+
   <group id="BthSta">
     <option label="ENUM_BTH_MAN_ERR" value="4" />
     <option label="ENUM_BTH_MAN_SUC" value="3" />

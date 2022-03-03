@@ -373,7 +373,7 @@
   <query id="userDetails" cacheable="true">
     <table id="ope" alias="Usr" />
     <field id="IdeOpe" table="Usr" alias="userId" />
-    <field id="l1_nom" table="Usr" alias="user" />
+    <field id="l1_nom" table="Usr" alias="username" function="TRIM"/>
     <field id="IdePro" table="Usr" alias="profileId" />
     <field id="Acr" table="Pro" alias="profile" />
     <field id="Nam" table="Pro" alias="profileName" />
@@ -384,11 +384,11 @@
     <field id="ScrIni" table="Pro" alias="profileInitialScreen" />
     <field id="Res" table="Usr" alias="userRestriction" />
     <field id="Res" table="Pro" alias="profileRestriction" />
-    <field id="l1_act" table="Usr" alias="active" />
-    <field id="PwdLck" table="Usr" alias="locked" />
+    <field id="l1_act" table="Usr" alias="enabled" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="PwdLck" table="Usr" alias="locked" translate="TrueFalse" transform="BOOLEAN"/>
     <field id="l1_psd" table="Usr" alias="lastChangedPasswordDate" />
-    <field id="l1_con" table="Usr" alias="connected" />
-    <field id="l1_dat" table="Usr" alias="lastLogin" />
+    <field id="l1_con" table="Usr" alias="connected" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="l1_dat" table="Usr" alias="lastLogin"/>
     <field id="dat_mod" table="Usr" alias="updateDate" />
     <field id="PcPrn" table="Usr" alias="printer" />
     <field id="WebPrn" table="Usr" alias="webPrinter" />
@@ -398,7 +398,7 @@
     <field id="OpeNam" table="Usr" alias="fullName" />
     <field id="l1_pas" table="Usr" alias="password" />
     <field id="NumLog" table="Usr" alias="loginAttempts" />
-    <field id="enable2fa" table="Usr" alias="enable2fa" />
+    <field id="enable2fa" table="Usr" alias="enable2fa" translate="TrueFalse" transform="BOOLEAN"/>
     <field id="secret2fa" table="Usr" alias="secret2fa" />
     <join>
       <table id="AwePro" alias="Pro" />

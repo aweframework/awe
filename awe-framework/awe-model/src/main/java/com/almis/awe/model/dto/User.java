@@ -1,7 +1,7 @@
 package com.almis.awe.model.dto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,17 +12,17 @@ import java.util.Date;
  * @author pvidal
  */
 @Data
-@Builder
+@Accessors(chain = true)
 public class User implements Serializable {
 
   // User ID (IdeOpe)
-  private Integer userID;
+  private Integer userId;
   // User name (l1_nom)
-  private String userName;
+  private String username;
   // User password (l1_pas)
-  private String userPassword;
+  private String password;
   // Check if the user has ever connected (l1_con)
-  private boolean userNotConected;
+  private boolean connected;
   // User enabled (l1_act)
   private boolean enabled;
   // User profile (column Pro of AwePro table)
@@ -30,7 +30,7 @@ public class User implements Serializable {
   // Date of last login (l1_dat)
   private Date lastLogin;
   // Printer name (imp_nom)
-  private String printerName;
+  private String printer;
   // Update date (dat_mod)
   private Date updateDate;
   // Last changed password date (l1_psd)
@@ -42,9 +42,9 @@ public class User implements Serializable {
   // Email (EmlAdr)
   private String email;
   // User full name (OpeNam)
-  private String userFullName;
+  private String fullName;
   // Profile ID (IdePro)
-  private Integer profileID;
+  private Integer profileId;
   // User theme
   private String userTheme;
   // Profile theme
@@ -54,15 +54,15 @@ public class User implements Serializable {
   // Screen init (ScrIni)
   private String profileInitialScreen;
   // User file restriction (res)
-  private String userFileRestriction;
+  private String userRestriction;
   // Profile file restriction (res)
-  private String profileFileRestriction;
+  private String profileRestriction;
   // Password lock
-  private boolean passwordLocked;
+  private boolean locked;
   // Login attempts count (numLog)
   private Integer loginAttempts;
-  // Check if 2fa is enabled (enabled2fa)
-  private boolean enabled2fa;
+  // Check if 2fa is enabled (enable2fa)
+  private boolean enable2fa;
   // 2fa secret
   private String secret2fa;
 }

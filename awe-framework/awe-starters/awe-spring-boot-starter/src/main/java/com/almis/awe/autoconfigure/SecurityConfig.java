@@ -7,6 +7,7 @@ import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
@@ -476,11 +477,12 @@ public class SecurityConfig extends ServiceConfig {
      * Configure User detail service
      *
      * @param queryService Query service
+     * @param dataListService DataList service
      * @return UserDetailService
      */
     @Bean
-    public UserDAO userDAO(QueryService queryService) {
-      return new UserDAOImpl(queryService);
+    public UserDAO userDAO(QueryService queryService, DataListService dataListService) {
+      return new UserDAOImpl(queryService, dataListService);
     }
 
     /**
