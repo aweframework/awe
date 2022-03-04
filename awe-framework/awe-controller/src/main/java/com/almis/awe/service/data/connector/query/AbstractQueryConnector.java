@@ -16,6 +16,7 @@ import com.almis.awe.service.data.processor.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * AbstractQueryConnector Class
@@ -110,13 +111,10 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     DataList serviceDataList = serviceData.getDataList();
     if (serviceDataList != null) {
       if (query.getSqlFieldList() != null) {
-        // As datalist
-        for (Field field : query.getFieldList()) {
-          if (field.getAlias() != null && !field.getId().equals(field.getAlias())) {
-            DataListUtil.copyColumn(serviceDataList, field.getAlias(), serviceDataList, field.getId());
-          }
-        }
-        builder.setDataList(serviceDataList)
+        // As new datalist
+        DataList serviceFieldsDataList = new DataList();
+        query.getFieldList().forEach(field -> DataListUtil.copyColumn(serviceFieldsDataList, Optional.ofNullable(field.getAlias()).orElse(field.getId()), serviceDataList, field.getId()));
+        builder.setDataList(serviceFieldsDataList)
           .setFieldList(query.getSqlFieldList())
           .setMax(parameterMap.get(AweConstants.QUERY_MAX).getValue().asLong())
           .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
@@ -127,8 +125,6 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
           .setPage(parameterMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
           .setRecords(serviceDataList.getRecords());
       }
-
-
     } else {
       // As string array
       builder.setServiceQueryResult((String[]) serviceData.getData())
