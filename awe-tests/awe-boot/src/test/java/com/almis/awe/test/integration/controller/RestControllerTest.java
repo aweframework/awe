@@ -73,7 +73,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAnotherMicroserviceWithParameters() throws Exception {
-      doRestTest("CallAnotherMicroserviceWithParameters", "data", "\"tutu\":\"23/10/1978\", \"lala\":[1,2,4], \"erre\": \"\", \"queErre\": null, \"yQueErre\": null,", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"double\":22.0,\"floatFormatted\":\"22\",\"integer\":22,\"dateFormatted\":\"23/10/1978\",\"longFormatted\":\"22\",\"float\":22.0,\"long\":22,\"doubleFormatted\":\"22\",\"null\":null,\"text\":\"test\",\"id\":1,\"integerFormatted\":\"22\"}]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallAnotherMicroserviceWithParameters", "data", "\"tutu\":\"23/10/1978\", \"lala\":[1,2,4], \"erre\": \"\", \"queErre\": null, \"yQueErre\": null,", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"floatFormatted\":\"22\",\"dateFormatted\":\"23/10/1978\",\"longFormatted\":\"22\",\"doubleFormatted\":\"22\",\"null\":null,\"text\":\"test\",\"id\":1,\"integerFormatted\":\"22\"}]}}},{\"type\":\"end-load\"}]");
     }
 
     /**
