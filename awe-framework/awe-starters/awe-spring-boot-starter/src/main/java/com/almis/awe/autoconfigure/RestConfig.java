@@ -1,9 +1,10 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.RestConfigProperties;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -13,13 +14,20 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
  * Class used to start AWE as a microservice
  */
 @Configuration
+@EnableConfigurationProperties(value = RestConfigProperties.class)
 public class RestConfig {
 
-  @Value("${rest.request.timeout:5}")
-  private Integer requestTimeout;
+  // Autowired services
+  private final RestConfigProperties properties;
 
-  @Value("${rest.connection.timeout:5}")
-  private Integer connectionTimeout;
+  /**
+   * Rest config constructor
+   *
+   * @param properties Rest configuration properties
+   */
+  public RestConfig(RestConfigProperties properties) {
+    this.properties = properties;
+  }
 
   /**
    * Define client http request factory bean
@@ -30,8 +38,8 @@ public class RestConfig {
     CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     requestFactory.setHttpClient(httpClient);
-    requestFactory.setConnectionRequestTimeout(requestTimeout * 1000);
-    requestFactory.setConnectTimeout(connectionTimeout * 1000);
+    requestFactory.setConnectTimeout((int) properties.getConnectionTimeout().toMillis());
+    requestFactory.setConnectionRequestTimeout((int) properties.getConnectionRequestTimeout().toMillis());
     return requestFactory;
   }
 }

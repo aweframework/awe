@@ -21,7 +21,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class WebSettings {
 
   static final Integer MB = 1024 * 1024;
-
+  // Settings
   private String pathServer;
   private String initialURL;
   private String language;
@@ -35,18 +35,14 @@ public class WebSettings {
   private Integer pixelsPerCharacter;
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;
-  private Integer suggestTimeout;
-
+  private long suggestTimeout;
   // Connection
-  private String connectionProtocol;
-  private String connectionTransport;
-  private String connectionBackup;
   private Integer connectionTimeout;
   private String cometUID;
   // Upload
   private String uploadIdentifier;
   private String downloadIdentifier;
-  private Integer uploadMaxSize;
+  private long uploadMaxSize;
   private String addressIdentifier;
   // Security
   private String passwordPattern;
@@ -55,12 +51,11 @@ public class WebSettings {
   private String encodeKey;
   private String tokenKey;
   // Debug
-  private Integer actionsStack;
   private String debug;
   // Loading timeout
-  private Integer loadingTimeout;
+  private long loadingTimeout;
   // Help timeout
-  private Integer helpTimeout;
+  private long helpTimeout;
   // Message timeouts
   private WebTooltip messageTimeout;
   // Number options

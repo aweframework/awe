@@ -15,6 +15,7 @@ import com.almis.ade.api.bean.style.StyleTemplate;
 import com.almis.ade.api.enumerate.ColumnType;
 import com.almis.ade.api.enumerate.LayoutType;
 import com.almis.ade.api.enumerate.PagingType;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -37,7 +38,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.sf.dynamicreports.report.constant.HorizontalImageAlignment;
 import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
 import net.sf.dynamicreports.report.constant.PageOrientation;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.awt.*;
 import java.io.IOException;
@@ -65,22 +65,22 @@ public class ReportDesigner extends ServiceConfig {
   private static final Integer MAX_GRID_FONT_SIZE = 10;
   private static final Integer MIN_GRID_FONT_SIZE = 5;
   private static final Float GRID_FONT_CORRECTION_RATIO = 1.7f;
+
   // Autowired services
   private final QueryService queryService;
   private final ObjectMapper mapper;
-  @Value("${settings.dataSuffix:.data}")
-  private String dataSuffix;
-  @Value("${application.data.pixelsPerCharacter:7}")
-  private Integer pixelsPerCharacter;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
    * @param queryService Query service
+   * @param baseConfigProperties Base config properties
    */
-  public ReportDesigner(QueryService queryService, ObjectMapper mapper) {
+  public ReportDesigner(QueryService queryService, ObjectMapper mapper, BaseConfigProperties baseConfigProperties) {
     this.queryService = queryService;
     this.mapper = mapper;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -129,7 +129,7 @@ public class ReportDesigner extends ServiceConfig {
   /**
    * Initialize criteria layout
    *
-   * @param layout Multipage layout
+   * @param layout Multi page layout
    */
   private void initializeCriteriaLayout(Layout layout) {
     if (layout.getElements().isEmpty() ||
@@ -196,7 +196,7 @@ public class ReportDesigner extends ServiceConfig {
     Criterion criterionElement = new Criterion(element.getId());
 
     // Get criterion data
-    JsonNode data = parameters.get(element.getId() + dataSuffix);
+    JsonNode data = parameters.get(element.getId() + baseConfigProperties.getComponent().getDataSuffix());
 
     if (data != null) {
       String criterionValue = data.get(AweConstants.JSON_TEXT_PARAMETER).asText();
@@ -317,7 +317,7 @@ public class ReportDesigner extends ServiceConfig {
    * @return Visible columns
    */
   private List<PrintColumnData> getVisibleColumns(Grid grid, ObjectNode parameters) throws IOException {
-    return mapper.readValue(parameters.get(grid.getId() + dataSuffix).get(AweConstants.JSON_VISIBLE_COLUMNS).traverse(), new TypeReference<List<PrintColumnData>>(){});
+    return mapper.readValue(parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get(AweConstants.JSON_VISIBLE_COLUMNS).traverse(), new TypeReference<List<PrintColumnData>>(){});
   }
 
   /**
@@ -327,7 +327,7 @@ public class ReportDesigner extends ServiceConfig {
    * @param parameters Parameters
    */
   private void addSortData(Grid grid, ObjectNode parameters) {
-    ArrayNode sortData = (ArrayNode) parameters.get(grid.getId() + dataSuffix).get(AweConstants.COMPONENT_SORT);
+    ArrayNode sortData = (ArrayNode) parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get(AweConstants.COMPONENT_SORT);
     parameters.set(AweConstants.COMPONENT_SORT, sortData);
   }
 
@@ -390,7 +390,7 @@ public class ReportDesigner extends ServiceConfig {
   private Integer getColumnWidth(PrintColumnData column) {
     Integer columnWidth = null;
     if (column.getCharlength() != null) {
-      columnWidth = column.getCharlength() * pixelsPerCharacter;
+      columnWidth = column.getCharlength() * baseConfigProperties.getComponent().getGridPixelsPerCharacter();
     } else if (column.getWidth() != null) {
       columnWidth = column.getWidth().equalsIgnoreCase("*") ? 300 : Integer.parseInt(column.getWidth());
     }
@@ -473,7 +473,7 @@ public class ReportDesigner extends ServiceConfig {
 
     // Retrieve footer row if exists
     if (grid.isShowTotals()) {
-      ObjectNode totalRows = (ObjectNode) parameters.get(grid.getId() + dataSuffix).get("footer");
+      ObjectNode totalRows = (ObjectNode) parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get("footer");
       totalRows.set(AweConstants.DATALIST_STYLE_FIELD, JsonNodeFactory.instance.objectNode().put(AweConstants.JSON_VALUE_PARAMETER, TotalizeStyleType.TOTAL.toString()));
       List<Object> footerData = new ArrayList<>();
       data.add(footerData);

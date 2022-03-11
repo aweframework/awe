@@ -1,34 +1,30 @@
 package com.almis.awe.developer.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.developer.factory.TranslationServiceFactory;
 import com.almis.awe.developer.service.LiteralsService;
 import com.almis.awe.developer.service.LocaleFileService;
 import com.almis.awe.developer.service.PathService;
 import com.almis.awe.developer.service.TranslationService;
 import com.almis.awe.developer.translators.ITranslator;
-import com.almis.awe.developer.util.LocaleUtil;
 import com.almis.awe.model.component.XStreamSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties({DeveloperConfigProperties.class})
+@EnableConfigurationProperties({BaseConfigProperties.class, DeveloperConfigProperties.class})
 public class DeveloperConfig {
 
-  private final Environment environment;
   private final DeveloperConfigProperties developerConfigProperties;
 
   @Autowired
-  public DeveloperConfig(Environment environment, DeveloperConfigProperties developerConfigProperties) {
-    this.environment = environment;
+  public DeveloperConfig(DeveloperConfigProperties developerConfigProperties) {
     this.developerConfigProperties = developerConfigProperties;
   }
 
@@ -78,14 +74,17 @@ public class DeveloperConfig {
   }
 
   /**
-   * Locale file service
+   *  Locale file service
    *
+   * @param pathService Path service
+   * @param serializer Serializer
+   * @param baseConfigProperties Base config properties
    * @return Locale file bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public LocaleFileService localeFileService(PathService pathService, XStreamSerializer serializer) {
-    return new LocaleFileService(pathService, serializer);
+  public LocaleFileService localeFileService(PathService pathService, XStreamSerializer serializer, BaseConfigProperties baseConfigProperties) {
+    return new LocaleFileService(pathService, serializer, baseConfigProperties);
   }
 
   /**
@@ -95,16 +94,7 @@ public class DeveloperConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public LiteralsService literalsService(TranslationService translationService, LocaleFileService localeFileService) {
-    return new LiteralsService(translationService, localeFileService);
+  public LiteralsService literalsService(TranslationService translationService, LocaleFileService localeFileService, BaseConfigProperties baseConfigProperties) {
+    return new LiteralsService(translationService, localeFileService, baseConfigProperties);
   }
-
-  /**
-   * Initialize static utilities
-   */
-  @PostConstruct
-  public void initializeStaticUtilities() {
-    LocaleUtil.init(environment);
-  }
-
 }

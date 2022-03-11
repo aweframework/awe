@@ -6,6 +6,7 @@ import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.type.JoinType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.EncodeService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.Tuple;
@@ -36,9 +37,10 @@ public class SQLQueryBuilder extends SQLBuilder {
    * Autowired constructor
    *
    * @param queryUtil Query utilities
+   * @param encodeService Encode service
    */
-  public SQLQueryBuilder(QueryUtil queryUtil) {
-    super(queryUtil);
+  public SQLQueryBuilder(QueryUtil queryUtil, EncodeService encodeService) {
+    super(queryUtil, encodeService);
   }
 
   /**

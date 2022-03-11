@@ -1,6 +1,7 @@
 package com.almis.awe.service.data.builder;
 
 import com.almis.awe.component.AweJmsDestination;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.listener.QueueListener;
 import com.almis.awe.model.dto.QueryParameter;
@@ -17,7 +18,6 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.processor.QueueProcessor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jms.JmsProperties;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
@@ -36,33 +36,30 @@ public class QueueBuilder extends AbstractQueryBuilder {
 
   private Queue queue;
 
-  @Value("${awe.jms.service.timeout:10000}")
-  private Long serviceTimeout;
-
-  @Value("${awe.jms.message.time.to.live:0}")
-  private Long timeToLive;
-
   // Autowired services
   private final AweJmsDestination jmsDestination;
   private final ConnectionFactory connectionFactory;
   private final PlatformTransactionManager transactionManager;
+  private final BaseConfigProperties baseConfigProperties;
 
   private static final String ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT = "ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT";
 
   /**
    * Autowired constructor
    *
-   * @param jmsDestination     JMS Destination
-   * @param connectionFactory  Connection factory
-   * @param transactionManager Transaction manager
-   * @param queryUtil          Query utilities
+   * @param jmsDestination       JMS Destination
+   * @param connectionFactory    Connection factory
+   * @param transactionManager   Transaction manager
+   * @param queryUtil            Query utilities
+   * @param baseConfigProperties Base configuration properties
    */
   public QueueBuilder(AweJmsDestination jmsDestination, ConnectionFactory connectionFactory,
-                      PlatformTransactionManager transactionManager, QueryUtil queryUtil) {
+                      PlatformTransactionManager transactionManager, QueryUtil queryUtil, BaseConfigProperties baseConfigProperties) {
     super(queryUtil);
     this.jmsDestination = jmsDestination;
     this.connectionFactory = connectionFactory;
     this.transactionManager = transactionManager;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   @Override
@@ -247,10 +244,10 @@ public class QueueBuilder extends AbstractQueryBuilder {
       JmsTemplate template = getBean(JmsTemplate.class);
 
       // Read timeouts
-      Long requestTimeout = queue.getRequest().getTimeout() != null ? Long.valueOf(queue.getRequest().getTimeout()) : serviceTimeout;
+      long requestTimeout = queue.getRequest().getTimeout() != null ? Long.parseLong(queue.getRequest().getTimeout()) : baseConfigProperties.getJms().getServiceTimeout().toMillis();
 
       template.setDeliveryMode(JmsProperties.DeliveryMode.NON_PERSISTENT.getValue());
-      template.setTimeToLive(timeToLive);
+      template.setTimeToLive(baseConfigProperties.getJms().getMessageTimeToLive().toMillis());
       template.setReceiveTimeout(requestTimeout);
 
       // Send message & store correlation id
@@ -294,9 +291,9 @@ public class QueueBuilder extends AbstractQueryBuilder {
       JmsTemplate template = getBean(JmsTemplate.class);
 
       // Read timeouts
-      Long responseTimeout = queue.getResponse().getTimeout() != null ? Long.valueOf(queue.getResponse().getTimeout()) : serviceTimeout;
+      long responseTimeout = queue.getResponse().getTimeout() != null ? Long.parseLong(queue.getResponse().getTimeout()) : baseConfigProperties.getJms().getServiceTimeout().toMillis();
       template.setReceiveTimeout(responseTimeout);
-      template.setTimeToLive(timeToLive);
+      template.setTimeToLive(baseConfigProperties.getJms().getMessageTimeToLive().toMillis());
 
       // Retrieve consumer object
       Message responseMessage = template.receiveSelected(jmsDestination.getDestination(queue.getResponse().getDestination()), selector);

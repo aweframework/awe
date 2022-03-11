@@ -1,5 +1,8 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.NumericConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.settings.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -15,26 +18,30 @@ import org.springframework.core.annotation.Order;
  */
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@PropertySource("classpath:config/security.properties")
 @PropertySource("classpath:config/base.properties")
-@PropertySource("classpath:config/library.properties")
-@PropertySource("classpath:config/numeric.properties")
-@PropertySource("classpath:config/database.properties")
-@PropertySource("classpath:config/microservices.properties")
-@PropertySource("classpath:config/session.properties")
-@PropertySource("classpath:config/web.properties")
-@PropertySource("classpath:config/cache.properties")
 public class PropertyConfig {
 
   /**
    * Web number options
    *
+   * @param numericConfigProperties Numeric config properties
    * @return Web number options bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public WebNumberOptions webNumberOptions() {
-    return new WebNumberOptions();
+  public WebNumberOptions webNumberOptions(NumericConfigProperties numericConfigProperties) {
+    return new WebNumberOptions()
+            .setASep(numericConfigProperties.getSeparatorThousand())
+            .setDGroup(numericConfigProperties.getGroupDecimal())
+            .setADec(numericConfigProperties.getSeparatorDecimal())
+            .setASign(numericConfigProperties.getCurrencySign())
+            .setPSign(numericConfigProperties.getCurrencyPlace())
+            .setVMin(numericConfigProperties.getMinValue())
+            .setVMax(numericConfigProperties.getMaxValue())
+            .setMDec(numericConfigProperties.getDecimalNumbers())
+            .setMRound(numericConfigProperties.getRoundType().getCode())
+            .setAPad(numericConfigProperties.isPaddingWithZeros())
+            .setWEmpty(numericConfigProperties.getEmptyValue());
   }
 
   /**
@@ -44,8 +51,9 @@ public class PropertyConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public WebChartOptions webChartOptions() {
-    return new WebChartOptions();
+  public WebChartOptions webChartOptions(BaseConfigProperties baseConfigProperties) {
+    return new WebChartOptions()
+            .setLimitPointsSerie(baseConfigProperties.getComponent().getChartLimitPointSerie());
   }
 
 
@@ -56,8 +64,9 @@ public class PropertyConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public WebPivotOptions webPivotOptions() {
-    return new WebPivotOptions();
+  public WebPivotOptions webPivotOptions(BaseConfigProperties baseConfigProperties) {
+    return new WebPivotOptions()
+            .setNumGroup(baseConfigProperties.getComponent().getPivotNumGroup());
   }
 
   /**
@@ -74,16 +83,50 @@ public class PropertyConfig {
   /**
    * Web settings
    *
-   * @return Web settings bean
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
+   * @param numberOptions            Numeric options
+   * @param chartOptions             Chart options
+   * @param tooltipOptions           Web tooltip options
+   * @param pivotOptions             Pivot table options
+   * @return WebSettings bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public WebSettings webSettings(WebNumberOptions numberOptions, WebChartOptions chartOptions, WebTooltip tooltip, WebPivotOptions pivotOptions) {
+  public WebSettings webSettings(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, WebNumberOptions numberOptions, WebChartOptions chartOptions, WebTooltip tooltipOptions, WebPivotOptions pivotOptions) {
     return WebSettings.builder()
-      .numericOptions(numberOptions)
-      .chartOptions(chartOptions)
-      .pivotOptions(pivotOptions)
-      .messageTimeout(tooltip)
-      .build();
+            // Base settings
+            .applicationName(baseConfigProperties.getName())
+            .language(baseConfigProperties.getLanguageDefault())
+            .theme(baseConfigProperties.getTheme())
+            .charset(baseConfigProperties.getEncoding())
+            .pathServer(baseConfigProperties.getPaths().getServer())
+            .initialURL(baseConfigProperties.getPaths().getServer())
+            .addressIdentifier(baseConfigProperties.getAddress())
+            .tokenKey(baseConfigProperties.getParameter().getToken())
+            .homeScreen(baseConfigProperties.getPaths().getScreen() + baseConfigProperties.getScreen().getHome())
+            .dataSuffix(baseConfigProperties.getComponent().getDataSuffix())
+            .recordsPerPage(baseConfigProperties.getComponent().getGridRowsPerPage())
+            .recordsPerPageOnCriteria(baseConfigProperties.getComponent().getCriteriaRowsPerPage())
+            .pixelsPerCharacter(baseConfigProperties.getComponent().getGridPixelsPerCharacter())
+            .suggestTimeout(baseConfigProperties.getComponent().getSuggestTimeout().toMillis())
+            .defaultComponentSize(baseConfigProperties.getComponent().getSize().toString().toLowerCase())
+            .reloadCurrentScreen(baseConfigProperties.isReloadCurrentScreen())
+            .loadingTimeout(baseConfigProperties.getLoadingTimeout().toMillis())
+            .uploadIdentifier(baseConfigProperties.getComponent().getUploadFileId())
+            .uploadMaxSize(baseConfigProperties.getComponent().getUploadMaxFileSize().toMegabytes())
+            .downloadIdentifier(baseConfigProperties.getComponent().getDownloadFileId())
+            .helpTimeout(baseConfigProperties.getComponent().getHelpTimeout().toMillis())
+            // Security settings
+            .encodeTransmission(securityConfigProperties.isJsonEncryptEnable())
+            .encodeKey(securityConfigProperties.getJsonParameter())
+            .passwordPattern(securityConfigProperties.getPasswordPattern())
+            .minlengthPassword(securityConfigProperties.getPasswordMinLength())
+            // Other options
+            .numericOptions(numberOptions)
+            .chartOptions(chartOptions)
+            .pivotOptions(pivotOptions)
+            .messageTimeout(tooltipOptions)
+            .build();
   }
 }

@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.connector.maintain;
 
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.details.MaintainResultDetails;
@@ -24,7 +25,6 @@ import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
 import java.util.List;
@@ -37,25 +37,19 @@ import java.util.function.Supplier;
 @Slf4j
 public class SQLMaintainConnector extends ServiceConfig implements MaintainConnector {
 
-  @Value("${awe.database.audit:false}")
-  private Boolean audit;
-
-  @Value("${awe.database.batch.max:100}")
-  private Integer batchMax;
-
-  @Value("${awe.database.limit.log.size:0}")
-  private Integer logLimit;
-
   // Autowired services
   private final QueryUtil queryUtil;
+  private final DatabaseConfigProperties databaseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param queryUtil Query utilities
+   * @param queryUtil                Query utilities
+   * @param databaseConfigProperties Database config properties
    */
-  public SQLMaintainConnector(QueryUtil queryUtil) {
+  public SQLMaintainConnector(QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
     this.queryUtil = queryUtil;
+    this.databaseConfigProperties = databaseConfigProperties;
   }
 
   @Override
@@ -121,7 +115,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       .setVariables(parameterMap)
       .setParameters(parameters);
 
-    // If we have a variable which is a list, generate a audit query for each value
+    // If we have a variable which is a list, generate an audit query for each value
     Integer indexMaintain = 0;
     while (hasNext(query, indexMaintain, false, parameterMap)) {
       if (isBatch) {
@@ -146,7 +140,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       indexMaintain++;
     }
 
-    // If operation is batched and we have queries left or a query without being launched yet, launch
+    // If operation is batched, and we have queries left or a query without being launched yet, launch
     if (queryBuilt != null) {
       rowsUpdated = launchAsSingleOperation(queryBuilt, indexMaintain, false, query.getOperationId(), parameterMap);
       maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), rowsUpdated, parameterMap));
@@ -169,7 +163,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
    * @return Launch audit results
    */
   private boolean auditResults(MaintainQuery query, ServiceData maintainOut) {
-    boolean auditActive = audit && query.getAuditTable() != null;
+    boolean auditActive = databaseConfigProperties.isAuditEnable() && query.getAuditTable() != null;
     long rowsAffected = 0;
     for (MaintainResultDetails resultDetails : maintainOut.getResultDetails()) {
       rowsAffected = resultDetails.getRowsAffected();
@@ -205,7 +199,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, supplierConnection);
 
     // Check if operation should be audited
-    auditActive = audit && query.getAuditTable() != null;
+    auditActive = databaseConfigProperties.isAuditEnable() && query.getAuditTable() != null;
 
     // Get maintain builder
     SQLMaintainBuilder builder = getBean(SQLMaintainBuilder.class)
@@ -221,7 +215,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
 
     // Audit the operation
     if (auditActive && rowsUpdated > 0) {
-      // If we have a variable which is a list, generate a audit query for each value
+      // If we have a variable which is a list, generate an audit query for each value
       Integer indexAudit = 0;
       while (hasNext(query, indexAudit, true, parameterMap)) {
         if (isBatch) {
@@ -237,7 +231,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
         indexAudit++;
       }
 
-      // If operation is batched and we have queries left or a query without being launched yet, launch
+      // If operation is batched, and we have queries left or a query without being launched yet, launch
       if (auditQueryBuilt != null) {
         rowsUpdated = launchAsSingleOperation(auditQueryBuilt, indexAudit, true, query.getOperationId(), parameterMap);
         maintainOut.addResultDetails(new MaintainResultDetails(MaintainType.AUDIT, rowsUpdated, parameterMap));
@@ -271,7 +265,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     SQLQueryFactory queryFactory = new SQLQueryFactory(configurationBean, supplierConnection);
 
     // Check if operation should be audited
-    auditActive = audit && query.getAuditTable() != null;
+    auditActive = databaseConfigProperties.isAuditEnable() && query.getAuditTable() != null;
 
     // Get maintain builder
     SQLMaintainBuilder builder = getBean(SQLMaintainBuilder.class).setMaintain(query)
@@ -315,7 +309,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     MaintainType maintainType = isAudit ? MaintainType.AUDIT : query.getMaintainType();
 
     // If this is the first operation of the batch, generate the initial definition
-    if (index % batchMax == 0) {
+    if (index % databaseConfigProperties.getBatchMax() == 0) {
       builder.setAudit(isAudit)
         .setOperation(MaintainBuildOperation.BATCH_INITIAL_DEFINITION);
 
@@ -343,7 +337,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     addBatch(queryBuilt, maintainType);
 
     // If this is the last operation of the batch, launch it
-    if ((index + 1) % batchMax == 0) {
+    if ((index + 1) % databaseConfigProperties.getBatchMax() == 0) {
       // Launch as single operation
       rowsUpdated = launchAsSingleOperation(queryBuilt, index, isAudit, query.getOperationId(), builder.getVariables());
       maintainOut.addResultDetails(new MaintainResultDetails(maintainType, rowsUpdated, builder.getVariables()));
@@ -411,7 +405,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     String sql = StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings()));
 
     // Shorten sql clause
-    String sqlShortened = StringUtil.shortenText(sql, logLimit, "...");
+    String sqlShortened = StringUtil.shortenText(sql, databaseConfigProperties.getLimitLogSize(), "...");
 
     // Log operation
     log.info("{}[{}{}] [{}] => {} rows affected - Elapsed time: {}s",

@@ -1,8 +1,10 @@
 package com.almis.awe.service.data.connector.query;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
@@ -10,6 +12,8 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.QueryBuilder;
 import com.almis.awe.service.data.processor.*;
@@ -28,14 +32,26 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
 
   // Autowired services
   private final QueryUtil queryUtil;
+  private final BaseConfigProperties baseConfigProperties;
+  private final AweElements elements;
+  private final NumericService numericService;
+  private final EncodeService encodeService;
 
   /**
    * Autowired constructor
    *
-   * @param queryUtil Query utilities
+   * @param queryUtil            Query utilities
+   * @param baseConfigProperties Base config properties
+   * @param elements             AWE elements
+   * @param numericService       Numeric service
+   * @param encodeService        Encode service
    */
-  protected AbstractQueryConnector(QueryUtil queryUtil) {
+  protected AbstractQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
     this.queryUtil = queryUtil;
+    this.baseConfigProperties = baseConfigProperties;
+    this.elements = elements;
+    this.numericService = numericService;
+    this.encodeService = encodeService;
   }
 
   /**
@@ -47,7 +63,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    * @throws AWException error generating results
    */
   protected ServiceData buildResults(QueryBuilder builder, Query query) throws AWException {
-    ServiceData result = null;
+    ServiceData result;
     try {
       // Launch query
       result = (ServiceData) builder.setQuery(query).build();
@@ -69,7 +85,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    * @throws AWException error generating results
    */
   protected ServiceData generateResults(ServiceData result, Query query, Map<String, QueryParameter> parameterMap) throws AWException {
-    DataList datalist = null;
+    DataList datalist;
     try {
       // Generate datalist
       datalist = fillDataList(result, query, parameterMap);
@@ -143,7 +159,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     // Sort datalist
     builder = sortDataList(builder, parameterMap);
 
-    // Return complete resultset
+    // Return complete result
     return builder.build();
   }
 
@@ -194,17 +210,15 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     // Add compound fields
     if (query.getCompoundList() != null) {
       for (Compound compound : query.getCompoundList()) {
-        CompoundColumnProcessor compoundProcessor = new CompoundColumnProcessor();
-        compoundProcessor.setElements(getElements()).setCompound(compound).setVariableMap(variables);
-        builder.addCompound(compoundProcessor);
+        builder.addCompound(new CompoundColumnProcessor(elements, baseConfigProperties, compound, variables, numericService, encodeService));
       }
     }
 
     // Add totalizators
     if (query.getTotalizeList() != null) {
       for (Totalize totalize : query.getTotalizeList()) {
-        TotalizeColumnProcessor totalizeProcessor = new TotalizeColumnProcessor();
-        totalizeProcessor.setElements(getElements()).setFieldList(query.getSqlFieldList()).setTotalize(totalize);
+        TotalizeColumnProcessor totalizeProcessor = new TotalizeColumnProcessor(elements, numericService, encodeService);
+        totalizeProcessor.setFieldList(query.getSqlFieldList()).setTotalize(totalize);
         builder.addTotalize(totalizeProcessor);
       }
     }
@@ -217,20 +231,18 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    *
    * @param field   Field
    * @param builder Builder
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void addFieldTransformations(OutputField field, DataListBuilder builder) throws AWException {
     // Check transformations
     if (field.isTransform()) {
-      TransformCellProcessor transformProcessor = new TransformCellProcessor();
-      transformProcessor.setElements(getElements()).setField(field);
+      TransformCellProcessor transformProcessor = new TransformCellProcessor(elements, field, numericService, encodeService);
       builder.addTransform(transformProcessor);
     }
 
     // Check translations
     if (field.isTranslate()) {
-      TranslateCellProcessor translateProcessor = new TranslateCellProcessor();
-      translateProcessor.setElements(getElements()).setField(field);
+      TranslateCellProcessor translateProcessor = new TranslateCellProcessor(elements, field, elements.getEnumerated(field.getTranslate()));
       builder.addTranslate(translateProcessor);
     }
 
@@ -246,13 +258,11 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    * @param computed  Computed
    * @param builder   Builder
    * @param variables Variables
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void addComputedTransformations(Computed computed, DataListBuilder builder, Map<String, QueryParameter> variables) throws AWException {
     // Add computed
-    ComputedColumnProcessor computedProcessor = new ComputedColumnProcessor();
-    computedProcessor.setElements(getElements()).setComputed(computed).setVariableMap(variables);
-    builder.addComputed(computedProcessor);
+    builder.addComputed(new ComputedColumnProcessor(elements, baseConfigProperties, computed, variables, numericService, encodeService));
 
     // Add no print
     if (computed.isNoprint()) {

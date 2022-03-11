@@ -1,5 +1,6 @@
 package com.almis.awe.component;
 
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
@@ -25,7 +26,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 class AweDatabaseContextHolderTest {
@@ -34,6 +34,8 @@ class AweDatabaseContextHolderTest {
   private AweDatabaseContextHolder aweDatabaseContextHolder;
   @Mock
   private QueryService queryService;
+  @Mock
+  private DatabaseConfigProperties databaseConfigProperties;
   @Mock
   private AweElements aweElements;
 
@@ -66,7 +68,7 @@ class AweDatabaseContextHolderTest {
   @Test
   void givenMultiDatabaseEnabledAndDataSourceMapContainsAlias_getDataSource() throws AWException {
     // Given
-    setField(aweDatabaseContextHolder, "multiDatabaseEnable", true);
+    given(databaseConfigProperties.isMultidatabaseEnable()).willReturn(true);
     aweDatabaseContextHolder.getDataSourceMap().put("dummyAlias", mock(DataSource.class));
     // Asserts
     assertNotNull(aweDatabaseContextHolder.getDataSource("dummyAlias"));
@@ -75,7 +77,7 @@ class AweDatabaseContextHolderTest {
   @Test
   void givenMultiDatabaseEnabledAndEmptyDataSourceMapContainsAlias_shouldThrowAWException() {
     // Given
-    setField(aweDatabaseContextHolder, "multiDatabaseEnable", true);
+    given(databaseConfigProperties.isMultidatabaseEnable()).willReturn(true);
     given(aweElements.getLanguage()).willReturn("ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     // Asserts

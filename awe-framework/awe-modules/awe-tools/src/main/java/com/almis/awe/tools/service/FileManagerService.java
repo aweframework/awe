@@ -1,5 +1,6 @@
 package com.almis.awe.tools.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.util.file.FileUtil;
 import com.almis.awe.tools.filemanager.enums.FileModeEnum;
 import com.almis.awe.tools.filemanager.utils.ZipFileUtil;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletException;
@@ -25,16 +25,16 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * File Manager service
  */
 @Slf4j
 public class FileManagerService implements InitializingBean {
+  // Constants
   private static final String SYSTEM_UNIX = "unix";
   private static final String SYSTEM_DOS = "dos";
   private static final String RESULT = "result";
@@ -42,38 +42,38 @@ public class FileManagerService implements InitializingBean {
   private static final String NEW_PATH = "newPath";
   private static final String ERROR_PATH = "Error getting fileManager path: {}";
 
-  // Defaut base path
-  @Value("${filemanager.base.path:/temp}")
-  private String repositoryBasePath;
-  private Path basePath;
-
-  // Temp path
-  @Value("${filemanager.temp.path:/temp}")
-  private String tempPath;
-
-  // Default date format (2016-07-04 12:08:56)
-  @Value("${filemanager.date.format:yyyy-MM-dd hh:mm:ss}")
-  private String dateFormat;
+  // Autowired services
+  private final BaseConfigProperties baseConfigProperties;
 
   // Filesystem provider
   private boolean isUnix = false;
   private boolean isDOS = false;
+  private final String repositoryBasePath;
+  private Path basePath;
+
+  /**
+   * FileManager service constructor
+   * @param baseConfigProperties Base configuration properties
+   */
+  public FileManagerService(BaseConfigProperties baseConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+    this.repositoryBasePath = baseConfigProperties.getFilemanager().getBasePath();
+  }
 
   /**
    * Class initialization
    */
   public void afterPropertiesSet() {
-    log.info("Initializing FILE MANAGER SERVLET... ");
     // load from properties file REPOSITORY_BASE_PATH and DATE_FORMAT, use default if missing
-    basePath = Paths.get(repositoryBasePath).toAbsolutePath();
+    basePath = Paths.get(baseConfigProperties.getFilemanager().getBasePath()).toAbsolutePath();
 
     // Check path
-    assertThat(!"".equals(repositoryBasePath) && basePath.toFile().isDirectory(), "Invalid base path (" + basePath + ") , Check " + repositoryBasePath);
+    assertThat(!"".equals(baseConfigProperties.getFilemanager().getBasePath()) && basePath.toFile().isDirectory(), "Invalid base path (" + basePath + ") , Check " + baseConfigProperties.getFilemanager().getBasePath());
 
     // Check date format
-    String dateFormatError = "Invalid date format: " + dateFormat;
+    String dateFormatError = "Invalid date format: " + baseConfigProperties.getFilemanager().getDateFormat();
     try {
-      assertThat(!new SimpleDateFormat(dateFormat).format(new Date()).isEmpty(), dateFormatError);
+      assertThat(!DateTimeFormatter.ofPattern(baseConfigProperties.getFilemanager().getDateFormat()).format(LocalDateTime.now()).isEmpty(), dateFormatError);
     } catch (Exception exc) {
       log.error(dateFormatError);
     }
@@ -89,8 +89,6 @@ public class FileManagerService implements InitializingBean {
         isDOS = true;
       }
     }
-
-    log.info("FILE MANAGER SERVLER initialized ");
   }
 
   /**
@@ -131,7 +129,7 @@ public class FileManagerService implements InitializingBean {
   public File downloadAsZipFile(String[] toFilename, String[] items) throws IOException {
 
     // Build empty zip file in tmp path
-    Path zipFileName = Paths.get(tempPath, FileUtil.fixUntrustedPath(toFilename));
+    Path zipFileName = Paths.get(baseConfigProperties.getPaths().getTemp(), FileUtil.fixUntrustedPath(toFilename));
 
     // Add repository path to files
     List<String> fileList = new ArrayList<>();
@@ -310,7 +308,7 @@ public class FileManagerService implements InitializingBean {
     ArrayNode resultList = JsonNodeFactory.instance.arrayNode();
 
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(repositoryBasePath, path))) {
-      SimpleDateFormat dt = new SimpleDateFormat(dateFormat);
+      SimpleDateFormat dt = new SimpleDateFormat(baseConfigProperties.getFilemanager().getDateFormat());
       for (Path pathObj : directoryStream) {
         BasicFileAttributes attrs = Files.readAttributes(pathObj, BasicFileAttributes.class);
 
@@ -342,11 +340,11 @@ public class FileManagerService implements InitializingBean {
   private JsonNode rename(ObjectNode params) {
     try {
       String path = params.get("item").asText();
-      String newpath = params.get("newItemPath").asText();
-      log.debug("Rename from: {} to: {}", path, newpath);
+      String newPath = params.get("newItemPath").asText();
+      log.debug("Rename from: {} to: {}", path, newPath);
 
       Path fromPath = Paths.get(repositoryBasePath, path);
-      Path toPath = Paths.get(repositoryBasePath, newpath);
+      Path toPath = Paths.get(repositoryBasePath, newPath);
 
       // overwrite existing file, if exists
       CopyOption[] options = new CopyOption[] { StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE };
@@ -406,7 +404,7 @@ public class FileManagerService implements InitializingBean {
   private JsonNode copy(ObjectNode params) {
     try {
 
-      // Only present in single selection copy)
+      // Only present in single selection copy
       JsonNode singleFileName = params.get("singleFilename");
 
       // File items to copy
@@ -479,7 +477,7 @@ public class FileManagerService implements InitializingBean {
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
               Files.delete(dir);
-              log.debug("delete dir: {}", dir.toString());
+              log.debug("delete dir: {}", dir);
               return FileVisitResult.CONTINUE;
             }
           });
@@ -559,7 +557,7 @@ public class FileManagerService implements InitializingBean {
   }
 
   /**
-   * Change permissions method. Only in unix enviroments
+   * Change permissions method. Only in unix environments
    *
    * @param params Parameters
    * @return Response
@@ -578,7 +576,7 @@ public class FileManagerService implements InitializingBean {
       String permsCode = params.get("permsCode").asText();
       boolean recursive = params.get("recursive").asBoolean();
 
-      log.debug("changepermissions path: {} perms: {} permsCode: {} recursive: {}", fileList, perms, permsCode, recursive);
+      log.debug("change permissions path: {} perms: {} permsCode: {} recursive: {}", fileList, perms, permsCode, recursive);
 
       for (JsonNode file : fileList) {
         File f = new File(repositoryBasePath, file.asText());
@@ -587,7 +585,7 @@ public class FileManagerService implements InitializingBean {
 
       return success();
     } catch (Exception ex) {
-      log.error("changepermissions", ex);
+      log.error("change permissions", ex);
       return error(ex);
     }
   }
@@ -691,19 +689,17 @@ public class FileManagerService implements InitializingBean {
    * @param file File
    * @param permsCode Permissions
    * @param recursive Recursive
-   * @return Permissions in string
    * @throws IOException Error retrieving file
    */
-  private String setPermissions(File file, String permsCode, boolean recursive) throws IOException {
+  private void setPermissions(File file, String permsCode, boolean recursive) throws IOException {
     // http://www.programcreek.com/java-api-examples/index.php?api=java.nio.file.attribute.PosixFileAttributes
     PosixFileAttributeView fileAttributeView = Files.getFileAttributeView(file.toPath(), PosixFileAttributeView.class);
     fileAttributeView.setPermissions(PosixFilePermissions.fromString(permsCode));
     if (file.isDirectory() && recursive && file.listFiles() != null) {
-      for (File f : file.listFiles()) {
-        setPermissions(f, permsCode, recursive);
+      for (File f : Objects.requireNonNull(file.listFiles())) {
+        setPermissions(f, permsCode, true);
       }
     }
-    return permsCode;
   }
 
   /**
@@ -771,7 +767,7 @@ public class FileManagerService implements InitializingBean {
       throw new IllegalArgumentException("FileManager: path must be relative");
     }
 
-    // Join the two paths together, then normalize so that any ".." elements
+    // Join the two paths together, then normalize so that any "../" elements
     // in the userPath can remove parts of baseDirPath.
     // (e.g. "/foo/bar/baz" + "../attack" -> "/foo/bar/attack")
     final Path resolvedPath = baseDirPath.resolve(fileManagerPath).normalize();

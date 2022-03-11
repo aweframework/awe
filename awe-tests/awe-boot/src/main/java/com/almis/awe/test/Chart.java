@@ -7,7 +7,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +60,7 @@ public class Chart extends ServiceConfig {
 
       // Add data to serie
       for (String month : months) {
-        ChartSeriePoint point = new ChartSeriePoint(factory.textNode(month), factory.numberNode(EncodeUtil.getSecureRandom().nextInt((10 - 0) + 1) + 0));
+        ChartSeriePoint point = new ChartSeriePoint(factory.textNode(month), factory.numberNode(EncodeService.getSecureRandom().nextInt((10 - 0) + 1) + 0));
         // Add point to serie [x,y]
         serie.getData().add(point);
       }

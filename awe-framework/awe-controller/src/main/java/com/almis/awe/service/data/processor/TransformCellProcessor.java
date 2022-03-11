@@ -1,16 +1,15 @@
 package com.almis.awe.service.data.processor;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.component.AweContextAware;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.queries.OutputField;
 import com.almis.awe.model.type.CellDataType;
 import com.almis.awe.model.type.TransformType;
 import com.almis.awe.model.util.data.DateUtil;
-import com.almis.awe.model.util.data.NumericUtil;
 import com.almis.awe.model.util.data.StringUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -18,40 +17,27 @@ import java.util.Date;
 /**
  * TransformCellProcessor class
  */
-public class TransformCellProcessor implements CellProcessor, AweContextAware {
-  private OutputField field;
-  private AweElements elements;
+public class TransformCellProcessor implements CellProcessor {
+
+  // Autowired services
+  private final OutputField field;
+  private final AweElements elements;
+  private final NumericService numericService;
+  private final EncodeService encodeService;
 
   /**
-   * Set transform field
-   * @param field Field to be transformed
-   * @return Processor
-   */
-  public TransformCellProcessor setField(OutputField field) {
-    this.field = field;
-    return this;
-  }
-
-  /**
-   * Set Awe Elements (Set in first place always)
-   * @param elements awe elements
-   * @return translate cell processor
-   */
-  public TransformCellProcessor setElements(AweElements elements) {
-    this.elements = elements;
-    return this;
-  }
-
-  /**
-   * Retrieve Awe Elements
+   * Transform cell processor constructor
    *
-   * @return AWE elements
+   * @param elements       Awe elements
+   * @param field          Output field
+   * @param numericService Numeric service
+   * @param encodeService  Encode service
    */
-  private AweElements getElements() {
-    if (elements == null) {
-      throw new NullPointerException("Awe Elements not defined");
-    }
-    return elements;
+  public TransformCellProcessor(AweElements elements, OutputField field, NumericService numericService, EncodeService encodeService) {
+    this.elements = elements;
+    this.field = field;
+    this.numericService = numericService;
+    this.encodeService = encodeService;
   }
 
   /**
@@ -145,7 +131,7 @@ public class TransformCellProcessor implements CellProcessor, AweContextAware {
           break;
 
         case DECRYPT:
-          transformed = EncodeUtil.decryptRipEmd160(transformed);
+          transformed = encodeService.decryptRipEmd160(transformed);
           break;
 
         case ARRAY:
@@ -164,7 +150,7 @@ public class TransformCellProcessor implements CellProcessor, AweContextAware {
         // Set string value
         cell.setNull();
 
-        // Set noprint
+        // Set no print
         cell.setPrintable(false);
       } else {
         // Set string value
@@ -206,7 +192,7 @@ public class TransformCellProcessor implements CellProcessor, AweContextAware {
     if (elapsed != null) {
       cell.setValue(elapsed);
       cell.setSendStringValue(true);
-      transformed = DateUtil.elapsedTime(elapsed, getElements());
+      transformed = DateUtil.elapsedTime(elapsed, elements);
     }
     return transformed;
   }
@@ -222,7 +208,7 @@ public class TransformCellProcessor implements CellProcessor, AweContextAware {
     if (date != null) {
       cell.setValue(date);
       cell.setSendStringValue(true);
-      transformed = DateUtil.dateSince(date, getElements());
+      transformed = DateUtil.dateSince(date, elements);
     }
     return transformed;
   }
@@ -363,7 +349,7 @@ public class TransformCellProcessor implements CellProcessor, AweContextAware {
       cell.setValue(numericValue);
     }
     cell.setSendStringValue(true);
-    return NumericUtil.applyPattern(field.getPattern(), numericValue);
+    return numericService.applyPattern(field.getPattern(), numericValue);
   }
 
   /**
@@ -374,7 +360,7 @@ public class TransformCellProcessor implements CellProcessor, AweContextAware {
   private String processNumberPlain(@NotNull CellData cell)  {
     Double numericValue = Double.parseDouble(cell.getStringValue());
     cell.setValue(numericValue);
-    return NumericUtil.applyRawPattern(field.getPattern(), numericValue);
+    return numericService.applyRawPattern(field.getPattern(), numericValue);
   }
 
   /**

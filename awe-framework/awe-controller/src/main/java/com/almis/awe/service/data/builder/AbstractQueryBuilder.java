@@ -74,12 +74,10 @@ public abstract class AbstractQueryBuilder extends ServiceConfig implements Quer
    * @return this
    */
   public AbstractQueryBuilder setVariables(Map<String, QueryParameter> parameterMap) {
-    if (variables == null) {
-      variables = parameterMap;
-    } else {
+    if (variables != null) {
       parameterMap.putAll(variables);
-      variables = parameterMap;
     }
+    variables = parameterMap;
     return this;
   }
 
@@ -117,7 +115,7 @@ public abstract class AbstractQueryBuilder extends ServiceConfig implements Quer
   }
 
   /**
-   * Extracts all values inside of QueryParameters to use as arguments while calling the service
+   * Extracts all values inside QueryParameters to use as arguments while calling the service
    *
    * @param variables query's variable map
    * @return map with values extracted

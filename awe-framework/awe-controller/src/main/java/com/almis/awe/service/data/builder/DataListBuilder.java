@@ -88,7 +88,7 @@ public class DataListBuilder extends ServiceConfig {
   }
 
   /**
-   * Adds a the list of Field needed for the service query result
+   * Adds the list of Field needed for the service query result
    *
    * @param fieldList Field list
    * @return DataListBuilder
@@ -245,12 +245,12 @@ public class DataListBuilder extends ServiceConfig {
    * @param type     Column data type
    * @return DataListBuilder
    */
-  public DataListBuilder addColumn(String columnId, List<? extends Object> data, String type) {
+  public DataListBuilder addColumn(String columnId, List<?> data, String type) {
     if (columnList == null) {
       columnList = new HashMap<>();
     }
 
-    // Generate a celldata list
+    // Generate a cell data list
     List<CellData> columnData = new ArrayList<>();
     for (Object value : data) {
       CellData cellData = new CellData(value).setType(CellDataType.valueOf(type));
@@ -587,8 +587,8 @@ public class DataListBuilder extends ServiceConfig {
    * Generate datalist data from service query result
    */
   private void generateFromServiceQueryResult() {
-    Integer totalRows = 0;
-    Integer row;
+    int totalRows = 0;
+    int row;
     if (serviceQueryResult != null) {
       // Generate virtual field if is null (value)
       if (fieldList == null) {
@@ -624,8 +624,8 @@ public class DataListBuilder extends ServiceConfig {
   private HashMap<String, CellData> generateFieldValues(Integer rowIndex) {
     // Variable definition */
     HashMap<String, CellData> row = new HashMap<>();
-    Integer columnIndex = 0;
-    Integer totalColumns = fieldList.size();
+    int columnIndex;
+    int totalColumns = fieldList.size();
 
     // Generate row ID
     row.put(DATALIST_IDENTIFIER, new CellData(rowIndex));
@@ -734,7 +734,7 @@ public class DataListBuilder extends ServiceConfig {
         doCompounds(row);
       }
 
-      // Remove noprint fields
+      // Remove no print fields
       if (noPrint) {
         doNoPrint(row);
       }

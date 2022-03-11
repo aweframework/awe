@@ -5,6 +5,7 @@ import com.almis.ade.api.bean.component.grid.ReportGrid;
 import com.almis.ade.api.bean.input.PrintBean;
 import com.almis.awe.builder.screen.grid.GridBuilder;
 import com.almis.awe.builder.screen.grid.TextColumnBuilder;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.PrintColumnData;
 import com.almis.awe.model.entities.Element;
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,7 +13,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +28,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 @ExtendWith(MockitoExtension.class)
 class ReportDesignTest {
@@ -37,12 +36,10 @@ class ReportDesignTest {
   private ReportDesigner reportDesigner;
 
   @Mock
-  private ObjectMapper mapper;
+  private BaseConfigProperties baseConfigProperties;
 
-  @BeforeEach
-  public void setUp() {
-    setField(reportDesigner, "dataSuffix", ".data");
-  }
+  @Mock
+  private ObjectMapper mapper;
 
   @Test
   void getPrintDesign() throws Exception {
@@ -57,6 +54,7 @@ class ReportDesignTest {
     );
 
     when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
     gridData.set("visibleColumns", new ObjectMapper().valueToTree(columnDataList));

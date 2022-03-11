@@ -1,6 +1,9 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweHttpServletRequestWrapper;
+import com.almis.awe.config.AuthType;
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
@@ -13,6 +16,7 @@ import com.almis.awe.security.authentication.filter.PublicQueryMaintainFilter;
 import com.almis.awe.security.handler.AweAccessDeniedHandler;
 import com.almis.awe.security.handler.AweLogoutHandler;
 import com.almis.awe.service.AccessService;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.user.AweUserDetailService;
@@ -25,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -53,137 +58,93 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableConfigurationProperties(value = {BaseConfigProperties.class, SecurityConfigProperties.class})
 @Slf4j
 public class SecurityConfig extends ServiceConfig {
 
+  // Timeout for Ldap socket connect
+  private static final String LDAP_CONNECT_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";
+
+  // Timeout for Ldap reading responses
+  private static final String LDAP_READ_TIMEOUT = "com.sun.jndi.ldap.read.timeout";
+
   // White list urls
   private static final String[] AUTH_LIST = {
-    "/websocket/**",
-    "/template/**",
-    "/settings",
-    "/css/**",
-    "/action/get-locals",
-    "/action/screen-data",
-    "/action/encrypt",
-    "/action/get-file",
-    "/action/file-info",
-    "/action/delete-file",
-    "/action/view-pdf-file",
-    "/screen/**",
-    // File and upload controllers
-    "/file/text",
-    "/file/stream",
-    "/file/download",
-    "/file/upload",
-    "/file/delete",
-    // React engine
-    "/screen-data",
-    "/locales/**"
+          "/error**",
+          "/websocket/**",
+          "/template/**",
+          "/settings",
+          "/css/**",
+          "/action/get-locals",
+          "/action/screen-data",
+          "/action/encrypt",
+          "/action/get-file",
+          "/action/file-info",
+          "/action/delete-file",
+          "/action/view-pdf-file",
+          "/screen/**",
+          // File and upload controllers
+          "/file/text",
+          "/file/stream",
+          "/file/download",
+          "/file/upload",
+          "/file/delete",
+          // React engine
+          "/screen-data",
+          "/locales/**"
   };
 
   // Data list urls
   private static final String[] DATA_LIST = {
-    "/action/data*/**",
-    "/action/update*/**",
-    "/action/control*/**",
-    "/action/unique*/**",
-    "/action/value*/**",
-    "/action/validate*/**",
-    "/action/subscribe*/**",
-    "/action/tree-branch*/**"
+          "/action/data*/**",
+          "/action/update*/**",
+          "/action/control*/**",
+          "/action/unique*/**",
+          "/action/value*/**",
+          "/action/validate*/**",
+          "/action/subscribe*/**",
+          "/action/tree-branch*/**"
   };
 
   // Maintain list urls
   private static final String[] MAINTAIN_LIST = {
-    "/action/maintain*/**",
-    "/action/get-file-maintain/**",
-    "/file/stream/maintain/**",
-    "/file/download/maintain/**"
+          "/action/maintain*/**",
+          "/action/get-file-maintain/**",
+          "/file/stream/maintain/**",
+          "/file/download/maintain/**"
   };
 
   // Autowired services
   private final AweSessionDetails aweSessionDetails;
   private final AweElements elements;
   private final ObjectMapper objectMapper;
-  @Value("${screen.parameter.username:cod_usr}")
-  private String usernameParameter;
-  @Value("${screen.parameter.password:pwd_usr}")
-  private String passwordParameter;
-  @Value("${language.default}:en")
-  private String defaultLocale;
-  @Value("${security.auth.mode:bbdd}")
-  private String authenticationProviderSource;
-  @Value("${security.role.prefix:ROLE_}")
-  private String rolePrefix;
-  // Custom authentication
-  @Value("#{'${security.auth.custom.providers:}'.split(',')}")
-  private List<String> authenticationProviders;
-  // LDAP authentication
-  @Value("#{'${security.auth.ldap.url:}'.split(',')}")
-  private List<String> ldapUrl;
-  @Value("${security.auth.ldap.user:}")
-  private String ldapUserFilter;
-  @Value("${security.auth.ldap.password.bind:}")
-  private String ldapPassword;
-  @Value("${security.auth.ldap.user.bind:}")
-  private String ldapUserDN;
-  @Value("${security.auth.ldap.basedn:}")
-  private String ldapBaseDN;
-  @Value("${security.auth.ldap.timeout:}")
-  private String ldapConnectTimeout;
-  @Value("${security.headers.frameOptions.sameOrigin:true}")
-  private boolean sameOrigin;
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
+
   @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
 
   /**
    * Autowired constructor
    *
-   * @param sessionDetails AWE session details
-   * @param elements       Awe elements
-   * @param objectMapper   Object mapper
+   * @param sessionDetails           AWE session details
+   * @param elements                 Awe elements
+   * @param objectMapper             Object mapper
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
    */
   @Autowired
-  public SecurityConfig(AweSessionDetails sessionDetails, AweElements elements, ObjectMapper objectMapper) {
+  public SecurityConfig(AweSessionDetails sessionDetails, AweElements elements, ObjectMapper objectMapper, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.aweSessionDetails = sessionDetails;
     this.elements = elements;
     this.objectMapper = objectMapper;
-  }
-
-  private enum AUTHENTICATION_MODE {
-    LDAP("ldap"),
-    BBDD("bbdd"),
-    IN_MEMORY("in_memory"),
-    CUSTOM("custom");
-
-    private final String mode;
-
-    AUTHENTICATION_MODE(String mode) {
-      this.mode = mode;
-    }
-
-    public static AUTHENTICATION_MODE fromValue(String value) {
-      if (value.equalsIgnoreCase(LDAP.getValue())) {
-        return LDAP;
-      } else if (value.equalsIgnoreCase(BBDD.getValue())) {
-        return BBDD;
-      } else if (value.equalsIgnoreCase(IN_MEMORY.getValue())) {
-        return IN_MEMORY;
-      } else if (value.equalsIgnoreCase(CUSTOM.getValue())) {
-        return CUSTOM;
-      }
-      return null;
-    }
-
-    public String getValue() {
-      return mode;
-    }
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
   }
 
   /**
@@ -201,31 +162,31 @@ public class SecurityConfig extends ServiceConfig {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http.antMatcher("/**")
-        .headers().xssProtection().block(false).and()
-        .and().authorizeRequests()
-        // Web
-        .antMatchers(AUTH_LIST).permitAll()
-        // Filter public queries and maintains
-        .antMatchers(DATA_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
-        .antMatchers(MAINTAIN_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
-        .anyRequest().authenticated()
-        // Login redirect
-        .and().formLogin().loginPage("/").permitAll()
-        // Exceptions handling
-        .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-        .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
-        // Add a filter to parse login parameters
-        .and().addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
-        // Add logout handler
-        .logout().logoutUrl("/action/logout")
-        .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-        .addLogoutHandler(getBean(AweLogoutHandler.class))
-        // CSRF
-        .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-        // ignore our stomp endpoints since they are protected using Stomp headers
-        .ignoringAntMatchers("/websocket/**");
+              .headers().xssProtection().block(false).and()
+              .and().authorizeRequests()
+              // Web
+              .antMatchers(AUTH_LIST).permitAll()
+              // Filter public queries and maintains
+              .antMatchers(DATA_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
+              .antMatchers(MAINTAIN_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
+              .anyRequest().authenticated()
+              // Login redirect
+              .and().formLogin().loginPage("/").permitAll()
+              // Exceptions handling
+              .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+              .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
+              // Add a filter to parse login parameters
+              .and().addFilterAt(getBean(JsonAuthenticationFilter.class), UsernamePasswordAuthenticationFilter.class)
+              // Add logout handler
+              .logout().logoutUrl("/action/logout")
+              .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
+              .addLogoutHandler(getBean(AweLogoutHandler.class))
+              // CSRF
+              .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+              // ignore our stomp endpoints since they are protected using Stomp headers
+              .ignoringAntMatchers("/websocket/**");
 
-      if (sameOrigin) {
+      if (securityConfigProperties.isSameOriginEnable()) {
         http.headers().frameOptions().sameOrigin();
       }
     }
@@ -236,13 +197,13 @@ public class SecurityConfig extends ServiceConfig {
     @Override
     public void configure(WebSecurity web) throws Exception {
       web.ignoring().antMatchers(
-        // Web resources (except css)
-        "/js/**",
-        "/images/**",
-        "/fonts/**",
-        "/*.ico",
-        "/*.html",
-        "/*.map");
+              // Web resources (except css)
+              "/js/**",
+              "/images/**",
+              "/fonts/**",
+              "/*.ico",
+              "/*.html",
+              "/*.map");
     }
 
     /**
@@ -253,14 +214,13 @@ public class SecurityConfig extends ServiceConfig {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) {
 
-      AUTHENTICATION_MODE mode = AUTHENTICATION_MODE.fromValue(authenticationProviderSource);
-      mode = mode == null ? AUTHENTICATION_MODE.BBDD : mode;
+      AuthType mode = securityConfigProperties.getAuthMode();
       log.info("Using authentication mode: " + mode);
 
       switch (mode) {
         case CUSTOM:
           // Custom authentication bean
-          for (String provider : authenticationProviders) {
+          for (String provider : securityConfigProperties.getAuthCustomProviders()) {
             try {
               Object beanObj = getBean(provider);
               if (beanObj instanceof AuthenticationProvider) {
@@ -319,8 +279,8 @@ public class SecurityConfig extends ServiceConfig {
     public JsonAuthenticationFilter authenticationFilter() {
       JsonAuthenticationFilter authenticationFilter = new JsonAuthenticationFilter(elements);
       authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/action/login", "POST"));
-      authenticationFilter.setUsernameParameter(usernameParameter);
-      authenticationFilter.setPasswordParameter(passwordParameter);
+      authenticationFilter.setUsernameParameter(baseConfigProperties.getParameter().getUsername());
+      authenticationFilter.setPasswordParameter(baseConfigProperties.getParameter().getPassword());
       authenticationFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
         // Initialize parameters
         initRequest(request);
@@ -350,16 +310,17 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Configure Ldap provider for bind auth
      *
-     * @return LdapAuthenticationProvider
+     * @param userDAO           User DAO
+     * @param ldapContextSource Ldap context
+     * @return LDAP authentication provider
      */
     @Bean
-    @ConditionalOnProperty(name = "security.auth.mode", havingValue = "ldap")
-    public AuthenticationProvider ldapAuthenticationProvider(UserDAO userDAO) {
+    @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "ldap")
+    public AuthenticationProvider ldapAuthenticationProvider(UserDAO userDAO, LdapContextSource ldapContextSource) {
 
       // Bind authenticator with search filter
-      final BindAuthenticator bindAuthenticator = new BindAuthenticator(getBean(LdapContextSource.class));
-      bindAuthenticator.setUserSearch(new FilterBasedLdapUserSearch("", "(" + ldapUserFilter + ")", getBean(LdapContextSource.class)));
-
+      final BindAuthenticator bindAuthenticator = new BindAuthenticator(ldapContextSource);
+      bindAuthenticator.setUserSearch(new FilterBasedLdapUserSearch("", "(" + securityConfigProperties.getLdap().getUserFilter() + ")", ldapContextSource));
 
       // Ldap provider
       final LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(bindAuthenticator);
@@ -422,7 +383,7 @@ public class SecurityConfig extends ServiceConfig {
      * @return DaoAuthenticationProvider
      */
     @Bean
-    @ConditionalOnProperty(name = "security.auth.mode", havingValue = "bbdd")
+    @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "bbdd", matchIfMissing = true)
     public AuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
       DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
       daoAuthenticationProvider.setPasswordEncoder(new Ripemd160PasswordEncoder());
@@ -460,19 +421,19 @@ public class SecurityConfig extends ServiceConfig {
      */
     @Bean
     @ConditionalOnMissingBean
-    public LdapContextSource contextSource() {
+    public LdapContextSource ldapContextSource() {
       // Environment properties
       Map<String, Object> environmentProperties = Collections.synchronizedMap(new HashMap<>());
-      environmentProperties.put("com.sun.jndi.ldap.connect.timeout", ldapConnectTimeout);
+      environmentProperties.put(LDAP_CONNECT_TIMEOUT, String.valueOf(securityConfigProperties.getLdap().getConnectTimeout().toMillis()));
+      environmentProperties.put(LDAP_READ_TIMEOUT, String.valueOf(securityConfigProperties.getLdap().getReadTimeout().toMillis()));
 
       LdapContextSource ldapContextSource = new LdapContextSource();
       ldapContextSource.setBaseEnvironmentProperties(environmentProperties);
-      ldapContextSource.setUrls(ldapUrl.toArray(new String[0]));
-      ldapContextSource.setBase(ldapBaseDN);
-      ldapContextSource.setUserDn(ldapUserDN);
-      ldapContextSource.setPassword(ldapPassword);
+      ldapContextSource.setUrls(securityConfigProperties.getLdap().getUrl());
+      ldapContextSource.setBase(securityConfigProperties.getLdap().getBaseDn());
+      ldapContextSource.setUserDn(securityConfigProperties.getLdap().getUserBind());
+      ldapContextSource.setPassword(securityConfigProperties.getLdap().getPasswordBind());
       ldapContextSource.setPooled(true);
-
       return ldapContextSource;
     }
 
@@ -494,13 +455,16 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Access service
      *
-     * @param menuService Menu service
+     * @param menuService              Menu service
+     * @param baseConfigProperties     Base properties
+     * @param securityConfigProperties Security properties
+     * @param encodeService            Encode service
      * @return Access service bean
      */
     @Bean
     @ConditionalOnMissingBean
-    public AccessService accessService(MenuService menuService) {
-      return new AccessService(menuService);
+    public AccessService accessService(MenuService menuService, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, EncodeService encodeService) {
+      return new AccessService(baseConfigProperties, securityConfigProperties, encodeService, menuService);
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.almis.awe.service.screen;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.exception.AWException;
@@ -24,7 +25,6 @@ import com.almis.awe.model.type.LoadType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -40,25 +40,19 @@ public class ScreenModelGenerator extends ServiceConfig {
   // Autowired services
   private final ScreenRestrictionGenerator screenRestrictionGenerator;
   private final InitialLoadDao initialLoadDao;
-
-  @Value("${settings.dataSuffix:.data}")
-  private String dataSuffix;
-
-  @Value("${application.data.rowsPerPage:30}")
-  private Integer rowsPerPage;
-
-  @Value("${application.data.rowsPerPageOnCriteria:30}")
-  private Integer rowsPerPageCriteria;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
    * @param screenRestrictionGenerator Screen restriction generator
    * @param initialLoadDao             Initial load service
+   * @param baseConfigProperties       Base config properties
    */
-  public ScreenModelGenerator(ScreenRestrictionGenerator screenRestrictionGenerator, InitialLoadDao initialLoadDao) {
+  public ScreenModelGenerator(ScreenRestrictionGenerator screenRestrictionGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties) {
     this.screenRestrictionGenerator = screenRestrictionGenerator;
     this.initialLoadDao = initialLoadDao;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -106,10 +100,10 @@ public class ScreenModelGenerator extends ServiceConfig {
     ObjectNode parameters = getRequest().getParametersSafe();
 
     // Elements per page
-    parameters.put(AweConstants.COMPONENT_MAX, Optional.ofNullable(component.getMax()).orElse(component instanceof Criteria ? rowsPerPageCriteria : rowsPerPage ));
+    parameters.put(AweConstants.COMPONENT_MAX, Optional.ofNullable(component.getMax()).orElse(component instanceof Criteria ? baseConfigProperties.getComponent().getCriteriaRowsPerPage() : baseConfigProperties.getComponent().getGridRowsPerPage() ));
 
     // Get sort if stored
-    String specialAttributesKey = component.getElementKey() + dataSuffix;
+    String specialAttributesKey = component.getElementKey() + baseConfigProperties.getComponent().getDataSuffix();
     if (parameters.has(specialAttributesKey)) {
       ObjectNode specialAttributesNode = (ObjectNode) parameters.get(specialAttributesKey);
 

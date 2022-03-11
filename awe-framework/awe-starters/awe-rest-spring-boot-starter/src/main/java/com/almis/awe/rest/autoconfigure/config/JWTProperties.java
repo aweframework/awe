@@ -21,9 +21,9 @@ public class JWTProperties {
   private String prefix = "Bearer";
   /**
    * JWT secret password for sign token.
-   * Default ${security.master.key} value
+   * Default ${awe.security.master.key} value
    */
-  @Value("${security.master.key}")
+  @Value("${awe.security.master.key:B1Le3s%25abc75TeBe05}")
   private String secret;
   /**
    * JWT issuer name.

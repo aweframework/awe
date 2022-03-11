@@ -16,9 +16,9 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
@@ -40,31 +40,38 @@ public abstract class JobService extends ServiceConfig {
   private final QueryUtil queryUtil;
   private final TaskDAO taskDAO;
   private final ApplicationEventPublisher eventPublisher;
-
-  @Value("${scheduler.task.timeout:1800}")
-  private int defaultTimeout;
+  private final Duration defaultTimeout;
 
   // Locales
   private static final String SCHEDULER_ERROR_MESSAGE_TIMEOUT = "SCHEDULER_ERROR_MESSAGE_TIMEOUT";
 
   /**
-   * Constructor
+   * Job service constructor
+   * @param executionService Execution service
+   * @param maintainService Maintain service
+   * @param queryUtil QueryUtil service
+   * @param taskDAO Task DAO
+   * @param eventPublisher Event publisher
+   * @param defaultTimeout Task timeout
    */
-  public JobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO,
-                    ApplicationEventPublisher eventPublisher) {
+  protected JobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO,
+                       ApplicationEventPublisher eventPublisher, Duration defaultTimeout) {
     this.executionService = executionService;
     this.maintainService = maintainService;
     this.queryUtil = queryUtil;
     this.taskDAO = taskDAO;
     this.eventPublisher = eventPublisher;
+    this.defaultTimeout = defaultTimeout;
   }
 
   /**
    * Execute job
    *
    * @param task Task
+   * @param execution Task execution
+   * @param dataMap Job data map
    * @return Future job result
-   * @throws InterruptedException
+   * @throws InterruptedException Error job
    */
   public abstract Future<ServiceData> executeJob(Task task, TaskExecution execution, JobDataMap dataMap) throws InterruptedException;
 
@@ -87,7 +94,7 @@ public abstract class JobService extends ServiceConfig {
   }
 
   public TaskExecution startTask(Task task) throws AWException {
-    // Mark task as started
+    // Mark tasks as started
     TaskExecution execution = taskDAO.startTask(task);
 
     // Start task progress
@@ -100,12 +107,11 @@ public abstract class JobService extends ServiceConfig {
   /**
    * Start timeout thread
    *
-   * @param execution
-   * @param timeout
-   * @param process
-   * @throws InterruptedException
+   * @param execution Task execution
+   * @param timeout Task timeout
+   * @param process Future task thread
    */
-  private void startTimeoutThread(TaskExecution execution, Integer timeout, Future process) throws AWException {
+  private void startTimeoutThread(TaskExecution execution, long timeout, Future process) {
     executionService.startTimeoutJob(execution, timeout, process);
     log.debug("[SCHEDULER][TIMEOUT] The timeout thread has been started {}.{}", execution.getTaskId(), execution.getExecutionId());
   }
@@ -113,11 +119,10 @@ public abstract class JobService extends ServiceConfig {
   /**
    * Start progress thread
    *
-   * @param execution
-   * @param averageTime
-   * @throws InterruptedException
+   * @param execution Task execution
+   * @param averageTime Average time
    */
-  private void startProgressThread(TaskExecution execution, Integer averageTime) throws AWException {
+  private void startProgressThread(TaskExecution execution, Integer averageTime) {
     executionService.startProgressJob(execution, averageTime);
     log.debug("[SCHEDULER][PROGRESS] The progress task has been started {}.{}", execution.getTaskId(), execution.getExecutionId());
   }
@@ -125,11 +130,11 @@ public abstract class JobService extends ServiceConfig {
   /**
    * Get timeout value
    *
-   * @param task
-   * @return
+   * @param task Task
+   * @return timeout of task or default timeout
    */
   protected Integer getTimeout(Task task) {
-    Integer timeout = defaultTimeout;
+    Integer timeout = Math.toIntExact(defaultTimeout.getSeconds());
     if (task.getExecutionTimeout() != null) {
       timeout = task.getExecutionTimeout();
     }

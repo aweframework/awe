@@ -1,11 +1,11 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.service.report.ReportGenerator;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  * QueryService Class
@@ -21,21 +21,21 @@ public class ReportService extends ServiceConfig {
   private final QueryService queryService;
   private final MenuService menuService;
   private final ReportGenerator reportGenerator;
-
-  @Value("${print.show.options:true}")
-  private boolean showPrintOptions;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param queryService    query service
-   * @param menuService     menu service
-   * @param reportGenerator report generator
+   * @param queryService         query service
+   * @param menuService          menu service
+   * @param reportGenerator      report generator
+   * @param baseConfigProperties base config properties
    */
-  public ReportService(QueryService queryService, MenuService menuService, ReportGenerator reportGenerator) {
+  public ReportService(QueryService queryService, MenuService menuService, ReportGenerator reportGenerator, BaseConfigProperties baseConfigProperties) {
     this.queryService = queryService;
     this.menuService = menuService;
     this.reportGenerator = reportGenerator;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -47,8 +47,8 @@ public class ReportService extends ServiceConfig {
   public ServiceData getPrintActions() throws AWException {
     ServiceData serviceData;
 
-    // Get print options (based on print.show.options)
-    if (showPrintOptions) {
+    // Get print options (based on awe.application.print-all-options-enable)
+    if (baseConfigProperties.isPrintAllOptionsEnable()) {
       serviceData = queryService.launchQuery("PrnActAll");
     } else {
       serviceData = queryService.launchQuery("PrnActNotPrn");

@@ -1,12 +1,14 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.listener.WebSocketEventListener;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.InitService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,17 +25,24 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
  * @author mvelez
  */
 @Configuration
+@EnableConfigurationProperties(BaseConfigProperties.class)
 @EnableWebSocketMessageBroker
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  @Value("${application.acronym}")
-  private String applicationAcronym;
+  // Autowired components
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
 
-  @Value("${security.headers.allowedOriginsPatterns:*}")
-  private String allowedOriginsPatterns;
-
-  @Value("${server.port:8080}")
-  private Integer serverPort;
+  /**
+   * Websocket config constructor
+   *
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
+   */
+  public WebsocketConfig(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
+  }
 
   /**
    * Configures the message broker.
@@ -43,7 +52,7 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
     config.enableSimpleBroker("/topic", "/queue");
-    config.setApplicationDestinationPrefixes("/" + applicationAcronym);
+    config.setApplicationDestinationPrefixes("/" + baseConfigProperties.getAcronym());
   }
 
   /**
@@ -54,7 +63,7 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint("/websocket")
-      .setAllowedOriginPatterns(allowedOriginsPatterns)
+      .setAllowedOriginPatterns(securityConfigProperties.getAllowedOriginPatterns())
       .addInterceptors(new HttpSessionHandshakeInterceptor())
       .withSockJS();
   }

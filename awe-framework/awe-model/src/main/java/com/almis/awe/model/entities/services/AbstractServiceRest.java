@@ -1,5 +1,6 @@
 package com.almis.awe.model.entities.services;
 
+import com.almis.awe.model.type.ServiceAuthType;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -55,7 +56,7 @@ public abstract class AbstractServiceRest implements ServiceType {
   private List<ServiceInputParameter> parameterList;
 
   // Security attributes
-  private String authentication;
+  private ServiceAuthType authentication;
   private String username;
   private String password;
   private String token;

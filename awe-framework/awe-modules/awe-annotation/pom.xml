@@ -7,7 +7,7 @@
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
     <version>4.4.10-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>awe-annotation</artifactId>
@@ -27,7 +27,7 @@
   <dependencies>
     <dependency>
       <groupId>com.almis.awe</groupId>
-      <artifactId>awe-model</artifactId>
+      <artifactId>awe-controller</artifactId>
     </dependency>
     <dependency>
       <groupId>com.almis.awe</groupId>

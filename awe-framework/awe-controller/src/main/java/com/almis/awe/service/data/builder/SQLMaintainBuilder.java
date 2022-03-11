@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.maintain.Insert;
@@ -11,6 +12,7 @@ import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.EncodeService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -27,7 +29,6 @@ import com.querydsl.sql.dml.AbstractSQLClause;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -42,31 +43,22 @@ import static com.almis.awe.model.type.ParameterType.*;
  */
 public class SQLMaintainBuilder extends SQLBuilder {
 
-  @Value("${awe.database.audit.date:HISdat}")
-  private String auditDateField;
-
-  @Value("${awe.database.audit.user:HISope}")
-  private String auditUserField;
-
-  @Value("${awe.database.audit.action:HISact}")
-  private String auditTypeField;
-
-  @Value("${awe.database.audit.lag:100}")
-  private Integer auditLag;
-
   private AbstractSQLClause<?> previousQuery;
   private boolean audit = false;
   private MaintainBuildOperation operation;
   private static final String ERROR_TITLE_NOT_DEFINED = "ERROR_TITLE_NOT_DEFINED";
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
+  private final DatabaseConfigProperties databaseConfigProperties;
 
   /**
    * Autowired constructor
-   *
-   * @param queryUtil Query utilities
+   *  @param queryUtil Query utilities
+   * @param encodeService Encode service
+   * @param databaseConfigProperties Database config properties
    */
-  public SQLMaintainBuilder(QueryUtil queryUtil) {
-    super(queryUtil);
+  public SQLMaintainBuilder(QueryUtil queryUtil, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
+    super(queryUtil, encodeService);
+    this.databaseConfigProperties = databaseConfigProperties;
   }
 
   /**
@@ -81,7 +73,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   }
 
   /**
-   * Sets whether if this maintain it's the audit operation or not
+   * Sets whether if that maintain it's the audit operation or not
    *
    * @param audit Audit
    * @return this
@@ -93,7 +85,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   }
 
   /**
-   * Sets whether if this maintain should be treated as batch
+   * Sets whether if that maintain should be treated as batch
    *
    * @param operation Maintain operation
    * @return this
@@ -117,7 +109,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   }
 
   /**
-   * Sets whether if this maintain it's the audit operation or not
+   * Sets whether if that maintain it's the audit operation or not
    *
    * @param variableIndex Variable index
    * @return this
@@ -239,7 +231,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
    * Manage insert clause
    *
    * @param insertClause Insert clause
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void doInsert(SQLInsertClause insertClause) throws AWException {
     List<Path> fieldPaths = getFieldPaths(true);
@@ -258,7 +250,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
    * Manage update clause
    *
    * @param updateClause Update clause
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void doUpdate(SQLUpdateClause updateClause) throws AWException {
     // If WHERE operations were defined, apply them
@@ -274,7 +266,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
    * Manage delete clause
    *
    * @param deleteClause Delete clause
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void doDelete(SQLDeleteClause deleteClause) throws AWException {
     // If WHERE operations were defined, apply them
@@ -328,7 +320,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   }
 
   /**
-   * Creates the basic operation depending on maintain's type
+   * Creates the basic operation depending on maintains type
    *
    * @param tablePath Table path
    * @return sqlClause
@@ -357,7 +349,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     List paths = new ArrayList<>();
 
     for (SqlField field : getQuery().getSqlFieldList()) {
-      if (field.isNotAudit() && !(forInsert && isAutoincrementalField(field))) {
+      if (field.isNotAudit() && !(forInsert && isIncrementalKey(field))) {
         paths.add(buildPath(field.getTable(), field.getId(), field.getAlias()));
       }
     }
@@ -370,13 +362,13 @@ public class SQLMaintainBuilder extends SQLBuilder {
    * - It is for insert
    * - It has key
    * - It hasn't got sequence
-   * - Its' value is null
+   * - Its value is null
    *
-   * @param field
-   * @return
-   * @throws AWException
+   * @param field Sql field
+   * @return true if field is a sequence
+   * @throws AWException AWE exception
    */
-  private boolean isAutoincrementalField(SqlField field) throws AWException {
+  private boolean isIncrementalKey(SqlField field) throws AWException {
     return field.isKey() && field.getSequence() == null && Expressions.nullExpression().equals(getSqlFieldExpression(field, getVariableIndex()));
   }
 
@@ -395,9 +387,9 @@ public class SQLMaintainBuilder extends SQLBuilder {
         getLocale("ERROR_MESSAGE_NO_AUDIT_FIELDS", getQuery().getId()));
     }
 
-    paths.add(buildPath(auditUserField));
-    paths.add(buildPath(auditDateField));
-    paths.add(buildPath(auditTypeField));
+    paths.add(buildPath(databaseConfigProperties.getAuditUser()));
+    paths.add(buildPath(databaseConfigProperties.getAuditDate()));
+    paths.add(buildPath(databaseConfigProperties.getAuditAction()));
 
     for (SqlField field : getQuery().getSqlFieldList()) {
       if (field.isAudit()) {
@@ -423,7 +415,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
         if (field.getSequence() != null) {
           values.add(calculateSequence((Field) field, getVariableIndex()));
           // Get field value
-        } else if (!isAutoincrementalField(field)) {
+        } else if (!isIncrementalKey(field)) {
           values.add(getSqlFieldExpression(field, getVariableIndex()));
         }
       }
@@ -446,7 +438,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     long currentTime = new Date().getTime();
 
     // Add milliseconds to current time plus number
-    currentTime = currentTime + (num * 1000) / auditLag;
+    currentTime = currentTime + (num * 1000L) / databaseConfigProperties.getAuditLag();
     Timestamp dateAudit = new Timestamp(currentTime);
 
     // Audit variables
@@ -466,7 +458,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   /**
    * Get session user or "Anonymous" instead
    *
-   * @return
+   * @return Session user or Anonymous
    */
   private String getUser() {
     try {

@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -24,7 +25,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
@@ -50,24 +50,22 @@ public class MaintainService extends ServiceConfig {
   private final MaintainLauncher maintainLauncher;
   private final AccessService accessService;
   private final QueryUtil queryUtil;
+  private final DatabaseConfigProperties databaseConfigProperties;
 
-  @Value("${awe.database.parameter.name:_database_}")
-  private String databaseParameterName;
-
-  @Value("${awe.database.multi-database.enable}")
-  private boolean multiDatabaseEnable;
 
   /**
    * Autowired constructor
    *
-   * @param maintainLauncher Maintain launcher
-   * @param accessService    Access service
-   * @param queryUtil        Query utilities
+   * @param maintainLauncher         Maintain launcher
+   * @param accessService            Access service
+   * @param queryUtil                Query utilities
+   * @param databaseConfigProperties Database  configuration properties
    */
-  public MaintainService(MaintainLauncher maintainLauncher, AccessService accessService, QueryUtil queryUtil) {
+  public MaintainService(MaintainLauncher maintainLauncher, AccessService accessService, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
     this.maintainLauncher = maintainLauncher;
     this.accessService = accessService;
     this.queryUtil = queryUtil;
+    this.databaseConfigProperties = databaseConfigProperties;
   }
 
   /**
@@ -127,7 +125,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   /**
-   * Launches a maintain with parameters
+   * Launches one maintain with parameters
    *
    * @param maintainId Maintain identifier
    * @param parameters Launch parameters
@@ -139,7 +137,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   /**
-   * Launches a maintain with a connection
+   * Launches one maintain with a connection
    *
    * @param maintainId          Maintain identifier
    * @param databaseConnection  Database connection
@@ -152,7 +150,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   /**
-   * Launches a maintain with a connection
+   * Launches one maintain with a connection
    *
    * @param maintainId          Maintain identifier
    * @param databaseConnection  Database connection
@@ -193,7 +191,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   /**
-   * Launches a maintain with parameters
+   * Launches one maintain with parameters
    *
    * @param maintainId Maintain identifier
    * @param parameters Launch parameters
@@ -205,7 +203,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   /**
-   * Launches a maintain with a connection without checking session
+   * Launches one maintain with a connection without checking session
    *
    * @param maintainId          Maintain identifier
    * @param databaseConnection  Database connection
@@ -218,7 +216,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   /**
-   * Launches a maintain with a connection without checking session
+   * Launches one maintain with a connection without checking session
    *
    * @param maintainId          Maintain identifier
    * @param parameters          Parameters
@@ -244,7 +242,7 @@ public class MaintainService extends ServiceConfig {
    * @throws AWException Error retrieving database connection
    */
   private DatabaseConnection getSafeDatabaseConnection(String alias) throws AWException {
-    return alias == null || !multiDatabaseEnable ? getSessionDatabaseConnection() : getDatabaseConnection(alias);
+    return alias == null || !databaseConfigProperties.isMultidatabaseEnable() ? getSessionDatabaseConnection() : getDatabaseConnection(alias);
   }
 
   /**
@@ -255,7 +253,7 @@ public class MaintainService extends ServiceConfig {
    * @throws AWException Error retrieving database connection
    */
   public DatabaseConnection getDatabaseConnection(ObjectNode parameters) throws AWException {
-    JsonNode database = queryUtil.getRequestParameter(databaseParameterName, parameters);
+    JsonNode database = queryUtil.getRequestParameter(databaseConfigProperties.getParameterName(), parameters);
     return getSafeDatabaseConnection(Optional.ofNullable(database).orElse(JsonNodeFactory.instance.nullNode()).textValue());
   }
 
@@ -454,7 +452,7 @@ public class MaintainService extends ServiceConfig {
         result = queryLauncher.launchQuery(maintainQuery, parameters);
         queryUtil.addDataListToRequestParameters(result.getDataList(), parameters);
       } else {
-        // Else launch the maintain or service action
+        // Else launch maintain or service action
         ServiceData resultingServiceData = maintainLauncher.launchMaintain(maintainQuery, databaseConnection, parameters);
 
         // Store result
@@ -501,7 +499,7 @@ public class MaintainService extends ServiceConfig {
           finalQueryList.addAll(getMaintainQueryList(prepareMaintain(targetToInclude, false), includedTargets));
         }
       } else {
-        // Launch the maintain or service action
+        // Launch maintain or service action
         finalQueryList.add(maintainQuery);
       }
     }
@@ -744,7 +742,7 @@ public class MaintainService extends ServiceConfig {
             .rightVariable(field.getVariable())
             .build();
 
-          // If variable is a string, ignorecase it
+          // If variable is a string, ignore case it
           Variable variable = origin.getVariableDefinition(field.getVariable());
           switch (ParameterType.valueOf(variable.getType())) {
             case STRING:

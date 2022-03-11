@@ -71,7 +71,7 @@ public class TotalizeRowProcessor implements RowProcessor {
 
       // If a totalize line has been inserted, add a line
       if (addLine) {
-        totalizeProcessor.addNewLine(row, processedList);
+        totalizeProcessor.addNewLine(processedList);
       }
 
       // Process line

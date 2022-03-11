@@ -10,6 +10,7 @@ import com.almis.awe.annotation.entities.session.ToSession;
 import com.almis.awe.annotation.entities.util.Download;
 import com.almis.awe.annotation.entities.util.GoTo;
 import com.almis.awe.builder.client.ScreenActionBuilder;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,16 @@ import static com.almis.awe.annotation.entities.security.Crypto.ActionType.ENCRY
         returnValues = true)
 )
 public class AnnotationTestService {
+
+  private final BaseConfigProperties baseConfigProperties;
+
+  /**
+   * AnnotationTest constructor
+   * @param baseConfigProperties Base config properties
+   */
+  public AnnotationTestService(BaseConfigProperties baseConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+  }
 
   /**
    * Check local annotations on the input parameters

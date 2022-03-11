@@ -1,7 +1,9 @@
 package com.almis.awe.service.data.connector.query;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
@@ -11,6 +13,8 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.log.LogUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.EnumBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,10 +35,14 @@ public class EnumQueryConnector extends AbstractQueryConnector {
   /**
    * Autowired constructor
    *
-   * @param queryUtil Query utilities
+   * @param queryUtil            Query utilities
+   * @param baseConfigProperties Base config properties
+   * @param elements             AWE elements
+   * @param numericService       Numeric service
+   * @param encodeService        Encode service
    */
-  public EnumQueryConnector(QueryUtil queryUtil) {
-    super(queryUtil);
+  public EnumQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
+    super(queryUtil, baseConfigProperties, elements, numericService, encodeService);
   }
 
   /**

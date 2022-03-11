@@ -1,6 +1,8 @@
 package com.almis.awe.service.data.connector.query;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
@@ -8,6 +10,8 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.log.LogUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.ServiceBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +31,14 @@ public class ServiceQueryConnector extends AbstractQueryConnector {
   /**
    * Autowired constructor
    *
-   * @param queryUtil Query utilities
+   * @param queryUtil            Query utilities
+   * @param baseConfigProperties Base configuration properties
+   * @param elements             AWE elements
+   * @param numericService       Numeric service
+   * @param encodeService        Encode service
    */
-  public ServiceQueryConnector(QueryUtil queryUtil) {
-    super(queryUtil);
+  public ServiceQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
+    super(queryUtil, baseConfigProperties, elements, numericService, encodeService);
   }
 
   @Override

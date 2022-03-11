@@ -1,6 +1,7 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.autoconfigure.config.EmailConfigProperties;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
@@ -78,16 +79,17 @@ public class EmailConfig {
   /////////////////////////////////////////////
   // SERVICES
   /////////////////////////////////////////////
-
   /**
    * Email service
-   *
+   * @param mailSender Mail sender
+   * @param emailBuilder Email builder
+   * @param baseConfigProperties Base configuration properties
    * @return Email service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public EmailService emailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder) {
-    return new EmailService(mailSender, emailBuilder);
+  public EmailService emailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder, BaseConfigProperties baseConfigProperties) {
+    return new EmailService(mailSender, emailBuilder, baseConfigProperties);
   }
 
   /////////////////////////////////////////////

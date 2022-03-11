@@ -5,7 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.file.FileUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,17 +27,20 @@ public class FileController extends ServiceConfig {
   // Autowired services
   private final FileService fileService;
   private final MaintainService maintainService;
+  private final EncodeService encodeService;
 
   /**
    * Autowired constructor
    *
    * @param fileService     File service
    * @param maintainService Maintain service
+   * @param encodeService   Encode service
    */
   @Autowired
-  public FileController(FileService fileService, MaintainService maintainService) {
+  public FileController(FileService fileService, MaintainService maintainService, EncodeService encodeService) {
     this.fileService = fileService;
     this.maintainService = maintainService;
+    this.encodeService = encodeService;
   }
 
   /**
@@ -53,7 +56,7 @@ public class FileController extends ServiceConfig {
     getRequest().setParameterList(parameters);
 
     // Get path and content-type
-    String path = EncodeUtil.decodeSymmetric(getRequest().getParameterAsString("path"));
+    String path = encodeService.decodeSymmetric(getRequest().getParameterAsString("path"));
     String contentType = getRequest().getParameterAsString("content-type");
 
     // Retrieve file
@@ -73,7 +76,7 @@ public class FileController extends ServiceConfig {
     getRequest().setParameterList(parameters);
 
     // Get path and content-type
-    String path = EncodeUtil.decodeSymmetric(getRequest().getParameterAsString("path"));
+    String path = encodeService.decodeSymmetric(getRequest().getParameterAsString("path"));
     String contentType = getRequest().getParameterAsString("content-type");
 
     // Retrieve file
@@ -152,10 +155,10 @@ public class FileController extends ServiceConfig {
     getRequest().setParameterList(parameters);
 
     // Get path and content-type
-    String filedata = getRequest().getParameterAsString("filename");
+    String fileName = getRequest().getParameterAsString("filename");
 
     // Retrieve file
-    return fileService.deleteFile(FileUtil.stringToFileData(filedata));
+    return fileService.deleteFile(FileUtil.stringToFileData(fileName));
   }
 
   /**

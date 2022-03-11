@@ -1,11 +1,11 @@
 package com.almis.awe.component;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.constant.AweConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,11 +20,11 @@ import java.io.IOException;
 @Slf4j
 public class AweLoggingFilter implements Filter {
 
-  @Value("${application.log.users.enabled:false}")
-  private boolean logUsersEnabled;
-
   @Autowired
   private AweSession aweSession;
+
+  @Autowired
+  private BaseConfigProperties baseConfigProperties;
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -35,7 +35,7 @@ public class AweLoggingFilter implements Filter {
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
     // Add user
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (logUsersEnabled && authentication != null && ! (authentication instanceof AnonymousAuthenticationToken)) {
+    if (baseConfigProperties.isLogUserEnable() && authentication != null && ! (authentication instanceof AnonymousAuthenticationToken)) {
       UserDetails principal = (UserDetails) authentication.getPrincipal();
       MDC.put(AweConstants.SESSION_USER, "[user: " + principal.getUsername() + "] ");
       MDC.put(AweConstants.LOG_BY_USER, principal.getUsername());

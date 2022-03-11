@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.listener.TemplateErrorListener;
 import com.almis.awe.model.dao.AweElementsDao;
@@ -9,12 +10,10 @@ import com.almis.awe.service.QueryService;
 import com.almis.awe.service.TemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.stringtemplate.v4.STErrorListener;
 import org.stringtemplate.v4.STGroup;
@@ -33,29 +32,17 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 @Order(HIGHEST_PRECEDENCE)
 public class TemplateConfig {
 
-  // Application modules
-  @Value("#{'${modules.list:awe}'.split(',')}")
-  private List<String> modules;
-
-  // Application module prefix
-  @Value("${modules.prefix:module.}")
-  private String modulePrefix;
-
-  // Template path
-  @Value("${application.paths.templates:templates/}")
-  private String templatePath;
-
   // Autowired services
-  private final Environment environment;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param environment Environment
+   * @param baseConfigProperties Base config properties
    */
   @Autowired
-  public TemplateConfig(Environment environment) {
-    this.environment = environment;
+  public TemplateConfig(BaseConfigProperties baseConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -67,9 +54,8 @@ public class TemplateConfig {
   private List<STGroupFile> getPaths(String filePath) {
     List<STGroupFile> paths = new ArrayList<>();
 
-    for (String module : modules) {
-      String modulePath = environment.getProperty(modulePrefix + module);
-      String path = Paths.get(templatePath, modulePath, filePath).toString();
+    for (String module : baseConfigProperties.getModuleList()) {
+      String path = Paths.get(baseConfigProperties.getPaths().getTemplates(), module, filePath).toString();
       ClassPathResource resource = new ClassPathResource(path);
       if (resource.exists()) {
         paths.add(new STGroupFile(resource.getPath()));
@@ -191,6 +177,6 @@ public class TemplateConfig {
   @Bean
   @ConditionalOnMissingBean
   public HelpService helpService(TemplateService templateService) {
-    return new HelpService(templateService);
+    return new HelpService(templateService, baseConfigProperties);
   }
 }

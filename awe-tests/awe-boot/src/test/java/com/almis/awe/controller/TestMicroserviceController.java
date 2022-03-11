@@ -38,7 +38,7 @@ public class TestMicroserviceController {
   @ResponseBody
   public ServiceData testPostParameterList(@RequestParam(name = "database") String database,
                                            @RequestParam(name = "username") String user,
-                                           @RequestParam(name = "AppDat") @DateTimeFormat(pattern="dd/MM/yyyy") Date date,
+                                           @RequestParam(name = "currentDate") @DateTimeFormat(pattern="dd/MM/yyyy") Date date,
                                            @RequestParam(name = "numPar") Integer parameterNumber,
                                            HttpServletRequest request) {
     // Initialize parameters

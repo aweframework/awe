@@ -1,11 +1,15 @@
-package com.almis.awe.model.util.security;
+package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
+import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.util.security.Crypto;
+import com.almis.awe.model.util.security.RipEmd160;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 
@@ -23,15 +27,20 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 /**
- * EncodeUtil Class
+ * Encode Service Class
  * Encode Utilities for awe
  *
  * @author Pablo GARCIA - 17/MAR/2011
  */
 @Slf4j
-public final class EncodeUtil {
+public class EncodeService extends ServiceConfig {
 
   private static final String STRING_ENCODE_ERROR = "String encode error";
+  private final StringKeyGenerator keyGenerator = KeyGenerators.string();
+
+  // Autowire beans
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
 
   /**
    * Static class to store hashing algorithms to make the call to these algorithms more understandable.
@@ -50,38 +59,14 @@ public final class EncodeUtil {
     public static final String SHA_512 = "SHA-512";
   }
 
-  // Static variables
-  private static String encoding;
-  private static String masterKey;
-  private static StringKeyGenerator keyGenerator;
-
-  /**
-   * Initialize Utility class
-   *
-   * @param springEnvironment Spring environment
-   */
-  public static void init(Environment springEnvironment) {
-    encoding = getSafeProperty(springEnvironment, AweConstants.PROPERTY_APPLICATION_ENCODING, AweConstants.APPLICATION_ENCODING);
-    masterKey = getSafeProperty(springEnvironment, AweConstants.PROPERTY_SECURITY_MASTER_KEY, "4W3M42T3RK3Y%$ED");
-    keyGenerator = KeyGenerators.string();
-  }
-
-  /**
-   * Check environment and retrieve default value if not defined
-   *
-   * @param environment  Environment
-   * @param property     Property
-   * @param defaultValue Default value
-   * @return Property value or default value
-   */
-  private static String getSafeProperty(Environment environment, String property, String defaultValue) {
-    return environment == null ? defaultValue : environment.getProperty(property, defaultValue);
-  }
-
   /**
    * Hide the constructor
+   * @param baseConfigProperties Base config properties
+   * @param securityConfigProperties Security config properties
    */
-  private EncodeUtil() {
+  public EncodeService(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
   }
 
   /**
@@ -104,8 +89,8 @@ public final class EncodeUtil {
    * @return String decrypted
    * @throws AWException Error in decryption
    */
-  public static String decryptRipEmd160(String text) throws AWException {
-    return decryptRipEmd160WithPhraseKey(text, masterKey, encoding);
+  public String decryptRipEmd160(String text) throws AWException {
+    return decryptRipEmd160WithPhraseKey(text, securityConfigProperties.getMasterKey(), baseConfigProperties.getEncoding());
   }
 
   /**
@@ -115,8 +100,8 @@ public final class EncodeUtil {
    * @return String encrypted
    * @throws AWException Error in encryption
    */
-  public static String encryptRipEmd160(String text) throws AWException {
-    return encryptRipEmd160WithPhraseKey(text, masterKey, encoding);
+  public String encryptRipEmd160(String text) throws AWException {
+    return encryptRipEmd160WithPhraseKey(text, securityConfigProperties.getMasterKey(), baseConfigProperties.getEncoding());
   }
 
   /**
@@ -127,8 +112,8 @@ public final class EncodeUtil {
    * @return String encrypted
    * @throws AWException Error in encryption
    */
-  public static String encryptRipEmd160WithPhraseKey(String text, String phraseKey) throws AWException {
-    return encryptRipEmd160WithPhraseKey(text, phraseKey, encoding);
+  public String encryptRipEmd160WithPhraseKey(String text, String phraseKey) throws AWException {
+    return encryptRipEmd160WithPhraseKey(text, phraseKey, baseConfigProperties.getEncoding());
   }
 
 
@@ -141,9 +126,9 @@ public final class EncodeUtil {
    * @return String encrypted
    * @throws AWException Error in encryption
    */
-  public static String encryptRipEmd160WithPhraseKey(String text, String phraseKey, String encoding) throws AWException {
+  public String encryptRipEmd160WithPhraseKey(String text, String phraseKey, String encoding) throws AWException {
     try {
-      String key = phraseKey == null || phraseKey.isEmpty() ? masterKey : phraseKey;
+      String key = phraseKey == null || phraseKey.isEmpty() ? securityConfigProperties.getMasterKey() : phraseKey;
       RipEmd160 encoder = new RipEmd160(key);
       return encoder.encrypt(text, encoding);
     } catch (Exception exc) {
@@ -160,9 +145,9 @@ public final class EncodeUtil {
    * @return String decrypted
    * @throws AWException Error in decryption
    */
-  public static String decryptRipEmd160WithPhraseKey(String text, String phraseKey, String encoding) throws AWException {
+  public String decryptRipEmd160WithPhraseKey(String text, String phraseKey, String encoding) throws AWException {
     try {
-      String key = phraseKey == null || phraseKey.isEmpty() ? masterKey : phraseKey;
+      String key = phraseKey == null || phraseKey.isEmpty() ? securityConfigProperties.getMasterKey() : phraseKey;
       RipEmd160 encoder = new RipEmd160(key);
       return encoder.decrypt(text, encoding);
     } catch (Exception exc) {
@@ -177,9 +162,9 @@ public final class EncodeUtil {
    * @return String decrypted
    * @throws AWException Error in decryption
    */
-  public static String decryptAes(String text) throws AWException {
+  public String decryptAes(String text) throws AWException {
     try {
-      return Crypto.AES.decrypt(text, masterKey, encoding);
+      return Crypto.AES.decrypt(text, securityConfigProperties.getMasterKey(), baseConfigProperties.getEncoding());
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -193,9 +178,9 @@ public final class EncodeUtil {
    * @return String decrypted
    * @throws AWException Error in decryption
    */
-  public static String decryptAes(String text, String password) throws AWException {
+  public String decryptAes(String text, String password) throws AWException {
     try {
-      return Crypto.AES.decrypt(text, password, encoding);
+      return Crypto.AES.decrypt(text, password, baseConfigProperties.getEncoding());
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -208,9 +193,9 @@ public final class EncodeUtil {
    * @return String encrypted
    * @throws AWException Error in encryption
    */
-  public static String encryptAes(String text) throws AWException {
+  public String encryptAes(String text) throws AWException {
     try {
-      return Crypto.AES.encrypt(text, masterKey, encoding);
+      return Crypto.AES.encrypt(text, securityConfigProperties.getMasterKey(), baseConfigProperties.getEncoding());
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -224,9 +209,9 @@ public final class EncodeUtil {
    * @return String encrypted
    * @throws AWException Error in encryption
    */
-  public static String encryptAes(String text, String password) throws AWException {
+  public String encryptAes(String text, String password) throws AWException {
     try {
-      return Crypto.AES.encrypt(text, password, encoding);
+      return Crypto.AES.encrypt(text, password, baseConfigProperties.getEncoding());
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -265,9 +250,9 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws AWException Error in decoding
    */
-  public static String decodeSymmetric(String text) throws AWException {
+  public String decodeSymmetric(String text) throws AWException {
     try {
-      return new String(decodeSymmetricAsByteArray(text), encoding);
+      return new String(decodeSymmetricAsByteArray(text), baseConfigProperties.getEncoding());
     } catch (UnsupportedEncodingException exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -280,7 +265,7 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws AWException Error in decoding
    */
-  public static byte[] decodeSymmetricAsByteArray(String text) throws AWException {
+  public byte[] decodeSymmetricAsByteArray(String text) throws AWException {
     try {
       if (text != null) {
         // Decode
@@ -300,10 +285,9 @@ public final class EncodeUtil {
    * @return Text encoded
    * @throws AWException Error encoding
    */
-  public static String encodeHex(String text) throws AWException {
+  public String encodeHex(String text) throws AWException {
     try {
-      /* Encode */
-      return new String(new Hex().encode(text.getBytes()), encoding);
+      return new String(new Hex().encode(text.getBytes()), baseConfigProperties.getEncoding());
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -316,7 +300,7 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws AWException Error decoding
    */
-  public static String decodeHex(String text) throws AWException {
+  public String decodeHex(String text) throws AWException {
 
     /* Variable definition */
     String outStr = null;
@@ -324,13 +308,13 @@ public final class EncodeUtil {
     try {
       if (text != null) {
         // Decode
-        outStr = new String(new Hex().decode(text.getBytes()), encoding);
+        outStr = new String(new Hex().decode(text.getBytes()), baseConfigProperties.getEncoding());
       }
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
 
-    /* Transform encoded bytemap to string and return it */
+    /* Transform encoded byte map to string and return it */
     return outStr;
   }
 
@@ -342,7 +326,7 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws AWException Error encoding
    */
-  public static String encodeTransmission(String text, boolean active) throws AWException {
+  public String encodeTransmission(String text, boolean active) throws AWException {
 
     String out = text;
 
@@ -363,7 +347,7 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws AWException Error decoding
    */
-  public static String decodeTransmission(String text, boolean active) throws AWException {
+  public String decodeTransmission(String text, boolean active) throws AWException {
 
     String out = text;
 
@@ -377,21 +361,21 @@ public final class EncodeUtil {
   }
 
   /**
-   * Hashes an String with a SHA-X algorithm without any salt, where X is the algorithm given in the algorithm variable
+   * Hashes a String with an SHA-X algorithm without any salt, where X is the algorithm given in the algorithm variable
    *
    * @param algorithm Algorithm
    * @param text      Text to hash
    * @return String Hexadecimal format of the output bytearray
    * @throws AWException Error hashing
    */
-  public static String hash(String algorithm, String text) throws AWException {
+  public String hash(String algorithm, String text) throws AWException {
     return hash(algorithm, text, null);
   }
 
   /* HASHING ALGORITHMS */
 
   /**
-   * Hashes an String with a SHA-X algorithm with a salt, where X is the algorithm given in the algorithm variable
+   * Hashes a String with an SHA-X algorithm with a salt, where X is the algorithm given in the algorithm variable
    *
    * @param algorithm Algorithm
    * @param text      Text to hash
@@ -399,37 +383,37 @@ public final class EncodeUtil {
    * @return String Hexadecimal format of the output bytearray
    * @throws AWException Error hashing
    */
-  public static String hash(String algorithm, String text, String salt) throws AWException {
-    return Crypto.HASH.hash(text, algorithm, salt, Charset.forName(encoding));
+  public String hash(String algorithm, String text, String salt) throws AWException {
+    return Crypto.HASH.hash(text, algorithm, salt, Charset.forName(baseConfigProperties.getEncoding()));
   }
 
   /**
-   * Hashes an String with a PBKDF2 algorithm based on SHA-1
+   * Hashes a String with a PBKDF2 algorithm based on SHA-1
    *
    * @param text Text to encode
    * @return String in Hexadecimal format
    * @throws AWException Error encoding
    */
-  public static String encodePBKDF2WithHmacSHA1(String text) throws AWException {
+  public String encodePBKDF2WithHmacSHA1(String text) throws AWException {
     final int keyLength = 256;
-    return encodePBKDF2WithHmacSHA1(text, masterKey, Crypto.Utils.getRecommendedIterationNumber(), keyLength);
+    return encodePBKDF2WithHmacSHA1(text, securityConfigProperties.getMasterKey(), Crypto.Utils.getRecommendedIterationNumber(), keyLength);
   }
 
   /**
-   * Hashes an String with a PBKDF2 algorithm based on SHA-1
+   * Hashes a String with a PBKDF2 algorithm based on SHA-1
    *
    * @param text Text to encode
    * @param salt should be of about 160 bit size or more to create a strong salt
    * @return String in Hexadecimal format
    * @throws AWException Error encoding
    */
-  public static String encodePBKDF2WithHmacSHA1(String text, String salt) throws AWException {
+  public String encodePBKDF2WithHmacSHA1(String text, String salt) throws AWException {
     final int keyLength = 256;
     return encodePBKDF2WithHmacSHA1(text, salt, Crypto.Utils.getRecommendedIterationNumber(), keyLength);
   }
 
   /**
-   * Hashes an String with a PBKDF2 algorithm based on SHA-1
+   * Hashes a String with a PBKDF2 algorithm based on SHA-1
    *
    * @param text       Text to encode
    * @param salt       should be of about 160 bit size or more to create a strong salt
@@ -437,29 +421,29 @@ public final class EncodeUtil {
    * @return String in Hexadecimal format
    * @throws AWException Error encoding
    */
-  public static String encodePBKDF2WithHmacSHA1(String text, String salt, int iterations) throws AWException {
+  public String encodePBKDF2WithHmacSHA1(String text, String salt, int iterations) throws AWException {
     final int keyLength = 256;
     return encodePBKDF2WithHmacSHA1(text, salt, iterations, keyLength);
   }
 
   /**
-   * Hashes an String with a PBKDF2 algorithm based on SHA-1
+   * Hashes a String with a PBKDF2 algorithm based on SHA-1
    *
    * @param text       Text to encode
    * @param salt       should be of about 160 bit size or more to create a strong salt
    * @param iterations recommended value is 256000 in 2016, double this value every 2 years
-   * @param keyLength  should not be bigger than the maximum output length of the SHA-1 algorithm wich is 160 bit (40 hex characters)
+   * @param keyLength  should not be bigger than the maximum output length of the SHA-1 algorithm which is 160 bit (40 hex characters)
    * @return String in Hexadecimal format
    * @throws AWException Error encoding
    */
 
-  public static String encodePBKDF2WithHmacSHA1(String text, String salt, int iterations, int keyLength) throws AWException {
+  public String encodePBKDF2WithHmacSHA1(String text, String salt, int iterations, int keyLength) throws AWException {
     try {
       // Get instance of the hashing algorithm
       SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 
       // Add parameters
-      PBEKeySpec spec = new PBEKeySpec(text.toCharArray(), salt.getBytes(encoding), iterations, keyLength);
+      PBEKeySpec spec = new PBEKeySpec(text.toCharArray(), salt.getBytes(baseConfigProperties.getEncoding()), iterations, keyLength);
 
       // Generate a key for the hash
       SecretKey key = skf.generateSecret(spec);
@@ -501,7 +485,7 @@ public final class EncodeUtil {
    *
    * @return Random string
    */
-  public static String getSecureRandomString() {
+  public String getSecureRandomString() {
     return keyGenerator.generateKey();
   }
 
@@ -525,7 +509,7 @@ public final class EncodeUtil {
    * @param secretKey Key
    * @return Value encoded
    */
-  public static String encrypt(String digest, String valueEnc, final String secretKey) {
+  public String encrypt(String digest, String valueEnc, final String secretKey) {
 
     try {
       SecretKey key = generateKeyFromString(digest, secretKey);
@@ -552,7 +536,7 @@ public final class EncodeUtil {
    * @param secretKey      Key
    * @return Decrypted value
    */
-  public static String decrypt(String digest, String encryptedValue, final String secretKey) {
+  public String decrypt(String digest, String encryptedValue, final String secretKey) {
 
     String decryptedValue = null;
 
@@ -567,7 +551,7 @@ public final class EncodeUtil {
       c.init(Cipher.DECRYPT_MODE, key, iv);
       final byte[] decorVal = base64Decode(encryptedValue).getBytes();
       final byte[] decValue = c.doFinal(decorVal);
-      decryptedValue = new String(decValue, encoding);
+      decryptedValue = new String(decValue, baseConfigProperties.getEncoding());
     } catch (Exception ex) {
       log.error(ex.getLocalizedMessage());
     }
@@ -584,7 +568,7 @@ public final class EncodeUtil {
    * @throws NoSuchAlgorithmException Invalid algorithm
    * @throws InvalidKeySpecException  Error retrieving key
    */
-  private static SecretKey generateKeyFromString(String algorithm, final String secKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+  private SecretKey generateKeyFromString(String algorithm, final String secKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
     SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
     KeySpec spec = new PBEKeySpec(secKey.toCharArray(), base64Encode(secKey).getBytes(), 65536, 256);
     SecretKey key = factory.generateSecret(spec);
@@ -618,8 +602,8 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws java.io.UnsupportedEncodingException unsupported encoding exception
    */
-  public static String base64Decode(String text) throws UnsupportedEncodingException {
-    return new String(Base64.decodeBase64(text.getBytes()), encoding);
+  public String base64Decode(String text) throws UnsupportedEncodingException {
+    return new String(Base64.decodeBase64(text.getBytes()), baseConfigProperties.getEncoding());
   }
 
   /**
@@ -628,7 +612,7 @@ public final class EncodeUtil {
    * @param text Text to decode
    * @return Text decoded
    */
-  public static byte[] base64DecodeAsByteArray(String text) {
+  public byte[] base64DecodeAsByteArray(String text) {
     return Base64.decodeBase64(text);
   }
 
@@ -639,7 +623,7 @@ public final class EncodeUtil {
    * @return Text decoded
    * @throws java.io.UnsupportedEncodingException unsupported encoding exception
    */
-  public static String base64Decode(byte[] text) throws UnsupportedEncodingException {
-    return new String(Base64.decodeBase64(text), encoding);
+  public String base64Decode(byte[] text) throws UnsupportedEncodingException {
+    return new String(Base64.decodeBase64(text), baseConfigProperties.getEncoding());
   }
 }

@@ -16,7 +16,6 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.type.AnswerType;
-import com.almis.awe.model.util.file.FileUtil;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
@@ -124,13 +123,12 @@ class ClientActionBuilderTest {
    * Build a download action with ClientActionBuilder
    */
   @Test
-  void testDownloadAction() throws Exception {
+  void testDownloadAction() {
     FileData fileData = new FileData();
     ClientAction action = new DownloadActionBuilder(fileData).build();
 
     // Assertions
     assertEquals("get-file", action.getType());
-    assertEquals(FileUtil.fileDataToString(fileData), action.getParameters().get("filename"));
     checkSimpleClientActionBuilder("get-file", new DownloadActionBuilder());
   }
 
@@ -176,7 +174,7 @@ class ClientActionBuilderTest {
   }
 
   /**
-   * Build a update-controller action with ClientActionBuilder
+   * Build an update-controller action with ClientActionBuilder
    */
   @Test
   void testUpdateControllerAction() {
@@ -326,7 +324,7 @@ class ClientActionBuilderTest {
   }
 
   /**
-   * Build an show-columns action with ClientActionBuilder
+   * Build a show-columns action with ClientActionBuilder
    */
   @Test
   void testShowColumnsAction() {
@@ -358,7 +356,7 @@ class ClientActionBuilderTest {
   }
 
   /**
-   * Build an hide-columns action with ClientActionBuilder
+   * Build a hide-columns action with ClientActionBuilder
    */
   @Test
   void testHideColumnsAction() {
@@ -488,7 +486,7 @@ class ClientActionBuilderTest {
   }
 
   /**
-   * Build an delete-row action with ClientActionBuilder
+   * Build a delete-row action with ClientActionBuilder
    */
   @Test
   void testDeleteRowAction() {
@@ -538,7 +536,7 @@ class ClientActionBuilderTest {
   }
 
   /**
-   * Build a update-cell action with ClientActionBuilder
+   * Build an update-cell action with ClientActionBuilder
    */
   @Test
   void testUpdateCellAction() {
@@ -556,7 +554,7 @@ class ClientActionBuilderTest {
   }
 
   /**
-   * Build a add-chart-series action with ClientActionBuilder
+   * Build an add-chart-series action with ClientActionBuilder
    */
   @Test
   void testAddChartSeriesAction() {

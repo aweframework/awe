@@ -1,5 +1,8 @@
 package com.almis.awe.session;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
+import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
@@ -25,9 +28,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +42,15 @@ class AweSessionDetailsTest {
 
   @InjectMocks
   private AweSessionDetails aweSessionDetails;
+
+  @Mock
+  private BaseConfigProperties baseConfigProperties;
+
+  @Mock
+  private SessionConfigProperties sessionConfigProperties;
+
+  @Mock
+  private SecurityConfigProperties securityConfigProperties;
 
   @Mock
   private AuthenticationException authenticationException;
@@ -76,13 +86,21 @@ class AweSessionDetailsTest {
   public void setUp() {
     aweSessionDetails.setApplicationContext(applicationContext);
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
-    ReflectionTestUtils.setField(aweSessionDetails, "sessionParameters", Arrays.asList("module", null, "site", "", "database"));
   }
 
   @Test
   void onLoginSuccess() throws AWException {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("en");
+    when(baseConfigProperties.getTheme()).thenReturn("sunset");
+    when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
+    when(securityConfigProperties.getDefaultRestriction()).thenReturn("general");
+    when(sessionConfigProperties.getParameter()).thenReturn(Stream.of(new String[][] {
+            { "module", "MyModule" },
+            { "database", "MyDB" },
+            { "site", "MySite" }
+    }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     when(aweSession.getUser()).thenReturn("user");
     when(aweSession.getParameter(User.class, SESSION_USER_DETAILS)).thenReturn(userDetails);
     when(userDetails.getLanguage()).thenReturn("ES");
@@ -96,7 +114,15 @@ class AweSessionDetailsTest {
   @Test
   void onLoginSuccessErrorSessionParameters() {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
-    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("en");
+    when(baseConfigProperties.getTheme()).thenReturn("sunset");
+    when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
+    when(securityConfigProperties.getDefaultRestriction()).thenReturn("general");
+    when(sessionConfigProperties.getParameter()).thenReturn(Stream.of(new String[][] {
+            { "module", "MyModule" },
+            { "database", "MyDB" },
+            { "site", "MySite" }
+    }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     when(aweSession.getUser()).thenReturn("user");
     when(aweSession.getParameter(User.class, SESSION_USER_DETAILS)).thenReturn(userDetails);
     when(userDetails.getLanguage()).thenReturn("ES");
@@ -109,13 +135,21 @@ class AweSessionDetailsTest {
   @Test
   void onLoginSuccessNullDataList() throws AWException {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
-    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweSession.getUser()).thenReturn("user");
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("en");
+    when(baseConfigProperties.getTheme()).thenReturn("sunset");
+    when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
+    when(securityConfigProperties.getDefaultRestriction()).thenReturn("general");
+    when(sessionConfigProperties.getParameter()).thenReturn(Stream.of(new String[][] {
+            { "module", "MyModule" },
+            { "database", "MyDB" },
+            { "site", "MySite" }
+    }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     when(aweSession.getParameter(User.class, SESSION_USER_DETAILS)).thenReturn(userDetails);
     when(userDetails.getLanguage()).thenReturn("ES");
     when(userDetails.getUserTheme()).thenReturn("sunset");
     when(userDetails.getProfileTheme()).thenReturn("sky");
-    when(queryService.launchQuery(ArgumentMatchers.eq(null), ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(new ServiceData());
+    when(queryService.launchQuery(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(new ServiceData());
     aweSessionDetails.onLoginSuccess();
     verify(aweSession, times(9)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
   }
@@ -124,6 +158,7 @@ class AweSessionDetailsTest {
   void onLoginFailure() {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(baseConfigProperties.getParameter()).thenReturn(new BaseConfigProperties.Parameter());
     aweSessionDetails.onLoginFailure(authenticationException);
     verify(aweSession, times(1)).setParameter(ArgumentMatchers.eq(SESSION_FAILURE), ArgumentMatchers.any());
   }
@@ -132,6 +167,7 @@ class AweSessionDetailsTest {
   void onLoginFailureUsernameNotFound() {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(baseConfigProperties.getParameter()).thenReturn(new BaseConfigProperties.Parameter());
     aweSessionDetails.onLoginFailure(Mockito.mock(UsernameNotFoundException.class));
     verify(aweSession, times(1)).setParameter(ArgumentMatchers.eq(SESSION_FAILURE), ArgumentMatchers.any());
   }
@@ -140,6 +176,7 @@ class AweSessionDetailsTest {
   void onLoginFailureBadCredentials() {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(baseConfigProperties.getParameter()).thenReturn(new BaseConfigProperties.Parameter());
     aweSessionDetails.onLoginFailure(Mockito.mock(BadCredentialsException.class));
     verify(aweSession, times(1)).setParameter(ArgumentMatchers.eq(SESSION_FAILURE), ArgumentMatchers.any());
   }

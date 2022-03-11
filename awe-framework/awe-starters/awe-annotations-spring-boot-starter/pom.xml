@@ -6,7 +6,7 @@
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starters</artifactId>
     <version>4.4.10-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>awe-annotations-spring-boot-starter</artifactId>
@@ -39,7 +39,6 @@
     </dependency>
 
     <!-- AWE Libraries -->
-
     <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-annotation</artifactId>
