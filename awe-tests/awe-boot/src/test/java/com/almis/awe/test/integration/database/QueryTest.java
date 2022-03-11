@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Query tests")
 @Slf4j
 @WithMockUser(username = "test", password = "test")
-class QueryTest extends AbstractSpringAppIntegrationTest {
+public class QueryTest extends AbstractSpringAppIntegrationTest {
 
   // Constants
   private static final String DATABASE = null;
