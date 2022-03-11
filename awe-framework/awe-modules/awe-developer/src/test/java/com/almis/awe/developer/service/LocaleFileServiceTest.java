@@ -1,18 +1,17 @@
 package com.almis.awe.developer.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.locale.Locales;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -38,18 +37,11 @@ class LocaleFileServiceTest {
   @Mock
   private PathService pathService;
   @Mock
+  private BaseConfigProperties baseConfigProperties;
+  @Mock
   private XStreamSerializer serializer;
   @TempDir
   static File tempFolder;
-
-  /**
-   * Initializes beans for tests
-   */
-  @BeforeEach
-  public void initBeans() throws Exception {
-    ReflectionTestUtils.setField(localeFileService, "xmlExtension", ".xml");
-    ReflectionTestUtils.setField(localeFileService, "localeFile", "Locale-");
-  }
 
   /**
    * Test translate a text with the same language from/to
@@ -61,6 +53,8 @@ class LocaleFileServiceTest {
   void readLocalesFromFile() throws Exception {
     when(pathService.getPath()).thenReturn(tempFolder.getAbsolutePath() + "/");
     when(serializer.getObjectFromXml(eq(Locales.class), any(InputStream.class))).thenReturn(new Locales());
+    when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
+    when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");
     Files.createFile(Paths.get(tempFolder.getPath(), "Locale-EN.xml"));
     // Launch
     Locales locales = localeFileService.readLocalesFromFile("en");
@@ -76,6 +70,8 @@ class LocaleFileServiceTest {
   @Test
   void readLocalesFromFileNotFound() throws Exception {
     // Launch
+    when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
+    when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");
     Assertions.assertNull(localeFileService.readLocalesFromFile("en"));
   }
 }

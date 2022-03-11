@@ -33,7 +33,7 @@ public class DownloadAnnotation {
   private final BaseConfigProperties baseConfigProperties;
 
   /**
-   * <{@code @Download} annotation constructor
+   * DownloadAnnotation annotation constructor
    * @param baseConfigProperties Base config properties
    */
   public DownloadAnnotation(BaseConfigProperties baseConfigProperties) {

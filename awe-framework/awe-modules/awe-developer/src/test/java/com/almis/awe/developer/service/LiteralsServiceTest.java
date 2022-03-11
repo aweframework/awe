@@ -1,5 +1,6 @@
 package com.almis.awe.developer.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.developer.model.Translation;
 import com.almis.awe.developer.model.TranslationResponse;
 import com.almis.awe.exception.AWException;
@@ -17,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +44,9 @@ class LiteralsServiceTest {
   private ApplicationContext context;
 
   @Mock
+  private BaseConfigProperties baseConfigProperties;
+
+  @Mock
   private AweElements aweElements;
 
   @Mock
@@ -58,7 +61,6 @@ class LiteralsServiceTest {
   @BeforeEach
   void initBeans() {
     literalsService.setApplicationContext(context);
-    ReflectionTestUtils.setField(literalsService, "defaultLanguage", "en");
   }
 
   /**
@@ -264,6 +266,7 @@ class LiteralsServiceTest {
    */
   @Test
   void getUsingLanguage() {
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("en");
     ServiceData serviceData = literalsService.getUsingLanguage();
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(1, serviceData.getDataList().getRows().size());
