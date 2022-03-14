@@ -10,6 +10,7 @@ import com.almis.awe.model.util.security.RipEmd160;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 
@@ -21,10 +22,12 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Optional;
 
 /**
  * Encode Service Class
@@ -128,7 +131,7 @@ public class EncodeService extends ServiceConfig {
    */
   public String encryptRipEmd160WithPhraseKey(String text, String phraseKey, String encoding) throws AWException {
     try {
-      String key = phraseKey == null || phraseKey.isEmpty() ? securityConfigProperties.getMasterKey() : phraseKey;
+      String key = Optional.ofNullable(phraseKey).filter(StringUtils::isNotEmpty).orElse(securityConfigProperties.getMasterKey());
       RipEmd160 encoder = new RipEmd160(key);
       return encoder.encrypt(text, encoding);
     } catch (Exception exc) {
@@ -147,7 +150,7 @@ public class EncodeService extends ServiceConfig {
    */
   public String decryptRipEmd160WithPhraseKey(String text, String phraseKey, String encoding) throws AWException {
     try {
-      String key = phraseKey == null || phraseKey.isEmpty() ? securityConfigProperties.getMasterKey() : phraseKey;
+      String key = Optional.ofNullable(phraseKey).filter(StringUtils::isNotEmpty).orElse(securityConfigProperties.getMasterKey());
       RipEmd160 encoder = new RipEmd160(key);
       return encoder.decrypt(text, encoding);
     } catch (Exception exc) {
@@ -163,11 +166,7 @@ public class EncodeService extends ServiceConfig {
    * @throws AWException Error in decryption
    */
   public String decryptAes(String text) throws AWException {
-    try {
-      return Crypto.AES.decrypt(text, securityConfigProperties.getMasterKey(), baseConfigProperties.getEncoding());
-    } catch (Exception exc) {
-      throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
-    }
+    return decryptAes(text, securityConfigProperties.getMasterKey());
   }
 
   /**
@@ -267,12 +266,7 @@ public class EncodeService extends ServiceConfig {
    */
   public byte[] decodeSymmetricAsByteArray(String text) throws AWException {
     try {
-      if (text != null) {
-        // Decode
-        return base64DecodeAsByteArray(text);
-      } else {
-        return new byte[0];
-      }
+      return base64DecodeAsByteArray(Optional.ofNullable(text).orElse(""));
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
@@ -301,21 +295,11 @@ public class EncodeService extends ServiceConfig {
    * @throws AWException Error decoding
    */
   public String decodeHex(String text) throws AWException {
-
-    /* Variable definition */
-    String outStr = null;
-
     try {
-      if (text != null) {
-        // Decode
-        outStr = new String(new Hex().decode(text.getBytes()), baseConfigProperties.getEncoding());
-      }
+      return new String(new Hex().decode(Optional.ofNullable(text).orElse("").getBytes(StandardCharsets.UTF_8)), baseConfigProperties.getEncoding());
     } catch (Exception exc) {
       throw new AWException(exc.getClass().getSimpleName(), exc.toString(), exc);
     }
-
-    /* Transform encoded byte map to string and return it */
-    return outStr;
   }
 
   /**
@@ -327,16 +311,7 @@ public class EncodeService extends ServiceConfig {
    * @throws AWException Error encoding
    */
   public String encodeTransmission(String text, boolean active) throws AWException {
-
-    String out = text;
-
-    // Encode only if encoding is enabled
-    if (active) {
-      out = encodeSymmetric(text);
-    }
-
-    // Return encoded transmission
-    return out;
+    return active ? encodeSymmetric(text) : text;
   }
 
   /**
@@ -348,16 +323,7 @@ public class EncodeService extends ServiceConfig {
    * @throws AWException Error decoding
    */
   public String decodeTransmission(String text, boolean active) throws AWException {
-
-    String out = text;
-
-    // Decode only if encoding is enabled
-    if (active) {
-      out = decodeSymmetric(text);
-    }
-
-    // Return encoded transmission
-    return out;
+    return active ? decodeSymmetric(text) : text;
   }
 
   /**
