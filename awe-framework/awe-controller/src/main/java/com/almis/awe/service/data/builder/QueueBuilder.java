@@ -27,6 +27,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Generate service datalist
@@ -244,7 +245,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
       JmsTemplate template = getBean(JmsTemplate.class);
 
       // Read timeouts
-      long requestTimeout = queue.getRequest().getTimeout() != null ? Long.parseLong(queue.getRequest().getTimeout()) : baseConfigProperties.getJms().getServiceTimeout().toMillis();
+      long requestTimeout = Optional.ofNullable(queue.getRequest().getTimeout()).map(Long::parseLong).orElse(baseConfigProperties.getJms().getServiceTimeout().toMillis());
 
       template.setDeliveryMode(JmsProperties.DeliveryMode.NON_PERSISTENT.getValue());
       template.setTimeToLive(baseConfigProperties.getJms().getMessageTimeToLive().toMillis());
@@ -291,7 +292,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
       JmsTemplate template = getBean(JmsTemplate.class);
 
       // Read timeouts
-      long responseTimeout = queue.getResponse().getTimeout() != null ? Long.parseLong(queue.getResponse().getTimeout()) : baseConfigProperties.getJms().getServiceTimeout().toMillis();
+      long responseTimeout = Optional.ofNullable(queue.getResponse().getTimeout()).map(Long::parseLong).orElse(baseConfigProperties.getJms().getServiceTimeout().toMillis());
       template.setReceiveTimeout(responseTimeout);
       template.setTimeToLive(baseConfigProperties.getJms().getMessageTimeToLive().toMillis());
 
