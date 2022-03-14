@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -27,16 +28,12 @@ public class NumericService extends ServiceConfig {
   // Autowired services
   private final NumericConfigProperties numericConfigProperties;
 
-  private final NumberFormat americanNumberFormat;
-
   /**
    * Hide the constructor
    * @param numericConfigProperties Numeric configuration properties
    */
   public NumericService(NumericConfigProperties numericConfigProperties) {
     this.numericConfigProperties = numericConfigProperties;
-    americanNumberFormat = AMERICAN_NUMBER_FORMAT;
-    americanNumberFormat.setRoundingMode(numericConfigProperties.getRoundType().getRoundingMode());
   }
 
   /**
@@ -48,7 +45,7 @@ public class NumericService extends ServiceConfig {
    */
   public String applyPattern(String pattern, Double value) {
     // Get pattern
-    String patternToSet = pattern == null ? numericConfigProperties.getPatternFormatted() : pattern;
+    String patternToSet = Optional.ofNullable(pattern).orElse(numericConfigProperties.getPatternFormatted());
     return applyPatternWithLocale(patternToSet, value, getNumberFormat(numericConfigProperties.getFormat()));
   }
 
@@ -60,7 +57,7 @@ public class NumericService extends ServiceConfig {
    * @return Value fixed
    */
   public String applyRawPattern(String pattern, Double value) {
-    String patternToSet = pattern == null ? numericConfigProperties.getPatternUnformatted() : pattern;
+    String patternToSet = Optional.ofNullable(pattern).orElse(numericConfigProperties.getPatternUnformatted());
     return applyPatternWithLocale(patternToSet, value, getNumberFormat(numericConfigProperties.getFormat()));
   }
 
@@ -101,8 +98,8 @@ public class NumericService extends ServiceConfig {
       return format.format(value);
     } catch (Exception exc) {
       log.error("Error formatting number {} with formatter {}", value, format, exc);
+      return String.valueOf(value);
     }
-    return String.valueOf(value);
   }
 
   /**
@@ -125,7 +122,8 @@ public class NumericService extends ServiceConfig {
    * @throws ParseException Error parsing number
    */
   public Number parseRawNumericString(String val) throws ParseException {
-    return americanNumberFormat.parse(val);
+    AMERICAN_NUMBER_FORMAT.setRoundingMode(numericConfigProperties.getRoundType().getRoundingMode());
+    return AMERICAN_NUMBER_FORMAT.parse(val);
   }
 
   /**
@@ -135,12 +133,8 @@ public class NumericService extends ServiceConfig {
    * @return decimals number
    * @throws ParseException Error parsing number
    */
-  public int getDecimalsNumberInNumericString(String val) throws ParseException {
-    NumberFormat numberFormat = getNumberFormat(numericConfigProperties.getFormat());
-    numberFormat.parse(val);
-
-    int separatorIndex = val.indexOf(((DecimalFormat) numberFormat).getDecimalFormatSymbols().getDecimalSeparator());
-    return (separatorIndex > -1) ? val.length() - separatorIndex - 1 : 0;
+  public int getDecimalsNumberInNumericString(String val) {
+    return getNumberOfDecimals(val, String.valueOf(((DecimalFormat) getNumberFormat(numericConfigProperties.getFormat())).getDecimalFormatSymbols().getDecimalSeparator()));
   }
 
   /**
@@ -150,10 +144,12 @@ public class NumericService extends ServiceConfig {
    * @return decimals number
    * @throws ParseException Error parsing number
    */
-  public int getDecimalsNumberInRawNumericString(String val) throws ParseException {
-    americanNumberFormat.parse(val);
-    String decimalToSplit = String.valueOf(((DecimalFormat) americanNumberFormat).getDecimalFormatSymbols().getDecimalSeparator());
-    String[] decimalSplit = val.split(Pattern.quote(decimalToSplit));
+  public int getDecimalsNumberInRawNumericString(String val) {
+    return getNumberOfDecimals(val, String.valueOf(((DecimalFormat) AMERICAN_NUMBER_FORMAT).getDecimalFormatSymbols().getDecimalSeparator()));
+  }
+
+  private int getNumberOfDecimals(String val, String separator) {
+    String[] decimalSplit = val.split(Pattern.quote(separator));
     return (decimalSplit.length > 1) ? decimalSplit[1].length() : 0;
   }
 
