@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,32 +68,30 @@ public class LocaleFileService extends ServiceConfig {
   public Locales readLocalesFromFile(String codeLang) throws AWException {
 
     String fileName = baseConfigProperties.getFiles().getLocale() + codeLang.toUpperCase();
-    String path = pathService.getPath() + fileName + baseConfigProperties.getExtensionXml();
-
-    return (Locales) readXmlFile(path);
+    File xmlFile = Paths.get(pathService.getPath(),fileName + baseConfigProperties.getExtensionXml()).toFile();
+    return (Locales) readXmlFile(xmlFile);
   }
 
   /**
    * Read all XML files and return them
    *
-   * @param path File path
+   * @param xmlFile Xml file path
    * @return Xml file object
    */
-  private XMLFile readXmlFile(String path) {
+  private XMLFile readXmlFile(File xmlFile) {
     XMLFile xml = null;
     try {
       // Unmarshall XML
-      File file = new File(path);
-      if (file.exists()) {
-        try (InputStream resourceInputStream = new FileInputStream(file)) {
+      if (xmlFile.exists()) {
+        try (InputStream resourceInputStream = new FileInputStream(xmlFile)) {
           xml = serializer.getObjectFromXml((Class<? extends XMLFile>) Locales.class, resourceInputStream);
-          log.debug("Reading '{}' - OK", path);
+          log.debug("Reading '{}' - OK", xmlFile);
         }
       } else {
-        log.debug("Reading '{}' - NOT FOUND", path);
+        log.debug("Reading '{}' - NOT FOUND", xmlFile);
       }
     } catch (IOException exc) {
-      log.error("Error parsing XML - '{}'", path, exc);
+      log.error("Error parsing XML - '{}'", xmlFile, exc);
     }
     return xml;
   }
@@ -105,10 +105,10 @@ public class LocaleFileService extends ServiceConfig {
 
     String fileName = baseConfigProperties.getFiles().getLocale() + codeLang.toUpperCase();
     XStream xstream;
-    // Define XML path
-    String xmlPth = pathService.getPath() + fileName + baseConfigProperties.getExtensionXml();
+    // Define XML file
+    File xmlFile = Paths.get(pathService.getPath(), fileName + baseConfigProperties.getExtensionXml()).toFile();
 
-    try (FileOutputStream fileOutputStream = new FileOutputStream(xmlPth)) {
+    try (FileOutputStream fileOutputStream = new FileOutputStream(xmlFile)) {
       // Retrieve xstream serializer
       xstream = new XStream(new XppDriver() {
         @Override
@@ -155,7 +155,7 @@ public class LocaleFileService extends ServiceConfig {
         String patternString = baseConfigProperties.getFiles().getLocale() + "([a-zA-Z]+)" + baseConfigProperties.getExtensionXml();
         final Pattern pattern = Pattern.compile(patternString);
         String[] files = folder.list((File dir, String name) -> pattern.matcher(name).matches());
-        for (String file : files) {
+        for (String file : Objects.requireNonNull(files)) {
           Matcher matcher = pattern.matcher(file);
           if (matcher.find()) {
             languages.add(matcher.group(1));
