@@ -6,6 +6,8 @@ import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.locale.Locales;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,8 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.validation.constraints.Size;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -106,6 +110,20 @@ class LocaleFileServiceTest {
   }
 
   /**
+   * Test get language list with a wrong path
+   * @throws AWException AWE exception
+   */
+  @Test
+  void givenWrongPath_getLanguageListTest() throws AWException {
+    // Given
+    when(pathService.getPath()).thenReturn("wrong/path");
+    // Do
+    final List<String> languageList = localeFileService.getLanguageList();
+    // Asserts
+    assertEquals(0, languageList.size());
+  }
+
+  /**
    * Test store locale list file
    * @throws AWException AWE exception
    */
@@ -115,7 +133,8 @@ class LocaleFileServiceTest {
     final Global dummyLocal = new Global()
             .setName("dummy")
             .setLabel("DUMMY_LABEL")
-            .setValue("dummy");
+            .setValue("dummy")
+            .setMarkdown("*Dummy markdown*");
     when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
     when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");
     when(pathService.getPath()).thenReturn(tempFolder.getAbsolutePath());
@@ -124,7 +143,20 @@ class LocaleFileServiceTest {
             localeFileService.storeLocaleListFile("en", new Locales().setLocales(Collections.singletonList(dummyLocal))));
   }
 
-  private static void createLocaleFiles(File tempFolder, List<String> languageList) {
+  /**
+   * Test no print xml headers
+   * @throws IOException File not found
+   */
+  @Test
+  void givenAddHeaderFlagAsFalse_testPrintHeader() throws IOException {
+    File file = Paths.get(tempFolder.getPath() , "dummy.xml").toFile();
+    FileWriter out = new FileWriter(file);
+    localeFileService.printHeader(out, "document", "dummy description", false);
+    out.close();
+    assertFalse(FileUtils.readFileToString(file, Charset.defaultCharset()).contains("Description: document"));
+  }
+
+  private static void createLocaleFiles(File tempFolder, @NotNull List<String> languageList) {
     languageList.forEach(lang -> {
       try {
         Files.createFile(Paths.get(tempFolder.getAbsolutePath(), "Locale-" + lang + ".xml"));
