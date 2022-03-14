@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Scheduler module properties
  */
 @Data
-@ConfigurationProperties(prefix = "translation.mymemory")
+@ConfigurationProperties(prefix = "awe.developer.translation.mymemory")
 public class MyMemoryConfigProperties {
   /**
    * Flag to load tasks on start application

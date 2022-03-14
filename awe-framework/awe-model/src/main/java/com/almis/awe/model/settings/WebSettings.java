@@ -2,21 +2,17 @@ package com.almis.awe.model.settings;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * WebSettings component
  *
  * @author pgarcia
  */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 @Builder(toBuilder = true)
-@ConfigurationProperties(prefix = "settings")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class WebSettings {
 

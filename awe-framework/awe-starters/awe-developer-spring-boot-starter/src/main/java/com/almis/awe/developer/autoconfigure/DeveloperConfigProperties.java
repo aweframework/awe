@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @Data
 @Accessors(chain = true)
-@ConfigurationProperties(prefix = "developer")
+@ConfigurationProperties(prefix = "awe.developer")
 public class DeveloperConfigProperties {
   /**
    * Developer path
