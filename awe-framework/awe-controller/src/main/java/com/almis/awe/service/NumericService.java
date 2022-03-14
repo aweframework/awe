@@ -131,7 +131,6 @@ public class NumericService extends ServiceConfig {
    *
    * @param val String value with format as defined in numeric.properties
    * @return decimals number
-   * @throws ParseException Error parsing number
    */
   public int getDecimalsNumberInNumericString(String val) {
     return getNumberOfDecimals(val, String.valueOf(((DecimalFormat) getNumberFormat(numericConfigProperties.getFormat())).getDecimalFormatSymbols().getDecimalSeparator()));
@@ -142,7 +141,6 @@ public class NumericService extends ServiceConfig {
    *
    * @param val String value with format as defined in numeric.properties
    * @return decimals number
-   * @throws ParseException Error parsing number
    */
   public int getDecimalsNumberInRawNumericString(String val) {
     return getNumberOfDecimals(val, String.valueOf(((DecimalFormat) AMERICAN_NUMBER_FORMAT).getDecimalFormatSymbols().getDecimalSeparator()));
