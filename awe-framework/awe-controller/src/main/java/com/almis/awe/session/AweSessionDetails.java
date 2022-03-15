@@ -1,10 +1,7 @@
 package com.almis.awe.session;
 
-import com.almis.awe.config.BaseConfigProperties;
-import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.SessionConfigProperties;
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.constant.AweConstants;
@@ -18,11 +15,11 @@ import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -37,28 +34,21 @@ public class AweSessionDetails extends ServiceConfig {
   private final QueryService queryService;
   private final AweConnectionTracker connectionTracker;
   private final BroadcastService broadcastService;
-  private final BaseConfigProperties baseConfigProperties;
-  private final SecurityConfigProperties securityConfigProperties;
   private final SessionConfigProperties sessionConfigProperties;
 
   /**
    * Autowired constructor
-   *
-   * @param aweClientTracker         awe client tracker
+   *  @param aweClientTracker         awe client tracker
    * @param queryService             query service
    * @param connectionTracker        connection tracker
    * @param broadcastService         Broadcasting service
-   * @param baseConfigProperties     Base properties
-   * @param securityConfigProperties Security properties
    * @param sessionConfigProperties  Session properties
    */
-  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, SessionConfigProperties sessionConfigProperties) {
+  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
     this.clientTracker = aweClientTracker;
     this.queryService = queryService;
     this.connectionTracker = connectionTracker;
     this.broadcastService = broadcastService;
-    this.baseConfigProperties = baseConfigProperties;
-    this.securityConfigProperties = securityConfigProperties;
     this.sessionConfigProperties = sessionConfigProperties;
   }
 
@@ -140,7 +130,7 @@ public class AweSessionDetails extends ServiceConfig {
         getSession().setParameter(SESSION_FAILURE, exc);
       }
     });
-  }
+   }
 
   /**
    * Store user details

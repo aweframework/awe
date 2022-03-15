@@ -1,11 +1,7 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweHttpServletRequestWrapper;
-import com.almis.awe.config.AuthType;
-import com.almis.awe.config.BaseConfigProperties;
-import com.almis.awe.config.SecurityConfigProperties;
-import com.almis.awe.config.ServiceConfig;
-import com.almis.awe.config.TotpConfigProperties;
+import com.almis.awe.config.*;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.exception.AWException;
@@ -150,43 +146,12 @@ public class SecurityConfig extends ServiceConfig {
    * @param securityConfigProperties Security configuration properties
    */
   @Autowired
-  public SecurityConfig(AweElements elements, ObjectMapper objectMapper,  ActionService actionService, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
+  public SecurityConfig(AweElements elements, ObjectMapper objectMapper, ActionService actionService, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.elements = elements;
     this.objectMapper = objectMapper;
     this.actionService = actionService;
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
-    this.actionService = actionService;
-  }
-
-  private enum AUTHENTICATION_MODE {
-    LDAP("ldap"),
-    BBDD("bbdd"),
-    IN_MEMORY("in_memory"),
-    CUSTOM("custom");
-
-    private final String mode;
-
-    AUTHENTICATION_MODE(String mode) {
-      this.mode = mode;
-    }
-
-    public static AUTHENTICATION_MODE fromValue(String value) {
-      if (value.equalsIgnoreCase(LDAP.getValue())) {
-        return LDAP;
-      } else if (value.equalsIgnoreCase(BBDD.getValue())) {
-        return BBDD;
-      } else if (value.equalsIgnoreCase(IN_MEMORY.getValue())) {
-        return IN_MEMORY;
-      } else if (value.equalsIgnoreCase(CUSTOM.getValue())) {
-        return CUSTOM;
-      }
-      return null;
-    }
-
-    public String getValue() {
-      return mode;
-    }
   }
 
   /**
@@ -331,7 +296,7 @@ public class SecurityConfig extends ServiceConfig {
       });
       authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {
         initRequest(request);
-        String username = getRequest().getParameterAsString(usernameParameter);
+        String username = getRequest().getParameterAsString(baseConfigProperties.getParameter().getUsername());
         response.getWriter().write(new ObjectMapper().writeValueAsString(actionService.launchError("afterLogin", getCredentialsException(authenticationException, username))));
       });
       return authenticationFilter;
@@ -371,13 +336,12 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Configure Ldap provider for bind auth
      *
-     * @param userDAO           User DAO
      * @param ldapContextSource Ldap context
      * @return LDAP authentication provider
      */
     @Bean
     @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "ldap")
-    public AuthenticationProvider ldapAuthenticationProvider(UserDAO userDAO, LdapContextSource ldapContextSource) {
+    public AuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
 
       // Bind authenticator with search filter
       final BindAuthenticator bindAuthenticator = new BindAuthenticator(ldapContextSource);
@@ -516,19 +480,27 @@ public class SecurityConfig extends ServiceConfig {
     /////////////////////////////////////////////
 
     /**
-     * Access service
+     * Access service bean
      *
      * @param menuService              Menu service
-     * @param baseConfigProperties     Base properties
-     * @param securityConfigProperties Security properties
+     * @param aweSessionDetails        Awe session details
      * @param encodeService            Encode service
-     * @return Access service bean
+     * @param totpService              Totp service
+     * @param baseConfigProperties     Base config properties
+     * @param securityConfigProperties Security config properties
+     * @param totpConfigProperties     Totp config properties
+     * @return AccessService bean
      */
     @Bean
     @ConditionalOnMissingBean
-    public AccessService accessService(MenuService menuService, AweSessionDetails aweSessionDetails, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, EncodeService encodeService,
-                                       TotpConfigProperties totpConfigProperties, TotpService totpService) {
-      return new AccessService(baseConfigProperties, securityConfigProperties, encodeService, menuService, aweSessionDetails, totpConfigProperties, totpService);
+    public AccessService accessService(AweSessionDetails aweSessionDetails,
+                                       MenuService menuService,
+                                       EncodeService encodeService,
+                                       TotpService totpService,
+                                       BaseConfigProperties baseConfigProperties,
+                                       SecurityConfigProperties securityConfigProperties,
+                                       TotpConfigProperties totpConfigProperties) {
+      return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties);
     }
 
     /**

@@ -14,7 +14,6 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.session.AweSessionDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -32,10 +31,14 @@ import static com.almis.awe.model.constant.AweConstants.*;
 public class AccessService extends ServiceConfig {
 
   // Autowired components
+  private final AweSessionDetails sessionDetails;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
   private final EncodeService encodeService;
   private final MenuService menuService;
+  private final TotpConfigProperties totpConfigProperties;
+  private final TotpService totpService;
+
 
   public static final String SCREEN = "screen";
   public static final String CHANGE_LANGUAGE = "change-language";
@@ -55,21 +58,30 @@ public class AccessService extends ServiceConfig {
   private String jasyptStringOutputType;
 
   /**
-   * Autowired constructor
+   * AccessService constructor
    *
-   * @param baseConfigProperties     base properties
-   * @param securityConfigProperties security properties
-   * @param encodeService            Encode service
-   * @param menuService              menu service
+   * @param menuService              Menu service
+   * @param sessionDetails           Session details
+   * @param encodeService            Encode services
+   * @param totpService              Totp service
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
+   * @param totpConfigProperties     Totp configuration properties
    */
-  public AccessService(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, EncodeService encodeService, MenuService menuService) {
+  public AccessService(AweSessionDetails sessionDetails,
+                       MenuService menuService,
+                       EncodeService encodeService,
+                       TotpService totpService,
+                       BaseConfigProperties baseConfigProperties,
+                       SecurityConfigProperties securityConfigProperties,
+                       TotpConfigProperties totpConfigProperties) {
+    this.sessionDetails = sessionDetails;
+    this.menuService = menuService;
+    this.encodeService = encodeService;
+    this.totpService = totpService;
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
-    this.encodeService = encodeService;
-    this.menuService = menuService;
-    this.sessionDetails = sessionDetails;
     this.totpConfigProperties = totpConfigProperties;
-    this.totpService = totpService;
   }
 
   /**
@@ -104,11 +116,11 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Go to home screen
+   * Go home screen
    *
    * @param userDetails User details
    * @return Service data
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private ServiceData goToHomeScreen(AweUserDetails userDetails) throws AWException {
     // Store session details
@@ -121,7 +133,7 @@ public class AccessService extends ServiceConfig {
     // Store initial url in session
     getSession().setParameter(SESSION_INITIAL_URL, initialUrl);
 
-    // Go to home screen
+    // Go home screen
     return new ServiceData()
       .addClientAction(new ClientAction(SCREEN)
         .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
@@ -284,9 +296,9 @@ public class AccessService extends ServiceConfig {
     encryptor.setConfig(config);
 
     // Encode the text
-    String textEncripted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
+    String textEncrypted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncripted);
+    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
     return new ServiceData()
       .setDataList(dataList);
   }

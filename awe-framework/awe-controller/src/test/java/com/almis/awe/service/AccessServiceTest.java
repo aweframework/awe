@@ -8,7 +8,6 @@ import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.session.AweSessionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,7 +111,7 @@ class AccessServiceTest {
   }
 
   @Test
-  void verify2faCodeNotValid() throws Exception {
+  void verify2faCodeNotValid() {
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
     when(totpService.verify2faCode(anyString())).thenReturn(false);
@@ -142,7 +141,6 @@ class AccessServiceTest {
   @Test
   void encryptText() throws Exception {
     when(environment.getProperty(eq("application.encoding"), anyString())).thenReturn("UTF-8");
-    EncodeUtil.init(environment);
     ServiceData serviceData = accessService.encryptText("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
   }
@@ -151,7 +149,6 @@ class AccessServiceTest {
   void encryptProperty() {
     when(environment.getProperty(eq("application.encoding"), anyString())).thenReturn("UTF-8");
     ReflectionTestUtils.setField(accessService, "jasyptPoolSize", 1);
-    EncodeUtil.init(environment);
     ServiceData serviceData = accessService.encryptProperty("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
   }
@@ -161,7 +158,6 @@ class AccessServiceTest {
     when(environment.getProperty(eq("application.encoding"), anyString())).thenReturn("UTF-8");
     ReflectionTestUtils.setField(accessService, "jasyptPoolSize", 1);
     ReflectionTestUtils.setField(accessService, "masterKey", "master");
-    EncodeUtil.init(environment);
     ServiceData serviceData = accessService.encryptProperty("test", null);
     assertEquals(1, serviceData.getDataList().getRows().size());
   }

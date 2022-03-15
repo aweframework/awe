@@ -92,8 +92,8 @@ public class EncodeService extends ServiceConfig {
    * @return String decrypted
    * @throws AWException Error in decryption
    */
-  public static String decryptRipEmd160(String text) throws AWException {
-    return decryptRipEmd160WithPhraseKey(text, masterKey, encoding);
+  public String decryptRipEmd160(String text) throws AWException {
+    return decryptRipEmd160WithPhraseKey(text, securityConfigProperties.getMasterKey(), baseConfigProperties.getEncoding());
   }
 
   /**
