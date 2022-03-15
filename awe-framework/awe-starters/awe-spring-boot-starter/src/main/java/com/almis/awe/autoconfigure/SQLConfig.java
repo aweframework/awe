@@ -19,6 +19,7 @@ import com.almis.awe.template.FixedOracleTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
 import com.querydsl.sql.*;
 import com.querydsl.sql.types.ClobType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -163,6 +164,7 @@ public class SQLConfig {
    */
   @Bean
   @ConditionalOnMissingBean
+  @Autowired
   public SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
     return new SQLQueryConnector(contextHolder, queryUtil, dataSource, baseConfigProperties, elements, numericService, encodeService, databaseConfigProperties);
   }

@@ -31,6 +31,7 @@ import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -63,6 +64,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
    * @param encodeService            Encode service
    * @param databaseConfigProperties Database configuration properties
    */
+  @Autowired
   public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
     super(queryUtil, baseConfigProperties, elements, numericService, encodeService);
     this.contextHolder = contextHolder;
