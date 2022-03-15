@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.4.10-SNAPSHOT</version>
+    <version>4.5.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -39,6 +39,7 @@
     <modelmapper.version>2.4.5</modelmapper.version>
     <querydsl.version>5.0.0</querydsl.version>
     <janino.version>3.1.6</janino.version>
+    <totp.version>1.7.1</totp.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -288,6 +289,18 @@
         <groupId>org.modelmapper</groupId>
         <artifactId>modelmapper</artifactId>
         <version>${modelmapper.version}</version>
+      </dependency>
+
+      <!-- 2fa -->
+      <dependency>
+        <groupId>dev.samstevens.totp</groupId>
+        <artifactId>totp-spring-boot-starter</artifactId>
+        <version>${totp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>dev.samstevens.totp</groupId>
+        <artifactId>totp</artifactId>
+        <version>${totp.version}</version>
       </dependency>
 
       <!-- Aspects -->

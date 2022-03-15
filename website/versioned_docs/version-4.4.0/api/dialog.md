@@ -52,7 +52,7 @@ This is an example with a dialog defined inside a modal tag in a screen. First o
 
     <dialog id="Summary" label="SCREEN_TEXT_SET_CONTRIBUTION" icon="info-circle">
       <tag type="div" style="modal-body scrollable">
-        <tag-list type="div" id="Resume" initial-load="query" target-action="Resume">
+        <tag-list type="div" id="Resume" target-action="Resume" autoload="true">
           <tag type="div" style="text-bg padding-sm">
             <tag type="i" style="fa fa-arrow-right text-info fa-fw" />
             <tag>

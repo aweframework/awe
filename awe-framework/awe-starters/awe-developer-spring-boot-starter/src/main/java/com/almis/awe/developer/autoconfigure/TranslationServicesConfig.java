@@ -1,5 +1,7 @@
 package com.almis.awe.developer.autoconfigure;
 
+import com.almis.awe.developer.autoconfigure.config.MyMemoryConfigProperties;
+import com.almis.awe.developer.autoconfigure.config.RapidAPIConfigProperties;
 import com.almis.awe.developer.translators.clients.MyMemoryClient;
 import com.almis.awe.developer.translators.clients.MyMemoryFeignClient;
 import com.almis.awe.developer.translators.clients.RapidAPIClient;

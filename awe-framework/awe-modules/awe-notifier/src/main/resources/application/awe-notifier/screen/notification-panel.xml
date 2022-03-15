@@ -10,7 +10,7 @@
         <criteria component="hidden" id="selected-notification"/>
       </tag>
       <tag type="div" style="notifications-list scrollable">
-        <tag-list id="notification-bulletin" initial-load="query" target-action="notifications" max="12" autoload="true">
+        <tag-list id="notification-bulletin" target-action="notifications" max="12" autoload="true">
           <button type="div" id="notification-[value]" style="no-class notification" value="[value]">
             <tag type="div" style="notification-title text-[type] text-left" label="[title]"/>
             <tag type="div" style="notification-description text-left" label="[description]"/>

@@ -310,6 +310,7 @@
     <field id="l1_lan" table="ope" alias="Lan" />
     <field id="l1_lan" table="ope" alias="LanTxt" translate="LanUsr"/>
     <field id="PwdLck" table="ope" alias="Lck" />
+    <field id="enable2fa" table="ope" alias="2fa" />
     <compound alias="LanImg">
       <computed format="images/flags/[Lan].svg" alias="image" />
       <computed format="[Lan]-flag" alias="style"/>
@@ -326,6 +327,12 @@
       <computed format="[Lck]" alias="label" translate="Es1Es0"/>
       <computed format="[Lck]" alias="style" translate="locked-style"/>
       <computed format="[Lck]" alias="icon" translate="locked-icon"/>
+    </compound>
+    <compound alias="2faIco">
+      <computed format="[2fa]" alias="value"/>
+      <computed format="[2fa]" alias="label" translate="Es1Es0"/>
+      <computed format="[2fa]" alias="icon" translate="active-icon"/>
+      <computed format="[2fa]" alias="style" translate="active-style"/>
     </compound>
     <field id="OpeNam" table="ope" alias="Nam" />
     <join>
@@ -366,7 +373,7 @@
   <query id="userDetails" cacheable="true">
     <table id="ope" alias="Usr" />
     <field id="IdeOpe" table="Usr" alias="userId" />
-    <field id="l1_nom" table="Usr" alias="user" />
+    <field id="l1_nom" table="Usr" alias="username" function="TRIM"/>
     <field id="IdePro" table="Usr" alias="profileId" />
     <field id="Acr" table="Pro" alias="profile" />
     <field id="Nam" table="Pro" alias="profileName" />
@@ -377,11 +384,11 @@
     <field id="ScrIni" table="Pro" alias="profileInitialScreen" />
     <field id="Res" table="Usr" alias="userRestriction" />
     <field id="Res" table="Pro" alias="profileRestriction" />
-    <field id="l1_act" table="Usr" alias="active" />
-    <field id="PwdLck" table="Usr" alias="locked" />
+    <field id="l1_act" table="Usr" alias="enabled" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="PwdLck" table="Usr" alias="locked" translate="TrueFalse" transform="BOOLEAN"/>
     <field id="l1_psd" table="Usr" alias="lastChangedPasswordDate" />
-    <field id="l1_con" table="Usr" alias="connected" />
-    <field id="l1_dat" table="Usr" alias="lastLogin" />
+    <field id="l1_con" table="Usr" alias="connected" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="l1_dat" table="Usr" alias="lastLogin"/>
     <field id="dat_mod" table="Usr" alias="updateDate" />
     <field id="PcPrn" table="Usr" alias="printer" />
     <field id="WebPrn" table="Usr" alias="webPrinter" />
@@ -391,6 +398,8 @@
     <field id="OpeNam" table="Usr" alias="fullName" />
     <field id="l1_pas" table="Usr" alias="password" />
     <field id="NumLog" table="Usr" alias="loginAttempts" />
+    <field id="enable2fa" table="Usr" alias="enable2fa" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="secret2fa" table="Usr" alias="secret2fa" />
     <join>
       <table id="AwePro" alias="Pro" />
       <and>
@@ -427,6 +436,20 @@
       </and>
     </where>
     <variable id="Usr" type="STRING" session="user" />
+  </query>
+
+  <query id="getUserData" cacheable="true">
+    <table id="ope" />
+    <field id="OpeNam" alias="name" />
+    <field id="EmlAdr" alias="email" />
+    <field id="l1_pas" alias="oldPassword" />
+    <field id="enable2fa" alias="enable2fa"/>
+    <where>
+      <and>
+        <filter left-field="l1_nom" condition="eq" right-variable="user" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="user" type="STRING" session="user" />
   </query>
 
   <!-- ACCESS SCREENS -->
@@ -2168,9 +2191,20 @@
   </query>
 
   <!-- Tag List Data -->
-  <query id="getTaglistData" service="getTaglistData">
+  <query id="getTaglistData" service="getTaglistData" public="true">
     <variable id="option" type="STRINGN" name="option"/>
     <variable id="taglist" type="STRING" name="taglist"/>
+  </query>
+
+  <!--
+  2fa
+  -->
+  <query id="qr-code" service="qr-code">
+    <variable id="generate" type="BOOLEAN" value="false"/>
+  </query>
+
+  <query id="force-qr-code" service="qr-code">
+    <variable id="generate" type="BOOLEAN" value="true"/>
   </query>
 
 </queries>

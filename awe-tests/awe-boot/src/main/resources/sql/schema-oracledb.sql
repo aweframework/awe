@@ -78,7 +78,9 @@ CREATE TABLE ope
     ShwPrn  number(5),                          --- Allow user to print (1) or not (0)
     WebPrn  varchar2(255),                      --- User web printer
     PwdLck  number(5) DEFAULT 0,                --- Password locked (1) or not (0)
-    NumLog  number(5) DEFAULT 0                 --- Number of times logged in concurrently
+    NumLog  number(5) DEFAULT 0,                --- Number of times logged in concurrently
+    enable2fa number(5) DEFAULT 0,                    --- Enable 2fa
+    secret2fa varchar2(128)                     --- Secret 2fa
 );
 CREATE UNIQUE INDEX opeI1 ON ope (l1_nom);
 
@@ -337,7 +339,9 @@ CREATE TABLE HISope
     Res     varchar2(40)  NULL,
     ShwPrn  number(5)     NULL,
     PwdLck  number(5)     NULL,
-    NumLog  number(5)     NULL
+    NumLog  number(5)     NULL,
+    enable2fa number(5)   NULL,
+    secret2fa varchar2(128) NULL
 );
 CREATE INDEX HISopeI1 ON HISope (HISope, HISdat, HISact);
 CREATE TABLE HISAweDbs

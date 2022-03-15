@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -41,46 +42,45 @@ class AweUserDetailServiceTest {
   @BeforeEach
   void setUp() {
     userDetailsService.setApplicationContext(context);
+    ReflectionTestUtils.setField(userDetailsService, "defaultLanguage", "ES");
+    ReflectionTestUtils.setField(userDetailsService, "defaultTheme", "sunset");
+    ReflectionTestUtils.setField(userDetailsService, "defaultRestriction", "restriction");
   }
 
   @Test
   void giveSomeUser_willReturnUserDetails() {
-    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProperty("PwdExp")).thenReturn("1");
-    given(userDAO.findByUserName(anyString())).willReturn(User.builder()
-            .userName("test")
-            .userPassword("test")
-            .enabled(true)
-            .profile("ADM")
-            .lastChangedPasswordDate(new Date())
-            .passwordLocked(true)
-            .build());
+    given(userDAO.findByUserName(anyString())).willReturn(new User()
+      .setUsername("test")
+      .setPassword("test")
+      .setEnabled(true)
+      .setProfile("ADM")
+      .setLastChangedPasswordDate(new Date())
+      .setLocked(true));
     UserDetails details = userDetailsService.loadUserByUsername("test");
     assertAll(
-            () -> assertNotNull(details),
-            () -> assertFalse(details.isCredentialsNonExpired()),
-            () -> assertFalse(details.isAccountNonLocked())
+      () -> assertNotNull(details),
+      () -> assertFalse(details.isCredentialsNonExpired()),
+      () -> assertFalse(details.isAccountNonLocked())
     );
   }
 
   @Test
   void giveSomeUserWithCredentialExpired_willReturnUserDetails() {
-    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProperty("PwdExp")).thenReturn("1");
-    given(userDAO.findByUserName(anyString())).willReturn(User.builder()
-            .userName("test")
-            .userPassword("test")
-            .enabled(true)
-            .profile("ADM")
-            .passwordLocked(false)
-            .build());
+    given(userDAO.findByUserName(anyString())).willReturn(new User()
+      .setUsername("test")
+      .setPassword("test")
+      .setEnabled(true)
+      .setProfile("ADM")
+      .setLocked(false));
     UserDetails details = userDetailsService.loadUserByUsername("test");
     assertAll(
-            () -> assertNotNull(details),
-            () -> assertFalse(details.isCredentialsNonExpired()),
-            () -> assertTrue(details.isAccountNonLocked())
+      () -> assertNotNull(details),
+      () -> assertFalse(details.isCredentialsNonExpired()),
+      () -> assertTrue(details.isAccountNonLocked())
     );
   }
 

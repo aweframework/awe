@@ -3,7 +3,6 @@ package com.almis.awe.service;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.service.report.ReportGenerator;
 
@@ -45,16 +44,7 @@ public class ReportService extends ServiceConfig {
    * @throws AWException Error retrieving print actions
    */
   public ServiceData getPrintActions() throws AWException {
-    ServiceData serviceData;
-
-    // Get print options (based on awe.application.print-all-options-enable)
-    if (baseConfigProperties.isPrintAllOptionsEnable()) {
-      serviceData = queryService.launchQuery("PrnActAll");
-    } else {
-      serviceData = queryService.launchQuery("PrnActNotPrn");
-    }
-
-    return serviceData;
+    return queryService.launchPrivateQuery(baseConfigProperties.isPrintAllOptionsEnable() ? "PrnActAll" : "PrnActNotPrn");
   }
 
   /**
@@ -63,10 +53,7 @@ public class ReportService extends ServiceConfig {
    * @return Screen print status
    * @throws AWException Error generating reports
    */
-  public ServiceData printScreen() throws AWException {
-    // Retrieve current screen id
-    String screenName = getRequest().getParameterAsString(AweConstants.PRINT_SCREEN);
-
+  public ServiceData printScreen(String screenName) throws AWException {
     // Generate a screen report with the screen
     return reportGenerator.generateScreenReport(menuService.getScreen(screenName));
   }

@@ -25,6 +25,8 @@
   <locale name="BUTTON_SET_VALUE1" value="Poner &apos;Valor1&apos;"/>
   <locale name="BUTTON_SET_VALUE2" value="Poner &apos;Valor2&apos;"/>
   <locale name="BUTTON_SET_VALUE3" value="Poner &apos;Valor3&apos;"/>
+  <locale name="BUTTON_TEST_LOAD_SUGGEST" value="Test load suggest"/>
+  <locale name="BUTTON_TEST_RESET_SUGGEST" value="Test reset suggest"/>
   <locale name="COLUMN_COUNTRY" value="País"/>
   <locale name="COLUMN_NUMERIC" value="Numérico (test)"/>
   <locale name="ELEMENT_TYPE_GRID" value="Tabla"/>

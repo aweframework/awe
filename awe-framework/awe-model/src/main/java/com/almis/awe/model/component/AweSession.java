@@ -1,7 +1,6 @@
 package com.almis.awe.model.component;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -173,10 +172,11 @@ public class AweSession implements Serializable {
    * @return User is authenticated
    */
   public boolean isAuthenticated() {
-    return  SecurityContextHolder.getContext().getAuthentication() != null &&
-            SecurityContextHolder.getContext().getAuthentication().isAuthenticated() &&
-            //when Anonymous Authentication is enabled
-            !(SecurityContextHolder.getContext().getAuthentication()
-                    instanceof AnonymousAuthenticationToken);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null && authentication.getPrincipal() instanceof AweUserDetails) {
+      return ((AweUserDetails) authentication.getPrincipal()).isFullyAuthenticated();
+    }
+
+    return false;
   }
 }

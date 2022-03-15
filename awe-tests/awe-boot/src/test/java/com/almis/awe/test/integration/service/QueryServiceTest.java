@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.service;
 
 import com.almis.awe.exception.AWException;
+import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.service.QueryService;
@@ -12,13 +13,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
 @DisplayName("Query service Tests")
-@WithMockUser(username = "test", password = "test")
+@WithMockCustomUser(username = "test", password = "test")
 class QueryServiceTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired

@@ -1,4 +1,4 @@
-package com.almis.awe.developer.autoconfigure;
+package com.almis.awe.developer.autoconfigure.config;
 
 import com.almis.awe.developer.translators.TranslationServiceEnum;
 import lombok.Data;

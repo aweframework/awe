@@ -52,4 +52,10 @@
     <option label="" value="1"/>
   </group>
 
+  <group id="user-settings">
+    <option label="PROFILE" value="profile"/>
+    <option label="SECURITY" value="security"/>
+    <option label="NOTIFICATIONS" value="notifications"/>
+  </group>
+
 </enumerated>

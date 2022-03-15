@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.net.URI;
 
-@FeignClient(name = "RapidAPIClient", url = "https://${translation.rapidapi.host:}")
+@FeignClient(name = "RapidAPIClient", url = "https://${awe.translation.rapidapi.host:}")
 public interface RapidAPIFeignClient {
 
   @GetMapping("/api/get?langpair={languageFrom}|{languageTo}")

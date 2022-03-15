@@ -34,7 +34,7 @@ public class TagList extends Component {
   private static final long serialVersionUID = 498908613159021940L;
   // PATTERNS
   @XStreamOmitField
-  public static final Pattern wildcard = Pattern.compile("\\[([a-zA-Z_]*)\\]");
+  public static final Pattern wildcard = Pattern.compile("\\[([\\w\\-]*)\\]");
 
   @Override
   public TagList copy() throws AWException {

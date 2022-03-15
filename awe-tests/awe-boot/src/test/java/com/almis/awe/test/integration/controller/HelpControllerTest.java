@@ -1,10 +1,10 @@
 package com.almis.awe.test.integration.controller;
 
+import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
@@ -28,7 +28,7 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @WithMockUser(username = "test", password = "test")
+  @WithMockCustomUser(username = "test", password = "test")
   void testGetSitesHelpTemplate() throws Exception {
     testTemplate("context-help/ScreenHelp.txt", "/template/help/sites", status().isOk());
   }
@@ -39,7 +39,7 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception test error
    */
   @Test
-  @WithMockUser(username = "test", password = "test")
+  @WithMockCustomUser(username = "test", password = "test")
   void testGetApplicationHelpTemplate() throws Exception {
     testTemplate("context-help/ApplicationHelp.txt", "/template/help", status().isOk());
   }
@@ -55,11 +55,11 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
   private void testTemplate(String filePath, String templatePath, ResultMatcher statusResultMatcher) throws Exception {
     String expected = readFileAsText(filePath).replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
     MvcResult result = mockMvc.perform(get(templatePath)
-            .accept("text/html;charset=UTF-8")
-            .with(csrf()))
-            .andExpect(statusResultMatcher)
-            .andExpect(content().encoding("UTF-8"))
-            .andReturn();
+        .accept("text/html;charset=UTF-8")
+        .with(csrf()))
+      .andExpect(statusResultMatcher)
+      .andExpect(content().encoding("UTF-8"))
+      .andReturn();
 
     assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
   }

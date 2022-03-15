@@ -1,12 +1,13 @@
 package com.almis.awe.rest.security;
 
+import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.rest.service.JWTTokenService;
-import com.almis.awe.service.user.AweUserDetailService;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -22,19 +23,19 @@ import java.util.ArrayList;
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
   // Autowired
-  private final AweUserDetailService aweUserDetailService;
+  private final UserDetailsService userDetailsService;
   private final JWTTokenService jwtTokenService;
 
   /**
    * JWTAuthorizationFilter constructor
    *
    * @param authenticationManager Authentication manager
-   * @param aweUserDetailService  UserDetail service
+   * @param userDetailsService  UserDetail service
    * @param jwtTokenService       JWT token service
    */
-  public JWTAuthorizationFilter(AuthenticationManager authenticationManager, AweUserDetailService aweUserDetailService, JWTTokenService jwtTokenService) {
+  public JWTAuthorizationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JWTTokenService jwtTokenService) {
     super(authenticationManager);
-    this.aweUserDetailService = aweUserDetailService;
+    this.userDetailsService = userDetailsService;
     this.jwtTokenService = jwtTokenService;
   }
 
@@ -60,7 +61,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         String token = jwtTokenService.extractToken(authorizationHeader);
         DecodedJWT decodedJWT = jwtTokenService.verifyToken(token);
         if (decodedJWT != null) {
-          authenticationToken = new UsernamePasswordAuthenticationToken(aweUserDetailService.loadUserByUsername(decodedJWT.getSubject()), null, new ArrayList<>());
+          AweUserDetails userDetails = (AweUserDetails) userDetailsService.loadUserByUsername(decodedJWT.getSubject());
+          userDetails.setFullyAuthenticated(true);
+          authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
         }
       }
 

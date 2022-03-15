@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : check-2fa.xml
+    Created on : 8 de febrero de 2010, 16:30
+    Author     : Pablo GARCIA
+    Description: Change password screen
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="SCREEN_TITLE_CHECK_2FA">
+  <tag source="center" type="div" style="totp-screen fullScreen">
+    <tag type="div" id="page-totp-bg" style="fullScreen">
+      <!-- Background overlay -->
+      <tag type="div" style="overlay-image fullScreen" />
+      <tag type="div" style="overlay fullScreen" />
+    </tag>
+    <tag type="div" style="awe-totp totp-container">
+
+      <!-- Top side -->
+      <tag type="div" style="totp-header">
+        <tag type="h1">
+          <tag type="span" label="APP_CLIENT"/>
+        </tag>
+        <tag type="div" style="slogan" label="APP_NAME" />
+      </tag>
+
+      <!-- Bottom side -->
+      <tag type="div" style="totp-form">
+        <tag type="div" style="totp-text">
+          <tag type="span" label="SCREEN_TITLE_CHECK_2FA"/>
+        </tag>
+        <criteria placeholder="SCREEN_TEXT_TOTP_CODE" component="text" id="code" validation="required" size="lg" icon="mobile totp-form-icon" style="no-label" />
+        <tag type="div" style="totp-with">
+          <tag type="div" style="form-actions">
+            <button button-type="submit" label="BUTTON_CONFIRM" style="no-class btn btn-primary totp-btn bg-primary" icon="save" id="ButChk2fa">
+              <button-action type="validate" />
+              <button-action type="server" server-action="maintain-silent" target-action="verify2faCode" />
+            </button>
+          </tag>
+        </tag>
+      </tag>
+      <!-- Bottom side -->
+    </tag>
+  </tag>
+</screen>

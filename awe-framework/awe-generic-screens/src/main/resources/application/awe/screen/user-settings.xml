@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window"
+        label="SCREEN_TITLE_SETTINGS" help="SCREEN_HELP_SETTINGS" target="getUserData">
+  <tag source="center" type="div" style="expand" expandible="vertical">
+    <tag type="div" style="panel-padding col-sm-12 col-md-offset-2 col-md-8 col-lg-offset-3 col-lg-6">
+      <tab id="user-settings" initial-load="enum" target-action="user-settings">
+        <tabcontainer id="profile">
+          <include target-screen="settings" target-source="profile-panel"/>
+        </tabcontainer>
+        <tabcontainer id="security">
+          <include target-screen="settings" target-source="security-panel"/>
+        </tabcontainer>
+      </tab>
+    </tag>
+  </tag>
+</screen>

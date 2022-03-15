@@ -11,16 +11,19 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * File test class
@@ -60,11 +63,12 @@ public class Grid extends ServiceConfig {
     icon.put("style", "text-success");
 
     // Set variables
-    fechas.add(fecha);
+    List<LocalDate> fechasLocales = fechas.stream().map(DateUtil::asLocalDate).collect(Collectors.toList());
+    fechasLocales.add(DateUtil.asLocalDate(fecha));
 
     DataList dataList = new DataList();
     DataListUtil.addColumn(dataList, "id", Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
-    DataListUtil.addColumn(dataList, "GrdMus-newColumn1", fechas);
+    DataListUtil.addColumn(dataList, "GrdMus-newColumn1", fechasLocales);
     DataListUtil.addColumn(dataList, "GrdMus-newColumn2", Arrays.asList(icon, icon, icon, icon, icon, icon, icon, icon, icon, icon, icon));
     dataList.setRecords(dataList.getRows().size());
 

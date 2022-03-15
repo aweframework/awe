@@ -500,7 +500,7 @@ public class ReportDesigner extends ServiceConfig {
     addSortData(grid, parameters);
 
     // Launch query and get data
-    DataList queryData = queryService.launchQuery(grid.getTargetAction(), parameters).getDataList();
+    DataList queryData = queryService.launchPrivateQuery(grid.getTargetAction(), parameters).getDataList();
 
     // Add _style_ to fields if it exists
     if (!queryData.getRows().isEmpty()) {

@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.controller;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @Tag("integration")
 @DisplayName("Upload controller Tests")
-@WithMockUser(username = "test", password = "test")
+@WithMockCustomUser(username = "test", password = "test")
 class UploadControllerTest extends AbstractSpringAppIntegrationTest {
 
   // Constants

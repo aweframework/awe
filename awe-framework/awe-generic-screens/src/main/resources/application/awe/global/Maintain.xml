@@ -132,12 +132,30 @@
       <field id="OpePas" variable="NewPwd" />
       <where>
         <and>
-          <filter left-field="IdeOpe" condition="eq" right-variable="Nom" />
+          <filter left-field="l1_nom" condition="eq" right-variable="user" trim="true"/>
+          <filter left-field="l1_pas" condition="eq" right-variable="OldPwd" trim="true"/>
         </and>
       </where>
-      <variable id="Nom" type="INTEGER" name="IdeOpe" />
-      <variable id="Pwd" type="STRING" name="Pwd" />
-      <variable id="NewPwd" type="STRING" name="NewPwd" />
+      <variable id="user" type="STRING" session="user" />
+      <variable id="OldPwd" type="STRING_HASH_RIPEMD160" name="OldPas"/>
+      <variable id="Pwd" type="STRING_HASH_RIPEMD160" name="Pas" />
+      <variable id="NewPwd" type="STRING_HASH_SHA" name="Pas" />
+    </update>
+  </target>
+
+  <target name="updateUserData">
+    <update>
+      <table id="ope" />
+      <field id="OpeNam" variable="name" />
+      <field id="EmlAdr" variable="email" />
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="user" trim="true"/>
+        </and>
+      </where>
+      <variable id="user" type="STRING" session="user" />
+      <variable id="name" type="STRING" name="name" />
+      <variable id="email" type="STRING" name="email" />
     </update>
   </target>
 
@@ -1220,7 +1238,9 @@
   -->
   <!-- Generate, Print and Email files -->
   <target name="ExpFil">
-    <serve service="ExpFil" />
+    <serve service="ExpFil">
+      <variable id="screen" type="STRING" name="PrnScr" />
+    </serve>
   </target>
 
   <!--
@@ -1237,6 +1257,69 @@
   <!-- Reload properties of application -->
   <target name="refreshDatabaseProperties">
     <serve service="refreshDatabaseProperties" />
+  </target>
+
+  <!--
+  2FA
+  -->
+
+  <target name="verify2faCode" public="true">
+    <serve service="verify2faCode">
+      <variable id="code" type="STRING" name="code" />
+    </serve>
+  </target>
+
+  <target name="generate2faSecret">
+    <serve service="generate-2fa-secret"/>
+  </target>
+
+  <target name="store2faSecret">
+    <update>
+      <table id="ope"/>
+      <field id="enable2fa" variable="enabled"/>
+      <field id="secret2fa" variable="secret"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="user" ignorecase="true"/>
+        </and>
+      </where>
+      <variable id="user" type="STRING" name="user"/>
+      <variable id="secret" type="STRING" name="secret"/>
+      <variable id="enabled" type="INTEGER" value="1"/>
+    </update>
+  </target>
+
+  <target name="update2faStatus">
+    <update>
+      <table id="ope"/>
+      <field id="enable2fa" variable="enable"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="user" ignorecase="true"/>
+        </and>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="enable" type="INTEGER" name="enable2fa"/>
+    </update>
+    <serve service="update-2fa-status">
+      <variable id="enable" type="INTEGER" name="enable2fa"/>
+    </serve>
+  </target>
+
+  <target name="reset2fa">
+    <update multiple="true">
+      <table id="ope"/>
+      <field id="enable2fa" variable="disable"/>
+      <field id="secret2fa" variable="nullify"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="userId"/>
+        </and>
+      </where>
+      <variable id="userId" type="INTEGER" name="IdeOpe"/>
+      <variable id="disable" type="INTEGER" value="0"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
   </target>
 
 </maintain>

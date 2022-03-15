@@ -28,6 +28,7 @@ public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 
   /**
    * Autowired constructor
+   *
    * @param aweElements AweElements
    */
   public JsonAuthenticationFilter(AweElements aweElements) {
@@ -57,6 +58,7 @@ public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 
   /**
    * Retrieve authorization request parameters
+   *
    * @param request Request
    * @return Authentication Token
    */

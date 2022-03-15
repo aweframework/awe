@@ -1,6 +1,7 @@
 package com.almis.awe.developer.autoconfigure;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.developer.autoconfigure.config.DeveloperConfigProperties;
 import com.almis.awe.developer.factory.TranslationServiceFactory;
 import com.almis.awe.developer.service.LiteralsService;
 import com.almis.awe.developer.service.LocaleFileService;
