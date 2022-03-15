@@ -111,7 +111,7 @@ public abstract class JobService extends ServiceConfig {
    * @param timeout Task timeout
    * @param process Future task thread
    */
-  private void startTimeoutThread(TaskExecution execution, long timeout, Future process) {
+  private void startTimeoutThread(TaskExecution execution, long timeout, Future<ServiceData> process) {
     executionService.startTimeoutJob(execution, timeout, process);
     log.debug("[SCHEDULER][TIMEOUT] The timeout thread has been started {}.{}", execution.getTaskId(), execution.getExecutionId());
   }

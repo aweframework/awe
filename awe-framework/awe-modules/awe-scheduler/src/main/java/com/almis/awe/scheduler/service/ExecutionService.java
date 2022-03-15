@@ -1,5 +1,6 @@
 package com.almis.awe.scheduler.service;
 
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.ReportType;
@@ -48,7 +49,7 @@ public class ExecutionService {
    * @param timeout Timeout task
    * @param process Future process
    */
-  public void startTimeoutJob(TaskExecution execution, long timeout, Future process) {
+  public void startTimeoutJob(TaskExecution execution, long timeout, Future<ServiceData> process) {
     JobDataMap data = new JobDataMap();
     data.put("id", execution.getKey());
     data.put(TASK_JOB_TIMEOUT, timeout);
