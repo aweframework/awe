@@ -12,22 +12,22 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "awe.scheduler.task-pool")
 public class SchedulerTaskConfigProperties {
   /**
-   * Schedule Task pool size
+   * Scheduler task pool size
    * The Default value is 20
    */
   private Integer size = 20;
   /**
-   * Schedule Task pool max size
-   * The Default value is 1000
+   * Scheduler task pool max size
+   * The Default value is 50
    */
   private Integer maxSize = 50;
   /**
-   * Schedule Task pool queue capacity
+   * Scheduler task pool queue capacity
    * The Default value is 1000
    */
   private Integer queueSize = 1000;
   /**
-   * Schedule Task pool termination.
+   * Scheduler task pool termination (in seconds).
    * You can use Duration format (1ms, 1s, 1m, 1h, 1d, ...) See {@link Duration}
    * The Default value is 120s
    */

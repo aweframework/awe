@@ -2,6 +2,7 @@ package com.almis.awe.developer.service;
 
 import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.client.grid.UpdateCellActionBuilder;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.developer.comparator.CompareLocal;
 import com.almis.awe.developer.model.ITranslationResult;
@@ -20,7 +21,6 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,19 +31,18 @@ public class LiteralsService extends ServiceConfig {
   // Autowired services
   private final TranslationService translationService;
   private final LocaleFileService localeFileService;
-
-  @Value("${language.default:en}")
-  private String defaultLanguage;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
-   *
-   * @param translationService Translation service
+   *  @param translationService Translation service
    * @param localeFileService  Locale service
+   * @param baseConfigProperties Base properties
    */
-  public LiteralsService(TranslationService translationService, LocaleFileService localeFileService) {
+  public LiteralsService(TranslationService translationService, LocaleFileService localeFileService, BaseConfigProperties baseConfigProperties) {
     this.translationService = translationService;
     this.localeFileService = localeFileService;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -251,16 +250,16 @@ public class LiteralsService extends ServiceConfig {
     return new ServiceData()
       .setDataList(DataListUtil.fromBeanList(Collections.singletonList(
         new Global()
-          .setValue(defaultLanguage.toLowerCase())
-          .setLabel("ENUM_LAN_" + defaultLanguage.toUpperCase()))));
+          .setValue(baseConfigProperties.getLanguageDefault().toLowerCase())
+          .setLabel("ENUM_LAN_" + baseConfigProperties.getLanguageDefault().toUpperCase()))));
   }
 
   /**
-   * Get markdown text of literal from file
+   * Get Markdown text of literal from file
    *
    * @param codeLang Language
    * @param code     code
-   * @return markdown text
+   * @return Markdown text
    * @throws AWException Error retrieving markdown
    */
   public ServiceData getSelectedLocale(String codeLang, String code) throws AWException {
@@ -291,7 +290,7 @@ public class LiteralsService extends ServiceConfig {
    * @param fromLanguage Source language
    * @param toLanguage   Target language
    * @param fromTarget   Source target
-   * @param toTarget     Target target
+   * @param toTarget     Target
    * @return Languages changed
    */
   public ServiceData switchLanguages(String fromLanguage, String toLanguage, String fromTarget, String toTarget) {
@@ -371,7 +370,7 @@ public class LiteralsService extends ServiceConfig {
    * @param text           Text
    * @param markdown       Markdown
    * @param formatSelector Format
-   * @throws AWException Error stroring locale
+   * @throws AWException Error storing locale
    */
   private void storeUpdatedLocale(String codeLang, String code, String text, String markdown, String formatSelector) throws AWException {
 

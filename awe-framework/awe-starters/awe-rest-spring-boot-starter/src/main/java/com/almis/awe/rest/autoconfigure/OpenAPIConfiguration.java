@@ -47,19 +47,19 @@ public class OpenAPIConfiguration {
   public OpenAPI aweRestOpenAPI(AweRestConfigProperties restConfigProperties) {
     return new OpenAPI()
             .info(new Info()
-                    .title(restConfigProperties.getTitle())
-                    .description(restConfigProperties.getDescription())
-                    .version(restConfigProperties.getVersion())
+                    .title(restConfigProperties.getDocTitle())
+                    .description(restConfigProperties.getDocDescription())
+                    .version(restConfigProperties.getDocVersion())
                     .contact(new Contact()
-                            .name(restConfigProperties.getContactName())
-                            .email(restConfigProperties.getContactEmail())
-                            .url(restConfigProperties.getContactUrl()))
+                            .name(restConfigProperties.getDocContactName())
+                            .email(restConfigProperties.getDocContactEmail())
+                            .url(restConfigProperties.getDocContactUrl()))
                     .license(new License()
-                            .name(restConfigProperties.getLicenseName())
-                            .url(restConfigProperties.getLicenseUrl()))
-                    .termsOfService(restConfigProperties.getTermsOfServiceUrl()))
+                            .name(restConfigProperties.getDocLicenseName())
+                            .url(restConfigProperties.getDocLicenseUrl()))
+                    .termsOfService(restConfigProperties.getDocTermsOfServiceUrl()))
             .externalDocs(new ExternalDocumentation()
-                    .description(restConfigProperties.getExternalDocDescription())
-                    .url(restConfigProperties.getExternalDocUrl()));
+                    .description(restConfigProperties.getDocExternalDescription())
+                    .url(restConfigProperties.getDocExternalUrl()));
   }
 }

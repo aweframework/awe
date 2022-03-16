@@ -12,7 +12,7 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queues.JmsDestination;
 import com.almis.awe.model.type.JmsConnectionType;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,17 +36,20 @@ public class AweJmsDestination {
   // Autowired services
   private final AweElements elements;
   private final QueryService queryService;
+  private final EncodeService encodeService;
   private Map<String, JmsDestination> destinationMap;
 
   /**
    * Autowired constructor
    *
-   * @param elements     Awe Elements
-   * @param queryService Query service
+   * @param elements      Awe Elements
+   * @param queryService  Query service
+   * @param encodeService Encode service
    */
-  public AweJmsDestination(AweElements elements, QueryService queryService) {
+  public AweJmsDestination(AweElements elements, QueryService queryService, EncodeService encodeService) {
     this.elements = elements;
     this.queryService = queryService;
+    this.encodeService = encodeService;
 
     // Load sources
     loadJmsSources();
@@ -73,7 +76,7 @@ public class AweJmsDestination {
             .setConnectionType(connectionType)
             .setBroker(connection.get("JmsBrk").getStringValue())
             .setUsername(connection.get("JmsUsr").getStringValue())
-            .setPassword(EncodeUtil.decryptRipEmd160(connection.get("JmsPwd").getStringValue()))
+            .setPassword(encodeService.decryptRipEmd160(connection.get("JmsPwd").getStringValue()))
             .setTopic(isTopic)
             .setDestination(connection.get("DstNam").getStringValue());
 
@@ -119,7 +122,6 @@ public class AweJmsDestination {
    */
   private Destination getDestination(JmsDestination destinationInfo) throws AWException {
     try {
-      // TODO: ¿Remove remote destination?
       return getDestinationWithJNDI(destinationInfo);
     } catch (AWException exc) {
       throw exc;

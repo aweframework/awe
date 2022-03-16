@@ -3,6 +3,10 @@ package com.almis.awe.scheduler.autoconfigure.config;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationUnit;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Scheduler module properties
@@ -30,8 +34,15 @@ public class SchedulerConfigProperties {
   @Value("${logging.file.path:${java.io.tmpdir}}/scheduler")
   private String executionLogPath;
   /**
-   * Scheduler execution log path
+   * Scheduler execution log pattern
    * Default value %d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx
    */
   private String executionLogPattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx";
+
+  /**
+   * Scheduler tasks default timeout in seconds
+   * Default value 1800s
+   */
+  @DurationUnit(ChronoUnit.SECONDS)
+  private Duration taskTimeout = Duration.ofSeconds(1800);
 }

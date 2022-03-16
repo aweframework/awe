@@ -1,8 +1,9 @@
 package com.almis.awe.test.integration.database;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.factory.WithMockCustomUser;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -51,10 +52,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Autowired
   private AweDatabaseContextHolder aweDatabaseContextHolder;
 
+  @Autowired
+  private EncodeService encodeService;
+
   private MockHttpSession session;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     session = new MockHttpSession();
   }
 
@@ -805,6 +809,20 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       "",
       "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToLong\":96,\"castToString\":\"12-21\",\"castToDouble\":4.9,\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"castToFloat\":1.5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
       1);
+  }
+
+  /**
+   * Test of add operation with computed field
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationAddNumbersWithComputed() throws Exception {
+    testDatabaseRequest(
+            "testOperationWithComputed",
+            "",
+            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"nom\":\"test19\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+            1);
   }
 
   /**
@@ -1899,7 +1917,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseComputedEvalVariableProperty() throws Exception {
     String queryName = "ComputedEvalVariableProperty";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"variable\":\"awe\",\"label\":1,\"value\":\"adminflare\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"amazonia\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"asphalt\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"clean\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"default\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"dust\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"eclipse\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"fresh\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"frost\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"grass\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"purple-hills\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"silver\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"sky\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"sunny\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"sunset\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"white\"}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"variable\":\"awe-boot\",\"label\":1,\"value\":\"adminflare\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"amazonia\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"asphalt\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"clean\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"default\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"dust\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"eclipse\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"fresh\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"frost\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"grass\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"purple-hills\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"silver\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"sky\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"sunny\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"sunset\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"white\"}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertQueryResultJson(queryName, result, 16);
@@ -2170,10 +2188,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseStringHash() throws Exception {
     String queryName = "VariableStringHash";
     String variables = "";
-    String hashPbkResult = EncodeUtil.encodePBKDF2WithHmacSHA1("prueba");
-    String hashEncryptResult = EncodeUtil.encryptRipEmd160("prueba");
-    String hashRipEmdResult = EncodeUtil.encodeRipEmd160("prueba");
-    String hashShaResult = EncodeUtil.hash(EncodeUtil.HashingAlgorithms.SHA_256, "prueba");
+    String hashPbkResult = encodeService.encodePBKDF2WithHmacSHA1("prueba");
+    String hashEncryptResult = encodeService.encryptRipEmd160("prueba");
+    String hashRipEmdResult = EncodeService.encodeRipEmd160("prueba");
+    String hashShaResult = encodeService.hash(EncodeService.HashingAlgorithms.SHA_256, "prueba");
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"hashEncrypt\":\"" + hashEncryptResult + "\",\"l1_nom\":\"test\",\"hashPbk\":\"" + hashPbkResult + "\",\"hashRipemd\":\"" + hashRipEmdResult + "\",\"hashSha\":\"" + hashShaResult + "\"}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);

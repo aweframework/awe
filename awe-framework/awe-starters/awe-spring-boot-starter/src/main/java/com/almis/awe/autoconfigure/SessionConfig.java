@@ -1,5 +1,7 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
@@ -8,14 +10,16 @@ import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.session.AweSessionDetails;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.annotation.SessionScope;
 
 /**
- * Created by dfuentes on 17/07/2017.
+ * AWE Session configuration class
  */
 @Configuration
+@EnableConfigurationProperties({BaseConfigProperties.class, SessionConfigProperties.class})
 public class SessionConfig {
 
   /**
@@ -44,15 +48,16 @@ public class SessionConfig {
   /**
    * Session details
    *
-   * @param aweClientTracker  Awe Client tracker
-   * @param queryService      Query service
-   * @param connectionTracker connection tracker
+   * @param aweClientTracker         Awe Client tracker
+   * @param queryService             Query service
+   * @param connectionTracker        connection tracker
+   * @param sessionConfigProperties  Session properties
    * @return Session details bean
    */
   @Bean
   @ConditionalOnMissingBean
   public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService,
-                                             AweConnectionTracker connectionTracker, BroadcastService broadcastService) {
-    return new AweSessionDetails(aweClientTracker, queryService, connectionTracker, broadcastService);
+                                             AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
+    return new AweSessionDetails(aweClientTracker, queryService, connectionTracker, broadcastService, sessionConfigProperties);
   }
 }

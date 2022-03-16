@@ -3,13 +3,15 @@
  */
 package com.almis.awe.service.data.processor;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.component.AweContextAware;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.queries.Compound;
 import com.almis.awe.model.entities.queries.Computed;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -21,31 +23,35 @@ import java.util.Map;
 /**
  * Computed column class
  */
-public class CompoundColumnProcessor implements ColumnProcessor, AweContextAware {
+public class CompoundColumnProcessor implements ColumnProcessor {
+
   private Compound compound;
-  private Map<String, QueryParameter> variableMap;
+  private final Map<String, QueryParameter> variableMap;
   private Map<String, ComputedColumnProcessor> computedMap;
-  private AweElements elements;
+
+  // Autowired services
+  private final AweElements elements;
+  private final BaseConfigProperties baseConfigProperties;
+  private final NumericService numericService;
+  private final EncodeService encodeService;
 
   /**
-   * Set Awe Elements
-   * @param elements awe elements
-   * @return compound column processor
+   * Compound column processor constructor
+   *
+   * @param elements             AWE elements
+   * @param baseConfigProperties Base config properties
+   * @param variableMap          Variables map
+   * @param numericService       Numeric service
+   * @param encodeService        Encode service
+   * @throws AWException AWE exception
    */
-  public CompoundColumnProcessor setElements(AweElements elements) {
+  public CompoundColumnProcessor(AweElements elements, BaseConfigProperties baseConfigProperties, Compound compound, Map<String, QueryParameter> variableMap, NumericService numericService, EncodeService encodeService) throws AWException {
     this.elements = elements;
-    return this;
-  }
-
-  /**
-   * Set variable map
-   * 
-   * @param variableMap map with variable values
-   * @return compound column processor
-   */
-  public CompoundColumnProcessor setVariableMap(Map<String, QueryParameter> variableMap) {
+    this.baseConfigProperties = baseConfigProperties;
     this.variableMap = variableMap;
-    return this;
+    this.numericService = numericService;
+    this.encodeService = encodeService;
+    setCompound(compound);
   }
 
   /**
@@ -60,9 +66,7 @@ public class CompoundColumnProcessor implements ColumnProcessor, AweContextAware
       for (Computed computed : compound.getComputedList()) {
 
         // Calculate computed
-        ComputedColumnProcessor computedProcessor = new ComputedColumnProcessor()
-                .setElements(elements)
-                .setComputed(computed);
+        ComputedColumnProcessor computedProcessor = new ComputedColumnProcessor(elements, baseConfigProperties, computed, variableMap, numericService, encodeService);
         if (computedMap == null) {
           computedMap = new HashMap<>();
         }
@@ -95,10 +99,7 @@ public class CompoundColumnProcessor implements ColumnProcessor, AweContextAware
         String computedIdentifier = computed.getIdentifier();
 
         // Calculate computed
-        CellData computedData = computedMap.get(computedIdentifier)
-                .setElements(elements)
-                .setVariableMap(variableMap)
-                .process(row);
+        CellData computedData = computedMap.get(computedIdentifier).process(row);
 
         // Store computed data on compound
         JsonNode computedValue = mapper.valueToTree(computedData);

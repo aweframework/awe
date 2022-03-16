@@ -23,6 +23,16 @@ import java.lang.annotation.Annotation;
 @Aspect
 public class HashAnnotation {
 
+  private final HashProcessor hashProcessor;
+
+  /**
+   * HashAnnotation constructor
+   * @param hashProcessor Hash processor
+   */
+  public HashAnnotation(HashProcessor hashProcessor) {
+    this.hashProcessor = hashProcessor;
+  }
+
   /**
    * Hash method pointcut
    */
@@ -51,7 +61,7 @@ public class HashAnnotation {
 
     // Process join point
     String result = AnnotationUtils.processJoinPoint(proceedingJoinPoint);
-    return HashProcessor.processHashing(((MethodSignature) proceedingJoinPoint.getSignature()).getMethod().getAnnotation(Hash.class), result);
+    return hashProcessor.processHashing(((MethodSignature) proceedingJoinPoint.getSignature()).getMethod().getAnnotation(Hash.class), result);
   }
 
   /**
@@ -74,7 +84,7 @@ public class HashAnnotation {
 
           // Apply processors
           if (annotation instanceof Hash) {
-            arg = HashProcessor.processHashing(((Hash) annotation), (String) arg);
+            arg = hashProcessor.processHashing(((Hash) annotation), (String) arg);
           }
 
           // Save value

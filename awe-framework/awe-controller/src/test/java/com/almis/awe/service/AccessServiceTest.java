@@ -1,5 +1,7 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
@@ -8,7 +10,6 @@ import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.session.AweSessionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,6 +53,15 @@ class AccessServiceTest {
   AweSessionDetails aweSessionDetails;
 
   @Mock
+  BaseConfigProperties baseConfigProperties;
+
+  @Mock
+  SecurityConfigProperties securityConfigProperties;
+
+  @Mock
+  EncodeService encodeService;
+
+  @Mock
   MenuService menuService;
 
   @Mock
@@ -66,9 +75,6 @@ class AccessServiceTest {
 
   @Mock
   AweElements aweElements;
-
-  @Mock
-  Environment environment;
 
   private AweUserDetails aweUserDetails;
 
@@ -112,7 +118,7 @@ class AccessServiceTest {
   }
 
   @Test
-  void verify2faCodeNotValid() throws Exception {
+  void verify2faCodeNotValid() {
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
     when(totpService.verify2faCode(anyString())).thenReturn(false);
@@ -141,27 +147,21 @@ class AccessServiceTest {
 
   @Test
   void encryptText() throws Exception {
-    when(environment.getProperty(eq("application.encoding"), anyString())).thenReturn("UTF-8");
-    EncodeUtil.init(environment);
     ServiceData serviceData = accessService.encryptText("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
   }
 
   @Test
   void encryptProperty() {
-    when(environment.getProperty(eq("application.encoding"), anyString())).thenReturn("UTF-8");
     ReflectionTestUtils.setField(accessService, "jasyptPoolSize", 1);
-    EncodeUtil.init(environment);
     ServiceData serviceData = accessService.encryptProperty("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
   }
 
   @Test
   void encryptPropertyWithoutKey() {
-    when(environment.getProperty(eq("application.encoding"), anyString())).thenReturn("UTF-8");
     ReflectionTestUtils.setField(accessService, "jasyptPoolSize", 1);
-    ReflectionTestUtils.setField(accessService, "masterKey", "master");
-    EncodeUtil.init(environment);
+    when(securityConfigProperties.getMasterKey()).thenReturn("4W3M42T3RK3Y%$ED");
     ServiceData serviceData = accessService.encryptProperty("test", null);
     assertEquals(1, serviceData.getDataList().getRows().size());
   }

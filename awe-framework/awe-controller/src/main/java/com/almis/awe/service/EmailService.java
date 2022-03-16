@@ -1,8 +1,8 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.email.ParsedEmail;
@@ -10,7 +10,6 @@ import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -35,18 +34,19 @@ public class EmailService extends ServiceConfig {
   // Autowired services
   private final JavaMailSender mailSender;
   private final XMLEmailBuilder emailBuilder;
-  @Value("${" + AweConstants.PROPERTY_APPLICATION_ENCODING + ":" + AweConstants.APPLICATION_ENCODING + "}")
-  private String encoding;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param mailSender   Email sender
-   * @param emailBuilder Email builder
+   * @param mailSender           Email sender
+   * @param emailBuilder         Email builder
+   * @param baseConfigProperties Base configuration properties
    */
-  public EmailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder) {
+  public EmailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder, BaseConfigProperties baseConfigProperties) {
     this.mailSender = mailSender;
     this.emailBuilder = emailBuilder;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   @Async("contextlessTaskExecutor")
@@ -85,7 +85,7 @@ public class EmailService extends ServiceConfig {
       message.setSubject(getLocale(email.getSubject()));
 
       // Append to message
-      message.setText(getLocale(email.getBody()).replace("\\n", CRLF), encoding);
+      message.setText(getLocale(email.getBody()).replace("\\n", CRLF), baseConfigProperties.getEncoding());
       message.setContent(generateMultipartMessage(email), "html");
 
       // Send mail
@@ -105,7 +105,7 @@ public class EmailService extends ServiceConfig {
    */
   protected Multipart generateMultipartMessage(ParsedEmail email) throws MessagingException, IOException {
     // Message content type
-    String messageContentType = email.getMessageType() + "; charset=" + encoding;
+    String messageContentType = email.getMessageType() + "; charset=" + baseConfigProperties.getEncoding();
 
     // Set the message body
     Multipart multipart = new MimeMultipart();

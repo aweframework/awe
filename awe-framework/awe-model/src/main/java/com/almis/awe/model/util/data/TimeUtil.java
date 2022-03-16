@@ -35,7 +35,7 @@ public class TimeUtil {
       long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
       long ms = TimeUnit.MILLISECONDS.toMillis(milliseconds) - TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
 
-      // Set the appropriate pattern for formatting the time to a human readable format
+      // Set the appropriate pattern for formatting the time to a human-readable format
       if (hours > 0) {
         timeList.add(String.format(UNIT_TIME_FORMAT_HOURS, hours));
       }

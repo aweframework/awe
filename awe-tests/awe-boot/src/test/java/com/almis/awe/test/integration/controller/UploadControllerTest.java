@@ -1,11 +1,12 @@
 package com.almis.awe.test.integration.controller;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -27,9 +28,8 @@ class UploadControllerTest extends AbstractSpringAppIntegrationTest {
   // Constants
   private static final String TOKEN = "16617f0d-97ee-4f6b-ad54-905d6ce3c328";
 
-  // Upload identifier
-  @Value("${file.upload.identifier}")
-  private String uploadIdentifierKey;
+  @Autowired
+  BaseConfigProperties baseConfigProperties;
 
   /**
    * Test a UPLOAD POST
@@ -43,7 +43,7 @@ class UploadControllerTest extends AbstractSpringAppIntegrationTest {
             .with(csrf())
             .param("address", "{}")
             .param("destination", "")
-            .param(uploadIdentifierKey, "uploader-test-1")
+            .param(baseConfigProperties.getComponent().getUploadFileId(), "uploader-test-1")
             .header("Authorization", TOKEN))
             .andExpect(status)
             .andReturn();

@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
@@ -8,11 +9,10 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.file.FileUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,12 +37,9 @@ public class FileService extends ServiceConfig {
 
   // Autowired services
   private final BroadcastService broadcastService;
-  private final FileUtil fileUtil;
   private final AweRequest request;
-
-  // Upload identifier
-  @Value("${file.upload.path:/}")
-  private String uploadBaseFolder;
+  private final BaseConfigProperties baseConfigProperties;
+  private final EncodeService encodeService;
 
   private static final String ERROR_TITLE_FILE_READING_ERROR = "ERROR_TITLE_FILE_READING_ERROR";
   private static final String ERROR_MESSAGE_FILE_READING_ERROR = "ERROR_MESSAGE_FILE_READING_ERROR";
@@ -50,14 +47,16 @@ public class FileService extends ServiceConfig {
   /**
    * Autowired constructor
    *
-   * @param broadcastService Broadcaster
-   * @param fileUtil         File utilities
-   * @param request          Request
+   * @param broadcastService     Broadcaster
+   * @param request              Request
+   * @param baseConfigProperties Base configuration properties
+   * @param encodeService        Encode service
    */
-  public FileService(BroadcastService broadcastService, FileUtil fileUtil, AweRequest request) {
+  public FileService(BroadcastService broadcastService, AweRequest request, BaseConfigProperties baseConfigProperties, EncodeService encodeService) {
     this.broadcastService = broadcastService;
-    this.fileUtil = fileUtil;
     this.request = request;
+    this.baseConfigProperties = baseConfigProperties;
+    this.encodeService = encodeService;
   }
 
   /**
@@ -69,7 +68,7 @@ public class FileService extends ServiceConfig {
    * @throws AWException Error retrieving text file
    */
   public ResponseEntity<String> getTextFile(String path, String contentType) throws AWException {
-    String fileContent = "";
+    String fileContent;
 
     try {
       fileContent = new String(Files.readAllBytes(Paths.get(path)));
@@ -95,15 +94,15 @@ public class FileService extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
     List<String> content = new ArrayList<>();
     // Get path and offset
-    String path = EncodeUtil.decodeSymmetric(getRequest().getParameterAsString("path"));
-    Integer offset = getRequest().getParameter("offset").asInt();
+    String path = encodeService.decodeSymmetric(getRequest().getParameterAsString("path"));
+    int offset = getRequest().getParameter("offset").asInt();
 
     if (Paths.get(path).toFile().exists()) {
       try (FileInputStream file = new FileInputStream(path);
            InputStreamReader fileReader = new InputStreamReader(file, StandardCharsets.UTF_8);
            BufferedReader bufferedReader = new BufferedReader(fileReader)) {
         // Read file
-        Integer line = 0;
+        int line = 0;
         String lineString;
 
         while ((lineString = bufferedReader.readLine()) != null) {
@@ -140,8 +139,7 @@ public class FileService extends ServiceConfig {
       FileSystemResource resource = new FileSystemResource(path);
       headers.setContentType(MediaType.parseMediaType(contentType));
       headers.setContentLength(resource.contentLength());
-      StringBuilder builder = new StringBuilder("inline;filename=\"").append(resource.getFilename()).append("\"");
-      headers.add(HttpHeaders.CONTENT_DISPOSITION, builder.toString());
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=\"" + resource.getFilename() + "\"");
 
       // Retrieve entity
       return new ResponseEntity<>(resource, headers, HttpStatus.OK);
@@ -158,7 +156,7 @@ public class FileService extends ServiceConfig {
    * @throws AWException Error retrieving text file
    */
   public ResponseEntity<FileSystemResource> getFileStream(FileData fileData) throws AWException {
-    String filePath = fileUtil.getFullPath(fileData, false) + fileData.getFileName();
+    String filePath = getFullPath(fileData, false) + fileData.getFileName();
     return getFileStream(filePath, fileData.getMimeType());
   }
 
@@ -173,20 +171,19 @@ public class FileService extends ServiceConfig {
   public ResponseEntity<byte[]> downloadFile(FileData fileData, Integer downloadIdentifier) throws AWException {
     // convert JSON to Employee
     HttpHeaders headers = new HttpHeaders();
-    String filePath = fileUtil.getFullPath(fileData, false) + fileData.getFileName();
+    String filePath = getFullPath(fileData, false) + fileData.getFileName();
 
-    try (InputStream fileStream = fileData.getFileStream() != null ? fileData.getFileStream() : new FileInputStream(new File(filePath));
+    try (InputStream fileStream = fileData.getFileStream() != null ? fileData.getFileStream() : new FileInputStream(filePath);
          ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       // Generate text file headers
       headers.setContentType(MediaType.parseMediaType(fileData.getMimeType()));
       headers.setContentLength(fileData.getFileSize());
-      StringBuilder builder = new StringBuilder("attachment;filename=\"").append(fileData.getFileName()).append("\"");
-      headers.add(HttpHeaders.CONTENT_DISPOSITION, builder.toString());
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + fileData.getFileName() + "\"");
       headers.add("Content-Transfer-Encoding", "binary");
       headers.add("Filename", fileData.getFileName());
 
       // Publish file downloaded
-      ClientAction fileDownloadedAction = new ClientAction(new StringBuilder("file-downloaded/").append(downloadIdentifier).toString());
+      ClientAction fileDownloadedAction = new ClientAction("file-downloaded/" + downloadIdentifier);
       fileDownloadedAction.setAsync(true);
       broadcastService.broadcastMessageToUID(request.getToken(), fileDownloadedAction);
 
@@ -214,10 +211,10 @@ public class FileService extends ServiceConfig {
       if (!file.isEmpty()) {
         // Store file
         fileData = new FileData(FileUtil.sanitizeFileName(file.getOriginalFilename()), file.getSize(), FileUtil.extractContentType(file), folder);
-        fileData.setBasePath(uploadBaseFolder);
+        fileData.setBasePath(baseConfigProperties.getComponent().getUploadFilePath());
 
         // Generate file path
-        String fullPath = fileUtil.getFullPath(fileData, true);
+        String fullPath = getFullPath(fileData, true);
 
         // Save file on upload path
         Path destinationFile = Paths.get(fullPath, fileData.getFileName());
@@ -261,7 +258,7 @@ public class FileService extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
     try {
       // Get file data
-      String fullPath = fileUtil.getFullPath(fileData, false);
+      String fullPath = getFullPath(fileData, false);
 
       // Check if file exists
       File dest = new File(fullPath + fileData.getFileName());
@@ -272,8 +269,6 @@ public class FileService extends ServiceConfig {
 
       // Remove file from path
       Files.delete(dest.toPath());
-    } catch (AWException exc) {
-      throw exc;
     } catch (IOException exc) {
       throw new AWException(getLocale("ERROR_TITLE_FILE_DELETE"), getLocale("ERROR_MESSAGE_FILE_DELETE"), exc);
     }
@@ -298,5 +293,35 @@ public class FileService extends ServiceConfig {
       .addVariable(AweConstants.ACTION_FILE_TYPE, fileData.getMimeType())
       .addVariable(AweConstants.ACTION_FILE_PATH, fileName);
     return serviceData;
+  }
+
+  /**
+   * Retrieves a previously uploaded file from upload path
+   * @param fileData File data
+   * @param create Create path
+   * @return Uploaded file path
+   */
+  public String getFullPath(FileData fileData, boolean create) {
+    // Variable definition
+    String relativePath = fileData.getRelativePath();
+    Long size = fileData.getFileSize();
+
+    // Calculate max elements per folder
+    if (relativePath == null && create) {
+      relativePath = "tmp" + (size % baseConfigProperties.getComponent().getUploadMaxFilesFolder());
+    } else if (relativePath == null) {
+      relativePath = "";
+    }
+
+    // Calculate upload path
+    String absolutePath = StringUtil.getAbsolutePath(fileData.getBasePath() + relativePath + AweConstants.FILE_SEPARATOR, baseConfigProperties.getPaths().getBase());
+
+    // Generate folder (if not null)
+    if (create) {
+      fileData.setRelativePath(relativePath);
+      new File(absolutePath).mkdirs();
+    }
+
+    return absolutePath;
   }
 }

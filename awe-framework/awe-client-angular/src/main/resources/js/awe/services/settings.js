@@ -53,7 +53,7 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
             $settings.changeLanguage(language, true);
 
             // Store connection
-            $storage.putRoot("connection", settings.connectionProtocol);
+            $storage.putRoot("cometUID", settings.cometUID);
 
             // Load current state
             let initialState = $utilities.getState(settings.reloadCurrentScreen ? settings.initialURL : location.href);

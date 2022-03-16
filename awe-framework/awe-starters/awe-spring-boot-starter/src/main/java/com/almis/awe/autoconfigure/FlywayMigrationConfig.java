@@ -1,12 +1,12 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweRoutingDataSource;
+import com.almis.awe.config.DatabaseConfigProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
@@ -26,28 +26,23 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(name = "spring.flyway.enabled", havingValue = "true")
 public class FlywayMigrationConfig {
 
+  // Autowired components
   private final DataSource dataSource;
   private final Flyway flyway;
-
-  @Value("${awe.database.migration.prefix:V}")
-  private String prefixPattern;
-
-  @Value("${awe.database.migration.repeatable.prefix:R}")
-  private String repeatablePrefixPattern;
-
-  @Value("${awe.database.migration.modules}")
-  private String[] modulesToMigrate;
+  private final DatabaseConfigProperties databaseConfigProperties;
 
   /**
    * Constructor
    *
-   * @param flyway     Flyway
-   * @param dataSource Awe routing datasource
+   * @param flyway                   Flyway
+   * @param dataSource               Awe routing datasource
+   * @param databaseConfigProperties Database config properties
    */
   @Autowired
-  public FlywayMigrationConfig(Flyway flyway, DataSource dataSource) {
+  public FlywayMigrationConfig(Flyway flyway, DataSource dataSource, DatabaseConfigProperties databaseConfigProperties) {
     this.flyway = flyway;
     this.dataSource = dataSource;
+    this.databaseConfigProperties = databaseConfigProperties;
   }
 
   /**
@@ -68,7 +63,7 @@ public class FlywayMigrationConfig {
     try {
       Integer indexBaseLine = 0;
       log.info("=======  Migrating default database  =======");
-      for (String module : modulesToMigrate) {
+      for (String module : databaseConfigProperties.getMigrationModules()) {
         Flyway customFlyway = customizeFlywayConfig(module, dataSource, indexBaseLine);
 
         // Migrate first connection
@@ -82,7 +77,7 @@ public class FlywayMigrationConfig {
         ((AweRoutingDataSource) dataSource).loadDataSources();
         // Spread scripts migration
         log.info("========== Migrating databases of [AweDbs] table defined in default database ... ==========");
-        for (String module : modulesToMigrate) {
+        for (String module : databaseConfigProperties.getMigrationModules()) {
           ((AweRoutingDataSource) dataSource).getResolvedDataSources().forEach((key, value) -> {
               log.info("========== Migrating database {} for module {} ... ==========", key, module);
               Flyway customFlyway = customizeFlywayConfig(module, value, indexBaseLine);
@@ -105,8 +100,8 @@ public class FlywayMigrationConfig {
    */
   private Flyway customizeFlywayConfig(String module, DataSource dataSource, Integer indexBaseLine) {
 
-    String scriptPrefix = !"".equalsIgnoreCase(prefixPattern) ? String.format(prefixPattern, module) : prefixPattern;
-    String repeatableScriptPrefix = !"".equalsIgnoreCase(repeatablePrefixPattern) ? String.format(repeatablePrefixPattern, module) : repeatablePrefixPattern;
+    final String scriptPrefix = String.format(databaseConfigProperties.getMigrationPrefix(), module);
+    final String repeatableScriptPrefix = String.format(databaseConfigProperties.getMigrationRepeatablePrefix(), module);
     FluentConfiguration configuration = new FluentConfiguration()
       .baselineOnMigrate(true)
       .baselineVersion(indexBaseLine.toString())

@@ -1,6 +1,7 @@
 package com.almis.awe.service.screen;
 
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.exception.AWException;
@@ -27,7 +28,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -47,9 +47,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private final ScreenConfigurationGenerator screenConfigurationGenerator;
   private final InitialLoadDao initialLoadDao;
   private final AweElementsDao aweElementsDao;
-
-  @Value("${settings.dataSuffix:.data}")
-  private String dataSuffix;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
@@ -59,15 +57,17 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param screenConfigurationGenerator Screen configuration generator
    * @param initialLoadDao               Initial load service
    * @param aweElementsDao               AWE Elements DAO
+   * @param baseConfigProperties         Base configuration properties
    */
   public ScreenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                   ScreenConfigurationGenerator screenConfigurationGenerator, InitialLoadDao initialLoadDao,
-                                  AweElementsDao aweElementsDao) {
+                                  AweElementsDao aweElementsDao, BaseConfigProperties baseConfigProperties) {
     this.aweRequest = request;
     this.screenModelGenerator = screenModelGenerator;
     this.screenConfigurationGenerator = screenConfigurationGenerator;
     this.initialLoadDao = initialLoadDao;
     this.aweElementsDao = aweElementsDao;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -207,7 +207,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
           .target(option.getName())
           .build();
 
-        option.setActionList(Arrays.asList(action));
+        option.setActionList(Collections.singletonList(action));
       }
     }
   }
@@ -227,7 +227,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
 
     // Get sort if stored
     ObjectNode parameters = aweRequest.getParameterList();
-    String specialAttributesKey = gridId + dataSuffix;
+    String specialAttributesKey = gridId + baseConfigProperties.getComponent().getDataSuffix();
     if (parameters.has(specialAttributesKey)) {
       ObjectNode specialAttributesNode = (ObjectNode) parameters.get(specialAttributesKey);
 

@@ -1,5 +1,6 @@
 package com.almis.awe.tools.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.tools.service.FileManagerService;
 import com.almis.awe.tools.service.SqlExtractorService;
@@ -17,12 +18,13 @@ public class ToolsConfig {
 
   /**
    * File manager service
+   * @param baseConfigProperties Base configuration properties
    * @return File manager service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public FileManagerService fileManagerService() {
-    return new FileManagerService();
+  public FileManagerService fileManagerService(BaseConfigProperties baseConfigProperties) {
+    return new FileManagerService(baseConfigProperties);
   }
 
   /**

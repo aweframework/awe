@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.service.report.ReportGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,12 +9,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReportServiceTest {
@@ -30,10 +29,13 @@ class ReportServiceTest {
   @Mock
   QueryService queryService;
 
+  @Mock
+  BaseConfigProperties baseConfigProperties;
+
   @ParameterizedTest
   @ValueSource(booleans = {false, true})
   void getPrintActions(boolean show) throws Exception {
-    ReflectionTestUtils.setField(reportService, "showPrintOptions", show);
+    when(baseConfigProperties.isPrintAllOptionsEnable()).thenReturn(true);
     reportService.getPrintActions();
     verify(queryService, times(1)).launchPrivateQuery(anyString());
   }

@@ -1,12 +1,15 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweJmsDestination;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.listener.QueueListener;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.queues.MessageBuilder;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.BroadcastService;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.builder.QueueBuilder;
 import com.almis.awe.service.data.connector.maintain.QueueMaintainConnector;
@@ -31,7 +34,7 @@ import javax.jms.ConnectionFactory;
  * Class used to launch initial load treads
  */
 @Configuration
-@ConditionalOnProperty(name = "awe.jms.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "awe.application.jms.enabled", havingValue = "true")
 @EnableJms
 @Lazy
 public class JmsConfig {
@@ -55,14 +58,15 @@ public class JmsConfig {
   /**
    * AWE JMS Destination
    *
-   * @param elements     Awe Elements
-   * @param queryService Query service
+   * @param elements      Awe Elements
+   * @param queryService  Query service
+   * @param encodeService Encode service
    * @return JMS Destination
    */
   @Bean
   @ConditionalOnMissingBean
-  public AweJmsDestination aweJmsDestination(AweElements elements, QueryService queryService) {
-    return new AweJmsDestination(elements, queryService);
+  public AweJmsDestination aweJmsDestination(AweElements elements, QueryService queryService, EncodeService encodeService) {
+    return new AweJmsDestination(elements, queryService, encodeService);
   }
 
   /////////////////////////////////////////////
@@ -71,13 +75,18 @@ public class JmsConfig {
 
   /**
    * Queue Query connector
-   * @param queryUtil Query util
+   *
+   * @param queryUtil            Query util
+   * @param baseConfigProperties Base configuration properties
+   * @param elements             AWE elements
+   * @param numericService       Numeric service
+   * @param encodeService        Encode service
    * @return Queue Query connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public QueueQueryConnector queueQueryConnector(QueryUtil queryUtil) {
-    return new QueueQueryConnector(queryUtil);
+  public QueueQueryConnector queueQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
+    return new QueueQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService);
   }
 
   /**
@@ -111,18 +120,20 @@ public class JmsConfig {
 
   /**
    * Queue builder
-   * @param jmsDestination Destination
-   * @param connectionFactory Connection factory
-   * @param transactionManager Transaction manager
-   * @param queryUtil Query utilities
+   *
+   * @param jmsDestination       Destination
+   * @param connectionFactory    Connection factory
+   * @param transactionManager   Transaction manager
+   * @param queryUtil            Query utilities
+   * @param baseConfigProperties Base configuration properties
    * @return Queue builder bean
    */
   @Bean
   @ConditionalOnMissingBean
   @Scope("prototype")
   public QueueBuilder queueBuilder(AweJmsDestination jmsDestination, ConnectionFactory connectionFactory,
-                                   PlatformTransactionManager transactionManager, QueryUtil queryUtil) {
-    return new QueueBuilder(jmsDestination, connectionFactory, transactionManager, queryUtil);
+                                   PlatformTransactionManager transactionManager, QueryUtil queryUtil, BaseConfigProperties baseConfigProperties) {
+    return new QueueBuilder(jmsDestination, connectionFactory, transactionManager, queryUtil, baseConfigProperties);
   }
 
   /**

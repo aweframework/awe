@@ -68,9 +68,9 @@ public class SchedulerConfig {
   }
 
   /**
-   * Define FTPClient
+   * Define FTP Client
    *
-   * @return FTPCLient
+   * @return FTP Client
    */
   @Bean
   @Scope("prototype")
@@ -130,7 +130,7 @@ public class SchedulerConfig {
    */
   @Bean
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher) {
-    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher);
+    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, schedulerConfigProperties.getTaskTimeout());
   }
 
   /**
@@ -140,7 +140,7 @@ public class SchedulerConfig {
    */
   @Bean
   public CommandJobService commandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO) {
-    return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO);
+    return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO, schedulerConfigProperties.getTaskTimeout());
   }
 
   /*

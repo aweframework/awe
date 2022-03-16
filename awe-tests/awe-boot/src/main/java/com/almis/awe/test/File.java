@@ -5,7 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.file.FileUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.almis.awe.service.FileService;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -19,24 +19,30 @@ import java.io.FileNotFoundException;
 @Service
 public class File extends ServiceConfig {
 
-  @Autowired
-  private FileUtil fileUtil;
+  private final FileService fileService;
+
+  /**
+   * File constructor
+   * @param fileService File service
+   */
+  public File(FileService fileService) {
+    this.fileService = fileService;
+  }
 
   /**
    * Given a file identifier, download a file
    *
-   * @param filedata File data
+   * @param fileStringEncoded File string encoded
    * @return Service data
    * @throws AWException error retrieving file
    */
-  public ServiceData downloadFile(String filedata) throws AWException {
+  public ServiceData downloadFile(String fileStringEncoded) throws AWException {
     ServiceData serviceData = new ServiceData();
     String fullPath = null;
-    FileData fileData = fileUtil.stringToFileData(filedata);
+    FileData fileData = FileUtil.stringToFileData(fileStringEncoded);
 
     try {
-      fullPath = fileUtil.getFullPath(fileData, false);
-
+      fullPath = fileService.getFullPath(fileData, false);
       FileInputStream file = new FileInputStream(fullPath + fileData.getFileName());
       fileData.setFileStream(file);
     } catch (FileNotFoundException exc) {
@@ -51,16 +57,16 @@ public class File extends ServiceConfig {
   /**
    * Given a file identifier, retrieve file information
    *
-   * @param filedata File data
+   * @param fileIdEncoded File data
    * @return File information
    * @throws AWException Error generating file info
    */
-  public ServiceData getFileInfo(String filedata) throws AWException {
+  public ServiceData getFileInfo(String fileIdEncoded) throws AWException {
     ServiceData serviceData = new ServiceData();
-    FileData fileData = fileUtil.stringToFileData(filedata);
+    FileData fileData = FileUtil.stringToFileData(fileIdEncoded);
 
     // Set variables
-    String[] out = {filedata, fileData.getFileName()};
+    String[] out = {fileIdEncoded, fileData.getFileName()};
 
     // Set variables
     return serviceData.setData(out);

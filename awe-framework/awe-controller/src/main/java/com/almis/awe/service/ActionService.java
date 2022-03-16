@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -12,7 +13,6 @@ import com.almis.awe.model.entities.actions.Parameter;
 import com.almis.awe.model.type.AnswerType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
@@ -24,10 +24,7 @@ public class ActionService extends ServiceConfig {
 
   // Autowired services
   private final LauncherService launcherService;
-
-  // Password parameter
-  @Value("${screen.parameter.password:pwd_usr}")
-  private String passwordParameter;
+  private final BaseConfigProperties baseConfigProperties;
 
   private static final String SECURITY_MASK = "*****";
 
@@ -35,9 +32,11 @@ public class ActionService extends ServiceConfig {
    * Autowired constructor
    *
    * @param launcherService Launcher service
+   * @param baseConfigProperties Base configuration properties
    */
-  public ActionService(LauncherService launcherService) {
+  public ActionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties) {
     this.launcherService = launcherService;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -175,7 +174,7 @@ public class ActionService extends ServiceConfig {
     try {
       actionList = launchError(getAction("DEFAULT_ERROR"), exception);
     } catch (AWException exc) {
-      // No encontrado el error por defecto. Error fatal!
+      // No encontrado el error por defecto. ¡Error fatal!
       log.error("Default error not found", exc);
     }
     return actionList;
@@ -252,7 +251,7 @@ public class ActionService extends ServiceConfig {
     // Retrieve parameter list
     try {
       ObjectNode parameterList = getRequest().getParameterList();
-      String password = getRequest().getParameterAsString(passwordParameter);
+      String password = getRequest().getParameterAsString(baseConfigProperties.getParameter().getPassword());
 
       // Remove nonsense values from parameter list
       Iterator<String> fieldNames = parameterList.fieldNames();
@@ -282,7 +281,7 @@ public class ActionService extends ServiceConfig {
       // Do nothing
     } else {
       String replacement = value;
-      if (key.equalsIgnoreCase(passwordParameter)) {
+      if (key.equalsIgnoreCase(baseConfigProperties.getParameter().getPassword())) {
         replacement = SECURITY_MASK;
       } else if (password != null && value != null && value.contains(password)) {
         // Store parameter

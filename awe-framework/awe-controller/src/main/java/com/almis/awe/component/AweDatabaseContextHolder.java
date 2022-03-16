@@ -1,5 +1,6 @@
 package com.almis.awe.component;
 
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
@@ -14,7 +15,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
@@ -40,9 +40,7 @@ public class AweDatabaseContextHolder extends ServiceConfig {
   private final QueryService queryService;
   private final SessionService sessionService;
   private DataSourceProperties properties;
-
-  @Value("${awe.database.multi-database.enable}")
-  private boolean multiDatabaseEnable;
+  private final DatabaseConfigProperties databaseConfigProperties;
 
   // Store dataSource list
   private Map<Object, Object> dataSourceMap;
@@ -56,16 +54,17 @@ public class AweDatabaseContextHolder extends ServiceConfig {
   /**
    * Autowired constructor
    *
-   * @param elements             Awe elements
-   * @param queryService         Query service
-   * @param sessionService       Session Service
-   * @param dataSourceProperties DataSource properties
+   * @param queryService             Query service
+   * @param sessionService           Session Service
+   * @param dataSourceProperties     DataSource properties
+   * @param databaseConfigProperties Database config properties
    */
-  public AweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, DataSourceProperties dataSourceProperties) {
+  public AweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, DataSourceProperties dataSourceProperties, DatabaseConfigProperties databaseConfigProperties) {
     this.elements = elements;
     this.queryService = queryService;
     this.sessionService = sessionService;
     this.properties = dataSourceProperties;
+    this.databaseConfigProperties = databaseConfigProperties;
     this.dataSourceMap = new HashMap<>();
   }
 
@@ -129,7 +128,7 @@ public class AweDatabaseContextHolder extends ServiceConfig {
    * @return Datasource connection
    */
   DataSource getDataSource(String alias) throws AWException {
-    if (!multiDatabaseEnable) {
+    if (!databaseConfigProperties.isMultidatabaseEnable()) {
       // Get default datasource
       return getBean(DataSource.class);
     } else if (dataSourceMap.containsKey(alias)) {

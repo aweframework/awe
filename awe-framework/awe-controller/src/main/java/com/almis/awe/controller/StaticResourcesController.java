@@ -1,6 +1,6 @@
 package com.almis.awe.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.almis.awe.config.BaseConfigProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,23 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class StaticResourcesController {
 
-  @Value("${application.icon.favicon}")
-  private String faviconIcon;
+  // Autowired services
+  private final BaseConfigProperties baseConfigProperties;
 
-  @Value("${application.icon.phone}")
-  private String phoneIcon;
-
-  @Value("${application.icon.tablet}")
-  private String tabletIcon;
-
-  @Value("${application.images.startup.logo}")
-  private String startupLogo;
-
-  @Value("${application.images.startup.background}")
-  private String startupBackground;
-
-  @Value("${application.images.navbar.logo}")
-  private String navbarLogo;
+  /**
+   *  Static resource controller constructor
+   * @param baseConfigProperties Base config properties
+   */
+  public StaticResourcesController(BaseConfigProperties baseConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+  }
 
   /**
    * Handler for index page
@@ -33,23 +26,23 @@ public class StaticResourcesController {
    */
   @GetMapping(value = {"/", "/screen/**"})
   public String index(Model model) {
-    model.addAttribute("faviconIcon", faviconIcon);
-    model.addAttribute("phoneIcon", phoneIcon);
-    model.addAttribute("tabletIcon", tabletIcon);
+    model.addAttribute("faviconIcon", baseConfigProperties.getPaths().getIconFavicon());
+    model.addAttribute("phoneIcon", baseConfigProperties.getPaths().getIconPhone());
+    model.addAttribute("tabletIcon", baseConfigProperties.getPaths().getIconTablet());
     return "index";
   }
 
   /**
    * Parse styles and set image values
    *
-   * @param model
-   * @return
+   * @param model MVC Model object
+   * @return CSS styles
    */
   @GetMapping("/css/styles{xxx}.css")
   public String getStyles(Model model) {
-    model.addAttribute("startupLogo", startupLogo);
-    model.addAttribute("startupBackground", startupBackground);
-    model.addAttribute("navbarLogo", navbarLogo);
+    model.addAttribute("startupLogo", baseConfigProperties.getPaths().getImageStartupLogo());
+    model.addAttribute("startupBackground", baseConfigProperties.getPaths().getImageStartupBackground());
+    model.addAttribute("navbarLogo", baseConfigProperties.getPaths().getImageNavbarLogo());
     return "styles.css";
   }
 }

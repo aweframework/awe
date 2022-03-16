@@ -1,6 +1,7 @@
 package com.almis.awe.session;
 
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.constant.AweConstants;
@@ -14,11 +15,11 @@ import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -33,24 +34,22 @@ public class AweSessionDetails extends ServiceConfig {
   private final QueryService queryService;
   private final AweConnectionTracker connectionTracker;
   private final BroadcastService broadcastService;
-
-  // Change password screen
-  @Value("#{'${session.parameters:}'.split(',')}")
-  private List<String> sessionParameters;
+  private final SessionConfigProperties sessionConfigProperties;
 
   /**
    * Autowired constructor
-   *
-   * @param aweClientTracker  awe client tracker
-   * @param queryService      query service
-   * @param connectionTracker connection tracker
-   * @param broadcastService  Broadcasting service
+   *  @param aweClientTracker         awe client tracker
+   * @param queryService             query service
+   * @param connectionTracker        connection tracker
+   * @param broadcastService         Broadcasting service
+   * @param sessionConfigProperties  Session properties
    */
-  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService) {
+  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
     this.clientTracker = aweClientTracker;
     this.queryService = queryService;
     this.connectionTracker = connectionTracker;
     this.broadcastService = broadcastService;
+    this.sessionConfigProperties = sessionConfigProperties;
   }
 
   /**
@@ -118,29 +117,20 @@ public class AweSessionDetails extends ServiceConfig {
    * Store user details
    */
   private void initializeSessionVariables() {
-    Optional.ofNullable(sessionParameters).orElse(Collections.emptyList())
-      .stream().filter(StringUtils::isNotBlank)
-      .forEach(this::evaluateSessionParameter);
-  }
-
-  /**
-   * Evaluate each session parameter
-   *
-   * @param parameter Parameter to evaluate
-   */
-  private void evaluateSessionParameter(String parameter) {
-    try {
-      String parameterQuery = getProperty("session." + parameter + ".query");
-      ServiceData queryOutput = queryService.launchPrivateQuery(parameterQuery, "1", "0");
-      DataList queryData = queryOutput.getDataList();
-      if (queryData != null && !queryData.getRows().isEmpty()) {
-        Map<String, CellData> row = queryData.getRows().get(0);
-        getSession().setParameter(parameter, row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue());
+    sessionConfigProperties.getParameter().forEach((paramName, queryName) -> {
+      try {
+        ServiceData queryOutput = queryService.launchQuery(queryName, "1", "0");
+        DataList queryData = queryOutput.getDataList();
+        if (queryData != null && !queryData.getRows().isEmpty()) {
+          Map<String, CellData> row = queryData.getRows().get(0);
+          getSession().setParameter(paramName, row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue());
+        }
+      } catch (Exception exc) {
+        log.error("There has been an error trying to retrieve the session parameter '{}'", paramName, exc);
+        getSession().setParameter(SESSION_FAILURE, exc);
       }
-    } catch (Exception exc) {
-      log.error("There has been an error trying to retrieve the session parameter '{}'", parameter, exc);
-    }
-  }
+    });
+   }
 
   /**
    * Store user details

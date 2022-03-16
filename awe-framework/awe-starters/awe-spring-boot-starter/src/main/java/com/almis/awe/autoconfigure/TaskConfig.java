@@ -1,9 +1,9 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.autoconfigure.config.TaskConfigProperties;
 import com.almis.awe.component.AweMDCTaskDecorator;
 import com.almis.awe.executor.ContextAwarePoolExecutor;
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -13,18 +13,20 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * Class used to launch initial load treads
  */
 @Configuration
-@ConfigurationProperties(prefix = "awe.task-pool")
+@EnableConfigurationProperties(value = TaskConfigProperties.class)
 @EnableAsync
-@Data
 public class TaskConfig {
 
-  private Integer size;
-  private Integer maxSize;
-  private Integer queueSize;
-  private Integer terminationSeconds;
-  private String threadPrefix;
-  private String helpThreadPrefix;
-  private String contextlessThreadPrefix;
+  // Autowired beans
+  private final TaskConfigProperties properties;
+
+  /**
+   * Executor task config constructor
+   * @param properties Task executor configuration properties
+   */
+  public TaskConfig(TaskConfigProperties properties) {
+    this.properties = properties;
+  }
 
   /**
    * Returns the asynchronous executor task
@@ -34,11 +36,11 @@ public class TaskConfig {
   @Bean("threadPoolTaskExecutor")
   public ContextAwarePoolExecutor getContextAwareTaskExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ContextAwarePoolExecutor executor = new ContextAwarePoolExecutor();
-    executor.setCorePoolSize(getSize());
-    executor.setMaxPoolSize(getMaxSize());
-    executor.setQueueCapacity(getQueueSize());
-    executor.setAwaitTerminationSeconds(getTerminationSeconds());
-    executor.setThreadNamePrefix(getThreadPrefix());
+    executor.setCorePoolSize(properties.getSize());
+    executor.setMaxPoolSize(properties.getMaxSize());
+    executor.setQueueCapacity(properties.getQueueSize());
+    executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
+    executor.setThreadNamePrefix(properties.getThreadPrefix());
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
@@ -51,11 +53,11 @@ public class TaskConfig {
   @Bean("threadHelpPoolTaskExecutor")
   public ContextAwarePoolExecutor getHelpContextAwareTaskExecutor(AweMDCTaskDecorator aweMDCTaskDecorator) {
     ContextAwarePoolExecutor executor = new ContextAwarePoolExecutor();
-    executor.setCorePoolSize(getSize());
-    executor.setMaxPoolSize(getMaxSize());
-    executor.setQueueCapacity(getQueueSize());
-    executor.setAwaitTerminationSeconds(getTerminationSeconds());
-    executor.setThreadNamePrefix(getHelpThreadPrefix());
+    executor.setCorePoolSize(properties.getSize());
+    executor.setMaxPoolSize(properties.getMaxSize());
+    executor.setQueueCapacity(properties.getQueueSize());
+    executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
+    executor.setThreadNamePrefix(properties.getHelpThreadPrefix());
     executor.setTaskDecorator(aweMDCTaskDecorator);
     return executor;
   }
@@ -67,11 +69,11 @@ public class TaskConfig {
   @Bean("contextlessTaskExecutor")
   public ThreadPoolTaskExecutor getContextlessTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(getSize());
-    executor.setMaxPoolSize(getMaxSize());
-    executor.setQueueCapacity(getQueueSize());
-    executor.setAwaitTerminationSeconds(getTerminationSeconds());
-    executor.setThreadNamePrefix(getContextlessThreadPrefix());
+    executor.setCorePoolSize(properties.getSize());
+    executor.setMaxPoolSize(properties.getMaxSize());
+    executor.setQueueCapacity(properties.getQueueSize());
+    executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
+    executor.setThreadNamePrefix(properties.getContextlessThreadPrefix());
     return executor;
   }
 }

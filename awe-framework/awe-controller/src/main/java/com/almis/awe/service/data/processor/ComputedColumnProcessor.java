@@ -3,19 +3,19 @@
  */
 package com.almis.awe.service.data.processor;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.queries.Computed;
-import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.StringUtil;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -24,90 +24,59 @@ import java.util.regex.Matcher;
  */
 public class ComputedColumnProcessor implements ColumnProcessor {
   private Computed computed;
-  private Map<String, QueryParameter> variableMap = null;
+  private final Map<String, QueryParameter> variableMap;
   private TransformCellProcessor transformProcessor;
   private TranslateCellProcessor translateProcessor;
-  private AweElements elements;
-  private boolean emptyOnNull;
   private String expression = null;
+
+  // Autowired services
+  private final AweElements elements;
+  private final BaseConfigProperties baseConfigProperties;
+  private final NumericService numericService;
+  private final EncodeService encodeService;
+
+  /**
+   * Computed column processor constructor
+   *
+   * @param elements             AWE elements
+   * @param baseConfigProperties Base config properties
+   * @param computed             Computed element
+   * @param variables            Query variables
+   * @param numericService       Numeric service
+   * @param encodeService        Encode service
+   * @throws AWException AWE exception
+   */
+  public ComputedColumnProcessor(AweElements elements, BaseConfigProperties baseConfigProperties, Computed computed, Map<String, QueryParameter> variables, NumericService numericService, EncodeService encodeService) throws AWException {
+    this.elements = elements;
+    this.baseConfigProperties = baseConfigProperties;
+    this.variableMap = variables;
+    this.numericService = numericService;
+    this.encodeService = encodeService;
+    setComputed(computed);
+  }
 
   /**
    * Set computed
    *
    * @param computed Computed field
    * @return Computed processor
-   * @throws AWException Error adding computed field
+   * @throws AWException AWE exception
    */
   public ComputedColumnProcessor setComputed(Computed computed) throws AWException {
     this.computed = computed;
 
     // Calculate transform
     if (computed.isTransform()) {
-      transformProcessor = new TransformCellProcessor()
-        .setElements(getElements())
-        .setField(computed);
+      transformProcessor = new TransformCellProcessor(elements, computed, numericService, encodeService);
     }
 
     // Calculate translate
     if (computed.isTranslate()) {
-      translateProcessor = new TranslateCellProcessor()
-        .setElements(getElements())
-        .setField(computed);
+      translateProcessor = new TranslateCellProcessor(elements, computed, elements.getEnumerated(computed.getTranslate()));
     }
 
     // Generate format matcher
     expression = computed.getFormat();
-    return this;
-  }
-
-  /**
-   * Set variable map
-   *
-   * @param variableMap Variable map
-   * @return Computed processor
-   */
-  public ComputedColumnProcessor setVariableMap(Map<String, QueryParameter> variableMap) {
-    this.variableMap = variableMap;
-    return this;
-  }
-
-  /**
-   * Retrieve Awe Elements
-   *
-   * @return Awe elements
-   */
-  private AweElements getElements() throws AWException {
-    if (elements == null) {
-      throw new AWException("No elements defined", "Define elements before building the computed processor");
-    }
-    return elements;
-  }
-
-  /**
-   * Set Awe Elements
-   *
-   * @param elements AWE Elements
-   * @return Computed processor
-   */
-  public ComputedColumnProcessor setElements(AweElements elements) {
-    this.elements = elements;
-    emptyOnNull = Boolean.valueOf(elements.getProperty(AweConstants.PROPERTY_EMPTY_IF_NULL, "true"));
-    return this;
-  }
-
-  /**
-   * Add a variable (stringified)
-   *
-   * @param name  variable name
-   * @param value variable value (as string)
-   * @return DataListBuilder
-   */
-  public ComputedColumnProcessor addVariable(String name, String value) {
-    if (variableMap == null) {
-      setVariableMap(new HashMap<>());
-    }
-    QueryParameter parameter = new QueryParameter(JsonNodeFactory.instance.textNode(value), false, ParameterType.STRING);
-    variableMap.put(name, parameter);
     return this;
   }
 
@@ -162,7 +131,7 @@ public class ComputedColumnProcessor implements ColumnProcessor {
 
     // Replace all expression variables
     while (formatMatcher.find()) {
-      for (Integer matchIndex = 1, total = formatMatcher.groupCount(); matchIndex <= total; matchIndex++) {
+      for (int matchIndex = 1, total = formatMatcher.groupCount(); matchIndex <= total; matchIndex++) {
         String variableKey = formatMatcher.group(matchIndex);
         String variableValue = "";
         CellData cell = row.get(variableKey);
@@ -180,7 +149,7 @@ public class ComputedColumnProcessor implements ColumnProcessor {
         }
 
         // If variable value is empty, empty the computed value
-        if (variableValue.isEmpty() && emptyOnNull) {
+        if (variableValue.isEmpty() && baseConfigProperties.getComponent().isComputedEmptyIfNull()) {
           computedExpression = "";
         } else {
           // Replace value

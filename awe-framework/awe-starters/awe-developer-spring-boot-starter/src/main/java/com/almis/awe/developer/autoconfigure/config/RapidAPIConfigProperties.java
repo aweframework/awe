@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Scheduler module properties
  */
 @Data
-@ConfigurationProperties(prefix = "awe.translation.rapidapi")
+@ConfigurationProperties(prefix = "awe.developer.translation.rapidapi")
 public class RapidAPIConfigProperties {
   /**
    * Flag to load tasks on start application

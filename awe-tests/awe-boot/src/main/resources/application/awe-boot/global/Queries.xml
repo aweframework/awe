@@ -745,8 +745,8 @@
     <table id="AweThm"/>
     <field id="Nam" alias="value"/>
     <computed format="[variable]" alias="variable"/>
-    <computed format="'[variable]' == 'awe' &amp;&amp; '[value]' == 'adminflare' ? 1 : 0" eval="true" alias="label"/>
-    <variable id="variable" type="STRING" property="module.awe"/>
+    <computed format="'[variable]' == 'awe-boot' &amp;&amp; '[value]' == 'adminflare' ? 1 : 0" eval="true" alias="label"/>
+    <variable id="variable" type="STRING" property="awe.application.acronym"/>
   </query>
 
   <query id="ComputedEvalTranslate">
@@ -986,7 +986,7 @@
       </and>
     </where>
     <variable id="test" type="STRING" value="test"/>
-    <variable id="property" type="STRING" property="module.app"/>
+    <variable id="property" type="STRING" property="awe.application.acronym"/>
   </query>
 
   <query id="VariableOptionalFilter">
@@ -2919,6 +2919,29 @@
       <constant value=" "/>
       <constant value=""/>
     </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
+  <query id="testOperationWithComputed">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <operation operator="ADD" alias="castToInteger">
+      <constant value="12" cast="INTEGER"/>
+      <constant value="2" type="INTEGER"/>
+      <field id="IdeOpe"/>
+      <constant value="4" type="DOUBLE" cast="INTEGER"/>
+    </operation>
+    <computed alias="nom" format="[castToInteger] == 0 ? 0 : '[name][castToInteger]'" eval="true"/>
     <where>
       <filter condition="eq" ignorecase="true">
         <left-operand>

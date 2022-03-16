@@ -3,6 +3,7 @@ package com.almis.awe.service.report;
 import com.almis.ade.api.ADE;
 import com.almis.ade.api.bean.input.PrintBean;
 import com.almis.ade.api.fluid.engine.generic.TemplateExporterBuilderService;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -18,7 +19,6 @@ import com.almis.awe.model.util.file.FileUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JREmptyDataSource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 
 import java.io.File;
@@ -39,28 +39,19 @@ public class ReportGenerator extends ServiceConfig {
   // Autowired services
   private final ReportDesigner designer;
   private final ADE adeAPI;
-
-  @Value("${settings.dataSuffix:.data}")
-  private String dataSuffix;
-
-  @Value("${application.base.path:/}")
-  private String applicationBasePath;
-
-  @Value("${application.paths.reports:@reports/}")
-  private String reportsPath;
-
-  @Value("${application.paths.reports.historic:@historicReports/}")
-  private String historicReportsPath;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param reportDesigner Report designer
-   * @param adeAPI         ADE API
+   * @param reportDesigner       Report designer
+   * @param adeAPI               ADE API
+   * @param baseConfigProperties Base config properties
    */
-  public ReportGenerator(ReportDesigner reportDesigner, ADE adeAPI) {
+  public ReportGenerator(ReportDesigner reportDesigner, ADE adeAPI, BaseConfigProperties baseConfigProperties) {
     this.designer = reportDesigner;
     this.adeAPI = adeAPI;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -104,7 +95,7 @@ public class ReportGenerator extends ServiceConfig {
    */
   private PrintBean designReport(Screen screen, ObjectNode parameters) throws AWException {
     // Generate report structure
-    List<Element> reportStructure = screen.getReportStructure(new ArrayList<>(), null, parameters, dataSuffix);
+    List<Element> reportStructure = screen.getReportStructure(new ArrayList<>(), null, parameters, baseConfigProperties.getComponent().getDataSuffix());
 
     // Generate print bean
     return designer.getPrintDesign(reportStructure, parameters);
@@ -121,15 +112,15 @@ public class ReportGenerator extends ServiceConfig {
     try {
       // Generate file
       return adeAPI
-        .printBean()
-        .withJasper()
-        .buildAndExport(printBean)
-        .withName(fileName)
-        .withPath(StringUtil.getAbsolutePath(reportsPath, applicationBasePath))
-        .withDataSource(new JREmptyDataSource());
+              .printBean()
+              .withJasper()
+              .buildAndExport(printBean)
+              .withName(fileName)
+              .withPath(StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase()))
+              .withDataSource(new JREmptyDataSource());
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_GENERATING_DOCUMENT_DATA"),
-        getLocale("ERROR_MESSAGE_GENERATING_DOCUMENT_DATA"), exc);
+              getLocale("ERROR_MESSAGE_GENERATING_DOCUMENT_DATA"), exc);
     }
   }
 
@@ -142,7 +133,7 @@ public class ReportGenerator extends ServiceConfig {
    */
   private ServiceData generateReportFormats(TemplateExporterBuilderService builderService, List<String> formats, String fileName) throws AWException {
     ServiceData serviceData = new ServiceData();
-    String basePath = StringUtil.getAbsolutePath(reportsPath, applicationBasePath);
+    String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
     for (String format : formats) {
       serviceData.addClientAction(generateReportFormat(builderService, format, fileName, basePath));
     }
@@ -196,9 +187,9 @@ public class ReportGenerator extends ServiceConfig {
     } catch (Exception exc) {
       log.error("Error generating report file ({}): {}{}", format, basePath, fullFileName, exc);
       return new ClientAction("message")
-        .addParameter("type", "error")
-        .addParameter("title", getLocale("ERROR_TITLE_GENERATING_DOCUMENT"))
-        .addParameter("message", "ERROR_MESSAGE_GENERATING_DOCUMENT");
+              .addParameter("type", "error")
+              .addParameter("title", getLocale("ERROR_TITLE_GENERATING_DOCUMENT"))
+              .addParameter("message", "ERROR_MESSAGE_GENERATING_DOCUMENT");
     }
 
     // Generate file data
@@ -212,7 +203,7 @@ public class ReportGenerator extends ServiceConfig {
 
     // Generate client action with file data
     return new ClientAction("get-file")
-      .addParameter("filename", FileUtil.fileDataToString(fileData));
+            .addParameter("filename", FileUtil.fileDataToString(fileData));
 
   }
 
@@ -228,7 +219,7 @@ public class ReportGenerator extends ServiceConfig {
     String reportDateFormatted = DateUtil.dat2SqlDateString(reportDate);
 
     // Generate historic directory
-    File historicPath = Paths.get(StringUtil.getAbsolutePath(historicReportsPath, applicationBasePath), reportDateFormatted, Optional.ofNullable(database).orElse("")).toFile();
+    File historicPath = Paths.get(StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReportsHistoric(), baseConfigProperties.getPaths().getBase()), reportDateFormatted, Optional.ofNullable(database).orElse("")).toFile();
     try {
       Files.createDirectories(historicPath.toPath());
       Files.copy(reportFile.toPath(), Paths.get(historicPath.getAbsolutePath(), reportFile.getName()));

@@ -1,5 +1,7 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
@@ -12,7 +14,6 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.session.AweSessionDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -29,21 +30,20 @@ import static com.almis.awe.model.constant.AweConstants.*;
  */
 public class AccessService extends ServiceConfig {
 
-  public static final String SCREEN = "screen";
-  public static final String CHANGE_LANGUAGE = "change-language";
-  public static final String CHANGE_THEME = "change-theme";
-  // Autowire
-  private final MenuService menuService;
+  // Autowired components
   private final AweSessionDetails sessionDetails;
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
+  private final EncodeService encodeService;
+  private final MenuService menuService;
   private final TotpConfigProperties totpConfigProperties;
   private final TotpService totpService;
 
-  @Value("${security.master.key:fdvsd4@sdsa08}")
-  private String masterKey;
-  @Value("${language.default:en}")
-  private String defaultLanguage;
-  @Value("${application.theme:sky}")
-  private String defaultTheme;
+
+  public static final String SCREEN = "screen";
+  public static final String CHANGE_LANGUAGE = "change-language";
+  public static final String CHANGE_THEME = "change-theme";
+
   @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
   private String jasyptAlgorithm;
   @Value("${jasypt.encryptor.keyObtentionIterations:1000}")
@@ -58,16 +58,30 @@ public class AccessService extends ServiceConfig {
   private String jasyptStringOutputType;
 
   /**
-   * Autowired constructor
+   * AccessService constructor
    *
-   * @param menuService menu service
+   * @param menuService              Menu service
+   * @param sessionDetails           Session details
+   * @param encodeService            Encode services
+   * @param totpService              Totp service
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
+   * @param totpConfigProperties     Totp configuration properties
    */
-  public AccessService(MenuService menuService, AweSessionDetails sessionDetails,
-                       TotpConfigProperties totpConfigProperties, TotpService totpService) {
-    this.menuService = menuService;
+  public AccessService(AweSessionDetails sessionDetails,
+                       MenuService menuService,
+                       EncodeService encodeService,
+                       TotpService totpService,
+                       BaseConfigProperties baseConfigProperties,
+                       SecurityConfigProperties securityConfigProperties,
+                       TotpConfigProperties totpConfigProperties) {
     this.sessionDetails = sessionDetails;
-    this.totpConfigProperties = totpConfigProperties;
+    this.menuService = menuService;
+    this.encodeService = encodeService;
     this.totpService = totpService;
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
+    this.totpConfigProperties = totpConfigProperties;
   }
 
   /**
@@ -102,11 +116,11 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Go to home screen
+   * Go home screen
    *
    * @param userDetails User details
    * @return Service data
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private ServiceData goToHomeScreen(AweUserDetails userDetails) throws AWException {
     // Store session details
@@ -119,7 +133,7 @@ public class AccessService extends ServiceConfig {
     // Store initial url in session
     getSession().setParameter(SESSION_INITIAL_URL, initialUrl);
 
-    // Go to home screen
+    // Go home screen
     return new ServiceData()
       .addClientAction(new ClientAction(SCREEN)
         .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
@@ -190,9 +204,9 @@ public class AccessService extends ServiceConfig {
         .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
         .addParameter(JSON_SCREEN, "/"))
       .addClientAction(new ClientAction(CHANGE_LANGUAGE)
-        .addParameter(SESSION_LANGUAGE, defaultLanguage))
+        .addParameter(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault()))
       .addClientAction(new ClientAction(CHANGE_THEME)
-        .addParameter(SESSION_THEME, defaultTheme));
+        .addParameter(SESSION_THEME, baseConfigProperties.getTheme()));
   }
 
   /**
@@ -251,9 +265,9 @@ public class AccessService extends ServiceConfig {
   public ServiceData encryptText(String textToEncrypt, String phraseKey) throws AWException {
 
     // Encode the text
-    String textEncripted = EncodeUtil.encryptRipEmd160WithPhraseKey(textToEncrypt, phraseKey);
+    String textEncrypted = encodeService.encryptRipEmd160WithPhraseKey(textToEncrypt, phraseKey);
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncripted);
+    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
     return new ServiceData()
       .setDataList(dataList);
   }
@@ -267,7 +281,7 @@ public class AccessService extends ServiceConfig {
    */
   public ServiceData encryptProperty(String textToEncrypt, String phraseKey) {
 
-    String key = Optional.ofNullable(phraseKey).filter(StringUtils::isNotBlank).orElse(masterKey);
+    String key = Optional.ofNullable(phraseKey).filter(StringUtils::isNotBlank).orElse(securityConfigProperties.getMasterKey());
 
     // Get encode bean
     SimpleStringPBEConfig config = new SimpleStringPBEConfig();
@@ -282,9 +296,9 @@ public class AccessService extends ServiceConfig {
     encryptor.setConfig(config);
 
     // Encode the text
-    String textEncripted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
+    String textEncrypted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncripted);
+    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
     return new ServiceData()
       .setDataList(dataList);
   }

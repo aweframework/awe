@@ -27,7 +27,7 @@
   <dependencies>
     <dependency>
       <groupId>com.almis.awe</groupId>
-      <artifactId>awe-model</artifactId>
+      <artifactId>awe-controller</artifactId>
     </dependency>
     <dependency>
       <groupId>com.almis.awe</groupId>
