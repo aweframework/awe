@@ -2,6 +2,7 @@ package com.almis.awe.dao;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.User;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
@@ -35,10 +36,10 @@ public class UserDAOImpl extends ServiceConfig implements UserDAO {
   public User findByUserName(String userName) {
     try {
       // Get user details from database
-      return dataListService
-        .asBeanList(queryService.launchPrivateQuery(AweConstants.USER_DETAIL_QUERY, queryUtil.getParameters()
-            .put("user", userName))
-          .getDataList(), User.class)
+      DataList dataList = queryService.launchPrivateQuery(AweConstants.USER_DETAIL_QUERY, queryUtil.getParameters()
+          .put("user", userName)).getDataList();
+      log.debug("User info: {}", dataList.toString());
+      return dataListService.asBeanList(dataList, User.class)
         .stream()
         .findFirst()
         .orElseThrow(() -> new UsernameNotFoundException(userName));
