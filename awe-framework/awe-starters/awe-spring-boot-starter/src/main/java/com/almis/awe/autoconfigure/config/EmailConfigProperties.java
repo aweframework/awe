@@ -39,7 +39,7 @@ public class EmailConfigProperties {
    */
   private boolean debug = false;
   /**
-   * Flag to specify the usage of SSL/TLS protocol. The Default value is false.
+   * Flag to specify the usage of SSL protocol. The Default value is false.
    */
   private boolean ssl = false;
   /**

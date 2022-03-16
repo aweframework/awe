@@ -2,7 +2,11 @@ package com.almis.awe.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.convert.DurationUnit;
 import org.springframework.validation.annotation.Validated;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Database configuration properties
@@ -49,7 +53,7 @@ public class DatabaseConfigProperties {
 
   /**
    * Repeatable script migration prefix pattern name.
-   * Default value [Module]_V (Ex: AWE_V)
+   * Default value [Module]_R (Ex: AWE_R)
    */
   private String migrationRepeatablePrefix = "%s_R";
 
@@ -78,10 +82,11 @@ public class DatabaseConfigProperties {
   private String auditAction = "HISact";
 
   /**
-   * Audit lag. Used to built a timestamp in audit process.
-   * Default value 100
+   * Audit lag in milliseconds. Used to built a timestamp in audit process.
+   * Default value 100ms
    */
-  private int auditLag = 100;
+  @DurationUnit(ChronoUnit.MILLIS)
+  private Duration auditLag = Duration.ofMillis(100);
 
   /**
    * Chunk size for batch operations.

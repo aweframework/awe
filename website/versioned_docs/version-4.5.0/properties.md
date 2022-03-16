@@ -15,9 +15,297 @@ This document provides a list of common **AWE** properties and references to the
 
 ---
 
-> :warning: This sample file is meant as a guide only. Do not copy and paste the entire content into your application. Rather, pick only the properties that you need.
+> :information_source: To know more about the rest of spring boot configuration properties, visit [Spring Appendix A](https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html)
 
 ---
+
+## AWE Base Properties
+
+These are the base application configuration properties for AWE projects. They have the prefix `awe.application`.
+
+| Name                                                                                                                                                                        | Description                                                                                                                    | Default value                                                                                                                                                                           |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="awe.application.encoding"/> [awe.application.encoding](#awe.application.encoding)                                                                                  | Base encoding for all files.                                                                                                   | `UTF-8`                                                                                                                                                                                 |
+| <a name="awe.application.name"/> [awe.application.name](#awe.application.name)                                                                                              | Application name.                                                                                                              | `AWE (Almis Web Engine)`                                                                                                                                                                |
+| <a name="awe.application.language-default"/> [awe.application.language-default](#awe.application.language-default)                                                          | Application language in ISO 639-1 2 Letters format. (en = English).                                                            | `en` (en = English)                                                                                                                                                                     |
+| <a name="awe.application.language-list"/> [awe.application.language-list](#awe.application.language-list)                                                                   | Application available languages in ISO 639-1 2 Letters format. (en = English).                                                 | `en, es, fr` list with EN, ES, FR languages                                                                                                                                             |
+| <a name="awe.application.theme"/> [awe.application.theme](#awe.application.theme)                                                                                           | Application theme.                                                                                                             | `sky` Sky theme                                                                                                                                                                         |
+| <a name="awe.application.acronym"/> [awe.application.acronym](#awe.application.acronym)                                                                                     | Application acronym. Corresponds to the name of the artifactId of the project.                                                 | `awe`                                                                                                                                                                                   |
+| <a name="awe.application.module-list"/> [awe.application.module-list](#awe.application.module-list)                                                                         | List with application modules separate by commas. Used to load xml files for each module.                                      |                                                                                                                                                                                         |
+| <a name="awe.application.address"/> [awe.application.address](#awe.application.address)                                                                                     | Application address parameter name.                                                                                            | `address`                                                                                                                                                                               |
+| <a name="awe.application.preload-screens"/> [awe.application.preload-screens](#awe.application.preload-screens)                                                             | Enable preload screens.                                                                                                        | `true`                                                                                                                                                                                  |
+| <a name="awe.application.reload-current-screen"/> [awe.application.reload-current-screen](#awe.application.reload-current-screen)                                           | Reload current screen.                                                                                                         | `false`                                                                                                                                                                                 |
+| <a name="awe.application.extension-xml"/> [awe.application.extension-xml](#awe.application.extension-xml)                                                                   | XML file extension parameter name.                                                                                             | `.xml`                                                                                                                                                                                  |
+| <a name="awe.application.print-all-options-enable"/> [awe.application.print-all-options-enable](#awe.application.print-all-options-enable)                                  | Show all print options.                                                                                                        | `true`                                                                                                                                                                                  |
+| <a name="awe.application.log-group"/> [awe.application.log-group](#awe.application.log-group)                                                                               | Define the parent path for application log files.                                                                              | `/application`                                                                                                                                                                          |
+| <a name="awe.application.log-manager-path"/> [awe.application.log-manager-path](#awe.application.log-manager-path)                                                          | Define the path where awe log manager search the log files.                                                                    | `${logging.file.path:${java.io.tmpdir}} ${awe.application.log.group:/application}`                                                                                                      |
+| <a name="awe.application.log-user-enable"/> [awe.application.log-user-enable](#awe.application.log-user-enable)                                                             | Flag to activate log file appender by user.                                                                                    | `true`                                                                                                                                                                                  |
+| <a name="awe.application.highcharts-server-url"/> [awe.application.highcharts-server-url](#awe.application.highcharts-server-url)                                           | Highcharts export server url.                                                                                                  | `https://export.highcharts.com`                                                                                                                                                         |
+| <a name="awe.application.loading-timeout"/> [awe.application.loading-timeout](#awe.application.loading-timeout)                                                             | Loading timeout in milliseconds.                                                                                               | `10000ms` [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)      |
+| <a name="awe.application.files.actions"/> [awe.application.files.actions](#awe.application.files.actions)                                                                   | Xml file name of actions definition.                                                                                           | `Actions`                                                                                                                                                                               |
+| <a name="awe.application.files.services"/> [awe.application.files.services](#awe.application.files.services)                                                                | Xml file name of services definition.                                                                                          | `Services`                                                                                                                                                                              |
+| <a name="awe.application.files.locale"/> [awe.application.files.locale](#awe.application.files.locale)                                                                      | Xml file name of locales definition.                                                                                           | `Locale-`                                                                                                                                                                               |
+| <a name="awe.application.files.enumerated"/> [awe.application.files.enumerated](#awe.application.files.enumerated)                                                          | Xml file name of enumerated definition.                                                                                        | `Enumerated`                                                                                                                                                                            |
+| <a name="awe.application.files.query"/> [awe.application.files.query](#awe.application.files.query)                                                                         | Xml file name of queries definition.                                                                                           | `Queries`                                                                                                                                                                               |
+| <a name="awe.application.files.queue"/> [awe.application.files.queue](#awe.application.files.queue)                                                                         | Xml file name of Queues definition.                                                                                            | `Queues`                                                                                                                                                                                |
+| <a name="awe.application.files.maintain"/> [awe.application.files.maintain](#awe.application.files.maintain)                                                                | Xml file name of maintains definition.                                                                                         | `Maintain`                                                                                                                                                                              |
+| <a name="awe.application.files.components"/> [awe.application.files.components](#awe.application.files.components)                                                          | Xml file name of components definition.                                                                                        | `Components`                                                                                                                                                                            |
+| <a name="awe.application.files.templates"/> [awe.application.files.templates](#awe.application.files.templates)                                                             | Xml file name of templates definition.                                                                                         | `Templates`                                                                                                                                                                             |
+| <a name="awe.application.files.email"/> [awe.application.files.email](#awe.application.files.email)                                                                         | Xml file name of Email definition.                                                                                             | `Email`                                                                                                                                                                                 |
+| <a name="awe.application.files.menu-public"/> [awe.application.files.menu-public](#awe.application.files.menu-public)                                                       | Xml file name of public menu definition.                                                                                       | `public`                                                                                                                                                                                |
+| <a name="awe.application.files.menu-private"/> [awe.application.files.menu-private](#awe.application.files.menu-private)                                                    | Xml file name of private menu definition.                                                                                      | `private`                                                                                                                                                                               |
+| <a name="awe.application.paths.base"/> [awe.application.paths.base](#awe.application.paths.base)                                                                            | Application base path.                                                                                                         | `/` Root path                                                                                                                                                                           |
+| <a name="awe.application.paths.application"/> [awe.application.paths.application](#awe.application.paths.application)                                                       | Application folder path.                                                                                                       | `/application/`                                                                                                                                                                         |
+| <a name="awe.application.paths.global"/> [awe.application.paths.global](#awe.application.paths.global)                                                                      | Global folder path.                                                                                                            | `/global/`                                                                                                                                                                              |
+| <a name="awe.application.paths.locale"/> [awe.application.paths.locale](#awe.application.paths.locale)                                                                      | Locale folder path.                                                                                                            | `/locale/`                                                                                                                                                                              |
+| <a name="awe.application.paths.screen"/> [awe.application.paths.screen](#awe.application.paths.screen)                                                                      | Screen folder path.                                                                                                            | `/screen/`                                                                                                                                                                              |
+| <a name="awe.application.paths.profile"/> [awe.application.paths.profile](#awe.application.paths.profile)                                                                   | Profile folder path.                                                                                                           | `/profile/`                                                                                                                                                                             |
+| <a name="awe.application.paths.menu"/> [awe.application.paths.menu](#awe.application.paths.menu)                                                                            | Menu folder path.                                                                                                              | `/menu/`                                                                                                                                                                                |
+| <a name="awe.application.paths.templates"/> [awe.application.paths.templates](#awe.application.paths.templates)                                                             | Templates folder path.                                                                                                         | `templates/`                                                                                                                                                                            |
+| <a name="awe.application.paths.templates-angular"/> [awe.application.paths.templates-angular](#awe.application.paths.templates-angular)                                     | Angular templates folder path.                                                                                                 | `angular`                                                                                                                                                                               |
+| <a name="awe.application.paths.tag"/> [awe.application.paths.tag](#awe.application.paths.tag)                                                                               | Tag folder path.                                                                                                               | `tags/`                                                                                                                                                                                 |
+| <a name="awe.application.paths.tag-angular"/> [awe.application.paths.tag-angular](#awe.application.paths.tag-angular)                                                       | Tag angular folder path.                                                                                                       | `tags/angular/`                                                                                                                                                                         |
+| <a name="awe.application.paths.server"/> [awe.application.paths.server](#awe.application.paths.server)                                                                      | Server path. Used for set initial URL.                                                                                         |                                                                                                                                                                                         |
+| <a name="awe.application.paths.images"/> [awe.application.paths.images](#awe.application.paths.images)                                                                      | Images folder path.                                                                                                            | `images/`                                                                                                                                                                               |
+| <a name="awe.application.paths.reports"/> [awe.application.paths.reports](#awe.application.paths.reports)                                                                   | Reports destination folder path.                                                                                               | `@reports` (@ is a relative path from awe.application.paths.base property)                                                                                                              |
+| <a name="awe.application.paths.reports-historic"/> [awe.application.paths.reports-historic](#awe.application.paths.reports-historic)                                        | Historic report's destination folder path.                                                                                     | `@historicReports/` (@ is a relative path from awe.application.paths.base property)                                                                                                     |
+| <a name="awe.application.paths.documents"/> [awe.application.paths.documents](#awe.application.paths.documents)                                                             | Documents folder path.                                                                                                         | `static/docs/`                                                                                                                                                                          |
+| <a name="awe.application.paths.jrx"/> [awe.application.paths.jrx](#awe.application.paths.jrx)                                                                               | Jasper jrx folder path.                                                                                                        | `/jrx/`                                                                                                                                                                                 |
+| <a name="awe.application.paths.temp"/> [awe.application.paths.temp](#awe.application.paths.temp)                                                                            | Temp folder path.                                                                                                              | `${java.io.tmpdir:/tmp}`                                                                                                                                                                |
+| <a name="awe.application.paths.icon-favicon"/> [awe.application.paths.icon-favicon](#awe.application.paths.icon-favicon)                                                    | Favicon icon path. Uses application.paths.images as parent path.                                                               | `/images/icon/favicon-awe.ico`                                                                                                                                                          |
+| <a name="awe.application.paths.icon-phone"/> [awe.application.paths.icon-phone](#awe.application.paths.icon-phone)                                                          | Apple icon 57x57 path. Uses application.paths.images as parent path.                                                           | `/images/icon/favicon-awe.ico`                                                                                                                                                          |
+| <a name="awe.application.paths.image-startup-logo"/> [awe.application.paths.image-startup-logo](#awe.application.paths.image-startup-logo)                                  | Home screen logo. Uses awe.application.paths.images as parent path. Default value `../images/logo/logo-awe-nuevo.svg`          | `logo/logo-awe-nuevo.svg`                                                                                                                                                               |
+| <a name="awe.application.paths.image-startup-background"/> [awe.application.paths.image-startup-background](#awe.application.paths.image-startup-background)                | Home screen background image. Uses application.paths.images as parent path.. Default value `../images/logo/signin-bg-1.jpg`    | `logo/signin-bg-1.jpg`                                                                                                                                                                  |
+| <a name="awe.application.parameter.username"/> [awe.application.parameter.username](#awe.application.parameter.username)                                                    | Screen username parameter value.                                                                                               | `cod_usr`                                                                                                                                                                               |
+| <a name="awe.application.parameter.password"/> [awe.application.parameter.password](#awe.application.parameter.password)                                                    | Screen password parameter value.                                                                                               | `pwd_usr`                                                                                                                                                                               |
+| <a name="awe.application.parameter.token"/> [awe.application.parameter.token](#awe.application.parameter.token)                                                             | Token parameter name.                                                                                                          | `t`                                                                                                                                                                                     |
+| <a name="awe.application.screen.home"/> [awe.application.screen.home](#awe.application.screen.home)                                                                         | Home screen name.                                                                                                              | `home`                                                                                                                                                                                  |
+| <a name="awe.application.screen.change-password"/> [awe.application.screen.change-password](#awe.application.screen.change-password)                                        | Change password screen name.                                                                                                   | `change_password`                                                                                                                                                                       |
+| <a name="awe.application.screen.initial"/> [awe.application.screen.initial](#awe.application.screen.initial)                                                                | Default initial screen name.                                                                                                   | `information`                                                                                                                                                                           |
+| <a name="awe.application.component.size"/> [awe.application.component.size](#awe.application.component.size)                                                                | Components size.                                                                                                               | `sm` (Small)                                                                                                                                                                            |
+| <a name="awe.application.component.data-suffix"/> [awe.application.component.data-suffix](#awe.application.component.data-suffix)                                           | Suffix of data parameter send from client.                                                                                     | `.data`                                                                                                                                                                                 |
+| <a name="awe.application.component.grid-rows-per-page"/> [awe.application.component.grid-rows-per-page](#awe.application.component.grid-rows-per-page)                      | Rows per page in grid component (Set to 0 to avoid pagination).                                                                | `30`                                                                                                                                                                                    |
+| <a name="awe.application.component.grid-pixels-per-character"/> [awe.application.component.grid-pixels-per-character](#awe.application.component.grid-pixels-per-character) | Pixels per char in grids.                                                                                                      | `8`                                                                                                                                                                                     |
+| <a name="awe.application.component.criteria-rows-per-page"/> [awe.application.component.criteria-rows-per-page](#awe.application.component.criteria-rows-per-page)          | Rows per page in criteria component (Set to 0 to avoid pagination).                                                            | `100`                                                                                                                                                                                   |
+| <a name="awe.application.component.computed-empty-if-null"/> [awe.application.component.computed-empty-if-null](#awe.application.component.computed-empty-if-null)          | Empty computed values if one of the wildcards are empty.                                                                       | `true`                                                                                                                                                                                  |
+| <a name="awe.application.component.suggest-timeout"/> [awe.application.component.suggest-timeout](#awe.application.component.suggest-timeout)                               | Suggest component timeout in milliseconds.                                                                                     | `300ms`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)       |
+| <a name="awe.application.component.help-timeout"/> [awe.application.component.help-timeout](#awe.application.component.help-timeout)                                        | Component help timeout in milliseconds.                                                                                        | `1000ms`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)      |
+| <a name="awe.application.component.upload-file-id"/> [awe.application.component.upload-file-id](#awe.application.component.upload-file-id)                                  | File uploader component Id.                                                                                                    | `u`                                                                                                                                                                                     |
+| <a name="awe.application.component.upload-file-path"/> [awe.application.component.upload-file-path](#awe.application.component.upload-file-path)                            | Path for file uploads (Relative to application.base.path starts with @).                                                       | `@upload/` (@ is a relative path from awe.application.paths.base property)                                                                                                              |
+| <a name="awe.application.component.upload-max-file-size"/> [awe.application.component.upload-max-file-size](#awe.application.component.upload-max-file-size)                | Max size for uploaded files (in MB).                                                                                           | `100MB` [DataSize](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.data-sizes)       |
+| <a name="awe.application.component.upload-max-files-folder"/> [awe.application.component.upload-max-files-folder](#awe.application.component.upload-max-files-folder)       | Max elements per folder. Used to create temporal folder where save uploaded files.                                             | `100`                                                                                                                                                                                   |
+| <a name="awe.application.component.download-file-id"/> [awe.application.component.download-file-id](#awe.application.component.download-file-id)                            | File downloader component Id.                                                                                                  | `d`                                                                                                                                                                                     |
+| <a name="awe.application.component.pivot-num-group"/> [awe.application.component.pivot-num-group](#awe.application.component.pivot-num-group)                               | Number of group element limit of pivot table component.                                                                        | `5000`                                                                                                                                                                                  |
+| <a name="awe.application.component.chart-limit-point-serie"/> [awe.application.component.chart-limit-point-serie](#awe.application.component.chart-limit-point-serie)       | Limit of points series in chart component.                                                                                     | `1000000`                                                                                                                                                                               |
+| <a name="awe.application.component.tooltip.ok-timeout"/> [awe.application.component.tooltip.ok-timeout](#awe.application.component.tooltip.ok-timeout)                      | Timeout for ok messages (in milliseconds).                                                                                     | `2000ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.application.component.tooltip.error-timeout"/> [awe.application.component.tooltip.error-timeout](#awe.application.component.tooltip.error-timeout)             | Timeout for error messages (in milliseconds).                                                                                  | `0ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)    |
+| <a name="awe.application.component.tooltip.warning-timeout"/> [awe.application.component.tooltip.warning-timeout](#awe.application.component.tooltip.warning-timeout)       | Timeout for warning messages (in milliseconds).                                                                                | `4000ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.application.component.tooltip.info-timeout"/> [awe.application.component.tooltip.info-timeout](#awe.application.component.tooltip.info-timeout)                | Timeout for info messages (in milliseconds).                                                                                   | `0ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)    |
+| <a name="awe.application.component.tooltip.validate-timeout"/> [awe.application.component.tooltip.validate-timeout](#awe.application.component.tooltip.validate-timeout)    | Timeout for validate messages (in milliseconds).                                                                               | `2000ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.application.component.tooltip.help-timeout"/> [awe.application.component.tooltip.help-timeout](#awe.application.component.tooltip.help-timeout)                | Timeout for help messages (in milliseconds).                                                                                   | `5000ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.application.component.tooltip.chat-timeout"/> [awe.application.component.tooltip.chat-timeout](#awe.application.component.tooltip.chat-timeout)                | Timeout for chat messages (in milliseconds).                                                                                   | `0ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)    |
+| <a name="awe.application.component.tooltip.wrong-timeout"/> [awe.application.component.tooltip.wrong-timeout](#awe.application.component.tooltip.wrong-timeout)             | Timeout for wrong messages (in milliseconds).                                                                                  | `0ms`       [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)    |
+| <a name="awe.application.jms.enabled"/> [awe.application.jms.enabled](#awe.application.jms.enabled)                                                                         | Enable AWE JMS service connector.                                                                                              | `false`                                                                                                                                                                                 |
+| <a name="awe.application.jms.service-timeout"/> [awe.application.jms.service-timeout](#awe.application.jms.service-timeout)                                                 | Jms service timeout in milliseconds.                                                                                           | `10000ms`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)     |
+| <a name="awe.application.jms.message-time-to-live"/> [awe.application.jms.message-time-to-live](#awe.application.jms.message-time-to-live)                                  | Jms message time to live in milliseconds. Default value 0ms (the message remains on the queue indefinitely until is processed) | `0ms`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)         |
+| <a name="awe.application.file-manager.base-path"/> [awe.application.file-manager.base-path](#awe.application.file-manager.base-path)                                        | File manager base path.                                                                                                        | `/`  (Root path)                                                                                                                                                                        |
+| <a name="awe.application.file-manager.date-format"/> [awe.application.file-manager.date-format](#awe.application.file-manager.date-format)                                  | File manager date format.                                                                                                      | `yyyy-MM-dd hh:mm:ss`                                                                                                                                                                   |
+| <a name="awe.application.task.pool.size"/> [awe.application.task.pool.size](#awe.application.task.pool.size)                                                                | Task executor pool size.                                                                                                       | `20`                                                                                                                                                                                    |
+| <a name="awe.application.task.pool.max-size"/> [awe.application.task.pool.max-size](#awe.application.task.pool.max-size)                                                    | Task executor pool max elements.                                                                                               | `50`                                                                                                                                                                                    |
+| <a name="awe.application.task.pool.queue-size"/> [awe.application.task.pool.queue-size](#awe.application.task.pool.queue-size)                                              | Task executor queue size.                                                                                                      | `1000`                                                                                                                                                                                  |
+| <a name="awe.application.task.pool.await-termination"/> [awe.application.task.pool.await-termination](#awe.application.task.pool.await-termination)                         | Task executor await termination in seconds.                                                                                    | `120s`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)        |
+| <a name="awe.application.task.pool.thread-prefix"/> [awe.application.task.pool.thread-prefix](#awe.application.task.pool.thread-prefix)                                     | AWE Pool executor threads prefix.                                                                                              | `AweThread-`                                                                                                                                                                            |
+| <a name="awe.application.task.pool.help-thread-prefix"/> [awe.application.task.pool.help-thread-prefix](#awe.application.task.pool.help-thread-prefix)                      | AWE Help Pool executor threads prefix.                                                                                         | `AweHelpThread-`                                                                                                                                                                        |
+| <a name="awe.application.task.pool.contextless-thread-prefix"/> [awe.application.task.pool.contextless-thread-prefix](#awe.application.task.pool.contextless-thread-prefix) | AWE context less Pool executor threads prefix.                                                                                 | `AweInitThread-`                                                                                                                                                                        |
+
+## AWE Database Properties
+
+These are the database configuration properties for AWE projects. They have the prefix `awe.database`.
+
+| Name                                                                                                                                        | Description                                                                                          | Default value                                                                                                                                                                   |
+|---------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="awe.database.enabled"/> [awe.database.enabled](#awe.database.enabled)                                                              | Enable awe database loading beans.                                                                   | `true`                                                                                                                                                                          |
+| <a name="awe.database.parameter-name"/> [awe.database.parameter-name](#awe.database.parameter-name)                                         | Database criterion name. Configure the database parameter to retrieve the value from screen context. | `_database_`                                                                                                                                                                    |
+| <a name="awe.database.limit-log-size"/> [awe.database.limit-log-size](#awe.database.limit-log-size)                                         | Limit log size when a query is printed (0 to disable).                                               | `0`                                                                                                                                                                             |
+| <a name="awe.database.multidatabase-enable"/> [awe.database.multidatabase-enable](#awe.database.multidatabase-enable)                       | Enable multi database. Enable a custom datasource to allow connections to multiple database.         | `false`                                                                                                                                                                         |
+| <a name="awe.database.migration-modules"/> [awe.database.migration-modules](#awe.database.migration-modules)                                | List of modules separated by comma to be migrated by flyway.                                         | `AWE`                                                                                                                                                                           |
+| <a name="awe.database.migration-prefix"/> [awe.database.migration-prefix](#awe.database.migration-prefix)                                   | Script migration prefix pattern name. Default value `[Module]_V` (Ex: AWE_V)                         | `%s_V`                                                                                                                                                                          |
+| <a name="awe.database.migration-reppeatable-prefix"/> [awe.database.migration-repeatable-prefix](#awe.database.migration-repeatable-prefix) | Repeatable script migration prefix pattern name. Default value `[Module]_R` (Ex: AWE_R)              | `%s_R`                                                                                                                                                                          |
+| <a name="awe.database.audit-enable"/> [awe.database.audit-enable](#awe.database.audit-enable)                                               | Enable audit operations in AWE database engine.                                                      | `true`                                                                                                                                                                          |
+| <a name="awe.database.audit-date"/> [awe.database.audit-date](#awe.database.audit-date)                                                     | Name of Date column in audit tables.                                                                 | `HISdat`                                                                                                                                                                        |
+| <a name="awe.database.audit-user"/> [awe.database.audit-user](#awe.database.audit-user)                                                     | Name of User column in audit tables.                                                                 | `HISope`                                                                                                                                                                        |
+| <a name="awe.database.audit-action"/> [awe.database.audit-action](#awe.database.audit-action)                                               | Name of Action column in audit tables.                                                               | `HISact`                                                                                                                                                                        |
+| <a name="awe.database.audit-lag"/> [awe.database.audit-lag](#awe.database.audit-lag)                                                        | Audit lag in milliseconds. Used to built a timestamp in audit process.                               | `100ms` [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.database.batch-max"/> [awe.database.batch-max](#awe.database.batch-max)                                                    | Chunk size for batch operations.                              | `100`  |
+
+## AWE Security Properties
+
+These are all security configuration properties for AWE projects. They have the prefix `awe.security`.
+
+| Name                                                                                                                           | Description                                                                                                | Default value                                                                                                                                                                      |
+|--------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="awe.security.master-key"/> [awe.security.master-key](#awe.security.master-key)                                        | Master key used in encryption process.                                                                     | `B1Le3s%25abc75TeBe05`                                                                                                                                                             |
+| <a name="awe.security.auth-mode"/> [awe.security.auth-mode](#awe.security.auth-mode)                                           | Authentication mode.                                                                                       | `bbdd` BBDD (Database)                                                                                                                                                             |
+| <a name="awe.security.auth-custom-providers"/> [awe.security.auth-custom-providers](#awe.security.auth-custom-providers)       | Authentication custom class providers. Used to implement your custom authentication provider.              |                                                                                                                                                                                    |
+| <a name="awe.security.json-encrypt-enable"/> [awe.security.json-encrypt-enable](#awe.security.json-encrypt-enable)             | Enable json encoding with BASE64 between client-server.                                                    | `false`                                                                                                                                                                            |
+| <a name="awe.security.json-parameter"/> [awe.security.json-parameter](#awe.security.json-parameter)                            | Encrypted parameter list name.                                                                             | `p`                                                                                                                                                                                |
+| <a name="awe.security.default-restriction"/> [awe.security.default-restriction](#awe.security.default-restriction)             | efault restriction set (default should be the most restricted).                                            | `general`                                                                                                                                                                          |
+| <a name="awe.security.role-prefix"/> [awe.security.role-prefix](#awe.security.role-prefix)                                     | Role prefix to build user grants in spring security.                                                       | `ROLE_`                                                                                                                                                                            |
+| <a name="awe.security.xstream-allow-paths"/> [awe.security.xstream-allow-paths](#awe.security.xstream-allow-paths)             | Allows paths for xstream serializer.                                                                       | `java.*", "com.almis.awe.model.entities.**_`                                                                                                                                       |
+| <a name="awe.security.password-pattern"/> [awe.security.password-pattern](#awe.security.password-pattern)                      | Password regex pattern. Used in criteria validation field.                                                 | `.*`                                                                                                                                                                               |
+| <a name="awe.security.password-min-length"/> [awe.security.password-min-length](#awe.security.password-min-length)             | Password minimum length. Used in criteria validation field.                                                | `4`                                                                                                                                                                                |
+| <a name="awe.security.same-origin-enable"/> [awe.security.same-origin-enable](#awe.security.same-origin-enable)                | Enable same origin in http headers. Avoid cross domain frame requests.                                     | `true`                                                                                                                                                                             |
+| <a name="awe.security.allowed-origin-patterns"/> [awe.security.allowed-origin-patterns](#awe.security.allowed-origin-patterns) | List with allowed origin paths separate by commas.                                                         | `*`                                                                                                                                                                                |
+| <a name="awe.security.ldap.user-filter"/> [awe.security.ldap.user-filter](#awe.security.ldap.user-filter)                      | Ldap user login property name. In WINDOWS environment `sAMAccountName={0}`.  In UNIX environment `uid={0}` | `sAMAccountName={0}`                                                                                                                                                               |
+| <a name="awe.security.ldap.url"/> [awe.security.ldap.url](#awe.security.ldap.url)                                              | Ldap server url. Set server values separate by commas when you need config more than one.                  | `ldap://localhost:389`                                                                                                                                                             |
+| <a name="awe.security.ldap.base-dn"/> [awe.security.ldap.base-dn](#awe.security.ldap.base-dn)                                  | Ldap base domain for search. Default value empty (Root Dn).                                                |                                                                                                                                                                                    |
+| <a name="awe.security.ldap.user-bind"/> [awe.security.ldap.user-bind](#awe.security.ldap.user-bind)                            | Ldap user bind search pattern.                                                                             |                                                                                                                                                                                    |
+| <a name="awe.security.ldap.password-bind"/> [awe.security.ldap.password-bind](#awe.security.ldap.password-bind)                | Ldap bind password.                                                                                        |                                                                                                                                                                                    |
+| <a name="awe.security.ldap.connect-timeout"/> [awe.security.ldap.connect-timeout](#awe.security.ldap.connect-timeout)          | Ldap connection timeout in millis. Set `com.sun.jndi.ldap.connect.timeout` environment property.           | `5000ms`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.security.ldap.read-timeout"/> [awe.security.ldap.read-timeout](#awe.security.ldap.read-timeout)                   | Ldap read timeout in millis. Set `com.sun.jndi.ldap.read.timeout` environment property.                    | `5000ms`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.security.totp.enabled"/> [awe.security.totp.enabled](#awe.security.totp.enabled)                                  | Disable, enable or force the TOTP.                                                                         | `disabled`                                                                                                                                                                         |
+| <a name="awe.security.totp.initial-screen"/> [awe.security.totp.initial-screen](#awe.security.totp.initial-screen)             | Initial screen to check TOTP.                                                                              | `check-2fa`                                                                                                                                                                        |
+| <a name="awe.security.totp.activate-screen"/> [awe.security.totp.activate-screen](#awe.security.totp.activate-screen)          | Initial screen to force enable TOTP.                                                                       | `activate-2fa`                                                                                                                                                                     |
+
+## AWE Numeric Properties
+
+These are the numeric configuration properties for AWE projects. They have the prefix `awe.numeric`.
+
+| Name                                                                                                            | Description                                                                                                                                                                                           | Default value                       |
+|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| <a name="awe.numeric.format"/> [awe.numeric.format](#awe.numeric.format)                                        | Number format separator for input numeric. Default value NumericFormatType.EUR (eur). European numeric format ('.' as thousands character and ',' as decimal character).                              | `eur`                               |
+| <a name="awe.numeric.round-type"/> [awe.numeric.round-type](#awe.numeric.round-type)                            | Rounding type for numeric operations. Default value Half Up Symmetric (S). See [RoundTypes](https://aweframework.gitlab.io/awe/javadoc-api/com/almis/awe/model/type/RoundingType.html) for more info. | `S`  RoundingType.HALF_UP_SYMMETRIC |
+| <a name="awe.numeric.pattern-formatted"/> [awe.numeric.pattern-formatted](#awe.numeric.pattern-formatted)       | Numeric format for field pattern value.                                                                                                                                                               | `###,###.####`                      |
+| <a name="awe.numeric.pattern-unformatted"/> [awe.numeric.pattern-unformatted](#awe.numeric.pattern-unformatted) | Numeric format for field pattern value (plain, without a thousand separators).                                                                                                                        | `######.####`                       |
+| <a name="awe.numeric.min-value"/> [awe.numeric.min-value](#awe.numeric.min-value)                               | Minimum value for numeric component.                                                                                                                                                                  | `-9999999999.99`                    |
+| <a name="awe.numeric.max-value"/> [awe.numeric.max-value](#awe.numeric.max-value)                               | Maximum value for numeric component.                                                                                                                                                                  | `9999999999.99`                     |
+| <a name="awe.numeric.padding-with-zeros"/> [awe.numeric.padding-with-zeros](#awe.numeric.padding-with-zeros)    | Padding with zeros to complete format number in numeric component.                                                                                                                                    | `false`                             |
+| <a name="awe.numeric.decimal-numbers"/> [awe.numeric.decimal-numbers](#awe.numeric.decimal-numbers)             | Number of decimals for numeric component.                                                                                                                                                             | `5`                                 |
+| <a name="awe.numeric.separator-thousand"/> [awe.numeric.separator-thousand](#awe.numeric.separator-thousand)    | Thousands separator for numeric component. Default value Thousands Char of NumericFormatType (`awe.numeric.format`)                                                                                   | `.`                                 |
+| <a name="awe.numeric.separator-decimal"/> [awe.numeric.separator-decimal](#awe.numeric.separator-decimal)       | Decimal separator for numeric component. Default value Decimal Char of NumericFormatType (`awe.numeric.format`)                                                                                       | `,`                                 |
+| <a name="awe.numeric.group-decimal"/> [awe.numeric.group-decimal](#awe.numeric.group-decimal)                   | Controls the digital grouping - the placement of the thousand separator for numeric component.                                                                                                        | `3`                                 |
+| <a name="awe.numeric.currency-sign"/> [awe.numeric.currency-sign](#awe.numeric.currency-sign)                   | Desired currency symbol for numeric component.                                                                                                                                                        | ` ` Empty string                    |
+| <a name="awe.numeric.currency-place"/> [awe.numeric.currency-place](#awe.numeric.currency-place)                | Controls the placement of the currency symbol for numeric component. Default value s (suffix to the right). Use p for prefix to the left.                                                             | `s`                                 |
+| <a name="awe.numeric.empty-value"/> [awe.numeric.empty-value](#awe.numeric.empty-value)                         | Controls controls input display behavior for numeric component.                                                                                                                                       | `empty`                             |
+
+## Session Properties
+
+These are the session configuration properties for AWE projects. They have the prefix `awe.session`.
+
+| Name                                                                     | Description                                                                                                             | Default value                                                                                |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| <a name="awe.session.parameter"/> [awe.session.parameter](#awe.session.parameter) | Parameters map injected to session when the application context is starting. Ex: `awe.session.parameter.par1=QueryName` | `awe.session.parameter.module=ModNamByOpeSel` `awe.session.parameter.site=SitNamByOpeSel` `awe.session.parameter.database=DbsAlsBySitModSel` |
+
+## AWE Email Properties
+
+These are the Email engine configuration properties for AWE projects. They have the prefix `awe.mail`.
+
+| Name                                                                     | Description                                                        | Default value |
+|--------------------------------------------------------------------------|--------------------------------------------------------------------|---------------|
+| <a name="awe.mail.enabled"/> [awe.mail.enabled](#awe.mail.enabled)       | Flag to enable awe email features. The Default value is false.     | `false`       |
+| <a name="awe.mail.host"/> [awe.mail.host](#awe.mail.host)                | Email server host.                                                 |               |
+| <a name="awe.mail.port"/> [awe.mail.port](#awe.mail.port)                | Email server port.                                                 | `25`          |
+| <a name="awe.mail.auth"/> [awe.mail.auth](#awe.mail.auth)                | Email authentication. Flag to specify if authentication is needed. | `false`       |
+| <a name="awe.mail.user"/> [awe.mail.user](#awe.mail.user)                | Email server auth username.                                        |               |
+| <a name="awe.mail.pass"/> [awe.mail.pass](#awe.mail.pass)                | Email server auth password.                                        |               |
+| <a name="awe.mail.debug"/> [awe.mail.debug](#awe.mail.debug)             | Execute email in debug mode. The Default value is false.           | `false`       |
+| <a name="awe.mail.ssl"/> [awe.mail.ssl](#awe.mail.ssl)                   | Flag to specify the usage of SSL protocol.                         | `false`       |
+| <a name="awe.mail.tls"/> [awe.mail.tls](#awe.mail.tls)                   | Flag to specify the usage of TLS protocol.                         | `false`       |
+| <a name="awe.mail.localhost"/> [awe.mail.localhost](#awe.mail.localhost) | Name of local smtp server.                                         | `localhost`   |
+
+## AWE Developer Properties
+
+These are the Developer module configuration properties for AWE projects. They have the prefix `awe.developer`.
+
+| Name                                                                                                                                       | Description                                      | Default value                                             |
+|--------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------|
+| <a name="awe.developer.path"/> [awe.developer.path](#awe.developer.path)                                                                   | Developer path. Used to manage the locale files. | `${user.home}/awe-developer`                              |
+| <a name="awe.developer.path-file"/> [awe.developer.path-file](#awe.developer.path-file)                                                    | Path file name.                                  | `path.properties`                                         |
+| <a name="awe.developer.path-property"/> [awe.developer.path-property](#awe.developer.path-property)                                        | Path property name.                              | `path.project`                                            |
+| <a name="awe.developer.translation-service"/> [awe.developer.translation-service](#awe.developer.translation-service)                      | Translation service.                             | `my_memory`                                               |
+| <a name="awe.developer.translation.mymemory.key"/> [awe.developer.translation.mymemory.key](#awe.developer.translation.mymemory.key)       | MyMemory api key.                                | `10ecdc1ed89ac3ebed3b`                                    |
+| <a name="awe.developer.translation.mymemory.host"/> [awe.developer.translation.mymemory.host](#awe.developer.translation.mymemory.host)    | MyMemory translation service host.               | `api.mymemory.translated.net`                             |
+| <a name="awe.developer.translation.mymemory.email"/> [awe.developer.translation.mymemory.email](#awe.developer.translation.mymemory.email) | Translation service reference email.             | `awe@almis.com`                                           |
+| <a name="awe.developer.translation.rapidapi.key"/> [awe.developer.translation.rapidapi.key](#awe.developer.translation.rapidapi.key)       | RapidAPI api key.   .                            | `f20790a0d6msh98d1dad8f0e3da9p10eb19jsn671d6cab2ec5`      |
+| <a name="awe.developer.translation.rapidapi.host"/> [awe.developer.translation.rapidapi.host](#awe.developer.translation.rapidapi.host)    | RapidAPI translation service host.               | `translated-mymemory---translation-memory.p.rapidapi.com` |
+| <a name="awe.developer.translation.rapidapi.email"/> [awe.developer.translation.rapidapi.email](#awe.developer.translation.rapidapi.email) | Translation service reference email.             | `awe@almis.com`                                           |
+
+## AWE Rest Properties
+
+These are the REST connector and Microservice connector configuration properties for AWE projects. They have the prefix `awe.rest`.
+
+| Name                                                                                                                              | Description                                                                                                                        | Default value                                                                                                                                                                  |
+|-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="awe.rest.client-enabled"/> [awe.rest.client-enabled](#awe.rest.client-enabled)                                           | Enable AWE application as Eureka Client.                                                                                           | `false`                                                                                                                                                                        |
+| <a name="awe.rest.connection-timeout"/> [awe.rest.connection-timeout](#awe.rest.connection-timeout)                               | Rest connection timeout in millis.                                                                                                 | `5s` [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)  |
+| <a name="awe.rest.connection-request-timeout"/> [awe.rest.connection-request-timeout](#awe.rest.connection-request-timeout)       | Connection request timeout in millis.                                                                                              | `5s` [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations)  |
+| <a name="awe.rest.services"/> [awe.rest.services](#awe.rest.services)                                                             | Map with Rest services info used by AWE microservice and REST connector. See [these examples](#examples-rest-services-definitions) |                                                                                                                                                                                |
+| <a name="awe.rest.api.doc-title"/> [awe.rest.api.doc-title](#awe.rest.api.doc-title)                                              | Open API Info title.                                                                                                               | `AWE Rest API`                                                                                                                                                                 |
+| <a name="awe.rest.api.doc-description"/> [awe.rest.api.doc-description](#awe.rest.api.doc-description)                            | Open API Info description.                                                                                                         | `Rest API to access AWE services`                                                                                                                                              |
+| <a name="awe.rest.api.doc-version"/> [awe.rest.api.doc-version](#awe.rest.api.doc-version)                                        | Open API Info version.                                                                                                             | `v1.0.0`                                                                                                                                                                       |
+| <a name="awe.rest.api.doc-contact-name"/> [awe.rest.api.doc-contact-name](#awe.rest.api.doc-contact-name)                         | Open API Contact name.                                                                                                             |                                                                                                                                                                                |
+| <a name="awe.rest.api.doc-contact-url"/> [awe.rest.api.doc-contact-url](#awe.rest.api.doc-contact-url)                            | Open API Contact url.                                                                                                              |                                                                                                                                                                                |
+| <a name="awe.rest.api.doc-contact-email"/> [awe.rest.api.doc-contact-email](#awe.rest.api.doc-contact-email)                      | Open API Contact email.                                                                                                            |                                                                                                                                                                                |
+| <a name="awe.rest.api.doc-license-name"/> [awe.rest.api.doc-license-name](#awe.rest.api.doc-license-name)                         | Open API License name.                                                                                                             | `Apache 2.0`                                                                                                                                                                   |
+| <a name="awe.rest.api.doc-license-url"/> [awe.rest.api.doc-license-url](#awe.rest.api.doc-license-url)                            | Open API License url.                                                                                                              | `https://www.apache.org/licenses/LICENSE-2.0.html`                                                                                                                             |
+| <a name="awe.rest.api.doc-terms-of-service-url"/> [awe.rest.api.doc-terms-of-service-url](#awe.rest.api.doc-terms-of-service-url) | Open API Terms of service url.                                                                                                     |                                                                                                                                                                                |
+| <a name="awe.rest.api.doc-external-description"/> [awe.rest.api.doc-external-description](#awe.rest.api.doc-external-description) | Open API External doc description.                                                                                                 |                                                                                                                                                                                |
+| <a name="awe.rest.api.doc-external-url"/> [awe.rest.api.doc-external-url](#awe.rest.api.doc-external-url)                         | Open API External doc url.                                                                                                         |                                                                                                                                                                                |
+| <a name="awe.rest.api.jwt.authorization-header"/> [awe.rest.jwt.authorization-header](#awe.rest.jwt.authorization-header)         | Authentication header name for AWE Rest module                                                                                     | `Authorization`                                                                                                                                                                |
+| <a name="awe.rest.api.jwt.prefix"/> [awe.rest.jwt.prefix](#awe.rest.jwt.prefix)                                                   | JWT token prefix.                                                                                                                  | `Bearer`                                                                                                                                                                       |
+| <a name="awe.rest.api.jwt.secret"/> [awe.rest.jwt.secret](#awe.rest.jwt.secret)                                                   | JWT secret password for sign token.                                                                                                | Value of `awe.security.master.key`                                                                                                                                             |
+| <a name="awe.rest.api.jwt.issuer"/> [awe.rest.jwt.issuer](#awe.rest.jwt.issuer)                                                   | JWT issuer name.                                                                                                                   | `AWE ISSUER`                                                                                                                                                                   |
+| <a name="awe.rest.api.jwt.expiration-time"/> [awe.rest.jwt.expiration-time](#awe.rest.jwt.expiration-time)                        | JWT time valid token to expire in minutes.                                                                                         | `60m` [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+
+### Examples Rest services definitions
+
+```properties
+################################################
+# Microservices properties
+################################################
+awe.rest.services.clients-microservice.base-url=http://localhost:8081
+# Microservice parameters
+awe.rest.services.clients-microservice.parameters[0].name=database
+awe.rest.services.clients-microservice.parameters[0].type=session
+awe.rest.services.clients-microservice.parameters[1].name=username
+awe.rest.services.clients-microservice.parameters[1].type=session
+awe.rest.services.clients-microservice.parameters[2].name=currentDate
+awe.rest.services.clients-microservice.parameters[2].type=session
+awe.rest.services.clients-microservice.parameters[3].name=numPar
+awe.rest.services.clients-microservice.parameters[3].value=3
+# microservices.[service-name] to overwrite microservice base endpoint
+awe.rest.services.other-service.name=other-service-bis
+awe.rest.services.other-service.base-url=http://localhost:8082
+
+################################################
+# Rest services properties
+################################################
+awe.rest.services.local.base-url=http://localhost:18081
+awe.rest.services.island.base-url=https://apis.is
+awe.rest.services.postman.base-url=https://postman-echo.com
+# Rest security
+awe.rest.services.postman.authentication.type=basic
+awe.rest.services.postman.authentication.username=postman
+awe.rest.services.postman.authentication.password=password
+
+```
+
+## AWE Scheduler Properties
+
+These are the Scheduler module configuration properties for AWE projects. They have the prefix `awe.scheduler`.
+
+| Name                                                                                                                              | Description                                 | Default value                                                                                                                                                                     |
+|-----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="awe.scheduler.tasks-load-on-start"/> [awe.scheduler.tasks-load-on-start](#awe.scheduler.tasks-load-on-start)             | Flag to load tasks on start application.    | `true`                                                                                                                                                                            |
+| <a name="awe.scheduler.stored-executions"/> [awe.scheduler.stored-executions](#awe.scheduler.stored-executions)                   | Number of executions to stored in log.      | `5`                                                                                                                                                                               |
+| <a name="awe.scheduler.report-email-from-value"/> [awe.scheduler.report-email-from-value](#awe.scheduler.report-email-from-value) | Scheduler report email.                     | `scheduler@almis.com`                                                                                                                                                             |
+| <a name="awe.scheduler.execution-log-path"/> [awe.scheduler.execution-log-path](#awe.scheduler.execution-log-path)                | Scheduler execution log path.               | `${logging.file.path:${java.io.tmpdir}}/scheduler`                                                                                                                                |
+| <a name="awe.scheduler.execution-log-pattern"/> [awe.scheduler.execution-log-pattern](#awe.scheduler.execution-log-pattern)       | Scheduler execution log pattern.            | `%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx`                                                                                                                                     |
+| <a name="awe.scheduler.task-timeout"/> [awe.scheduler.task-timeout](#awe.scheduler.task-timeout)                                  | Scheduler tasks default timeout in seconds. | `1800s`  [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
+| <a name="awe.scheduler.task-pool.size"/> [awe.scheduler.task-pool.size](#awe.scheduler.task-pool.size)                            | Schedule Task pool size.                    | `20`                                                                                                                                                                              |
+| <a name="awe.scheduler.task-pool.max-size"/> [awe.scheduler.task-pool.max-size](#awe.scheduler.task-pool.max-size)                | Scheduler task pool max size.               | `50`                                                                                                                                                                              |
+| <a name="awe.scheduler.task-pool.queue-size"/> [awe.scheduler.task-pool.queue-size](#awe.scheduler.task-pool.queue-size)          | Scheduler task pool queue capacity.         | `1000`                                                                                                                                                                            |
+| <a name="awe.scheduler.task-pool.termination"/> [awe.scheduler.task-pool.termination](#awe.scheduler.task-pool.termination)       | Scheduler task pool termination.            | `120s`   [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
 
 ## Encoding property value
 
@@ -35,700 +323,15 @@ my.encoded.password=ENC(Pit1Q1bNt3uNQpZbldKbLg==)
 
 ---
 
-> :information_source: The master key used to encode the properties is the `security.master.key` property from `security.properties` file.
+> :information_source: The master key used to encode the properties is the `awe.security.master-key` property from `security.properties` file.
 > You can overwrite it on your own `application.properties` file.
 
 ---
 
 > :warning: The `Phrase key` field on the `Encrypt util` screen allows you to generate the encoded properties with other passwords, but don't forget that
-> the encoded properties with a phrase key and the `security.master.key` must match to be decoded successfully.
+> the encoded properties with a phrase key and the `awe.security.master-key` must match to be decoded successfully.
 
 ---
-
-## Basic properties
-
-Defined on `config/base.properties` file. 
-These are the basic application configuration properties.
-
-```properties
-################################################
-# Application data
-################################################
-# Base encoding for all files
-application.encoding=UTF-8
-# Application name
-application.name=AWE (Almis Web Engine)
-# Application default theme
-application.theme=sky
-# Application acronym (in lowercase)
-application.acronym=awe
-# Application version
-application.version=4.0.2
-
-################################################
-# Global Paths
-# (@ means relative path to app base path)
-################################################
-application.base.path=/${application.acronym}/
-application.paths.application=application/
-application.paths.global=/global/
-application.paths.locale=/locale/
-application.paths.screen=/screen/
-application.paths.profile=/profile/
-application.paths.menu=/menu/
-application.paths.templates=templates/
-application.paths.templates.angular=angular/
-application.paths.tag=tags/
-application.paths.tag.angular=${paths.tag}angular/
-application.paths.server=./
-application.paths.images=images/
-application.paths.reports=@reports/
-application.paths.reports.historic=@historicReports/
-application.paths.jrx=/jrx/
-application.paths.temp=/tmp/
-
-################################################
-# Application Images
-################################################
-# Home screen logo
-application.images.startup.logo=../../images/logo/logo.svg
-# Home screen background
-application.images.startup.background=../../images/background/signin-bg-1.jpg
-# Navigation bar logo
-application.images.navbar.logo=../../images/logo/logo-nabvar.svg
-
-################################################
-# Application Icons
-################################################
-# Favicon
-application.icon.favicon=${application.paths.images}icon/favicon.png
-# Apple icon 57x57
-application.icon.phone=${application.paths.images}icon/favicon.png
-# Apple icon 114x114
-application.icon.tablet=${application.paths.images}icon/favicon.png
-
-################################################
-# Application parameters
-################################################
-# Default action parameter value
-application.parameter.screen=screen
-# Default frame parameter name
-application.parameter.frame=frame
-# Token variable
-application.parameter.token=t
-# Connection id
-application.parameter.comet.id=s
-# Default address parameter
-application.parameter.address=address
-# Default view parameter
-application.parameter.view=view
-# Default component parameter name
-application.parameter.component=component
-# Preload screens on startup
-application.parameter.preload.screens=true
-
-################################################
-# Screen configuration
-################################################
-# Home screen name
-screen.configuration.home=home
-# Change password screen
-screen.configuration.change.password=/screen/change_password
-# Information screen
-screen.configuration.information=information
-# Screen access base
-screen.configuration.base=screen
-
-################################################
-# Screen parameters
-################################################
-# User parameter
-screen.parameter.username=cod_usr
-# Password parameter
-screen.parameter.password=pwd_usr
-
-################################################
-# Language
-################################################
-# Language
-language.default=en
-# Available languages
-language.list=en,es,fr
-
-################################################
-# Print
-################################################
-# Show all print options
-print.show.options=true
-
-################################################
-# Debug and log (Javascript)
-################################################
-# Action Stack Miliseconds to display: Turn off setting as 0
-client.action.stack=0
-# Javascript debug level (DEBUG, INFO, WARNING, ERROR)
-client.debug.level=INFO
-
-################################################
-# Log (Server)
-################################################
-# Log name parameter
-application.log.name=name
-# Log level parameter
-application.log.level=level
-
-################################################
-# Connection protocols
-################################################
-# Connection main protocol [AJAX|COMET]
-connection.protocol=COMET
-# Comet main protocol (default: 'websocket')
-# [polling, long-polling, streaming, jsonp and websocket]
-connection.transport=websocket
-# Comet fallback (backup) protocol (default: 'streaming')
-# [polling, long-polling, streaming, jsonp and websocket]
-connection.backup=streaming
-# Connection timeout (should be lower than tomcat timeout)
-connection.timeout=60000000
-
-################################################
-# Application Defaults
-################################################
-# Rows per page (Set to 0 to avoid pagination)
-application.data.rowsPerPage=30
-# Rows per page for criteria (Set to 0 to avoid pagination)
-application.data.rowsPerPageOnCriteria=100
-# Pixels per char in grids
-application.data.pixelsPerCharacter=8
-# Empty computed values if one of the wildcards are empty
-application.data.set.computed.empty.if.null=true
-# Suggest timeout in milliseconds
-application.suggest.timeout=300
-# Default component size (sm/md/lg)
-application.default.component.size=sm
-# Reload current screen
-application.reload.current.screen=false
-# Loading timeout
-application.screen.load.timeout=10000
-
-################################################
-# File Upload
-################################################
-# Upload identifier
-file.upload.identifier=u
-# Download identifier
-file.download.identifier=d
-# Path for file uploads (Relative to application.base.path starts with @)
-file.upload.path=@upload/
-# Max size of files (in MB)
-file.upload.max.size=500
-# Max elements per folder
-file.upload.max.files.folder=1000
-
-################################################
-# Tooltip timeouts
-################################################
-# Timeout for ok messages
-tooltip.timeout.ok=2000
-# Timeout for error messages
-tooltip.timeout.error=0
-# Timeout for warning messages
-tooltip.timeout.warning=4000
-# Timeout for info messages
-tooltip.timeout.info=0
-# Timeout for validation messages
-tooltip.timeout.validation=2000
-# Timeout for help messages
-tooltip.timeout.help=5000
-# Timeout for chat messages
-tooltip.timeout.chat=0
-
-################################################
-# Jms configuration properties
-################################################
-# JMS Enabled
-awe.jms.enable=false
-# Default Jms Service timeOut (in milliseconds)
-awe.jms.service.timeout=10000
-# Default Jms Service timeToLive
-awe.jms.message.time.to.live=0
-
-################################################
-# REST configuration properties
-################################################
-# Connection timeout
-rest.connection.timeout=5
-# Request timeout
-rest.request.timeout=5
-
-################################################
-# Logger properties
-################################################
-# Default level for custom user file logs
-application.log.users.level=info
-# Flag to activate custom user file logs (true | false)
-application.log.users.enabled=true
-# Flag to build log path within system user home directory (true | false)
-application.log.users.home=false
-
-################################################
-# Chart properties
-################################################
-highcharts.server.url=http://export.highcharts.com
-```
-
-## Library properties
-
-Defined on `config/library.properties` file. 
-Here you can define the layer behaviour of the application 
-(which module is defined in which place).
-
-```properties
-################################################
-# Utilities list
-################################################
-modules.list=app,modn,...,mod1,awe
-modules.prefix=module.
-
-################################################
-# AWE Paths
-################################################
-# Awe module (all awe xml files lie
-# under application/awe/)
-module.awe=awe
-
-################################################
-# Module 1 Paths
-################################################
-# Module acronym (all module xml files must lie
-# under application/${module.mod1}/)
-module.mod1=mod1
-
-...=
-
-################################################
-# Module n Paths
-################################################
-# Module acronym (all module xml files must lie
-# under application/${module.modn}/)
-module.modn=modn
-
-################################################
-# APP Paths
-################################################
-# Application acronym (all application xml files
-# must lie under application/${module.app}/)
-module.app=app
-module.app.documents=static/docs/${module.app}/
-```
-
-> :information_source: First module must be always **app**, last module must be always **awe**.
-
----
-
-> :floppy_disk: This file should be overwritten on the final application.
-
-## Email properties
-
-Defined on `config/email.properties` file. 
-Here you can define the email server settings.
-
-```properties
-################################################
-# Mail server properties
-################################################
-# Localhost for smtp server
-awe.mail.enabled=true
-# Mail JNDI name
-awe.mail.jndi.name=
-# Localhost for smtp server
-awe.mail.localhost=localhost
-# Flag to specify if authentication is needed
-awe.mail.auth=true
-# Email server host
-awe.mail.host=email.server.com
-# Email server port
-awe.mail.port=25
-# Email server username
-awe.mail.user=
-# Email server password
-awe.mail.pass=
-# Flag to specify the usage of SSL/TLS protocol
-awe.mail.ssl=
-# Flag to specify the usage of STARTTLS protocol
-awe.mail.tls=
-# Execute email in debug mode
-awe.mail.debug=true
-```
-
-> :information_source: If an error like `Could not connect to SMTP host: xxxxx:xx (javax.net.ssl.SSLException: Unrecognized SSL message, plaintext connection?)` appears, it means that we need to add the certificate authority that the email servier is using to the Java Certificate keystore.
-
-## Numeric properties
-
-Defined on `config/numeric.properties` file. 
-Here you can define the numeric behaviour of the application
-
-```properties
-################################################
-# Default configuration
-################################################
-# Numeric format for field pattern value
-numeric.pattern.formatted=###,###.####
-# Numeric format for field pattern value (plain, without thousand separators)
-numeric.pattern.unformatted=######.####
-# Number format separator for input numeric 
-# - eur: EUROPEAN FORMAT [10.000.000,00] 
-# - ame: AMERICAN FORMAT [10,000,000.00]
-# - eur_no: EUROPEAN NO THOUSANDS [10000000,00] 
-# - ame_no: AMERICAN NO THOUSANDS [10000000.00]
-numeric.format=eur
-
-################################################
-# Numeric configuration
-################################################
-# Minimum value
-numeric.min.value=-9999999999.99
-# Maximum value
-numeric.max.value=9999999999.99
-# Padding with zeros
-numeric.padding=false
-# Rounding type
-# - S: Round-Half-Up Symmetric (default)
-# - A: Round-Half-Up Asymmetric
-# - s: Round-Half-Down Symmetric (lower case s)
-# - a: Round-Half-Down Asymmetric (lower case a)
-# - B: Round-Half-Even "Bankers Rounding"
-# - U: Round Up "Round-Away-From-Zero"
-# - D: Round Down "Round-Toward-Zero" - same as truncate
-# - C: Round to Ceiling "Toward Positive Infinity"
-# - F: Round to Floor "Toward Negative Infinity"
-numeric.round.type=S
-# Default decimal numbers
-numeric.decimal.numbers=5
-
-################################################
-# Formatting configuration EUR
-################################################
-# Thousands separator
-numeric.separator.thousand.eur=.
-# Decimal separator
-numeric.separator.decimal.eur=,
-
-################################################
-# Formatting configuration AME
-################################################
-# Thousands separator
-numeric.separator.thousand.ame=,
-# Decimal separator
-numeric.separator.decimal.ame=.
-
-################################################
-# Formatting configuration EUR no thousands
-################################################
-# Thousands separator
-numeric.separator.thousand.eur_no=
-# Decimal separator
-numeric.separator.decimal.eur_no=,
-
-################################################
-# Formatting configuration AME no thousands
-################################################
-# Thousands separator
-numeric.separator.thousand.ame_no=
-# Decimal separator
-numeric.separator.decimal.ame_no=.
-```
-
-## Database properties
-
-Defined on `config/database.properties` file. 
-Here you can define the database connection
-
-```properties
-################################################
-# Database
-################################################
-
-# Enable database
-awe.database.enabled=false
-
-# Enable multi database
-awe.database.multi-database.enable=true
-
-# Database criterion name
-awe.database.parameter.name=_database_
-
-# Limit log size (0 to disable)
-awe.database.limit.log.size=0
-
-# Spring datasource properties
-# Datasource jndi name
-spring.datasource.jndi-name=
-# Datasource server url
-spring.datasource.url=
-# Datasource username
-spring.datasource.username=
-# Datasource password
-spring.datasource.password=
-# Datasource driver
-spring.datasource.driver-class-name=
-# Datasource validation query
-spring.datasource.validation-query=select 1 from ope
-
-################################################
-# Flybase migration tools
-################################################
-# Migration scripts prefix pattern
-awe.database.migration.prefix=%s_V
-# Migration repeatable scripts prefix pattern
-awe.database.migration.repeatable.prefix=%s_R
-# List of modules to migrate. 
-# - Add other modules if you need take its scripts
-# - Ex:  awe.database.migration.modules=AWE,SCHEDULER,APP
-awe.database.migration.modules=AWE
-# Scripts location. Takes into account the type of database from the vendor place holder
-spring.flyway.locations=classpath:db/migration/{vendor}
-
-
-################################################
-# Audit properties
-################################################
-# Activate audit
-awe.database.audit=true
-# Audit date field
-awe.database.audit.date=HISdat
-# Audit user field
-awe.database.audit.user=HISope
-# Audit action (Insert, update, delete) field
-awe.database.audit.action=HISact
-# Time between audit operations
-awe.database.audit.lag=100
-
-################################################
-# Batch maintain operation properties
-################################################
-# Number of batch operations to be launched at once
-awe.database.batch.max=100
-```
-
-## Security properties
-
-Defined on `config/security.properties` file. 
-Here you can define the security behaviours of your application.
-
-```properties
-################################################
-# Security
-################################################
-# Password encryption variable
-security.master.key=xxxxxxxxxxxxx
-
-# Jasypt properties (for decrypting properties)
-jasypt.encryptor.password=${security.master.key}
-jasypt.encryptor.algorithm=PBEWithMD5AndDES
-jasypt.encryptor.keyObtentionIterations=1000
-jasypt.encryptor.poolSize=1
-jasypt.encryptor.providerName=SunJCE
-jasypt.encryptor.saltGeneratorClassname=org.jasypt.salt.RandomSaltGenerator
-jasypt.encryptor.stringOutputType=base64
-
-# Activate json encryption (0 - deactivated|1 - activated)
-security.json.encryption=0
-# Encrypted parameter list name
-security.json.parameter=p
-# Default restriction set (default should be the most restricted)
-security.default.restriction=general
-# Spring role prefix
-security.role.prefix=ROLE_
-# XML parser allowed paths
-xml.parser.allowed.paths=java.*,com.almis.awe.model.entities.**
-
-################################################
-# Authentication
-################################################
-# Authentication mode (ldap | bbdd | in_memory | custom)
-security.auth.mode=bbdd
-
-################################################
-# Custom authentication
-################################################
-# Provider class beans, separated by comma for multiple providers.
-security.auth.custom.providers=
-
-################################################
-# Ldap Windows
-################################################
-# User login property name
-security.auth.ldap.windows.user.property=sAMAccountName={0}
-
-################################################
-# Ldap Unix
-################################################
-# User login property name
-security.auth.ldap.unix.user.property=uid={0}
-
-################################################
-# General ldap properties
-################################################
-# Enviroment Ldap (windows | unix)
-security.auth.ldap=windows
-# Ldap urls (ldap:// or ldaps://)
-security.auth.ldap.url=
-# Ldap user bind
-security.auth.ldap.user.bind=
-# Ldap password bind
-security.auth.ldap.password.bind=
-# Ldap Base DN of user
-security.auth.ldap.basedn=
-# Ldap connection time out
-security.auth.ldap.timeout=5000
-
-################################################
-# Security request headers
-################################################
-# Avoid cross domain frame requests
-security.headers.frameOptions.sameOrigin=true
-# Allowed origins patterns when starting websocket connection
-security.headers.allowedOriginsPatterns=*
-```
-
-## Session properties
-
-Defined on `config/session.properties` file. 
-Here you can define the session management.
-
-```properties
-################################################
-# Session configuration
-################################################
-# Session timeout in seconds (30 min).
-server.servlet.session.timeout=30m
-
-################################################
-# Session parameter list, separated by comma (,)
-################################################
-# Session parameters
-session.parameters=module,site,database
-
-################################################
-# Session parameter value queries
-################################################
-# Queries to initialize session parameters
-session.module.query=ModNamByOpeSel
-session.site.query=SitNamByOpeSel
-session.database.query=DbsAlsBySitModSel
-
-###############################################
-# Spring session
-###############################################
-# Spring session persistence source
-#REDIS - ok
-#MONGO - ok
-#JDBC
-#HAZELCAST
-#NONE - ok
-spring.session.store-type=NONE
-# Session timeout in seconds (30 min)
-server.session.timeout=1800
-
-########### COOKIE CONFIGURATION ###############
-# Session cookie name
-session.cookie.name=AWESESSIONID
-# Session cookie path
-session.cookie.path=/
-# Session cookie domain name regexp
-session.cookie.domain.name.pattern=^.+?\.(\w+\.[a-z]+)$
-
-########### REDIS CONFIGURATION ###############
-# redis host
-spring.redis.host=
-# redis port
-spring.redis.port=6379
-# Sessions flush mode.
-spring.session.redis.flush-mode=on-save
-# Namespace for keys used to store sessions.
-spring.session.redis.namespace=awesessions
-
-########## HAZELCAST CONFIGURATION ############
-# Sessions flush mode.
-spring.session.hazelcast.flush-mode=on-save
-# Name of the map used to store sessions.
-spring.session.hazelcast.map-name=awe:session:sessions
-
-############ JDBC CONFIGURATION ###############
-# Create the required session tables on startup if necessary.
-# Enabled automatically if the default table name is set or a custom schema is configured.
-#spring.session.jdbc.initializer.enabled=
-# Path to the SQL file to use to initialize the database schema.
-spring.session.jdbc.schema=classpath:org/springframework/session/jdbc/schema-mysql.sql
-# Name of database table used to store sessions.
-spring.session.jdbc.table-name=AWE_SESSION
-
-###############################################
-# Session datasource configuration
-###############################################
-
-########## HAZELCAST CONFIGURATION ############
-# The location of the configuration file to use to initialize Hazelcast.
-#spring.hazelcast.config=classpath:config/hazelcast-default.xml
-```
-
-> :information_source: To know more about spring session configuration, visit [Spring Appendix A](https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html)
-
-## Microservices properties
-
-Defined on `config/microservices.properties` file. 
-Here you can define the microservices servers configuration
-
-```properties
-# Microservices search endpoint
-awe.microservices.endpoint=http://localhost:18083/api/
-```
-
-## Logging properties
-
-Defined on `log4j2-app.properties` file. 
-Here you can define the log properties
-
-```properties
-###############################################
-# Log4j2 properties
-###############################################
-# Application log name
-log.app=AWE
-# Jasper log name
-log.jasper=ADE
-# Jms log name
-log.jms=JMS
-# Scheduler log name
-log.scheduler=SCHEDULER
-# Model log name
-log.model=MODEL
-# File extension for custom user file logs
-log.ext=.log
-# Path for app version
-log.app.version=V4.0.0/
-# Pattern layout
-log.pattern.layout=%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] - %msg%n
-# File pattern for rolling
-log.pattern.file=_%d{yyyy-MM-dd}-%i
-# Charset
-log.charset=UTF-8
-# Size rolling policy
-log.size.rolling=10 MB
-# Date rolling policy (Number days)
-log.date.rolling=1
-# Max number files rolling backup
-log.num.file.rolling=10
-# Delete files if size exceeds more than this number
-log.delete.if.size.exceeds=500 MB
-# Delete files if days exceeds more than this number
-log.delete.if.days.exceeds=15d
-# Log folder
-application.log.type=java
-```
-
-> :floppy_disk: This file should be overwritten on the final application.
 
 ## Overwriting properties
 You can overwrite a any property of awe framework by adding it to your `application.properties` file of the project.

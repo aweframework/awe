@@ -11,12 +11,6 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 @Data
 public class AweRestConfigProperties {
   /**
-   * Enable awe rest module.
-   *
-   * Default value "false"
-   */
-  private boolean enabled;
-  /**
    * Open API Info title
    * Default value "AWE Rest API"
    */

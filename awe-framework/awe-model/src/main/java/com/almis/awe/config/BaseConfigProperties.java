@@ -50,7 +50,7 @@ public class BaseConfigProperties {
   private List<@Size(min = 2, max = 2) String> languageList = Arrays.asList("en", "es", "fr");
 
   /**
-   * Application them.
+   * Application theme.
    * Default value sky
    */
   private String theme = "sky";
@@ -308,7 +308,7 @@ public class BaseConfigProperties {
     private String tag = "tags/";
 
     /**
-     * Tag folder path.
+     * Tag angular folder path.
      * Default value angular/
      */
     private String tagAngular = tag + "angular/";
@@ -388,7 +388,7 @@ public class BaseConfigProperties {
 
     /**
      * Home screen background image. Uses application.paths.images as parent path.
-     * Default value ../images/background/signin-bg-1.jpg
+     * Default value ../images/background/signin-bg-1.jp
      */
     private String imageStartupBackground = "../" + images + "background/signin-bg-1.jpg";
   }
@@ -520,7 +520,7 @@ public class BaseConfigProperties {
     private Integer pivotNumGroup = 5000;
 
     /**
-     * Limit of points series in chart component
+     * Limit of points series in chart component.
      */
     private Integer chartLimitPointSerie = 1000000;
   }

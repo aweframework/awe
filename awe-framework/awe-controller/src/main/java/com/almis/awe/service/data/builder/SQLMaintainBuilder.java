@@ -438,7 +438,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     long currentTime = new Date().getTime();
 
     // Add milliseconds to current time plus number
-    currentTime = currentTime + (num * 1000L) / databaseConfigProperties.getAuditLag();
+    currentTime = currentTime + (num * 1000L) / databaseConfigProperties.getAuditLag().toMillis();
     Timestamp dateAudit = new Timestamp(currentTime);
 
     // Audit variables

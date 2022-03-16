@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "awe.developer")
 public class DeveloperConfigProperties {
   /**
-   * Developer path
+   * Developer path. Used to manage the locale files.
    * Default value ${user.home}/awe-developer
    */
   @Value("${user.home}/awe-developer")

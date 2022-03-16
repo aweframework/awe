@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.time.Duration;
 
 @Data
-@ConfigurationProperties(prefix = "awe.rest.jwt")
+@ConfigurationProperties(prefix = "awe.rest.api.jwt")
 public class JWTProperties {
   /**
    * Authentication header name.
