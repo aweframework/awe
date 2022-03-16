@@ -188,7 +188,7 @@ These are the numeric configuration properties for AWE projects. They have the p
 | <a name="awe.numeric.currency-place"/> [awe.numeric.currency-place](#awe.numeric.currency-place)                | Controls the placement of the currency symbol for numeric component. Default value s (suffix to the right). Use p for prefix to the left.                                                             | `s`                                 |
 | <a name="awe.numeric.empty-value"/> [awe.numeric.empty-value](#awe.numeric.empty-value)                         | Controls controls input display behavior for numeric component.                                                                                                                                       | `empty`                             |
 
-## Session Properties
+## AWE Session Properties
 
 These are the session configuration properties for AWE projects. They have the prefix `awe.session`.
 
