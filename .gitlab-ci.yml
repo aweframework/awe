@@ -270,7 +270,7 @@ Javadoc test:
 .firefox-testing:
   extends: .browser-testing
   services:
-    - name: selenoid/firefox
+    - name: selenoid/firefox:97.0
       alias: browser
     - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest
       alias: recorder
