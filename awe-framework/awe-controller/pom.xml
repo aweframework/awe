@@ -49,12 +49,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- Check for properties -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-    </dependency>
     <!-- Spring session and session repository dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

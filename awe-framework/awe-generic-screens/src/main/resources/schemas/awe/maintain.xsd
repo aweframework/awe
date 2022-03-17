@@ -20,7 +20,7 @@
   ==============================================================================
   -->
 
-  <xs:include schemaLocation="query.xsd"/>
+  <xs:include schemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/query.xsd"/>
 
   <!--
   ==============================================================================

@@ -20,7 +20,7 @@
   ==============================================================================
   -->  
   
-  <xs:include schemaLocation="general.xsd"/>    
+  <xs:include schemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/general.xsd"/>
   
   <!--
   ==============================================================================
