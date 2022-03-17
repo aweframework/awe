@@ -84,6 +84,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     // Setup firefox options
     FirefoxProfile firefoxProfile = new FirefoxProfile();
     firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
+    firefoxProfile.setPreference("browser.download.improvements_to_download_panel", "false");
     FirefoxOptions firefoxOptions = new FirefoxOptions()
       .setProfile(firefoxProfile)
       .addArguments("--remote-debugging-port=9222")
