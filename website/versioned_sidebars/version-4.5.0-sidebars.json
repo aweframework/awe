@@ -90,6 +90,10 @@
             {
               "type": "doc",
               "id": "version-4.5.0/session"
+            },
+            {
+              "type": "doc",
+              "id": "version-4.5.0/logging"
             }
           ]
         },

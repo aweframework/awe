@@ -52,19 +52,8 @@ To use this module, the following steps are necessary:
 </info>
 ```
 
-- Add the notifier module to your `config/library.properties` file:
-
-```properties
-# Utilities list
-modules.list=...,notifier,...,awe
-module.awe=awe
-...
-module.notifier=awe-notifier
-...
-```
-
 - Finally, if you are using `flyway`, add the notifier tables into the migration module:
 
 ```properties
-awe.database.migration.modules=AWE,...,NOTIFIER,...
+awe.database.migration-modules=AWE,...,NOTIFIER,...
 ```
