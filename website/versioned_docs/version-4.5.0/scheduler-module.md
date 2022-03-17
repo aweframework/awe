@@ -41,19 +41,8 @@ To activate this module, follow this steps:
 </option>
 ```
 
-- Add the scheduler module to your `config/library.properties` file:
-
-```properties
-# Utilities list
-modules.list=...,scheduler,...,awe
-module.awe=awe
-...
-module.scheduler=awe-scheduler
-...
-```
-
 - Finally, if you are using `flyway`, add the scheduler tables into the migration module:
 
 ```properties
-awe.database.migration.modules=AWE,...,SCHEDULER,...
+awe.database.migration-modules=AWE,...,SCHEDULER,...
 ```

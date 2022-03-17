@@ -6,7 +6,7 @@ sidebar_label: Properties
 
 ## Introduction
 
-Several properties can be specified inside your `application.properties` file, inside your `application.yml` file, or as command line switches. 
+Several properties can be specified inside your `application.properties` file, inside your `application.yml` file, or as command line switches.
 This document provides a list of common **AWE** properties and references to the underlying classes that consume them.
 
 ---
@@ -259,7 +259,7 @@ These are the REST connector and Microservice connector configuration properties
 
 ### Examples Rest services definitions
 
-```properties
+```shell title="application.properties"
 ################################################
 # Microservices properties
 ################################################
@@ -309,8 +309,8 @@ These are the Scheduler module configuration properties for AWE projects. They h
 
 ## Encoding property value
 
-There's a way to store encoded properties (such as passwords) in a properties file. You need to deploy 
-the application, and enter into `Settings -> Security access -> Encrypt util`, fill the text criterion with the password 
+There's a way to store encoded properties (such as passwords) in a properties file. You need to deploy
+the application, and enter into `Settings -> Security access -> Encrypt util`, fill the text criterion with the password
 and push the `Encrypt` button. The `Encrypted property` field is the value of the encoded password.
 
 <img alt="Almis" src={require('@docusaurus/useBaseUrl').default('img/EncryptTool.png')} />

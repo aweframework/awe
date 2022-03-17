@@ -30,7 +30,7 @@ AWE framework customizes the *Flyway migration process* to manage multiple modul
 
 ```properties
 # List of modules to migrate. 
-awe.database.migration.modules=AWE,SCHEDULER,APP
+awe.database.migration-modules=AWE,SCHEDULER,APP
 ```
 
 > **Note:** remeber call your sql scripts with the same name as the configured module. Ex.: `APP_V1.0__Init_schema.sql`
