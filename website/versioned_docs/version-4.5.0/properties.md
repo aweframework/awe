@@ -259,7 +259,7 @@ These are the REST connector and Microservice connector configuration properties
 
 ### Examples Rest services definitions
 
-```properties
+```shell title="application.properties"
 ################################################
 # Microservices properties
 ################################################

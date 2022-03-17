@@ -30,8 +30,9 @@ Cookie: XSRF-TOKEN=faad4d18-035a-4394-ab5f-be3bae2a1a09; JSESSIONID=7177A217096E
 Awe has built-in protection against cross-site scripting (XSS) attacks. Awe converts all data to use HTML entities before the data is rendered in the user's browser.
 
 The filtering is enabled by default, so adding the header typically just ensures it is enabled and instructs the browser what to do when a XSS attack is detected.
+
 ```properties
-X-XSS-Protection: 1; mode=block
+X-XSS-Protection=1; mode=block
 ```
 
 ## Authentication and Authorization
@@ -42,18 +43,18 @@ Awe lets you choose which authentication and authorization system you want to us
 
 ### Spring Security in Awe
 Awe provides configuration beans to manage security in your application. You can use them or overwrite and create your custom auth method. The security configuration is in `SecurityConfig` and `AWEScreenSecurityAdapter` classes and select the authentication method that you want.
-```shell script title="Configuration properties"
+```shell title="Configuration properties"
 ################################################
 # Authentication
 ################################################
 # Authentication mode (ldap | bbdd | in_memory | custom)
-security.auth.mode=bbdd
+awe.security.auth-mode=bbdd
 
 ################################################
 # Custom authentication
 ################################################
 #Provider class beans, separated by comma for multiple providers.
-security.auth.custom.providers=
+awe.security.auth-custom-providers=
 ```
 
 You can always create your own Http web security config class extending `WebSecurityConfigurerAdapter`. 

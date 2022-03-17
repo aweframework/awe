@@ -39,13 +39,13 @@ To activate this module, follow this steps:
 
 This module provides the following properties to overwrite the `awe-rest-spring-boot-starter` starter:
 
-| Key | Default value | Description |
-|-----|---------------|-------------|
-| awe.rest.jwt.authorization-header | `Authorization` | Authentication header name |
-| awe.rest.jwt.jwt-prefix | `Bearer` | JWT token prefix |
-| awe.rest.jwt.jwt-secret | `${security.master.key}` security property  | JWT secret password for sign token |
-| awe.rest.jwt.jwt-issuer | `AWE ISSUER` | JWT issuer name |
-| awe.rest.jwt.jwt-expiration-time | `60m` | JWT time valid token to expire |
+| Key                                   | Default value                                  | Description                        |
+|---------------------------------------|------------------------------------------------|------------------------------------|
+| awe.rest.api.jwt.authorization-header | `Authorization`                                | Authentication header name         |
+| awe.rest.api.jwt.prefix               | `Bearer`                                       | JWT token prefix                   |
+| awe.rest.api.jwt.secret               | `${awe.security.master-key}` security property | JWT secret password for sign token |
+| awe.rest.api.jwt.issuer               | `AWE ISSUER`                                   | JWT issuer name                    |
+| awe.rest.api.jwt.expiration-time      | `60m`                                          | JWT time valid token to expire     |
 
 ## **Services**
 
