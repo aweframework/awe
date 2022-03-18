@@ -39,9 +39,8 @@
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
     <sonar.links.issue>https://gitlab.com/aweframework/awe/issues</sonar.links.issue>
     <sonar.links.scm>https://gitlab.com/aweframework/awe.git</sonar.links.scm>
-    <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
-    <sonar.coverage.jacoco.xmlReportPaths>${jacoco.joined.coverage.path}/jacoco.xml
-    </sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>${jacoco.joined.coverage.path}/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.testExecutionReportPaths>
       ${project.basedir}/awe-framework/awe-client-angular/target/reports/karma/junit/javascriptUnitTests.xml
     </sonar.testExecutionReportPaths>
