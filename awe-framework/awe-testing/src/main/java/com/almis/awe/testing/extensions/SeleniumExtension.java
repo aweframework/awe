@@ -84,7 +84,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     // Setup firefox options
     FirefoxProfile firefoxProfile = new FirefoxProfile();
     firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
-    firefoxProfile.setPreference("browser.download.improvements_to_download_panel", "false");
+    firefoxProfile.setPreference("browser.download.improvements_to_download_panel", false);
     FirefoxOptions firefoxOptions = new FirefoxOptions()
       .setProfile(firefoxProfile)
       .addArguments("--remote-debugging-port=9222")
@@ -123,11 +123,11 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
         break;
       case "remote-firefox":
         webDriverManager = WebDriverManager.firefoxdriver();
-        driver = getDockerDriver(webDriverManager, seleniumModel, extensionContext.getDisplayName());
+        driver = getDockerDriver(webDriverManager, seleniumModel, extensionContext.getDisplayName(), firefoxOptions);
         break;
       case "remote-chrome":
         webDriverManager = WebDriverManager.chromedriver();
-        driver = getDockerDriver(webDriverManager, seleniumModel, extensionContext.getDisplayName());
+        driver = getDockerDriver(webDriverManager, seleniumModel, extensionContext.getDisplayName(), chromeOptions);
         break;
       case "service-firefox":
         driver = getRemoteDriver(seleniumModel, firefoxOptions, WD_HUB);
@@ -186,10 +186,11 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     return new FirefoxDriver(options);
   }
 
-  private WebDriver getDockerDriver(WebDriverManager driverManager, SeleniumModel model, String name) {
+  private WebDriver getDockerDriver(WebDriverManager driverManager, SeleniumModel model, String name, Capabilities capabilities) {
     driverManager
       .browserInDocker().enableRecording().recordingOutput(model.getScreenshotPath())
       .recordingPrefix(name + "-")
+      .capabilities(capabilities)
       .dockerScreenResolution(model.getBrowserWidth() + "x" + model.getBrowserHeight() + "x24");
     model.setRemoteBrowser(true);
     model.setAllowedRecording(false);
