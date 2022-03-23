@@ -1,5 +1,6 @@
 package com.almis.awe.controller;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -7,7 +8,6 @@ import com.almis.awe.model.settings.WebSettings;
 import com.almis.awe.service.InitService;
 import com.almis.awe.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,22 +22,21 @@ import javax.servlet.http.HttpServletRequest;
 public class SettingsController extends ServiceConfig {
 
   // Autowired services
-  private final Environment environment;
   private final MenuService menuService;
   private final InitService initService;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Initialize controller
-   *
-   * @param environment Environment
    * @param menuService Menu service
    * @param initService Init service
+   * @param baseConfigProperties Base properties
    */
   @Autowired
-  public SettingsController(Environment environment, MenuService menuService, InitService initService) {
-    this.environment = environment;
+  public SettingsController(MenuService menuService, InitService initService, BaseConfigProperties baseConfigProperties) {
     this.menuService = menuService;
     this.initService = initService;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -73,17 +72,17 @@ public class SettingsController extends ServiceConfig {
     if (getSession().getParameter(String.class, AweConstants.SESSION_LANGUAGE) != null) {
       settings.setLanguage(getSession().getParameter(String.class, AweConstants.SESSION_LANGUAGE));
     } else {
-      settings.setLanguage(environment.getProperty(AweConstants.PROPERTY_SETTINGS_HEADER + AweConstants.SESSION_LANGUAGE));
+      settings.setLanguage(baseConfigProperties.getLanguageDefault());
     }
     if (getSession().getParameter(String.class, AweConstants.SESSION_THEME) != null) {
       settings.setTheme(getSession().getParameter(String.class, AweConstants.SESSION_THEME));
     } else {
-      settings.setTheme(environment.getProperty(AweConstants.PROPERTY_SETTINGS_HEADER + AweConstants.SESSION_THEME));
+      settings.setTheme(baseConfigProperties.getTheme());
     }
     if (getSession().getParameter(String.class, AweConstants.SESSION_INITIAL_URL) != null) {
       settings.setInitialURL(getSession().getParameter(String.class, AweConstants.SESSION_INITIAL_URL));
     } else {
-      settings.setInitialURL(environment.getProperty(AweConstants.PROPERTY_SETTINGS_HEADER + AweConstants.SESSION_INITIAL_URL));
+      settings.setInitialURL(baseConfigProperties.getPaths().getServer());
     }
     settings.setCometUID(getRequest().getToken());
   }

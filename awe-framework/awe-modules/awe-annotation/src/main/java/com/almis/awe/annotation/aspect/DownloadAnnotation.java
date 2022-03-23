@@ -5,6 +5,7 @@ import com.almis.awe.annotation.entities.audit.AuditParams;
 import com.almis.awe.annotation.entities.util.Download;
 import com.almis.awe.annotation.util.SpringExpressionLanguageParser;
 import com.almis.awe.builder.client.DownloadActionBuilder;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
@@ -14,7 +15,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -30,11 +30,15 @@ import java.nio.file.Paths;
 @Aspect
 public class DownloadAnnotation {
 
-  @Value("${application.base.path:/}")
-  private String applicationBasePath;
+  private final BaseConfigProperties baseConfigProperties;
 
-  @Value("${application.paths.temp:/temp/}")
-  private String tempBasePath;
+  /**
+   * DownloadAnnotation annotation constructor
+   * @param baseConfigProperties Base config properties
+   */
+  public DownloadAnnotation(BaseConfigProperties baseConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+  }
 
   /**
    * Pointcut for annotated methods
@@ -70,14 +74,14 @@ public class DownloadAnnotation {
       if (!downloadAnnotation.file().isEmpty() && Paths.get(downloadAnnotation.file()).toFile().exists()) {
         switch (downloadAnnotation.basePath()) {
           case APPLICATION_BASEPATH:
-            file = new File(applicationBasePath + File.separator + downloadAnnotation.file());
+            file = new File(baseConfigProperties.getPaths().getBase() + File.separator + downloadAnnotation.file());
             break;
           case CUSTOM:
             file = new File(downloadAnnotation.file());
             break;
           case TEMPORAL_FOLDER:
           default:
-            file = new File(tempBasePath + File.separator + downloadAnnotation.file());
+            file = new File(baseConfigProperties.getPaths().getTemp() + File.separator + downloadAnnotation.file());
         }
       }
     }

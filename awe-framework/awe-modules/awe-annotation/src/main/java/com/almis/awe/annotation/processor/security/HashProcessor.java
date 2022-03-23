@@ -3,7 +3,7 @@ package com.almis.awe.annotation.processor.security;
 import com.almis.awe.annotation.aspect.HashAnnotation;
 import com.almis.awe.annotation.entities.security.Hash;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
 
 /**
  * Processor for the Hash annotation
@@ -15,10 +15,15 @@ import com.almis.awe.model.util.security.EncodeUtil;
  */
 public class HashProcessor {
 
+private final EncodeService encodeService;
+
   /**
-   * Private constructor
+   * HashProcessor constructor
+   * @param encodeService Encode service
    */
-  private HashProcessor() {}
+  public HashProcessor(EncodeService encodeService) {
+    this.encodeService = encodeService;
+  }
 
   /**
    * Process current annotation
@@ -28,7 +33,7 @@ public class HashProcessor {
    * @return Processed hash
    * @throws AWException Error processing hash
    */
-  public static String processHashing(Hash hash, String value) throws AWException {
-    return EncodeUtil.hash(hash.algorithm().getAlgorithm(), value, hash.salt());
+  public String processHashing(Hash hash, String value) throws AWException {
+    return encodeService.hash(hash.algorithm().getAlgorithm(), value, hash.salt());
   }
 }

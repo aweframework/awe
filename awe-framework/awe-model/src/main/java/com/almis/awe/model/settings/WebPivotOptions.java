@@ -3,17 +3,19 @@ package com.almis.awe.model.settings;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * WebTooltip options
+ * Web pivot options options
  * 
  * @author pgarcia
  */
 @Getter
 @Setter
 @Accessors(chain = true)
-@ConfigurationProperties(prefix = "settings.pivot.options")
 public class WebPivotOptions {
+
+  /**
+   * Number of group element limit of pivot table component
+   */
   private Integer numGroup;
 }

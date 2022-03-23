@@ -48,7 +48,7 @@ public class InitialLoadDao {
       if (ENUM.equals(initializationData.getInitialLoadType())) {
         return new AsyncResult<>(queryService.launchEnumQuery(initializationData.getTarget()));
       } else {
-        return new AsyncResult<>(queryService.launchQuery(initializationData.getTarget(), initializationData.getParameters()));
+        return new AsyncResult<>(queryService.launchPrivateQuery(initializationData.getTarget(), initializationData.getParameters()));
       }
     } catch (AWException exc) {
       throw exc;

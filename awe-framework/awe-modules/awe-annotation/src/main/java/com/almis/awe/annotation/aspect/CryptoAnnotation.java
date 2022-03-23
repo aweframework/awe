@@ -23,6 +23,12 @@ import java.lang.annotation.Annotation;
 @Aspect
 public class CryptoAnnotation {
 
+  private final CryptoProcessor cryptoProcessor;
+
+  public CryptoAnnotation(CryptoProcessor cryptoProcessor) {
+    this.cryptoProcessor = cryptoProcessor;
+  }
+
   /**
    * Crypto method pointcut
    */
@@ -50,7 +56,7 @@ public class CryptoAnnotation {
   public String cryptoMethodProcessor(ProceedingJoinPoint proceedingJoinPoint) throws AWException {
     // Process join point
     String result = AnnotationUtils.processJoinPoint(proceedingJoinPoint);
-    return CryptoProcessor.processCrypto(((MethodSignature) proceedingJoinPoint.getSignature()).getMethod().getAnnotation(Crypto.class), result);
+    return cryptoProcessor.processCrypto(((MethodSignature) proceedingJoinPoint.getSignature()).getMethod().getAnnotation(Crypto.class), result);
   }
 
   /**
@@ -73,7 +79,7 @@ public class CryptoAnnotation {
 
           // Apply processors
           if (annotation instanceof Crypto) {
-            arg = CryptoProcessor.processCrypto((Crypto) annotation, (String) arg);
+            arg = cryptoProcessor.processCrypto((Crypto) annotation, (String) arg);
           }
 
           // Save value

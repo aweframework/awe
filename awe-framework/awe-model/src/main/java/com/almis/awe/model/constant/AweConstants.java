@@ -12,6 +12,9 @@ public class AweConstants {
   private AweConstants() {
   }
 
+  // AUTH
+  public static final String AUTHENTICATION_RESULT = "authenticationResult";
+
   // LOG
   public static final String DOUBLE_LOG_LINE = "======================================================";
   public static final String LOG_LINE = "----------------------------------------------------------------------------------";
@@ -34,6 +37,7 @@ public class AweConstants {
   public static final String NO_TAG = "NO_TAG";
   public static final String COMMA_SEPARATOR = ",";
   public static final String FILE_SEPARATOR = "/";
+  public static final String URL_SEPARATOR = "/";
 
   // Criteria query parameters
   public static final String CRITERIA_LABEL = "label";
@@ -120,17 +124,10 @@ public class AweConstants {
   public static final String JSON_RESTRICTED = "restricted";
   public static final String JSON_ALL = "all";
   public static final String JSON_VISIBLE_COLUMNS = "visibleColumns";
-  public static final String JSON_PRINT_ORIENTATION = "visibleColumns";
 
   // Properties
-  public static final String PROPERTY_SETTINGS_HEADER = "settings.";
-  public static final String PROPERTY_SECURITY_MASTER_KEY = "security.master.key";
-  public static final String PROPERTY_APPLICATION_ENCODING = "application.encoding";
-  public static final String PROPERTY_NUMERIC_PATTERN_FORMATTED = "numeric.pattern.formatted";
-  public static final String PROPERTY_NUMERIC_PATTERN_UNFORMATTED = "numeric.pattern.unformatted";
-  public static final String PROPERTY_NUMERIC_FORMAT = "numeric.format";
-  public static final String PROPERTY_NUMERIC_ROUND_TYPE = "numeric.round.type";
-  public static final String PROPERTY_EMPTY_IF_NULL = "application.data.set.computed.empty.if.null";
+  public static final String PROPERTY_SECURITY_MASTER_KEY = "awe.security.master.key";
+  public static final String PROPERTY_APPLICATION_ENCODING = "awe.application.encoding";
 
   // Component parameters
   public static final String COMPONENT_SORT = "sort";
@@ -167,7 +164,6 @@ public class AweConstants {
   public static final String SESSION_CONNECTION_TOKEN = "token";
   public static final String SESSION_TOKEN = "sessionToken";
   public static final String SESSION_CONNECTION_HEADER = "Authorization";
-  public static final String SESSION_USER_DETAILS = "userDetails";
 
   // Action variables
   public static final String ACTION_MESSAGE_TYPE = "MESSAGE_TYPE";
@@ -233,7 +229,6 @@ public class AweConstants {
   public static final String XSD_LOCALES = "@awe.schemas@/locale.xsd";
 
   // Reporting
-  public static final String PRINT_SCREEN = "PrnScr";
   public static final String PRINT_ACTION = "ActPrn";
   public static final String PRINT_TABS = "TypPrn";
   public static final String PRINT_DOUBLE_FORMATTING = "DblFmtPrn";

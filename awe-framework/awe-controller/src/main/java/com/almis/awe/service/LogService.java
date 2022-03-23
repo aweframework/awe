@@ -1,16 +1,15 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.*;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -26,23 +25,17 @@ public class LogService extends ServiceConfig {
 
   // Autowired services
   private final QueryUtil queryUtil;
-
-  @Value("${application.log.file.path}")
-  private String logBasePath;
-
-  @Value("${application.log.users.home:false}")
-  private String logUserHome;
-
-  // System user home
-  private static final String USER_HOME = System.getProperty("user.home");
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param queryUtil Query utilities
+   * @param queryUtil            Query utilities
+   * @param baseConfigProperties Base configuration properties
    */
-  public LogService(QueryUtil queryUtil) {
+  public LogService(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties) {
     this.queryUtil = queryUtil;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -130,7 +123,7 @@ public class LogService extends ServiceConfig {
    * @return Log path
    */
   public String getLogPath() {
-    return "true".equalsIgnoreCase(logUserHome) ? USER_HOME + logBasePath : logBasePath;
+    return baseConfigProperties.getLogManagerPath();
   }
 
   /**
@@ -208,7 +201,7 @@ public class LogService extends ServiceConfig {
   private Map<String, CellData> getFileRow(File file) throws AWException {
     Map<String, CellData> fileRow = new HashMap<>();
     fileRow.put("action", new CellData("getLogText"));
-    String path = EncodeUtil.encodeSymmetric(file.getAbsolutePath());
+    String path = EncodeService.encodeSymmetric(file.getAbsolutePath());
     fileRow.put("path", new CellData(path));
     fileRow.put("name", new CellData(file.getName()));
     fileRow.put("date", new CellData(new Date(file.lastModified())));

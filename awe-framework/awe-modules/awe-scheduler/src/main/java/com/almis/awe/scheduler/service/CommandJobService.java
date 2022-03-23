@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 
+import java.time.Duration;
 import java.util.concurrent.Future;
 
 /**
@@ -37,8 +38,13 @@ public class CommandJobService extends JobService {
    *
    * @param executionService Timeout service
    */
-  public CommandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO) {
-    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher);
+  public CommandJobService(ExecutionService executionService,
+                           MaintainService maintainService,
+                           QueryUtil queryUtil, TaskDAO taskDAO,
+                           ApplicationEventPublisher eventPublisher,
+                           CommandDAO commandDAO,
+                           Duration defaultTimeout) {
+    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, defaultTimeout);
     this.commandDAO = commandDAO;
   }
 

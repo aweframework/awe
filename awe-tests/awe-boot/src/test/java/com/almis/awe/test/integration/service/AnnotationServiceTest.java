@@ -3,13 +3,14 @@ package com.almis.awe.test.integration.service;
 import com.almis.awe.annotation.aspect.AuditAnnotation;
 import com.almis.awe.annotation.aspect.DownloadAnnotation;
 import com.almis.awe.annotation.entities.security.Hash;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.util.file.FileUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.service.AnnotationTestService;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -47,6 +48,12 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
   @Autowired
   private AnnotationTestService annotationTestService;
 
+  @Autowired
+  private BaseConfigProperties baseConfigProperties;
+
+  @Autowired
+  private EncodeService encodeService;
+
   @Mock
   private AweSession aweSession;
 
@@ -65,25 +72,25 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
   void checkHashAnnotations() throws Exception {
     //Hashing
     logger.warn("Check hash annotations");
-    assertEquals(EncodeUtil.hash(Hash.HashingAlgorithm.SHA_256.getAlgorithm(), "Moderdonio", "1234"), annotationTestService.hashParameter("Moderdonio"));
-    assertEquals(EncodeUtil.hash(Hash.HashingAlgorithm.SHA_256.getAlgorithm(), "Moderdonio", "1234"), annotationTestService.hashReturnedValue("Moderdonio"));
+    assertEquals(encodeService.hash(Hash.HashingAlgorithm.SHA_256.getAlgorithm(), "Moderdonio", "1234"), annotationTestService.hashParameter("Moderdonio"));
+    assertEquals(encodeService.hash(Hash.HashingAlgorithm.SHA_256.getAlgorithm(), "Moderdonio", "1234"), annotationTestService.hashReturnedValue("Moderdonio"));
   }
 
   @Test
   void checkCryptoAnnotations() throws Exception {
     // Crypto annotation on input parameters
     logger.warn("Check crypto annotations");
-    String encriptedTextUtil = EncodeUtil.encryptAes("Moderdonio", "1234");
+    String encriptedTextUtil = encodeService.encryptAes("Moderdonio", "1234");
     logger.warn("EncodeUtil => " + encriptedTextUtil);
     String encryptedText = annotationTestService.encryptText("Moderdonio");
     logger.warn("Annotation => " + encryptedText);
 
-    assertEquals("Moderdonio", EncodeUtil.decryptAes(encryptedText, "1234"));
+    assertEquals("Moderdonio", encodeService.decryptAes(encryptedText, "1234"));
     assertEquals("Moderdonio", annotationTestService.decryptText(encriptedTextUtil));
 
     // Crypto annotation on return values
     logger.warn("Check crypto annotations on return values");
-    assertEquals("Moderdonio", EncodeUtil.decryptAes(annotationTestService.encryptReturnedText("Moderdonio"), "1234"));
+    assertEquals("Moderdonio", encodeService.decryptAes(annotationTestService.encryptReturnedText("Moderdonio"), "1234"));
     assertEquals("Moderdonio", annotationTestService.decryptReturnedText(encriptedTextUtil));
   }
 
@@ -205,7 +212,7 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void checkDownloadAnnotationNull() throws Throwable {
     // Test audit annotation is null
-    DownloadAnnotation downloadAnnotation = new DownloadAnnotation();
+    DownloadAnnotation downloadAnnotation = new DownloadAnnotation(baseConfigProperties);
 
     //Mocks
     ProceedingJoinPoint joinPoint = mock(ProceedingJoinPoint.class);

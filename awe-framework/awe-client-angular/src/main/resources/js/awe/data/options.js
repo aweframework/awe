@@ -36,9 +36,6 @@ export const DefaultSettings = {
   suggestTimeout: 200,
   // Connection
   connectionProtocol: "AJAX",
-  connectionTransport: "websocket",
-  connectionBackup: "streaming",
-  connectionTimeout: 300000,
   cometUID: getUID(),
   // Upload / Download
   uploadIdentifier: 'u',

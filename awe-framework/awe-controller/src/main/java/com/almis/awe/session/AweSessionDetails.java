@@ -1,13 +1,13 @@
 package com.almis.awe.session;
 
 import com.almis.awe.config.ServiceConfig;
-import com.almis.awe.exception.AWException;
+import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.dto.User;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
@@ -15,14 +15,11 @@ import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Date;
+import java.util.Map;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -37,72 +34,41 @@ public class AweSessionDetails extends ServiceConfig {
   private final QueryService queryService;
   private final AweConnectionTracker connectionTracker;
   private final BroadcastService broadcastService;
-
-  // Change password screen
-  @Value("#{'${session.parameters:}'.split(',')}")
-  private List<String> sessionParameters;
-
-  @Value("${language.default:en}")
-  private String defaultLanguage;
-
-  @Value("${application.theme:sky}")
-  private String defaultTheme;
-
-  @Value("${screen.configuration.information:information}")
-  private String defaultInitialScreen;
-
-  @Value("${security.default.restriction:general}")
-  private String defaultRestriction;
-
-  @Value("${screen.parameter.username:cod_usr}")
-  private String usernameParameter;
+  private final SessionConfigProperties sessionConfigProperties;
 
   /**
    * Autowired constructor
-   *
-   * @param aweClientTracker  awe client tracker
-   * @param queryService      query service
-   * @param connectionTracker connection tracker
-   * @param broadcastService  Broadcasting service
+   *  @param aweClientTracker         awe client tracker
+   * @param queryService             query service
+   * @param connectionTracker        connection tracker
+   * @param broadcastService         Broadcasting service
+   * @param sessionConfigProperties  Session properties
    */
-  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService) {
+  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
     this.clientTracker = aweClientTracker;
     this.queryService = queryService;
     this.connectionTracker = connectionTracker;
     this.broadcastService = broadcastService;
+    this.sessionConfigProperties = sessionConfigProperties;
   }
 
   /**
    * Manage login success
    */
   public void onLoginSuccess() {
-    AweSession session = getSession();
+    AweUserDetails userDetails = (AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    // Set user as fully authenticated
+    userDetails.setFullyAuthenticated(true);
 
     // Store user in session
-    session.setParameter(SESSION_USER, session.getUser());
+    getSession().setParameter(SESSION_USER, userDetails.getUsername());
 
     // Store user details
-    storeUserDetails();
+    storeUserDetails(userDetails);
 
     // Initialize session variables
     initializeSessionVariables();
-  }
-
-  /**
-   * Manage login failure
-   *
-   * @param exc Authentication exception
-   */
-  public void onLoginFailure(AuthenticationException exc) {
-    AweSession session = getSession();
-    String username = getRequest().getParameterAsString(usernameParameter);
-    if (exc instanceof UsernameNotFoundException) {
-      session.setParameter(SESSION_FAILURE, new AWException(getLocale("ERROR_TITLE_INVALID_USER"), getLocale("ERROR_MESSAGE_INVALID_USER", username), exc));
-    } else if (exc instanceof BadCredentialsException) {
-      session.setParameter(SESSION_FAILURE, new AWException(getLocale("ERROR_TITLE_INVALID_CREDENTIALS"), getLocale("ERROR_MESSAGE_INVALID_CREDENTIALS", username), exc));
-    } else {
-      session.setParameter(SESSION_FAILURE, new AWException(getLocale("ERROR_TITLE_INVALID_CREDENTIALS"), exc.getMessage(), exc));
-    }
   }
 
   /**
@@ -136,7 +102,6 @@ public class AweSessionDetails extends ServiceConfig {
     onBeforeLogout();
 
     // Remove from session
-    session.removeParameter(SESSION_USER_DETAILS);
     session.removeParameter(SESSION_LAST_LOGIN);
     session.removeParameter(SESSION_FULLNAME);
     session.removeParameter(SESSION_LANGUAGE);
@@ -152,69 +117,36 @@ public class AweSessionDetails extends ServiceConfig {
    * Store user details
    */
   private void initializeSessionVariables() {
-    Optional.ofNullable(sessionParameters).orElse(Collections.emptyList())
-      .stream().filter(StringUtils::isNotBlank)
-      .forEach(this::evaluateSessionParameter);
-  }
-
-  /**
-   * Evaluate each session parameter
-   *
-   * @param parameter Parameter to evaluate
-   */
-  private void evaluateSessionParameter(String parameter) {
-    try {
-      String parameterQuery = getProperty("session." + parameter + ".query");
-      ServiceData queryOutput = queryService.launchQuery(parameterQuery, "1", "0");
-      DataList queryData = queryOutput.getDataList();
-      if (queryData != null && !queryData.getRows().isEmpty()) {
-        Map<String, CellData> row = queryData.getRows().get(0);
-        getSession().setParameter(parameter, row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue());
+    sessionConfigProperties.getParameter().forEach((paramName, queryName) -> {
+      try {
+        ServiceData queryOutput = queryService.launchQuery(queryName, "1", "0");
+        DataList queryData = queryOutput.getDataList();
+        if (queryData != null && !queryData.getRows().isEmpty()) {
+          Map<String, CellData> row = queryData.getRows().get(0);
+          getSession().setParameter(paramName, row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue());
+        }
+      } catch (Exception exc) {
+        log.error("There has been an error trying to retrieve the session parameter '{}'", paramName, exc);
+        getSession().setParameter(SESSION_FAILURE, exc);
       }
-    } catch (Exception exc) {
-      log.error("There has been an error trying to retrieve the session parameter '{}'", parameter, exc);
-      getSession().setParameter(SESSION_FAILURE, exc);
-    }
-  }
+    });
+   }
 
   /**
    * Store user details
    */
-  private void storeUserDetails() {
+  private void storeUserDetails(AweUserDetails userDetails) {
     AweSession session = getSession();
-    User userDetails = session.getParameter(User.class, SESSION_USER_DETAILS);
-
-    Assert.notNull(userDetails, "User details must not be null. Check if the authentication provider saves user information in session");
-
-    // Specific language
-    String language = Optional.ofNullable(userDetails.getLanguage())
-      .filter(StringUtils::isNotBlank)
-      .orElse(defaultLanguage)
-      .substring(0, 2).toLowerCase();
-
-    // Specific restriction
-    String theme = Stream.of(userDetails.getUserTheme(), userDetails.getProfileTheme())
-      .filter(StringUtils::isNotBlank)
-      .findFirst().orElse(defaultTheme);
-
-    // Specific restriction
-    String restriction = Stream.of(userDetails.getUserFileRestriction(), userDetails.getProfileFileRestriction())
-      .filter(StringUtils::isNotBlank)
-      .findFirst().orElse(defaultRestriction);
-
-    // Specific initial screen
-    String initialScreen = Stream.of(userDetails.getUserInitialScreen(), userDetails.getProfileInitialScreen())
-      .filter(StringUtils::isNotBlank)
-      .findFirst().orElse(defaultInitialScreen);
+    Assert.notNull(userDetails, "User details must not be null");
 
     // Store user data in session
     session.setParameter(SESSION_LAST_LOGIN, new Date());
-    session.setParameter(SESSION_FULLNAME, userDetails.getUserFullName());
-    session.setParameter(SESSION_LANGUAGE, language);
-    session.setParameter(SESSION_THEME, theme);
+    session.setParameter(SESSION_FULLNAME, userDetails.getName());
+    session.setParameter(SESSION_LANGUAGE, userDetails.getLanguage());
+    session.setParameter(SESSION_THEME, userDetails.getTheme());
     session.setParameter(SESSION_PROFILE, userDetails.getProfile());
-    session.setParameter(SESSION_RESTRICTION, restriction);
-    session.setParameter(SESSION_INITIAL_SCREEN, initialScreen);
+    session.setParameter(SESSION_RESTRICTION, userDetails.getRestrictions());
+    session.setParameter(SESSION_INITIAL_SCREEN, userDetails.getInitialScreen());
     session.setParameter(SESSION_TOKEN, getRequest().getToken());
   }
 }

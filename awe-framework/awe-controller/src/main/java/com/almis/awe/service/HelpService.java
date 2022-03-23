@@ -1,11 +1,11 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -22,17 +22,17 @@ public class HelpService extends ServiceConfig {
 
   // Autowired services
   private final TemplateService templateService;
-
-  @Value("${module.app.documents:static/docs/awe/}")
-  private String documentsPath;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
    * @param templateService Template service
+   * @param baseConfigProperties Base configuration properties
    */
-  public HelpService(TemplateService templateService) {
+  public HelpService(TemplateService templateService, BaseConfigProperties baseConfigProperties) {
     this.templateService = templateService;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -90,7 +90,7 @@ public class HelpService extends ServiceConfig {
   public ServiceData getApplicationManual(String manualHeader) {
     ServiceData serviceData = new ServiceData();
     String fileName = manualHeader + "-" + getSession().getParameter(String.class, AweConstants.SESSION_LANGUAGE).toUpperCase() + ".pdf";
-    Resource resource = new ClassPathResource(documentsPath + fileName);
+    Resource resource = new ClassPathResource(baseConfigProperties.getPaths().getDocuments() + baseConfigProperties.getAcronym() + AweConstants.FILE_SEPARATOR + fileName);
     try {
       FileData fileData = null;
       if (resource.exists()) {

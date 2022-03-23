@@ -7,3 +7,7 @@ spring:
       secretmanager:
         enabled: true
         project-id: wired-armor-229610
+# Logging
+logging:
+  file:
+    path: /logs

@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
@@ -11,7 +12,6 @@ import com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,17 +26,18 @@ public class ChartService extends ServiceConfig {
 
   // Autowired parameters
   private final ObjectMapper mapper;
-  // Global files path
-  @Value("${highcharts.server.url:http://export.highcharts.com}")
-  private String exportServerUrl;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
-   * @param mapper Object mapper
+   *
+   * @param mapper               Object mapper
+   * @param baseConfigProperties Base configuration properties
    */
   @Autowired
-  public ChartService(ObjectMapper mapper) {
+  public ChartService(ObjectMapper mapper, BaseConfigProperties baseConfigProperties) {
     this.mapper = mapper;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -57,12 +58,12 @@ public class ChartService extends ServiceConfig {
    *
    * @param screenName  Screen name where chart is
    * @param chartName   Chart identifier
-   * @param datasources Data sources map
+   * @param datasourceMap Data sources map
    * @return SVG image as string
    * @throws AWException Error rendering chart
    */
-  public String renderChart(String screenName, String chartName, Map<String, DataList> datasources) throws AWException {
-    return renderChart(getChart(screenName, chartName), datasources);
+  public String renderChart(String screenName, String chartName, Map<String, DataList> datasourceMap) throws AWException {
+    return renderChart(getChart(screenName, chartName), datasourceMap);
   }
 
   /**
@@ -74,21 +75,21 @@ public class ChartService extends ServiceConfig {
    * @throws AWException Error rendering chart
    */
   public String renderChart(Chart chart, DataList data) throws AWException {
-    Map<String, DataList> datasources = new HashMap<>();
-    datasources.put("main", data);
-    return renderChart(chart, datasources);
+    Map<String, DataList> datasourceMap = new HashMap<>();
+    datasourceMap.put("main", data);
+    return renderChart(chart, datasourceMap);
   }
 
   /**
    * Render chart with highcharts export server
    *
    * @param chart       Chart
-   * @param datasources Data sources map
+   * @param datasourceMap Data sources map
    * @return SVG image as string
    * @throws AWException Error rendering chart
    */
-  public String renderChart(Chart chart, Map<String, DataList> datasources) throws AWException {
-    return renderChartWithDatasources(chart, datasources);
+  public String renderChart(Chart chart, Map<String, DataList> datasourceMap) throws AWException {
+    return renderChartWithDatasourceMap(chart, datasourceMap);
   }
 
   /**
@@ -107,14 +108,14 @@ public class ChartService extends ServiceConfig {
    * Render chart with highcharts export server
    *
    * @param chart       Chart
-   * @param datasources Data sources map
+   * @param datasourceMap Data sources map
    * @return SVG image as string
    * @throws AWException Error rendering chart
    */
-  private String renderChartWithDatasources(Chart chart, Map<String, DataList> datasources) throws AWException {
+  private String renderChartWithDatasourceMap(Chart chart, Map<String, DataList> datasourceMap) throws AWException {
     if (chart != null) {
       // Add data to chart model
-      generateData(chart, datasources);
+      generateData(chart, datasourceMap);
 
       // Generate chart in server
       return generateChartInServer(chart);
@@ -139,7 +140,7 @@ public class ChartService extends ServiceConfig {
     // Generate request
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    ResponseEntity<String> responseEntity = restTemplate.postForEntity(exportServerUrl, new HttpEntity<>(chartData, headers), String.class);
+    ResponseEntity<String> responseEntity = restTemplate.postForEntity(baseConfigProperties.getHighchartsServerUrl(), new HttpEntity<>(chartData, headers), String.class);
     log.info("Generating chart with data: {}", mapper.valueToTree(chartData));
 
     // Handle response status
@@ -154,13 +155,13 @@ public class ChartService extends ServiceConfig {
    * Generate chart data
    *
    * @param chart       Chart
-   * @param datasources Data sources map
+   * @param datasourceMap Data sources map
    */
-  private void generateData(Chart chart, Map<String, DataList> datasources) {
+  private void generateData(Chart chart, Map<String, DataList> datasourceMap) {
     ChartParameter defaultParameter = new ChartParameter().setName("datasource").setValue("main");
     chart.setSerieList(chart.getSerieList()
       .stream()
-      .map(serie -> serie.setData(getSerieData(serie, datasources.get(Optional.ofNullable(serie.getParameterList()).orElse(Collections.emptyList()).stream().filter(parameter -> parameter.getName().equals("datasource")).findFirst().orElse(defaultParameter).getValue()))))
+      .map(serie -> serie.setData(getSerieData(serie, datasourceMap.get(Optional.ofNullable(serie.getParameterList()).orElse(Collections.emptyList()).stream().filter(parameter -> parameter.getName().equals("datasource")).findFirst().orElse(defaultParameter).getValue()))))
       .collect(Collectors.toList()));
   }
 

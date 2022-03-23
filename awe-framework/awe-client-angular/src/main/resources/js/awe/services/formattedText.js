@@ -1,7 +1,7 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 
 // Formatted text service
-aweApplication.factory('FormattedText', [ 'Text', 'AweUtilities', '$sce',
+aweApplication.factory('FormattedText', [ 'Text', 'AweUtilities',
 /**
  * Criterion generic methods
  * 

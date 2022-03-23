@@ -1,5 +1,6 @@
 package com.almis.awe.model.component;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
@@ -28,7 +29,6 @@ import com.almis.awe.model.type.LaunchPhaseType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -45,6 +45,8 @@ import java.util.concurrent.Future;
 import static com.almis.awe.model.constant.AweConstants.*;
 
 /**
+ * The type Awe elements.
+ *
  * @author pgarcia
  */
 @Slf4j
@@ -54,6 +56,7 @@ public class AweElements {
   private final WebApplicationContext context;
   private final AweElementsDao elementsDao;
   private final Environment environment;
+  private final BaseConfigProperties baseConfigProperties;
 
   // Elements
   private Map<String, EnumeratedGroup> enumeratedList;
@@ -67,86 +70,6 @@ public class AweElements {
   private Map<String, Menu> menuList;
   private Map<String, Screen> screenMap;
 
-  // Application language list
-  @Value("#{'${language.list:en,es,fr}'.split(',')}")
-  private List<String> languages;
-
-  // Default language
-  @Value("${language.default:en}")
-  private String defaultLanguage;
-
-  // XML extension
-  @Value("#{'${extensions.xml:.xml}'.split(',')}")
-  private String xmlExtension;
-
-  // Application files path
-  @Value("${application.paths.application:application/}")
-  private String applicationPath;
-
-  // Global files path
-  @Value("${application.paths.global:/global/}")
-  private String globalPath;
-
-  // Menu files path
-  @Value("${application.paths.menu:/menu/}")
-  private String menuPath;
-
-  // Profile files path
-  @Value("${application.paths.profile:/profile/}")
-  private String profilePath;
-
-  // Screen files path
-  @Value("${application.paths.screen:/screen/}")
-  private String screenPath;
-
-  // Locale files path
-  @Value("${application.paths.locale:/locale/}")
-  private String localePath;
-
-  // Enumerated file
-  @Value("${application.files.enumerated:Enumerated}")
-  private String enumeratedFileName;
-
-  // Query file
-  @Value("${application.files.query:Query}")
-  private String queryFileName;
-
-  // Queue file
-  @Value("${application.files.queue:Queue}")
-  private String queueFileName;
-
-  // Maintain file
-  @Value("${application.files.maintain:Maintain}")
-  private String maintainFileName;
-
-  // Email file
-  @Value("${application.files.email:Email}")
-  private String emailFileName;
-
-  // Service file
-  @Value("${application.files.service:Service}")
-  private String serviceFileName;
-
-  // Action file
-  @Value("${application.files.action:Action}")
-  private String actionFileName;
-
-  // Public menu file
-  @Value("${application.files.menu.public:public}")
-  private String publicMenuFileName;
-
-  // Private menu file
-  @Value("${application.files.menu.private:private}")
-  private String privateMenuFileName;
-
-  // Locale file
-  @Value("${application.files.locale:Locale-}")
-  private String localeFileName;
-
-  // Preload screens on startup
-  @Value("${application.parameter.preload.screens:true}")
-  private boolean preloadScreens;
-
   // Locale list
   private Map<String, Map<String, String>> localeList;
 
@@ -155,10 +78,13 @@ public class AweElements {
   /**
    * Autowired constructor
    *
-   * @param context Context
+   * @param context Application context
+   * @param baseConfigProperties base configuration properties
+   * @param elementsDao Element DAO
    */
-  public AweElements(WebApplicationContext context, AweElementsDao elementsDao) {
+  public AweElements(WebApplicationContext context, BaseConfigProperties baseConfigProperties, AweElementsDao elementsDao) {
     this.context = context;
+    this.baseConfigProperties = baseConfigProperties;
     this.elementsDao = elementsDao;
     this.environment = context.getEnvironment();
   }
@@ -217,47 +143,47 @@ public class AweElements {
 
     // Init enumerated
     enumeratedList = new ConcurrentHashMap<>();
-    String path = globalPath + enumeratedFileName + xmlExtension;
+    String path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEnumerated() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Enumerated.class, enumeratedList, path));
 
     // Init queries
     queryList = new ConcurrentHashMap<>();
-    path = globalPath + queryFileName + xmlExtension;
+    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQuery() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Queries.class, queryList, path));
 
     // Init queues
     queueList = new ConcurrentHashMap<>();
-    path = globalPath + queueFileName + xmlExtension;
+    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQueue() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Queues.class, queueList, path));
 
     // Init maintains
     maintainList = new ConcurrentHashMap<>();
-    path = globalPath + maintainFileName + xmlExtension;
+    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getMaintain() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Maintain.class, maintainList, path));
 
     // Init emails
     emailList = new ConcurrentHashMap<>();
-    path = globalPath + emailFileName + xmlExtension;
+    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEmail() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
 
     // Init service
     serviceList = new ConcurrentHashMap<>();
-    path = globalPath + serviceFileName + xmlExtension;
+    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getServices() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
 
     // Init actions
     actionList = new ConcurrentHashMap<>();
-    path = globalPath + actionFileName + xmlExtension;
+    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getActions() + baseConfigProperties.getExtensionXml();
     results.add(elementsDao.readXmlFilesAsync(Actions.class, actionList, path));
 
     // Init profiles
     profileList = new ConcurrentHashMap<>();
-    results.add(elementsDao.readFolderXmlFilesAsync(Profile.class, profilePath, profileList));
+    results.add(elementsDao.readFolderXmlFilesAsync(Profile.class, baseConfigProperties.getPaths().getProfile(), profileList));
 
     // Init screens
     screenMap = new ConcurrentHashMap<>();
-    if (preloadScreens) {
-      results.add(elementsDao.readFolderXmlFilesAsync(Screen.class, screenPath, screenMap));
+    if (baseConfigProperties.isPreloadScreens()) {
+      results.add(elementsDao.readFolderXmlFilesAsync(Screen.class, baseConfigProperties.getPaths().getScreen(), screenMap));
     }
 
     return results;
@@ -270,8 +196,8 @@ public class AweElements {
     // Init menus in cache
     try {
       menuList = new ConcurrentHashMap<>();
-      menuList.put(publicMenuFileName, readMenuFile(publicMenuFileName));
-      menuList.put(privateMenuFileName, readMenuFile(privateMenuFileName));
+      menuList.put(baseConfigProperties.getFiles().getMenuPublic(), readMenuFile(baseConfigProperties.getFiles().getMenuPublic()));
+      menuList.put(baseConfigProperties.getFiles().getMenuPrivate(), readMenuFile(baseConfigProperties.getFiles().getMenuPrivate()));
     } catch (AWException exc) {
       log.error("Error initializing menus", exc);
       exc.log();
@@ -287,10 +213,10 @@ public class AweElements {
     // Initialize locales
     localeList = new ConcurrentHashMap<>();
     // For each language read local files
-    for (String language : languages) {
+    for (String language : baseConfigProperties.getLanguageList()) {
       // Get file name
-      String fileName = localeFileName + language.toUpperCase();
-      String path = localePath + fileName + xmlExtension;
+      String fileName = baseConfigProperties.getFiles().getLocale() + language.toUpperCase();
+      String path = baseConfigProperties.getPaths().getLocale() + fileName + baseConfigProperties.getExtensionXml();
 
       // Read locale file for language
       results.add(elementsDao.readLocaleAsync(path, language, localeList));
@@ -368,7 +294,7 @@ public class AweElements {
   }
 
   /**
-   * Get a email operation with the identifier
+   * Get an email operation with the identifier
    *
    * @param emailId Email operation identifier
    * @return The email operation corresponding the mntId
@@ -419,7 +345,7 @@ public class AweElements {
   }
 
   /**
-   * Get an screen with the identifier
+   * Get a screen with the identifier
    *
    * @param screenId Screen identifier
    * @return The screen corresponding the screenId
@@ -471,7 +397,7 @@ public class AweElements {
   private Screen readScreen(String screenId, Set<String> includedScreens) throws AWException {
     Screen screen;
     int identifier = 1;
-    String path = screenPath + screenId + xmlExtension;
+    String path = baseConfigProperties.getPaths().getScreen() + screenId + baseConfigProperties.getExtensionXml();
 
     // Clone from list
     if (screenMap.containsKey(screenId)) {
@@ -499,7 +425,7 @@ public class AweElements {
         }
       }
 
-      // If component is an include, retrieve included screen and add it
+      // If component is an included, retrieve included screen and add it
       if (element instanceof Include) {
         includeScreen(screenId, (Include) element, new HashSet<>(includedScreens));
       }
@@ -553,7 +479,7 @@ public class AweElements {
    * @param screen Screen
    * @param source Source
    * @return Tag
-   * @throws AWException Error retrieving screen sourcce
+   * @throws AWException Error retrieving screen source
    */
   private Tag getScreenSource(Screen screen, String source) throws AWException {
     for (Tag child : screen.getChildrenByType(Tag.class)) {
@@ -606,7 +532,7 @@ public class AweElements {
    */
   private Menu readMenuFile(String menuId) throws AWException {
     Menu menu;
-    String path = menuPath + menuId + xmlExtension;
+    String path = baseConfigProperties.getPaths().getMenu() + menuId + baseConfigProperties.getExtensionXml();
     try {
       // Clone from list
       menu = elementsDao.readXmlFile(Menu.class, path);
@@ -676,9 +602,9 @@ public class AweElements {
     try {
       AweSession session = context.getBean(AweSession.class);
       language = session.getParameter(String.class, AweConstants.SESSION_LANGUAGE);
-      language = language == null ? defaultLanguage : language;
+      language = language == null ? baseConfigProperties.getLanguageDefault() : language;
     } catch (Exception exc) {
-      language = defaultLanguage;
+      language = baseConfigProperties.getLanguageDefault();
     }
     return language;
   }

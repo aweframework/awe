@@ -19,7 +19,7 @@
         <criteria label="PARAMETER_TEXT" id="ComponentTextVal" variable="InitialLoadValue" component="text" initial-load="value" target-action="TestComponentInitialLoadValue" check-empty="true" style="col-xs-6 col-sm-3 col-lg-2"/>
         <criteria label="PARAMETER_TEXT" id="ComponentTextStaticVal" variable="StaticValue" component="text" value="prueba" check-empty="true" style="col-xs-6 col-sm-3 col-lg-2"/>
         <criteria label="PARAMETER_TEXT" id="ComponentTextStaticSessionVal" variable="SessionValue" component="text" session="user" style="col-xs-6 col-sm-3 col-lg-2"/>
-        <criteria label="PARAMETER_TEXT" id="ComponentTextStaticPropertyVal" variable="PropertyValue" component="text" property="module.awe-test" style="col-xs-6 col-sm-3 col-lg-2"/>
+        <criteria label="PARAMETER_TEXT" id="ComponentTextStaticPropertyVal" variable="PropertyValue" component="text" property="awe.application.acronym" style="col-xs-6 col-sm-3 col-lg-2"/>
       </tag>
     </window>
   </tag>

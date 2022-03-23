@@ -44,6 +44,7 @@ module.exports = {
             'properties',
             'application-options',
             'session',
+            'logging',
           ],
         },
         'deployment'

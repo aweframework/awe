@@ -8,10 +8,7 @@ import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -55,13 +52,26 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     return "http://localhost:" + port + uri;
   }
 
+  /**
+   * Authenticate user on headers
+   * @param headers Headers to add authentication
+   */
+  private void authenticateUser(HttpHeaders headers) {
+    String jwtToken = JWT.create()
+      .withSubject("test")
+      .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
+      .withIssuer("AWE ISSUER")
+      .sign(Algorithm.HMAC512(jwtTokenService.getSecret().getBytes()));
+    headers.add("Authorization", jwtTokenService.getPrefix() + " " + jwtToken);
+  }
+
   @Nested
   @DisplayName("API Data Tests")
   class ApiDataRestTest {
 
     // Authenticate
     @Test
-    void authenticateSuccess() {
+    void authenticate_success() {
       // Build entity and variable maps
       UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"))
               .queryParam("username", "test")
@@ -74,7 +84,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void authenticateUnauthorizedWithBadCredentials() {
+    void authenticateWithBadCredentials_unauthorized() {
       // Build entity and variable maps
       UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"))
               .queryParam("username", "test")
@@ -87,7 +97,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void authenticateUnauthorizedWithUserNotFound() {
+    void authenticateWithUserNotFound_unauthorized() {
       // Build entity and variable maps
       UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"))
               .queryParam("username", "foo")
@@ -102,7 +112,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     // Queries
 
     @Test
-    void protectedQueryUnauthorized() {
+    void protectedQuery_unauthorized() {
       // Build entity and variable maps
       HttpEntity<String> entity = new HttpEntity<>(headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(
@@ -114,9 +124,24 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void protectedQueryAuthorized() {
+    void unknownProtectedQuery_badRequest() {
       //Authenticate users
-      autenticateUser(headers);
+      authenticateUser(headers);
+
+      // Build entity and variable maps
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      ResponseEntity<AweRestResponse> response = restTemplate.exchange(
+        createURLWithPort("/api/data/unknownQuery"),
+        HttpMethod.POST, entity, AweRestResponse.class);
+
+      assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
+      assertEquals("Query 'unknownQuery' has not been defined", Objects.requireNonNull(response.getBody()).getMessage());
+    }
+
+    @Test
+    void protectedQuery_success() {
+      //Authenticate users
+      authenticateUser(headers);
 
       // Build entity and variable maps
       HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -129,9 +154,9 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void protectedQueryWithParametersAuthorized() {
+    void protectedQueryWithParameters_success() {
       //Authenticate users
-      autenticateUser(headers);
+      authenticateUser(headers);
       // Build request
       headers.setContentType(MediaType.APPLICATION_JSON);
       RequestParameter parameters = new RequestParameter();
@@ -150,7 +175,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void publicQuerySuccess() {
+    void publicQuery_success() {
       // Build entity and variable maps
       HttpEntity<String> entity = new HttpEntity<>(headers);
       String queryIdNoAuth = "SimpleEnumPub";
@@ -163,7 +188,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void protectedQueryWithPublicApiUnauthorized() {
+    void protectedQueryWithPublicApi_unauthorized() {
       // Build entity and variable maps
       HttpEntity<String> entity = new HttpEntity<>(headers);
       String queryProtected = "getApplicationParameters";
@@ -176,7 +201,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void unknownQueryWithPublicBarRequest() {
+    void unknownPublicQuery_unauthorized() {
       // Build entity and variable maps
       HttpEntity<String> entity = new HttpEntity<>(headers);
       String unknownQuery = "unknownQuery";
@@ -184,23 +209,14 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/public/data/" + unknownQuery),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
       assertEquals(AnswerType.ERROR, Objects.requireNonNull(response.getBody()).getType());
-    }
-
-
-    private void autenticateUser(HttpHeaders headers) {
-      String jwtToken = JWT.create()
-              .withSubject("test")
-              .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
-              .withIssuer("AWE ISSUER")
-              .sign(Algorithm.HMAC512(jwtTokenService.getSecret().getBytes()));
-      headers.add("Authorization", jwtTokenService.getPrefix() + " " + jwtToken);
     }
   }
 
   @Nested
   @DisplayName("API Maintain Tests")
+  @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
   class ApiMaintainRestTest {
 
     // Constants
@@ -211,7 +227,8 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     private static final String TEST_PUBLIC_MAINTAIN = "testPublicDelete";
 
     @Test
-    void maintainAInsertNoAuth() {
+    @Order(1)
+    void maintainAInsert_unauthorized() {
       HttpEntity<String> entity = new HttpEntity<>(null, headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(
               createURLWithPort("/api/maintain/" + TEST_INSERT),
@@ -222,9 +239,10 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void maintainAInsertAuth() {
+    @Order(2)
+    void maintainAInsert_success() {
       // Authenticate user
-      autenticateUser(headers);
+      authenticateUser(headers);
       HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(
@@ -236,9 +254,10 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void maintainBUpdateAuth() {
+    @Order(3)
+    void maintainBUpdate_success() {
       // Authenticate user
-      autenticateUser(headers);
+      authenticateUser(headers);
       HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(
@@ -250,9 +269,10 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void maintainCUpdateWithParametersAuth() {
+    @Order(4)
+    void maintainCUpdateWithParameters_success() {
       // Authenticate user
-      autenticateUser(headers);
+      authenticateUser(headers);
 
       // Build request
       headers.setContentType(MediaType.APPLICATION_JSON);
@@ -272,9 +292,10 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     @Test
-    void maintainDeleteAuth() {
+    @Order(5)
+    void maintainDelete_success() {
       // Authenticate user
-      autenticateUser(headers);
+      authenticateUser(headers);
 
       HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
@@ -289,7 +310,8 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     // API Public maintain
 
     @Test
-    void publicMaintain() {
+    @Order(6)
+    void publicMaintain_success() {
 
       // Build request
       headers.setContentType(MediaType.APPLICATION_JSON);
@@ -308,13 +330,18 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals("Operation successful", Objects.requireNonNull(response.getBody()).getTitle());
     }
 
-    private void autenticateUser(HttpHeaders headers) {
-      String jwtToken = JWT.create()
-              .withSubject("test")
-              .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
-              .withIssuer("AWE ISSUER")
-              .sign(Algorithm.HMAC512(jwtTokenService.getSecret().getBytes()));
-      headers.add("Authorization", jwtTokenService.getPrefix() + " " + jwtToken);
+    @Test
+    @Order(7)
+    void unknownPublicMaintain_unauthorized() {
+      // Build entity and variable maps
+      HttpEntity<String> entity = new HttpEntity<>(headers);
+      String maintain = "unknownMaintain";
+      ResponseEntity<AweRestResponse> response = restTemplate.exchange(
+        createURLWithPort("/api/public/maintain/" + maintain),
+        HttpMethod.POST, entity, AweRestResponse.class);
+
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(AnswerType.ERROR, Objects.requireNonNull(response.getBody()).getType());
     }
   }
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.net.URI;
 
-@FeignClient(name = "MyMemoryClient", url = "https://${translation.mymemory.host:}")
+@FeignClient(name = "MyMemoryClient", url = "https://${awe.translation.mymemory.host:}")
 public interface MyMemoryFeignClient {
 
   @GetMapping("/api/get?langpair={languageFrom}|{languageTo}")

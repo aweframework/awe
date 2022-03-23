@@ -40,6 +40,7 @@
   <locale name="BUTTON_PRINT" value="Print"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Print selection"/>
   <locale name="BUTTON_RESET" value="Reset"/>
+  <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
   <locale name="BUTTON_RUN" value="Start"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Save markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Save row"/>
@@ -109,6 +110,7 @@
   <locale name="CONFIRM_MESSAGE_NEW" value="You will store the data on the screen. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_NOT_UPDATED_DATA" value="Warning, criteria values have not been modified. Do you want to continue?"/>
   <locale name="CONFIRM_MESSAGE_PRINT_FILE" value="You will print the screen data. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_RESET_2FA" value="You are going to reset the two-factor authentication on the selected users. Are you sure?"/>
   <locale name="CONFIRM_MESSAGE_SND_EML" value="You will send an email to all active users. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="You will store the data on the screen. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Warning, changed data will be lost. Do you want to continue?"/>
@@ -118,6 +120,7 @@
   <locale name="CONFIRM_TITLE_NEW" value="Insert confirmation"/>
   <locale name="CONFIRM_TITLE_NOT_UPDATED_DATA" value="Unchanged data"/>
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="File print confirmation"/>
+  <locale name="CONFIRM_TITLE_RESET_2FA" value="Two-factor authentication reset"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Email send confirmation"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Update confirmation"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Changed data"/>
@@ -164,6 +167,7 @@
   <locale name="EMAIL_MESSAGE_TEXT_REPORT" value="The following files have been generated to be sent by email\n"/>
   <locale name="EMAIL_SUBJECT_GENERAL" value="[#EmlSub#]"/>
   <locale name="EMAIL_SUBJECT_REPORT" value="Screen report: [#ScrTit#]"/>
+  <locale name="ENABLE_2FA" value="Enable second factor authentication"/>
   <locale name="ENUM_AUD_TYP_DEL" value="Delete"/>
   <locale name="ENUM_AUD_TYP_INS" value="Insert"/>
   <locale name="ENUM_AUD_TYP_UPD" value="Update"/>
@@ -417,6 +421,7 @@
   <locale name="ERROR_MESSAGE_GRID_MULTIPLE_CONF" value="Not found the send opertaions parameter for {0} grid . Check his configuration"/>
   <locale name="ERROR_MESSAGE_ILEGAL_TYPE_STATEMENT_VARIABLES" value="Variable type not defined. Index {0} - Type: {1} - Value: {2}"/>
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="There has been a problem launching document engine initialization"/>
+  <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="The second factor authentication code is invalid, please check your authentication application or send a message to the application maintainer to reset your account."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="The selected arguments are not valid"/>
   <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="There was a problem trying to make the connection"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="The credentials entered for the user -{0}- are not valid"/>
@@ -596,6 +601,7 @@
   <locale name="ERROR_TITLE_GETTING_USER_STYLE" value="Error getting user styles"/>
   <locale name="ERROR_TITLE_GETTING_VIEW" value="Error getting view"/>
   <locale name="ERROR_TITLE_INITIALIZING_JASPER" value="Error initilizing Jasper"/>
+  <locale name="ERROR_TITLE_INVALID_2FA_CODE" value="Invalid code"/>
   <locale name="ERROR_TITLE_INVALID_ARGUMENTS" value="Invalid arguments"/>
   <locale name="ERROR_TITLE_INVALID_CONNECTION" value="Invalid connection"/>
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Invalid credentials"/>
@@ -720,6 +726,7 @@
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Select the format you want to apply to the numeric data"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Force the report orientation"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Select what you want to print: All tabs in the screen or only the selected one"/>
+  <locale name="HELP_RESET_2FA_BUTTON" value="Reset the two-factor authentication on the selected users"/>
   <locale name="HELP_RESET_BUTTON" value="Clear all criteria values"/>
   <locale name="HELP_ROWS_PER_PAGE" value="Rows/page"/>
   <locale name="HELP_SCREEN_HELP" value="Dialogue with the definition of the window components and its help"/>
@@ -854,6 +861,8 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MONTH" value="{0} month"/>
   <locale name="MONTHS" value="{0} months"/>
   <locale name="MSG_PASSWD_NEW" value="After entering the password press confirm button"/>
+  <locale name="NO_SUBSCRIPTIONS" value="There are no active subscriptions to notifications"/>
+  <locale name="NOTIFICATIONS" value="NOTIFICATIONS"/>
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="All caches have been cleared sucessfully"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="-{0}-  cache has been cleared sucessfully"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="An email has been sent"/>
@@ -871,6 +880,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch launched successfully"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Operation successful"/>
   <locale name="OK_TITLE_MESSAGE_SENT" value="Message sent"/>
+  <locale name="PARAMETER_2FA" value="2FA"/>
   <locale name="PARAMETER_ACC_ID" value="Account id"/>
   <locale name="PARAMETER_ACC_NAM" value="Account name"/>
   <locale name="PARAMETER_ACC_NUM" value="Account number"/>
@@ -975,6 +985,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="September"/>
   <locale name="PARAMETER_MONTHS" value="Months"/>
   <locale name="PARAMETER_NAME" value="Name"/>
+  <locale name="PARAMETER_NEW_PASSWD" value="New password"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Next execution"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Type of notification"/>
   <locale name="PARAMETER_NUM_LOG" value="Login attempts"/>
@@ -1050,8 +1061,13 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_YEARS" value="Years"/>
   <locale name="PRINT_TAB_ADVANCE" value="Advanced settings"/>
   <locale name="PRINT_TAB_GENERAL" value="General settings"/>
+  <locale name="PROFILE" value="PROFILE"/>
+  <locale name="SCAN_QR_CODE"><![CDATA[You will need to install a two-factor authentication app on your mobile/tablet such as Google Authenticator in order to enter the application.
+
+Open your two-factor authentication app and scan the following QR code to enter the application:]]></locale>
   <locale name="SCREEN_APPLICATION_HELP" value="Application help"/>
   <locale name="SCREEN_HELP" value="Screen help"/>
+  <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Second factor authentication settings"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Add localee text"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Add a localee identifier"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendar"/>
@@ -1098,9 +1114,12 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="SCREEN_TEXT_SETTINGS" value="Settings"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
   <locale name="SCREEN_TEXT_STEP" value="Step"/>
+  <locale name="SCREEN_TEXT_TOTP_CODE" value="Insert code here"/>
   <locale name="SCREEN_TEXT_USER" value="Username"/>
+  <locale name="SCREEN_TEXT_USER_DATA" value="User data"/>
   <locale name="SCREEN_TEXT_USERS" value="Users"/>
   <locale name="SCREEN_TEXT_VERSION" value="Environment"/>
+  <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activate second factor authentication"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Sequences"/>
@@ -1110,6 +1129,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="SCREEN_TITLE_CAL" value="Calendar management"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="View calendar"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Change password"/>
+  <locale name="SCREEN_TITLE_CHECK_2FA" value="Two-factor authentication check"/>
   <locale name="SCREEN_TITLE_COM" value="Commands management"/>
   <locale name="SCREEN_TITLE_COM_UPD" value="Update command"/>
   <locale name="SCREEN_TITLE_COM_VIW" value="View command"/>
@@ -1173,6 +1193,8 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="SCREEN_TITLE_USR_UPD" value="Update user"/>
   <locale name="SCREEN_TITLE_USR_VIW" value="View user"/>
   <locale name="SECONDS" value="{0}s"/>
+  <locale name="SECRET_CODE" value="If you can&apos;t use a QR code, use this text code:"/>
+  <locale name="SECURITY" value="SECURITY"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Search value"/>
   <locale name="SELECT2_SELECT_VALUE" value="Select a value"/>
   <locale name="TIME_AGO" value="{0} ago"/>

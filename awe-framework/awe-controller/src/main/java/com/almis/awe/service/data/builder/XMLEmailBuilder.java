@@ -361,7 +361,7 @@ public class XMLEmailBuilder extends EmailBuilder {
    */
   private void manageQueryResults(String query) throws AWException {
     if (query != null) {
-      ServiceData result = queryService.launchQuery(query);
+      ServiceData result = queryService.launchPrivateQuery(query);
       if (result.getDataList() != null && result.getDataList().getRows() != null) {
         for (Map<String, CellData> row : result.getDataList().getRows()) {
           for (Entry<String, CellData> entry : row.entrySet()) {

@@ -2,11 +2,16 @@ package com.almis.awe.annotation.autoconfigure;
 
 import com.almis.awe.annotation.aspect.*;
 import com.almis.awe.annotation.processor.locale.LocaleProcessor;
+import com.almis.awe.annotation.processor.security.CryptoProcessor;
+import com.almis.awe.annotation.processor.security.HashProcessor;
 import com.almis.awe.annotation.processor.session.SessionProcessor;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.service.EncodeService;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -20,6 +25,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * Created by dfuentes on 26/05/2017.
  */
 @Configuration
+@EnableConfigurationProperties(value = BaseConfigProperties.class)
 @EnableAspectJAutoProxy
 public class AnnotationConfig {
 
@@ -29,8 +35,8 @@ public class AnnotationConfig {
 
   /**
    * Locale processor
-   * @param aweSessionObjectFactory
-   * @param aweElementsObjectFactory
+   * @param aweSessionObjectFactory AWE session object factory
+   * @param aweElementsObjectFactory AWE element object factory
    * @return Locale processor bean
    */
   @Bean
@@ -42,7 +48,7 @@ public class AnnotationConfig {
 
   /**
    * Session processor
-   * @param aweSessionObjectFactory
+   * @param aweSessionObjectFactory AWE session object factory
    * @return Session processor bean
    */
   @Bean
@@ -71,18 +77,30 @@ public class AnnotationConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public CryptoAnnotation cryptoAnnotation() {
-    return new CryptoAnnotation();
+  public CryptoAnnotation cryptoAnnotation(CryptoProcessor cryptoProcessor) {
+    return new CryptoAnnotation(cryptoProcessor);
+  }
+
+  /**
+   * CryptoProcessor bean
+   * @param encodeService Encode service
+   * @return CryptoProcessor bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public CryptoProcessor cryptoProcessor(EncodeService encodeService) {
+    return new CryptoProcessor(encodeService);
   }
 
   /**
    * Download Annotation
+   * @param baseConfigProperties Base config properties
    * @return Download Annotation bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public DownloadAnnotation downloadAnnotation() {
-    return new DownloadAnnotation();
+  public DownloadAnnotation downloadAnnotation(BaseConfigProperties baseConfigProperties) {
+    return new DownloadAnnotation(baseConfigProperties);
   }
 
   /**
@@ -101,8 +119,18 @@ public class AnnotationConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public HashAnnotation hashAnnotation() {
-    return new HashAnnotation();
+  public HashAnnotation hashAnnotation(HashProcessor hashProcessor) {
+    return new HashAnnotation(hashProcessor);
+  }
+
+  /**
+   * HashProcessor bean
+   * @return HashProcessor bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public HashProcessor hashProcessor(EncodeService encodeService) {
+    return new HashProcessor(encodeService);
   }
 
   /**

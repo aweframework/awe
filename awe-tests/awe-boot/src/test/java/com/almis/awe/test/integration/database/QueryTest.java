@@ -1,7 +1,9 @@
 package com.almis.awe.test.integration.database;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.component.AweDatabaseContextHolder;
+import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -14,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @DisplayName("Query tests")
 @Slf4j
-@WithMockUser(username = "test", password = "test")
+@WithMockCustomUser
 public class QueryTest extends AbstractSpringAppIntegrationTest {
 
   // Constants
@@ -51,10 +52,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Autowired
   private AweDatabaseContextHolder aweDatabaseContextHolder;
 
+  @Autowired
+  private EncodeService encodeService;
+
   private MockHttpSession session;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     session = new MockHttpSession();
   }
 
@@ -717,10 +721,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryFilterExistsOK() throws Exception {
     testDatabaseRequest(
-            "testExistsOK",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"abs\":1,\"name\":\"donald\",\"id\":1},{\"abs\":1,\"name\":\"jaimito\",\"id\":2},{\"abs\":1,\"name\":\"jorgito\",\"id\":3},{\"abs\":1,\"name\":\"juanito\",\"id\":4},{\"abs\":1,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testExistsOK",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"abs\":1,\"name\":\"donald\",\"id\":1},{\"abs\":1,\"name\":\"jaimito\",\"id\":2},{\"abs\":1,\"name\":\"jorgito\",\"id\":3},{\"abs\":1,\"name\":\"juanito\",\"id\":4},{\"abs\":1,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -731,10 +735,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryFilterExistsKO() throws Exception {
     testDatabaseRequest(
-            "testExistsKO",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            0);
+      "testExistsKO",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      0);
   }
 
   /**
@@ -745,10 +749,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryFilterNotExistsOK() throws Exception {
     testDatabaseRequest(
-            "testNotExistsOK",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1},{\"name\":\"jaimito\",\"id\":2},{\"name\":\"jorgito\",\"id\":3},{\"name\":\"juanito\",\"id\":4},{\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testNotExistsOK",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1},{\"name\":\"jaimito\",\"id\":2},{\"name\":\"jorgito\",\"id\":3},{\"name\":\"juanito\",\"id\":4},{\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -759,10 +763,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryFilterNotExistsKO() throws Exception {
     testDatabaseRequest(
-            "testNotExistsKO",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            0);
+      "testNotExistsKO",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      0);
   }
 
   /**
@@ -801,9 +805,23 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseOperationAddNumbers() throws Exception {
     testDatabaseRequest(
-            "testCastToNumber",
+      "testCastToNumber",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToLong\":96,\"castToString\":\"12-21\",\"castToDouble\":4.9,\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"castToFloat\":1.5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
+  }
+
+  /**
+   * Test of add operation with computed field
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationAddNumbersWithComputed() throws Exception {
+    testDatabaseRequest(
+            "testOperationWithComputed",
             "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToLong\":96,\"castToString\":\"12-21\",\"castToDouble\":4.9,\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"castToFloat\":1.5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"castToInteger\":19,\"name\":\"test\",\"id\":1,\"nom\":\"test19\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
             1);
   }
 
@@ -815,10 +833,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryOrderBy() throws Exception {
     testDatabaseRequest(
-            "SimpleOrderBy",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":39,\"rows\":[{\"ParNam\":\"PwdPat\",\"Cat\":1,\"id\":1},{\"ParNam\":\"PwdMaxNumLog\",\"Cat\":1,\"id\":2},{\"ParNam\":\"PwdExp\",\"Cat\":1,\"id\":3},{\"ParNam\":\"MinPwd\",\"Cat\":1,\"id\":4},{\"ParNam\":\"Param9\",\"Cat\":2,\"id\":5},{\"ParNam\":\"Param8\",\"Cat\":2,\"id\":6},{\"ParNam\":\"Param7\",\"Cat\":2,\"id\":7},{\"ParNam\":\"Param6\",\"Cat\":2,\"id\":8},{\"ParNam\":\"Param5\",\"Cat\":2,\"id\":9},{\"ParNam\":\"Param4\",\"Cat\":2,\"id\":10},{\"ParNam\":\"Param3\",\"Cat\":2,\"id\":11},{\"ParNam\":\"Param2\",\"Cat\":2,\"id\":12},{\"ParNam\":\"Param19\",\"Cat\":2,\"id\":13},{\"ParNam\":\"Param18\",\"Cat\":2,\"id\":14},{\"ParNam\":\"Param17\",\"Cat\":2,\"id\":15},{\"ParNam\":\"Param16\",\"Cat\":2,\"id\":16},{\"ParNam\":\"Param15\",\"Cat\":2,\"id\":17},{\"ParNam\":\"Param14\",\"Cat\":2,\"id\":18},{\"ParNam\":\"Param13\",\"Cat\":2,\"id\":19},{\"ParNam\":\"Param12\",\"Cat\":2,\"id\":20},{\"ParNam\":\"Param11\",\"Cat\":2,\"id\":21},{\"ParNam\":\"Param10\",\"Cat\":2,\"id\":22},{\"ParNam\":\"Param1\",\"Cat\":2,\"id\":23},{\"ParNam\":\"MaxFntVer\",\"Cat\":2,\"id\":24},{\"ParNam\":\"MaxFntHor\",\"Cat\":2,\"id\":25},{\"ParNam\":\"DjrVerMar\",\"Cat\":2,\"id\":26},{\"ParNam\":\"DjrSubTitStl\",\"Cat\":2,\"id\":27},{\"ParNam\":\"DjrSepTck\",\"Cat\":2,\"id\":28},{\"ParNam\":\"DjrRmvLin\",\"Cat\":2,\"id\":29},{\"ParNam\":\"DjrRepPth\",\"Cat\":2,\"id\":30}]}}},{\"type\":\"end-load\"}]",
-            30);
+      "SimpleOrderBy",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":39,\"rows\":[{\"ParNam\":\"PwdPat\",\"Cat\":1,\"id\":1},{\"ParNam\":\"PwdMaxNumLog\",\"Cat\":1,\"id\":2},{\"ParNam\":\"PwdExp\",\"Cat\":1,\"id\":3},{\"ParNam\":\"MinPwd\",\"Cat\":1,\"id\":4},{\"ParNam\":\"Param9\",\"Cat\":2,\"id\":5},{\"ParNam\":\"Param8\",\"Cat\":2,\"id\":6},{\"ParNam\":\"Param7\",\"Cat\":2,\"id\":7},{\"ParNam\":\"Param6\",\"Cat\":2,\"id\":8},{\"ParNam\":\"Param5\",\"Cat\":2,\"id\":9},{\"ParNam\":\"Param4\",\"Cat\":2,\"id\":10},{\"ParNam\":\"Param3\",\"Cat\":2,\"id\":11},{\"ParNam\":\"Param2\",\"Cat\":2,\"id\":12},{\"ParNam\":\"Param19\",\"Cat\":2,\"id\":13},{\"ParNam\":\"Param18\",\"Cat\":2,\"id\":14},{\"ParNam\":\"Param17\",\"Cat\":2,\"id\":15},{\"ParNam\":\"Param16\",\"Cat\":2,\"id\":16},{\"ParNam\":\"Param15\",\"Cat\":2,\"id\":17},{\"ParNam\":\"Param14\",\"Cat\":2,\"id\":18},{\"ParNam\":\"Param13\",\"Cat\":2,\"id\":19},{\"ParNam\":\"Param12\",\"Cat\":2,\"id\":20},{\"ParNam\":\"Param11\",\"Cat\":2,\"id\":21},{\"ParNam\":\"Param10\",\"Cat\":2,\"id\":22},{\"ParNam\":\"Param1\",\"Cat\":2,\"id\":23},{\"ParNam\":\"MaxFntVer\",\"Cat\":2,\"id\":24},{\"ParNam\":\"MaxFntHor\",\"Cat\":2,\"id\":25},{\"ParNam\":\"DjrVerMar\",\"Cat\":2,\"id\":26},{\"ParNam\":\"DjrSubTitStl\",\"Cat\":2,\"id\":27},{\"ParNam\":\"DjrSepTck\",\"Cat\":2,\"id\":28},{\"ParNam\":\"DjrRmvLin\",\"Cat\":2,\"id\":29},{\"ParNam\":\"DjrRepPth\",\"Cat\":2,\"id\":30}]}}},{\"type\":\"end-load\"}]",
+      30);
   }
 
   /**
@@ -1032,10 +1050,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryUniTst() throws Exception {
     testDatabaseRequest(
-            "QryUniTst",
-            "",
-            null,
-            6);
+      "QryUniTst",
+      "",
+      null,
+      6);
   }
 
   /**
@@ -1046,10 +1064,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryUniTstId() throws Exception {
     testDatabaseRequest(
-            "QryUniTstId",
-            "",
-            null,
-            6);
+      "QryUniTstId",
+      "",
+      null,
+      6);
   }
 
   /**
@@ -1060,10 +1078,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryChkPrg() throws Exception {
     testDatabaseRequest(
-            "QryChkPrg",
-            "",
-            null,
-            1);
+      "QryChkPrg",
+      "",
+      null,
+      1);
   }
 
   /**
@@ -1074,10 +1092,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryEdiTst() throws Exception {
     testDatabaseRequest(
-            "QryEdiTst",
-            "",
-            null,
-            16);
+      "QryEdiTst",
+      "",
+      null,
+      16);
   }
 
   /**
@@ -1088,10 +1106,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryEdiTstWithoutLimit() throws Exception {
     testDatabaseRequest(
-            "QryEdiTst",
-            "\"max\": 0",
-            null,
-            16);
+      "QryEdiTst",
+      "\"max\": 0",
+      null,
+      16);
   }
 
   /**
@@ -1102,10 +1120,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryEdiTstChk() throws Exception {
     testDatabaseRequest(
-            "QryEdiTstChk",
-            "",
-            null,
-            16);
+      "QryEdiTstChk",
+      "",
+      null,
+      16);
   }
 
   /**
@@ -1116,10 +1134,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryQryEdiSug() throws Exception {
     testDatabaseRequest(
-            "QryEdiSug",
-            "\"suggest\": \"fr\"",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":2,\"rows\":[{\"name\":\"frost\",\"value\":7,\"label\":\"Prueba - frost\"},{\"name\":\"fresh\",\"value\":8,\"label\":\"Prueba - fresh\"}]}}},{\"type\":\"end-load\"}]",
-            2);
+      "QryEdiSug",
+      "\"suggest\": \"fr\"",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":2,\"rows\":[{\"name\":\"frost\",\"value\":7,\"label\":\"Prueba - frost\"},{\"name\":\"fresh\",\"value\":8,\"label\":\"Prueba - fresh\"}]}}},{\"type\":\"end-load\"}]",
+      2);
   }
 
   /**
@@ -1130,10 +1148,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseCriteriaDate() throws Exception {
     testDatabaseRequest(
-            "CrtTstDat",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
-            4);
+      "CrtTstDat",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
+      4);
   }
 
   /**
@@ -1144,10 +1162,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseTstUsrSug() throws Exception {
     testDatabaseRequest(
-            "TstUsrSug",
-            "\"suggest\": \"ito\"",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"},{\"label\":\"jorgito (Jorgito)\",\"id\":2,\"value\":\"jorgito\",\"nom\":\"Jorgito\"},{\"label\":\"juanito (Juanito)\",\"id\":3,\"value\":\"juanito\",\"nom\":\"Juanito\"}]}}},{\"type\":\"end-load\"}]",
-            3);
+      "TstUsrSug",
+      "\"suggest\": \"ito\"",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"},{\"label\":\"jorgito (Jorgito)\",\"id\":2,\"value\":\"jorgito\",\"nom\":\"Jorgito\"},{\"label\":\"juanito (Juanito)\",\"id\":3,\"value\":\"juanito\",\"nom\":\"Juanito\"}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -1158,10 +1176,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseUserSuggest() throws Exception {
     testDatabaseRequest(
-            "TstUsrSugIde",
-            "\"suggest\": 1",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":1,\"id\":1,\"value\":1},{\"label\":811,\"id\":2,\"value\":811},{\"label\":1702,\"id\":3,\"value\":1702}]}}},{\"type\":\"end-load\"}]",
-            3);
+      "TstUsrSugIde",
+      "\"suggest\": 1",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"label\":1,\"id\":1,\"value\":1},{\"label\":811,\"id\":2,\"value\":811},{\"label\":1702,\"id\":3,\"value\":1702}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -1172,10 +1190,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseTstUsrSel() throws Exception {
     testDatabaseRequest(
-            "TstUsrSel",
-            "\"suggest\": \"jaimito\"",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "TstUsrSel",
+      "\"suggest\": \"jaimito\"",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"label\":\"jaimito (Jaimito)\",\"id\":1,\"value\":\"jaimito\",\"nom\":\"Jaimito\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -1899,7 +1917,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseComputedEvalVariableProperty() throws Exception {
     String queryName = "ComputedEvalVariableProperty";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"variable\":\"awe\",\"label\":1,\"value\":\"adminflare\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"amazonia\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"asphalt\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"clean\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"default\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"dust\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"eclipse\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"fresh\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"frost\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"grass\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"purple-hills\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"silver\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"sky\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"sunny\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"sunset\"},{\"variable\":\"awe\",\"label\":0,\"value\":\"white\"}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"variable\":\"awe-boot\",\"label\":1,\"value\":\"adminflare\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"amazonia\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"asphalt\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"clean\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"default\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"dust\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"eclipse\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"fresh\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"frost\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"grass\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"purple-hills\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"silver\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"sky\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"sunny\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"sunset\"},{\"variable\":\"awe-boot\",\"label\":0,\"value\":\"white\"}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertQueryResultJson(queryName, result, 16);
@@ -2170,10 +2188,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseStringHash() throws Exception {
     String queryName = "VariableStringHash";
     String variables = "";
-    String hashPbkResult = EncodeUtil.encodePBKDF2WithHmacSHA1("prueba");
-    String hashEncryptResult = EncodeUtil.encryptRipEmd160("prueba");
-    String hashRipEmdResult = EncodeUtil.encodeRipEmd160("prueba");
-    String hashShaResult = EncodeUtil.hash(EncodeUtil.HashingAlgorithms.SHA_256, "prueba");
+    String hashPbkResult = encodeService.encodePBKDF2WithHmacSHA1("prueba");
+    String hashEncryptResult = encodeService.encryptRipEmd160("prueba");
+    String hashRipEmdResult = EncodeService.encodeRipEmd160("prueba");
+    String hashShaResult = encodeService.hash(EncodeService.HashingAlgorithms.SHA_256, "prueba");
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"hashEncrypt\":\"" + hashEncryptResult + "\",\"l1_nom\":\"test\",\"hashPbk\":\"" + hashPbkResult + "\",\"hashRipemd\":\"" + hashRipEmdResult + "\",\"hashSha\":\"" + hashShaResult + "\"}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2205,8 +2223,9 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseServiceDateList() throws Exception {
     String queryName = "VariableDateList";
     String variables = "\"FilDat\":[\"11/03/1921\",\"15/01/1988\",\"28/04/2007\",\"18/06/2017\",\"10/05/2019\",\"22/10/3100\"]";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":11,\"rows\":[{\"date\":\"11/03/1921\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":1},{\"date\":\"15/01/1988\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":2},{\"date\":\"28/04/2007\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":3},{\"date\":\"18/06/2017\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":4},{\"date\":\"10/05/2019\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":5},{\"date\":\"22/10/3100\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":6},{\"date\":\"23/10/1978\",\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":7},{\"date\":null,\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":8},{\"date\":null,\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":9},{\"date\":null,\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":10},{\"date\":null,\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":11}]}}},{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"replace-columns\",\"target\":\"GrdMus\",\"parameters\":{\"columns\":[{\"align\":\"right\",\"autoload\":false,\"charlength\":20,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"frozen\":false,\"hidden\":false,\"label\":\"BUTTON_NEW ELEMENT_TYPE_COLUMN 1\",\"loadAll\":false,\"movable\":true,\"name\":\"GrdMus-newColumn1\",\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"sendable\":true,\"sortable\":true,\"strict\":true,\"value\":\"1\",\"visible\":true},{\"align\":\"center\",\"autoload\":false,\"charlength\":20,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"icon\",\"contextMenu\":[],\"dependencies\":[],\"frozen\":false,\"hidden\":false,\"label\":\"BUTTON_NEW ELEMENT_TYPE_COLUMN 2\",\"loadAll\":false,\"movable\":true,\"name\":\"GrdMus-newColumn2\",\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"sendable\":true,\"sortable\":true,\"strict\":true,\"value\":\"aaaa\",\"visible\":true}]}},{\"type\":\"fill\",\"target\":\"GrdMus\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":11,\"rows\":[{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":1},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":2},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":3},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":4},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":5},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":6},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":7},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":8},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":9},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":10},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":11}]}}}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":11,\"rows\":[{\"date\":\"11/03/1921\",\"id\":1},{\"date\":\"15/01/1988\",\"id\":2},{\"date\":\"28/04/2007\",\"id\":3},{\"date\":\"18/06/2017\",\"id\":4},{\"date\":\"10/05/2019\",\"id\":5},{\"date\":\"22/10/3100\",\"id\":6},{\"date\":\"23/10/1978\",\"id\":7},{\"date\":null,\"id\":8},{\"date\":null,\"id\":9},{\"date\":null,\"id\":10},{\"date\":null,\"id\":11}]}}},{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"replace-columns\",\"target\":\"GrdMus\",\"parameters\":{\"columns\":[{\"actions\":[],\"align\":\"right\",\"autoload\":false,\"charlength\":20,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Column\",\"frozen\":false,\"hidden\":false,\"label\":\"BUTTON_NEW ELEMENT_TYPE_COLUMN 1\",\"loadAll\":false,\"movable\":true,\"name\":\"GrdMus-newColumn1\",\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"sendable\":true,\"sortable\":true,\"strict\":true,\"value\":\"1\",\"visible\":true},{\"actions\":[],\"align\":\"center\",\"autoload\":false,\"charlength\":20,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"icon\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Column\",\"frozen\":false,\"hidden\":false,\"label\":\"BUTTON_NEW ELEMENT_TYPE_COLUMN 2\",\"loadAll\":false,\"movable\":true,\"name\":\"GrdMus-newColumn2\",\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"sendable\":true,\"sortable\":true,\"strict\":true,\"value\":\"aaaa\",\"visible\":true}]}},{\"type\":\"fill\",\"target\":\"GrdMus\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":11,\"rows\":[{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":1,\"GrdMus-newColumn1\":\"1921-03-11\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":2,\"GrdMus-newColumn1\":\"1988-01-15\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":3,\"GrdMus-newColumn1\":\"2007-04-28\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":4,\"GrdMus-newColumn1\":\"2017-06-18\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":5,\"GrdMus-newColumn1\":\"2019-05-10\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":6,\"GrdMus-newColumn1\":\"3100-10-22\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":7,\"GrdMus-newColumn1\":\"1978-10-23\"},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":8},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":9},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":10},{\"GrdMus-newColumn2\":{\"value\":\"icono\",\"icon\":\"fa-check\",\"style\":\"text-success\"},\"id\":11}]}}}]";
 
+    logger.warn("LAUNCHED testDatabaseServiceDateList");
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertResultVariablesJson(queryName, result, 11);
   }
@@ -2449,10 +2468,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseDatalistNoParams() throws Exception {
     testDatabaseRequest(
-            "DatalistNoParams",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"0\"},{\"id\":2,\"value\":\"1\"},{\"id\":3,\"value\":\"2\"}]}}},{\"type\":\"end-load\"}]",
-            3);
+      "DatalistNoParams",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"0\"},{\"id\":2,\"value\":\"1\"},{\"id\":3,\"value\":\"2\"}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -2463,10 +2482,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayNoParams() throws Exception {
     testDatabaseRequest(
-            "StringArrayNoParams",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"a\"},{\"id\":2,\"value\":\"b\"},{\"id\":3,\"value\":\"c\"}]}}},{\"type\":\"end-load\"}]",
-            3);
+      "StringArrayNoParams",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":3,\"rows\":[{\"id\":1,\"value\":\"a\"},{\"id\":2,\"value\":\"b\"},{\"id\":3,\"value\":\"c\"}]}}},{\"type\":\"end-load\"}]",
+      3);
   }
 
   /**
@@ -2477,10 +2496,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayTwoStringsParams() throws Exception {
     testDatabaseRequest(
-            "ServiceQueryTwoParams",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"IdeSitModDbsSrv\":\"QrySitModDbsOrd\",\"IdeSitSrv\":\"IdeSitModDbs,IdeSit,NamSit,IdeMod,NamMod,IdeDbs,Als,Ord\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "ServiceQueryTwoParams",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"IdeSitModDbsSrv\":\"QrySitModDbsOrd\",\"IdeSitSrv\":\"IdeSitModDbs,IdeSit,NamSit,IdeMod,NamMod,IdeDbs,Als,Ord\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2491,10 +2510,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayNumberParam() throws Exception {
     testDatabaseRequest(
-            "StringArrayNumberParam",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "StringArrayNumberParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2505,10 +2524,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayLongParam() throws Exception {
     testDatabaseRequest(
-            "StringArrayLongParam",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "StringArrayLongParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2519,10 +2538,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayDoubleParam() throws Exception {
     testDatabaseRequest(
-            "StringArrayDoubleParam",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "StringArrayDoubleParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2533,10 +2552,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayFloatParam() throws Exception {
     testDatabaseRequest(
-            "StringArrayFloatParam",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "StringArrayFloatParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"10.0\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2547,10 +2566,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseStringArrayBooleanParam() throws Exception {
     testDatabaseRequest(
-            "StringArrayBooleanParam",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"true\"}]}}},{\"type\":\"end-load\"}]",
-            1);
+      "StringArrayBooleanParam",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"id\":1,\"value\":\"true\"}]}}},{\"type\":\"end-load\"}]",
+      1);
   }
 
   /**
@@ -2607,10 +2626,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testRowNumber() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
-            "testRowNumber",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":1},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":2},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":3},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":4},{\"name\":\"test\",\"id\":5,\"rowNumber\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testRowNumber",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":1},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":2},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":3},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":4},{\"name\":\"test\",\"id\":5,\"rowNumber\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2622,10 +2641,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testCaseOver() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
-            "testCaseOver",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"value\":0},{\"name\":\"jaimito\",\"id\":2,\"value\":0},{\"name\":\"jorgito\",\"id\":3,\"value\":1},{\"name\":\"juanito\",\"id\":4,\"value\":0},{\"name\":\"test\",\"id\":5,\"value\":2}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testCaseOver",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"value\":0},{\"name\":\"jaimito\",\"id\":2,\"value\":0},{\"name\":\"jorgito\",\"id\":3,\"value\":1},{\"name\":\"juanito\",\"id\":4,\"value\":0},{\"name\":\"test\",\"id\":5,\"value\":2}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2637,10 +2656,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testRowNumberWithOperation() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
-            "testRowNumberWithOperation",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":2},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":3},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":4},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":5},{\"name\":\"test\",\"id\":5,\"rowNumber\":6}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testRowNumberWithOperation",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":2},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":3},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":4},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":5},{\"name\":\"test\",\"id\":5,\"rowNumber\":6}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2652,10 +2671,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testPowerOfFieldOperation() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
-            "testPowerOfFieldOperation",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"powerField\":2.0,\"name\":\"donald\",\"id\":1},{\"powerField\":4.0,\"name\":\"jaimito\",\"id\":2},{\"powerField\":8.0,\"name\":\"jorgito\",\"id\":3},{\"powerField\":16.0,\"name\":\"juanito\",\"id\":4},{\"powerField\":32.0,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testPowerOfFieldOperation",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"powerField\":2.0,\"name\":\"donald\",\"id\":1},{\"powerField\":4.0,\"name\":\"jaimito\",\"id\":2},{\"powerField\":8.0,\"name\":\"jorgito\",\"id\":3},{\"powerField\":16.0,\"name\":\"juanito\",\"id\":4},{\"powerField\":32.0,\"name\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2668,10 +2687,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testRoundFieldOperation() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
-            "testRoundField",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            1);
+      "testRoundField",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**
@@ -2684,10 +2703,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testRoundFieldOperationWithDecimals() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
-            "testRoundFieldWithDecimals",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2.13,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            1);
+      "testRoundFieldWithDecimals",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"name\":\"donald\",\"roundField\":2.13,\"id\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      1);
   }
 
   /**
@@ -2698,10 +2717,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testNullIf() throws Exception {
     testDatabaseRequest(
-            "testNullIf",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"nullif\":\"donald\"},{\"name\":\"jaimito\",\"id\":2,\"nullif\":\"jaimito\"},{\"name\":\"jorgito\",\"id\":3,\"nullif\":\"jorgito\"},{\"name\":\"juanito\",\"id\":4,\"nullif\":\"juanito\"},{\"name\":\"test\",\"id\":5,\"nullif\":null}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            5);
+      "testNullIf",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"nullif\":\"donald\"},{\"name\":\"jaimito\",\"id\":2,\"nullif\":\"jaimito\"},{\"name\":\"jorgito\",\"id\":3,\"nullif\":\"jorgito\"},{\"name\":\"juanito\",\"id\":4,\"nullif\":\"juanito\"},{\"name\":\"test\",\"id\":5,\"nullif\":null}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      5);
   }
 
   /**
@@ -2712,10 +2731,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testSum1() throws Exception {
     testDatabaseRequest(
-            "testSum1",
-            "",
-            "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"sum1\":1,\"id\":1},{\"sum1\":1,\"id\":2},{\"sum1\":1,\"id\":3},{\"sum1\":1,\"id\":4},{\"sum1\":1,\"id\":5},{\"sum1\":1,\"id\":6},{\"sum1\":1,\"id\":7},{\"sum1\":1,\"id\":8},{\"sum1\":1,\"id\":9},{\"sum1\":1,\"id\":10},{\"sum1\":1,\"id\":11},{\"sum1\":1,\"id\":12},{\"sum1\":1,\"id\":13},{\"sum1\":1,\"id\":14},{\"sum1\":1,\"id\":15},{\"sum1\":1,\"id\":16}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
-            16);
+      "testSum1",
+      "",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"sum1\":1,\"id\":1},{\"sum1\":1,\"id\":2},{\"sum1\":1,\"id\":3},{\"sum1\":1,\"id\":4},{\"sum1\":1,\"id\":5},{\"sum1\":1,\"id\":6},{\"sum1\":1,\"id\":7},{\"sum1\":1,\"id\":8},{\"sum1\":1,\"id\":9},{\"sum1\":1,\"id\":10},{\"sum1\":1,\"id\":11},{\"sum1\":1,\"id\":12},{\"sum1\":1,\"id\":13},{\"sum1\":1,\"id\":14},{\"sum1\":1,\"id\":15},{\"sum1\":1,\"id\":16}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      16);
   }
 
   /**
@@ -2776,13 +2795,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testCheckInitialQueryTarget() throws Exception {
     String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"visible\":true},\"model\":{\"selected\":[1],\"defaultValues\":[],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"visible\":true},\"model\":{\"selected\":[1],\"defaultValues\":[],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialLoad\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-load\"}}}},{\"type\":\"end-load\"}]";
     MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-            .with(csrf())
-            .content("{\"option\":\"test-initial-load\",\"view\":\"base\"}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().json(expected))
-            .andReturn();
+        .with(csrf())
+        .content("{\"option\":\"test-initial-load\",\"view\":\"base\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(content().json(expected))
+      .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
@@ -2821,20 +2840,20 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @WithMockUser(username = "LaloElMalo", roles = {"ADMIN", "USER"})
+  @WithMockCustomUser(username = "LaloElMalo", roles = {"ADMIN", "USER"})
   void testCheckInitialQuerySelectedValues() throws Exception {
     setParameter("user", "LaloElMalo");
     String expected =
-            "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"value\":\"0\",\"visible\":true},\"model\":{\"selected\":[\"0\"],\"defaultValues\":[\"0\"],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSuggestCheckInitial\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checkTarget\":\"TestComponentInitialSuggestValue\",\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestCheckInitial\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"ComponentTextStaticValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"prueba\",\"visible\":true},\"model\":{\"selected\":[\"prueba\"],\"defaultValues\":[\"prueba\"],\"values\":[]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextStaticSessionValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticSessionValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"LaloElMalo\"],\"defaultValues\":[\"LaloElMalo\"],\"values\":[]}},{\"id\":\"ComponentTextStaticPropertyValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticPropertyValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"awe-boot\"],\"defaultValues\":[\"awe-boot\"],\"values\":[]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialValues\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-values\"}}}},{\"type\":\"end-load\"}]";
+      "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"value\":\"0\",\"visible\":true},\"model\":{\"selected\":[\"0\"],\"defaultValues\":[\"0\"],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSuggestCheckInitial\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checkTarget\":\"TestComponentInitialSuggestValue\",\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestCheckInitial\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"ComponentTextStaticValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"prueba\",\"visible\":true},\"model\":{\"selected\":[\"prueba\"],\"defaultValues\":[\"prueba\"],\"values\":[]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextStaticSessionValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticSessionValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"LaloElMalo\"],\"defaultValues\":[\"LaloElMalo\"],\"values\":[]}},{\"id\":\"ComponentTextStaticPropertyValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticPropertyValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"awe-boot\"],\"defaultValues\":[\"awe-boot\"],\"values\":[]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialValues\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-values\"}}}},{\"type\":\"end-load\"}]";
     MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-            .with(csrf())
-            .content("{\"option\":\"test-initial-values\",\"view\":\"base\"}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .session(session))
-            .andExpect(status().isOk())
-            .andExpect(content().json(expected))
-            .andReturn();
+        .with(csrf())
+        .content("{\"option\":\"test-initial-values\",\"view\":\"base\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .session(session))
+      .andExpect(status().isOk())
+      .andExpect(content().json(expected))
+      .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
@@ -2878,13 +2897,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"value\":\"0\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSuggestCheckInitial\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checkTarget\":\"TestComponentInitialSuggestValue\",\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestCheckInitial\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"2\"],\"defaultValues\":[\"2\"],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"ComponentTextStaticValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"prueba\",\"visible\":true},\"model\":{\"selected\":[\"variableStatic\"],\"defaultValues\":[\"variableStatic\"],\"values\":[]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextStaticSessionValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticSessionValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"variableSession\"],\"defaultValues\":[\"variableSession\"],\"values\":[]}},{\"id\":\"ComponentTextStaticPropertyValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticPropertyValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"variableProperty\"],\"defaultValues\":[\"variableProperty\"],\"values\":[]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialValues\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-values\"}}}},{\"type\":\"end-load\"}]";
     String parameters = "\"SelectEnum\":\"1\",\"SelectQuery\":\"2\",\"InitialLoadValue\":\"otra\",\"StaticValue\":\"variableStatic\",\"SessionValue\":\"variableSession\",\"PropertyValue\":\"variableProperty\",";
     MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-            .with(csrf())
-            .content("{" + parameters + "\"option\":\"test-initial-values\",\"view\":\"base\"}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            //        .andExpect(content().json(expected))
-            .andReturn();
+        .with(csrf())
+        .content("{" + parameters + "\"option\":\"test-initial-values\",\"view\":\"base\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      //        .andExpect(content().json(expected))
+      .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     logger.info(("AYUDA:" + result));
 
@@ -2928,12 +2947,12 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testCheckInitialQueryTargetVariables() throws Exception {
     String parameters = "\"SelectEnum\":\"1\",\"SelectQuery\":\"2\",\"InitialLoadValue\":\"otra\",\"StaticValue\":\"variableStatic\",\"SessionValue\":\"variableSession\",\"PropertyValue\":\"variableProperty\",";
     MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-            .with(csrf())
-            .content("{" + parameters + "\"option\":\"test-initial-values-load\",\"view\":\"base\"}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
+        .with(csrf())
+        .content("{" + parameters + "\"option\":\"test-initial-values-load\",\"view\":\"base\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
@@ -2974,12 +2993,12 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseGridsAndChartScreen() throws Exception {
     MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
-            .with(csrf())
-            .content("{\"option\":\"grid-and-chart\",\"view\":\"report\"}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
+        .with(csrf())
+        .content("{\"option\":\"grid-and-chart\",\"view\":\"report\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     logger.warn(result);
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
@@ -3085,17 +3104,17 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    */
 
   @Test
-  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  @WithMockCustomUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
   void testCheckAuthenticatedUserQuery() throws Exception {
     String queryName = "SimpleGetAll";
     String variables = "";
     MvcResult mvcResult = mockMvc.perform(post("/action/data/" + queryName)
-            .with(csrf())
-            .content("{" + variables + "\"option\":\"grid-and-chart\",\"view\":\"base\"}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
+        .with(csrf())
+        .content("{" + variables + "\"option\":\"grid-and-chart\",\"view\":\"base\"}")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     assertResultSecurityJson(queryName, result, 12, 1, 1, 12);
   }
@@ -3253,11 +3272,11 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private String performRequest(String queryName, String variables, String database, String expected, Map<String, Object> sessionAttr) throws Exception {
     setParameter("database", database);
     MockHttpServletRequestBuilder requestBuilder = post("/action/data/" + queryName)
-            .with(csrf())
-            .session(session)
-            .content("{" + variables + "}")
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON);
+      .with(csrf())
+      .session(session)
+      .content("{" + variables + "}")
+      .contentType(MediaType.APPLICATION_JSON)
+      .accept(MediaType.APPLICATION_JSON);
 
     if (sessionAttr != null) {
       requestBuilder.sessionAttrs(sessionAttr);
@@ -3265,9 +3284,11 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     // Perform request
     ResultActions mockMvcPerform = mockMvc.perform(requestBuilder)
-            .andExpect(status().isOk());
+      .andExpect(status().isOk());
 
     if (expected != null) {
+      logger.warn("Result: {}", mockMvcPerform.andReturn().getResponse().getContentAsString());
+      logger.warn("Expect: {}", expected);
       mockMvcPerform.andExpect(content().json(expected));
     }
 
@@ -3294,10 +3315,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    */
   private void setParameter(String name, String value) throws Exception {
     MvcResult mvcResult = mockMvc.perform(post(String.format("/session/set/%s", name))
-            .with(csrf())
-            .param("value", value)
-            .session(session))
-            .andReturn();
+        .with(csrf())
+        .param("value", value)
+        .session(session))
+      .andReturn();
     mvcResult.getResponse().getContentAsString();
   }
 }

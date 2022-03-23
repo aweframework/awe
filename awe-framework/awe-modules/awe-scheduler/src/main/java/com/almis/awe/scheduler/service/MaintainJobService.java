@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 
+import java.time.Duration;
 import java.util.concurrent.Future;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
@@ -26,13 +27,17 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
 public class MaintainJobService extends JobService {
 
   /**
-   * Autowired constructor
-   *
-   * @param executionService Timeout service
-   * @param maintainService  Maintain service
+   * MaintainJobService constructor
+   * @param executionService Execution service
+   * @param maintainService Maintain service
+   * @param queryUtil QueryUtil
+   * @param taskDAO Task DAO
+   * @param eventPublisher Event publisher
+   * @param defaultTimeout Defualt timeout
    */
-  public MaintainJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher) {
-    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher);
+
+  public MaintainJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, Duration defaultTimeout) {
+    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, defaultTimeout);
   }
 
   /**

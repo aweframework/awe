@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,10 +25,6 @@ import static com.almis.awe.model.constant.AweConstants.SESSION_CONNECTION_HEADE
 @Data
 @Accessors(chain = true)
 public class AweRequest {
-
-  // Application encoding
-  @Value("${application.encoding:UTF-8}")
-  private String applicationEncoding;
 
   // Target action
   private String targetAction = null;
@@ -199,7 +194,7 @@ public class AweRequest {
    * Retrieve the parameter
    *
    * @param parameterId Parameter identifier
-   * @return Parameter as celldata
+   * @return Parameter as cell data
    */
   public CellData getParameterAsCellData(String parameterId) {
     return getParameterAsCellData(getParameter(parameterId));
@@ -209,7 +204,7 @@ public class AweRequest {
    * Retrieve the parameter as CellData
    *
    * @param parameter Parameter
-   * @return Parameter as celldata
+   * @return Parameter as cell data
    */
   public CellData getParameterAsCellData(JsonNode parameter) {
     CellData parameterValue;

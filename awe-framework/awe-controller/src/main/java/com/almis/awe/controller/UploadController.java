@@ -1,5 +1,6 @@
 package com.almis.awe.controller;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -40,23 +40,22 @@ public class UploadController extends ServiceConfig {
   private final FileService fileService;
   private final BroadcastService broadcastService;
   private final ObjectMapper mapper;
-
-  // Upload identifier
-  @Value("${file.upload.identifier:u}")
-  private String uploadIdentifierKey;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param fileService      File service
-   * @param broadcastService Broadcast service
-   * @param mapper           Object mapper
+   * @param fileService          File service
+   * @param broadcastService     Broadcast service
+   * @param mapper               Object mapper
+   * @param baseConfigProperties Base config properties
    */
   @Autowired
-  public UploadController(FileService fileService, BroadcastService broadcastService, ObjectMapper mapper) {
+  public UploadController(FileService fileService, BroadcastService broadcastService, ObjectMapper mapper, BaseConfigProperties baseConfigProperties) {
     this.fileService = fileService;
     this.broadcastService = broadcastService;
     this.mapper = mapper;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -81,7 +80,7 @@ public class UploadController extends ServiceConfig {
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set(AweConstants.PARAMETER_ADDRESS, mapper.readTree(address));
     parameters.put(AweConstants.PARAMETER_DESTINATION, destination);
-    parameters.put(uploadIdentifierKey, uploadIdentifier);
+    parameters.put(baseConfigProperties.getComponent().getUploadFileId(), uploadIdentifier);
 
     // Initialize parameters
     aweRequest.setParameterList(parameters);

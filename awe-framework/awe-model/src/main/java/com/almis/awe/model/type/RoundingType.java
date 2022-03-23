@@ -14,23 +14,41 @@ import java.math.RoundingMode;
  */
 public enum RoundingType {
 
-  // Round-Half-Up Symmetric
+  /**
+   *   Round-Half-Up Symmetric
+   */
   HALF_UP_SYMMETRIC(RoundingMode.HALF_UP, "S"),
-  // Round-Half-Up Asymmetric
+  /**
+   * Round-Half-Up Asymmetric
+   */
   HALF_UP_ASYMMETRIC(RoundingMode.HALF_UP, "A"),
-  // Round-Half-Down Symmetric
+  /**
+   * Round-Half-Down Symmetric
+   */
   HALF_DOWN_SYMMETRIC(RoundingMode.HALF_DOWN, "s"),
-  // Round-Half-Down Asymmetric
+  /**
+   * Round-Half-Down Asymmetric
+   */
   HALF_DOWN_ASYMMETRIC(RoundingMode.HALF_DOWN, "a"),
-  // Round-Half-Even
+  /**
+   * Round-Half-Even
+   */
   HALF_EVEN(RoundingMode.HALF_EVEN, "B"),
-  // Round Up
+  /**
+   * Round Up
+   */
   UP(RoundingMode.UP, "U"),
-  // Round Down
+  /**
+   * Round Down
+   */
   DOWN(RoundingMode.DOWN, "D"),
-  // Round to Ceiling
+  /**
+   * Round to Ceiling
+   */
   CEILING(RoundingMode.CEILING, "C"),
-  // Round to Floor
+  /**
+   * Round to Floor
+   */
   FLOOR(RoundingMode.FLOOR, "F");
 
   private final RoundingMode value;

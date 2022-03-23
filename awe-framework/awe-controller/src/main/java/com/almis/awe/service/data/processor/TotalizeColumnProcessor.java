@@ -1,7 +1,6 @@
 package com.almis.awe.service.data.processor;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.component.AweContextAware;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
@@ -9,7 +8,8 @@ import com.almis.awe.model.entities.queries.SqlField;
 import com.almis.awe.model.entities.queries.Totalize;
 import com.almis.awe.model.entities.queries.TotalizeBy;
 import com.almis.awe.model.entities.queries.TotalizeField;
-import com.almis.awe.model.util.data.NumericUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -20,33 +20,28 @@ import java.util.Optional;
 /**
  * TransformCellProcessor class
  */
-public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware {
+public class TotalizeColumnProcessor implements ColumnProcessor {
   Map<String, CellData> totalizeValues = null;
   Map<String, String> totalizeKeys = null;
   List<SqlField> fieldList = null;
   private Totalize totalize;
-  private AweElements elements;
+
+  // Autowired services
+  private final AweElements elements;
+  private final NumericService numericService;
+  private final EncodeService encodeService;
 
   /**
-   * Retrieve Awe Elements
+   * Totalize column processor constructor
    *
-   * @return Awe Elements
+   * @param elements       AWE elements
+   * @param numericService Numeric service
+   * @param encodeService  Encode service
    */
-  private AweElements getElements() throws AWException {
-    if (elements == null) {
-      throw new AWException("No elements defined", "Define elements before building the totalize processor");
-    }
-    return elements;
-  }
-
-  /**
-   * Set Awe Elements
-   *
-   * @return Totalize Column Processor
-   */
-  public TotalizeColumnProcessor setElements(AweElements elements) {
+  public TotalizeColumnProcessor(AweElements elements, NumericService numericService, EncodeService encodeService) {
     this.elements = elements;
-    return this;
+    this.numericService = numericService;
+    this.encodeService = encodeService;
   }
 
   /**
@@ -133,9 +128,7 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
       String totalizeIdentifier = "-" + totalize.getFunction();
       CellData cell;
 
-      TransformCellProcessor transformProcessor = new TransformCellProcessor()
-        .setElements(elements)
-        .setField(field);
+      TransformCellProcessor transformProcessor = new TransformCellProcessor(elements, field, numericService, encodeService);
 
       columnIdentifier = transformProcessor.getColumnIdentifier();
       totalizeIdentifier = columnIdentifier + totalizeIdentifier;
@@ -158,16 +151,15 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
   /**
    * Add a new line with values
    *
-   * @param row  Row data
    * @param list Row list
    * @throws AWException Error adding a new line
    */
-  public void addNewLine(Map<String, CellData> row, List<Map<String, CellData>> list) throws AWException {
+  public void addNewLine(List<Map<String, CellData>> list) throws AWException {
     // Create new row
     Map<String, CellData> newRow = getNewLine();
 
     // Add label
-    newRow.put(totalize.getField(), new CellData(getElements().getLocaleWithLanguage(totalize.getLabel(), getElements().getLanguage())));
+    newRow.put(totalize.getField(), new CellData(elements.getLocaleWithLanguage(totalize.getLabel(), elements.getLanguage())));
 
     // Add style value
     if (totalize.getStyle() != null) {
@@ -288,7 +280,7 @@ public class TotalizeColumnProcessor implements ColumnProcessor, AweContextAware
    */
   private Double parseStringValue(String value) {
     try {
-      return NumericUtil.parseNumericString(value).doubleValue();
+      return numericService.parseNumericString(value).doubleValue();
     } catch (ParseException exc) {
       return 0.0;
     }

@@ -745,8 +745,8 @@
     <table id="AweThm"/>
     <field id="Nam" alias="value"/>
     <computed format="[variable]" alias="variable"/>
-    <computed format="'[variable]' == 'awe' &amp;&amp; '[value]' == 'adminflare' ? 1 : 0" eval="true" alias="label"/>
-    <variable id="variable" type="STRING" property="module.awe"/>
+    <computed format="'[variable]' == 'awe-boot' &amp;&amp; '[value]' == 'adminflare' ? 1 : 0" eval="true" alias="label"/>
+    <variable id="variable" type="STRING" property="awe.application.acronym"/>
   </query>
 
   <query id="ComputedEvalTranslate">
@@ -986,7 +986,7 @@
       </and>
     </where>
     <variable id="test" type="STRING" value="test"/>
-    <variable id="property" type="STRING" property="module.app"/>
+    <variable id="property" type="STRING" property="awe.application.acronym"/>
   </query>
 
   <query id="VariableOptionalFilter">
@@ -2932,6 +2932,29 @@
     <order-by field="l1_nom" type="ASC"/>
   </query>
 
+  <query id="testOperationWithComputed">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <operation operator="ADD" alias="castToInteger">
+      <constant value="12" cast="INTEGER"/>
+      <constant value="2" type="INTEGER"/>
+      <field id="IdeOpe"/>
+      <constant value="4" type="DOUBLE" cast="INTEGER"/>
+    </operation>
+    <computed alias="nom" format="[castToInteger] == 0 ? 0 : '[name][castToInteger]'" eval="true"/>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
   <query id="testCastToNumber">
     <table id="ope"/>
     <field id="l1_nom" alias="name"/>
@@ -2991,6 +3014,33 @@
   <query id="RadioButtonInitialValue">
     <constant value="Radio1" alias="RadBoxGrp1"/>
     <constant value="Radio2" alias="RadBoxGrp2"/>
+  </query>
+
+
+  <!-- USER SUGGEST (TEST) -->
+  <query id="TstParSug" cacheable="true">
+    <table id="AweAppPar"/>
+    <field id="IdeAweAppPar" alias="id"/>
+    <field id="ParNam" alias="value"/>
+    <field id="ParNam" alias="nom"/>
+    <computed format="[id] ([nom])" alias="label"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="ParNam" condition="like" right-variable="suggest" ignorecase="true"/>
+        </or>
+      </and>
+    </where>
+    <variable id="suggest" type="STRINGB" name="suggest"/>
+    <order-by field="IdeAweAppPar" type="ASC"/>
+  </query>
+
+  <query id="load-suggest">
+    <constant value="DjrRepPth" alias="SugTst"/>
+  </query>
+
+  <query id="load-suggest-2">
+    <constant value="DjrHdgPag" alias="SugTst"/>
   </query>
 
 </queries>

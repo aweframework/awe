@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : activate-2fa.xml
+    Created on : 8 de febrero de 2010, 16:30
+    Author     : Pablo GARCIA
+    Description: Change password screen
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="SCREEN_TITLE_ACTIVATE_2FA">
+  <tag source="center" type="div" style="totp-screen fullScreen">
+    <tag type="div" id="page-totp-bg" style="fullScreen">
+      <!-- Background overlay -->
+      <tag type="div" style="overlay-image fullScreen" />
+      <tag type="div" style="overlay fullScreen" />
+    </tag>
+    <tag type="div" style="awe-totp totp-container">
+
+      <!-- Top side -->
+      <tag type="div" style="totp-header">
+        <tag type="h1">
+          <tag type="span" label="APP_CLIENT"/>
+        </tag>
+        <tag type="div" style="slogan" label="APP_NAME" />
+      </tag>
+
+      <!-- Bottom side -->
+      <tag type="div" style="totp-form">
+        <tag type="div" style="totp-text">
+          <tag type="span" label="SCREEN_TITLE_ACTIVATE_2FA"/>
+        </tag>
+        <tag-list type="div" id="2fa-code-list" target-action="force-qr-code" autoload="true">
+          <tag type="div">
+            <tag type="div" label="SCAN_QR_CODE" style="panel-padding text-center"/>
+            <tag type="div" style="qr-code-container text-center">
+              <image id="qr-code" url="/access/qr-code?a=[random]" alternate-url="/images/logo/logo-awe-nuevo.svg" style="qr-code"/>
+            </tag>
+            <tag type="div" label="SECRET_CODE" style="panel-padding text-center"/>
+            <tag type="div" style="panel panel-info panel-body-colorful">
+              <tag type="div" style="panel-body text-center text-bold">
+                <tag type="div" label="[secretCode]"/>
+              </tag>
+            </tag>
+          </tag>
+        </tag-list>
+        <tag type="div" style="totp-with">
+          <tag type="div" style="form-actions">
+            <button button-type="submit" label="BUTTON_CONFIRM" style="no-class btn btn-primary totp-btn bg-primary" icon="save" id="ButChk2fa">
+              <button-action type="validate" />
+              <button-action type="server" server-action="afterLogin"/>
+            </button>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

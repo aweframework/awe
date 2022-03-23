@@ -13,7 +13,6 @@ import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.TagList;
-import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -299,15 +298,8 @@ public class TemplateService extends ServiceConfig {
    */
   public ServiceData loadTagListData(TagList tagList) throws AWException {
     // Check initial load attribute
-    if (tagList.getInitialLoad() != null) {
-      LoadType initialLoadValue = LoadType.valueOf(tagList.getInitialLoad().toUpperCase());
-      switch (initialLoadValue) {
-        case QUERY:
-          return queryService.launchQuery(tagList.getTargetAction(), "1", tagList.getMax() == null ? "0" : tagList.getMax().toString());
-        case ENUM:
-        default:
-          return queryService.launchEnumQuery(tagList.getTargetAction(), "1", tagList.getMax() == null ? "0" : tagList.getMax().toString());
-      }
+    if (tagList.getTargetAction() != null) {
+      return queryService.launchPrivateQuery(tagList.getTargetAction(), "1", tagList.getMax() == null ? "0" : tagList.getMax().toString());
     }
     return new ServiceData().setDataList(new DataList());
   }

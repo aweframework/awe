@@ -16,7 +16,7 @@
   Includes
   ==============================================================================
   -->
-  <xs:include schemaLocation="general.xsd" />
+  <xs:include schemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/general.xsd" />
 
   <!--
   ==============================================================================
@@ -46,9 +46,17 @@
       <xs:selector xpath=".//tag" />
       <xs:field xpath="@source" />
     </xs:unique>
-    <xs:unique name="VideoSourceUnique">
+    <xs:unique name="VideoIdUnique">
       <xs:selector xpath=".//video" />
-      <xs:field xpath="@source" />
+      <xs:field xpath="@id" />
+    </xs:unique>
+    <xs:unique name="LinkIdUnique">
+      <xs:selector xpath=".//link" />
+      <xs:field xpath="@id" />
+    </xs:unique>
+    <xs:unique name="ImageIdUnique">
+      <xs:selector xpath=".//image" />
+      <xs:field xpath="@id" />
     </xs:unique>
     <xs:unique name="ColumnNameUnique">
       <xs:selector xpath=".//column" />
@@ -113,6 +121,12 @@
 
   <!-- Video Element -->
   <xs:element name="video" type="videoType" />
+
+  <!-- Link Element -->
+  <xs:element name="link" type="linkType" />
+
+  <!-- Image Element -->
+  <xs:element name="image" type="imageType" />
 
   <!-- Javascript Element -->
   <xs:element name="javascript" type="javascriptType" />
@@ -280,18 +294,31 @@
 
   <!-- Video Attributes -->
   <xs:attributeGroup name="videoAttr">
-    <xs:attribute name="id" type="xs:string" />
-    <xs:attribute name="label" type="xs:string" />
-    <xs:attribute name="source" type="xs:string" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="type" type="xs:string" />
-    <xs:attribute name="expandible" type="expandibleTypes" />
+    <xs:attributeGroup ref="elementAttr" />
     <xs:attribute name="loop" type="booleanEnum" />
     <xs:attribute name="preload" type="videoPreloadValues" />
     <xs:attribute name="autoplay" type="booleanEnum" />
     <xs:attribute name="poster" type="xs:string" />
     <xs:attribute name="src" type="xs:string" />
     <xs:attribute name="controls" type="booleanEnum" />
+  </xs:attributeGroup>
+
+  <!-- Link Attributes -->
+  <xs:attributeGroup name="linkAttr">
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attribute name="url" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="help" type="xs:string" />
+    <xs:attribute name="help-image" type="xs:string" />
+  </xs:attributeGroup>
+
+  <!-- Image Attributes -->
+  <xs:attributeGroup name="imageAttr">
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attribute name="url" type="xs:string" />
+    <xs:attribute name="alternate-url" type="xs:string" />
+    <xs:attribute name="help" type="xs:string" />
+    <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
 
   <!-- Widget Attributes -->
@@ -731,6 +758,8 @@
       <xs:element ref="tag" />
       <xs:element ref="tab" />
       <xs:element ref="video" />
+      <xs:element ref="link" />
+      <xs:element ref="image" />
       <xs:element ref="wizard" />
       <xs:element ref="criteria" />
       <xs:element ref="button" />
@@ -761,7 +790,6 @@
   <xs:complexType name="screenType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="tag" />
-      <xs:element ref="video" />
       <xs:element ref="javascript" />
       <xs:element ref="message" />
     </xs:choice>
@@ -795,6 +823,18 @@
   <xs:complexType name="videoType">
     <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="videoAttr" />
+  </xs:complexType>
+
+  <!-- Element Type -->
+  <xs:complexType name="linkType">
+    <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
+    <xs:attributeGroup ref="linkAttr" />
+  </xs:complexType>
+
+  <!-- Element Type -->
+  <xs:complexType name="imageType">
+    <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
+    <xs:attributeGroup ref="imageAttr" />
   </xs:complexType>
 
   <!-- Criteria Base Type -->

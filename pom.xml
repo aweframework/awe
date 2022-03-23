@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.4.9</version>
+  <version>4.5.0</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.4.9</revision>
+    <revision>4.5.0</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -39,9 +39,8 @@
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
     <sonar.links.issue>https://gitlab.com/aweframework/awe/issues</sonar.links.issue>
     <sonar.links.scm>https://gitlab.com/aweframework/awe.git</sonar.links.scm>
-    <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
-    <sonar.coverage.jacoco.xmlReportPaths>${jacoco.joined.coverage.path}/jacoco.xml
-    </sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>${jacoco.joined.coverage.path}/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.testExecutionReportPaths>
       ${project.basedir}/awe-framework/awe-client-angular/target/reports/karma/junit/javascriptUnitTests.xml
     </sonar.testExecutionReportPaths>

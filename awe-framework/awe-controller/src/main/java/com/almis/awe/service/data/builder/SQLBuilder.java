@@ -8,7 +8,7 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.type.UnionType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
@@ -29,14 +29,17 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
 
   private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
   private SQLQueryFactory factory;
+  private final EncodeService encodeService;
 
   /**
    * Autowired constructor
    *
    * @param queryUtil Query utilities
+   * @param encodeService Encode service
    */
-  public SQLBuilder(QueryUtil queryUtil) {
+  protected SQLBuilder(QueryUtil queryUtil, EncodeService encodeService) {
     super(queryUtil);
+    this.encodeService = encodeService;
   }
 
   /**
@@ -427,7 +430,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     } else {
       // Check table value
       if (table.getId() == null || table.getId().isEmpty()) {
-        throw new AWException("Malformed table expression", "Bad table definition: '" + table.toString() + "'");
+        throw new AWException("Malformed table expression", "Bad table definition: '" + table + "'");
       }
 
       // Generate table path
@@ -583,13 +586,13 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     // Act selecting the variable type
     switch (type) {
       case STRING_HASH_RIPEMD160:
-        return getStringExpression(EncodeUtil.encodeRipEmd160(value));
+        return getStringExpression(EncodeService.encodeRipEmd160(value));
       case STRING_HASH_SHA:
-        return getStringExpression(EncodeUtil.hash(EncodeUtil.HashingAlgorithms.SHA_256, value));
+        return getStringExpression(encodeService.hash(EncodeService.HashingAlgorithms.SHA_256, value));
       case STRING_HASH_PBKDF_2_W_HMAC_SHA_1:
-        return getStringExpression(EncodeUtil.encodePBKDF2WithHmacSHA1(value));
+        return getStringExpression(encodeService.encodePBKDF2WithHmacSHA1(value));
       case STRING_ENCRYPT:
-        return getStringExpression(EncodeUtil.encryptRipEmd160(value));
+        return getStringExpression(encodeService.encryptRipEmd160(value));
       case STRING:
       default:
         return getStringExpression(value);

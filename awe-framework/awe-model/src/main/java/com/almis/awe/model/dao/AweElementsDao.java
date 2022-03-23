@@ -1,5 +1,6 @@
 package com.almis.awe.model.dao;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.XMLFile;
@@ -7,15 +8,12 @@ import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,30 +33,20 @@ public class AweElementsDao {
   private static final String READING = "Reading ''{0}''{1}";
   private static final String READING_FILES_FROM = "Reading files from ''{0}''{1}";
   private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
+
   // Autowired services
   private final XStreamSerializer serializer;
-  private final Environment environment;
-  // Application files path
-  @Value("${application.paths.application:application/}")
-  private String applicationPath;
-  // Application module prefix
-  @Value("${modules.prefix:module.}")
-  private String modulePrefix;
-  // XML extension
-  @Value("#{'${extensions.xml:.xml}'.split(',')}")
-  private String xmlExtension;
-  // Application modules
-  @Value("#{'${modules.list:awe}'.split(',')}")
-  private List<String> modules;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
    * @param serializer Serializer
+   * @param baseConfigProperties Base config properties
    */
-  public AweElementsDao(XStreamSerializer serializer, WebApplicationContext context) {
+  public AweElementsDao(XStreamSerializer serializer, BaseConfigProperties baseConfigProperties) {
     this.serializer = serializer;
-    this.environment = context.getEnvironment();
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -84,9 +72,9 @@ public class AweElementsDao {
   public <T extends XMLFile, N extends XMLNode> void readXmlFiles(Class<T> rootClass, Map<String, N> storage, String filePath) {
     List<String> resultList = new ArrayList<>();
     // For each module read XML files
-    for (String module : modules) {
+    for (String module : baseConfigProperties.getModuleList()) {
       // Read module file
-      resultList.add(readModuleFile(rootClass, storage, applicationPath + environment.getProperty(modulePrefix + module) + filePath));
+      resultList.add(readModuleFile(rootClass, storage, baseConfigProperties.getPaths().getApplication() + module + filePath));
     }
 
     // Log results
@@ -150,11 +138,10 @@ public class AweElementsDao {
     T file = null;
     List<String> messageList = new ArrayList<>();
     // For each module read XML files
-    for (String module : modules) {
+    for (String module : baseConfigProperties.getModuleList()) {
       if (file == null) {
         // Get file path
-        String modulePath = environment.getProperty(modulePrefix + module);
-        String path = applicationPath + modulePath + filePath;
+        String path = baseConfigProperties.getPaths().getApplication() + module + filePath;
         file = readModuleXmlFile(clazz, path, messageList);
       }
     }
@@ -197,7 +184,7 @@ public class AweElementsDao {
    *
    * @param clazz   File class
    * @param path    Base directory path
-   * @param storage Storage to keep readed files
+   * @param storage Storage to keep read files
    */
   @Async("contextlessTaskExecutor")
   public <T> Future<String> readFolderXmlFilesAsync(Class<T> clazz, String path, Map<String, T> storage) {
@@ -210,15 +197,14 @@ public class AweElementsDao {
    *
    * @param clazz   File class
    * @param path    Base directory path
-   * @param storage Storage to keep readed files
+   * @param storage Storage to keep read files
    */
   public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
     List<String> resultList = new ArrayList<>();
     // For each module read XML files
-    for (String module : modules) {
+    for (String module : baseConfigProperties.getModuleList()) {
       // Get file path
-      String modulePath = environment.getProperty(modulePrefix + module);
-      String basePath = applicationPath + modulePath + path;
+      String basePath = baseConfigProperties.getPaths().getApplication() + module + path;
       resultList.addAll(readModuleFolderXmlFile(clazz, basePath, storage));
     }
 
@@ -243,7 +229,7 @@ public class AweElementsDao {
       if (basePathResource.exists()) {
         // Read files from path
         PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
-        Resource[] resources = loader.getResources("classpath:" + path + "*" + xmlExtension);
+        Resource[] resources = loader.getResources("classpath:" + path + "*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
           resultList.add(MessageFormat.format(READING_FILES_FROM, path, OK));
           for (Resource resource : resources) {
@@ -267,14 +253,14 @@ public class AweElementsDao {
    * @param clazz    Resource class
    * @param basePath Base path
    * @param storage  Storage
-   * @throws IOException Erorr reading resource
+   * @throws IOException Error reading resource
    */
   private <T> String readXmlResourceFile(Resource resource, Class<T> clazz, String basePath, Map<String, T> storage) throws IOException {
     if (resource.exists()) {
-      String fileName = Objects.requireNonNull(resource.getFilename()).replace(xmlExtension, "");
+      String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
       if (!storage.containsKey(fileName)) {
         storage.put(fileName, fromXML(clazz, resource.getInputStream()));
-        return MessageFormat.format(READING, basePath + fileName + xmlExtension, OK);
+        return MessageFormat.format(READING, basePath + fileName + baseConfigProperties.getExtensionXml(), OK);
       }
     }
     return null;

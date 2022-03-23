@@ -1,5 +1,6 @@
 package com.almis.awe.scheduler.service;
 
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.ReportType;
@@ -44,11 +45,11 @@ public class ExecutionService {
   /**
    * Start timeout job
    *
-   * @param execution
-   * @param timeout
-   * @param process
+   * @param execution Task execution
+   * @param timeout Timeout task
+   * @param process Future process
    */
-  public void startTimeoutJob(TaskExecution execution, Integer timeout, Future process) {
+  public void startTimeoutJob(TaskExecution execution, long timeout, Future<ServiceData> process) {
     JobDataMap data = new JobDataMap();
     data.put("id", execution.getKey());
     data.put(TASK_JOB_TIMEOUT, timeout);
@@ -66,8 +67,8 @@ public class ExecutionService {
   /**
    * Start progress job
    *
-   * @param execution
-   * @param averageTime
+   * @param execution Task execution
+   * @param averageTime Average time
    */
   public void startProgressJob(TaskExecution execution, Integer averageTime) {
 
@@ -88,7 +89,7 @@ public class ExecutionService {
   /**
    * Interrupt timeout timer
    *
-   * @param execution
+   * @param execution Task execution
    */
   public void interruptExecutionJobs(TaskExecution execution) {
     JobKey timeoutJobKey = getJobKey(execution, "TIMEOUT");
@@ -105,8 +106,8 @@ public class ExecutionService {
   /**
    * Start report job
    *
-   * @param task
-   * @param execution
+   * @param task Scheduler task
+   * @param execution Task execution
    */
   public void startReportJob(Task task, TaskExecution execution) {
     // If report send status doesn't match to execution status, exit

@@ -36,13 +36,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     setTestTitle("Select test module: Test to select test module");
 
     // Select module
-    selectModule("Test");
-
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    selectTestModule();
   }
 
   /**
@@ -339,7 +333,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t012_fillOverSelect() {
-    t001_selectTestModule();
+    selectTestModule();
 
     // Title
     setTestTitle("Test filling a select with less values than usual");
@@ -392,7 +386,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t020_checkDependenciesAfterRestore() {
-    t001_selectTestModule();
+    selectTestModule();
 
     // Title
     setTestTitle("Check if dependencies are working after restore (issue #279)");
@@ -447,6 +441,44 @@ class RegressionTestsIT extends SeleniumUtilities {
     checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked");
   }
 
+  /**
+   * Test for select all rows of grid
+   */
+  @Test
+  void t040_suggestChangeValue() {
+    selectTestModule();
+
+    // Title
+    setTestTitle("Launch 2 selected actions into a suggest and check value has changed successfully");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test-left");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Wait for button
+    waitForButton("ButtonLoadSuggest");
+
+    // Click on button
+    clickButton("ButtonLoadSuggest", true);
+
+    // Check suggest value
+    checkSelectContents("SugTst", "DjrRepPth");
+
+    // Click on button
+    clickButton("ButtonLoadSuggest2", true);
+
+    // Check suggest value
+    checkSelectContents("SugTst", "DjrHdgPag");
+
+    // Click on button
+    clickButton("ButtonResetSuggest", true);
+
+    // Check suggest value
+    checkSelectContents("SugTst", "");
+  }
+
 
     /**
      * Suggest delayed
@@ -471,5 +503,19 @@ class RegressionTestsIT extends SeleniumUtilities {
 
     // Click selector
     selectResult(match);
+  }
+
+  /**
+   * Select test module
+   */
+  private void selectTestModule() {
+    // Select module
+    selectModule("Test");
+
+    // Wait for text
+    waitForText("mm-text", "Tests");
+
+    // Check text
+    checkVisible("[translate-multiple='MENU_TEST'");
   }
 }

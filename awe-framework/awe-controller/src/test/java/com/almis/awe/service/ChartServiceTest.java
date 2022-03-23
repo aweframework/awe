@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
@@ -14,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.PropertyAccessor;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -45,6 +44,9 @@ class ChartServiceTest {
 
   @Mock
   private RestTemplate restTemplate;
+
+  @Mock
+  private BaseConfigProperties baseConfigProperties;
 
   @Mock
   private ObjectMapper mapper;
@@ -130,13 +132,12 @@ class ChartServiceTest {
     chartService.setApplicationContext(context);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getScreen(anyString())).willReturn(testScreen);
-    PropertyAccessor myAccessor = PropertyAccessorFactory.forDirectFieldAccess(chartService);
-    myAccessor.setPropertyValue("exportServerUrl", "https://export.highcharts.com");
   }
 
   @Test
   void renderChart() throws Exception {
     when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+    when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
     when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(ResponseEntity.ok("Hello World"));
     DataList data = new DataList();
     Map<String, CellData> row = new HashMap<>();
@@ -167,6 +168,7 @@ class ChartServiceTest {
   @Test
   void renderChartWithDetails() throws AWException {
     when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+    when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
     when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(ResponseEntity.ok("Hello World"));
     DataList data = new DataList();
     HashMap<String, CellData> row = new HashMap<>();
@@ -256,6 +258,7 @@ class ChartServiceTest {
   @Test
   void renderChartNot200() {
     when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+    when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
     when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(ResponseEntity.notFound().build());
     assertThrows(AWException.class, () -> chartService.renderChart("Chart", "LineChartTest", new DataList()));
   }

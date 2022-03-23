@@ -19,7 +19,6 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
-import com.almis.awe.model.util.security.EncodeUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.report.Report;
@@ -35,6 +34,7 @@ import com.almis.awe.scheduler.factory.TaskFactory;
 import com.almis.awe.scheduler.factory.TriggerFactory;
 import com.almis.awe.scheduler.filechecker.FileChecker;
 import com.almis.awe.scheduler.util.TaskUtil;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -585,7 +585,7 @@ public class TaskDAO extends ServiceConfig {
    */
   public ServiceData getTaskExecutionList(Integer taskId) throws AWException {
     ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    ServiceData serviceData = queryService.launchQuery("getTaskExecutionList", parameters);
+    ServiceData serviceData = queryService.launchPrivateQuery("getTaskExecutionList", parameters);
     long averageExecution = getAverageTime(taskId);
     String logPath = executionLogPath;
 
@@ -642,7 +642,7 @@ public class TaskDAO extends ServiceConfig {
   private ObjectNode getExecutionLogFileNode(String logPath, Integer taskId, Integer executionId) throws AWException {
     Path executionLogFilePath = getExecutionLogFilePath(logPath, taskId, executionId);
     ObjectNode logFileNode = JsonNodeFactory.instance.objectNode();
-    logFileNode.put(JSON_VALUE_PARAMETER, EncodeUtil.encodeSymmetric(executionLogFilePath.toString()));
+    logFileNode.put(JSON_VALUE_PARAMETER, EncodeService.encodeSymmetric(executionLogFilePath.toString()));
     logFileNode.put(JSON_STYLE_PARAMETER, "no-btn");
     logFileNode.put(JSON_TITLE_PARAMETER, "SCHEDULER_SHOW_EXECUTION_LOG");
     logFileNode.put(JSON_ICON_PARAMETER, "fa-file-text-o text-info");
@@ -847,7 +847,7 @@ public class TaskDAO extends ServiceConfig {
   public ServiceData getTaskList() throws AWException {
     // Get task list details
     ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    ServiceData serviceData = queryService.launchQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, parameters);
+    ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, parameters);
     DataList filtered = new DataList();
     for (Map<String, CellData> row : serviceData.getDataList().getRows()) {
       // Add other parameters from the scheduler to the datalist

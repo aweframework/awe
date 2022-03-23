@@ -1,18 +1,16 @@
 package com.almis.awe.service.user;
 
 import com.almis.awe.config.ServiceConfig;
-import com.almis.awe.dao.UserDAO;
-import com.almis.awe.model.constant.AweConstants;
-import com.almis.awe.model.dto.User;
+import com.almis.awe.model.component.AweUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
-import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.util.Assert;
 
@@ -31,43 +29,44 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
   private boolean convertToUpperCase = true;
 
   // Autowired services
-  private final UserDAO userRepository;
+  private final UserDetailsService userDetailService;
 
   /**
    * Autowired constructor
    *
-   * @param userRepository AWE user DAO
+   * @param userDetailService AWE user detaill service
    */
-  public LdapAweUserDetailsMapper(UserDAO userRepository) {
-    this.userRepository = userRepository;
+  public LdapAweUserDetailsMapper(UserDetailsService userDetailService) {
+    this.userDetailService = userDetailService;
   }
 
   @Override
   public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
 
+    // Get user info
+    AweUserDetails userDetails = (AweUserDetails) userDetailService.loadUserByUsername(username);
     String dn = ctx.getNameInNamespace();
 
     log.debug("Mapping user details from context with DN: {}", dn);
 
-    LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
-    essence.setDn(dn);
+    userDetails.setDn(dn);
 
     Object passwordValue = ctx.getObjectAttribute(userCredentialsAttribute);
 
     if (passwordValue != null) {
-      essence.setPassword(mapPassword(passwordValue));
+      userDetails.setPassword(mapPassword(passwordValue));
     }
 
-    essence.setUsername(username);
+    userDetails.setUsername(username);
 
     // Map the roles
     if (roleAttributes != null) {
-      mapRoleAttributes(ctx, essence, dn);
+      mapRoleAttributes(ctx, userDetails, dn);
     }
 
     // Add the supplied authorities
     for (GrantedAuthority authority : authorities) {
-      essence.addAuthority(authority);
+      userDetails.addAuthority(authority);
     }
 
     // Check for PPolicy data
@@ -76,17 +75,11 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
       .getObjectAttribute(PasswordPolicyControl.OID);
 
     if (passwordPolicy != null) {
-      essence.setTimeBeforeExpiration(passwordPolicy.getTimeBeforeExpiration());
-      essence.setGraceLoginsRemaining(passwordPolicy.getGraceLoginsRemaining());
+      userDetails.setTimeBeforeExpiration(passwordPolicy.getTimeBeforeExpiration());
+      userDetails.setGraceLoginsRemaining(passwordPolicy.getGraceLoginsRemaining());
     }
 
-    // Get user info
-    User user = userRepository.findByUserName(username);
-
-    // Store user details in session
-    getSession().setParameter(AweConstants.SESSION_USER_DETAILS, user);
-
-    return essence.createUserDetails();
+    return userDetails;
   }
 
   @Override
@@ -100,10 +93,10 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
    * Map role attributes
    *
    * @param ctx     Dir context operations
-   * @param essence Essence
+   * @param userDetails User details
    * @param dn      DN
    */
-  private void mapRoleAttributes(DirContextOperations ctx, LdapUserDetailsImpl.Essence essence, String dn) {
+  private void mapRoleAttributes(DirContextOperations ctx, AweUserDetails userDetails, String dn) {
     for (String roleAttribute : roleAttributes) {
       String[] rolesForAttribute = ctx.getStringAttributes(roleAttribute);
 
@@ -112,7 +105,7 @@ public class LdapAweUserDetailsMapper extends ServiceConfig implements UserDetai
           GrantedAuthority authority = createAuthority(role);
 
           if (authority != null) {
-            essence.addAuthority(authority);
+            userDetails.addAuthority(authority);
           }
         }
       } else {

@@ -1,10 +1,14 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweHttpServletRequestWrapper;
-import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.config.*;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntryPoint;
@@ -12,24 +16,28 @@ import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
 import com.almis.awe.security.authentication.filter.PublicQueryMaintainFilter;
 import com.almis.awe.security.handler.AweAccessDeniedHandler;
 import com.almis.awe.security.handler.AweLogoutHandler;
-import com.almis.awe.service.AccessService;
-import com.almis.awe.service.MenuService;
-import com.almis.awe.service.QueryService;
+import com.almis.awe.service.*;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.service.user.LdapAweUserDetailsMapper;
 import com.almis.awe.session.AweSessionDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dev.samstevens.totp.code.CodeVerifier;
+import dev.samstevens.totp.qr.QrDataFactory;
+import dev.samstevens.totp.qr.QrGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -37,8 +45,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -53,38 +63,47 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableConfigurationProperties(value = {BaseConfigProperties.class, SecurityConfigProperties.class, TotpConfigProperties.class})
 @Slf4j
 public class SecurityConfig extends ServiceConfig {
 
+  // Timeout for Ldap socket connect
+  private static final String LDAP_CONNECT_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";
+
+  // Timeout for Ldap reading responses
+  private static final String LDAP_READ_TIMEOUT = "com.sun.jndi.ldap.read.timeout";
+
   // White list urls
   private static final String[] AUTH_LIST = {
-    "/websocket/**",
-    "/template/**",
-    "/settings",
-    "/css/**",
-    "/action/get-locals",
-    "/action/screen-data",
-    "/action/encrypt",
-    "/action/get-file",
-    "/action/file-info",
-    "/action/delete-file",
-    "/action/view-pdf-file",
-    "/screen/**",
-    // File and upload controllers
-    "/file/text",
-    "/file/stream",
-    "/file/download",
-    "/file/upload",
-    "/file/delete",
-    // React engine
-    "/screen-data",
-    "/locales/**"
+          "/error**",
+          "/websocket/**",
+          "/template/**",
+          "/settings",
+          "/css/**",
+          "/action/get-locals",
+          "/action/screen-data",
+          "/action/encrypt",
+          "/action/get-file",
+          "/action/file-info",
+          "/action/delete-file",
+          "/action/view-pdf-file",
+          "/screen/**",
+          // File and upload controllers
+          "/file/text",
+          "/file/stream",
+          "/file/download",
+          "/file/upload",
+          "/file/delete",
+          // React engine
+          "/screen-data",
+          "/locales/**",
+          // Access controllers
+          "/access/**"
   };
 
   // Data list urls
@@ -108,82 +127,31 @@ public class SecurityConfig extends ServiceConfig {
   };
 
   // Autowired services
-  private final AweSessionDetails aweSessionDetails;
   private final AweElements elements;
+  private final ActionService actionService;
   private final ObjectMapper objectMapper;
-  @Value("${screen.parameter.username:cod_usr}")
-  private String usernameParameter;
-  @Value("${screen.parameter.password:pwd_usr}")
-  private String passwordParameter;
-  @Value("${language.default}:en")
-  private String defaultLocale;
-  @Value("${security.auth.mode:bbdd}")
-  private String authenticationProviderSource;
-  @Value("${security.role.prefix:ROLE_}")
-  private String rolePrefix;
-  // Custom authentication
-  @Value("#{'${security.auth.custom.providers:}'.split(',')}")
-  private List<String> authenticationProviders;
-  // LDAP authentication
-  @Value("#{'${security.auth.ldap.url:}'.split(',')}")
-  private List<String> ldapUrl;
-  @Value("${security.auth.ldap.user:}")
-  private String ldapUserFilter;
-  @Value("${security.auth.ldap.password.bind:}")
-  private String ldapPassword;
-  @Value("${security.auth.ldap.user.bind:}")
-  private String ldapUserDN;
-  @Value("${security.auth.ldap.basedn:}")
-  private String ldapBaseDN;
-  @Value("${security.auth.ldap.timeout:}")
-  private String ldapConnectTimeout;
-  @Value("${security.headers.frameOptions.sameOrigin:true}")
-  private boolean sameOrigin;
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
+
   @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
 
   /**
    * Autowired constructor
    *
-   * @param sessionDetails AWE session details
-   * @param elements       Awe elements
-   * @param objectMapper   Object mapper
+   * @param elements                 Awe elements
+   * @param objectMapper             Object mapper
+   * @param actionService            Action service
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
    */
   @Autowired
-  public SecurityConfig(AweSessionDetails sessionDetails, AweElements elements, ObjectMapper objectMapper) {
-    this.aweSessionDetails = sessionDetails;
+  public SecurityConfig(AweElements elements, ObjectMapper objectMapper, ActionService actionService, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.elements = elements;
     this.objectMapper = objectMapper;
-  }
-
-  private enum AUTHENTICATION_MODE {
-    LDAP("ldap"),
-    BBDD("bbdd"),
-    IN_MEMORY("in_memory"),
-    CUSTOM("custom");
-
-    private final String mode;
-
-    AUTHENTICATION_MODE(String mode) {
-      this.mode = mode;
-    }
-
-    public static AUTHENTICATION_MODE fromValue(String value) {
-      if (value.equalsIgnoreCase(LDAP.getValue())) {
-        return LDAP;
-      } else if (value.equalsIgnoreCase(BBDD.getValue())) {
-        return BBDD;
-      } else if (value.equalsIgnoreCase(IN_MEMORY.getValue())) {
-        return IN_MEMORY;
-      } else if (value.equalsIgnoreCase(CUSTOM.getValue())) {
-        return CUSTOM;
-      }
-      return null;
-    }
-
-    public String getValue() {
-      return mode;
-    }
+    this.actionService = actionService;
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
   }
 
   /**
@@ -210,7 +178,9 @@ public class SecurityConfig extends ServiceConfig {
         .antMatchers(MAINTAIN_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
         .anyRequest().authenticated()
         // Login redirect
-        .and().formLogin().loginPage("/").permitAll()
+        .and().formLogin()
+        .loginPage("/")
+        .permitAll()
         // Exceptions handling
         .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
         .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(getBean(AweSessionDetails.class)), new AntPathRequestMatcher("/action/**"))
@@ -225,7 +195,7 @@ public class SecurityConfig extends ServiceConfig {
         // ignore our stomp endpoints since they are protected using Stomp headers
         .ignoringAntMatchers("/websocket/**");
 
-      if (sameOrigin) {
+      if (securityConfigProperties.isSameOriginEnable()) {
         http.headers().frameOptions().sameOrigin();
       }
     }
@@ -253,14 +223,13 @@ public class SecurityConfig extends ServiceConfig {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) {
 
-      AUTHENTICATION_MODE mode = AUTHENTICATION_MODE.fromValue(authenticationProviderSource);
-      mode = mode == null ? AUTHENTICATION_MODE.BBDD : mode;
+      AuthType mode = securityConfigProperties.getAuthMode();
       log.info("Using authentication mode: " + mode);
 
       switch (mode) {
         case CUSTOM:
           // Custom authentication bean
-          for (String provider : authenticationProviders) {
+          for (String provider : securityConfigProperties.getAuthCustomProviders()) {
             try {
               Object beanObj = getBean(provider);
               if (beanObj instanceof AuthenticationProvider) {
@@ -319,21 +288,38 @@ public class SecurityConfig extends ServiceConfig {
     public JsonAuthenticationFilter authenticationFilter() {
       JsonAuthenticationFilter authenticationFilter = new JsonAuthenticationFilter(elements);
       authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/action/login", "POST"));
-      authenticationFilter.setUsernameParameter(usernameParameter);
-      authenticationFilter.setPasswordParameter(passwordParameter);
+      authenticationFilter.setUsernameParameter(baseConfigProperties.getParameter().getUsername());
+      authenticationFilter.setPasswordParameter(baseConfigProperties.getParameter().getPassword());
       authenticationFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
-        // Initialize parameters
         initRequest(request);
-        aweSessionDetails.onLoginSuccess();
-        request.getRequestDispatcher("/action/loginRedirect").forward(request, response);
+        response.getWriter().write(new ObjectMapper().writeValueAsString(actionService.launchAction("afterLogin")));
       });
       authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {
-        // Initialize parameters
         initRequest(request);
-        aweSessionDetails.onLoginFailure(authenticationException);
-        request.getRequestDispatcher("/action/loginRedirect").forward(request, response);
+        String username = getRequest().getParameterAsString(baseConfigProperties.getParameter().getUsername());
+        response.getWriter().write(new ObjectMapper().writeValueAsString(actionService.launchError("afterLogin", getCredentialsException(authenticationException, username))));
       });
       return authenticationFilter;
+    }
+
+    /**
+     * Retrieve credentials exception
+     *
+     * @param authenticationException Authentication exception
+     * @param username                User name
+     * @return Credentials exception
+     */
+    private AWException getCredentialsException(AuthenticationException authenticationException, String username) {
+      AWException exc;
+      if (authenticationException instanceof UsernameNotFoundException) {
+        exc = new AWException(getLocale("ERROR_TITLE_INVALID_USER"), getLocale("ERROR_MESSAGE_INVALID_USER", username), authenticationException);
+      } else if (authenticationException instanceof BadCredentialsException) {
+        exc = new AWException(getLocale("ERROR_TITLE_INVALID_CREDENTIALS"), getLocale("ERROR_MESSAGE_INVALID_CREDENTIALS", username), authenticationException);
+      } else {
+        exc = new AWException(getLocale("ERROR_TITLE_INVALID_CREDENTIALS"), authenticationException.getMessage(), authenticationException);
+      }
+      exc.setType(AnswerType.WARNING);
+      return exc;
     }
 
     /**
@@ -350,22 +336,22 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Configure Ldap provider for bind auth
      *
-     * @return LdapAuthenticationProvider
+     * @param ldapContextSource Ldap context
+     * @return LDAP authentication provider
      */
     @Bean
-    @ConditionalOnProperty(name = "security.auth.mode", havingValue = "ldap")
-    public AuthenticationProvider ldapAuthenticationProvider(UserDAO userDAO) {
+    @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "ldap")
+    public AuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
 
       // Bind authenticator with search filter
-      final BindAuthenticator bindAuthenticator = new BindAuthenticator(getBean(LdapContextSource.class));
-      bindAuthenticator.setUserSearch(new FilterBasedLdapUserSearch("", "(" + ldapUserFilter + ")", getBean(LdapContextSource.class)));
-
+      final BindAuthenticator bindAuthenticator = new BindAuthenticator(ldapContextSource);
+      bindAuthenticator.setUserSearch(new FilterBasedLdapUserSearch("", "(" + securityConfigProperties.getLdap().getUserFilter() + ")", ldapContextSource));
 
       // Ldap provider
       final LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(bindAuthenticator);
       ldapAuthenticationProvider.setHideUserNotFoundExceptions(false);
       ldapAuthenticationProvider.setAuthoritiesMapper(new SimpleAuthorityMapper());
-      ldapAuthenticationProvider.setUserDetailsContextMapper(ldapAweUserDetailsMapper(userDAO));
+      ldapAuthenticationProvider.setUserDetailsContextMapper(getBean(LdapAweUserDetailsMapper.class));
 
       return ldapAuthenticationProvider;
     }
@@ -407,12 +393,12 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Configure ldap user details mapper
      *
-     * @param userDAO user dao
+     * @param userDetailService user detail service
      * @return Ldap user details context mapper
      */
     @Bean
-    public UserDetailsContextMapper ldapAweUserDetailsMapper(UserDAO userDAO) {
-      return new LdapAweUserDetailsMapper(userDAO);
+    public UserDetailsContextMapper ldapAweUserDetailsMapper(UserDetailsService userDetailService) {
+      return new LdapAweUserDetailsMapper(userDetailService);
     }
 
     /**
@@ -422,7 +408,7 @@ public class SecurityConfig extends ServiceConfig {
      * @return DaoAuthenticationProvider
      */
     @Bean
-    @ConditionalOnProperty(name = "security.auth.mode", havingValue = "bbdd")
+    @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "bbdd", matchIfMissing = true)
     public AuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
       DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
       daoAuthenticationProvider.setPasswordEncoder(new Ripemd160PasswordEncoder());
@@ -445,12 +431,14 @@ public class SecurityConfig extends ServiceConfig {
     /**
      * Configure User detail service
      *
+     * @param queryUtil Query utilities
      * @param queryService Query service
+     * @param dataListService DataList service
      * @return UserDetailService
      */
     @Bean
-    public UserDAO userDAO(QueryService queryService) {
-      return new UserDAOImpl(queryService);
+    public UserDAO userDAO(QueryUtil queryUtil, QueryService queryService, DataListService dataListService) {
+      return new UserDAOImpl(queryUtil, queryService, dataListService);
     }
 
     /**
@@ -460,19 +448,19 @@ public class SecurityConfig extends ServiceConfig {
      */
     @Bean
     @ConditionalOnMissingBean
-    public LdapContextSource contextSource() {
+    public LdapContextSource ldapContextSource() {
       // Environment properties
       Map<String, Object> environmentProperties = Collections.synchronizedMap(new HashMap<>());
-      environmentProperties.put("com.sun.jndi.ldap.connect.timeout", ldapConnectTimeout);
+      environmentProperties.put(LDAP_CONNECT_TIMEOUT, String.valueOf(securityConfigProperties.getLdap().getConnectTimeout().toMillis()));
+      environmentProperties.put(LDAP_READ_TIMEOUT, String.valueOf(securityConfigProperties.getLdap().getReadTimeout().toMillis()));
 
       LdapContextSource ldapContextSource = new LdapContextSource();
       ldapContextSource.setBaseEnvironmentProperties(environmentProperties);
-      ldapContextSource.setUrls(ldapUrl.toArray(new String[0]));
-      ldapContextSource.setBase(ldapBaseDN);
-      ldapContextSource.setUserDn(ldapUserDN);
-      ldapContextSource.setPassword(ldapPassword);
+      ldapContextSource.setUrls(securityConfigProperties.getLdap().getUrl());
+      ldapContextSource.setBase(securityConfigProperties.getLdap().getBaseDn());
+      ldapContextSource.setUserDn(securityConfigProperties.getLdap().getUserBind());
+      ldapContextSource.setPassword(securityConfigProperties.getLdap().getPasswordBind());
       ldapContextSource.setPooled(true);
-
       return ldapContextSource;
     }
 
@@ -492,15 +480,42 @@ public class SecurityConfig extends ServiceConfig {
     /////////////////////////////////////////////
 
     /**
-     * Access service
+     * Access service bean
      *
-     * @param menuService Menu service
-     * @return Access service bean
+     * @param menuService              Menu service
+     * @param aweSessionDetails        Awe session details
+     * @param encodeService            Encode service
+     * @param totpService              Totp service
+     * @param baseConfigProperties     Base config properties
+     * @param securityConfigProperties Security config properties
+     * @param totpConfigProperties     Totp config properties
+     * @return AccessService bean
      */
     @Bean
     @ConditionalOnMissingBean
-    public AccessService accessService(MenuService menuService) {
-      return new AccessService(menuService);
+    public AccessService accessService(AweSessionDetails aweSessionDetails,
+                                       MenuService menuService,
+                                       EncodeService encodeService,
+                                       TotpService totpService,
+                                       BaseConfigProperties baseConfigProperties,
+                                       SecurityConfigProperties securityConfigProperties,
+                                       TotpConfigProperties totpConfigProperties) {
+      return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties);
+    }
+
+    /**
+     * Totp service
+     *
+     * @param secretGenerator Secret generator
+     * @param qrDataFactory QR data factory
+     * @param qrGenerator QR Generator
+     * @param codeVerifier TOTP Code verifier
+     * @return TOTP Service
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TotpService totpService(SecretGenerator secretGenerator, QrDataFactory qrDataFactory, QrGenerator qrGenerator, CodeVerifier codeVerifier) {
+      return new TotpService(secretGenerator, qrDataFactory, qrGenerator, codeVerifier);
     }
   }
 }

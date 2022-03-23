@@ -1,11 +1,11 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import org.graalvm.polyglot.Context;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +23,21 @@ import javax.annotation.PreDestroy;
 @Configuration
 public class SerializerConfig {
 
-  @Value("${xml.parser.allowed.paths}")
-  private String[] allowedPaths;
+  // Autowired services
+  private final SecurityConfigProperties securityConfigProperties;
+
   private ThreadLocal<Context> engineThread;
 
   /**
-   * On construct initialize threadlocal
+   * SerializeConfig constructor
+   * @param securityConfigProperties Security configuration properties
+   */
+  public SerializerConfig(SecurityConfigProperties securityConfigProperties) {
+    this.securityConfigProperties = securityConfigProperties;
+  }
+
+  /**
+   * On construct initialize thread local
    */
   @PostConstruct
   public void onConstruct() {
@@ -36,7 +45,7 @@ public class SerializerConfig {
   }
 
   /**
-   * On destroy remove threadlocal
+   * On destroy remove thread local
    */
   @PreDestroy
   public void onDestroy() {
@@ -53,10 +62,8 @@ public class SerializerConfig {
   public XStreamSerializer xStreamSerializer(XStreamMarshaller xStreamMarshaller) {
     // Configure xstream security
     XStream xstream = xStreamMarshaller.getXStream();
-    XStream.setupDefaultSecurity(xstream); // to be removed after 1.5
     // allow any type from the same package
-    xstream.allowTypesByWildcard(allowedPaths);
-
+    xstream.allowTypesByWildcard(securityConfigProperties.getXstreamAllowPaths());
     // Retrieve serializer
     return new XStreamSerializer(xStreamMarshaller);
   }

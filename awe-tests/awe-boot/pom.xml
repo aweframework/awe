@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.4.9</version>
+    <version>4.5.0</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -34,7 +34,7 @@
     <jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>
     <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
     <sonar.exclusions>src/**</sonar.exclusions>
-    <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
+    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     <sonar.tests>${project.basedir}/src/test</sonar.tests>
     <browser>headless-chrome</browser>
     <skip.main>false</skip.main>

@@ -43,24 +43,24 @@ class NotifierServiceTest {
 
   @Test
   void getNotifications() throws Exception {
-    when(queryService.launchQuery(anyString())).thenReturn(new ServiceData().setDataList(new DataList()));
+    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(new DataList()));
 
     // Run
     notifierService.getNotifications();
 
     // Assert
-    verify(queryService, times(1)).launchQuery(anyString());
+    verify(queryService, times(1)).launchPrivateQuery(anyString());
   }
 
   @Test
   void toggleWebSubscriptionInit() throws Exception {
-    when(queryService.launchQuery(anyString())).thenReturn(new ServiceData().setDataList(new DataList()));
+    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(new DataList()));
 
     // Run
     notifierService.toggleWebSubscription("test", 1);
 
     // Assert
-    verify(queryService, times(1)).launchQuery(anyString());
+    verify(queryService, times(1)).launchPrivateQuery(anyString());
     verify(maintainService, times(1)).launchMaintain(eq("insert-user-subscription"), any(ObjectNode.class));
   }
 
@@ -71,25 +71,25 @@ class NotifierServiceTest {
     row.put("web", new CellData("1"));
     row.put("email", new CellData("1"));
     dataList.addRow(row);
-    when(queryService.launchQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
+    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
 
     // Run
     notifierService.toggleWebSubscription("test", 1);
 
     // Assert
-    verify(queryService, times(1)).launchQuery(anyString());
+    verify(queryService, times(1)).launchPrivateQuery(anyString());
     verify(maintainService, times(1)).launchMaintain(eq("update-user-subscription"), any(ObjectNode.class));
   }
 
   @Test
   void toggleEmailSubscriptionInit() throws Exception {
-    when(queryService.launchQuery(anyString())).thenReturn(new ServiceData().setDataList(new DataList()));
+    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(new DataList()));
 
     // Run
     notifierService.toggleEmailSubscription("test", 1);
 
     // Assert
-    verify(queryService, times(1)).launchQuery(anyString());
+    verify(queryService, times(1)).launchPrivateQuery(anyString());
     verify(maintainService, times(1)).launchMaintain(eq("insert-user-subscription"), any(ObjectNode.class));
   }
 
@@ -100,13 +100,13 @@ class NotifierServiceTest {
     row.put("web", new CellData("1"));
     row.put("email", new CellData("1"));
     dataList.addRow(row);
-    when(queryService.launchQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
+    when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
 
     // Run
     notifierService.toggleEmailSubscription("test", 1);
 
     // Assert
-    verify(queryService, times(1)).launchQuery(anyString());
+    verify(queryService, times(1)).launchPrivateQuery(anyString());
     verify(maintainService, times(1)).launchMaintain(eq("update-user-subscription"), any(ObjectNode.class));
   }
 
@@ -116,14 +116,14 @@ class NotifierServiceTest {
     Map<String, CellData> row = new HashMap<>();
     row.put("screen", new CellData("screen"));
     dataList.addRow(row);
-    when(queryService.launchQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(dataList));
+    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(dataList));
     when(dataListService.asBeanList(any(), eq(NotificationDto.class))).thenReturn(Collections.singletonList(new NotificationDto().setScreen("screen")));
 
     // Run
     ServiceData result = notifierService.goToNotificationScreen(1);
 
     // Assert
-    verify(queryService, times(1)).launchQuery(anyString(), any(ObjectNode.class));
+    verify(queryService, times(1)).launchPrivateQuery(anyString(), any(ObjectNode.class));
     assertEquals(1, result.getClientActionList().size());
     assertNotNull(result.getClientActionList().get(0));
   }

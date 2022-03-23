@@ -15,9 +15,9 @@
   <tag source="center">
     <window label="SCREEN_TEXT_DATA" icon="compass">
       <tag type="div" style="panel-body">
-        <criteria label="PARAMETER_APPLICATION" id="PrtNam" icon="server" component="text-view" style="col-xs-12 col-sm-4 col-md-3 col-lg-2" property="application.name"/>
-        <criteria label="PARAMETER_APPLICATION_ACRONIME" id="PrtAls" icon="file-text-o" component="text-view" style="col-xs-12 col-sm-2 col-lg-1" property="application.acronym"/>
-        <criteria label="PARAMETER_RELEASE" id="PrtRel" icon="code-fork" component="text-view" style="col-xs-12 col-sm-2 col-lg-1" property="application.version"/>
+        <criteria label="PARAMETER_APPLICATION" id="PrtNam" icon="server" component="text-view" style="col-xs-12 col-sm-4 col-md-3 col-lg-2" property="awe.application.name"/>
+        <criteria label="PARAMETER_APPLICATION_ACRONIME" id="PrtAls" icon="file-text-o" component="text-view" style="col-xs-12 col-sm-2 col-lg-1" property="awe.application.acronym"/>
+        <criteria label="PARAMETER_RELEASE" id="PrtRel" icon="code-fork" component="text-view" style="col-xs-12 col-sm-2 col-lg-1" property="build.version"/>
         <criteria label="PARAMETER_DB_ALS" id="DbsAls" icon="database" component="text-view" style="col-xs-12 col-sm-3 col-lg-2" session="database"/>
       </tag>
     </window>

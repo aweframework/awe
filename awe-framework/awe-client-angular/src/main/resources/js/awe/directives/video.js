@@ -1,13 +1,14 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 
 // Video directive
 aweApplication.directive('aweVideo',
-  ['ServerData',
+  ['ServerData', 'Component',
     /**
-     * Info directive
-     * @param {Service} serverData Server call service
+     * Video directive
+     * @param {Object} serverData Server call service
+     * @param {Object} Component Component class
      */
-    function (serverData) {
+    function (serverData, Component) {
       return {
         restrict: 'E',
         replace: true,

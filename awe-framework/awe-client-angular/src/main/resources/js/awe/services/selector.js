@@ -546,8 +546,8 @@ aweApplication.factory('Selector',
             let model = Control.getAddressModel(component.address);
             // Important: Filter first to avoid non useful values, and after that,
             // select the data to launch callback if needed
+            filterSuggestModel(model);
             if (!checkSelectedValue(model)) {
-              filterSuggestModel(model);
               selector.selectData(Utilities.asArray(model.selected));
             }
           };

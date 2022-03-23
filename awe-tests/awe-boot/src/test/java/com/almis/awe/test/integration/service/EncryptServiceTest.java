@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.service;
 
 import com.almis.awe.model.util.security.Crypto;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.EncryptService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ class EncryptServiceTest extends AbstractSpringAppIntegrationTest {
   @Autowired
   private EncryptService encryptService;
 
+  @Autowired
+  private EncodeService encodeService;
+
   /**
    * Check encrypted properties
    */
@@ -33,6 +37,17 @@ class EncryptServiceTest extends AbstractSpringAppIntegrationTest {
     logger.info("With Environment.getProperty: " + encryptService.getEnvironmentProperty());
     assertEquals("prueba2", encryptService.getProperty());
     assertEquals("prueba2", encryptService.getEnvironmentProperty());
+  }
+
+  /**
+   * Test of hash
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testHash() throws Exception {
+    // Prepare
+    assertEquals("655e786674d9d3e77bc05ed1de37b4b6bc89f788829f9f3c679e7687b410c89b", encodeService.hash(EncodeService.HashingAlgorithms.SHA_256, "prueba"));
   }
 
   /**

@@ -1,5 +1,7 @@
 package com.almis.awe.model.util.data;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -18,7 +20,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -31,11 +32,20 @@ import java.util.regex.Matcher;
 @Slf4j
 public class QueryUtil extends ServiceConfig {
 
-  @Value("${application.data.rowsPerPage:30}")
-  private Long rowsPerPage;
+  // Autowired services
+  private final BaseConfigProperties baseConfigProperties;
+  private final DatabaseConfigProperties databaseConfigProperties;
 
-  @Value("${awe.database.parameter.name:_database_}")
-  private String databaseParameterName;
+
+  /**
+   * QueryUtil constructor
+   * @param baseConfigProperties Base config properties
+   * @param databaseConfigProperties Database config properties
+   */
+  public QueryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties) {
+    this.baseConfigProperties = baseConfigProperties;
+    this.databaseConfigProperties = databaseConfigProperties;
+  }
 
   /**
    * Generate sort list
@@ -83,11 +93,11 @@ public class QueryUtil extends ServiceConfig {
     if (maxParameter != null && !maxParameter.isNull()) {
       variableMap.put(AweConstants.QUERY_MAX, new QueryParameter(maxParameter, false, ParameterType.LONG));
     } else {
-      variableMap.put(AweConstants.QUERY_MAX, new QueryParameter(JsonNodeFactory.instance.numberNode(rowsPerPage), false, ParameterType.LONG));
+      variableMap.put(AweConstants.QUERY_MAX, new QueryParameter(JsonNodeFactory.instance.numberNode(baseConfigProperties.getComponent().getGridRowsPerPage()), false, ParameterType.LONG));
     }
 
     // Add database variable
-    JsonNode aliasParameter = getRequestParameter(databaseParameterName, parameters);
+    JsonNode aliasParameter = getRequestParameter(databaseConfigProperties.getParameterName(), parameters);
     if (aliasParameter != null && !aliasParameter.isNull()) {
       variableMap.put(AweConstants.QUERY_DATABASE, new QueryParameter(aliasParameter, false, ParameterType.STRING));
     }
@@ -328,7 +338,7 @@ public class QueryUtil extends ServiceConfig {
     ObjectNode forcedParameters = parameters.deepCopy();
     // Force alias if not null
     if (alias != null) {
-      forcedParameters.set(databaseParameterName, JsonNodeFactory.instance.textNode(alias));
+      forcedParameters.set(databaseConfigProperties.getParameterName(), JsonNodeFactory.instance.textNode(alias));
     }
 
     // Force page if not null
@@ -560,7 +570,7 @@ public class QueryUtil extends ServiceConfig {
             break;
         }
       } catch (NumberFormatException exc) {
-        // If a parameter is an unparseable number, set it to NULL
+        // If a parameter is an un parseable number, set it to NULL
         log.info(getLocale("INFO_MESSAGE_PARSING_NUMBER_NULL", name, value));
         parameter = nodeFactory.nullNode();
       }
@@ -589,7 +599,7 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
-   * Check if a jsonnode variable is empty or not
+   * Check if a json node variable is empty or not
    *
    * @param variable Variable as json
    * @return Variable is empty
@@ -599,7 +609,7 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
-   * Check if a jsonnode variable is null or not
+   * Check if a json node variable is null or not
    *
    * @param variable Variable as json
    * @return Variable is null

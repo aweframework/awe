@@ -34,7 +34,7 @@ public class DatabaseDAO {
    */
   public List<String> getDBAliasList() throws AWException {
     // Launch on the first connection
-    return DataListUtil.getColumn(queryService.launchQuery(DB_ALIAS_LIST).getDataList(), "Als")
+    return DataListUtil.getColumn(queryService.launchPrivateQuery(DB_ALIAS_LIST).getDataList(), "Als")
       .stream()
       .map(CellData::getStringValue)
       .collect(Collectors.toList());

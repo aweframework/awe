@@ -1,4 +1,13 @@
 
+# Changelog for AWE 4.5.0
+*23/03/2022*
+
+- Create documentation of logging in AWE. [MR #363](https://gitlab.com/aweframework/awe/-/merge_requests/363) (Pablo Vidal Otero)
+- Issue when trying to visualize some data in a suggest criterion of a modal dialog. [MR #362](https://gitlab.com/aweframework/awe/-/merge_requests/362) (Pablo Javier García Mora)
+- Review service output data merge with query fields. [MR #361](https://gitlab.com/aweframework/awe/-/merge_requests/361) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Refactor properties files to ConfigProperties classes. [MR #360](https://gitlab.com/aweframework/awe/-/merge_requests/360) (Pablo Vidal Otero)
+- Add video recording capabilities on selenium tests out of docker in docker browsers. [MR #346](https://gitlab.com/aweframework/awe/-/merge_requests/346) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.4.9
 *17/02/2022*
 

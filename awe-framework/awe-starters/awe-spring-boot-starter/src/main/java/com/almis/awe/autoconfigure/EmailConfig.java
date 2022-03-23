@@ -1,13 +1,15 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.autoconfigure.config.EmailConfigProperties;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
 import com.almis.awe.service.data.connector.maintain.EmailMaintainConnector;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -22,35 +24,20 @@ import java.util.Properties;
  * Created by dfuentes on 25/04/2017.
  */
 @Configuration
+@EnableConfigurationProperties(value = EmailConfigProperties.class)
 @ConditionalOnProperty(name = "awe.mail.enabled", havingValue = "true")
 public class EmailConfig {
 
-  @Value ("${awe.mail.auth}")
-  private boolean mailAuthentication;
+  // Email config properties
+  private final EmailConfigProperties emailConfigProperties;
 
-  @Value ("${awe.mail.host}")
-  private String mailHost;
-
-  @Value ("${awe.mail.port:25}")
-  private int mailPort;
-
-  @Value ("${awe.mail.user}")
-  private String mailUser;
-
-  @Value ("${awe.mail.pass}")
-  private String mailPassword;
-
-  @Value ("${awe.mail.debug:false}")
-  private boolean mailDebug;
-
-  @Value ("${awe.mail.ssl:false}")
-  private boolean mailSsl;
-
-  @Value ("${awe.mail.tls:false}")
-  private boolean mailTls;
-
-  @Value ("${awe.mail.localhost:localhost}")
-  private String mailLocalhost;
+  /**
+   * EmailConfig constructor
+   * @param emailConfigProperties email config properties
+   */
+  public EmailConfig (EmailConfigProperties emailConfigProperties) {
+    this.emailConfigProperties = emailConfigProperties;
+  }
 
   /**
    * Default JavaMail configuration
@@ -64,22 +51,22 @@ public class EmailConfig {
 
     // Create JavaMailSender
     javaMailSender = new JavaMailSenderImpl();
-    javaMailSender.setHost(mailHost);
-    javaMailSender.setPort(mailPort);
+    javaMailSender.setHost(emailConfigProperties.getHost());
+    javaMailSender.setPort(emailConfigProperties.getPort());
 
     // Add authentication
-    if (mailAuthentication) {
-      javaMailSender.setUsername(mailUser);
-      javaMailSender.setPassword(mailPassword);
+    if (emailConfigProperties.isAuth()) {
+      javaMailSender.setUsername(emailConfigProperties.getUser());
+      javaMailSender.setPassword(emailConfigProperties.getPass());
     }
 
     // Generate smtp properties
     Properties properties = new Properties();
-    properties.put("mail.smtp.localhost", mailLocalhost);
-    properties.put("mail.debug", mailDebug);
-    properties.put("mail.smtp.starttls.enable", mailTls);
-    properties.put("mail.smtp.ssl.enable", mailSsl);
-    if (mailSsl){
+    properties.put("mail.smtp.localhost", emailConfigProperties.getLocalhost());
+    properties.put("mail.debug", emailConfigProperties.isDebug());
+    properties.put("mail.smtp.starttls.enable", emailConfigProperties.isTls());
+    properties.put("mail.smtp.ssl.enable", emailConfigProperties.isSsl());
+    if (emailConfigProperties.isSsl()){
       properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
       properties.put("mail.smtp.ssl.checkserveridentity", true);
     }
@@ -92,16 +79,17 @@ public class EmailConfig {
   /////////////////////////////////////////////
   // SERVICES
   /////////////////////////////////////////////
-
   /**
    * Email service
-   *
+   * @param mailSender Mail sender
+   * @param emailBuilder Email builder
+   * @param baseConfigProperties Base configuration properties
    * @return Email service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public EmailService emailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder) {
-    return new EmailService(mailSender, emailBuilder);
+  public EmailService emailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder, BaseConfigProperties baseConfigProperties) {
+    return new EmailService(mailSender, emailBuilder, baseConfigProperties);
   }
 
   /////////////////////////////////////////////

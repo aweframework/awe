@@ -1,8 +1,8 @@
 ﻿# Use an official Open jdk runtime as a parent image
-FROM adoptopenjdk/openjdk11:jdk-11.28-alpine
+FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
 
 # Add fonts package
-RUN apk add --no-cache fontconfig msttcorefonts-installer ttf-opensans && fc-cache -f
+RUN apk add --no-cache fontconfig ttf-dejavu && fc-cache -f
 
 # Image maintainer
 LABEL maintainer="awe@almis.com"

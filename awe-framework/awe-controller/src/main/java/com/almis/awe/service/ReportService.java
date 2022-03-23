@@ -1,11 +1,10 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.service.report.ReportGenerator;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  * QueryService Class
@@ -21,21 +20,21 @@ public class ReportService extends ServiceConfig {
   private final QueryService queryService;
   private final MenuService menuService;
   private final ReportGenerator reportGenerator;
-
-  @Value("${print.show.options:true}")
-  private boolean showPrintOptions;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param queryService    query service
-   * @param menuService     menu service
-   * @param reportGenerator report generator
+   * @param queryService         query service
+   * @param menuService          menu service
+   * @param reportGenerator      report generator
+   * @param baseConfigProperties base config properties
    */
-  public ReportService(QueryService queryService, MenuService menuService, ReportGenerator reportGenerator) {
+  public ReportService(QueryService queryService, MenuService menuService, ReportGenerator reportGenerator, BaseConfigProperties baseConfigProperties) {
     this.queryService = queryService;
     this.menuService = menuService;
     this.reportGenerator = reportGenerator;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -45,16 +44,7 @@ public class ReportService extends ServiceConfig {
    * @throws AWException Error retrieving print actions
    */
   public ServiceData getPrintActions() throws AWException {
-    ServiceData serviceData;
-
-    // Get print options (based on print.show.options)
-    if (showPrintOptions) {
-      serviceData = queryService.launchQuery("PrnActAll");
-    } else {
-      serviceData = queryService.launchQuery("PrnActNotPrn");
-    }
-
-    return serviceData;
+    return queryService.launchPrivateQuery(baseConfigProperties.isPrintAllOptionsEnable() ? "PrnActAll" : "PrnActNotPrn");
   }
 
   /**
@@ -63,10 +53,7 @@ public class ReportService extends ServiceConfig {
    * @return Screen print status
    * @throws AWException Error generating reports
    */
-  public ServiceData printScreen() throws AWException {
-    // Retrieve current screen id
-    String screenName = getRequest().getParameterAsString(AweConstants.PRINT_SCREEN);
-
+  public ServiceData printScreen(String screenName) throws AWException {
     // Generate a screen report with the screen
     return reportGenerator.generateScreenReport(menuService.getScreen(screenName));
   }

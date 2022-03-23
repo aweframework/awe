@@ -474,6 +474,12 @@
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESET_2FA"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RESET_2FA_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_NEW"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
     </h6><p class=" no-margin text-justify" translate-multiple="HELP_NEW_BUTTON"></p>
@@ -600,6 +606,10 @@
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_ACTIVE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_2FA"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr>
@@ -3653,6 +3663,24 @@
   <div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_TEST_RESET_SUGGEST"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_TEST_LOAD_SUGGEST 1"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_TEST_LOAD_SUGGEST 2"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_BACK"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
     </h6><p class=" no-margin text-justify" translate-multiple="HELP_BACK_BUTTON"></p>
@@ -4062,6 +4090,12 @@
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
   </div><div class="padding-sm-vr no-padding-t">

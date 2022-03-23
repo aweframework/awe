@@ -3,7 +3,7 @@ package com.almis.awe.annotation.processor.security;
 import com.almis.awe.annotation.aspect.CryptoAnnotation;
 import com.almis.awe.annotation.entities.security.Crypto;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.util.security.EncodeUtil;
+import com.almis.awe.service.EncodeService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,8 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CryptoProcessor {
 
-  // Private constructor
-  private CryptoProcessor() {}
+  private final EncodeService encodeService;
+
+  // Constructor
+  public CryptoProcessor(EncodeService encodeService) {
+    this.encodeService = encodeService;
+  }
 
   /**
    * Process current annotation
@@ -27,15 +31,15 @@ public class CryptoProcessor {
    * @param text Value
    * @return Processed value
    */
-  public static String processCrypto(Crypto crypto, String text) {
+  public String processCrypto(Crypto crypto, String text) {
     String processedValue = null;
     try {
       switch (crypto.action()) {
         case ENCRYPT:
-          processedValue = EncodeUtil.encryptAes(text, crypto.password());
+          processedValue = encodeService.encryptAes(text, crypto.password());
           break;
         case DECRYPT:
-          processedValue = EncodeUtil.decryptAes(text, crypto.password());
+          processedValue = encodeService.decryptAes(text, crypto.password());
           break;
         default:
           processedValue = text;

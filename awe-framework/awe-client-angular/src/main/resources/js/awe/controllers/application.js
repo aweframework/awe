@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Application controller
 aweApplication.controller('AppController',
@@ -118,7 +118,7 @@ aweApplication.controller('AppController',
       // Route change start (show loading message)
       $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState/*, fromParams*/) {
         // Prevent start if settings are still not defined
-        if (!$storage.getRoot("connection")) {
+        if (!$storage.getRoot("cometUID")) {
           return event.preventDefault();
         }
 

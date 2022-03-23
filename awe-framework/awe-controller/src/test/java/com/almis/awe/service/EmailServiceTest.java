@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.email.EmailItem;
@@ -50,6 +51,9 @@ class EmailServiceTest {
   private AweElements aweElements;
 
   @Mock
+  private BaseConfigProperties baseConfigProperties;
+
+  @Mock
   private ApplicationContext context;
 
   @Mock
@@ -82,6 +86,7 @@ class EmailServiceTest {
     given(mailSender.createMimeMessage()).willReturn(mimeMessage);
     given(aweElements.getLanguage()).willReturn("ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
+    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
     ParsedEmail email = new ParsedEmail()
       .setFrom(new InternetAddress("test@almis.com"))
       .setTo(singletonList(new InternetAddress("test@gmail.com")))

@@ -1,5 +1,7 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.exception.AWESessionException;
@@ -23,7 +25,6 @@ import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.cache.annotation.CacheRemoveAll;
 import java.util.*;
@@ -35,27 +36,13 @@ import java.util.concurrent.Future;
 @Slf4j
 public class MenuService extends ServiceConfig {
 
-  // Public menu
-  @Value("${application.files.menu.public:public}")
-  private String publicMenu;
-
-  // Private menu
-  @Value("${application.files.menu.private:private}")
-  private String privateMenu;
-
-  // Home screen
-  @Value("${screen.configuration.home:home}")
-  private String homeScreen;
-
-  // Default restriction
-  @Value("${security.default.restriction:general}")
-  private String defaultRestriction;
-
   // Autowired services
   private final QueryService queryService;
   private final ScreenRestrictionGenerator screenRestrictionGenerator;
   private final ScreenComponentGenerator screenComponentGenerator;
   private final InitialLoadDao initialLoadDao;
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
 
   private static final String ERROR_TITLE_SCREEN_NOT_DEFINED = "ERROR_TITLE_SCREEN_NOT_DEFINED";
 
@@ -66,13 +53,17 @@ public class MenuService extends ServiceConfig {
    * @param screenRestrictionGenerator Screen restriction generator
    * @param screenComponentGenerator   Screen component generator
    * @param initialLoadDao             Initial load service
+   * @param baseConfigProperties       Base configuration properties
+   * @param securityConfigProperties   Security configuration properties
    */
   public MenuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
-                     ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao) {
+                     ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.queryService = queryService;
     this.screenRestrictionGenerator = screenRestrictionGenerator;
     this.screenComponentGenerator = screenComponentGenerator;
     this.initialLoadDao = initialLoadDao;
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
   }
 
   /**
@@ -82,12 +73,12 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Menu has not been found
    */
   public Menu getMenu() throws AWException {
-    String menuId = publicMenu;
+    String menuId = baseConfigProperties.getFiles().getMenuPublic();
     try {
       boolean isAuthenticated = getSession().isAuthenticated();
       // Check if user is logged in
       if (isAuthenticated) {
-        menuId = privateMenu;
+        menuId = baseConfigProperties.getFiles().getMenuPrivate();
       }
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_AUTHENTICATE"), getLocale("ERROR_MESSAGE_AUTHENTICATE"), exc);
@@ -103,7 +94,7 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Menu has not been found
    */
   private boolean sessionExpired(String optionId) throws AWException {
-    Menu menu = getMenu(privateMenu);
+    Menu menu = getMenu(baseConfigProperties.getFiles().getMenuPrivate());
     return !getSession().isAuthenticated() && menu.getOptionByName(optionId) != null;
   }
 
@@ -182,7 +173,7 @@ public class MenuService extends ServiceConfig {
     // Get default screen identifier
     String defaultScreenId = menu.getScreen();
 
-    // Check if option has screen
+    // Check if option has a screen
     if (defaultScreenId == null) {
       throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_MENU_HAS_NOT_DEFAULT_SCREEN"));
     }
@@ -201,7 +192,7 @@ public class MenuService extends ServiceConfig {
   public Screen getOptionScreen(String optionId) throws AWException {
     String screenId;
 
-    if (optionId.equalsIgnoreCase(homeScreen)) {
+    if (optionId.equalsIgnoreCase(baseConfigProperties.getScreen().getHome())) {
       // Get current menu
       Menu menu = getMenu();
 
@@ -215,7 +206,7 @@ public class MenuService extends ServiceConfig {
       screenId = option.getScreen();
     }
 
-    // Check if option has screen
+    // Check if option has a screen
     if (screenId == null) {
       throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_SCREEN", optionId));
     }
@@ -234,7 +225,7 @@ public class MenuService extends ServiceConfig {
   public Screen getAvailableOptionScreen(String optionId) throws AWException {
     String screenId;
 
-    if (optionId.equalsIgnoreCase(homeScreen)) {
+    if (optionId.equalsIgnoreCase(baseConfigProperties.getScreen().getHome())) {
       // Get current menu
       Menu menu = getMenu();
 
@@ -248,7 +239,7 @@ public class MenuService extends ServiceConfig {
       screenId = option.getScreen();
     }
 
-    // Check if option has screen
+    // Check if option has a screen
     if (screenId == null) {
       throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_SCREEN", optionId));
     }
@@ -265,9 +256,9 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Screen has not been found
    */
   public Screen getScreen(String screenId) throws AWException {
-    // Check if option has screen
+    // Check if option has a screen
     if (screenId == null) {
-      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", screenId));
+      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", (String) null));
     }
 
     // Get screen
@@ -283,7 +274,7 @@ public class MenuService extends ServiceConfig {
   }
 
   /**
-   * Initialize an screen
+   * Initialize a screen
    *
    * @param screen Screen
    * @throws AWException Screen has not been found
@@ -301,7 +292,7 @@ public class MenuService extends ServiceConfig {
   }
 
   /**
-   * Initialize an screen
+   * Initialize a screen
    *
    * @param screen Screen
    * @return Screen retrieved
@@ -371,7 +362,7 @@ public class MenuService extends ServiceConfig {
 
     // If option hasn't been found, search in public menu
     if (option == null) {
-      option = getMenu(publicMenu).getOptionByName(optionId);
+      option = getMenu(baseConfigProperties.getFiles().getMenuPublic()).getOptionByName(optionId);
     }
 
     // Check if option is defined
@@ -640,7 +631,7 @@ public class MenuService extends ServiceConfig {
    */
   public ServiceData getScreenRestrictions(String restriction) throws AWException {
     // Step 1: Get profile restrictions
-    String restrictionToSearch = restriction == null || restriction.isEmpty() ? defaultRestriction : restriction;
+    String restrictionToSearch = restriction == null || restriction.isEmpty() ? securityConfigProperties.getDefaultRestriction() : restriction;
     Profile baseProfile = getElements().getProfile(restrictionToSearch).copy();
 
     // Step 2: Generate a datalist from base profile

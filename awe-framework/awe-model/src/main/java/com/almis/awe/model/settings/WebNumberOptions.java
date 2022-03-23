@@ -1,21 +1,18 @@
 package com.almis.awe.model.settings;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * WebTooltip options
+ * Web numeric component options
  *
  * @author pgarcia
  */
-@Setter
-@Getter
+@Data
 @Accessors(chain = true)
-@ConfigurationProperties(prefix = "settings.numbers.options")
 public class WebNumberOptions {
+
   /**
    * Thousands separator
    */
@@ -45,12 +42,12 @@ public class WebNumberOptions {
    * Min value
    */
   @JsonProperty("vMin")
-  private Float vMin;
+  private double vMin;
   /**
    * Max value
    */
   @JsonProperty("vMax")
-  private Float vMax;
+  private double vMax;
   /**
    * Decimal numbers
    */

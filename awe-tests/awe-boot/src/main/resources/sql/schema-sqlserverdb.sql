@@ -107,7 +107,9 @@ CREATE TABLE ope
     ShwPrn  int,                      --- Allow user to print (1) or not (0)
     WebPrn  varchar(255),             --- User web printer
     PwdLck  int      DEFAULT 0,       --- Password locked (1) or not (0)
-    NumLog  int      DEFAULT 0        --- Number of times logged in concurrently
+    NumLog  int      DEFAULT 0,       --- Number of times logged in concurrently
+    enable2fa int DEFAULT 0,          --- Enable 2fa
+    secret2fa varchar(128)            --- Secret 2fa
 );
 IF NOT EXISTS(SELECT *
               FROM sys.indexes
@@ -457,7 +459,9 @@ CREATE TABLE HISope
     Res     varchar(40)  NULL,
     ShwPrn  int          NULL,
     PwdLck  int          NULL,
-    NumLog  int          NULL
+    NumLog  int          NULL,
+    enable2fa int        NULL,
+    secret2fa varchar(128) NULL
 );
 IF NOT EXISTS(SELECT *
               FROM sys.indexes

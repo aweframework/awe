@@ -1,8 +1,11 @@
 package com.almis.awe.service.data.connector.query;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
@@ -13,6 +16,8 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.log.LogUtil;
+import com.almis.awe.service.EncodeService;
+import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,7 +31,7 @@ import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -45,21 +50,26 @@ public class SQLQueryConnector extends AbstractQueryConnector {
   // Autowired services
   private final AweDatabaseContextHolder contextHolder;
   private final DataSource dataSource;
-
-  @Value("${awe.database.parameter.name:_database_}")
-  private String databaseParameterName;
+  private final DatabaseConfigProperties databaseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param contextHolder Database context holder
-   * @param queryUtil     Query utilities
-   * @param dataSource    Datasource
+   * @param contextHolder            Database context holder
+   * @param queryUtil                Query utilities
+   * @param dataSource               Datasource
+   * @param baseConfigProperties     Base configuration properties
+   * @param elements                 AWE elements
+   * @param numericService           Numeric service
+   * @param encodeService            Encode service
+   * @param databaseConfigProperties Database configuration properties
    */
-  public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource) {
-    super(queryUtil);
+  @Autowired
+  public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
+    super(queryUtil, baseConfigProperties, elements, numericService, encodeService);
     this.contextHolder = contextHolder;
     this.dataSource = dataSource;
+    this.databaseConfigProperties = databaseConfigProperties;
   }
 
   /**
@@ -171,7 +181,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     DatabaseConnection databaseConnection = contextHolder.getDatabaseConnection(dataSource);
 
     // Check if call refers to a specific database
-    String database = Optional.ofNullable(getQueryUtil().getRequestParameter(databaseParameterName, parameters))
+    String database = Optional.ofNullable(getQueryUtil().getRequestParameter(databaseConfigProperties.getParameterName(), parameters))
       .orElse(JsonNodeFactory.instance.nullNode()).textValue();
     if (database != null) {
       databaseConnection = contextHolder.getDatabaseConnection(database);

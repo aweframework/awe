@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/access.xsd" uri="./access.xsd"/>
+  <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/general.xsd" uri="./general.xsd"/>
+  <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/query.xsd" uri="./query.xsd"/>
+  <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/variable.xsd" uri="./variable.xsd"/>
   <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/actions.xsd" uri="./actions.xsd"/>
   <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/email.xsd" uri="./email.xsd"/>
   <system systemId="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd" uri="./enumerated.xsd"/>
