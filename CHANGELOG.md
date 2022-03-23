@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.5.1
+*23/03/2022*
+
+- Problem with cast in scheduler module. [MR #364](https://gitlab.com/aweframework/awe/-/merge_requests/364) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.5.0
 *23/03/2022*
 

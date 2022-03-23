@@ -156,7 +156,7 @@ Build website with i18n:
   artifacts:
     paths:
       - "**/target/*.exec"
-      - "**/target/surefire-reports/"
+      - "**/target/surefire-reports"
       - "**/target/zerocode*.csv"
     when: always
     expire_in: 1 day
@@ -424,7 +424,7 @@ Build package:
     - docker
   script:
     # Gitlab container
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker build -t registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
     - digest=$(docker images registry.gitlab.com/aweframework/awe/awe-boot --format="{{.Digest}}" --digests)
