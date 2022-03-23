@@ -28,9 +28,9 @@ public class TriggerFactory {
   /**
    * Simple get instance
    *
-   * @param type
-   * @return
-   * @throws AWException
+   * @param type Trigger type
+   * @return Trigger of task
+   * @throws AWException AWE exception
    */
   public static Trigger getInstance(TriggerType type) throws AWException {
     return getInstance(type, new JobDataMap());
@@ -39,10 +39,10 @@ public class TriggerFactory {
   /**
    * Retrieve trigger instance
    *
-   * @param type
-   * @param dataMap
-   * @return
-   * @throws AWException
+   * @param type Trigger type
+   * @param dataMap Job parameter map
+   * @return Trigger of task
+   * @throws AWException AWE exception
    */
   public static Trigger getInstance(TriggerType type, JobDataMap dataMap) throws AWException {
     Task task;
@@ -70,7 +70,7 @@ public class TriggerFactory {
 
         // Define timeout date
         java.util.Calendar timeoutCalendar = java.util.Calendar.getInstance();
-        timeoutCalendar.add(Calendar.SECOND, (Integer) dataMap.get(TASK_JOB_TIMEOUT));
+        timeoutCalendar.add(Calendar.SECOND, ((Long) dataMap.get(TASK_JOB_TIMEOUT)).intValue());
 
         // Generate trigger
         return generateTriggerBuilder(dataMap, (String) dataMap.get("id"), "TIMEOUT")
