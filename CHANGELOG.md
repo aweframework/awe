@@ -11,6 +11,7 @@
 - Issue when trying to visualize some data in a suggest criterion of a modal dialog. [MR #362](https://gitlab.com/aweframework/awe/-/merge_requests/362) (Pablo Javier García Mora)
 - Review service output data merge with query fields. [MR #361](https://gitlab.com/aweframework/awe/-/merge_requests/361) (Pablo Javier García Mora)
 - **[HAS IMPACTS]** Refactor properties files to ConfigProperties classes. [MR #360](https://gitlab.com/aweframework/awe/-/merge_requests/360) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Add a second factor authentication functionality to login [MR #359](https://gitlab.com/aweframework/awe/-/merge_requests/359) (Pablo Javier García Mora)
 - Add video recording capabilities on selenium tests out of docker in docker browsers. [MR #346](https://gitlab.com/aweframework/awe/-/merge_requests/346) (Pablo Javier García Mora)
 
 # Changelog for AWE 4.4.9
