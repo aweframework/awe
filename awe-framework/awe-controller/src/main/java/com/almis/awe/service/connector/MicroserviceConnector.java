@@ -109,9 +109,9 @@ public class MicroserviceConnector extends AbstractRestConnector {
 
     switch (restParameter.getType()) {
       case SESSION:
-        return getSession().getParameter(restParameter.getName());
+        return getSession().getParameter(restParameter.getValue());
       case REQUEST:
-        return queryUtil.getRequestParameter(restParameter.getName());
+        return queryUtil.getRequestParameter(restParameter.getValue());
       case VALUE:
       default:
         return restParameter.getValue();
