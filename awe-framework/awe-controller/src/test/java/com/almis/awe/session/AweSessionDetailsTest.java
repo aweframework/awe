@@ -104,8 +104,8 @@ class AweSessionDetailsTest {
     SecurityContextHolder.setContext(securityContext);
     when(sessionConfigProperties.getParameter()).thenReturn(Stream.of(new String[][] {
             { "module", "MyModule" },
+            { "site", "MySite" },
             { "database", "MyDB" },
-            { "site", "MySite" }
     }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     aweSessionDetails.onLoginSuccess();
