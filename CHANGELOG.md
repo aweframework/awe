@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.5.2
+*31/03/2022*
+
+- Update spring-boot version to fix CVE-2022-22950. [MR #368](https://gitlab.com/aweframework/awe/-/merge_requests/368) (Pablo Vidal Otero)
+- Change awe.session.parameter to be LinkedHashMap. [MR #367](https://gitlab.com/aweframework/awe/-/merge_requests/367) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Make site and database parameters not required on HIS tables. [MR #366](https://gitlab.com/aweframework/awe/-/merge_requests/366) (Pablo Javier García Mora)
+- Fix microservice parameters (trying to retrieve parameter name as source). [MR #365](https://gitlab.com/aweframework/awe/-/merge_requests/365) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.5.1
 *23/03/2022*
 
@@ -11,6 +19,7 @@
 - Issue when trying to visualize some data in a suggest criterion of a modal dialog. [MR #362](https://gitlab.com/aweframework/awe/-/merge_requests/362) (Pablo Javier García Mora)
 - Review service output data merge with query fields. [MR #361](https://gitlab.com/aweframework/awe/-/merge_requests/361) (Pablo Javier García Mora)
 - **[HAS IMPACTS]** Refactor properties files to ConfigProperties classes. [MR #360](https://gitlab.com/aweframework/awe/-/merge_requests/360) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Add a second factor authentication functionality to login [MR #359](https://gitlab.com/aweframework/awe/-/merge_requests/359) (Pablo Javier García Mora)
 - Add video recording capabilities on selenium tests out of docker in docker browsers. [MR #346](https://gitlab.com/aweframework/awe/-/merge_requests/346) (Pablo Javier García Mora)
 
 # Changelog for AWE 4.4.9
