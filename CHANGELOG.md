@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.5.2
+*31/03/2022*
+
+- Update spring-boot version to fix CVE-2022-22950. [MR #368](https://gitlab.com/aweframework/awe/-/merge_requests/368) (Pablo Vidal Otero)
+- Change awe.session.parameter to be LinkedHashMap. [MR #367](https://gitlab.com/aweframework/awe/-/merge_requests/367) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Make site and database parameters not required on HIS tables. [MR #366](https://gitlab.com/aweframework/awe/-/merge_requests/366) (Pablo Javier García Mora)
+- Fix microservice parameters (trying to retrieve parameter name as source). [MR #365](https://gitlab.com/aweframework/awe/-/merge_requests/365) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.5.1
 *23/03/2022*
 
