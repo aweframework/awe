@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities;
 
-import com.almis.awe.exception.AWException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -55,7 +54,7 @@ public class Global implements XMLNode, Copyable {
   }
 
   @Override
-  public Global copy() throws AWException {
+  public Global copy() {
     return this.toBuilder().build();
   }
 }

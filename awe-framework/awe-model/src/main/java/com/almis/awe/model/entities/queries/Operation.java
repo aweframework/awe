@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -39,7 +38,7 @@ public class Operation extends SqlField {
   private List<SqlField> operandList;
 
   @Override
-  public Operation copy() throws AWException {
+  public Operation copy() {
     return this.toBuilder()
       .operandList(ListUtil.copyList(getOperandList()))
       .build();

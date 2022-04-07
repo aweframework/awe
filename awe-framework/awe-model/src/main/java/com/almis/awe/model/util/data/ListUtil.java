@@ -1,6 +1,5 @@
 package com.almis.awe.model.util.data;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.Copyable;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,9 +29,8 @@ public final class ListUtil {
    * @param element Element to copy
    * @param <T>     Element class
    * @return Copy of element
-   * @throws AWException AWE exception
    */
-  public static <T extends Copyable> T copyElement(T element) throws AWException {
+  public static <T extends Copyable> T copyElement(T element) {
     return element == null ? null : element.copy();
   }
 
@@ -71,9 +69,8 @@ public final class ListUtil {
    * @param source Source list
    * @param <T>    Element type
    * @return Copied list
-   * @throws AWException Error generating a new instance of an element
    */
-  public static <T extends Copyable> List<T> copyList(List<T> source) throws AWException {
+  public static <T extends Copyable> List<T> copyList(List<T> source) {
     List<T> copy = null;
     if (source != null) {
       try {
@@ -126,9 +123,8 @@ public final class ListUtil {
    * @param source Source map
    * @param <T>    Element type
    * @return Copied map
-   * @throws AWException Error generating a new instance of an element
    */
-  public static <T extends Copyable> Map<String, T> copyMap(Map<String, T> source) throws AWException {
+  public static <T extends Copyable> Map<String, T> copyMap(Map<String, T> source) {
     Map<String, T> copy = null;
     if (source != null) {
       try {

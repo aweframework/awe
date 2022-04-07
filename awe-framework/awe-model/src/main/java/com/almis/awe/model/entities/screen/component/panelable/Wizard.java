@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.panelable;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.EqualsAndHashCode;
@@ -31,7 +30,7 @@ public class Wizard extends Panelable {
   private static final long serialVersionUID = -6523633454585300507L;
 
   @Override
-  public Wizard copy() throws AWException {
+  public Wizard copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

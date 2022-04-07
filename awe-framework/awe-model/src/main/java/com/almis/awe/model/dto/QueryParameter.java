@@ -1,6 +1,5 @@
 package com.almis.awe.model.dto;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.ParameterType;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -170,7 +169,7 @@ public class QueryParameter implements Copyable {
   }
 
   @Override
-  public QueryParameter copy() throws AWException {
+  public QueryParameter copy() {
     return new QueryParameter(this);
   }
 

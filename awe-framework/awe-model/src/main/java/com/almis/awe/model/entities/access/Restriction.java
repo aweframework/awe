@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.access;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.RestrictionType;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -56,7 +55,7 @@ public class Restriction implements Copyable {
   }
 
   @Override
-  public Restriction copy() throws AWException {
+  public Restriction copy() {
     return this.toBuilder().build();
   }
 }

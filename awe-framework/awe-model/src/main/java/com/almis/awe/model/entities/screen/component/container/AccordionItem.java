@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.container;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.EqualsAndHashCode;
@@ -26,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 public class AccordionItem extends Container {
 
   @Override
-  public AccordionItem copy() throws AWException {
+  public AccordionItem copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.services;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 public class ServiceOutputParameter extends ServiceParameter {
 
   @Override
-  public ServiceOutputParameter copy() throws AWException {
+  public ServiceOutputParameter copy() {
     return this.toBuilder().build();
   }
 }

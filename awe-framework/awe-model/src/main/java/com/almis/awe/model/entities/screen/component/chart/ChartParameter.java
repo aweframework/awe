@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.type.ChartParameterType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,7 +48,7 @@ public class ChartParameter extends AbstractChart {
   private String value;
 
   @Override
-  public ChartParameter copy() throws AWException {
+  public ChartParameter copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

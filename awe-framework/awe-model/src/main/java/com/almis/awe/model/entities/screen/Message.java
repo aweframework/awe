@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
@@ -44,7 +43,7 @@ public class Message extends Element {
   private String text;
 
   @Override
-  public Message copy() throws AWException {
+  public Message copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

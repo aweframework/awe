@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -33,7 +32,7 @@ public class Link extends Component {
   private String url;
 
   @Override
-  public Link copy() throws AWException {
+  public Link copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

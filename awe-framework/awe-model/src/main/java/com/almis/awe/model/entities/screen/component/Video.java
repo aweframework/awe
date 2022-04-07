@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -62,7 +61,7 @@ public class Video extends Component {
   private String src;
 
   @Override
-  public Video copy() throws AWException {
+  public Video copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

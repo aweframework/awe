@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -38,7 +37,7 @@ public class Compound extends OutputField {
   private List<Computed> computedList;
 
   @Override
-  public Compound copy() throws AWException {
+  public Compound copy() {
     return this.toBuilder()
       .computedList(ListUtil.copyList(getComputedList()))
       .build();

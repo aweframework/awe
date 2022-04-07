@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.util.data.ListUtil;
@@ -219,7 +218,7 @@ public class Query implements XMLNode, Copyable {
   }
 
   @Override
-  public Query copy() throws AWException {
+  public Query copy() {
     return this.toBuilder()
       .tableList(ListUtil.copyList(getTableList()))
       .sqlFieldList(ListUtil.copyList(getSqlFieldList()))

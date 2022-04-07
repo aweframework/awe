@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.button;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -35,7 +34,7 @@ public class Button extends AbstractButton {
   private static final long serialVersionUID = 4537762712903982049L;
 
   @Override
-  public Button copy() throws AWException {
+  public Button copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

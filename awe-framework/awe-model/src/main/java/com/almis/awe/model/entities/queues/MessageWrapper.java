@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queues;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -42,7 +41,7 @@ public class MessageWrapper implements Copyable {
   private String className;
 
   @Override
-  public MessageWrapper copy() throws AWException {
+  public MessageWrapper copy() {
     return this.toBuilder().build();
   }
 }

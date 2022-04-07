@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.type.CrosshairType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -80,7 +79,7 @@ public class ChartTooltip extends AbstractChart {
   private Boolean shared;
 
   @Override
-  public ChartTooltip copy() throws AWException {
+  public ChartTooltip copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

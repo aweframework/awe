@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.panelable;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -45,7 +44,7 @@ public class Accordion extends Panelable {
   private Boolean autocollapse;
 
   @Override
-  public Accordion copy() throws AWException {
+  public Accordion copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

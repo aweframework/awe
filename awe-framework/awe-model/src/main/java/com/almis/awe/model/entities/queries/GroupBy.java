@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -43,7 +42,7 @@ public class GroupBy implements Copyable {
   private String function;
 
   @Override
-  public GroupBy copy() throws AWException {
+  public GroupBy copy() {
     return this.toBuilder().build();
   }
 

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
@@ -30,7 +29,7 @@ public class CaseWhen extends Filter {
   private TransitionField thenOperand;
 
   @Override
-  public CaseWhen copy() throws AWException {
+  public CaseWhen copy() {
     return ((CaseWhen) super.copy())
       .setThenOperand(ListUtil.copyElement(thenOperand));
   }

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.container;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.EqualsAndHashCode;
@@ -31,7 +30,7 @@ public class WizardPanel extends Container {
   private static final long serialVersionUID = 3530144017985374473L;
 
   @Override
-  public WizardPanel copy() throws AWException {
+  public WizardPanel copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();
