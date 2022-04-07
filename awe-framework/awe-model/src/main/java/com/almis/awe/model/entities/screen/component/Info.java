@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.screen.component.button.AbstractButton;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -50,7 +49,7 @@ public class Info extends AbstractButton {
   private String dropdownStyle;
 
   @Override
-  public Info copy() throws AWException {
+  public Info copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

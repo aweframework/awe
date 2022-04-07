@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.email;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -46,7 +45,7 @@ public class EmailMessage implements Copyable {
   private String type;
 
   @Override
-  public EmailMessage copy() throws AWException {
+  public EmailMessage copy() {
     return this.toBuilder().build();
   }
 }

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.actions;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -43,7 +42,7 @@ public class Answer implements Copyable {
   private String type;
 
   @Override
-  public Answer copy() throws AWException {
+  public Answer copy() {
     return this.toBuilder()
       .responseList(ListUtil.copyList(getResponseList()))
       .build();

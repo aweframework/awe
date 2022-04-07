@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.menu;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,7 +48,7 @@ public class Menu extends Element {
   private String defaultAction;
 
   @Override
-  public Menu copy() throws AWException {
+  public Menu copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -44,7 +43,7 @@ public class Over extends SqlField {
   private List<OrderBy> orderByList;
 
   @Override
-  public Over copy() throws AWException {
+  public Over copy() {
     return this.toBuilder()
       .fieldList(ListUtil.copyList(getFieldList()))
       .partitionByList(ListUtil.copyList(getPartitionByList()))

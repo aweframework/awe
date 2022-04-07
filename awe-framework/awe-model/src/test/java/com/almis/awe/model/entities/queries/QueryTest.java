@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.XStream;
 import org.junit.jupiter.api.Test;
 
@@ -66,66 +65,62 @@ class QueryTest {
   Query query;
 
   {
-    try {
-      query = new Query()
-              .setId("query")
-              .setTableList(Collections.singletonList(table.copy()))
-        .setSqlFieldList(Arrays.asList(
-          (SqlField) new Field().setVariable("fieldVariable").setAlias("alias1"),
-          new Field().setTable("fieldTable").setId("fieldId"),
-          (SqlField) concatOperation.copy().setAlias("alias3"),
-          (SqlField) caseExample.copy().setAlias("alias4"),
-          (SqlField) new Over()
-                  .setFieldList(Collections.singletonList(
-                          new Operation()
-                                  .setOperator("ADD")
-                                  .setOperandList(Arrays.asList(
-                                          new Field().setId("fieldx").setTable("tablex"),
-                                          new Constant().setValue("2").setType("INTEGER")
-                                  ))
-                                  .setFunction("MAX")
-                  ))
-                  .setPartitionByList(Collections.singletonList(
-                          (PartitionBy) new PartitionBy().setField("fieldPartition")
-                  ))
-                  .setOrderByList(Collections.singletonList(
-                          new OrderBy().setField("fieldOrder")
-                  ))
-            .setAlias("alias5")
+    query = new Query()
+            .setId("query")
+            .setTableList(Collections.singletonList(table.copy()))
+      .setSqlFieldList(Arrays.asList(
+        (SqlField) new Field().setVariable("fieldVariable").setAlias("alias1"),
+        new Field().setTable("fieldTable").setId("fieldId"),
+        (SqlField) concatOperation.copy().setAlias("alias3"),
+        (SqlField) caseExample.copy().setAlias("alias4"),
+        (SqlField) new Over()
+                .setFieldList(Collections.singletonList(
+                        new Operation()
+                                .setOperator("ADD")
+                                .setOperandList(Arrays.asList(
+                                        new Field().setId("fieldx").setTable("tablex"),
+                                        new Constant().setValue("2").setType("INTEGER")
+                                ))
+                                .setFunction("MAX")
+                ))
+                .setPartitionByList(Collections.singletonList(
+                        (PartitionBy) new PartitionBy().setField("fieldPartition")
+                ))
+                .setOrderByList(Collections.singletonList(
+                        new OrderBy().setField("fieldOrder")
+                ))
+          .setAlias("alias5")
+      ))
+      .setFilterGroup((FilterAnd) new FilterAnd()
+        .setFilterList(Arrays.asList(
+          new Filter()
+            .setCondition("gt")
+            .setLeftOperand(new TransitionField().setField(concatOperation.copy()))
+                  .setRightOperand(new TransitionField().setField(caseExample.copy())),
+                filter.copy(),
+                new Filter()
+                        .setCondition("is not null")
+                        .setLeftField("leftField")
+                        .setLeftTable("leftTable")
+                        .setLeftFunction("MIN")
+                        .setOptional(true)
+                )
         ))
-        .setFilterGroup((FilterAnd) new FilterAnd()
-          .setFilterList(Arrays.asList(
-            new Filter()
-              .setCondition("gt")
-              .setLeftOperand(new TransitionField().setField(concatOperation.copy()))
-                    .setRightOperand(new TransitionField().setField(caseExample.copy())),
-                  filter.copy(),
-                  new Filter()
-                          .setCondition("is not null")
-                          .setLeftField("leftField")
-                          .setLeftTable("leftTable")
-                          .setLeftFunction("MIN")
-                          .setOptional(true)
-                  )
-          ))
-              .setJoinList(Collections.singletonList(new Join()
-                      .setType("left")
-                      .setTable(table.copy().setAlias("joinTable"))
-                      .setFilterGroupList(Collections.singletonList(new FilterOr()
-                              .setFilterList(Collections.singletonList(filter.copy())
-                              )))
-              ))
-              .setUnionList(Collections.singletonList(new Union().setQuery("unionQuery").setType("all")))
-              .setGroupByList(Collections.singletonList(new GroupBy()
-                      .setField("fieldGroup")
-                      .setTable("tableGroup")))
-              .setOrderByList(Collections.singletonList(new OrderBy()
-                      .setField("fieldSort")
-                      .setTable("tableSort")
-                      .setType("ASC")));
-    } catch (AWException exc) {
-      exc.printStackTrace();
-    }
+            .setJoinList(Collections.singletonList(new Join()
+                    .setType("left")
+                    .setTable(table.copy().setAlias("joinTable"))
+                    .setFilterGroupList(Collections.singletonList(new FilterOr()
+                            .setFilterList(Collections.singletonList(filter.copy())
+                            )))
+            ))
+            .setUnionList(Collections.singletonList(new Union().setQuery("unionQuery").setType("all")))
+            .setGroupByList(Collections.singletonList(new GroupBy()
+                    .setField("fieldGroup")
+                    .setTable("tableGroup")))
+            .setOrderByList(Collections.singletonList(new OrderBy()
+                    .setField("fieldSort")
+                    .setTable("tableSort")
+                    .setType("ASC")));
   }
 
   /**
@@ -151,10 +146,9 @@ class QueryTest {
   /**
    * Query print toString with variables
    *
-   * @throws Exception Test error
    */
   @Test
-  void testQueryWithVariables() throws Exception {
+  void testQueryWithVariables() {
     // Prepare
     String expected = expectedQuery + "\n" +
             "VARIABLES:\n" +
@@ -177,11 +171,9 @@ class QueryTest {
 
   /**
    * Query print toString with variables
-   *
-   * @throws Exception Test error
    */
   @Test
-  void testConvertQueryToXML() throws Exception {
+  void testConvertQueryToXML() {
     // Prepare
     String expected =
             "<query id=\"query\">\n" +

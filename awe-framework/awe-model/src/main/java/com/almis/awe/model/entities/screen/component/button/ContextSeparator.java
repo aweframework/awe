@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.button;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,7 +27,7 @@ public class ContextSeparator extends AbstractButton {
   private static final long serialVersionUID = 5664473708570111319L;
 
   @Override
-  public ContextSeparator copy() throws AWException {
+  public ContextSeparator copy() {
     return this.toBuilder().build();
   }
 

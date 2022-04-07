@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queues;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Data;
@@ -30,7 +29,7 @@ public class ResponseMessage extends JmsMessage {
   private MessageStatus status;
 
   @Override
-  public ResponseMessage copy() throws AWException {
+  public ResponseMessage copy() {
     return this.toBuilder()
       .parameters(ListUtil.copyList(getParameters()))
       .wrapper(ListUtil.copyElement(getWrapper()))

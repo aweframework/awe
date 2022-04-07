@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queues;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.util.data.ListUtil;
@@ -49,7 +48,7 @@ public class Queue implements XMLNode, Copyable {
   }
 
   @Override
-  public Queue copy() throws AWException {
+  public Queue copy() {
     return this.toBuilder()
       .request(ListUtil.copyElement(getRequest()))
       .response(ListUtil.copyElement(getResponse()))

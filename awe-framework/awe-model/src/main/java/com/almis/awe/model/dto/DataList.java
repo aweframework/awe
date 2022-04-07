@@ -1,6 +1,5 @@
 package com.almis.awe.model.dto;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
 import lombok.AllArgsConstructor;
@@ -60,7 +59,7 @@ public class DataList implements Serializable, Copyable {
   }
 
   @Override
-  public DataList copy() throws AWException {
+  public DataList copy() {
     return this.toBuilder()
       .rows(ListUtil.copyDataListRows(rows))
       .build();

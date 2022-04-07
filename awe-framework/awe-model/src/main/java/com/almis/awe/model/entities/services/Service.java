@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.services;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.util.data.ListUtil;
@@ -85,7 +84,7 @@ public class Service implements XMLNode, Copyable {
   }
 
   @Override
-  public Service copy() throws AWException {
+  public Service copy() {
     return this.toBuilder()
       .type(ListUtil.copyList(type))
       .build();

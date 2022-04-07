@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
@@ -69,7 +68,7 @@ public class Totalize implements Copyable {
   private Map<String, String> totalizeByValueList;
 
   @Override
-  public Totalize copy() throws AWException {
+  public Totalize copy() {
     return this.toBuilder()
       .totalizeByList(ListUtil.copyList(getTotalizeByList()))
       .totalizeFieldList(ListUtil.copyList(getTotalizeFieldList()))

@@ -1,10 +1,12 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.type.UnionType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -26,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 public class FilterAnd extends FilterGroup {
 
   @Override
-  public FilterAnd copy() throws AWException {
+  public FilterAnd copy() {
     return this.toBuilder()
       .filterGroupList(ListUtil.copyList(getFilterGroupList()))
       .filterList(ListUtil.copyList(getFilterList()))

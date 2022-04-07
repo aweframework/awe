@@ -1,13 +1,14 @@
 package com.almis.awe.model.entities.screen.component.button;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -34,7 +35,7 @@ public class InfoButton extends AbstractButton {
   private String infoStyle;
 
   @Override
-  public InfoButton copy() throws AWException {
+  public InfoButton copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

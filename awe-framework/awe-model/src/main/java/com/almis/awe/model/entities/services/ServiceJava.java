@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.services;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -51,7 +50,7 @@ public class ServiceJava implements ServiceType {
   private List<ServiceInputParameter> parameterList;
 
   @Override
-  public ServiceJava copy() throws AWException {
+  public ServiceJava copy() {
     return this.toBuilder()
       .parameterList(ListUtil.copyList(getParameterList()))
       .build();

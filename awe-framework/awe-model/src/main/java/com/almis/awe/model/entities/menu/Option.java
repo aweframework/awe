@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.menu;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -78,7 +77,7 @@ public class Option extends AbstractAction {
   private Option parent;
 
   @Override
-  public Option copy() throws AWException {
+  public Option copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

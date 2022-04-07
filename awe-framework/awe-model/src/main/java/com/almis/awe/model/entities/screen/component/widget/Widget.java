@@ -31,7 +31,7 @@ public class Widget extends AbstractWidget {
   private static final long serialVersionUID = 7140906386094836409L;
 
   @Override
-  public Widget copy() throws AWException {
+  public Widget copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

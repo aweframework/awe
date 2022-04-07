@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -79,7 +78,7 @@ public class Variable implements Copyable {
   private String sequence;
 
   @Override
-  public Variable copy() throws AWException {
+  public Variable copy() {
     return this.toBuilder().build();
   }
 

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -75,7 +74,7 @@ public class Screen extends Element {
   private boolean initialized;
 
   @Override
-  public Screen copy() throws AWException {
+  public Screen copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

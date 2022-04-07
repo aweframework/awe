@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
@@ -47,7 +46,7 @@ public class Include extends Element {
   private String targetSource;
 
   @Override
-  public Include copy() throws AWException {
+  public Include copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

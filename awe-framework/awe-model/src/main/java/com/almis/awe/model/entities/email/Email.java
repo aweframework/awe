@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.email;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
@@ -111,7 +110,7 @@ public class Email implements XMLNode, Copyable {
   }
 
   @Override
-  public Email copy() throws AWException {
+  public Email copy() {
     return this.toBuilder()
       .toList(ListUtil.copyList(getToList()))
       .ccList(ListUtil.copyList(getCcList()))

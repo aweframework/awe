@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.util.data.ListUtil;
@@ -43,7 +42,7 @@ public class MenuContainer extends Component {
   private Menu menu;
 
   @Override
-  public MenuContainer copy() throws AWException {
+  public MenuContainer copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

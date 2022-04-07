@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.grid;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
@@ -41,7 +40,7 @@ public class GroupHeader extends Element {
   private String position;
 
   @Override
-  public GroupHeader copy() throws AWException {
+  public GroupHeader copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

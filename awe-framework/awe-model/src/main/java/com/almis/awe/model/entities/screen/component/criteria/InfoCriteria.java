@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.criteria;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,7 +39,7 @@ public class InfoCriteria extends AbstractCriteria {
   private String infoStyle;
 
   @Override
-  public InfoCriteria copy() throws AWException {
+  public InfoCriteria copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

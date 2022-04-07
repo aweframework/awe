@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.enumerated;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.XMLNode;
@@ -68,7 +67,7 @@ public class EnumeratedGroup implements XMLNode, Copyable {
   }
 
   @Override
-  public EnumeratedGroup copy() throws AWException {
+  public EnumeratedGroup copy() {
     return this.toBuilder().build();
   }
 }

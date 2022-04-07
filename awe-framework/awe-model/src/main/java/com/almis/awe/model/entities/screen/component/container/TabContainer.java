@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.container;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.EqualsAndHashCode;
@@ -31,7 +30,7 @@ public class TabContainer extends Container {
   private static final long serialVersionUID = 485344960889412732L;
 
   @Override
-  public TabContainer copy() throws AWException {
+  public TabContainer copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

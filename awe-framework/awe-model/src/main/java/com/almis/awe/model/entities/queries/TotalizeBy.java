@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -31,7 +30,7 @@ public class TotalizeBy implements Copyable {
   private String field;
 
   @Override
-  public TotalizeBy copy() throws AWException {
+  public TotalizeBy copy() {
     return this.toBuilder().build();
   }
 }

@@ -90,7 +90,7 @@ public class Action implements XMLNode, Copyable {
   }
 
   @Override
-  public Action copy() throws AWException {
+  public Action copy() {
     return this.toBuilder()
       .call(ListUtil.copyElement(getCall()))
       .answers(ListUtil.copyList(getAnswers()))

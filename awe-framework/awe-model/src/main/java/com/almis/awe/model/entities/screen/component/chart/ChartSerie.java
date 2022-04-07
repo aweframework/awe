@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -81,7 +80,7 @@ public class ChartSerie extends AbstractChart {
   private transient List<ChartSeriePoint> data;
 
   @Override
-  public ChartSerie copy() throws AWException {
+  public ChartSerie copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .data(ListUtil.copyList(getData()))

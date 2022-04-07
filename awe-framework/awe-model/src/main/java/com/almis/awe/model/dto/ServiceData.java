@@ -81,7 +81,7 @@ public class ServiceData implements Serializable, Copyable {
   }
 
   @Override
-  public ServiceData copy() throws AWException {
+  public ServiceData copy() {
     return this.toBuilder()
       .dataList(dataList == null ? null : dataList.copy())
       .clientActionList(ListUtil.copyList(clientActionList))

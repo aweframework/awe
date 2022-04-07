@@ -1,9 +1,11 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -31,7 +33,7 @@ public class Field extends SqlField {
   private String query;
 
   @Override
-  public Field copy() throws AWException {
+  public Field copy() {
     return this.toBuilder().build();
   }
 

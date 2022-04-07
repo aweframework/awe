@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.widget;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.type.WidgetParameterType;
@@ -45,7 +44,7 @@ public class WidgetParameter extends AbstractWidget {
   private String value;
 
   @Override
-  public WidgetParameter copy() throws AWException {
+  public WidgetParameter copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();
