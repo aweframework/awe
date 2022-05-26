@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 import static com.almis.awe.test.integration.util.TestUtil.assertResultJson;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -60,6 +62,46 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     logger.debug(result);
+  }
+
+  @Nested
+  @DisplayName("Login action tests")
+  class ActionLoginControllerTest {
+
+    @Test
+    void testLoginWithValidCredentials() throws Exception {
+      // Given
+      String parameters = "{\"cod_usr\":\"test\",\"pwd_usr\":\"test\"}";
+      // When
+      MvcResult mvcResult = mockMvc.perform(post("/action/login")
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(parameters)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[1].parameters.token", is(notNullValue())))
+        .andReturn();
+      // Then
+      assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+    }
+
+    @Test
+    void testLoginWithNotValidParametersShouldShowArgumentsAreNotValid() throws Exception {
+      // Given
+      String parameters = "{\"cod_usr\":\"test\",\"pwd_usr\":null\"}";
+      // When
+      MvcResult mvcResult = mockMvc.perform(post("/action/login")
+          .with(csrf())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(parameters)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[1].parameters.type", is("warning")))
+        .andExpect(jsonPath("$[1].parameters.message", is("The selected arguments are not valid")))
+        .andReturn();
+      // Then
+      assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+    }
   }
 
   @Nested
