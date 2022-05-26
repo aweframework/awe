@@ -19,8 +19,8 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.1.0</ade.version>
-    <spring-boot.version>2.5.12</spring-boot.version>
-    <spring-cloud.version>2020.0.4</spring-cloud.version>
+    <spring-boot.version>2.6.8</spring-boot.version>
+    <spring-cloud.version>2021.0.2</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v16.13.0</node.version>
     <yarn.version>v1.22.15</yarn.version>
