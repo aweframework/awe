@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.5.3
+*30/05/2022*
+
+- Some warning messages in spring security permit all paths. [MR #373](https://gitlab.com/aweframework/awe/-/merge_requests/373) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Update Spring Boot framework to 2.6.x. [MR #372](https://gitlab.com/aweframework/awe/-/merge_requests/372) (Pablo Vidal Otero)
+- Error in sqlserver flyway scripts. [MR #371](https://gitlab.com/aweframework/awe/-/merge_requests/371) (Pablo Vidal Otero)
+- Copy method in DatalistUtil shouldn't throw any Exception. [MR #369](https://gitlab.com/aweframework/awe/-/merge_requests/369) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.5.2
 *31/03/2022*
 
