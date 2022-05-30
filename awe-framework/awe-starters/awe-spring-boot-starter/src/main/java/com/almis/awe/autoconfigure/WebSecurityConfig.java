@@ -27,7 +27,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
@@ -58,11 +57,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   // White list urls
   private static final String[] AUTH_LIST = {
+    // Web resources
     "/error**",
     "/websocket/**",
     "/template/**",
     "/settings",
-    "/css/**",
+    // public actions
     "/action/get-locals",
     "/action/screen-data",
     "/action/encrypt",
@@ -70,18 +70,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     "/action/file-info",
     "/action/delete-file",
     "/action/view-pdf-file",
-    "/screen/**",
     // File and upload controllers
     "/file/text",
     "/file/stream",
     "/file/download",
     "/file/upload",
     "/file/delete",
-    // React engine
-    "/screen-data",
-    "/locales/**",
-    // Access controllers
-    "/access/**"
   };
 
   // Data list urls
@@ -143,7 +137,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    */
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.antMatcher("/**")
+    http
       .headers().xssProtection().block(false).and()
       .and().authorizeRequests()
       // Web
@@ -151,7 +145,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       // Filter public queries and maintains
       .antMatchers(DATA_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
       .antMatchers(MAINTAIN_LIST).access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
-      .anyRequest().authenticated()
+      // 2FA endpoint
+      .antMatchers("/access/**").authenticated()
       // Login redirect
       .and().formLogin()
       .loginPage("/")
@@ -173,21 +168,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     if (securityConfigProperties.isSameOriginEnable()) {
       http.headers().frameOptions().sameOrigin();
     }
-  }
-
-  /**
-   * Allows access to static resources, bypassing Spring security.
-   */
-  @Override
-  public void configure(WebSecurity web) throws Exception {
-    web.ignoring().antMatchers(
-      // Web resources (except css)
-      "/js/**",
-      "/images/**",
-      "/fonts/**",
-      "/*.ico",
-      "/*.html",
-      "/*.map");
   }
 
   /**
