@@ -17,10 +17,10 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * REST security configuration
@@ -30,11 +30,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 public class RestSecurityConfiguration extends ServiceConfig {
 
-  // White list urls
   private static final String[] AUTH_LIST = {
-    // Rest API
-    "/api/authenticate"
+    // -- Swagger UI v3 (OpenAPI)
+    "/v3/api-docs/**",
+    "/swagger-ui/**"
   };
+
   // Autowire services
   private final AuthenticationManager authenticationManager;
   private final UserDetailsService userDetailsService;
@@ -55,34 +56,27 @@ public class RestSecurityConfiguration extends ServiceConfig {
   public class RestSecurityConfigurationImpl extends WebSecurityConfigurerAdapter {
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable().authorizeRequests()
-        .antMatchers(AUTH_LIST).permitAll()
-        // Filter public queries and maintains
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+      httpSecurity
+        // Disable csrf
+        .csrf().disable()
+        // No session cookie for API endpoints
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        // Handles unauthorized attempts to access protected URLS
+        .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
+        // Swagger UI
+        .and().authorizeRequests().antMatchers(AUTH_LIST).permitAll()
+        // Filter /api urls
+        .and().antMatcher("/api/**").authorizeRequests()
+         // Filter public queries and maintains
         .antMatchers("/api/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
         .antMatchers("/api/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
         .antMatchers("/api/public/data/**").access("@publicQueryMaintainFilter.isPublicQuery(request)")
-        .antMatchers("/api/public/maintain/**").access("@publicQueryMaintainFilter.isPublicMaintain(request)")
-        .and().antMatcher("/api/**").sessionManagement()
-        // no session cookie for API endpoints
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and().authorizeRequests().anyRequest().authenticated()
-        // Handles unauthorized attempts to access protected URLS
-        .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
-        // Add JWT (Json web token) filters
-        .and().addFilter(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)))
-        .addFilter(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)));
-    }
+        .antMatchers("/api/public/maintain/**").access("@publicQueryMaintainFilter.isPublicMaintain(request)");
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-      web.ignoring().antMatchers(
-        // -- Swagger 2
-        "/v2/api-docs",
-        // -- Open API
-        "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/swagger-ui.html");
+      // Add JWT (Json web token) filters
+      httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
+      httpSecurity.addFilterBefore(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
