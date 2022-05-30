@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.actions;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
@@ -71,7 +70,7 @@ public class Parameter implements Copyable {
   }
 
   @Override
-  public Parameter copy() throws AWException {
+  public Parameter copy() {
     return this.toBuilder()
       .cellData(ListUtil.copyElement(getCellData()))
       .build();

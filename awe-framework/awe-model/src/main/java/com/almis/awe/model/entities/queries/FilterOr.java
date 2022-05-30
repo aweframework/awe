@@ -1,10 +1,12 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.type.UnionType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -27,7 +29,7 @@ public class FilterOr extends FilterGroup {
   private static final long serialVersionUID = -4696818779067777019L;
 
   @Override
-  public FilterOr copy() throws AWException {
+  public FilterOr copy() {
     return this.toBuilder()
       .filterGroupList(ListUtil.copyList(getFilterGroupList()))
       .filterList(ListUtil.copyList(getFilterList()))

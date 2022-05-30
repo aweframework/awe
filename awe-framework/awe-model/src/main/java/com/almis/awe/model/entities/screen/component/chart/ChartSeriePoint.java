@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -64,7 +63,7 @@ public class ChartSeriePoint implements Copyable {
   }
 
   @Override
-  public ChartSeriePoint copy() throws AWException {
+  public ChartSeriePoint copy() {
     return new ChartSeriePoint(this);
   }
 }

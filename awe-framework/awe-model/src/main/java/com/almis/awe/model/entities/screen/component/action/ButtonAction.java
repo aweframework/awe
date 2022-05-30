@@ -1,8 +1,9 @@
 package com.almis.awe.model.entities.screen.component.action;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -28,7 +29,7 @@ public class ButtonAction extends AbstractAction {
   private static final long serialVersionUID = -7768601748285062450L;
 
   @Override
-  public ButtonAction copy() throws AWException {
+  public ButtonAction copy() {
     return this.toBuilder().build();
   }
 }

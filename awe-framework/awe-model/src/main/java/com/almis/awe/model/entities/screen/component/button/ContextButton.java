@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.button;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,7 +27,7 @@ public class ContextButton extends AbstractButton {
   private static final long serialVersionUID = -3273278205411047836L;
 
   @Override
-  public ContextButton copy() throws AWException {
+  public ContextButton copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
@@ -45,7 +44,7 @@ public class Dialog extends Component {
   private String onClose;
 
   @Override
-  public Dialog copy() throws AWException {
+  public Dialog copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

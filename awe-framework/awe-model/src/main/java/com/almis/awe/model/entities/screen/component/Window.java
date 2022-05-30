@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -46,7 +45,7 @@ public class Window extends Component {
   private Boolean maximize;
 
   @Override
-  public Window copy() throws AWException {
+  public Window copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

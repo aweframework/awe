@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.maintain;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
@@ -77,7 +76,7 @@ public class Target implements XMLNode, Copyable {
   }
 
   @Override
-  public Target copy() throws AWException {
+  public Target copy() {
     return this.toBuilder()
       .queryList(ListUtil.copyList(getQueryList()))
       .build();

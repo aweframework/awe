@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.grid;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.Element;
@@ -124,7 +123,7 @@ public class Column extends AbstractCriteria {
   private String sortColumn;
 
   @Override
-  public Column copy() throws AWException {
+  public Column copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

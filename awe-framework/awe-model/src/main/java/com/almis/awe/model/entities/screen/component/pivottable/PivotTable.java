@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.pivottable;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -87,7 +86,7 @@ public class PivotTable extends AbstractGrid {
   private String rows;
 
   @Override
-  public PivotTable copy() throws AWException {
+  public PivotTable copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

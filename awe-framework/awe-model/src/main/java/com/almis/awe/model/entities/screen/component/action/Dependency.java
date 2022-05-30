@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.action;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
@@ -94,7 +93,7 @@ public class Dependency extends Element {
   private String targetAction;
 
   @Override
-  public Dependency copy() throws AWException {
+  public Dependency copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

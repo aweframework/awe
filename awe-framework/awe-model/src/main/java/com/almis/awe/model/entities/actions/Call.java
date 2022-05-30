@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.actions;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -28,7 +27,7 @@ public class Call implements Copyable {
   private String service;
 
   @Override
-  public Call copy() throws AWException {
+  public Call copy() {
     return this.toBuilder().build();
   }
 }

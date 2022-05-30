@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,7 +36,7 @@ public class TagList extends Component {
   public static final Pattern wildcard = Pattern.compile("\\[([\\w\\-]*)\\]");
 
   @Override
-  public TagList copy() throws AWException {
+  public TagList copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

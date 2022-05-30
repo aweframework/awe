@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -72,7 +71,7 @@ public class ChartLegend extends AbstractChart {
   private List<ChartParameter> legendParameterList;
 
   @Override
-  public ChartLegend copy() throws AWException {
+  public ChartLegend copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .legendParameterList(ListUtil.copyList(getLegendParameterList()))

@@ -124,10 +124,6 @@ create INDEX HisAweSubI1 ON HisAweSub (HISope, HISdat, HISact);
 create INDEX HisAweSubUsrI1 ON HisAweSubUsr (HISope, HISdat, HISact);
 create INDEX HisAweNotI1 ON HisAweNot (HISope, HISdat, HISact);
 create INDEX HisAweNotUsrI1 ON HisAweNotUsr (HISope, HISdat, HISact);
-alter table AweSub add CONSTRAINT PK_AWESUB PRIMARY KEY (Ide);
-alter table AweSubUsr add CONSTRAINT PK_AWESUBUSR PRIMARY KEY (Ide);
-alter table AweNot add CONSTRAINT PK_AWENOT PRIMARY KEY (Ide);
-alter table AweNotUsr add CONSTRAINT PK_AWENOTUSR PRIMARY KEY (Ide);
 
 -- Notifier sequences
 insert into AweKey (KeyNam, KeyVal) values ('Sub', (select coalesce(max(Ide),0) + 1 from AweSub));

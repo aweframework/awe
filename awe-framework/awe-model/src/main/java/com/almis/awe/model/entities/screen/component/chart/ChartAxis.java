@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -65,7 +64,7 @@ public class ChartAxis extends AbstractChart {
   private Boolean opposite;
 
   @Override
-  public ChartAxis copy() throws AWException {
+  public ChartAxis copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.services;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
@@ -56,7 +55,7 @@ public class ServiceInputParameter extends ServiceParameter {
   }
 
   @Override
-  public ServiceInputParameter copy() throws AWException {
+  public ServiceInputParameter copy() {
     return this.toBuilder().build();
   }
 }

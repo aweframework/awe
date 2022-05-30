@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -55,7 +54,7 @@ public class Frame extends Component {
   }
 
   @Override
-  public Frame copy() throws AWException {
+  public Frame copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

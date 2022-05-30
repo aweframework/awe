@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -194,7 +193,7 @@ public class Filter implements Copyable {
   }
 
   @Override
-  public Filter copy() throws AWException {
+  public Filter copy() {
     return this.toBuilder()
       .leftOperand(ListUtil.copyElement(getLeftOperand()))
       .rightOperand(ListUtil.copyElement(getRightOperand()))

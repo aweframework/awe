@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.actions;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
@@ -125,7 +124,7 @@ public class ClientAction implements Copyable {
   }
 
   @Override
-  public ClientAction copy() throws AWException {
+  public ClientAction copy() {
     return this.toBuilder()
       .parameterList(ListUtil.copyList(getParameterList()))
       .parameterMap(ListUtil.copyMap(getParameterMap(), Object.class))

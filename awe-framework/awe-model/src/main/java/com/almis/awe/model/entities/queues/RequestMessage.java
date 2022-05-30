@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queues;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Getter;
@@ -24,7 +23,7 @@ public class RequestMessage extends JmsMessage {
   private static final long serialVersionUID = 290610745017277157L;
 
   @Override
-  public RequestMessage copy() throws AWException {
+  public RequestMessage copy() {
     return this.toBuilder()
       .parameters(ListUtil.copyList(getParameters()))
       .wrapper(ListUtil.copyElement(getWrapper()))

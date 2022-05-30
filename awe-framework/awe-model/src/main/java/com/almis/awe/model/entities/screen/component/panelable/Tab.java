@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.panelable;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -34,7 +33,7 @@ public class Tab extends Panelable {
   private Boolean maximize;
 
   @Override
-  public Tab copy() throws AWException {
+  public Tab copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

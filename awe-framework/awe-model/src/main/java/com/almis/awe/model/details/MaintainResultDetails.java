@@ -1,13 +1,12 @@
 package com.almis.awe.model.details;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.*;
-import javax.validation.constraints.NotNull;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,9 +28,8 @@ public class MaintainResultDetails implements Copyable {
    * Copy constructor
    *
    * @param other MaintainResultDetails object
-   * @throws AWException AWE exception
    */
-  public MaintainResultDetails(MaintainResultDetails other) throws AWException {
+  public MaintainResultDetails(MaintainResultDetails other) {
     this.operationType = other.operationType;
     this.rowsAffected = other.rowsAffected;
     this.parameterMap = ListUtil.copyMap(other.parameterMap);
@@ -125,7 +123,7 @@ public class MaintainResultDetails implements Copyable {
   }
 
   @Override
-  public MaintainResultDetails copy() throws AWException {
+  public MaintainResultDetails copy() {
     return new MaintainResultDetails(this);
   }
 

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.action;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.fasterxml.jackson.annotation.*;
@@ -120,7 +119,7 @@ public class DependencyElement extends Element {
   private String name;
 
   @Override
-  public DependencyElement copy() throws AWException {
+  public DependencyElement copy() {
     return this.toBuilder().build();
   }
 

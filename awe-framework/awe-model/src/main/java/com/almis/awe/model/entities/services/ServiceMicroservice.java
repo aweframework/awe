@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.services;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -33,7 +32,7 @@ public class ServiceMicroservice extends AbstractServiceRest {
   private String name;
 
   @Override
-  public ServiceMicroservice copy() throws AWException {
+  public ServiceMicroservice copy() {
     return this.toBuilder().build();
   }
 

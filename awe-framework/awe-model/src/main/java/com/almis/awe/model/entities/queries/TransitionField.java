@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -32,7 +31,7 @@ public class TransitionField implements Copyable {
   private List<SqlField> fields;
 
   @Override
-  public TransitionField copy() throws AWException {
+  public TransitionField copy() {
     return this.toBuilder()
       .fields(ListUtil.copyList(getFields()))
       .build();

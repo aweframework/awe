@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.type.ChartType;
@@ -116,7 +115,7 @@ public class Chart extends AbstractChart {
   private List<ChartSerie> serieList;
 
   @Override
-  public Chart copy() throws AWException {
+  public Chart copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.JoinType;
 import com.almis.awe.model.util.data.ListUtil;
@@ -85,7 +84,7 @@ public class Join implements Copyable {
   }
 
   @Override
-  public Join copy() throws AWException {
+  public Join copy() {
     return this.toBuilder()
       .filterGroupList(ListUtil.copyList(getFilterGroupList()))
       .build();

@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.access;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -34,7 +33,7 @@ public class Profile implements Copyable {
   private List<Restriction> restrictions;
 
   @Override
-  public Profile copy() throws AWException {
+  public Profile copy() {
     return this.toBuilder()
       .restrictions(ListUtil.copyList(getRestrictions()))
       .build();

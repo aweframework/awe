@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.criteria;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -30,7 +29,7 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(Include.NON_NULL)
 public class Criteria extends AbstractCriteria {
   @Override
-  public Criteria copy() throws AWException {
+  public Criteria copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

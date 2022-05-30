@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen.component.grid;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -33,7 +32,7 @@ public class Grid extends AbstractGrid {
   private static final long serialVersionUID = 3775377158422655923L;
 
   @Override
-  public Grid copy() throws AWException {
+  public Grid copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

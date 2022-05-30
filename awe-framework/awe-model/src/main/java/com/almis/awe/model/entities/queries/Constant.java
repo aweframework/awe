@@ -1,9 +1,11 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -35,7 +37,7 @@ public class Constant extends SqlField {
   private String value;
 
   @Override
-  public Constant copy() throws AWException {
+  public Constant copy() {
     return this.toBuilder().build();
   }
 

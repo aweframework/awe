@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.ListUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -40,7 +39,7 @@ public class Case extends SqlField {
   private TransitionField caseElse;
 
   @Override
-  public Case copy() throws AWException {
+  public Case copy() {
     return this.toBuilder()
       .caseWhenList(ListUtil.copyList(getCaseWhenList()))
       .caseElse(ListUtil.copyElement(getCaseElse()))

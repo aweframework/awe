@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -36,7 +35,7 @@ public class Union implements Copyable {
   private String type;
 
   @Override
-  public Union copy() throws AWException {
+  public Union copy() {
     return this.toBuilder().build();
   }
 

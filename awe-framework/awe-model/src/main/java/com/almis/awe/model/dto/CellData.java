@@ -1,6 +1,5 @@
 package com.almis.awe.model.dto;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.CellDataType;
 import com.almis.awe.model.util.data.DateUtil;
@@ -409,7 +408,7 @@ public class CellData implements Comparable<CellData>, Copyable {
   }
 
   @Override
-  public CellData copy() throws AWException {
+  public CellData copy() {
     return new CellData(this);
   }
 

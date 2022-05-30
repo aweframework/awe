@@ -1,8 +1,9 @@
 package com.almis.awe.model.entities.screen.component.action;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -25,7 +26,7 @@ public class DependencyAction extends AbstractAction {
   private static final long serialVersionUID = -8550175354070722535L;
 
   @Override
-  public DependencyAction copy() throws AWException {
+  public DependencyAction copy() {
     return this.toBuilder().build();
   }
 }

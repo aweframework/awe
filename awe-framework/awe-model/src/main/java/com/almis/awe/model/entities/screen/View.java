@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.screen;
 
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
@@ -40,7 +39,7 @@ public class View extends Element {
   private String name;
 
   @Override
-  public View copy() throws AWException {
+  public View copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();

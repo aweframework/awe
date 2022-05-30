@@ -1,6 +1,5 @@
 package com.almis.awe.model.entities.queries;
 
-import com.almis.awe.exception.AWException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import lombok.Data;
@@ -56,7 +55,7 @@ public class Computed extends OutputField {
   }
 
   @Override
-  public Computed copy() throws AWException {
+  public Computed copy() {
     return this.toBuilder().build();
   }
 }
