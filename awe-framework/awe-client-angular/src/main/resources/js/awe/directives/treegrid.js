@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import { DefaultGridOptions, DefaultSpin } from "../data/options";
+import {aweApplication} from "./../awe";
+import {DefaultGridOptions, DefaultSpin} from "../data/options";
 import "../services/grid/tree";
 
 // Treegrid directive
@@ -9,7 +9,7 @@ aweApplication.directive('aweTreeGrid',
       // Retrieve default $settings
 
       // Set default options
-      var options = {
+      let  options = {
         ...DefaultGridOptions,
         // Elements per page
         rowNum: $settings.get("recordsPerPage"),
@@ -48,7 +48,7 @@ aweApplication.directive('aweTreeGrid',
              */
             pre: function (scope, elem) {
               // Init as component
-              var component = new GridTree(scope, scope.gridId, elem);
+              let  component = new GridTree(scope, scope.gridId, elem);
               if (component.asTree()) {
                 // Set bigGrid value
                 component.bigGrid = true;

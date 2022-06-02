@@ -21,13 +21,13 @@ aweApplication.factory('GridEvents',
        */
       function addRow(parameters, scope, position, rowData) {
         // Add a row after selected or at the end
-        var component = scope.component;
+        let  component = scope.component;
         component.hideContextMenu();
-        var selectedRow = parameters.selectedRow || component.getSelectedRow() || null;
+        let  selectedRow = parameters.selectedRow || component.getSelectedRow() || null;
         component.addRow(position, rowData, selectedRow);
 
         // Launch action after save row
-        var afterAddRow = {
+        let  afterAddRow = {
           type : 'after-add-row',
           silent : true
         };
@@ -42,7 +42,7 @@ aweApplication.factory('GridEvents',
       /*************************************************************************
        * EVENTS
        ************************************************************************/
-      var GridEvents = {
+      let  GridEvents = {
         /**
          * Map common actions
          *
@@ -112,7 +112,7 @@ aweApplication.factory('GridEvents',
          * @param {object} scope
          */
         onReset: function (parameters, scope) {
-          var component = scope.component;
+          let  component = scope.component;
           component.resetGrid();
         },
         /**
@@ -122,7 +122,7 @@ aweApplication.factory('GridEvents',
          * @param {object} scope
          */
         onRestore: function (parameters, scope) {
-          var component = scope.component;
+          let  component = scope.component;
           component.resetGrid();
         },
         /**
@@ -133,9 +133,9 @@ aweApplication.factory('GridEvents',
          */
         validateSelectedRow: function (parameters, scope) {
           // Launch action for saving row
-          var component = scope.component;
-          var actions = [];
-          var validate = {type: 'validate', silent: true};
+          let  component = scope.component;
+          let  actions = [];
+          let  validate = {type: 'validate', silent: true};
 
           // Add validate row if defined on grid
           validate.target = `grid-${component.address.component} .ui-grid-row-selected`;
@@ -151,12 +151,12 @@ aweApplication.factory('GridEvents',
          */
         onBeforeSaveRow: function (component) {
           // Launch action for saving row
-          var actions = [];
-          var validate = {type: 'validate-selected-row', silent: true};
-          var saveRow = {type: 'save-row', silent: true};
+          let  actions = [];
+          let  validate = {type: 'validate-selected-row', silent: true};
+          let  saveRow = {type: 'save-row', silent: true};
 
           // Add validate row if defined on grid
-          var controller = Control.getAddressController(component.address);
+          let  controller = Control.getAddressController(component.address);
           if (controller.validateOnSave) {
             actions.push(validate);
           }
@@ -177,11 +177,11 @@ aweApplication.factory('GridEvents',
          */
         onSaveRow: function (parameters, scope) {
           // Save the row
-          var component = scope.component;
+          let  component = scope.component;
           component.saveRow();
 
           // Launch action after save row
-          var afterSaveRow = {type: 'after-save-row', silent: true};
+          let  afterSaveRow = {type: 'after-save-row', silent: true};
 
           // Send action list
           $actionController.addActionList([afterSaveRow], true, {address: component.address, context: component.context});
@@ -197,7 +197,7 @@ aweApplication.factory('GridEvents',
          */
         onAfterSaveRow: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('after-save-row');
 
           // Call select rows event
@@ -210,9 +210,9 @@ aweApplication.factory('GridEvents',
          */
         onBeforeCancelRow: function (component) {
           // Launch action for saving row
-          var disableDependencies = {type: 'disable-dependencies', silent: true};
-          var enableDependencies = {type: 'enable-dependencies', silent: true};
-          var cancelRow = {type: 'cancel-row', silent: true};
+          let  disableDependencies = {type: 'disable-dependencies', silent: true};
+          let  enableDependencies = {type: 'enable-dependencies', silent: true};
+          let  cancelRow = {type: 'cancel-row', silent: true};
 
           // Send action list
           $actionController.addActionList([disableDependencies, cancelRow, enableDependencies], true, {address: component.address, context: component.context});
@@ -228,11 +228,11 @@ aweApplication.factory('GridEvents',
          */
         onCancelRow: function (parameters, scope) {
           // Save the row
-          var component = scope.component;
+          let  component = scope.component;
           component.cancelRow();
 
           // Launch action after save row
-          var afterCancelRow = {type: 'after-cancel-row', silent: true};
+          let  afterCancelRow = {type: 'after-cancel-row', silent: true};
 
           // Send action list
           $actionController.addActionList([afterCancelRow], true, {address: component.address, context: component.context});
@@ -248,7 +248,7 @@ aweApplication.factory('GridEvents',
          */
         onAfterCancelRow: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('after-cancel-row');
 
           // Call select rows event
@@ -262,14 +262,14 @@ aweApplication.factory('GridEvents',
          */
         onDeleteRow: function (parameters, scope) {
           // Remove the selected row
-          var component = scope.component;
+          let  component = scope.component;
           component.deleteRow(parameters.rowId);
 
           // Call select rows event
           component.unselectRows();
 
           // Launch action after save row
-          var afterDeleteRow = {type: 'after-delete-row', silent: true};
+          let  afterDeleteRow = {type: 'after-delete-row', silent: true};
 
           // Send action list
           $actionController.addActionList([afterDeleteRow], true, {address: component.address, context: component.context});
@@ -285,7 +285,7 @@ aweApplication.factory('GridEvents',
          */
         onAfterDeleteRow: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('after-delete-row');
         },
         /**
@@ -368,10 +368,10 @@ aweApplication.factory('GridEvents',
          */
         onCopySelectedRowsToClipboard: function(parameters, scope) {
           // Hide context menu if showing
-          var component = scope.component;
+          let  component = scope.component;
           component.hideContextMenu();
 
-          var rowsPrintData = [];
+          let  rowsPrintData = [];
           rowsPrintData.push([]);
 
           // We get visible columns and filter rowNum and chkBox
@@ -404,15 +404,15 @@ aweApplication.factory('GridEvents',
           })
 
           // We join all rows and separate them with new line feed
-          var printData = rowsPrintData.join("\n");
+          let  printData = rowsPrintData.join("\n");
 
           // Event handler for copy event
-          var eventHandler = function(clipEvent) {
+          let  eventHandler = function(clipEvent) {
             // Add data information to event and stop it
             clipEvent.stopPropagation();
             clipEvent.preventDefault();
 
-            var cd = clipEvent.originalEvent.clipboardData || window.clipboardData;
+            let  cd = clipEvent.originalEvent.clipboardData || window.clipboardData;
             cd.setData("text", printData);
 
             // Remove copy event handler
@@ -435,7 +435,7 @@ aweApplication.factory('GridEvents',
          */
         onUpdateRow: function (parameters, scope) {
           // Add a row after selected or at the end
-          var component = scope.component;
+          let  component = scope.component;
           if (parameters.rowId) {
             component.updateRow(parameters.rowId, parameters.row, parameters.style);
           } else {
@@ -453,7 +453,7 @@ aweApplication.factory('GridEvents',
          */
         onAfterAddRow: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('after-add-row');
         },
         /**
@@ -464,7 +464,7 @@ aweApplication.factory('GridEvents',
          */
         onCheckRecordSaved: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('check-records-saved');
 
           if (component.isEditing) {
@@ -479,12 +479,12 @@ aweApplication.factory('GridEvents',
          * @param {object} scope
          */
         onSelectFirstRow: function (parameters, scope) {
-          var rows = [];
-          var component = scope.component;
+          let  rows = [];
+          let  component = scope.component;
           // Retrieve first row identifier
           if (component.model.values && component.model.values.length > 0) {
-            var rowIndex = 0;
-            var row = component.model.values[rowIndex];
+            let  rowIndex = 0;
+            let  row = component.model.values[rowIndex];
 
             // Store row identifier
             rows.push(String(row[component.constants.ROW_IDENTIFIER]));
@@ -500,13 +500,13 @@ aweApplication.factory('GridEvents',
          * @param {object} scope
          */
         onSelectLastRow: function (parameters, scope) {
-          var rows = [];
-          var component = scope.component;
-          var values = component.model.values;
+          let  rows = [];
+          let  component = scope.component;
+          let  values = component.model.values;
           // Retrieve last row identifier
           if (values && values.length > 0) {
-            var rowIndex = values.length - 1;
-            var row = values[rowIndex];
+            let  rowIndex = values.length - 1;
+            let  row = values[rowIndex];
 
             // Store row identifier
             rows.push(String(row[component.constants.ROW_IDENTIFIER]));
@@ -522,9 +522,9 @@ aweApplication.factory('GridEvents',
          * @param {scope} scope
          */
         onSelectAllRows: function (parameters, scope) {
-          var rows = [];
-          var component = scope.component;
-          var values = component.model.values;
+          let  rows = [];
+          let  component = scope.component;
+          let  values = component.model.values;
           if (values) {
             // Retrieve first row identifier
             _.each(values, function (row) {
@@ -543,7 +543,7 @@ aweApplication.factory('GridEvents',
          */
         onUnselectAllRows: function (parameters, scope) {
           // Select rows
-          var component = scope.component;
+          let  component = scope.component;
           component.setSelection([]);
         },
         /**
@@ -554,7 +554,7 @@ aweApplication.factory('GridEvents',
          */
         onCheckRecordsGenerated: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('check-records-generated');
 
           if (component.model.records === 0) {
@@ -570,11 +570,11 @@ aweApplication.factory('GridEvents',
          */
         onCheckOneRowSelected: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('check-one-selected');
 
           // Get number of selected rows
-          var rowCount = component.currentSelection.length;
+          let  rowCount = component.currentSelection.length;
 
           // Cancel action stack and send message
           if (rowCount !== 1) {
@@ -590,11 +590,11 @@ aweApplication.factory('GridEvents',
          */
         onCheckSomeRowSelected: function (parameters, scope) {
           // Store event
-          var component = scope.component;
+          let  component = scope.component;
           component.storeEvent('check-some-selected');
 
           // Get number of selected rows
-          var rowCount = component.currentSelection.length;
+          let  rowCount = component.currentSelection.length;
 
           // Cancel action stack and send message
           if (rowCount === 0) {
@@ -650,7 +650,7 @@ aweApplication.factory('GridEvents',
          */
         onBranchExpand: function (parameters, scope) {
           // Replace the columns to the grid
-          var component = scope.component;
+          let  component = scope.component;
           component.onBranchExpand(parameters.datalist);
         },
         /**
@@ -662,7 +662,7 @@ aweApplication.factory('GridEvents',
          */
         onUpdateCell: function (parameters, scope, address) {
           // Update cell data
-          var component = scope.component;
+          let  component = scope.component;
           component.updateCell(address.row, address.column, parameters.data);
         },
         /**
@@ -676,10 +676,10 @@ aweApplication.factory('GridEvents',
         sendGridMessage: function (component, type, title, content) {
 
           // Create send message action
-          var messageAction = {type: 'message', silent: false};
+          let  messageAction = {type: 'message', silent: false};
 
           // Create cancel action
-          var cancelAction = {type: 'cancel', silent: false};
+          let  cancelAction = {type: 'cancel', silent: false};
 
           // Add message to action
           messageAction.parameters = {

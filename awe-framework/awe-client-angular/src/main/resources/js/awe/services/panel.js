@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Panel service
 aweApplication.factory('Panel',
@@ -17,7 +17,7 @@ aweApplication.factory('Panel',
          */
         init: function (controller, scope, identifier) {
           // Init as component
-          var component = new Component(scope, identifier);
+          let  component = new Component(scope, identifier);
           if (!component.init()) {
             // If component initialization is wrong, cancel initialization
             return false;

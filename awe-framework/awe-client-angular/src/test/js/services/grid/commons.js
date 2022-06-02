@@ -171,7 +171,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
   // Set selection
   it('should select a list of rows in a grid', function () {
     // Mock
-    var spy = jasmine.createSpy('spy');
+    let  spy = jasmine.createSpy('spy');
     let component = {
       constants: {ROW_IDENTIFIER: "id"},
       controller: {columnModel: []},
@@ -1145,7 +1145,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
 
   it('should delete the selected row (on GridComponents)', function () {
     // Mock
-    var spy = jasmine.createSpy('spy');
+    let  spy = jasmine.createSpy('spy');
     let component = {
       constants: {ROW_IDENTIFIER: "id"},
       controller: {columnModel: []},
@@ -1177,7 +1177,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
 
   it('should delete a row (on GridComponents)', function () {
     // Mock
-    var spy = jasmine.createSpy('spy');
+    let  spy = jasmine.createSpy('spy');
     let component = {
       constants: {ROW_IDENTIFIER: "id"},
       controller: {columnModel: []},

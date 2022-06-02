@@ -2,7 +2,7 @@ import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', function() {
-  var $injector, $rootScope, $compile, $httpBackend, $actionController, $control, $storage;
+  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $control, $storage;
 
   // Mock module
   beforeEach(function() {
@@ -32,7 +32,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', f
 
   it('replaces the element with the appropriate content', function() {
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-numeric input-numeric-id='RefreshTime'></awe-input-numeric>")($rootScope);
+    let  element = $compile("<awe-input-numeric input-numeric-id='RefreshTime'></awe-input-numeric>")($rootScope);
 
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
@@ -51,7 +51,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', f
     spyOn($control, "getAddressController").and.returnValue({numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"numeric", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true});
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-numeric input-numeric-id='RefreshTime'></awe-input-numeric>")($rootScope);
+    let  element = $compile("<awe-input-numeric input-numeric-id='RefreshTime'></awe-input-numeric>")($rootScope);
 
     // fire all the watches
     $rootScope.$digest();
@@ -68,7 +68,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', f
     $rootScope.firstLoad = true;
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-numeric input-numeric-id='NumSlidReq'></awe-input-numeric>")($rootScope);
+    let  element = $compile("<awe-input-numeric input-numeric-id='NumSlidReq'></awe-input-numeric>")($rootScope);
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
           id: "NumSlidReq",
           controller: {size: "sm", checkInitial: true, checkTarget: false, checked: false, component: "numeric", contextMenu:[], dependencies:[], id: "NumSlidReq", label: "PARAMETER_NUMERIC", loadAll: false, numberFormat: "{min: -1000, max: 1000, step: 10, precision: 2, aSign:' $', pSign:'s', aPad:true, ticks: [-1000, -500, 0, 500, 1000], ticks_labels: ['-$1000', '-$500', '$0', '$500', '$1000']}", optional: false, printable: true, readonly: false, required: true, showSlider: true, strict: true, style: "col-xs-12 col-sm-6 col-lg-4", validation: "required", visible: true},

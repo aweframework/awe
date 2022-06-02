@@ -1,7 +1,7 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/image.js', function () {
-  var $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $sce;
+  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $sce;
   let model = {
     page: 1,
     records: 1,
@@ -64,7 +64,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/image.js', fun
     spyOn($control, 'checkOnlyComponent').and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-image/>")($rootScope);
+    let  element = $compile("<awe-image/>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
     expect(element[0].tagName).toBe("IMG");
@@ -76,7 +76,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/image.js', fun
     spyOn($control, 'checkOnlyComponent').and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-image image-id='Image'/>")($rootScope);
+    let  element = $compile("<awe-image image-id='Image'/>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
     expect(element.attr("image-id")).toEqual("Image");

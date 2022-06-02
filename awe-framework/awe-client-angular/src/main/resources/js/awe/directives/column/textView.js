@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Column textView directive
 aweApplication.directive('aweColumnTextView',
@@ -12,8 +12,8 @@ aweApplication.directive('aweColumnTextView',
         },
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
-          var column = new Column(attrs);
-          var component = new Text(scope, column.id, elem);
+          let  column = new Column(attrs);
+          let  component = new Text(scope, column.id, elem);
 
           // Initialize criterion and column
           if (column.init(component).asText()) {

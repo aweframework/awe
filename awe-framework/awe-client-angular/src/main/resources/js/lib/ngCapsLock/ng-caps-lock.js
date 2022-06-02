@@ -3,7 +3,7 @@
 
   angular.module('ngCapsLock', []).run(['$rootScope', '$document', '$timeout', function ($rootScope, $document, $timeout) {
 
-    var bindingForAppleDevice = function () {
+    let  bindingForAppleDevice = function () {
       $document.bind("keydown", function (event) {
         if (event.keyCode === 20) { setCapsLockOn(true); }
       });
@@ -13,16 +13,16 @@
       });
 
       $document.bind("keypress", function (event) {
-        var code = event.charCode || event.keyCode;
-        var shift = event.shiftKey;
+        let  code = event.charCode || event.keyCode;
+        let  shift = event.shiftKey;
 
         if (code > 96 && code < 123) { setCapsLockOn(false); }
         if (code > 64 && code < 91 && !shift) { setCapsLockOn(true); }
       });
     };
 
-    var bindingForOthersDevices = function () {
-      var isKeyPressed = true;
+    let  bindingForOthersDevices = function () {
+      let  isKeyPressed = true;
 
       $document.bind("keydown", function (event) {
         if (!isKeyPressed && event.keyCode === 20) {
@@ -36,8 +36,8 @@
       });
 
       $document.bind("keypress", function (event) {
-        var code = event.charCode || event.keyCode;
-        var shift = event.shiftKey;
+        let  code = event.charCode || event.keyCode;
+        let  shift = event.shiftKey;
 
         if (code > 96 && code < 123) { setCapsLockOn(shift); }
         if (code > 64 && code < 91) { setCapsLockOn(!shift); }
@@ -50,7 +50,7 @@
       bindingForOthersDevices();
     }
 
-    var setCapsLockOn = function (isOn) {
+    let  setCapsLockOn = function (isOn) {
       $timeout(function () {
         $rootScope.isCapsLockOn = isOn;
       });

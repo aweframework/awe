@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Grid components service
 aweApplication.factory('GridComponents',
@@ -10,7 +10,7 @@ aweApplication.factory('GridComponents',
      */
     function (Control, Utilities) {
 
-      var GridComponents = function (component) {
+      let  GridComponents = function (component) {
         this.component = component;
 
         // Initialize cells
@@ -27,7 +27,7 @@ aweApplication.factory('GridComponents',
          * Initialize grid
          */
         init: function () {
-          var component = this.component;
+          let  component = this.component;
 
           // Define footer data if showTotals is active
           if (component.controller.showTotals) {
@@ -55,10 +55,10 @@ aweApplication.factory('GridComponents',
            */
           component.updateCellModel = function (cell) {
             // Get cell address
-            var address = cell.address;
+            let  address = cell.address;
 
             // Get grid row index
-            var rowIndex = Utilities.getRowIndex(component.model.values, address.row, component.constants.ROW_IDENTIFIER);
+            let  rowIndex = Utilities.getRowIndex(component.model.values, address.row, component.constants.ROW_IDENTIFIER);
 
             // If rowIndex is -1, the row is the footer row
             if (rowIndex !== -1) {
@@ -73,7 +73,7 @@ aweApplication.factory('GridComponents',
            * @param {object} address Component address
            */
           component.checkInitialized = function (address) {
-            var cellId = Utilities.getCellId(address);
+            let  cellId = Utilities.getCellId(address);
             return cellId in component.model.cells && component.model.cells[cellId].initialized;
           };
           /**
@@ -81,18 +81,18 @@ aweApplication.factory('GridComponents',
            * @param {string} address Cell address
            */
           component.getModel = function (address) {
-            var cellId = Utilities.getCellId(address);
-            var cellModel = component.model.cells;
+            let  cellId = Utilities.getCellId(address);
+            let  cellModel = component.model.cells;
 
             if (!(cellId in cellModel)) {
               // Calculate rowIndex and selected value
-              var rowIndex = Utilities.getRowIndex(component.model.values, address.row, component.constants.ROW_IDENTIFIER);
+              let  rowIndex = Utilities.getRowIndex(component.model.values, address.row, component.constants.ROW_IDENTIFIER);
 
               // Retrieve value list if exists
-              var valueList = component.getColumnValueList(address);
+              let  valueList = component.getColumnValueList(address);
 
               // If rowIndex is -1, the row is the footer row
-              var cellValue;
+              let  cellValue;
               if (rowIndex === -1) {
                 cellValue = component.model.footer[address.column];
               } else {
@@ -100,9 +100,9 @@ aweApplication.factory('GridComponents',
               }
 
               // Define columnId controller if not defined
-              var cell = component.getCellObject(cellValue);
+              let  cell = component.getCellObject(cellValue);
 
-              var model = {values: valueList || []};
+              let  model = {values: valueList || []};
               if ("selected" in cell && "values" in cell) {
                 model = cell;
               } else {
@@ -126,18 +126,18 @@ aweApplication.factory('GridComponents',
            * @param {string} address Cell address
            */
           component.getController = function (address) {
-            var cellId = Utilities.getCellId(address);
-            var cellController = component.controller.cells;
+            let  cellId = Utilities.getCellId(address);
+            let  cellController = component.controller.cells;
 
             // Store as string if not done before
             if (!(address.column in component.columnModelStringified)) {
-              var column = component.getColumn(address.column);
+              let  column = component.getColumn(address.column);
               component.columnModelStringified[address.column] = Utilities.stringifyJSON(column);
             }
 
             // Store specific row controller
             if (!(cellId in cellController)) {
-              var columnModelString = component.columnModelStringified[address.column];
+              let  columnModelString = component.columnModelStringified[address.column];
               cellController[cellId] = Utilities.parseJSON(columnModelString);
               Control.setAddressController(address, cellController[cellId]);
             }
@@ -149,8 +149,8 @@ aweApplication.factory('GridComponents',
            * @param {string} address Cell address
            */
           component.getApi = function (address) {
-            var cellId = Utilities.getCellId(address);
-            var cellApi = component.api.cells;
+            let  cellId = Utilities.getCellId(address);
+            let  cellApi = component.api.cells;
             if (!(cellId in cellApi)) {
               cellApi[cellId] = {};
               Control.setAddressApi(address, cellApi[cellId]);

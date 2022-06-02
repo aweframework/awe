@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "./commons";
 
 // Base grid service
@@ -24,7 +24,7 @@ aweApplication.factory('GridBase',
        * @param {String} id Criterion id
        * @param {String} element Criterion element
        */
-      var GridBase = function (scope, id, element) {
+      let  GridBase = function (scope, id, element) {
         this.scope = scope;
         this.id = id;
         this.element = element;
@@ -47,8 +47,8 @@ aweApplication.factory('GridBase',
          */
         init: function () {
           // Get component
-          var grid = this;
-          var component = this.component;
+          let  grid = this;
+          let  component = this.component;
           if (!component.asComponent()) {
             return false;
           }
@@ -172,7 +172,7 @@ aweApplication.factory('GridBase',
           component.addInitialColumns = function () {
             // Add checkboxes
             if (component.controller.multiselect) {
-              var checkboxes = {
+              let  checkboxes = {
                 width: 26,
                 label: "",
                 displayName: "",
@@ -190,7 +190,7 @@ aweApplication.factory('GridBase',
             }
             // Add row numbers first
             if (component.controller.rowNumbers) {
-              var rowNumbers = {
+              let  rowNumbers = {
                 minWidth: 30,
                 width: 30,
                 label: "",
@@ -244,7 +244,7 @@ aweApplication.factory('GridBase',
            * Get the selected rows
            */
           component.getSelection = function () {
-            var selectedRows;
+            let  selectedRows;
             if (grid.api) {
               selectedRows = grid.api.selection.getSelectedRows();
             } else {
@@ -269,11 +269,11 @@ aweApplication.factory('GridBase',
            * @returns {function}
            */
           component.sortingAlgorithm = function (a, b) {
-            var nulls = grid.api.core.sortHandleNulls(a, b);
+            let  nulls = grid.api.core.sortHandleNulls(a, b);
             if (nulls !== null) {
               return nulls;
             } else {
-              var valA, valB;
+              let  valA, valB;
               if (typeof a === 'object' && typeof b === 'object') {
                 valA = a.value;
                 valB = b.value;
@@ -297,7 +297,7 @@ aweApplication.factory('GridBase',
            */
           component.showColumn = function (columnId) {
             // Check if column is already shown
-            var column = grid.api.grid.getColumn(columnId);
+            let  column = grid.api.grid.getColumn(columnId);
             if (column.colDef.hidden) {
             	column.colDef.hidden = false;
             	column.colDef.width = column.colDef.initialWidth;
@@ -313,7 +313,7 @@ aweApplication.factory('GridBase',
            */
           component.hideColumn = function (columnId) {
             // Check if column is already hidden
-            var column = grid.api.grid.getColumn(columnId);
+            let  column = grid.api.grid.getColumn(columnId);
             if (!column.colDef.hidden) {
             	column.colDef.hidden = true;
             	column.colDef.width = 0;
@@ -330,7 +330,7 @@ aweApplication.factory('GridBase',
            */
           component.changeColumnLabel = function (columnId, label) {
             // Retrieve the column index
-            var column = grid.api.grid.getColumn(columnId);
+            let  column = grid.api.grid.getColumn(columnId);
             if (column.displayName !== label) {
               column.displayName = label;
               finishPendingActions();
@@ -351,7 +351,7 @@ aweApplication.factory('GridBase',
            * Retrieve grid columns;
            */
           component.getColumns = function () {
-            var columns = component.controller.columnModel;
+            let  columns = component.controller.columnModel;
             // Resize grid
             if (grid.api) {
               columns = grid.api.grid.columns;
@@ -379,18 +379,18 @@ aweApplication.factory('GridBase',
            */
           component.addRowSpecific = function (row, position, data) {
             // Get selected row
-            var newId;
+            let  newId;
             // Remove previous selected rows
             component.unselectRows();
             // Create data for the row (empty)
-            var rowData = data || {};
+            let  rowData = data || {};
             newId = data && data.id ? data.id : "new-row-" + component.addedRows;
             component.addedRows++;
             data[component.constants.ROW_IDENTIFIER] = newId;
             // Generate new row
-            var rowIndex = component.model.values.length;
+            let  rowIndex = component.model.values.length;
             if (row) {
-              var foundRowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
+              let  foundRowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
               if (foundRowIndex != -1) {
                 rowIndex = foundRowIndex;
               }
@@ -424,7 +424,7 @@ aweApplication.factory('GridBase',
               Utilities.timeout(function () {
                 component.repositionSaveButton();
                 if (grid.api) {
-                  var gridRow = grid.api.grid.getRow(component.model.values[rowIndex]);
+                  let  gridRow = grid.api.grid.getRow(component.model.values[rowIndex]);
                   grid.api.core.scrollToIfNecessary(gridRow, null);
                 }
               });
@@ -438,7 +438,7 @@ aweApplication.factory('GridBase',
             // If selectedRow is not null, remove row
             if (row) {
               // Calculate rowIndex
-              var rowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
+              let  rowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
               if (rowIndex > -1) {
                 // Remove data from the model
                 component.model.values.splice(rowIndex, 1);
@@ -463,8 +463,8 @@ aweApplication.factory('GridBase',
            * return {boolean} size has changed
            */
           component.gridSizeChanged = function () {
-            var size = getGridSize();
-            var changed = size.width > 0 && size.height > 0 && (
+            let  size = getGridSize();
+            let  changed = size.width > 0 && size.height > 0 && (
                 grid.measures.height !== size.height || grid.measures.width !== size.width ||
                 grid.measures.modelLength !== component.model.values.length);
             if (changed) {
@@ -480,7 +480,7 @@ aweApplication.factory('GridBase',
            */
           component.updateGridScrollBars = function () {
             if (grid.api) {
-              var contentSize = {width: 0, height: 0};
+              let  contentSize = {width: 0, height: 0};
               $(component.layers["content"]).each(function () {
                 contentSize.width += $(this).width();
                 contentSize.height += $(this).height();
@@ -602,8 +602,8 @@ aweApplication.factory('GridBase',
            * Manage on filter event
            */
           function isFiltering() {
-            var filtering = false;
-            var columns = component.getColumns();
+            let  filtering = false;
+            let  columns = component.getColumns();
             _.each(columns, function (column) {
               if (!Utilities.isEmpty(column.filters[0].term)) {
                 filtering = true;
@@ -639,7 +639,7 @@ aweApplication.factory('GridBase',
            */
           function onFilter() {
             if (component.filterChanged && component.visibleRows !== grid.api.core.getVisibleRows().length) {
-              var visibleRows = grid.api.core.getVisibleRows();
+              let  visibleRows = grid.api.core.getVisibleRows();
               if (isFiltering()) {
                 changeRecords(visibleRows.length);
               } else {
@@ -648,7 +648,7 @@ aweApplication.factory('GridBase',
               // Update row number column size
               updateRowNumberColumn();
               if (visibleRows.length > 0) {
-                var columns = component.getColumns();
+                let  columns = component.getColumns();
                 grid.api.core.scrollToIfNecessary(visibleRows[0], columns[0]);
               }
               component.filterChanged = false;
@@ -714,10 +714,10 @@ aweApplication.factory('GridBase',
            * @returns {undefined}
            */
           function updatePaginationText() {
-            var paginationText, paginationTextSmall, footerButtonStyle, footerPaginationStyle, bigGrid;
+            let  paginationText, paginationTextSmall, footerButtonStyle, footerPaginationStyle, bigGrid;
 
             // Calculate grid width
-            var gridWidth = grid.measures.width;
+            let  gridWidth = grid.measures.width;
             if (gridWidth === undefined) {
               // Recalculate grid width
               return component.resize();
@@ -727,17 +727,17 @@ aweApplication.factory('GridBase',
             if (component.controller.loadAll && grid.api) {
               component.model.total = grid.api.pagination.getTotalPages();
             } else {
-              var recordsPerPage = component.getMax();
+              let  recordsPerPage = component.getMax();
               component.model.total = recordsPerPage === 0 ? 1 : Math.max(Math.ceil(component.model.records / recordsPerPage), 1);
             }
             // Update current page
             component.model.page = component.currentPage;
             // Retrieve filtered numbers
-            var page = $filter('formatNumber')(component.model.page, '0,0');
-            var total = $filter('formatNumber')(component.model.total, '0,0');
-            var records = $filter('formatNumber')(component.model.records, '0,0');
-            var first = $filter('formatNumber')(getFirstRecord(), '0,0');
-            var last = $filter('formatNumber')(getLastRecord(), '0,0');
+            let  page = $filter('formatNumber')(component.model.page, '0,0');
+            let  total = $filter('formatNumber')(component.model.total, '0,0');
+            let  records = $filter('formatNumber')(component.model.records, '0,0');
+            let  first = $filter('formatNumber')(getFirstRecord(), '0,0');
+            let  last = $filter('formatNumber')(getLastRecord(), '0,0');
             // Generate pagination text
             paginationText = "";
             paginationText += $translate.instant('SCREEN_TEXT_GRID_VIEW');
@@ -781,9 +781,9 @@ aweApplication.factory('GridBase',
            * @param {type} onDefer
            */
           function deferRowsRendered(onDefer) {
-            var deferred = Utilities.q.defer();
-            var startTime = new Date();
-            var listener = component.scope.$on("rows-rendered", function (event, parameters) {
+            let  deferred = Utilities.q.defer();
+            let  startTime = new Date();
+            let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
               if (parameters.grid === grid.id) {
                 // Remove listener
                 listener();
@@ -794,7 +794,7 @@ aweApplication.factory('GridBase',
                   deferred.resolve();
                 }
 
-                var dateDiff = (new Date() - startTime) / 1000;
+                let  dateDiff = (new Date() - startTime) / 1000;
                 $log.debug("[GRID ROWS] Grid rows have been COMPILED", {grid: grid.id, compilationTime: dateDiff + "s"});
               }
             });
@@ -808,10 +808,10 @@ aweApplication.factory('GridBase',
             // Update row number column size
             if (component.controller.rowNumbers) {
               // Get string size
-              var rowNumberColumnSize = (String(getLastRecord()).length + 1) * component.scope.charSize;
+              let  rowNumberColumnSize = (String(getLastRecord()).length + 1) * component.scope.charSize;
               // Change column width
-              var column = grid.api.grid.getColumn("rowNum");
-              var prevRowNumberWidth = column.width;
+              let  column = grid.api.grid.getColumn("rowNum");
+              let  prevRowNumberWidth = column.width;
               if (prevRowNumberWidth !== rowNumberColumnSize) {
                 column.width = Math.max(column.minWidth, rowNumberColumnSize);
                 finishPendingActions();
@@ -848,7 +848,7 @@ aweApplication.factory('GridBase',
               // Retrieve new id
               component.updateModel();
               if (component.api && component.api.endLoad) {
-                var listener = component.scope.$on("rows-rendered", function (event, parameters) {
+                let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
                   if (parameters.grid === grid.id) {
                     // Remove listener
                     listener();
@@ -864,9 +864,9 @@ aweApplication.factory('GridBase',
            * Updates selected rows in grid
            */
           function updateSelectedRows() {
-            var selectedList = [];
+            let  selectedList = [];
             if (grid.api) {
-              var selectedRows = component.getSelection();
+              let  selectedRows = component.getSelection();
               _.each(selectedRows, function (row) {
                 selectedList.push(row[component.constants.ROW_IDENTIFIER]);
               });

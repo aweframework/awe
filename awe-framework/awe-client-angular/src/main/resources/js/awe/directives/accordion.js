@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 import "./accordionItem";
 
 // Accordion directive
@@ -19,7 +19,7 @@ aweApplication.directive('aweAccordion', [
 		},
 		link : function(scope) {
 		  // Init as component
-		  var component = new Component(scope, scope.accordionId);
+		  let  component = new Component(scope, scope.accordionId);
 		  if (!component.asComponent()) {
 			// If component initialization is wrong, cancel initialization
 			return false;

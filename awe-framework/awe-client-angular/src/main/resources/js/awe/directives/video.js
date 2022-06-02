@@ -21,7 +21,7 @@ aweApplication.directive('aweVideo',
         },
         link: function (scope) {
           // Init as component
-          var component = new Component(scope, scope.videoId);
+          let  component = new Component(scope, scope.videoId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;

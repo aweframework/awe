@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Modal plugin
 aweApplication.directive('uiModal',
@@ -12,7 +12,7 @@ aweApplication.directive('uiModal',
           onClose: '&'
         },
         link: function (scope, elem, attrs) {
-          var opened = false;
+          let  opened = false;
 
           scope.$on("modalChange", function (event, show) {
             if (show && show !== opened) {

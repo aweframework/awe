@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Help viewer
 aweApplication.directive('aweHelpViewer',
@@ -21,14 +21,14 @@ aweApplication.directive('aweHelpViewer',
          */
         link: function (scope, elem) {
           // Init as component
-          var component = new Component(scope, scope.widgetId);
+          let  component = new Component(scope, scope.widgetId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;
           }
 
           // Generate function to load the file
-          var updateContents = function(data) {
+          let  updateContents = function(data) {
             // assign it into the current DOM
             elem.html(data);
 

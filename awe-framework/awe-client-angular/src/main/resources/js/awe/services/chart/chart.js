@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "../../directives/plugins/uiChart";
 import "./events";
 import "./sparkLine";
@@ -26,15 +26,15 @@ aweApplication.factory('Chart',
       };
 
       // Axis formatter API
-      var formatterList = {
+      let  formatterList = {
         /**
          * Format currency magnitude
          * @returns {String} formatted value
          */
         formatCurrencyMagnitude: function () {
-          var value = this.value;
-          var symbol = null;
-          var magnitudes = [{
+          let  value = this.value;
+          let  symbol = null;
+          let  magnitudes = [{
               exp: 6,
               symbol: "M"
             }, {
@@ -46,7 +46,7 @@ aweApplication.factory('Chart',
             }];
           // Search for magnitudes and pick the biggest one
           _.each(magnitudes, function (magnitude) {
-            var factor = Math.pow(10, magnitude.exp);
+            let  factor = Math.pow(10, magnitude.exp);
             if (Math.abs(value) >= factor && symbol === null) {
               symbol = magnitude.symbol;
               value = Math.round(value * 100 / factor) / 100;
@@ -60,23 +60,23 @@ aweApplication.factory('Chart',
        * @param serie chart serie
        * @param model chart model
        */
-      var getSerieData = function (serie, model) {
-        var serieData = [];
+      let  getSerieData = function (serie, model) {
+        let  serieData = [];
         // Retrieve fieldlist
-        var fieldList = [serie.xValue, serie.yValue];
+        let  fieldList = [serie.xValue, serie.yValue];
         if (serie.zValue) {
           fieldList.push(serie.zValue);
         }
         _.each(model, function (row) {
           if ((fieldList[0] in row) && (fieldList[1] in row)) {
             if ("drilldown" in serie) {
-              var objectPointSerie = {};
+              let  objectPointSerie = {};
               objectPointSerie.name = row[fieldList[0]];
               objectPointSerie.y = row[fieldList[1]];
               objectPointSerie.drilldown = serie.drilldown;
               serieData.push(objectPointSerie);
             } else {
-              var pointSerie = [];
+              let  pointSerie = [];
               _.each(fieldList, function (field) {
                 if (field in row) {
                   pointSerie.push(row[field]);
@@ -168,12 +168,12 @@ aweApplication.factory('Chart',
       Chart.prototype = {
         init: function () {
           // Init as component
-          var component = this.component;
+          let  component = this.component;
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;
           }
-          var chartOptions = component.controller.chartModel;
+          let  chartOptions = component.controller.chartModel;
 
           /**
            * Process chart series model
@@ -182,11 +182,11 @@ aweApplication.factory('Chart',
            */
           component.initializeModel = function (controller) {
             // Get chart series controller
-            var seriesModelList = _.get(controller, "series", []);
+            let  seriesModelList = _.get(controller, "series", []);
             // Get chart drilldown series controller
-            var drillSeriesModelList = _.get(controller, "drilldown.series", []);
+            let  drillSeriesModelList = _.get(controller, "drilldown.series", []);
             // Chart model data
-            var model = component.model.values;
+            let  model = component.model.values;
             // Build array data for each serie of chart
             if (seriesModelList) {
               _.each(seriesModelList, function (serie) {
@@ -215,17 +215,17 @@ aweApplication.factory('Chart',
             // Store model
             component.model.values = model;
             // Get number size limit serie
-            var limitPointSerie = $settings.get("chartOptions").limitPointsSerie;
+            let  limitPointSerie = $settings.get("chartOptions").limitPointsSerie;
 
             if (component.initialized) {
               // Get chart object
-              var chart = component.chart;
+              let  chart = component.chart;
               // Flag check limit serie size
-              var sizeSerieLimit = false;
+              let  sizeSerieLimit = false;
               // Get chart series controller
-              var seriesModelList = _.get(chartOptions, "series", []);
+              let  seriesModelList = _.get(chartOptions, "series", []);
               // Get chart series controller
-              var drillDownSeriesModelList = _.get(chartOptions, "drilldown.series", []);
+              let  drillDownSeriesModelList = _.get(chartOptions, "drilldown.series", []);
               // Build array datas for each serie of chart
               if (seriesModelList) {
                 _.each(seriesModelList, (serie) => { sizeSerieLimit = updateChartSerie(serie, chart, model, sizeSerieLimit, limitPointSerie);});
@@ -282,7 +282,7 @@ aweApplication.factory('Chart',
                   xAxis.title.text = $translate.instant(xAxis.title.text);
                 }
                 if ("labels" in xAxis && "formatter" in xAxis.labels) {
-                  var formatterFunction = xAxis.labels.formatter;
+                  let  formatterFunction = xAxis.labels.formatter;
                   xAxis.labels.formatter = formatterList[formatterFunction];
                 }
               });
@@ -295,7 +295,7 @@ aweApplication.factory('Chart',
                   yAxis.title.text = $translate.instant(yAxis.title.text);
                 }
                 if ("labels" in yAxis && "formatter" in yAxis.labels) {
-                  var formatterFunction = yAxis.labels.formatter;
+                  let  formatterFunction = yAxis.labels.formatter;
                   yAxis.labels.formatter = formatterList[formatterFunction];
                 }
               });
@@ -331,17 +331,17 @@ aweApplication.factory('Chart',
               component.model.values.push(points[0]);
               _.each(chartOptions.series, function (serie) {
                 if ("id" in serie) {
-                  var fieldList = [serie.xValue, serie.yValue];
+                  let  fieldList = [serie.xValue, serie.yValue];
                   if ("zValue" in serie) {
                     fieldList.push(serie.zValue);
                   }
                   // Get point for serie
-                  var point = [];
+                  let  point = [];
                   _.each(fieldList, function (field) {
                     point.push(points[0][field]);
                   });
                   // Add point
-                  var swift = component.model.values.length >= component.getMax();
+                  let  swift = component.model.values.length >= component.getMax();
                   component.chart.get(serie.id).addPoint(point, false, swift);
                 }
               });
@@ -356,7 +356,7 @@ aweApplication.factory('Chart',
            */
           component.addSeries = function (series) {
             // Get chart
-            var chart = component.chart;
+            let  chart = component.chart;
 
             _.each(series, function (serie) {
               // Add serie with
@@ -373,11 +373,11 @@ aweApplication.factory('Chart',
            */
           component.replaceSeries = function (series) {
             // Get chart
-            var chart = component.chart;
+            let  chart = component.chart;
 
             // Remove old series
-            var seriesLength = chart.series.length;
-            for (var i = seriesLength - 1; i > -1; i--) {
+            let  seriesLength = chart.series.length;
+            for (let  i = seriesLength - 1; i > -1; i--) {
               chart.series[i].remove(false);
             }
             // Add new series
@@ -395,7 +395,7 @@ aweApplication.factory('Chart',
            */
           component.removeSeries = function (series) {
             // Get chart
-            var chart = component.chart;
+            let  chart = component.chart;
 
             // Remove series by id
             _.each(series, function (serie) {
@@ -414,17 +414,17 @@ aweApplication.factory('Chart',
            */
           component.resetChart = function () {
             // Get chart Object
-            var chart = component.chart;
+            let  chart = component.chart;
 
             // Get chart series controller
-            var seriesModelList = _.get(chartOptions, "series", []);
+            let  seriesModelList = _.get(chartOptions, "series", []);
 
             // Build array datas for each serie of chart
             if (seriesModelList) {
               _.each(seriesModelList, function (serie) {
                 // Get serie identifier with id or name
-                var serieID = "id" in serie ? serie.id : serie.name;
-                var chartSerie = chart.get(serieID);
+                let  serieID = "id" in serie ? serie.id : serie.name;
+                let  chartSerie = chart.get(serieID);
                 chartSerie.setData([], false, true);
               });
             }
@@ -448,8 +448,8 @@ aweApplication.factory('Chart',
           component.getAttribute = function (attribute) {
             return component.attributeMethods[attribute](component);
           };
-          var processParameters = function (parameters) {
-            var options;
+          let  processParameters = function (parameters) {
+            let  options;
             switch (typeof parameters) {
               case "string":
                 options = Utilities.evalJSON(parameters);
@@ -467,7 +467,7 @@ aweApplication.factory('Chart',
            * @param {object} parameters
            */
           component.checkParametersChanged = function (parameters) {
-            var options = processParameters(parameters.chartOptions);
+            let  options = processParameters(parameters.chartOptions);
             if ("zoom" in options) {
               component.changeZoom(options.zoom);
             }
@@ -477,10 +477,10 @@ aweApplication.factory('Chart',
            * @param {object} zoom
            */
           component.changeZoom = function (zoom) {
-            var axisList = ["x", "y"];
+            let  axisList = ["x", "y"];
             _.each(axisList, function (axis) {
-              var selectedMin = axis in component.model.zoom ? component.model.zoom[axis]["min"] : null;
-              var selectedMax = axis in component.model.zoom ? component.model.zoom[axis]["max"] : null;
+              let  selectedMin = axis in component.model.zoom ? component.model.zoom[axis]["min"] : null;
+              let  selectedMax = axis in component.model.zoom ? component.model.zoom[axis]["max"] : null;
               if (axis in zoom) {
                 if (selectedMin !== zoom[axis].min || selectedMax !== zoom[axis].max) {
                   // Set zoom extremes
@@ -513,13 +513,13 @@ aweApplication.factory('Chart',
            * On each redraw add dblclick and contextmenu events
            */
           component.onRedraw = function () {
-            var chart = this;
-            var eventTimer;
-            for (var j in chart.series) {
-              var series = chart.series[j];
-              for (var i in series.data) {
+            let  chart = this;
+            let  eventTimer;
+            for (let  j in chart.series) {
+              let  series = chart.series[j];
+              for (let  i in series.data) {
                 (function (index) {
-                  var point = series.data[index];
+                  let  point = series.data[index];
                   if (point.graphic) {
                     point.graphic.on('dblclick', function (event) {
                       event.preventDefault();
@@ -537,7 +537,7 @@ aweApplication.factory('Chart',
                         return false;
                       }
                     });
-                    var onContextMenuPoint = function (event) {
+                    let  onContextMenuPoint = function (event) {
                       if (event.which === 3) {
                         // Right click
                         // Cancel event propagation
@@ -598,7 +598,7 @@ aweApplication.factory('Chart',
            * @param {object} event
            */
           component.onZoom = function (event) {
-            var zoom = {};
+            let  zoom = {};
             // Set yAxis zoom
             if (event.yAxis && event.yAxis.length > 0) {
               zoom = {min: event.yAxis[0].min, max: event.yAxis[0].max};
@@ -633,14 +633,14 @@ aweApplication.factory('Chart',
            * Get chart return data function;
            * @returns Object data of chart
            */
-          var api = Control.getAddressApi(component.address);
+          let  api = Control.getAddressApi(component.address);
           /**
            * Retrieve the data of the component that should be sent to the server
            * @return {Object} Data to send to the server
            */
           api.getData = function () {
-            var data = {};
-            var model = Control.getAddressModel(component.address);
+            let  data = {};
+            let  model = Control.getAddressModel(component.address);
             if (model.selected) {
               if ("x" in model.selected) {
                 data[component.address.component + ".x"] = model.selected.x;
@@ -657,8 +657,8 @@ aweApplication.factory('Chart',
            * @return {Object} Data to send to the server
            */
           api.getPrintData = function (orientation) {
-            var data = {};
-            var chartSize;
+            let  data = {};
+            let  chartSize;
             switch (orientation) {
               case "LANDSCAPE":
                 chartSize = {width:1167, height:360};

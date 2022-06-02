@@ -3,8 +3,8 @@ import _ from "lodash";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/js/controllers/application.js', function() {
-  var scope, controller, $utilities, $loadingBar, $settings, $storage, $serverData, $log, $window;
-  var currentStatus = 0;
+  let  scope, controller, $utilities, $loadingBar, $settings, $storage, $serverData, $log, $window;
+  let  currentStatus = 0;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');

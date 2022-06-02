@@ -55,7 +55,7 @@ aweApplication.factory('Button',
             component.scope.buttonClass = component.controller.buttonType === "submit" ? "primary" : null;
             // Add reset action if type is reset
             if (component.controller.actions && component.controller.actions.length === 0 && component.controller.buttonType === "reset") {
-              var resetAction = {type: "restore"};
+              let  resetAction = {type: "restore"};
               component.controller.actions.push(resetAction);
             }
 

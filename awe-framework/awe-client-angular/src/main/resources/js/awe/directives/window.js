@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Window directive
 aweApplication.directive('aweWindow',
@@ -16,7 +16,7 @@ aweApplication.directive('aweWindow',
         },
         link: function (scope, elem) {
           // Init as component
-          var component = new Component(scope, scope.windowId);
+          let  component = new Component(scope, scope.windowId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;

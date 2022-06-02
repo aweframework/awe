@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import { DefaultSpin } from "./../data/options";
+import {aweApplication} from "./../awe";
+import {DefaultSpin} from "./../data/options";
 import "../services/chart/chart";
 
 // Chart directive
@@ -21,7 +21,7 @@ aweApplication.directive('aweChart',
           scope.spinOptions = DefaultSpin.big;
 
           // Init as component
-          var component = new Chart(scope, scope.chartId, element);
+          let  component = new Chart(scope, scope.chartId, element);
           if (component.asChart()) {
             // Get chart controller
             scope.chartOptions = component.controller.chartModel;

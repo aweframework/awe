@@ -137,7 +137,7 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
        */
       changeLanguage: function (language, forceChange) {
         if (language !== null) {
-          var newLanguage = language.toLowerCase();
+          let  newLanguage = language.toLowerCase();
           if (newLanguage != $settings.getLanguage() || forceChange) {
             // Change language $settings
             $settings.update({language: newLanguage});
@@ -161,8 +161,8 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
        */
       preloadTemplates: function () {
         // Preload templates
-        var $serverData = $injector.get('ServerData');
-        var templateList = [
+        let  $serverData = $injector.get('ServerData');
+        let  templateList = [
           {path: 'grid/header'},
           {path: 'grid/cell'},
           {path: 'grid/footer'},

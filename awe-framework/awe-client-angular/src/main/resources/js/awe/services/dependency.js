@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Dependency object
 aweApplication.factory('Dependency',
@@ -17,8 +17,8 @@ aweApplication.factory('Dependency',
     function ($log, ActionController, Utilities, $settings, ServerData, Control, $translate, Storage) {
 
       // Globals
-      var VALUE_DEFERRED = "[[ DEFERRED ]]";
-      var VALUE_NONE = "[[ NONE ]]";
+      let  VALUE_DEFERRED = "[[ DEFERRED ]]";
+      let  VALUE_NONE = "[[ NONE ]]";
 
       /**
        * Test a dependency value
@@ -28,9 +28,9 @@ aweApplication.factory('Dependency',
        * @returns {object} test results
        */
       const testValue = function (value1, value2, condition) {
-        var output = {};
-        var strValue1 = Utilities.isEmpty(value1) ? "" : String(value1);
-        var strValue2 = Utilities.isEmpty(value2) ? "" : String(value2);
+        let  output = {};
+        let  strValue1 = Utilities.isEmpty(value1) ? "" : String(value1);
+        let  strValue2 = Utilities.isEmpty(value2) ? "" : String(value2);
         output.string = "'" + strValue1 + "' " + condition + " '" + strValue2 + "'";
         switch (condition) {
           case "eq":
@@ -83,36 +83,36 @@ aweApplication.factory('Dependency',
        * @param {Object} element Element to check
        * @returns {Object} Check element object
        */
-      var checkElement = function (dependency, element) {
-        var checkResults = {
+      let  checkElement = function (dependency, element) {
+        let  checkResults = {
           abort: {value: false, string: "false"},
           changed: {value: false, string: "false"},
           update: true,
           valid: true
         };
         // Define row
-        var row = element.row1 || dependency.component.address.row || null;
+        let  row = element.row1 || dependency.component.address.row || null;
         // Element 1
-        var comp1 = element.id;
-        var view1 = element.view1 || dependency.component.address.view;
-        var attr1 = element.attribute1 || "value";
-        var col1 = element.column1 || null;
+        let  comp1 = element.id;
+        let  view1 = element.view1 || dependency.component.address.view;
+        let  attr1 = element.attribute1 || "value";
+        let  col1 = element.column1 || null;
         // Condition
-        var condition = element.condition || "is not empty";
+        let  condition = element.condition || "is not empty";
         // Comparation value
-        var value = element.value || null;
-        var comp2 = element.id2 || null;
-        var view2 = element.view2 || dependency.component.address.view;
-        var attr2 = element.attribute2 || "value";
-        var col2 = element.column2 || null;
-        var event = element.event || null;
+        let  value = element.value || null;
+        let  comp2 = element.id2 || null;
+        let  view2 = element.view2 || dependency.component.address.view;
+        let  attr2 = element.attribute2 || "value";
+        let  col2 = element.column2 || null;
+        let  event = element.event || null;
         // Modifiers
-        var cancel = element.cancel ? true : false;
-        var optional = element.optional ? true : false;
-        var checkChanges = element.checkChanges;
-        var initial = dependency.initial && !dependency.alreadyLaunched ? true : false;
-        var force = element.force ? true : false;
-        var alias = element.alias || comp1;
+        let  cancel = element.cancel ? true : false;
+        let  optional = element.optional ? true : false;
+        let  checkChanges = element.checkChanges;
+        let  initial = dependency.initial && !dependency.alreadyLaunched ? true : false;
+        let  force = element.force ? true : false;
+        let  alias = element.alias || comp1;
         if (comp1 in Storage.get("model")[view1]) {
           // Input value
           if (comp2 !== null) {
@@ -137,7 +137,7 @@ aweApplication.factory('Dependency',
             element.eventLaunched = false;
           } else {
             // Get component value
-            var componentValue = Utilities.getAttribute({view: view1, component: comp1, column: col1, row: row}, attr1);
+            let  componentValue = Utilities.getAttribute({view: view1, component: comp1, column: col1, row: row}, attr1);
             // Check forced
             if (force) {
               dependency.values[alias] = null;
@@ -182,15 +182,15 @@ aweApplication.factory('Dependency',
        * @param {Object} launchers Launcher list
        * @return {String} Element launcher identifier
        */
-      var checkLauncher = function (dependency, element, launchers) {
-        var launcherAddress = {component: element.id};
-        var sameRow = true;
+      let  checkLauncher = function (dependency, element, launchers) {
+        let  launcherAddress = {component: element.id};
+        let  sameRow = true;
         if ("column1" in element && "attribute1" in element) {
           // Store column address
           launcherAddress["column"] = element.column1;
           // Retrieve launcher row depending on attribute to check
-          var view = element.view1 ? element.view1 : dependency.component.address.view;
-          var apiView = Storage.get("api")[view];
+          let  view = element.view1 ? element.view1 : dependency.component.address.view;
+          let  apiView = Storage.get("api")[view];
           if (element.id in apiView && apiView[element.id].getAttribute) {
             switch (element.attribute1) {
               case "selectedRowValue":
@@ -203,7 +203,7 @@ aweApplication.factory('Dependency',
             }
           }
         }
-        var elementLauncher = Utilities.getAddressId(launcherAddress);
+        let  elementLauncher = Utilities.getAddressId(launcherAddress);
         return (launchers === null || elementLauncher in launchers) && sameRow ? elementLauncher : null;
       };
 
@@ -234,7 +234,7 @@ aweApplication.factory('Dependency',
          * Initialize dependency values
          */
         init: function () {
-          var dependency = this;
+          let  dependency = this;
           // Store last values if not defined
           this.values = this.values || {};
           this.alreadyLaunched = false;
@@ -254,15 +254,15 @@ aweApplication.factory('Dependency',
          * @returns {Array} Check results array
          */
         check: function (launchers) {
-          var check = [];
-          var abort = false;
-          var dependency = this;
+          let  check = [];
+          let  abort = false;
+          let  dependency = this;
           // Check if dependency has launchers or not
-          var launch = this.elements.length === 0;
+          let  launch = this.elements.length === 0;
           // Search for events (if event has not been fired, abort check)
           _.each(this.elements, function (element) {
             // First check if any of the launchers has been modified
-            var elementLauncher = checkLauncher(dependency, element, launchers);
+            let  elementLauncher = checkLauncher(dependency, element, launchers);
             if (elementLauncher !== null) {
               launch = true;
               // Check if a element is an event and has not been triggered
@@ -281,7 +281,7 @@ aweApplication.factory('Dependency',
           // Check launchers (if not abort)
           if (launch) {
             _.each(this.elements, function (element) {
-              var checkedElement = checkElement(dependency, element);
+              let  checkedElement = checkElement(dependency, element);
               if (checkedElement.valid) {
                 check.push(checkedElement);
               }
@@ -300,7 +300,7 @@ aweApplication.factory('Dependency',
          */
         evaluate: function (condition, launcherAddress) {
           // Generate test object
-          var test = {
+          let  test = {
             changed: {value: false, string: "false"},
             abort: {value: false, string: "false"},
             condition: {value: true, string: "true", initial: true},
@@ -309,8 +309,8 @@ aweApplication.factory('Dependency',
           };
 
           // Evaluate condition
-          for (var i = 0, t = condition.length; i < t; i++) {
-            var testElement = condition[i];
+          for (let  i = 0, t = condition.length; i < t; i++) {
+            let  testElement = condition[i];
             // Append condition to other conditions
             if (test.condition.initial) {
               test.condition.value = testElement.condition.value;
@@ -382,9 +382,9 @@ aweApplication.factory('Dependency',
          * @param {Object} condition Condition object
          */
         execute: function (condition) {
-          var target = this.target || "none";
-          var values = _.cloneDeep(this.values || {});
-          var force;
+          let  target = this.target || "none";
+          let  values = _.cloneDeep(this.values || {});
+          let  force;
           // Init dependency promise
           this.deferred = Utilities.q.defer();
           /* Check force by target */
@@ -404,7 +404,7 @@ aweApplication.factory('Dependency',
           }
 
           // Retrieve dependency source
-          var value = this.retrieveSource(values, condition.update, force);
+          let  value = this.retrieveSource(values, condition.update, force);
           // Set target dependency if value has been defined
           switch (value) {
             case VALUE_DEFERRED:
@@ -429,9 +429,9 @@ aweApplication.factory('Dependency',
          * @param {Boolean} force Force check
          */
         retrieveSource: function (values, update, force) {
-          var source = this.source || "none";
-          var target = this.target || "none";
-          var value = VALUE_NONE;
+          let  source = this.source || "none";
+          let  target = this.target || "none";
+          let  value = VALUE_NONE;
           // Search for source
           switch (source) {
             // Update model with query output
@@ -463,13 +463,13 @@ aweApplication.factory('Dependency',
                 values.componentId = this.component.id;
                 values[$settings.get("targetActionKey")] = this[$settings.get("targetActionKey")];
                 // Launch end dependency
-                var endDependency = {type: 'end-dependency',
+                let  endDependency = {type: 'end-dependency',
                   parameters: {
                     dependency: this
                   }
                 };
                 // Generate server action
-                var serverAction = ServerData.getServerAction(this.component.address, values, this.async, this.silent);
+                let  serverAction = ServerData.getServerAction(this.component.address, values, this.async, this.silent);
                 // Launch action list
                 ActionController.addActionList([serverAction, endDependency], true, {address: this.component.address, context: this.component.context});
                 value = VALUE_DEFERRED;
@@ -533,7 +533,7 @@ aweApplication.factory('Dependency',
          * @param {Boolean} update Condition updated
          */
         applyTarget: function (value, update) {
-          var target = this.target || "none";
+          let  target = this.target || "none";
           switch (target) {
             case "label":
               if (update) {
@@ -605,7 +605,7 @@ aweApplication.factory('Dependency',
               break;
             case "attribute":
               if (update) {
-                var change = {};
+                let  change = {};
                 change[this.query] = value;
                 Control.changeControllerAttribute(this.component.address, change);
               }

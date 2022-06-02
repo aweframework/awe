@@ -36,7 +36,7 @@ aweApplication.factory("Screen",
           }
 
           // Define target screen
-          var target = context ? "/" + context + "/" : "";
+          let  target = context ? "/" + context + "/" : "";
           if ("screen" in parameters) {
             target += parameters.screen;
           } else if ("target" in parameters) {
@@ -112,8 +112,8 @@ aweApplication.factory("Screen",
          */
         wait: function (action) {
           // Retrieve action parameters
-          var parameters = action.attr("parameters");
-          var time = parameters.target || 1;
+          let  parameters = action.attr("parameters");
+          let  time = parameters.target || 1;
 
           $utilities.timeout(function () {
             // Finish action
@@ -149,13 +149,13 @@ aweApplication.factory("Screen",
          */
         screenData: function (action) {
           // Get parameters
-          var parameters = action.attr("parameters");
+          let  parameters = action.attr("parameters");
 
           // Store parameters in view scope
           $storage.get("screenData")[parameters.view] = parameters.screenData;
 
           // Send messages
-          var actions = parameters.screenData.actions;
+          let  actions = parameters.screenData.actions;
           if (actions.length > 0) {
             $actionController.addActionList(actions, false, {});
           }
@@ -168,10 +168,10 @@ aweApplication.factory("Screen",
          * @param {Action} action Action received
          */
         openDialog: function (action) {
-          var address = action.attr("callbackTarget");
+          let  address = action.attr("callbackTarget");
 
           // Change controller
-          var attributes = {opened: true, openAction: action};
+          let  attributes = {opened: true, openAction: action};
           $control.changeControllerAttribute(address, attributes);
         },
         /**
@@ -206,8 +206,8 @@ aweApplication.factory("Screen",
          */
         endLoad: function (action) {
           // Retrieve action address
-          var address = action.attr("callbackTarget");
-          var api = $control.getAddressApi(address);
+          let  address = action.attr("callbackTarget");
+          let  api = $control.getAddressApi(address);
           if (api.endLoad) {
             api.endLoad();
           }
@@ -227,7 +227,7 @@ aweApplication.factory("Screen",
           };
 
           // Generate url parameter
-          var fileData = $serverData.getFileData("download", parameters);
+          let  fileData = $serverData.getFileData("download", parameters);
           fileData.action = action;
 
           // Download file
@@ -280,10 +280,10 @@ aweApplication.factory("Screen",
          */
         toggleClass: function (action, add) {
           // Variable definition
-          var tagSelector = action.attr("target");
-          var parameters = action.attr("parameters");
-          var targetClass = parameters[$settings.get("targetActionKey")];
-          var method = add ? "addClass" : "removeClass";
+          let  tagSelector = action.attr("target");
+          let  parameters = action.attr("parameters");
+          let  targetClass = parameters[$settings.get("targetActionKey")];
+          let  method = add ? "addClass" : "removeClass";
 
           // Add/remove the class/classes
           $(tagSelector)[method](targetClass);
@@ -344,7 +344,7 @@ aweApplication.factory("Screen",
          * @param {Action} action Action received
          */
         endDependency: function (action) {
-          var dependency = action.attr("parameters").dependency;
+          let  dependency = action.attr("parameters").dependency;
           $dependencyController.finishDependency(dependency, action);
         }
       };

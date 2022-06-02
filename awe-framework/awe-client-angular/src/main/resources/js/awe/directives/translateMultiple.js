@@ -9,8 +9,8 @@ aweApplication.directive('translateMultiple',
           /**
            * Update the translation
            */
-          var updateTranslation = function () {
-            var value = attrs.translateMultiple;
+          let  updateTranslation = function () {
+            let  value = attrs.translateMultiple;
             if (value && typeof value === "string") {
               // Split value into multiple elements
               let translatedValue = value.split(" ").map($translate.instant).join(" ");
@@ -26,7 +26,7 @@ aweApplication.directive('translateMultiple',
           attrs.$observe('translateMultiple', updateTranslation);
           // Ensures the text will be refreshed after the current language was changed
           // w/ $translate.use(...)
-          var unbind = scope.$root.$on('$translateChangeSuccess', updateTranslation);
+          let  unbind = scope.$root.$on('$translateChangeSuccess', updateTranslation);
           scope.$on('$destroy', unbind);
         }
       };

@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Text service
 aweApplication.factory('Text',
@@ -21,7 +21,7 @@ aweApplication.factory('Text',
         this.id = id;
         this.element = element;
         this.component = new Criterion(this.scope, this.id, this.element);
-        var text = this;
+        let  text = this;
         this.component.asText = function () {
           return text.init();
         };
@@ -33,7 +33,7 @@ aweApplication.factory('Text',
          */
         init: function () {
           // Initialize criterion
-          var component = this.component;
+          let  component = this.component;
           if (!component.asCriterion()) {
             // If criterion is wrong, cancel initialization
             return false;
@@ -51,8 +51,8 @@ aweApplication.factory('Text',
            * @returns {string} visible value
            */
           function fixModel(changed) {
-            var selected = component.model.selected;
-            var values = component.model.values;
+            let  selected = component.model.selected;
+            let  values = component.model.values;
 
             // Changed selected
             if ("values" in changed) {
@@ -84,7 +84,7 @@ aweApplication.factory('Text',
            * @returns {string} visible value
            */
           component.getVisibleValue = function () {
-            var visibleValue = "";
+            let  visibleValue = "";
             if (component.model.values.length > 0) {
               visibleValue = component.model.values[0].label;
             } else {

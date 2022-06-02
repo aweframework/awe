@@ -2,7 +2,7 @@ import {aweApplication} from "./../awe";
 
 // Position service
 aweApplication.factory('Position', function () {
-  var Position = {
+  let  Position = {
     /**
      * Return vertical position from target
      * @private
@@ -14,9 +14,9 @@ aweApplication.factory('Position', function () {
      */
     _getVerticalPosition: function (target, layer, position, margin) {
       // Asignamos las variables de posicion a unas locales
-      var vertical = position.vertical;
-      var distance = margin.vertical;
-      var top = 0;
+      let  vertical = position.vertical;
+      let  distance = margin.vertical;
+      let  top = 0;
 
       // Calculamos la posicion vertical del tooltip
       switch (vertical) {
@@ -46,9 +46,9 @@ aweApplication.factory('Position', function () {
      */
     _getHorizontalPosition: function (target, layer, position, margin) {
       // Asignamos las variables de posicion a unas locales
-      var horizontal = position.horizontal;
-      var distance = margin.horizontal;
-      var left = 0;
+      let  horizontal = position.horizontal;
+      let  distance = margin.horizontal;
+      let  left = 0;
 
       // Calculamos la posicion horizontal del tooltip
       switch (horizontal) {
@@ -77,7 +77,7 @@ aweApplication.factory('Position', function () {
      * (vertical:["ok", "all", "top", "bottom"], horizontal:["ok", "all", "left", "right"])
      */
     _isInsideViewport: function (layer, viewport, margin) {
-      var inside = "ok";
+      let  inside = "ok";
 
       // Calculamos si se sale del rango vertical
       if (layer.top + layer.height >= viewport.top + margin.vertical + viewport.height &&
@@ -114,8 +114,8 @@ aweApplication.factory('Position', function () {
      */
     _readjustPosition: function (_position, _inside) {
       /* Variable definition */
-      var _newPos = {};
-      var _paths = {
+      let  _newPos = {};
+      let  _paths = {
         top: {
           "top": "bottom",
           "bottom": "top",
@@ -182,9 +182,9 @@ aweApplication.factory('Position', function () {
      */
     getFinalPosition: function (target, layer, viewport, position, margin) {
       /* Variable definition */
-      var _inside = null;
-      var _retries = 5;
-      var _history = {top: false, bottom: false, left: false, right: false, ok: false, all: false};
+      let  _inside = null;
+      let  _retries = 5;
+      let  _history = {top: false, bottom: false, left: false, right: false, ok: false, all: false};
 
       /* Calculate initial position */
       layer.top = Position._getVerticalPosition(target, layer, position, margin);
@@ -196,7 +196,7 @@ aweApplication.factory('Position', function () {
       /* Store in history */
       _history[_inside] = true;
 
-      var _position = {changedVertical: false, changedHorizontal: false};
+      let  _position = {changedVertical: false, changedHorizontal: false};
       _.merge(_position, position);
 
       /* Launch recalculation */
@@ -242,13 +242,13 @@ aweApplication.factory('Position', function () {
      */
     checkPosition: function (element, target, viewport, properties) {
       // Viewpoint dimensions
-      var viewportDimensions = Position.getFastDimensions(viewport);
+      let  viewportDimensions = Position.getFastDimensions(viewport);
 
       // Target dimensions
-      var targetDimensions = Position.getOuterDimensions(target, true);
+      let  targetDimensions = Position.getOuterDimensions(target, true);
 
       // Element dimensions
-      var elementDimensions = Position.getOuterDimensions(element, true);
+      let  elementDimensions = Position.getOuterDimensions(element, true);
 
       // Get final position
       return Position.getFinalPosition(targetDimensions, elementDimensions, viewportDimensions, properties.position, properties.margin);
@@ -295,9 +295,9 @@ aweApplication.factory('Position', function () {
      * @public
      */
     getInnerDimensions: function (node) {
-      var $node = $(node);
-      var offset = $node.offset();
-      var dimensions = {
+      let  $node = $(node);
+      let  offset = $node.offset();
+      let  dimensions = {
         top: Math.floor(offset.top + $node.scrollTop() + parseInt($node.css('padding-top'))),
         left: Math.floor(offset.left + $node.scrollLeft() + parseInt($node.css('padding-left'))),
         width: Position.getInnerWidth($node),
@@ -351,10 +351,10 @@ aweApplication.factory('Position', function () {
      * @public
      */
     getDimensions: function (node) {
-      var htmlNode = node[0] ? node[0] : node;
-      var $node = $(node);
-      var offset = $node.offset();
-      var dimensions = {
+      let  htmlNode = node[0] ? node[0] : node;
+      let  $node = $(node);
+      let  offset = $node.offset();
+      let  dimensions = {
         top: Math.floor(offset.top + $node.scrollTop()),
         left: Math.floor(offset.left + $node.scrollLeft()),
         width: Math.floor(htmlNode.offsetWidth),
@@ -371,10 +371,10 @@ aweApplication.factory('Position', function () {
      * @public
      */
     getOuterDimensions: function (node, outer) {
-      var $node = $(node);
-      var _outer = outer ? true : false;
-      var offset = $node.offset();
-      var dimensions = {
+      let  $node = $(node);
+      let  _outer = outer ? true : false;
+      let  offset = $node.offset();
+      let  dimensions = {
         top: Math.floor(offset.top + $node.scrollTop()),
         left: Math.floor(offset.left + $node.scrollLeft()),
         width: Position.getOuterWidth($node, _outer),
@@ -389,8 +389,8 @@ aweApplication.factory('Position', function () {
      * @public
      */
     getFastDimensions: function (node) {
-      var htmlNode = node[0] ? node[0] : node;
-      var dimensions = {
+      let  htmlNode = node[0] ? node[0] : node;
+      let  dimensions = {
         top: 0,
         left: 0,
         width: htmlNode.clientWidth, //htmlNode.offsetWidth,
@@ -406,8 +406,8 @@ aweApplication.factory('Position', function () {
      * @public
      */
     getFastFullDimensions: function (node) {
-      var htmlNode = node[0] ? node[0] : node;
-      var dimensions = {
+      let  htmlNode = node[0] ? node[0] : node;
+      let  dimensions = {
         top: htmlNode.offsetTop,
         left: htmlNode.offsetLeft,
         width: htmlNode.clientWidth, //htmlNode.offsetWidth,

@@ -1,16 +1,16 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // HIGHCHARTS
 import Highcharts from "highcharts/highstock";
+import "HighchartsLocale";
+import "HighchartsThemes";
+
 require("highcharts/highcharts-more.src")(Highcharts);
 require("highcharts/highcharts-3d.src")(Highcharts);
 require("highcharts/modules/drilldown.src")(Highcharts);
 require("highcharts/modules/boost.src")(Highcharts);
 require("highcharts/modules/no-data-to-display.src")(Highcharts);
 require("highcharts/modules/exporting.src")(Highcharts);
-
-import "HighchartsLocale";
-import "HighchartsThemes";
 
 // Highcharts plugin
 aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
@@ -35,25 +35,25 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
       link: function (scope, elem, attrs, modelController) {
 
         // Flag chart all ready initialized
-        var chartDimensions = {
+        let  chartDimensions = {
           width: 0,
           height: 0
         };
         // Add global options
-        var highchartOptions = {};
-        var chartOptions = {};
+        let  highchartOptions = {};
+        let  chartOptions = {};
         /**
          * Plugin initialization
          * @param {object} newValue plugin parameters
          * @param {object} oldValue plugin parameters
          */
-        var initPlugin = function (newValue, oldValue) {
+        let  initPlugin = function (newValue, oldValue) {
           if (newValue && (!scope.component.initialized || newValue !== oldValue)) {
             chartOptions = newValue;
             // Initialize chart with options
             scope.component.initializeModel(newValue, modelController);
             // Check flag stockChart
-            var isStockChart = newValue.stockChart;
+            let  isStockChart = newValue.stockChart;
             // Add specific options
             _.merge(highchartOptions, newValue);
             // Disable export button
@@ -63,7 +63,7 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
             // Translate labels
             scope.component.translateLabels(highchartOptions);
             // Get theme
-            var themeChart = chartOptions.theme;
+            let  themeChart = chartOptions.theme;
             // Mix options with chart theme
             if (themeChart !== undefined && themeChart !== "" && Highcharts.theme[themeChart]) {
               // Mix general options
@@ -78,7 +78,7 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
             }
 
             // Add events to highcharts options
-            var events = {
+            let  events = {
               chart: {
                 renderTo: elem[0],
                 events: {
@@ -126,14 +126,14 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
         /**
          * Update global options
          */
-        var updateGlobalOptions = function () {
+        let  updateGlobalOptions = function () {
           // Update element as date with options
           if (scope.component.initialized) {
              scope.component.chart.destroy();
           }
           scope.component.initialized = false;
           // Get lenguage
-          var language = global.HighchartsLocale[$settings.get("language")];
+          let  language = global.HighchartsLocale[$settings.get("language")];
           // Update global options
           Highcharts.setOptions({
             lang: language
@@ -144,9 +144,9 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
          * Check if dimensions have changed
          * @returns {Boolean}
          */
-        var changedDimensions = function () {
-          var changed = false;
-          var currentDimensions = {
+        let  changedDimensions = function () {
+          let  changed = false;
+          let  currentDimensions = {
             width: elem[0].clientWidth,
             height: elem[0].clientHeight
           };
@@ -163,7 +163,7 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
         /**
          * Redraw on resize
          */
-        var onResize = function () {
+        let  onResize = function () {
           if (scope.component.initialized && Utilities.isVisible(elem[0])) {
             if (scope.component.chart && changedDimensions()) {
               scope.component.chart.reflow();

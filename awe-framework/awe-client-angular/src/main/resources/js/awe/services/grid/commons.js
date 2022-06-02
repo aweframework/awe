@@ -51,9 +51,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
      * @returns {undefined}
      */
     const getRowValue = function (model, row, column) {
-      var value = null;
+      let  value = null;
       if (row === "footer" || (row > -1 && row < model.length)) {
-        var cell = model[row][column];
+        let  cell = model[row][column];
         if (angular.isObject(cell) && "value" in cell) {
           value = cell.value;
         } else {
@@ -71,7 +71,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
      * @returns {undefined}
      */
     const getHeader = function (headers, columnName) {
-      var selectedHeader = false;
+      let  selectedHeader = false;
       _.each(headers, function (header) {
         if (header.startColumnName === columnName) {
           selectedHeader = header;
@@ -86,7 +86,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     const sanitizeSelection = function (selection, data, component) {
       let sanitized = [];
       _.each(selection, function (row) {
-        var rowIndex = Utilities.getRowIndex(data, row, component.constants.ROW_IDENTIFIER);
+        let  rowIndex = Utilities.getRowIndex(data, row, component.constants.ROW_IDENTIFIER);
         if (rowIndex > -1) {
           sanitized.push(data[rowIndex][component.constants.ROW_IDENTIFIER]);
         }
@@ -136,7 +136,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {mixed} Current row value
          */
         currentRowValue: function (comp, column, row) {
-          var index = Utilities.getRowIndex(comp.model.values, row, comp.constants.ROW_IDENTIFIER);
+          let  index = Utilities.getRowIndex(comp.model.values, row, comp.constants.ROW_IDENTIFIER);
           return getRowValue(comp.model.values, index, column);
         },
         /**
@@ -149,8 +149,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {mixed} Selected row value
          */
         prevCurrentRowValue: function (comp, column, row) {
-          var model = comp.model.values, index, value = null;
-          var prevRow = this.prevCurrentRow(comp, column, row);
+          let  model = comp.model.values, index, value = null;
+          let  prevRow = this.prevCurrentRow(comp, column, row);
           if (prevRow !== null) {
             index = Utilities.getRowIndex(model, prevRow, comp.constants.ROW_IDENTIFIER);
             value = getRowValue(model, index, column);
@@ -166,8 +166,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {mixed} Selected row value
          */
         nextCurrentRowValue: function (comp, column, row) {
-          var model = comp.model.values, index, value = null;
-          var nextRow = this.nextCurrentRow(comp, column, row);
+          let  model = comp.model.values, index, value = null;
+          let  nextRow = this.nextCurrentRow(comp, column, row);
           if (nextRow !== null) {
             index = Utilities.getRowIndex(model, nextRow, comp.constants.ROW_IDENTIFIER);
             value = getRowValue(model, index, column);
@@ -182,9 +182,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {mixed} Selected row value
          */
         selectedRowValue: function (comp, column) {
-          var model = comp.model.values;
-          var selectedRow = this.selectedRow(comp);
-          var index = Utilities.getRowIndex(model, selectedRow, comp.constants.ROW_IDENTIFIER);
+          let  model = comp.model.values;
+          let  selectedRow = this.selectedRow(comp);
+          let  index = Utilities.getRowIndex(model, selectedRow, comp.constants.ROW_IDENTIFIER);
           return getRowValue(model, index, column);
         },
         /**
@@ -196,8 +196,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {mixed} Selected row value
          */
         prevRowValue: function (comp, column) {
-          var model = comp.model.values, index, value = null;
-          var prevRow = this.prevRow(comp);
+          let  model = comp.model.values, index, value = null;
+          let  prevRow = this.prevRow(comp);
           if (prevRow !== null) {
             index = Utilities.getRowIndex(model, prevRow, comp.constants.ROW_IDENTIFIER);
             value = getRowValue(model, index, column);
@@ -212,8 +212,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {mixed} Selected row value
          */
         nextRowValue: function (comp, column) {
-          var model = comp.model.values, index, value = null;
-          var nextRow = this.nextRow(comp);
+          let  model = comp.model.values, index, value = null;
+          let  nextRow = this.nextRow(comp);
           if (nextRow !== null) {
             index = Utilities.getRowIndex(model, nextRow, comp.constants.ROW_IDENTIFIER);
             value = getRowValue(model, index, column);
@@ -307,7 +307,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {boolean} Column is empty
          */
         emptyDataColumn: function (comp, column) {
-          var filledRows = comp.getFilledRows(column);
+          let  filledRows = comp.getFilledRows(column);
           return filledRows === 0;
         },
         /**
@@ -318,8 +318,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {boolean} Column has data
          */
         hasDataColumn: function (comp, column) {
-          var totalRows = comp.getTotalRows();
-          var filledRows = comp.getFilledRows(column);
+          let  totalRows = comp.getTotalRows();
+          let  filledRows = comp.getFilledRows(column);
           return totalRows >= filledRows && filledRows > 0;
         },
         /**
@@ -330,8 +330,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {boolean} Column is full
          */
         fullDataColumn: function (comp, column) {
-          var totalRows = comp.getTotalRows();
-          var filledRows = comp.getFilledRows(column);
+          let  totalRows = comp.getTotalRows();
+          let  filledRows = comp.getFilledRows(column);
           return totalRows === filledRows;
         },
         /**
@@ -364,7 +364,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
        */
       init: function () {
         // Initialize common methods
-        var component = this.component;
+        let  component = this.component;
 
         // Check frozen attribute
         component.hasFrozen = this.hasFrozenColumns();
@@ -424,7 +424,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
             // Change flag to editing
             component.isEditing = false;
             // Define initial button position
-            var buttonPosition = {
+            let  buttonPosition = {
               top: -10000,
               left: -10000
             };
@@ -445,19 +445,19 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {object} button position
          */
         component.getButtonPosition = function () {
-          var buttonPosition = {
+          let  buttonPosition = {
             top: -10000
           };
           // Find selected row
-          var selectedRows = component.getSelection();
+          let  selectedRows = component.getSelection();
           if (selectedRows.length > 0) {
-            var selectedRow = component.layers["content"].find(".ui-grid-row[id='" + selectedRows[0][component.constants.ROW_IDENTIFIER] + "']").last();
+            let  selectedRow = component.layers["content"].find(".ui-grid-row[id='" + selectedRows[0][component.constants.ROW_IDENTIFIER] + "']").last();
             if (selectedRow.length > 0) {
-              var headerHeight = component.layers["header"].outerHeight(true);
-              var clickout = component.layers["clickout"];
-              var buttonWidth = component.layers["save"].outerWidth(true);
-              var clickoutMeasures = clickout.first().offset();
-              var rowMeasures = selectedRow.offset();
+              let  headerHeight = component.layers["header"].outerHeight(true);
+              let  clickout = component.layers["clickout"];
+              let  buttonWidth = component.layers["save"].outerWidth(true);
+              let  clickoutMeasures = clickout.first().offset();
+              let  rowMeasures = selectedRow.offset();
               rowMeasures.height = selectedRow.outerHeight(true);
               rowMeasures.width = selectedRow.outerWidth();
               rowMeasures.left -= selectedRow.outerWidth(true) - rowMeasures.width;
@@ -481,7 +481,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @param {type} cellValue
          */
         component.getCellObject = function (cellValue) {
-          var cellObject = cellValue;
+          let  cellObject = cellValue;
           if (Utilities.isEmpty(cellValue)) {
             cellObject = {
               value: null,
@@ -550,15 +550,15 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getColumnData = function (column, getAll) {
           // Initialize data
-          var data = {};
-          var columnData = [];
-          var selectedRowData = [];
-          var selected = Utilities.asArray(component.model.selected);
+          let  data = {};
+          let  columnData = [];
+          let  selectedRowData = [];
+          let  selected = Utilities.asArray(component.model.selected);
 
           _.each(component.model.values, function (row) {
-            var rowId = row[component.constants.ROW_IDENTIFIER];
-            var cellValue = component.getCellData(row[column], component.constants.CELL_VALUE);
-            var isSelected = selected.indexOf(rowId) > -1;
+            let  rowId = row[component.constants.ROW_IDENTIFIER];
+            let  cellValue = component.getCellData(row[column], component.constants.CELL_VALUE);
+            let  isSelected = selected.indexOf(rowId) > -1;
             if (getAll || component.controller.sendAll || isSelected) {
               columnData.push(cellValue);
             }
@@ -584,13 +584,13 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getIdentifierColumnData = function () {
           // Initialize data
-          var data = {};
-          var columnData = [];
-          var selected = Utilities.asArray(component.model.selected);
+          let  data = {};
+          let  columnData = [];
+          let  selected = Utilities.asArray(component.model.selected);
 
           _.each(component.model.values, function (row) {
-            var rowId = row[component.constants.ROW_IDENTIFIER];
-            var isSelected = selected.indexOf(rowId) > -1;
+            let  rowId = row[component.constants.ROW_IDENTIFIER];
+            let  isSelected = selected.indexOf(rowId) > -1;
             if (component.controller.sendAll || isSelected) {
               columnData.push(rowId);
             }
@@ -616,7 +616,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {Object} Data from grid
          */
         component.getSelectedCellData = function (data, column, cellData) {
-          var cellValue = cellData.length === 0 ? null : cellData.length === 1 ? cellData[0] : cellData;
+          let  cellValue = cellData.length === 0 ? null : cellData.length === 1 ? cellData[0] : cellData;
           data[column + component.constants.SELECTED_TAIL] = cellValue;
         };
 
@@ -627,7 +627,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getData = function () {
           // Initialize data
-          var data = {};
+          let  data = {};
 
           // Selected rows
           data[component.address.component] = component.model.selected;
@@ -660,7 +660,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getPrintData = function () {
           // Initialize data
-          var data = {};
+          let  data = {};
 
           // Sort and order fields
           data[component.address.component + $settings.get("dataSuffix")] = component.getSpecificFields();
@@ -709,17 +709,17 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getColumnPrintData = function (columnId) {
           // Initialize data
-          var data = {};
-          var columnData = [];
-          var address = angular.extend({column: columnId}, component.address);
-          var column = component.getColumn(columnId);
-          var selectedRowData = [];
-          var selected = Utilities.asArray(component.model.selected);
+          let  data = {};
+          let  columnData = [];
+          let  address = angular.extend({column: columnId}, component.address);
+          let  column = component.getColumn(columnId);
+          let  selectedRowData = [];
+          let  selected = Utilities.asArray(component.model.selected);
 
           _.each(component.model.values, function (row) {
-            var rowId = row[component.constants.ROW_IDENTIFIER];
+            let  rowId = row[component.constants.ROW_IDENTIFIER];
             address.row = rowId;
-            var isSelected = selected.indexOf(rowId) > -1;
+            let  isSelected = selected.indexOf(rowId) > -1;
             let cellValue = {
               ...component.getCell(row[address.column]),
               label: component.getVisibleData(address, row, column)
@@ -746,7 +746,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {String} Visible column data
          */
         component.getVisibleData = function (address, row, column) {
-          var data = component.getCellData(row[address.column], component.constants.CELL_LABEL);
+          let  data = component.getCellData(row[address.column], component.constants.CELL_LABEL);
           switch (column.type) {
             case "float":
             case "integer":
@@ -856,7 +856,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getRowValues = function (rowId) {
           // Calculate rowIndex
-          var rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
+          let  rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
 
           // Retrieve selected row values
           return component.model.values[rowIndex];
@@ -876,15 +876,15 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @return {String} Selected row
          */
         component.getSelectedRows = function () {
-          var selected = component.model.selected;
+          let  selected = component.model.selected;
           return angular.isArray(selected) && selected.length > 0 ? selected : null;
         };
         /**
          * Retrieve selected row data
          */
         component.getSelectedRowData = function () {
-          var selectedRowData = {};
-          var selectedRow = component.getSelectedRow();
+          let  selectedRowData = {};
+          let  selectedRow = component.getSelectedRow();
           if (selectedRow !== null) {
             selectedRowData = _.cloneDeep(component.getRowValues(selectedRow));
           }
@@ -955,7 +955,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {integer} Selected column index in columns array
          */
         component.getColumnIndex = function (columnId) {
-          var colIndex = -1;
+          let  colIndex = -1;
           _.each(component.controller.columnModel, function (column, index) {
             if (column.name === columnId) {
               colIndex = index;
@@ -970,7 +970,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {integer} Selected column index in columns array
          */
         component.getColumn = function (columnId) {
-          var columnObject = null;
+          let  columnObject = null;
           _.each(component.controller.columnModel, function (column) {
             if (column.name === columnId) {
               columnObject = column;
@@ -986,12 +986,12 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getColumnValueList = function (address) {
           // Retrieve values from cells if it exists
-          var cellId = Utilities.getCellId(address);
-          var values = _.get(component, ["model", "cells", cellId], null);
+          let  cellId = Utilities.getCellId(address);
+          let  values = _.get(component, ["model", "cells", cellId], null);
           if (values === null) {
             // Retrieve values from column model if it exists
-            var columnModel = component.controller.columnModel;
-            var columnIndex = component.getColumnIndex(address.column);
+            let  columnModel = component.controller.columnModel;
+            let  columnIndex = component.getColumnIndex(address.column);
             if ('model' in columnModel[columnIndex]) {
               values = columnModel[columnIndex].model.values;
             }
@@ -1112,10 +1112,10 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.filterSelection = function () {
           // Store selected rows
-          var selectedRows = Utilities.asArray(component.currentSelection);
-          var availableSelectedRows = [];
+          let  selectedRows = Utilities.asArray(component.currentSelection);
+          let  availableSelectedRows = [];
           _.each(component.model.values, function (row) {
-            var rowId = row[component.constants.ROW_IDENTIFIER];
+            let  rowId = row[component.constants.ROW_IDENTIFIER];
             if (selectedRows.indexOf(rowId) > -1) {
               availableSelectedRows.push(rowId);
             }
@@ -1174,7 +1174,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.updateSelectedRow = function (data, style) {
           // Update selected row
-          var selectedRow = component.getSelectedRow();
+          let  selectedRow = component.getSelectedRow();
           component.updateRow(selectedRow, data, style);
         };
         /**
@@ -1185,13 +1185,13 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.addGridDependencies = function (column) {
           // Store cell specific dependencies
-          var columnDependencies = [];
+          let  columnDependencies = [];
           // Transform show, hide and label dependencies into showColumn,
           // hideColumn and columnLabel dependencies
           _.each(column.dependencies, function (dependency) {
 
             // Set flag
-            var addToGrid = false;
+            let  addToGrid = false;
             // Transform target_type depending on previous target_type
             switch (dependency.target) {
               case "show":
@@ -1244,9 +1244,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @param {Array} columns
          */
         component.addColumns = function (columns) {
-          var columnsAdded = false;
+          let  columnsAdded = false;
           _.each(columns, function (column) {
-            var added = component.addColumn(column);
+            let  added = component.addColumn(column);
             columnsAdded = columnsAdded || added;
           });
 
@@ -1335,8 +1335,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
           // Retrieve cell template
           column.cellClass = function (grid, row, col) {
-            var value = "text-" + col.colDef.align + (col.colDef.style ? " " + col.colDef.style : "");
-            var cellStyle = component.getCellStyle(row.entity[col.field]);
+            let  value = "text-" + col.colDef.align + (col.colDef.style ? " " + col.colDef.style : "");
+            let  cellStyle = component.getCellStyle(row.entity[col.field]);
             value += cellStyle ? " " + cellStyle : "";
             return value;
           };
@@ -1367,19 +1367,19 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * On column change
          */
         component.reportChangedColumns = function () {
-          var columns = component.getColumns();
-          var headerModel = component.controller.headerModel;
+          let  columns = component.getColumns();
+          let  headerModel = component.controller.headerModel;
           if (headerModel.length > 0 && !component.fixedHeaders) {
-            var fixedHeaders = {};
-            var currentHeaderColumn = 0;
-            var currentHeader = null;
+            let  fixedHeaders = {};
+            let  currentHeaderColumn = 0;
+            let  currentHeader = null;
 
             // For each column assign a header
             _.each(columns, function (column) {
               if (currentHeaderColumn > 0) {
                 currentHeaderColumn--;
               } else {
-                var header = getHeader(headerModel, column.name);
+                let  header = getHeader(headerModel, column.name);
                 if (header) {
                   currentHeader = header;
                   currentHeaderColumn = header.numberOfColumns - 1;
@@ -1458,8 +1458,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.editRowSpecific = function (rowId) {
           // Select the row
-          var data = component.model.values;
-          var rowIndex = Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER);
+          let  data = component.model.values;
+          let  rowIndex = Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER);
           if (rowIndex !== -1) {
             component.selectRow(data[rowIndex]);
             // Reposition buttons
@@ -1474,8 +1474,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.addRowStyle = function (rowId, rowClass) {
           // Select the row
-          var data = component.model.values;
-          var rowIndex = Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER);
+          let  data = component.model.values;
+          let  rowIndex = Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER);
           data[rowIndex][component.constants.ROW_CLASS_FIELD] = rowClass;
         };
         /**
@@ -1494,7 +1494,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {boolean} column has been added
          */
         component.addColumn = function (column) {
-          var added = false;
+          let  added = false;
           // Check whether column has been already added or not
           if (component.getColumnIndex(column.name) === -1) {
             // Fix the column
@@ -1513,13 +1513,13 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.calculateTotals = function () {
           if (component.controller.showTotals) {
             // Get the rows that can be summarized
-            var summarizedCols = {};
-            var footerData = {};
-            var componentData = {};
+            let  summarizedCols = {};
+            let  footerData = {};
+            let  componentData = {};
             // Calculate columns to summarize
             _.each(component.controller.columnModel, function (column, columnIndex) {
-              var columnName = column.name;
-              var summaryType = column.summaryType || null;
+              let  columnName = column.name;
+              let  summaryType = column.summaryType || null;
               if (summaryType !== null) {
                 summarizedCols[columnName] = {
                   name: columnName,
@@ -1544,7 +1544,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
                 switch (column.type) {
                   case "sum":
                   default:
-                    var value = parseFloat(getRowValue(component.model.values, rowIndex, columnId));
+                    let  value = parseFloat(getRowValue(component.model.values, rowIndex, columnId));
                     column.value += isNaN(value) ? 0 : value;
                     break;
                 }
@@ -1582,7 +1582,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @param {Boolean} update Condition updated
          */
         component.api.applyDependency = function (dependency, value, update) {
-          var target = dependency.target || "none";
+          let  target = dependency.target || "none";
           switch (target) {
             // Show column if update
             case "showColumn":
@@ -1626,7 +1626,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.api.updateSelectedValue = function (selectedValues) {
           // Store value list
-          var selectedList = [];
+          let  selectedList = [];
           _.each(selectedValues, function (selected) {
             if (typeof selected === "object" && "value" in selected) {
               selectedList.push(selected.value);
@@ -1640,7 +1640,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         };
 
         // Initialize as multioperation
-        var initializationFlag = true;
+        let  initializationFlag = true;
         if (this.isMultioperation()) {
           component.gridMultioperation = new GridMultioperation(this.component);
           initializationFlag = component.gridMultioperation.init();
@@ -1662,7 +1662,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
        * @returns {Boolean}
        */
       hasComponents: function () {
-        var hasComponents = false;
+        let  hasComponents = false;
         _.each(this.component.controller.columnModel, function (column) {
           if ("component" in column) {
             hasComponents = true;
@@ -1692,7 +1692,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
        * @returns {Boolean}
        */
       hasFrozenColumns: function () {
-        var hasFrozen = false;
+        let  hasFrozen = false;
         _.each(this.component.controller.columnModel, function (column) {
           if (column.frozen) {
             hasFrozen = true;

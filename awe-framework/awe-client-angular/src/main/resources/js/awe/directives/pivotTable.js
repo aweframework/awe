@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import { DefaultSpin } from "./../data/options";
+import {aweApplication} from "./../awe";
+import {DefaultSpin} from "./../data/options";
 import "./plugins/uiPivotTable";
 
 // Pivot table directive
@@ -28,7 +28,7 @@ aweApplication.directive('awePivotTable',
               scope.spinOptions = DefaultSpin.big;
 
               // Init as component
-              var component = new Component(scope, scope.pivotTableId);
+              let  component = new Component(scope, scope.pivotTableId);
               if (!component.asComponent()) {
                 // If component initialization is wrong, cancel initialization
                 return false;
@@ -38,9 +38,9 @@ aweApplication.directive('awePivotTable',
               scope.datasource = component.model.values;
 
               // Sort by absolute value
-              var absoluteSort = function (as, bs) {
-                var a = parseFloat(as);
-                var b = parseFloat(bs);
+              let  absoluteSort = function (as, bs) {
+                let  a = parseFloat(as);
+                let  b = parseFloat(bs);
                 if (isNaN(a) && isNaN(b)) {
                   return 0;
                 }

@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Action object
 aweApplication.factory('Action',
@@ -58,9 +58,9 @@ aweApplication.factory('Action',
          * Retrieve if connection is active
          */
         run: function () {
-          var _self = this;
+          let  _self = this;
           this.attr("running", true);
-          var channel = "/action/" + this.attr("type");
+          let  channel = "/action/" + this.attr("type");
 
           // Launch action (with timeout as is deferred)
           Utilities.timeout.cancel(this.attr("timer"));
@@ -75,7 +75,7 @@ aweApplication.factory('Action',
          * Show action information
          */
         showInfo: function () {
-          var _object = this.attr("target");
+          let  _object = this.attr("target");
           _object = Utilities.isNull(_object) ? "" : " (" + _object + ")";
 
           // Show info
@@ -93,7 +93,7 @@ aweApplication.factory('Action',
          */
         accept: function () {
           // Log end time
-          var dateDiff = (new Date() - this.attr("startTime")) / 1000;
+          let  dateDiff = (new Date() - this.attr("startTime")) / 1000;
           $log.debug("[Action] Action finished (" + this.attr("type") + ") in " + dateDiff + " seconds", this.attributes);
           this.attr("deferred").resolve();
         },

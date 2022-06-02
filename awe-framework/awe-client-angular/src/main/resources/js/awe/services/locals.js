@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Locals service
 aweApplication.factory('AweLocals',
@@ -7,23 +7,23 @@ aweApplication.factory('AweLocals',
 
       // Locals repository
 
-      var locals = {};
-      var deferred = null;
+      let  locals = {};
+      let  deferred = null;
 
       /**
        * Launch local functions for jquery widgets
        * @returns {undefined}
        */
-      var launchLocalFunctions = function () {
+      let  launchLocalFunctions = function () {
         // Retrieve language
-        var language = $settings.getLanguage();
+        let  language = $settings.getLanguage();
 
         // Create script tag and add it to HTML
-        var url = Connection.getRawUrl() + "/js/locals-" + language + ".js";
-        var script = $("<script type='text/javascript' id='localeFunctions' src='" + url + "'></script>");
+        let  url = Connection.getRawUrl() + "/js/locals-" + language + ".js";
+        let  script = $("<script type='text/javascript' id='localeFunctions' src='" + url + "'></script>");
 
         // Append localeFunctions (and replace old)
-        var oldLocaleFunctions = $("#localeFunctions");
+        let  oldLocaleFunctions = $("#localeFunctions");
         if (oldLocaleFunctions.length > 0) {
           oldLocaleFunctions.replaceWith(script);
         } else {
@@ -32,11 +32,11 @@ aweApplication.factory('AweLocals',
         /*Connection.get(url, "text/javascript").then(function (response) {
           if (response.data && response.status === 200) {
             // assign it into the current DOM
-            var script = $("<script type='text/javascript' id='localeFunctions'>");
+            let  script = $("<script type='text/javascript' id='localeFunctions'>");
             script.text(response.data);
 
             // Append localeFunctions (and replace old)
-            var oldLocaleFunctions = $("#localeFunctions");
+            let  oldLocaleFunctions = $("#localeFunctions");
             if (oldLocaleFunctions.length > 0) {
               oldLocaleFunctions.replaceWith(script);
             } else {
@@ -49,8 +49,8 @@ aweApplication.factory('AweLocals',
       // Store locals retrieved
       $rootScope.$on('/action/locals-retrieved', function (event, action) {
         // Retrieve action parameters
-        var parameters = action.attr("parameters");
-        var language = parameters.language;
+        let  parameters = action.attr("parameters");
+        let  language = parameters.language;
 
         if (language !== null) {
           // Set language to lower case
@@ -70,7 +70,7 @@ aweApplication.factory('AweLocals',
       // Store locals retrieved
       $rootScope.$on('/action/reload-language', function (event, action) {
         // Get language
-        var language = $settings.getLanguage();
+        let  language = $settings.getLanguage();
 
         // If language in locals, retrieve it
         if (language !== null) {
@@ -89,16 +89,16 @@ aweApplication.factory('AweLocals',
         deferred = Utilities.q.defer();
 
         // Get language
-        var language = $settings.getLanguage();
+        let  language = $settings.getLanguage();
 
         // If language in locals, retrieve it
         if (language !== null) {
           if (language in locals) {
             deferred.resolve(locals[language].translations);
           } else {
-            var parameters = {language: language};
+            let  parameters = {language: language};
             parameters[$settings.get("serverActionKey")] = "get-locals";
-            var getLocals = {type: 'server', parameters: parameters};
+            let  getLocals = {type: 'server', parameters: parameters};
             $actionController.addActionList([getLocals], false, {address: {}, context: ""});
           }
         }

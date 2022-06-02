@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Dependency controller
 aweApplication.service('DependencyController',
@@ -25,7 +25,7 @@ aweApplication.service('DependencyController',
        * @param {Object} dependency Dependency
        * @param {Object} condition Condition object
        */
-      var queueDependency = function (queue, dependency, condition) {
+      let  queueDependency = function (queue, dependency, condition) {
         queue.push({dependency: dependency, condition: condition});
       };
 
@@ -116,20 +116,20 @@ aweApplication.service('DependencyController',
        * @param {Object} launchers Launchers object
        */
       this.check = function (dependencies, launchers, onCheck) {
-        var controller = this;
+        let  controller = this;
 
         // For each dependency, check if it must be launched
         _.each(dependencies, function (dependency) {
           if (dependency.isAlive()) {
             // Check if one of the dependency launchers is the current component
-            var check = dependency.check(launchers);
-            var queued = false;
+            let  check = dependency.check(launchers);
+            let  queued = false;
 
             // Check dependencies if dependencies are active
             if (check.launch && controller.activeDependencies) {
 
               // Dependency launcher belongs to the component. Check dependency condition
-              var condition = dependency.evaluate(check.elements, Utilities.getAddressId(dependency.component.address));
+              let  condition = dependency.evaluate(check.elements, Utilities.getAddressId(dependency.component.address));
               if (condition.valid) {
 
                 // Dependency must be launched, enqueue it
@@ -162,8 +162,8 @@ aweApplication.service('DependencyController',
        */
       this.start = function (view) {
         // Filter out dependencies
-        var controller = this;
-        var dependencies = _.filter(this.dependencies, function (dependency) {
+        let  controller = this;
+        let  dependencies = _.filter(this.dependencies, function (dependency) {
           return dependency.component.address.view === view;
         });
 
@@ -181,7 +181,7 @@ aweApplication.service('DependencyController',
        */
       this.restart = function (address) {
         // Filter out dependencies
-        var dependencies = _.filter(this.dependencies, function (dependency) {
+        let  dependencies = _.filter(this.dependencies, function (dependency) {
           return dependency.belongsTo(address, dependency.component.controller.optionId);
         });
 
@@ -211,11 +211,11 @@ aweApplication.service('DependencyController',
        * Run dependency queue
        */
       this.runQueue = function () {
-        var controller = this;
+        let  controller = this;
         // Check if queue has elements
         if (this.queue.length > 0) {
           // $log.debug("Queue running - Length: " + queue.length)
-          var next = this.queue.shift();
+          let  next = this.queue.shift();
           // Run the dependency
           next.dependency.execute(next.condition)
             .finally(function () {

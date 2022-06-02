@@ -40,7 +40,7 @@ aweApplication.controller('AppController',
       };
 
       // Define root scope
-      var $root = $scope.$root;
+      let  $root = $scope.$root;
 
       // Initialize controller, model, messages and api
       $storage.put("controller", {});
@@ -51,8 +51,8 @@ aweApplication.controller('AppController',
       $storage.put("api", {});
       $storage.put("status", {});
 
-      var $window = $(window);
-      var ON_UNLOAD = "onunload";
+      let  $window = $(window);
+      let  ON_UNLOAD = "onunload";
 
       // Show loading message
       $root.loading = true;
@@ -63,7 +63,7 @@ aweApplication.controller('AppController',
       /**
        * Broadcasts a resize event
        */
-      var resize = function () {
+      let  resize = function () {
         $scope.$apply(function () {
           $utilities.publish('resize');
         });
@@ -72,21 +72,21 @@ aweApplication.controller('AppController',
       /**
        * Broadcasts a resize action
        */
-      var resizeAction = function () {
+      let  resizeAction = function () {
         $utilities.publish('resize-action');
       };
 
       /**
        * Initialise loading
        */
-      var initLoading = function () {
+      let  initLoading = function () {
         $root.loading = true;
       };
 
       /**
        * Finish loading
        */
-      var endLoading = function () {
+      let  endLoading = function () {
         $root.loading = false;
       };
 
@@ -95,11 +95,11 @@ aweApplication.controller('AppController',
        * @param {type} screenParameters
        * @param {type} closingTab
        */
-      var checkUnload = function (screenParameters, closingTab) {
+      let  checkUnload = function (screenParameters, closingTab) {
         let onUnload = ON_UNLOAD in screenParameters ? screenParameters[ON_UNLOAD] : false;
         if (onUnload) {
           if (closingTab) {
-            var message = {};
+            let  message = {};
             message[$root.settings.serverActionKey] = 'maintain-async';
             message[$root.settings.targetActionKey] = onUnload;
 
@@ -175,8 +175,8 @@ aweApplication.controller('AppController',
       $window.on('resize', resize);
       // Launch message action
       $scope.$on('/action/resize', function (event, action) {
-        var parameters = action.attr("parameters");
-        var delay = parameters ? parameters.delay || 0 : 0;
+        let  parameters = action.attr("parameters");
+        let  delay = parameters ? parameters.delay || 0 : 0;
         $utilities.timeout(function () {
           resizeAction();
           // Finish screen action

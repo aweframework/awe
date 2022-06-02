@@ -1,5 +1,5 @@
 import {aweApplication} from "./../awe";
-import { ClientActions } from "./../data/actions";
+import {ClientActions} from "./../data/actions";
 import _ from "lodash";
 
 // Action controller
@@ -107,12 +107,12 @@ aweApplication.service('ActionController',
        */
       $ctrl.runNext = function () {
         // Variable definition
-        var stack = $ctrl.actionStackList[$ctrl.currentStack];
+        let  stack = $ctrl.actionStackList[$ctrl.currentStack];
         if (stack.length === 0) {
           $ctrl.enableButtons();
         } else {
           // Retrieve and launch action
-          var action = stack[0];
+          let  action = stack[0];
           if (!action.attr("running")) {
             $ctrl.runAction(action);
           }
@@ -136,8 +136,8 @@ aweApplication.service('ActionController',
        */
       $ctrl.closeAction = function (actionId) {
         // Variable definition
-        var searchStacks = [];
-        var currentSyncStack = $ctrl.actionStackList[$ctrl.currentStack];
+        let  searchStacks = [];
+        let  currentSyncStack = $ctrl.actionStackList[$ctrl.currentStack];
 
         // Add stacks to search stack
         searchStacks.push($ctrl.asyncStackList);
@@ -147,7 +147,7 @@ aweApplication.service('ActionController',
         _.each(searchStacks, function (stack) {
 
           // Search action in stack
-          var toBeRemoved = _.remove(stack, function (action) {
+          let  toBeRemoved = _.remove(stack, function (action) {
             return action.attr("actionId") === actionId;
           });
 
@@ -176,8 +176,8 @@ aweApplication.service('ActionController',
        * @public
        */
       $ctrl.deleteStack = function () {
-        var stack = $ctrl.actionStackList[$ctrl.currentStack];
-        for (var i = 0, t = stack.length; i < t; i++) {
+        let  stack = $ctrl.actionStackList[$ctrl.currentStack];
+        for (let  i = 0, t = stack.length; i < t; i++) {
           stack[i].destroy();
           stack[i] = null;
         }
@@ -289,17 +289,17 @@ aweApplication.service('ActionController',
        */
       $ctrl.removeStack = function () {
         // Retrieve pending actions
-        var previousStack = $ctrl.currentStack;
-        var pendingActions = $ctrl.actionStackList[previousStack];
+        let  previousStack = $ctrl.currentStack;
+        let  pendingActions = $ctrl.actionStackList[previousStack];
 
         // Change stack number
-        var nextStack = Math.max(0, $ctrl.currentStack - 1);
+        let  nextStack = Math.max(0, $ctrl.currentStack - 1);
 
         // Set new stack number
         $ctrl.currentStack = nextStack;
 
         // Concat pending actions
-        var currentActionList = $ctrl.actionStackList[$ctrl.currentStack];
+        let  currentActionList = $ctrl.actionStackList[$ctrl.currentStack];
         $ctrl.actionStackList[$ctrl.currentStack] = pendingActions.concat(currentActionList);
 
         // Delete previous stack

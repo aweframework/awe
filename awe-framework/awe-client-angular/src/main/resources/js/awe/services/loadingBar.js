@@ -5,11 +5,11 @@ aweApplication.factory('LoadingBar',
   ['cfpLoadingBar', 'Control',
     function (loadingBarPlugin, Control) {
       // Call number
-      var calls = 0;
-      var showing = false;
-      var $window = $(window);
+      let  calls = 0;
+      let  showing = false;
+      let  $window = $(window);
 
-      var LoadingBar = {
+      let  LoadingBar = {
         /**
          * Starts a server task
          */

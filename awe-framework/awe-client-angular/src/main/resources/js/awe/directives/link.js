@@ -28,7 +28,7 @@ aweApplication.directive('aweLink',
           }
 
           // Init as component
-          var component = new Component(scope, scope.linkId);
+          let  component = new Component(scope, scope.linkId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;

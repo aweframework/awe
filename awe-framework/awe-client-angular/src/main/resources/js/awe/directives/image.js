@@ -26,7 +26,7 @@ aweApplication.directive('aweImage',
           }
 
           // Init as component
-          var component = new Component(scope, scope.imageId);
+          let  component = new Component(scope, scope.imageId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;

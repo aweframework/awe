@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Help directive
 aweApplication.directive('aweHelp',
@@ -36,7 +36,7 @@ aweApplication.directive('aweHelp',
             if (scope.isShowing) {
 
               // Retrieve position
-              var position = Position.checkPosition(elem, scope.node, $('body'), {
+              let  position = Position.checkPosition(elem, scope.node, $('body'), {
                 position: {vertical: "bottom", horizontal: "center"},
                 margin: {vertical: 0, horizontal: 0}
               });
@@ -85,7 +85,7 @@ aweApplication.directive('aweHelp',
           };
 
           // Event listeners
-          var listeners = {};
+          let  listeners = {};
           listeners["resize"] = scope.$on("resize", function () {
             scope.reposition();
           });

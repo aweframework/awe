@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 import "./plugins/uiModal";
 
 // Dialog directive
@@ -17,7 +17,7 @@ aweApplication.directive('aweDialog',
         },
         link: function (scope) {
           // Init as component
-          var component = new Component(scope, scope.modalId);
+          let  component = new Component(scope, scope.modalId);
           component.isOpened = false;
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
@@ -41,7 +41,7 @@ aweApplication.directive('aweDialog',
               $actionController.addStack();
 
               // Load dialog model (if not loaded yet)
-              var actions = [];
+              let  actions = [];
               // Launch a resize
               actions.push({type: 'resize', parameters: {delay: 200}});
 

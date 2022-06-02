@@ -45,8 +45,8 @@ aweApplication.factory('Ajax',
          */
         sendMessage: function (message) {
 
-          var action = message.action;
-          var target = message.target ? message.target : {};
+          let  action = message.action;
+          let  target = message.target ? message.target : {};
           action.attr("callbackTarget", target);
 
           // Send message
@@ -169,7 +169,7 @@ aweApplication.factory('Ajax',
          */
         manageMessage: function (message, action) {
           // Decode data
-          var data = $utilities.decodeData(message.data, encodeTransmission);
+          let  data = $utilities.decodeData(message.data, encodeTransmission);
 
           // Only accept action if is alive
           if (action.isAlive()) {

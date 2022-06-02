@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Window storage service
 aweApplication.factory('WindowStorage',
@@ -8,8 +8,8 @@ aweApplication.factory('WindowStorage',
      * @param {Scope} $rootScope
      */
     function ($rootScope) {
-      var store = $rootScope;
-      var WindowStorage = {
+      let  store = $rootScope;
+      let  WindowStorage = {
         /**
          * Storage has key
          * @param {String} key
