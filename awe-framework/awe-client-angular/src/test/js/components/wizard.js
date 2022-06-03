@@ -34,6 +34,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
 
   it('replaces the element with the appropriate content', function() {
     // Compile a piece of HTML containing the directive
+    $rootScope.status = {loading: false};
     let element = $compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
