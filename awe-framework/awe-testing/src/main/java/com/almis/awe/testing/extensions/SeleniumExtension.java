@@ -7,6 +7,7 @@ import com.automation.remarks.video.recorder.IVideoRecorder;
 import com.automation.remarks.video.recorder.VideoRecorder;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.extension.*;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
@@ -204,7 +205,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     Dimension dimension = new Dimension(model.getBrowserWidth(), model.getBrowserHeight());
     webDriver.manage().window().setPosition(position);
     webDriver.manage().window().setSize(dimension);
-    System.setProperty("ffmpeg.display", String.format("%s:%d+%d,%d", Optional.ofNullable(model.getBrowserContainer()).orElse(model.getBrowserHost()), model.getBrowserDisplay(), position.x, position.y));
+    System.setProperty("ffmpeg.display", String.format("%s:%d+%d,%d", Optional.ofNullable(model.getBrowserContainer()).filter(StringUtils::isNotBlank).orElse(model.getBrowserHost()), model.getBrowserDisplay(), position.x, position.y));
     System.setProperty("video.recorder.url", model.getRecorderUrl());
     seleniumModel.setRemoteBrowser(true);
 
