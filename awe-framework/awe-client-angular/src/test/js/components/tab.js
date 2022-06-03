@@ -1,5 +1,5 @@
-import { DefaultSettings } from "./../../../main/resources/js/awe/data/options";
-import { launchScreenAction } from "../utils";
+import {DefaultSettings} from "./../../../main/resources/js/awe/data/options";
+import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', function() {
   let $injector, $rootScope, $compile, $httpBackend, $actionController, $storage, $control, $utilities;
@@ -32,6 +32,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
   });
 
   it('replaces the element with the appropriate content', function() {
+    $rootScope.status = {loading: false};
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated

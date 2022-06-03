@@ -57,8 +57,12 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
       controller.onKeydown({
         shiftKey: true,
         altKey: true,
-        which: 49
+        which: 49,
+        originalEvent: {
+          getModifierState: () => false
+        }
       });
+      expect(scope.status.isCapsLockOn).toBe(false);
     });
 
     // Check keypress event
@@ -70,8 +74,12 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
       controller.onKeydown({
         shiftKey: true,
         altKey: true,
-        which: 48
+        which: 48,
+        originalEvent: {
+          getModifierState: () => false
+        }
       });
+      expect(scope.status.isCapsLockOn).toBe(false);
     });
 
     // Check keypress event
@@ -79,8 +87,38 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
       controller.onKeydown({
         shiftKey: false,
         altKey: true,
-        which: 33
+        which: 33,
+        originalEvent: {
+          getModifierState: () => false
+        }
       });
+      expect(scope.status.isCapsLockOn).toBe(false);
+    });
+
+    // Check keypress event
+    it('checks caps lock on', function() {
+      controller.onKeydown({
+        shiftKey: false,
+        altKey: false,
+        which: 20,
+        originalEvent: {
+          getModifierState: () => true
+        }
+      });
+      expect(scope.status.isCapsLockOn).toBe(true);
+    });
+
+    // Check keyup event
+    it('checks caps lock off', function() {
+      controller.onKeyup({
+        shiftKey: false,
+        altKey: false,
+        which: 20,
+        originalEvent: {
+          getModifierState: () => false
+        }
+      });
+      expect(scope.status.isCapsLockOn).toBe(false);
     });
 
     // Check state change start
@@ -106,7 +144,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
     it('should launch a state change error', function() {
       spyOn($log, "warn");
       scope.$emit("$stateChangeError", {}, {}, {}, {});
-      expect(scope.loading).toBe(false);
+      expect(scope.status.loading).toBe(false);
       expect(scope.resizing).toBe(false);
       expect($log.warn).toHaveBeenCalled();
     });
@@ -115,20 +153,20 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
     it('should launch a state not found error', function() {
       spyOn($log, "warn");
       scope.$emit("$stateNotFound", {}, {}, {}, {});
-      expect(scope.loading).toBe(false);
+      expect(scope.status.loading).toBe(false);
       expect($log.warn).toHaveBeenCalled();
     });
 
     // Init load state
     it('should init load', function() {
       scope.$emit("cfpLoadingBar:started");
-      expect(scope.loading).toBe(true);
+      expect(scope.status.loading).toBe(true);
     });
 
     // Complete load state
     it('should end load', function() {
       scope.$emit("cfpLoadingBar:completed");
-      expect(scope.loading).toBe(false);
+      expect(scope.status.loading).toBe(false);
     });
 
     // Call window resize

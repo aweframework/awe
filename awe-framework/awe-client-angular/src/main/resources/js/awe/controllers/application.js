@@ -2,7 +2,7 @@ import {aweApplication} from "./../awe";
 
 // Application controller
 aweApplication.controller('AppController',
-  ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController',
+  ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController', '$rootScope',
     /**
      * Control the base application behaviour
      * @param {object} $scope
@@ -13,9 +13,18 @@ aweApplication.controller('AppController',
      * @param {object} $utilities
      * @param {object} $settings
      */
-    function ($scope, $log, $loadingBar, $serverData, $storage, $utilities, $settings, $actionController) {
+    function ($scope, $log, $loadingBar, $serverData, $storage, $utilities, $settings, $actionController, $root) {
       // Define controller
       let $ctrl = this;
+
+      $root.status = {loading: false};
+
+      $ctrl.updateStatus = function(id, value) {
+        $root.status = {
+          ...$root.status,
+          [id]:value
+        }
+      }
 
       /**
        * Manage keydown event
@@ -28,6 +37,18 @@ aweApplication.controller('AppController',
           // Toggle stack
           $settings.update({actionsStack: DIGITS.indexOf($event.which) * 1000});
         }
+
+        // Check caps lock
+        $ctrl.updateStatus("isCapsLockOn", $event.originalEvent.getModifierState('CapsLock'));
+      };
+
+      /**
+       * Manage keyup event
+       * @param {Object} $event jQuery Event
+       */
+      $ctrl.onKeyup = function($event) {
+        // Check caps lock
+        $ctrl.updateStatus("isCapsLockOn", $event.originalEvent.getModifierState('CapsLock'));
       };
 
       /**
@@ -38,9 +59,6 @@ aweApplication.controller('AppController',
         let browser = $utilities.getBrowser();
         return browser.includes("ie") ? browser : `not-ie ${browser}`;
       };
-
-      // Define root scope
-      let  $root = $scope.$root;
 
       // Initialize controller, model, messages and api
       $storage.put("controller", {});
@@ -55,7 +73,7 @@ aweApplication.controller('AppController',
       let  ON_UNLOAD = "onunload";
 
       // Show loading message
-      $root.loading = true;
+      $ctrl.updateStatus("loading", true);
 
       // View is resizing
       $scope.resizing = true;
@@ -79,22 +97,21 @@ aweApplication.controller('AppController',
       /**
        * Initialise loading
        */
-      let  initLoading = function () {
-        $root.loading = true;
+      let initLoading = function () {
+        $ctrl.updateStatus("loading", true);
       };
 
       /**
        * Finish loading
        */
-      let  endLoading = function () {
-        $root.loading = false;
+      let endLoading = function () {
+        $ctrl.updateStatus("loading", false);
       };
 
       /**
        * Check on unload
        * @param {type} screenParameters
-       * @param {type} closingTab
-       */
+       * @param {type} closingTab       */
       let  checkUnload = function (screenParameters, closingTab) {
         let onUnload = ON_UNLOAD in screenParameters ? screenParameters[ON_UNLOAD] : false;
         if (onUnload) {
@@ -116,14 +133,14 @@ aweApplication.controller('AppController',
       };
 
       // Route change start (show loading message)
-      $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState/*, fromParams*/) {
+      $scope.$on('$stateChangeStart', function (event, toState, _toParams, fromState/*, fromParams*/) {
         // Prevent start if settings are still not defined
         if (!$storage.getRoot("cometUID")) {
           return event.preventDefault();
         }
 
         let views = _.merge({}, fromState.views, toState.views);
-        _.each(views, function (view, viewName) {
+        _.each(views, function (_view, viewName) {
           $scope.$broadcast("unload", viewName);
         });
         //$log.debug("$stateChangeStart", {evento: event, to: {state: toState, params: toParams}, from: {state: fromState, params: fromParams}})
@@ -156,17 +173,17 @@ aweApplication.controller('AppController',
       });
 
       // Route change start (hide loading message)
-      $scope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
-        $root.loading = false;
+      $scope.$on('$stateChangeError', function (_event, toState, _toParams, _fromState, _fromParams, error) {
+        $ctrl.updateStatus("loading", false);
         $scope.resizing = false;
         $loadingBar.end();
         $log.warn("State '" + toState.name + "' rejected: " + error);
       });
 
       // Route state not found
-      $scope.$on('$stateNotFound', function (event, current/*, previous, reject*/) {
+      $scope.$on('$stateNotFound', function (_event, current/*, previous, reject*/) {
         //do you work here
-        $root.loading = false;
+        $ctrl.updateStatus("loading", false);
         $loadingBar.end();
         $log.warn("State not found: " + current);
       });
@@ -174,7 +191,7 @@ aweApplication.controller('AppController',
       // Window resize event
       $window.on('resize', resize);
       // Launch message action
-      $scope.$on('/action/resize', function (event, action) {
+      $scope.$on('/action/resize', function (_event, action) {
         let  parameters = action.attr("parameters");
         let  delay = parameters ? parameters.delay || 0 : 0;
         $utilities.timeout(function () {

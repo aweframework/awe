@@ -15,8 +15,8 @@ const template =
 
 // Context option directive
 aweApplication.directive('aweContextOption',
-  ['ServerData', 'ActionController', '$compile', 'Component', 'AweUtilities', 'Storage',
-    function (serverData, ActionController, $compile, Component, Utilities, Storage) {
+  ['ActionController', '$compile', 'Component', 'AweUtilities', 'Storage',
+    function (ActionController, $compile, Component, Utilities, Storage) {
       return {
         restrict: 'E',
         replace: true,
@@ -129,7 +129,7 @@ aweApplication.directive('aweContextOption',
                * @returns {boolean} option is disabled
                */
               scope.isDisabled = function () {
-                return Storage.get("actions-running") || scope.$root.loading ||
+                return Storage.get("actions-running") || scope.$root.status.loading ||
                   (component.controller && component.controller.disabled);
               };
 

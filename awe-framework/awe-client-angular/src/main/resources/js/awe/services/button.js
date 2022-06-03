@@ -94,7 +94,7 @@ aweApplication.factory('Button',
            * @returns {boolean} Button is disabled
            */
           component.scope.isDisabled = function () {
-            return Storage.get("actions-running") || component.scope.$root.loading ||
+            return Storage.get("actions-running") || component.scope.$root.status.loading ||
               (component.controller && component.controller.disabled);
           };
 
@@ -213,7 +213,7 @@ aweApplication.factory('Button',
           //****************************************************************************
           component.listeners = component.listeners || {};
           // On model change launch dependency
-          component.listeners["controllerChange"] = component.scope.$on("controllerChange", function (event, parameters) {
+          component.listeners["controllerChange"] = component.scope.$on("controllerChange", function (_event, parameters) {
             if (_.isEqual(parameters.address, component.address)) {
               component.updateClasses();
             }
