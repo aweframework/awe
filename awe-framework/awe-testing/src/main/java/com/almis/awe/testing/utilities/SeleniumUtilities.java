@@ -60,6 +60,9 @@ public class SeleniumUtilities implements IAweInstructions {
   @Value("${test.browser-host}")
   private String browserHost;
 
+  @Value("${test.browser-container}")
+  private String browserContainer;
+
   @Value("${test.browser-display}")
   private Integer browserDisplay;
 
@@ -132,6 +135,7 @@ public class SeleniumUtilities implements IAweInstructions {
     seleniumModel = model;
     model
       .setBrowserHost(browserHost)
+      .setBrowserContainer(browserContainer)
       .setBrowserDisplay(browserDisplay)
       .setBrowserPort(browserPort)
       .setRecorderUrl(recorderUrl)

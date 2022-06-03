@@ -23,6 +23,7 @@ public class SeleniumModel {
 
   // Services data
   private String browserHost;
+  private String browserContainer;
   private Integer browserDisplay;
   private Integer browserPort;
   private String recorderUrl;

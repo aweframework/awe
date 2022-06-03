@@ -31,10 +31,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utilities suite for selenium testing
@@ -207,7 +204,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     Dimension dimension = new Dimension(model.getBrowserWidth(), model.getBrowserHeight());
     webDriver.manage().window().setPosition(position);
     webDriver.manage().window().setSize(dimension);
-    System.setProperty("ffmpeg.display", String.format("%s:%d+%d,%d", model.getBrowserHost(), model.getBrowserDisplay(), position.x, position.y));
+    System.setProperty("ffmpeg.display", String.format("%s:%d+%d,%d", Optional.ofNullable(model.getBrowserContainer()).orElse(model.getBrowserHost()), model.getBrowserDisplay(), position.x, position.y));
     System.setProperty("video.recorder.url", model.getRecorderUrl());
     seleniumModel.setRemoteBrowser(true);
 
