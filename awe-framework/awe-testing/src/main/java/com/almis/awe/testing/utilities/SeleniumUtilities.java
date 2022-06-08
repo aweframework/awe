@@ -991,6 +991,15 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Wait for tab to be clickable
+   *
+   * @param tabCriterionName Tab criterion name
+   */
+  protected void waitForTab(String tabCriterionName) {
+    waitForSelector(By.cssSelector("[criterion-id='" + tabCriterionName + "'] .nav-tabs:not(.disabled)"));
+  }
+
+  /**
    * Wait for context button to be clickable
    *
    * @param buttonName Button name
@@ -1126,6 +1135,9 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param tabLabel Tab label local
    */
   protected void clickTab(String tabName, String tabLabel) {
+    // Wait for tab not disabled
+    waitForTab(tabName);
+
     // Tab selector
     clickSelector(By.cssSelector(getCriterionSelectorCss(tabName) + " span[translate-multiple*='" + tabLabel + "']"));
     By tabActive = By.cssSelector(getCriterionSelectorCss(tabName) + " li.active span[translate-multiple*='" + tabLabel + "']");
