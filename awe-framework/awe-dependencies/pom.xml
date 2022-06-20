@@ -24,7 +24,7 @@
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v16.13.0</node.version>
     <yarn.version>v1.22.15</yarn.version>
-    <npm.version>v8.5.5</npm.version>
+    <npm.version>v6.9.0</npm.version>
     <st.version>4.3.1</st.version>
     <flexmark.version>0.62.2</flexmark.version>
     <mail.version>1.4.7</mail.version>
@@ -62,7 +62,6 @@
     <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
     <plugin-maven-archetype.version>3.2.0</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.0.0-M1</plugin-maven-install.version>
-
     <!-- Karma configuration -->
     <karma.launch.edge>true</karma.launch.edge>
     <karma.launch.gitlab>false</karma.launch.gitlab>
@@ -75,7 +74,7 @@
 
     <!-- Jacoco configuration -->
     <jacoco.port>6300</jacoco.port>
-    </properties>
+  </properties>
 
   <dependencies>
     <!-- Junit -->
@@ -499,6 +498,7 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>${plugin-jar.version}</version>
         </plugin>
+
         <!-- Surefire Junit test -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -530,7 +530,59 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <!-- Xml maven plugin -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <!-- Create an effective POM (with versions expanded) for the CLI and
+              documentation -->
+            <id>flatten-effective-pom</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+            <configuration>
+              <updatePomFile>false</updatePomFile>
+              <outputDirectory>${project.build.directory}/effective-pom</outputDirectory>
+              <flattenedPomFilename>awe-dependencies.xml</flattenedPomFilename>
+              <flattenMode>oss</flattenMode>
+              <pomElements>
+                <dependencyManagement>expand</dependencyManagement>
+                <pluginManagement>expand</pluginManagement>
+                <properties>remove</properties>
+                <repositories>remove</repositories>
+              </pomElements>
+            </configuration>
+          </execution>
+          <execution>
+            <!-- Flatten and simplify our own POM for install/deploy -->
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+            <configuration>
+              <updatePomFile>true</updatePomFile>
+              <flattenMode>bom</flattenMode>
+              <outputDirectory>${project.basedir}</outputDirectory>
+              <pomElements>
+                <pluginManagement>keep</pluginManagement>
+                <properties>keep</properties>
+                <repositories>remove</repositories>
+              </pomElements>
+            </configuration>
+          </execution>
+          <execution>
+            <id>flatten-clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xml-maven-plugin</artifactId>
@@ -584,66 +636,6 @@
                 </transformationSet>
               </transformationSets>
             </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-            <version>11.3</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>flatten-maven-plugin</artifactId>
-        <inherited>false</inherited>
-        <executions>
-          <execution>
-            <!-- Create an effective POM (with versions expanded) for the CLI and
-              documentation -->
-            <id>flatten-effective-pom</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>flatten</goal>
-            </goals>
-            <configuration>
-              <updatePomFile>false</updatePomFile>
-              <outputDirectory>${project.build.directory}/effective-pom</outputDirectory>
-              <flattenedPomFilename>awe-dependencies.xml</flattenedPomFilename>
-              <flattenMode>oss</flattenMode>
-              <pomElements>
-                <dependencyManagement>expand</dependencyManagement>
-                <pluginManagement>expand</pluginManagement>
-                <properties>remove</properties>
-                <repositories>remove</repositories>
-              </pomElements>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- Flatten and simplify our own POM for install/deploy -->
-            <id>flatten</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>flatten</goal>
-            </goals>
-            <configuration>
-              <updatePomFile>true</updatePomFile>
-              <flattenMode>bom</flattenMode>
-              <outputDirectory>${project.basedir}</outputDirectory>
-              <pomElements>
-                <pluginManagement>keep</pluginManagement>
-                <properties>keep</properties>
-                <repositories>remove</repositories>
-              </pomElements>
-            </configuration>
-          </execution>
-          <execution>
-            <id>flatten-clean</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
