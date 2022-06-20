@@ -31,6 +31,7 @@
     <!-- Maven build timestamp -->
     <awe.build.timestamp>${project.version}-${maven.build.timestamp}</awe.build.timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    <nodePackageSkipDevDependencies>true</nodePackageSkipDevDependencies>
   </properties>
 
   <build>

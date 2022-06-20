@@ -38,6 +38,7 @@
 
   <properties>
     <sonar.exclusions>src/**</sonar.exclusions>
+    <dependency-check.skip>true</dependency-check.skip>
     <archetype.test.ignoreEOLStyle>true</archetype.test.ignoreEOLStyle>
     <archetype.test.debug>false</archetype.test.debug>
   </properties>

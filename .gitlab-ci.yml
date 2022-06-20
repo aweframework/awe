@@ -3,8 +3,10 @@
 ##############################
 
 include:
-  - template: Security/DAST.gitlab-ci.yml
-  - template: Security/License-Scanning.gitlab-ci.yml
+  # Security Products features
+  - template: DAST.gitlab-ci.yml
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: License-Scanning.gitlab-ci.yml
 
 image: maven:3.8-openjdk-11-slim
 
@@ -27,10 +29,11 @@ variables:
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster
   API_URL: "$CI_API_V4_URL/projects/$CI_PROJECT_ID"
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
-  # DAST config
+  # Security config
   DAST_WEBSITE: "https://staging.aweframework.com"
   DAST_TARGET_AVAILABILITY_TIMEOUT: 180
   DAST_BROWSER_SCAN: "true"
+  DS_EXCLUDED_ANALYZERS: "gemnasium, gemnasium-python"
 
 cache:
   - key: ${CI_COMMIT_REF_SLUG}
@@ -40,7 +43,7 @@ cache:
 
 stages:
   - build
-  - unit test
+  - test
   - integration test
   - analysis
   - site
@@ -144,7 +147,7 @@ Build website with i18n:
 
 # Unit testing extension
 .unit-testing:
-  stage: unit test
+  stage: test
   allow_failure: false
   needs:
     - job: Build project
@@ -202,7 +205,7 @@ SQL Server Tests:
       alias: mssqlserver
 
 Frontend UT:
-  stage: unit test
+  stage: test
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
   needs: [ ]
   cache: { }
@@ -219,7 +222,7 @@ Frontend UT:
     - <<: *if-default
 
 Javadoc test:
-  stage: unit test
+  stage: test
   needs:
     - job: Build project
       artifacts: false
@@ -373,7 +376,7 @@ Launch Sonar:
       paths:
         - .sonar/cache
   script:
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Darchetype.test.skip=true $SONAR_OPTS
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:
@@ -382,9 +385,18 @@ Launch Sonar:
   rules:
     - <<: *if-default
 
+gemnasium-maven-dependency_scanning:
+  stage: test
+  rules:
+    - <<: *if-default
+  dependencies: ["Build project"]
+  variables:
+    MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
+
+
 license_scanning:
   stage: analysis
-  needs: []
+  needs: [ ]
   rules:
     - <<: *if-default
 
