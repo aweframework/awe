@@ -779,6 +779,9 @@ public class DataListBuilder extends ServiceConfig {
   private void doTranslates(Map<String, CellData> row) throws AWException {
     for (TranslateCellProcessor processor : translateList) {
       // Process translate
+      if (processor.getTranslateEnumerated() == null) {
+        throw new AWException(getLocale("ERROR_MESSAGE_ENUMERATED_NOT_DEFINED", processor.getField().getTranslate()));
+      }
       row.put(processor.getColumnIdentifier(), processor.process(row.get(processor.getColumnIdentifier())));
     }
   }

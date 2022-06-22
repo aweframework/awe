@@ -158,7 +158,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
         LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
         LogUtil.getTotalTime(timeLapse));
     } catch (AWException exc) {
-      throw new AWEQueryException(exc.getTitle(), exc.getMessage(), sql, exc);
+      throw new AWEQueryException(getLocale("ERROR_TITLE_RETRIEVING_DATA"), getLocale("ERROR_MESSAGE_EXECUTING_SERVICE_QUERY", query.getId(), exc.getMessage()), sql, exc);
     } catch (Exception exc) {
       throw new AWEQueryException(getLocale("ERROR_TITLE_RETRIEVING_DATA"), getLocale("ERROR_MESSAGE_EXECUTING_SERVICE_QUERY", query.getId()), sql, exc);
     }

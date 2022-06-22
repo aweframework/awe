@@ -363,6 +363,7 @@
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="Probleme dans l&apos;envoie de mail"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="Probleme dans le process de maintenance"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="Probleme executant le rollback d&apos;une transaction"/>
+  <locale name="ERROR_MESSAGE_ENUMERATED_NOT_DEFINED" value="Le énuméré {0} n&apos;est pas défini"/>
   <locale name="ERROR_MESSAGE_EMAIL_ADD_ATTACH" value="Il y avait une erreur de joindre des fichiers"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_CC" value="Il y avait une erreur de générer la partie [CC]"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_CCO" value="Il y avait une erreur de générer la partie [CCO]"/>
@@ -377,7 +378,7 @@
   <locale name="ERROR_MESSAGE_EMPTY_SERVICE_OUTPUT" value="Le service n&apos;a pas fini correctement"/>
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="L&apos;exécution de la méthode {1} dans la classe {0} a causé un problème"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Probleme a l&apos;instantiation d&apos;une classe"/>
-  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Il y avait un problème d&apos;exécuter la requête {0}"/>
+  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Il y avait un problème d&apos;exécuter la requête {0}. {1}"/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="Il y a eu un problème d&apos;exportation du fichier"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Erreur lors de la tentative de traitement de l&apos;expression:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="Il y avait un problème d&apos;accès au fichier: {0}"/>

@@ -1,9 +1,8 @@
 package com.almis.awe.test.integration.database;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
-import com.almis.awe.service.EncodeService;
-import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.factory.WithMockCustomUser;
+import com.almis.awe.service.EncodeService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -1815,6 +1814,21 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertQueryResultJson(queryName, result, 16);
+  }
+
+  /**
+   * Test translate field of query with not defined enumerated.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testTranslateWithNotDefinedEnumerated() throws Exception {
+    // Give
+    String queryName = "TranslateNotDefined";
+    String variables = "";
+    String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"error\",\"title\":\"Error retrieving data\",\"message\":\"There has been a problem executing TranslateNotDefined query. The enumerated NotDefinedTranslate is not defined\"}}]";
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertEquals(expected, result);
   }
 
   /**

@@ -698,6 +698,13 @@
     <field id="Act" alias="active" translate="Es1Es0"/>
   </query>
 
+  <!-- Query for test not defined enumerated in translate -->
+  <query id="TranslateNotDefined">
+    <table id="AweThm"/>
+    <field id="Nam" alias="value"/>
+    <field id="Act" alias="active" translate="NotDefinedTranslate"/>
+  </query>
+
   <query id="ComputedBasic">
     <table id="ope"/>
     <field id="l1_nom" table="ope" alias="value"/>

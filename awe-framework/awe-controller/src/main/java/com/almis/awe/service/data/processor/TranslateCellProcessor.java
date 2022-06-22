@@ -18,6 +18,22 @@ public class TranslateCellProcessor implements CellProcessor {
   private final AweElements elements;
 
   /**
+   * Get field of translate
+   * @return field to be translated
+   */
+  public OutputField getField() {
+    return field;
+  }
+
+  /**
+   * Get enumerated for translate
+   * @return Enumerate element
+   */
+  public EnumeratedGroup getTranslateEnumerated() {
+    return translateEnumerated;
+  }
+
+  /**
    * Translate cell processor
    *
    * @param elements AWE elements
