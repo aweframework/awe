@@ -20,6 +20,7 @@
     <java.version>1.8</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <webdrivermanager.version>5.0.3</webdrivermanager.version>
+    <video-recorder-junit5.version>2.0</video-recorder-junit5.version>
     <sonar.exclusions>src/**</sonar.exclusions>
     <skip.delombok>false</skip.delombok>
   </properties>
@@ -56,7 +57,19 @@
     <dependency>
       <groupId>com.automation-remarks</groupId>
       <artifactId>video-recorder-junit5</artifactId>
-      <version>2.0</version>
+      <version>${video-recorder-junit5.version}</version>
+      <exclusions>
+        <!-- To remove log4j vulnerabilities -->
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>1.7.36</version>
     </dependency>
   </dependencies>
 
