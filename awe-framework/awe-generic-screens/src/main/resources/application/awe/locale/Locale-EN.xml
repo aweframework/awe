@@ -363,6 +363,7 @@
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="There was a problem during the email generation and sending"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="There was a problem calling a maintain process"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="There was a problem doing the transaction rollback"/>
+  <locale name="ERROR_MESSAGE_ENUMERATED_NOT_DEFINED" value="The enumerated {0} is not defined"/>
   <locale name="ERROR_MESSAGE_EMAIL_ADD_ATTACH" value="There was an error attaching files"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_CC" value="There was an error generating the part [CC]"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_CCO" value="There was an error generating the part [CCO]"/>
@@ -377,7 +378,7 @@
   <locale name="ERROR_MESSAGE_EMPTY_SERVICE_OUTPUT" value="Service has not returned a valid output"/>
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="There has been an error calling the method {1} in class {0}"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="There has been a problem trying to initialize the instance of the class"/>
-  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="There has been a problem executing {0} query"/>
+  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="There has been a problem executing {0} query. {1}"/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="There has been a problem exporting the file"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Error trying to process expression:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="There was a problem trying to open the file: {0}"/>
