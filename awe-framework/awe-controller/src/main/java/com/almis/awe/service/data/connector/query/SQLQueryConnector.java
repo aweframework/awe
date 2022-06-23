@@ -47,6 +47,10 @@ import java.util.Optional;
 @Slf4j
 public class SQLQueryConnector extends AbstractQueryConnector {
 
+  // Constants
+  private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
+  private static final String ERROR_MESSAGE_EXECUTING_SERVICE_QUERY = "ERROR_MESSAGE_EXECUTING_SERVICE_QUERY";
+
   // Autowired services
   private final AweDatabaseContextHolder contextHolder;
   private final DataSource dataSource;
@@ -136,7 +140,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       }
       results = allResults;
     } catch (Exception exc) {
-      throw new AWEQueryException(getLocale("ERROR_TITLE_RETRIEVING_DATA"), getLocale("ERROR_MESSAGE_EXECUTING_SERVICE_QUERY", query.getId()), sql, exc);
+      throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
     }
 
     // Get query preparation time
@@ -158,9 +162,9 @@ public class SQLQueryConnector extends AbstractQueryConnector {
         LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
         LogUtil.getTotalTime(timeLapse));
     } catch (AWException exc) {
-      throw new AWEQueryException(getLocale("ERROR_TITLE_RETRIEVING_DATA"), getLocale("ERROR_MESSAGE_EXECUTING_SERVICE_QUERY", query.getId(), exc.getMessage()), sql, exc);
+      throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId(), exc.getMessage()), sql, exc);
     } catch (Exception exc) {
-      throw new AWEQueryException(getLocale("ERROR_TITLE_RETRIEVING_DATA"), getLocale("ERROR_MESSAGE_EXECUTING_SERVICE_QUERY", query.getId()), sql, exc);
+      throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
     }
 
     ServiceData out = new ServiceData();
