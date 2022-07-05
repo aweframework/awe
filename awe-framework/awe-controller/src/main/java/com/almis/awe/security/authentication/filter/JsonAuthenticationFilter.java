@@ -35,7 +35,6 @@ public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilt
     this.elements = aweElements;
   }
 
-
   @Override
   @Autowired
   public void setAuthenticationManager(AuthenticationManager authenticationManager) {

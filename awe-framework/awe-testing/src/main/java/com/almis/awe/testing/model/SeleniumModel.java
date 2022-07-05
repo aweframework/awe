@@ -1,5 +1,6 @@
 package com.almis.awe.testing.model;
 
+import com.almis.awe.testing.config.AweTestConfigProperties;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,38 +13,14 @@ import java.net.InetAddress;
 @Accessors(chain = true)
 public class SeleniumModel {
 
+  // Properties
+  private AweTestConfigProperties properties;
   // Drivers
   private WebDriver driver;
   private WebDriverManager webDriverManager;
-  // Browser data
-  private String browser;
-  private Integer browserWidth;
-  private Integer browserHeight;
-  private String screenshotPath;
-
-  // Services data
-  private String browserHost;
-  private String browserContainer;
-  private Integer browserDisplay;
-  private Integer browserPort;
-  private String recorderUrl;
-  private boolean remoteBrowser;
-
-  // Tests data
-  private String startUrl;
-  private Integer serverPort;
-  private String contextPath;
-  private Integer timeout;
-
   // Local data
   private String currentOption;
   private String testTitle;
-
-  // Video recording data
-  private String videoSave;
-  private String videoFormat;
-  private boolean showMouse;
-  private boolean allowedRecording = true;
 
   /**
    * Get current base url
@@ -51,17 +28,17 @@ public class SeleniumModel {
    * @return Start url
    */
   public String getBaseUrl() {
-    if (remoteBrowser) {
+    if (properties.isRemoteBrowser()) {
       try {
         return String.format("http://%s:%d%s",
           SystemUtils.IS_OS_LINUX ? InetAddress.getLocalHost().getHostAddress() : "host.docker.internal",
-          getServerPort(),
-          getContextPath());
+          properties.getServerPort(),
+          properties.getContextPath());
       } catch (Exception exc) {
-        return getStartUrl();
+        return properties.getStartUrl();
       }
     } else {
-      return getStartUrl();
+      return properties.getStartUrl();
     }
   }
 }

@@ -20,18 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -42,7 +44,7 @@ import java.io.IOException;
 
 /**
  * Web security configuration class.
- *
+ * <p>
  * Used to configure security for web application.
  */
 @Configuration
@@ -53,7 +55,7 @@ import java.io.IOException;
   BaseConfigProperties.class,
   SecurityConfigProperties.class})
 @Slf4j
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
   // White list urls
   private static final String[] AUTH_LIST = {
@@ -101,6 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
 
+  private final ApplicationContext context;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
   private final AweSessionDetails sessionDetails;
@@ -112,6 +115,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   /**
    * Web security config constructor.
    *
+   * @param context Application context
    * @param baseConfigProperties     Base config properties
    * @param securityConfigProperties Security config properties
    * @param sessionDetails           Session details
@@ -120,24 +124,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    * @param objectMapper             Object mapper
    */
   @Autowired
-  public WebSecurityConfig(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, AweSessionDetails sessionDetails, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
+  public WebSecurityConfig(ApplicationContext context, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, AweSessionDetails sessionDetails, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
     this.sessionDetails = sessionDetails;
     this.elements = elements;
     this.actionService = actionService;
     this.objectMapper = objectMapper;
+    this.context = context;
   }
 
   /**
-   * Spring security configuration
+   * Awe Rest http security filter chain
    *
-   * @param http Http security object
-   * @throws Exception Configure error
+   * @param httpSecurity Http security
+   * @return security filter chain
+   * @throws Exception Spring http security error
    */
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
+  @Bean(name = "aweSecurityFilterChain")
+  public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity
       .headers().xssProtection().block(false).and()
       .and().authorizeRequests()
       // Web
@@ -166,20 +172,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .ignoringAntMatchers("/websocket/**");
 
     if (securityConfigProperties.isSameOriginEnable()) {
-      http.headers().frameOptions().sameOrigin();
+      httpSecurity.headers().frameOptions().sameOrigin();
     }
+
+    return httpSecurity.build();
   }
 
-  /**
-   * Required by Spring Boot 2
-   *
-   * @return Authentication manager
-   * @throws Exception exception
-   */
-  @Override
   @Bean
-  public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
   }
 
   /**
@@ -245,7 +246,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     });
     authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {
       initRequest(request, objectMapper);
-      String username = this.getApplicationContext().getBean(AweRequest.class).getParameterAsString(baseConfigProperties.getParameter().getUsername());
+      String username = context.getBean(AweRequest.class).getParameterAsString(baseConfigProperties.getParameter().getUsername());
       response.getWriter().write(objectMapper.writeValueAsString(actionService.launchError("afterLogin", getCredentialsException(authenticationException, username))));
     });
     return authenticationFilter;
@@ -261,7 +262,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     try {
       // Get body and read the parameters
       String body = ((AweHttpServletRequestWrapper) request).getBody();
-      this.getApplicationContext().getBean(AweRequest.class).setParameterList((ObjectNode) objectMapper.readTree(body));
+      context.getBean(AweRequest.class).setParameterList((ObjectNode) objectMapper.readTree(body));
     } catch (IOException exc) {
       log.error("Error reading request body in initialization process", exc);
     }

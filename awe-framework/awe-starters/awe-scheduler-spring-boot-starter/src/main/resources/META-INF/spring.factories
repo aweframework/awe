@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.almis.awe.scheduler.autoconfigure.SchedulerConfig,\
-com.almis.awe.scheduler.autoconfigure.SchedulerTaskConfig
