@@ -60,7 +60,7 @@ aweApplication.controller("ViewController",
               screenData[view] = null;
 
               // Start loading phase
-              var load = new Load($scope, view, data.components);
+              let  load = new Load($scope, view, data.components);
               load.start();
             }
           }
@@ -77,8 +77,8 @@ aweApplication.controller("ViewController",
       // Hack to hide screen in IE before dirty change
       $scope.$on("unload", function ($event, viewName) {
         // Navigator is IE
-        var browser = Utilities.getBrowser();
-        var ie = browser === "ie";
+        let  browser = Utilities.getBrowser();
+        let  ie = browser === "ie";
         if (viewName === view && ie) {
           $scope.visible = false;
         }

@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "./../../services/text";
 
 // Hidden directive
@@ -17,7 +17,7 @@ aweApplication.directive('aweInputHidden',
         link: function (scope, elem) {
 
           // Initialize criterion
-          var component = new Criterion(scope, scope.criterionId, elem);
+          let  component = new Criterion(scope, scope.criterionId, elem);
           if (!component.asCriterion()) {
             // If criterion is wrong, cancel initialization
             return false;

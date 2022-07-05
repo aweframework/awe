@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "../../services/checkboxRadio";
 
 // Column checkbox directive
@@ -13,8 +13,8 @@ aweApplication.directive('aweColumnCheckbox',
         },
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
-          var column = new Column(attrs);
-          var component = new CheckboxRadio(scope, column.id, elem);
+          let  column = new Column(attrs);
+          let  component = new CheckboxRadio(scope, column.id, elem);
 
           // Initialize criterion and column
           column.init(component).asCheckbox();

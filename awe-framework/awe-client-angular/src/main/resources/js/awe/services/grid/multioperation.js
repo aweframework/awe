@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Multioperation grid service
 aweApplication.factory('GridMultioperation',
@@ -12,7 +12,7 @@ aweApplication.factory('GridMultioperation',
     function (Control, Utilities, GridEditable) {
 
       // Define 'constants'
-      var constants = {};
+      let  constants = {};
       constants["ROW_TYPE_NAME"] = "RowTyp";
       constants["ROW_TYPE_ICON"] = "RowIco";
       constants["ROW_ACTIONS"] = {
@@ -37,7 +37,7 @@ aweApplication.factory('GridMultioperation',
         }
       };
 
-      var GridMultioperation = function (component) {
+      let  GridMultioperation = function (component) {
         this.component = component;
         component.gridEditable = new GridEditable(component);
       };
@@ -51,7 +51,7 @@ aweApplication.factory('GridMultioperation',
          */
         init: function () {
           // Define constants
-          var component = this.component;
+          let  component = this.component;
 
           // Initialize as editable
           if (!component.gridEditable.init()) {
@@ -85,10 +85,10 @@ aweApplication.factory('GridMultioperation',
             component.hideContextMenu();
 
             // Define insert action
-            var action = component.constants.ROW_ACTIONS.INSERT;
+            let  action = component.constants.ROW_ACTIONS.INSERT;
 
             // Generate row data
-            var rowData = data || {};
+            let  rowData = data || {};
 
             // Store old values
             _.each(component.controller.columnModel, function (column) {
@@ -121,7 +121,7 @@ aweApplication.factory('GridMultioperation',
             component.hideContextMenu();
 
             // Define insert action
-            var action = component.constants.ROW_ACTIONS.NONE;
+            let  action = component.constants.ROW_ACTIONS.NONE;
 
             // Update RowTyp and RowIco column value
             updateModelOperation(action, row);
@@ -164,13 +164,13 @@ aweApplication.factory('GridMultioperation',
            * Save the row
            */
           component.saveRow = function () {
-            var selected = component.model.selected;
+            let  selected = component.model.selected;
             if (selected !== null && selected.length > 0) {
               // Change icon and disable buttons
               component.setRowButtonWorking("save");
 
               // Retrieve first selected row
-              var selectedRow = component.getSelectedRow();
+              let  selectedRow = component.getSelectedRow();
 
               // Hide context menu if showing
               component.hideContextMenu();
@@ -198,14 +198,14 @@ aweApplication.factory('GridMultioperation',
            */
           component.getColumnData = function (column, getAll) {
             // Initialize data
-            var data = {};
-            var columnData = [];
-            var selectedRowData = [];
-            var selected = Utilities.asArray(component.model.selected);
+            let  data = {};
+            let  columnData = [];
+            let  selectedRowData = [];
+            let  selected = Utilities.asArray(component.model.selected);
 
             _.each(component.model.values, function (row) {
-              var rowId = row[component.constants.ROW_IDENTIFIER];
-              var cellValue = component.getCellData(row[column], component.constants.CELL_VALUE);
+              let  rowId = row[component.constants.ROW_IDENTIFIER];
+              let  cellValue = component.getCellData(row[column], component.constants.CELL_VALUE);
               if (getAll || row[component.constants.ROW_TYPE_NAME] !== component.constants.ROW_ACTIONS.NONE.value) {
                 columnData.push(cellValue);
               }
@@ -230,12 +230,12 @@ aweApplication.factory('GridMultioperation',
            */
           component.getIdentifierColumnData = function () {
             // Initialize data
-            var data = {};
-            var columnData = [];
-            var selected = Utilities.asArray(component.model.selected);
+            let  data = {};
+            let  columnData = [];
+            let  selected = Utilities.asArray(component.model.selected);
 
             _.each(component.model.values, function (row) {
-              var rowId = row[component.constants.ROW_IDENTIFIER];
+              let  rowId = row[component.constants.ROW_IDENTIFIER];
               if (row[component.constants.ROW_TYPE_NAME] !== component.constants.ROW_ACTIONS.NONE.value) {
                 columnData.push(rowId);
               }
@@ -258,11 +258,11 @@ aweApplication.factory('GridMultioperation',
            */
           component.getExtraData = function () {
             // Initialize data
-            var data = {};
-            var operations = 0;
+            let  data = {};
+            let  operations = 0;
 
             // Add operation column
-            var operationData = [];
+            let  operationData = [];
             _.each(component.model.values, function (row) {
               if (row[component.constants.ROW_TYPE_NAME] !== component.constants.ROW_ACTIONS.NONE.value) {
                 operationData.push(component.getCellData(row[component.constants.ROW_TYPE_NAME], component.constants.CELL_VALUE));
@@ -280,7 +280,7 @@ aweApplication.factory('GridMultioperation',
            */
           component.addMultioperationColumns = function () {
             // Add operation icon column
-            var colModel = {
+            let  colModel = {
               id: component.constants.ROW_TYPE_ICON,
               name: component.constants.ROW_TYPE_ICON,
               width: 24,
@@ -308,10 +308,10 @@ aweApplication.factory('GridMultioperation',
            */
           component.updateCellModel = function (cell) {
             // Get cell address
-            var address = cell.address;
+            let  address = cell.address;
 
             // Get grid row index
-            var rowIndex = Utilities.getRowIndex(component.model.values, address.row, component.constants.ROW_IDENTIFIER);
+            let  rowIndex = Utilities.getRowIndex(component.model.values, address.row, component.constants.ROW_IDENTIFIER);
 
             // If rowIndex is -1, the row is the footer row
             if (rowIndex !== -1 && component.checkChanges(address, cell.model.selected, rowIndex)) {
@@ -337,14 +337,14 @@ aweApplication.factory('GridMultioperation',
            */
           function changeRowOperation(rowId, action) {
             // Calculate rowIndex
-            var rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
+            let  rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
 
             // Update RowTyp and RowIco column value
             updateModelOperation(action, component.model.values[rowIndex]);
             component.addRowStyle(rowId, action.value);
 
             // Update RowIco column value
-            var address = _.cloneDeep(component.address);
+            let  address = _.cloneDeep(component.address);
             address.column = component.constants.ROW_TYPE_ICON;
             address.row = rowId;
             Control.changeModelAttribute(address, {values: [action], selected: action});

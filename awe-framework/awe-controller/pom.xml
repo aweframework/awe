@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.5.3</version>
+    <version>4.6.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -116,10 +116,6 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.sourceforge.nekohtml</groupId>
-      <artifactId>nekohtml</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>

@@ -1,5 +1,7 @@
 package com.almis.awe.testing.utilities;
 
+import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.config.TestConfig;
 import com.almis.awe.testing.extensions.SeleniumExtension;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.selenium.IAweInstructions;
@@ -11,8 +13,9 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Nonnull;
@@ -25,8 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
@@ -35,10 +38,14 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
  */
 @Slf4j
 @ExtendWith({SpringExtension.class, SeleniumExtension.class})
-@TestPropertySource("classpath:test.properties")
+@ContextConfiguration(classes = TestConfig.class, initializers = ConfigDataApplicationContextInitializer.class)
 public class SeleniumUtilities implements IAweInstructions {
-  private static final Integer RETRY_COUNT = 10;
+
+  @Autowired
+  private AweTestConfigProperties properties;
+
   // Constants
+  private static final Integer RETRY_COUNT = 10;
   private static final String PARENT_ELEMENT = "')]/..";
   private static final String TEXT_VALUE = " text: '";
   private static final String CELL_SEARCH_CONTAINS_XPATH = "//*[contains(@class,'ui-grid-row')]//*[contains(@class,'ui-grid-cell-contents')]//text()[contains(.,'";
@@ -56,54 +63,6 @@ public class SeleniumUtilities implements IAweInstructions {
 
   private SeleniumModel seleniumModel;
   private IAweInstructions instructions;
-
-  @Value("${test.browser-host}")
-  private String browserHost;
-
-  @Value("${test.browser-display}")
-  private Integer browserDisplay;
-
-  @Value("${test.browser-port}")
-  private Integer browserPort;
-
-  @Value("${test.recorder-url}")
-  private String recorderUrl;
-
-  @Value("${test.browser}")
-  private String browser;
-
-  @Value("${test.browser-width}")
-  private Integer browserWidth;
-
-  @Value("${test.browser-height}")
-  private Integer browserHeight;
-
-  @Value("${test.screenshot-path}")
-  private String screenshotPath;
-
-  @Value("${test.video-format}")
-  private String videoFormat;
-
-  @Value("${test.video-save:FAILED}")
-  private String videoSave;
-
-  @Value("${test.start-url}")
-  private String startUrl;
-
-  @Value("${test.server-port}")
-  private Integer serverPort;
-
-  @Value("${test.context-path}")
-  private String contextPath;
-
-  @Value("${test.timeout:30}")
-  private Integer timeout;
-
-  @Value("${test.show-mouse:true}")
-  private boolean showMouse;
-
-  @Value("${test.frontend:angular}")
-  private String frontend;
 
   /**
    * Get driver
@@ -130,25 +89,10 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   public IAweInstructions setSeleniumModel(SeleniumModel model) {
     seleniumModel = model;
-    model
-      .setBrowserHost(browserHost)
-      .setBrowserDisplay(browserDisplay)
-      .setBrowserPort(browserPort)
-      .setRecorderUrl(recorderUrl)
-      .setBrowser(browser)
-      .setBrowserWidth(browserWidth)
-      .setBrowserHeight(browserHeight)
-      .setScreenshotPath(screenshotPath)
-      .setVideoFormat(videoFormat)
-      .setVideoSave(videoSave)
-      .setStartUrl(startUrl)
-      .setServerPort(serverPort)
-      .setContextPath(contextPath)
-      .setTimeout(timeout)
-      .setShowMouse(showMouse);
+    model.setProperties(properties);
 
     this.instructions = InstructionsFactory
-      .getInstance(frontend)
+      .getInstance(properties.getFrontend())
       .setSeleniumModel(seleniumModel);
 
     return this.instructions;
@@ -178,7 +122,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Wait for screen load
    */
   private void waitForLoad() {
-    ExpectedCondition<Boolean> pageLoadCondition = driver1 -> ((JavascriptExecutor) driver1).executeScript("return document.readyState").equals("complete");
+    ExpectedCondition<Boolean> pageLoadCondition = driver1 -> ((JavascriptExecutor) Objects.requireNonNull(driver1)).executeScript("return document.readyState").equals("complete");
     waitUntil(pageLoadCondition);
   }
 
@@ -190,7 +134,7 @@ public class SeleniumUtilities implements IAweInstructions {
   private void waitUntil(ExpectedCondition<?> condition) {
     String message = condition.toString();
     try {
-      new WebDriverWait(seleniumModel.getDriver(), seleniumModel.getTimeout()).until(condition);
+      new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout()).until(condition);
       // Assert true on condition
       assertTrue(true, message);
       log.debug(message);
@@ -212,7 +156,7 @@ public class SeleniumUtilities implements IAweInstructions {
       String messageSanitized = TextUtilities.sanitizeMessage(message);
       String timestamp = new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date());
       String screenshotName = String.format("%s-%s-[ERROR]-%s-%s", getClass().getSimpleName(), timestamp, seleniumModel.getCurrentOption(), messageSanitized);
-      Path path = Paths.get(seleniumModel.getScreenshotPath(), screenshotName + ".png");
+      Path path = Paths.get(properties.getScreenshotPath(), screenshotName + ".png");
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);
 
@@ -987,6 +931,15 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Wait for tab to be clickable
+   *
+   * @param tabCriterionName Tab criterion name
+   */
+  protected void waitForTab(String tabCriterionName) {
+    waitForSelector(By.cssSelector("[criterion-id='" + tabCriterionName + "'] .nav-tabs:not(.disabled)"));
+  }
+
+  /**
    * Wait for context button to be clickable
    *
    * @param buttonName Button name
@@ -1122,6 +1075,9 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param tabLabel Tab label local
    */
   protected void clickTab(String tabName, String tabLabel) {
+    // Wait for tab not disabled
+    waitForTab(tabName);
+
     // Tab selector
     clickSelector(By.cssSelector(getCriterionSelectorCss(tabName) + " span[translate-multiple*='" + tabLabel + "']"));
     By tabActive = By.cssSelector(getCriterionSelectorCss(tabName) + " li.active span[translate-multiple*='" + tabLabel + "']");
@@ -2269,16 +2225,16 @@ public class SeleniumUtilities implements IAweInstructions {
     assertNotNull(seleniumModel.getDriver());
     seleniumModel.setCurrentOption("login");
 
-    log.info("Launching tests with '{}' browser: {}'", seleniumModel.getBrowser(), seleniumModel.getBaseUrl());
+    log.info("Launching tests with '{}' browser: {}'", properties.getBrowser(), seleniumModel.getBaseUrl());
 
     // Set driver timeout
-    seleniumModel.getDriver().manage().timeouts().setScriptTimeout(seleniumModel.getTimeout(), SECONDS);
+    seleniumModel.getDriver().manage().timeouts().scriptTimeout(properties.getTimeout());
 
     // Open page in different browsers
     seleniumModel.getDriver().get(url);
 
     // Show mouse if defined
-    if (seleniumModel.isShowMouse()) {
+    if (properties.isShowMouse()) {
       showMouse();
     }
 

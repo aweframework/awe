@@ -7,12 +7,12 @@ import com.almis.awe.developer.translators.clients.MyMemoryFeignClient;
 import com.almis.awe.developer.translators.clients.RapidAPIClient;
 import com.almis.awe.developer.translators.clients.RapidAPIFeignClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@AutoConfiguration
 @EnableFeignClients(clients = {MyMemoryFeignClient.class, RapidAPIFeignClient.class})
 @EnableConfigurationProperties({
   MyMemoryConfigProperties.class,

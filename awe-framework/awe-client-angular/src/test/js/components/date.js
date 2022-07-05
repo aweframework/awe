@@ -2,7 +2,7 @@ import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/date.js', function() {
-  var $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $utilities, $settings;
+  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $utilities, $settings;
   let model = {page:1, records:1, selected: "23/10/1978", total:1, values:[{label: "23/10/1978", value: "23/10/1978"}]};
   let emptyModel = {page:1, records:0, selected: null, total:0, values:[]};
   let controller = {checkInitial: true, checkTarget:false, checked:false, component:"date", contextMenu:[], dependencies:[], icon:"search", id:"Date", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_DATE", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true};
@@ -39,7 +39,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/date.js', func
     spyOn($control, 'checkOnlyComponent').and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-date input-date-id='Date'/>")($rootScope);
+    let  element = $compile("<awe-input-date input-date-id='Date'/>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
 
@@ -62,7 +62,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/date.js', func
     });
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-date input-date-id='Date'/>")($rootScope);
+    let  element = $compile("<awe-input-date input-date-id='Date'/>")($rootScope);
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
             id: "Date", controller, model: emptyModel}], screen: {name: "TEST"}, messages: []}}}, () => {
       $actionController.closeAllActions();

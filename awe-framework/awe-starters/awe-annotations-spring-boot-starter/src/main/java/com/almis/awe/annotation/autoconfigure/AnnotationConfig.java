@@ -10,10 +10,10 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.service.EncodeService;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * @author dfuentes
  * Created by dfuentes on 26/05/2017.
  */
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(value = BaseConfigProperties.class)
 @EnableAspectJAutoProxy
 public class AnnotationConfig {

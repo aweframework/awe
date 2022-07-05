@@ -46,15 +46,14 @@ module.exports = {
       { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
           loader: "less-loader", options: { lessPlugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ], sourceMap: true}}]},
       { test : /\.(jpg|gif|png)$/, use: [{loader: 'url-loader', options: {limit: 100000, name: './images/[hash].[ext]'}}]},
-      { test : /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: [{loader: 'url-loader', options: {limit: 100000, mimetype: 'application/font-woff', name: './fonts/[hash].[ext]'}}]},
-      { test : /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: [{loader: 'file-loader', options: {name: './fonts/[hash].[ext]'}}]},
+      { test : /\.woff[2]*?(\?v=\d+\.\d+\.\d+)?$/, use: [{loader: 'url-loader', options: {limit: 100000, mimetype: 'application/font-woff', name: './fonts/[hash].[ext]'}}]},
+      { test : /\.(ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, use: [{loader: 'file-loader', options: {name: './fonts/[hash].[ext]'}}]},
     ]
   },
   resolve: {
     extensions: [".js", ".css", ".less", "*"],
     alias: {
       "jquery": path.resolve(__dirname, "node_modules", "jquery", "dist", "jquery"),
-      "ng-caps-lock": path.resolve(libPath, "ngCapsLock", "ng-caps-lock"),
       "bootstrap-tabdrop": path.resolve(libPath, "bootstrap-tabdrop", "src", "js", "bootstrap-tabdrop"),
       "HighchartsLocale": path.resolve(libPath, "highcharts", "i18n", "highcharts-lang"),
       "HighchartsThemes": path.resolve(libPath, "highcharts", "themes", "all"),

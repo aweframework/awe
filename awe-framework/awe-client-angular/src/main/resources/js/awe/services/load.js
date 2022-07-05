@@ -1,17 +1,17 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Loading service
 aweApplication.factory('Load',
   ['AweUtilities', '$log', 'LoadingBar', 'AweSettings', 'Storage',
     function (Utilities, $log, loadingBar, $settings, Storage) {
-      var Phases = {COMPILE: "compile", INITIALIZE: "initialize"};
-      var Status = {START: "start", COMPILED: "compiled", LOADED: "loaded"};
+      let  Phases = {COMPILE: "compile", INITIALIZE: "initialize"};
+      let  Status = {START: "start", COMPILED: "compiled", LOADED: "loaded"};
       function Load(scope, view, components) {
         // Service variables;
         this.scope = scope;
         this.screen = scope.$root && scope.$root.screen ? scope.$root.screen : "";
         this.view = view;
-        var componentControllers = {};
+        let  componentControllers = {};
         _.each(components, function(component) {
           componentControllers[component.id] = component.controller;
         });
@@ -37,11 +37,11 @@ aweApplication.factory('Load',
          */
         start: function () {
           this.times.start = new Date();
-          var pending = this.pending;
-          var listeners = this.listeners;
-          var scope = this.scope;
-          var view = this.view;
-          var _self = this;
+          let  pending = this.pending;
+          let  listeners = this.listeners;
+          let  scope = this.scope;
+          let  view = this.view;
+          let  _self = this;
           delete pending.compile["screen"];
 
           // Prepare load screen (disable animations and hide screen)
@@ -109,9 +109,9 @@ aweApplication.factory('Load',
          * Initialize compiling
          */
         compile: function () {
-          var deferred = Utilities.q.defer();
+          let  deferred = Utilities.q.defer();
           this.deferred[Phases.COMPILE] = deferred;
-          var pending = this.pending;
+          let  pending = this.pending;
           loadingBar.startTasks(Utilities.objectLength(pending.compile));
 
           // Start checking compilation
@@ -122,14 +122,14 @@ aweApplication.factory('Load',
          * Initialize dependencies
          */
         initialize: function () {
-          var deferred = Utilities.q.defer();
+          let  deferred = Utilities.q.defer();
           this.deferred[Phases.INITIALIZE] = deferred;
           Storage.get("status")[this.view] = Status.COMPILED;
           this.times.compile = new Date();
           Utilities.timeout.cancel(this.loadTimer);
 
           // Screen has been compiled
-          var dateDiff = (this.times.compile - this.times.start) / 1000;
+          let  dateDiff = (this.times.compile - this.times.start) / 1000;
           $log.debug("[SCREEN LOAD PHASE] Screen has been COMPILED", {screen: this.screen, view: this.view, compilationTime: dateDiff + "s"});
           Utilities.publishDelayed('compiled', this.view);
 
@@ -144,8 +144,8 @@ aweApplication.factory('Load',
           Storage.get("status")[this.view] = Status.LOADED;
           this.times.end = new Date();
           Utilities.timeout.cancel(this.loadTimer);
-          var initTime = (this.times.end - this.times.compile) / 1000;
-          var fullTime = (this.times.end - this.times.start) / 1000;
+          let  initTime = (this.times.end - this.times.compile) / 1000;
+          let  fullTime = (this.times.end - this.times.start) / 1000;
           $log.debug("[SCREEN LOAD PHASE] Screen has been INITIALIZED", {screen: this.screen, view: this.view, initializationTime: initTime + "s", pageLoadTime: fullTime + "s"});
           Utilities.publishDelayed('initialised', this.view);
         },
@@ -164,13 +164,13 @@ aweApplication.factory('Load',
          */
         checkPhase: function (phase) {
           // Set cancel timeout
-          var pending = this.pending[phase];
-          var promise = this.deferred[phase];
-          var screen = this.screen;
-          var view = this.view;
+          let  pending = this.pending[phase];
+          let  promise = this.deferred[phase];
+          let  screen = this.screen;
+          let  view = this.view;
           Utilities.timeout.cancel(this.loadTimer);
           this.loadTimer = Utilities.timeout(function () {
-            var timeoutData = {phase: phase, pending: _.cloneDeep(pending), screen: screen, view: view};
+            let  timeoutData = {phase: phase, pending: _.cloneDeep(pending), screen: screen, view: view};
             promise.reject(timeoutData);
           }, $settings.get("loadingTimeout"));
 

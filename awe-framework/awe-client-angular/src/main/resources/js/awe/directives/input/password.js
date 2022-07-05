@@ -1,8 +1,4 @@
-import { aweApplication } from "./../../awe";
-import "ng-caps-lock";
-
-// Add requirements
-aweApplication.requires.push("ngCapsLock");
+import {aweApplication} from "./../../awe";
 
 // Password directive
 aweApplication.directive('aweInputPassword',

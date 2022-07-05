@@ -28,7 +28,7 @@ aweApplication.factory('GridTree',
        */
       function getNextIndex(index, level, data) {
         let nextIndex = data.length;
-        for (var i = index + 1, t = data.length; i < t; i++) {
+        for (let  i = index + 1, t = data.length; i < t; i++) {
           if (data[i].$$treeLevel <= level) {
             return i;
           }
@@ -41,14 +41,14 @@ aweApplication.factory('GridTree',
        * @param {type} row
        */
       function removeRow(component, row) {
-        var child = row.$$children.pop();
+        let  child = row.$$children.pop();
         while (child) {
           removeRow(component, child);
           child = row.$$children.pop();
         }
 
         // Remove from data list
-        var position = component.model.values.indexOf(row);
+        let  position = component.model.values.indexOf(row);
         component.model.values.splice(position, 1);
       }
 
@@ -81,8 +81,8 @@ aweApplication.factory('GridTree',
          */
         init: function () {
           // Get component
-          var grid = this;
-          var component = this.component;
+          let  grid = this;
+          let  component = this.component;
           if (!component.asComponent()) {
             return false;
           }
@@ -149,13 +149,13 @@ aweApplication.factory('GridTree',
                 component.isLoadingBranch = true;
 
                 // Launch the load of the children of the branch
-                var values = {};
+                let  values = {};
                 values.type = "tree-branch";
                 values[$settings.get("targetActionKey")] = component.controller[$settings.get("targetActionKey")];
                 values["expandingBranch"] = row.entity[component.constants.ROW_IDENTIFIER];
 
                 // Generate server action
-                var serverAction = ServerData.getServerAction(component.address, values, true, true);
+                let  serverAction = ServerData.getServerAction(component.address, values, true, true);
 
                 // Send action list
                 ActionController.addActionList([serverAction], false, {address: component.address, context: component.context});
@@ -242,7 +242,7 @@ aweApplication.factory('GridTree',
            * Update the model (specific)
            */
           component.updateModelSpecific = function () {
-            var deferred = Utilities.q.defer();
+            let  deferred = Utilities.q.defer();
             // Update model
             component.defineTreeStructure(component.model.values);
             component.model.values = sortTreeValues(component.model.values.filter(node => node.$$treeLevel === 0));
@@ -276,7 +276,7 @@ aweApplication.factory('GridTree',
             let primaryIdName = component.controller.treeId;
             let parentIdName = component.controller.treeParent;
             let treeLeaf = component.controller.treeLeaf;
-            var expandLevel = parseInt(component.controller.initialLevel || "0", 10);
+            let  expandLevel = parseInt(component.controller.initialLevel || "0", 10);
             if (!data || data.length === 0 || !primaryIdName || !parentIdName) {
               return [];
             }
@@ -338,7 +338,7 @@ aweApplication.factory('GridTree',
           component.expandInitialStatus = function () {
             _.each(component.model.values, function (node) {
               if (node.$$expanded) {
-                var row = grid.api.grid.getRow(node);
+                let  row = grid.api.grid.getRow(node);
                 grid.api.treeBase.expandRow(row);
               }
             });
@@ -349,7 +349,7 @@ aweApplication.factory('GridTree',
            * @param {object} data Retreived data
            */
           component.onBranchExpand = function (data) {
-            var branch = component.loadingBranch;
+            let  branch = component.loadingBranch;
 
             // Finish loading parent
             branch.entity.$$isLoading = false;
@@ -390,7 +390,7 @@ aweApplication.factory('GridTree',
            * Get the selected rows
            */
           component.getSelection = function () {
-            var selectedRows;
+            let  selectedRows;
             if (grid.api) {
               selectedRows = grid.api.selection.getSelectedRows();
             } else {
@@ -415,11 +415,11 @@ aweApplication.factory('GridTree',
            * @returns {function}
            */
           component.sortingAlgorithm = function (a, b) {
-            var nulls = grid.api.core.sortHandleNulls(a, b);
+            let  nulls = grid.api.core.sortHandleNulls(a, b);
             if (nulls !== null) {
               return nulls;
             } else {
-              var valA, valB;
+              let  valA, valB;
               if (typeof a === 'object' && typeof b === 'object') {
                 valA = a.value;
                 valB = b.value;
@@ -443,7 +443,7 @@ aweApplication.factory('GridTree',
            */
           component.showColumn = function (columnId) {
             // Check if column is already shown
-            var column = grid.api.grid.getColumn(columnId);
+            let  column = grid.api.grid.getColumn(columnId);
             if (column.colDef.hidden) {
               column.colDef.hidden = false;
               column.colDef.width = column.colDef.initialWidth;
@@ -459,7 +459,7 @@ aweApplication.factory('GridTree',
            */
           component.hideColumn = function (columnId) {
             // Check if column is already hidden
-            var column = grid.api.grid.getColumn(columnId);
+            let  column = grid.api.grid.getColumn(columnId);
             if (!column.colDef.hidden) {
               column.colDef.hidden = true;
               column.colDef.width = 0;
@@ -476,7 +476,7 @@ aweApplication.factory('GridTree',
            */
           component.changeColumnLabel = function (columnId, label) {
             // Retrieve the column index
-            var column = grid.api.grid.getColumn(columnId);
+            let  column = grid.api.grid.getColumn(columnId);
             if (column.displayName !== label) {
               column.displayName = label;
               finishPendingActions();
@@ -496,7 +496,7 @@ aweApplication.factory('GridTree',
            * Retrieve grid columns;
            */
           component.getColumns = function () {
-            var columns = component.controller.columnModel;
+            let  columns = component.controller.columnModel;
             // Resize grid
             if (grid.api) {
               columns = grid.api.grid.columns;
@@ -526,7 +526,7 @@ aweApplication.factory('GridTree',
             // Get selected row
             let newId;
             let scrollTime = 0;
-            var rowData = data || {};
+            let  rowData = data || {};
             let selectedRow = null;
             let parentRow;
             let childIndex;
@@ -545,7 +545,7 @@ aweApplication.factory('GridTree',
             component.unselectRows();
 
             // Generate new row
-            var rowIndex = component.model.values.length;
+            let  rowIndex = component.model.values.length;
             if (row) {
               rowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
               selectedRow = component.model.values[rowIndex];
@@ -611,7 +611,7 @@ aweApplication.factory('GridTree',
               Utilities.timeout(function () {
                 component.repositionSaveButton();
                 if (grid.api) {
-                  var gridRow = grid.api.grid.getRow(rowData);
+                  let  gridRow = grid.api.grid.getRow(rowData);
                   grid.api.core.scrollToIfNecessary(gridRow, null);
                 }
               }, scrollTime);
@@ -624,7 +624,7 @@ aweApplication.factory('GridTree',
            * @return {String} rowId
            */
           component.addChildRowSpecific = function (row, parent) {
-            var treeLeaf = component.controller.treeLeaf;
+            let  treeLeaf = component.controller.treeLeaf;
 
             // Add extra information to row
             row.$$isLeaf = treeLeaf in row ? Utilities.parseBoolean(row[treeLeaf]) : true;
@@ -637,13 +637,13 @@ aweApplication.factory('GridTree',
             row[component.constants.ROW_IDENTIFIER] = row[component.controller.treeId];
 
             // Get last child
-            var nodeBefore = parent;
+            let  nodeBefore = parent;
             if (parent.$$children && parent.$$children.length > 0) {
               nodeBefore = parent.$$children[parent.$$children.length - 1];
             } else {
               parent.$$children = [];
             }
-            var nodeIndex = component.model.values.indexOf(nodeBefore);
+            let  nodeIndex = component.model.values.indexOf(nodeBefore);
 
             // Add row to grid
             component.model.values.splice(nodeIndex + 1, 0, row);
@@ -659,7 +659,7 @@ aweApplication.factory('GridTree',
               Utilities.timeout(function () {
                 component.repositionSaveButton();
                 if (grid.api) {
-                  var gridRow = grid.api.grid.getRow(row);
+                  let  gridRow = grid.api.grid.getRow(row);
                   grid.api.core.scrollToIfNecessary(gridRow, null);
 
                 }
@@ -674,14 +674,14 @@ aweApplication.factory('GridTree',
             // If selectedRow is not null, remove row
             if (rowId) {
               // Calculate rowIndex
-              var rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
+              let  rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
               if (rowIndex > -1) {
                 // Remove data from the model
-                var rowToDelete = component.model.values[rowIndex];
+                let  rowToDelete = component.model.values[rowIndex];
                 removeRow(component, rowToDelete);
                 if (rowToDelete.$$parent) {
                   // Remove from parent
-                  var parentIndex = rowToDelete.$$parent.$$children.indexOf(rowToDelete);
+                  let  parentIndex = rowToDelete.$$parent.$$children.indexOf(rowToDelete);
                   rowToDelete.$$parent.$$children.splice(parentIndex, 1);
                   // Recalculate parent icon
                   if (rowToDelete.$$treeLevel > 0) {
@@ -699,8 +699,8 @@ aweApplication.factory('GridTree',
            * return {boolean} size has changed
            */
           component.gridSizeChanged = function () {
-            var size = getGridSize();
-            var changed = size.width > 0 && size.height > 0 && (
+            let  size = getGridSize();
+            let  changed = size.width > 0 && size.height > 0 && (
               grid.measures.height !== size.height || grid.measures.width !== size.width ||
               grid.measures.modelLength !== component.model.values.length);
             if (changed) {
@@ -716,7 +716,7 @@ aweApplication.factory('GridTree',
            */
           component.updateGridScrollBars = function () {
             if (grid.api) {
-              var contentSize = {width: 0, height: 0};
+              let  contentSize = {width: 0, height: 0};
               $(component.layers["content"]).each(function () {
                 contentSize.width += $(this).width();
                 contentSize.height += $(this).height();
@@ -846,8 +846,8 @@ aweApplication.factory('GridTree',
            * Manage on filter event
            */
           function isFiltering() {
-            var filtering = false;
-            var columns = component.getColumns();
+            let  filtering = false;
+            let  columns = component.getColumns();
             _.each(columns, function (column) {
               if (!Utilities.isEmpty(column.filters[0].term)) {
                 filtering = true;
@@ -883,10 +883,10 @@ aweApplication.factory('GridTree',
            */
           function onFilter() {
             if (component.filterChanged && component.visibleRows !== grid.api.core.getVisibleRows().length) {
-              var visibleRows = grid.api.core.getVisibleRows();
+              let  visibleRows = grid.api.core.getVisibleRows();
               // Update row number column size
               if (visibleRows.length > 0) {
-                var columns = component.getColumns();
+                let  columns = component.getColumns();
                 grid.api.core.scrollToIfNecessary(visibleRows[0], columns[0]);
               }
               component.filterChanged = false;
@@ -947,9 +947,9 @@ aweApplication.factory('GridTree',
            * @param {type} onDefer
            */
           function deferRowsRendered(onDefer) {
-            var deferred = Utilities.q.defer();
-            var startTime = new Date();
-            var listener = component.scope.$on("rows-rendered", function (event, parameters) {
+            let  deferred = Utilities.q.defer();
+            let  startTime = new Date();
+            let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
               if (parameters.grid === grid.id) {
                 // Remove listener
                 listener();
@@ -960,7 +960,7 @@ aweApplication.factory('GridTree',
                   deferred.resolve();
                 }
 
-                var dateDiff = (new Date() - startTime) / 1000;
+                let  dateDiff = (new Date() - startTime) / 1000;
                 $log.debug("[GRID ROWS] Grid rows have been COMPILED", {grid: grid.id, compilationTime: dateDiff + "s"});
               }
             });
@@ -985,7 +985,7 @@ aweApplication.factory('GridTree',
               // Retrieve new id
               component.updateModel();
               if (component.api && component.api.endLoad) {
-                var listener = component.scope.$on("rows-rendered", function (event, parameters) {
+                let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
                   if (parameters.grid === grid.id) {
                     // Remove listener
                     listener();
@@ -1002,9 +1002,9 @@ aweApplication.factory('GridTree',
            * Updates selected rows in grid
            */
           function updateSelectedRows() {
-            var selectedList = [];
+            let  selectedList = [];
             if (grid.api) {
-              var selectedRows = grid.api.selection.getSelectedRows();
+              let  selectedRows = grid.api.selection.getSelectedRows();
               _.each(selectedRows, function (row) {
                 selectedList.push(row[component.constants.ROW_IDENTIFIER]);
               });

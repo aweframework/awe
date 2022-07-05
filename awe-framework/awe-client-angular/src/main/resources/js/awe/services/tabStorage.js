@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Tab storage service
 aweApplication.factory('TabStorage',
@@ -7,8 +7,8 @@ aweApplication.factory('TabStorage',
      * Tab storage
      */
     function () {
-      var store = window.sessionStorage;
-      var TabStorage = {
+      let  store = window.sessionStorage;
+      let  TabStorage = {
         /**
          * Storage has key
          * @param {String} key

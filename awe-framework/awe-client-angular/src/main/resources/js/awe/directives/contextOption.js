@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 import "../services/contextMenu";
 
 const template =
@@ -15,8 +15,8 @@ const template =
 
 // Context option directive
 aweApplication.directive('aweContextOption',
-  ['ServerData', 'ActionController', '$compile', 'Component', 'AweUtilities', 'Storage',
-    function (serverData, ActionController, $compile, Component, Utilities, Storage) {
+  ['ActionController', '$compile', 'Component', 'AweUtilities', 'Storage',
+    function (ActionController, $compile, Component, Utilities, Storage) {
       return {
         restrict: 'E',
         replace: true,
@@ -26,8 +26,8 @@ aweApplication.directive('aweContextOption',
           'option': '='
         },
         compile: function (tElem) {
-          var contents = tElem.contents().remove();
-          var compiledContents;
+          let  contents = tElem.contents().remove();
+          let  compiledContents;
 
           return {
             pre: function (scope, elem) {
@@ -44,10 +44,10 @@ aweApplication.directive('aweContextOption',
               scope.active = false;
 
               // Find a and ul
-              var link, submenu, timer;
+              let  link, submenu, timer;
 
               // Init as component
-              var component = new Component(scope, scope.optionId);
+              let  component = new Component(scope, scope.optionId);
               if (!component.asComponent()) {
                 // If component initialization is wrong, cancel initialization
                 return false;
@@ -75,7 +75,7 @@ aweApplication.directive('aweContextOption',
               /**
                * Show the submenu (if it exists)
                */
-              var showSubmenu = function () {
+              let  showSubmenu = function () {
                 if (submenu.length > 0) {
                   Utilities.timeout.cancel(timer);
                   timer = Utilities.timeout(function () {
@@ -87,7 +87,7 @@ aweApplication.directive('aweContextOption',
               /**
                * Hide the submenu (if it exists)
                */
-              var hideSubmenu = function () {
+              let  hideSubmenu = function () {
                 if (submenu.length > 0) {
                   Utilities.timeout.cancel(timer);
                   timer = Utilities.timeout(function () {
@@ -99,7 +99,7 @@ aweApplication.directive('aweContextOption',
               /**
                * Initialize layers
                */
-              var initLayers = function () {
+              let  initLayers = function () {
                 // Look for layers
                 link = elem.children("a");
                 submenu = elem.children("ul");
@@ -129,7 +129,7 @@ aweApplication.directive('aweContextOption',
                * @returns {boolean} option is disabled
                */
               scope.isDisabled = function () {
-                return Storage.get("actions-running") || scope.$root.loading ||
+                return Storage.get("actions-running") || scope.$root.status.loading ||
                   (component.controller && component.controller.disabled);
               };
 

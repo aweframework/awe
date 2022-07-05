@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // File viewer
 aweApplication.directive('aweFileViewer',
@@ -21,15 +21,15 @@ aweApplication.directive('aweFileViewer',
          */
         link: function (scope, elem) {
           // Init as component
-          var component = new Component(scope, scope.widgetId);
+          let  component = new Component(scope, scope.widgetId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;
           }
 
           // Retrieve widget values
-          var stickBottom = false;
-          var initial = true;
+          let  stickBottom = false;
+          let  initial = true;
           if (component.controller.parameters) {
             stickBottom = "stickBottom" in component.controller.parameters ? component.controller.parameters["stickBottom"] : stickBottom;
           }
@@ -38,13 +38,13 @@ aweApplication.directive('aweFileViewer',
            * Reload data from element
            */
           component.reload = function () {
-            var parameters = serverData.getFormValues();
-            var action = component.controller[$settings.get("serverActionKey")];
-            var target = component.controller[$settings.get("targetActionKey")];
-            var url = serverData.getGenericFileUrl(action, target);
+            let  parameters = serverData.getFormValues();
+            let  action = component.controller[$settings.get("serverActionKey")];
+            let  target = component.controller[$settings.get("targetActionKey")];
+            let  url = serverData.getGenericFileUrl(action, target);
             Connection.post(url, parameters).then(function (response) {
               if (response.data && response.status === 201) {
-                var moveScroll = elem.scrollTop() + elem.height() >= elem[0].scrollHeight;
+                let  moveScroll = elem.scrollTop() + elem.height() >= elem[0].scrollHeight;
                 scope.content = response.data;
                 if (stickBottom) {
                   if (moveScroll || initial) {

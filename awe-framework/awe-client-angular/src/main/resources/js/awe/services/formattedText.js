@@ -21,7 +21,7 @@ function(Text, Utilities) {
     this.id = id;
     this.element = element;
     this.component = new Text(this.scope, this.id, this.element);
-    var formattedText = this;
+    let  formattedText = this;
     this.component.asText = function() {
       return formattedText.init();
     };
@@ -34,7 +34,7 @@ function(Text, Utilities) {
      */
     init : function() {
       // Initialize criterion
-      var component = this.component;
+      let  component = this.component;
       if (!component.asCriterion()) {
         // If criterion is wrong, cancel initialization
         return false;
@@ -50,10 +50,10 @@ function(Text, Utilities) {
        * @returns {string} visible value
        */
       function fixModel() {
-        var selected = component.model.selected;
-        var values = component.model.values;
+        let  selected = component.model.selected;
+        let  values = component.model.values;
         if (values.length === 0 || (String(values[0].value) !== String(selected))) {
-          var value = {
+          let  value = {
             value : selected,
             label : selected || ""
           };
@@ -84,7 +84,7 @@ function(Text, Utilities) {
        * @returns {string} visible value
        */
       component.getVisibleValue = function() {
-        var visibleValue = "";
+        let  visibleValue = "";
         if (component.model.values.length > 0) {
           visibleValue = component.model.values[0].label;
         } else {

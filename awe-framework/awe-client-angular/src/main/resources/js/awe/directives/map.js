@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Map directive
 aweApplication.directive('aweMap',
@@ -15,7 +15,7 @@ aweApplication.directive('aweMap',
         },
         link: function ($scope, elem, attr) {
           // Init as component
-          var component = new Component($scope, $scope.mapId);
+          let  component = new Component($scope, $scope.mapId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;
@@ -45,10 +45,10 @@ aweApplication.directive('aweMap',
           });
 
           // Print positions in the map
-          var drawPoints = function (scope) {
-            var positions = [];
-            for (var val in scope.model.values) {
-              var loc = null;
+          let  drawPoints = function (scope) {
+            let  positions = [];
+            for (let  val in scope.model.values) {
+              let  loc = null;
               loc = {
                 id: val,
                 idMov: scope.model.values[val].IdMov,
@@ -72,13 +72,13 @@ aweApplication.directive('aweMap',
           drawPoints($scope);
 
           // Draw truck routes
-          var drawPolyline = function (routePoints,
+          let  drawPolyline = function (routePoints,
             startLat, startLon) {
-            var points = [];
+            let  points = [];
             $scope.showRoute = true;
-            for (var num in routePoints) {
+            for (let  num in routePoints) {
               if (routePoints[num].Lat !== null && routePoints[num].Lon !== null) {
-                var loc = {
+                let  loc = {
                   latitude: routePoints[num].Lat,
                   longitude: routePoints[num].Lon
                 };
@@ -110,13 +110,13 @@ aweApplication.directive('aweMap',
            * Update model with action values
            * @param {Action} action Action received
            */
-          var polyline = function (action) {
+          let  polyline = function (action) {
             // Retrieve parameters
-            var parameters = _.cloneDeep(action.attr("parameters"));
-            var routePoints = parameters.rows;
+            let  parameters = _.cloneDeep(action.attr("parameters"));
+            let  routePoints = parameters.rows;
             if (routePoints.length !== 0) {
-              var startLat = routePoints[0].Lat;
-              var startLon = routePoints[0].Lon;
+              let  startLat = routePoints[0].Lat;
+              let  startLon = routePoints[0].Lon;
               if (routePoints.length === 0
                 || startLat === undefined) {
                 console.error("NO POINTS FOUND");

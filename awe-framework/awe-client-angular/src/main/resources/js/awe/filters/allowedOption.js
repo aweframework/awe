@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Allowed option filter
 aweApplication.filter('allowedOption',
@@ -11,11 +11,11 @@ aweApplication.filter('allowedOption',
      */
     function ($control, $utilities) {
       function filter(optionList) {
-        var allowed = [];
-        var moduleComponent = $control.getAddressModel({view: "base", component: "module"});
-        var module = moduleComponent ? moduleComponent.selected : "";
+        let  allowed = [];
+        let  moduleComponent = $control.getAddressModel({view: "base", component: "module"});
+        let  module = moduleComponent ? moduleComponent.selected : "";
         _.each(optionList, function (option) {
-          var moduleValid = false;
+          let  moduleValid = false;
           if (module === option.module || $utilities.isEmpty(option.module)) {
             moduleValid = true;
           }

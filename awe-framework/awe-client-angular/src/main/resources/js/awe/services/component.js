@@ -98,12 +98,12 @@ aweApplication.factory('Component',
          * Initialization method
          */
         init: function () {
-          var component = this;
+          let  component = this;
           component.alive = true;
           // Check if identifier exists
           if (component.id) {
             // View
-            var scope = component.scope;
+            let  scope = component.scope;
             scope.view = scope.view || scope.$parent.view || scope.$parent.$parent.view;
             component.view = scope.view;
 
@@ -226,7 +226,7 @@ aweApplication.factory('Component',
              * API link to update the model values
              * @param {object} data New model data attributes
              */
-            var methodName = "updateModelValues";
+            let  methodName = "updateModelValues";
             if (component.api.updateModelValues) {
               methodName = "updateComponentModelValues";
             }
@@ -254,7 +254,7 @@ aweApplication.factory('Component',
              * @param {boolean} enable Enable autorefresh
              */
             component.api.toggleAutorefresh = function (value, enable) {
-              var controller = Control.getAddressController(component.address);
+              let  controller = Control.getAddressController(component.address);
               if (enable) {
                 controller.autorefresh = value;
                 component.checkAutoRefresh();
@@ -269,14 +269,14 @@ aweApplication.factory('Component',
              * @param {type} selectedValues
              */
             component.api.updateSelectedValue = function (selectedValues) {
-              var model = Control.getAddressModel(component.address);
+              let  model = Control.getAddressModel(component.address);
               if (model) {
                 // Store component model
                 model.selectedValues = selectedValues || [];
 
                 // Store value list
-                var selectedList = [];
-                var valueList = [];
+                let  selectedList = [];
+                let  valueList = [];
 
                 _.each(component.model.selectedValues, function (selected) {
                   if (selected !== null) {
@@ -369,13 +369,13 @@ aweApplication.factory('Component',
          * @param {Object} help Object
          */
         initHelpNode: function (help) {
-          var component = this;
+          let  component = this;
           component.helpOver = false;
           component.helpNode = $(help.node);
-          var isDisabled = function () {
+          let  isDisabled = function () {
             return component.isDisabled ? component.isDisabled() : false;
           };
-          var onEnter = function () {
+          let  onEnter = function () {
             if (component.alive && !isDisabled()) {
               component.helpOver = true;
               Utilities.timeout.cancel(component.helpTimer);
@@ -387,7 +387,7 @@ aweApplication.factory('Component',
               Control.publish('showHelp', help);
             }
           };
-          var onLeave = function () {
+          let  onLeave = function () {
             component.helpOver = false;
             Utilities.timeout.cancel(component.helpTimer);
             Control.publish('hideHelp');
@@ -399,7 +399,7 @@ aweApplication.factory('Component',
          */
         checkAutoLoad: function () {
           if (this.controller.autoload) {
-            var component = this;
+            let  component = this;
             Utilities.timeout(function () {
               component.reload();
             });
@@ -463,7 +463,7 @@ aweApplication.factory('Component',
          */
         updateVisibleValue: function () {
           // Update visible value
-          var value = this.getVisibleValue();
+          let  value = this.getVisibleValue();
           if (value !== this.visibleValue) {
             this.visibleValue = value;
           }
@@ -477,7 +477,7 @@ aweApplication.factory('Component',
         },
         modelChange: function () {
           this.model.selected = this.model.selected !== '' ? this.model.selected : null;
-          var changed = this.model.previous !== this.model.selected;
+          let  changed = this.model.previous !== this.model.selected;
           if (changed) {
             Control.changeModelAttribute(this.address, {selected: this.model.selected}, this.model.previous !== this.model.selected);
           }
@@ -487,7 +487,7 @@ aweApplication.factory('Component',
          * @returns {String} Input classes
          */
         getSize: function () {
-          var componentSize;
+          let  componentSize;
           if (this.scope.componentSize && this.scope.componentSize !== "") {
             componentSize = this.scope.componentSize;
           } else if (this.controller && this.controller.size && this.controller.size !== "") {
@@ -503,7 +503,7 @@ aweApplication.factory('Component',
          * @returns {String} Input classes
          */
         getCharSize: function (size) {
-          var charSize = $settings.get("pixelsPerCharacter");
+          let  charSize = $settings.get("pixelsPerCharacter");
           switch (size) {
             case "md":
               charSize += 1;

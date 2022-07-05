@@ -19,7 +19,7 @@
   // ECMAScript 5 Strict Mode: [John Resig Blog Post](http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/)
   "use strict";
 
-  var tocClassName = "tocify",
+  let  tocClassName = "tocify",
     tocClass = "." + tocClassName,
     tocFocusClassName = "tocify-focus",
     tocHoverClassName = "tocify-hover",
@@ -118,7 +118,7 @@
     //      Constructs the plugin.  Only called once.
     _create: function () {
 
-      var self = this;
+      let  self = this;
 
       self.extendPageScroll = true;
 
@@ -133,7 +133,7 @@
 
       self.webkit = (function () {
 
-        for (var prop in window) {
+        for (let  prop in window) {
 
           if (prop) {
 
@@ -185,7 +185,7 @@
       // _Local variables_
 
       // Stores the plugin context in the self variable
-      var self = this,
+      let  self = this,
         // All of the HTML tags found within the context provided (i.e. body) that match the top level jQuery selector above
         firstElem,
         // Instantiated variable that will store the top level newly created unordered list DOM element
@@ -281,7 +281,7 @@
     },
     _setActiveElement: function (pageload) {
 
-      var self = this,
+      let  self = this,
         hash = window.location.hash.substring(1),
         elem = self.element.find('li[data-unique="' + hash + '"]');
 
@@ -325,7 +325,7 @@
     //      Helps create the table of contents list by appending nested list items
     _nestElements: function (self, index) {
 
-      var arr, item, hashValue;
+      let  arr, item, hashValue;
 
       arr = $.grep(this.items, function (item) {
 
@@ -378,7 +378,7 @@
     //      Generates the hash value that will be used to refer to each item.
     _generateHashValue: function (arr, self, index) {
 
-      var hashValue = "",
+      let  hashValue = "",
         hashGeneratorOption = this.options.hashGenerator;
 
       if (hashGeneratorOption === "pretty") {
@@ -424,7 +424,7 @@
     _appendSubheaders: function (self, ul) {
 
       // The current element index
-      var index = $(this).index(self.options.selectors),
+      let  index = $(this).index(self.options.selectors),
         // Finds the previous header DOM element
         previousHeader = $(self.options.selectors).eq(index - 1),
         currentTagName = +$(this).prop("tagName").charAt(1),
@@ -469,7 +469,7 @@
       // _Local variables_
 
       // Stores the plugin context in the self variable
-      var self = this,
+      let  self = this,
         // Instantiates a new variable that will be used to hold a specific element's context
         $self,
         // Instantiates a new variable that will be used to determine the smoothScroll animation time duration
@@ -493,7 +493,7 @@
         // If the showAndHide option is true
         if (self.options.showAndHide) {
 
-          var elem = $('li[data-unique="' + $(this).attr("data-unique") + '"]');
+          let  elem = $('li[data-unique="' + $(this).attr("data-unique") + '"]');
 
           self._triggerShow(elem);
 
@@ -545,7 +545,7 @@
             // Local variables
 
             // Stores how far the user has scrolled
-            var winScrollTop = $(self.options.scrollContext).scrollTop(),
+            let  winScrollTop = $(self.options.scrollContext).scrollTop(),
               // Stores the height of the window
               winHeight = $(self.options.context).height(),
               // Stores the height of the document
@@ -600,7 +600,7 @@
               // _Local variables_
 
               // Stores the distance to the closest anchor
-              var closestAnchorDistance = null,
+              let  closestAnchorDistance = null,
                 // Stores the index of the closest anchor
                 closestAnchorIdx = null,
                 // Keeps a reference to all anchors
@@ -609,7 +609,7 @@
 
               // Determines the index of the closest anchor
               anchors.each(function (idx) {
-                var distance = Math.abs(($(this).next().length ? $(this).next() : $(this))[0].offsetTop - winScrollTop - self.options.highlightOffset);
+                let  distance = Math.abs(($(this).next().length ? $(this).next() : $(this))[0].offsetTop - winScrollTop - self.options.highlightOffset);
                 if (closestAnchorDistance == null || distance < closestAnchorDistance) {
                   closestAnchorDistance = distance;
                   closestAnchorIdx = idx;
@@ -664,7 +664,7 @@
     show: function (elem, scroll) {
 
       // Stores the plugin context in the `self` variable
-      var self = this,
+      let  self = this,
         element = elem;
 
       // If the sub-header is not already visible
@@ -754,7 +754,7 @@
     hide: function (elem) {
 
       // Stores the plugin context in the `self` variable
-      var self = this;
+      let  self = this;
 
       //Determines what jQuery effect to use
       switch (self.options.hideEffect) {
@@ -804,7 +804,7 @@
     //      Determines what elements get shown on scroll and click
     _triggerShow: function (elem, scroll) {
 
-      var self = this;
+      let  self = this;
 
       // If the current element's parent is a header element or the next element is a nested subheader element
       if (elem.parent().is(headerClass) || elem.next().is(subheaderClass)) {
@@ -831,10 +831,10 @@
     //      Set the max height of the list
     _setMaxHeight: function () {
 
-      var self = this;
+      let  self = this;
 
       // Adjust max height
-      var height = $(self.options.scrollContext).height();
+      let  height = $(self.options.scrollContext).height();
       self.element.css({maxHeight: Math.floor(height) + "px"});
 
       // Maintains chainability
@@ -905,7 +905,7 @@
     //      Scrolls to a specific element
     _scrollTo: function (elem) {
 
-      var self = this,
+      let  self = this,
         duration = self.options.smoothScroll || 0,
         scrollTo = self.options.scrollTo,
         currentDiv = $('div[data-unique="' + elem.attr("data-unique") + '"]');

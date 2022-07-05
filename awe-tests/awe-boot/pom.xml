@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.5.3</version>
+    <version>4.6.0</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -22,9 +22,6 @@
     <application.acronym>awe-boot</application.acronym>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <selenium.version>3.141.59</selenium.version>
-    <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
-    <webdrivermanager.version>3.2.0</webdrivermanager.version>
     <testng.version>6.14.3</testng.version>
     <wavefront.version>2.2.2</wavefront.version>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
@@ -195,6 +192,16 @@
           <artifactId>jython</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <!-- Flyway modules -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-sqlserver</artifactId>
     </dependency>
 
     <!-- JDBC Drivers -->
@@ -632,7 +639,7 @@
                   <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
                   <skip>${skip.selenium}</skip>
                   <systemPropertyVariables>
-                    <test.browser>${browser}</test.browser>
+                    <awe.test.browser>${browser}</awe.test.browser>
                   </systemPropertyVariables>
                 </configuration>
               </execution>

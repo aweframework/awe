@@ -1,10 +1,10 @@
 (function ($) {
-  var callWithJQuery;
+  let  callWithJQuery;
   callWithJQuery = function (pivotModule) {
     return pivotModule($);
   };
   callWithJQuery(function ($) {
-    var usFmt, usFmtInt, usFmtPct, nf, tpl;
+    let  usFmt, usFmtInt, usFmtPct, nf, tpl;
     nf = $.pivotUtilities.numberFormat;
     tpl = $.pivotUtilities.aggregatorTemplates;
     usFmt = nf();

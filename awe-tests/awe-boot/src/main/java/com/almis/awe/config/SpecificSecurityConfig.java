@@ -7,22 +7,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Custom Spring security configuration
  */
-@Order(2)
 @Configuration
-public class SpecificSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SpecificSecurityConfig {
 
   @Value("${management.endpoints.web.base-path:/actuator}")
   private String actuatorEndpoint;
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.antMatcher(actuatorEndpoint + "/**").anonymous()
-    .and().csrf().disable();
+  /**
+   * Custom http security filter chain
+   *
+   * @param httpSecurity Http security
+   * @return security filter chain
+   * @throws Exception exception
+   */
+  @Bean(name = "customSecurityFilterChain")
+  @Order(2)
+  public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity.antMatcher(actuatorEndpoint + "/**").anonymous()
+      .and().csrf().disable();
+    return httpSecurity.build();
   }
 
   @Bean

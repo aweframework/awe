@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Editable grid service
 aweApplication.factory('GridEditable',
@@ -11,7 +11,7 @@ aweApplication.factory('GridEditable',
      * @param {service} Utilities Awe utilities
      */
     function (Control, GridComponents, GridEvents, Utilities) {
-      var GridEditable = function (component) {
+      let  GridEditable = function (component) {
         this.component = component;
         component.editable = true;
         component.savingRow = false;
@@ -29,8 +29,8 @@ aweApplication.factory('GridEditable',
          * Initialize grid
          */
         init: function () {
-          var component = this.component;
-          var grid = this;
+          let  component = this.component;
+          let  grid = this;
 
           // Initialize with components
           if (!component.gridComponents.init()) {
@@ -125,7 +125,7 @@ aweApplication.factory('GridEditable',
             // Hide context menu if showing
             component.hideContextMenu();
 
-            var selectedRow = component.getSelectedRow();
+            let  selectedRow = component.getSelectedRow();
             if (selectedRow !== null) {
               // Save row values
               component.saveRowValues(selectedRow);
@@ -143,7 +143,7 @@ aweApplication.factory('GridEditable',
             component.hideContextMenu();
 
             // Restore row values
-            var selectedRow = component.getSelectedRow();
+            let  selectedRow = component.getSelectedRow();
             if (selectedRow !== null) {
               restoreRowModel(selectedRow);
             }
@@ -157,7 +157,7 @@ aweApplication.factory('GridEditable',
             component.hideContextMenu();
 
             // Restore row values
-            var selectedRow = component.getSelectedRow();
+            let  selectedRow = component.getSelectedRow();
             if (selectedRow !== null) {
               component.deleteRowSpecific(selectedRow).then(updateSaveButton);
             }
@@ -175,7 +175,7 @@ aweApplication.factory('GridEditable',
             component.hideContextMenu();
 
             // Generate row data
-            var rowData = data || {};
+            let  rowData = data || {};
             // Store old values
             _.each(component.controller.columnModel, function (column) {
               if ("id" in column) {
@@ -208,7 +208,7 @@ aweApplication.factory('GridEditable',
            */
           component.setRowValues = function (rowId, values) {
             // Calculate rowIndex
-            var rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
+            let  rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
 
             // Retrieve selected row values
             component.model.values[rowIndex] = {...values};
@@ -222,16 +222,16 @@ aweApplication.factory('GridEditable',
            */
           component.saveRowValues = function (rowId) {
             // Get grid model
-            var rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
-            var rowValues = component.getRowValues(rowId);
+            let  rowIndex = Utilities.getRowIndex(component.model.values, rowId, component.constants.ROW_IDENTIFIER);
+            let  rowValues = component.getRowValues(rowId);
 
             // Store old values
-            var rowModel = component.model.cells;
-            var address = {...component.address, row: rowId};
+            let  rowModel = component.model.cells;
+            let  address = {...component.address, row: rowId};
             _.each(component.controller.columnModel, function (column) {
               if ("id" in column && column.id in rowValues) {
                 address.column = column.id;
-                var cellId = Utilities.getCellId(address);
+                let  cellId = Utilities.getCellId(address);
                 if (cellId in rowModel) {
                   rowValues[column.id] = rowModel[cellId].selected;
                 }
@@ -248,8 +248,8 @@ aweApplication.factory('GridEditable',
            * @param {object} rowIndex Row data
            */
           component.checkChanges = function (address, value, rowIndex) {
-            var previousValue;
-            var selectedRowValues = grid.selectedRowValues || {};
+            let  previousValue;
+            let  selectedRowValues = grid.selectedRowValues || {};
             if (address.row === selectedRowValues.row) {
               previousValue = selectedRowValues.grid[address.column];
             } else {
@@ -266,13 +266,13 @@ aweApplication.factory('GridEditable',
            * @param {string} rowId Row identifier
            */
           function storeRowModel(rowId) {
-            var cells = {};
-            var address = _.merge({row: rowId}, component.address);
+            let  cells = {};
+            let  address = _.merge({row: rowId}, component.address);
             _.each(component.controller.columnModel, function (column) {
               if ("id" in column) {
                 address.column = column.id;
-                var cellId = Utilities.getCellId(address);
-                var cellModel = component.model.cells[cellId];
+                let  cellId = Utilities.getCellId(address);
+                let  cellModel = component.model.cells[cellId];
                 if (cellModel && "selected" in cellModel && "values" in cellModel) {
                   cells[column.id] = _.cloneDeep(component.model.cells[cellId]);
                 }
@@ -293,14 +293,14 @@ aweApplication.factory('GridEditable',
             component.setRowValues(rowId, grid.selectedRowValues.grid);
 
             // Restore cell component values
-            var rowModel = component.model.cells;
-            var address = _.merge({row: rowId}, component.address);
-            var storedRow = grid.selectedRowValues.cells;
+            let  rowModel = component.model.cells;
+            let  address = _.merge({row: rowId}, component.address);
+            let  storedRow = grid.selectedRowValues.cells;
             if (storedRow) {
               _.each(component.controller.columnModel, function (column) {
                 if (column.id in storedRow) {
                   address.column = column.id;
-                  var cellId = Utilities.getCellId(address);
+                  let  cellId = Utilities.getCellId(address);
                   rowModel[cellId].selected = _.cloneDeep(storedRow[column.id].selected);
                   rowModel[cellId].values = _.cloneDeep(storedRow[column.id].values);
 

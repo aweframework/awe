@@ -1,5 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/filters/tests.js', function() {
-  var $filter, $translate, $control, $utilities, $settings;
+  let  $filter, $translate, $control, $utilities, $settings;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');

@@ -55,7 +55,7 @@ aweApplication.factory('Button',
             component.scope.buttonClass = component.controller.buttonType === "submit" ? "primary" : null;
             // Add reset action if type is reset
             if (component.controller.actions && component.controller.actions.length === 0 && component.controller.buttonType === "reset") {
-              var resetAction = {type: "restore"};
+              let  resetAction = {type: "restore"};
               component.controller.actions.push(resetAction);
             }
 
@@ -94,7 +94,7 @@ aweApplication.factory('Button',
            * @returns {boolean} Button is disabled
            */
           component.scope.isDisabled = function () {
-            return Storage.get("actions-running") || component.scope.$root.loading ||
+            return Storage.get("actions-running") || component.scope.$root.status.loading ||
               (component.controller && component.controller.disabled);
           };
 
@@ -213,7 +213,7 @@ aweApplication.factory('Button',
           //****************************************************************************
           component.listeners = component.listeners || {};
           // On model change launch dependency
-          component.listeners["controllerChange"] = component.scope.$on("controllerChange", function (event, parameters) {
+          component.listeners["controllerChange"] = component.scope.$on("controllerChange", function (_event, parameters) {
             if (_.isEqual(parameters.address, component.address)) {
               component.updateClasses();
             }

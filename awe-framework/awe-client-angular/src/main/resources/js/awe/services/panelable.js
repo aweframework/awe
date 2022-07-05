@@ -53,7 +53,7 @@ aweApplication.factory('Panelable',
          * @returns {boolean} Wizard tab is disabled
          */
         this.scope.isDisabled = function () {
-          return $storage.get("actions-running") || panelable.scope.$root.loading ||
+          return $storage.get("actions-running") || panelable.scope.$root.status.loading ||
             (panelable.component.controller && panelable.component.controller.disabled);
         };
 

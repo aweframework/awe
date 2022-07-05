@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Column image directive
 aweApplication.directive('aweColumnImage',
@@ -12,8 +12,8 @@ aweApplication.directive('aweColumnImage',
         },
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
-          var column = new Column(attrs);
-          var component = new Component(scope, column.id);
+          let  column = new Column(attrs);
+          let  component = new Component(scope, column.id);
           component.address = column.address;
 
           // Initialize criterion and column

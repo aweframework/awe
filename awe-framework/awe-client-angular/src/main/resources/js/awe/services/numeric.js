@@ -58,7 +58,7 @@ aweApplication.factory('Numeric',
         this.id = id;
         this.element = element;
         this.component = new Criterion(this.scope, this.id, this.element);
-        var numeric = this;
+        let  numeric = this;
         this.component.asNumeric = function () {
           return numeric.init();
         };
@@ -70,7 +70,7 @@ aweApplication.factory('Numeric',
          */
         init: function () {
           // Initialize criterion
-          var component = this.component;
+          let  component = this.component;
           if (!component.asCriterion()) {
             // If criterion is wrong, cancel initialization
             return false;
@@ -81,9 +81,9 @@ aweApplication.factory('Numeric',
           /**********************************************************************/
 
           // Update number format
-          var updateNumberFormat = function () {
-            var controller = Control.getAddressController(component.address);
-            var numberFormat;
+          let  updateNumberFormat = function () {
+            let  controller = Control.getAddressController(component.address);
+            let  numberFormat;
             switch (typeof controller.numberFormat) {
               case "string":
                 numberFormat = Utilities.evalJSON(controller.numberFormat);
@@ -105,8 +105,8 @@ aweApplication.factory('Numeric',
            * @param {object | array | number} Selected value
            * @return Sanitized value
            */
-          var sanitizeModel = function (selectedValue) {
-            var sanitizedValue = selectedValue;
+          let  sanitizeModel = function (selectedValue) {
+            let  sanitizedValue = selectedValue;
             // Check array
             if (Array.isArray(selectedValue) && selectedValue.length > 0) {
               // Get first value
@@ -145,8 +145,8 @@ aweApplication.factory('Numeric',
            * @returns {string} visible value
            */
           component.getVisibleValue = function () {
-            var visibleValue = "";
-            var model = Control.getAddressModel(component.address);
+            let  visibleValue = "";
+            let  model = Control.getAddressModel(component.address);
             // Refresh visible value if not generated yet
             if (component.updateModel) {
               component.updateModel();
@@ -166,7 +166,7 @@ aweApplication.factory('Numeric',
            * @param {object} data New model data attributes
            */
           component.api.updateModelValues = function (data) {
-            var model = Control.getAddressModel(component.address);
+            let  model = Control.getAddressModel(component.address);
             if (model) {
               _.merge(model, data);
               if (component.updateModel) {

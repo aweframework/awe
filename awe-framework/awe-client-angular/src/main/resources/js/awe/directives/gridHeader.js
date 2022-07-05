@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Grid header directive
 aweApplication.directive('aweGridHeader',
@@ -17,8 +17,8 @@ aweApplication.directive('aweGridHeader',
         },
         link: function (scope, element) {
           // setup listener for scroll events to sync categories with table
-          var viewPort;
-          var headerContainer;
+          let  viewPort;
+          let  headerContainer;
 
           /**
            * Reload headers based on column movements
@@ -26,17 +26,17 @@ aweApplication.directive('aweGridHeader',
            * @param {Object} data
            */
           function refreshHeaders(event, data) {
-            var columns = data.columns;
-            var headers = data.headers;
+            let  columns = data.columns;
+            let  headers = data.headers;
             scope.categories = [];
-            var lastHeader = null;
-            var totalWidth = 0;
+            let  lastHeader = null;
+            let  totalWidth = 0;
             _.each(columns, function (column) {
               if (column.colDef.hidden) {
                 return;
               }
               totalWidth += column.width === "*" ? column.drawnWidth : column.width;
-              var header = null;
+              let  header = null;
               if (column.name in headers) {
                 header = headers[column.name];
               }
@@ -58,8 +58,8 @@ aweApplication.directive('aweGridHeader',
 
             // Update scroll
             if (data.columns.length !== 0 && data.columns[0].grid.id) {
-              var grid = $(".grid" + data.columns[0].grid.id);
-              var viewport = $(".ui-grid-viewport", grid);
+              let  grid = $(".grid" + data.columns[0].grid.id);
+              let  viewport = $(".ui-grid-viewport", grid);
               updateScroll({currentTarget: viewport});
             }
           }
@@ -83,7 +83,7 @@ aweApplication.directive('aweGridHeader',
           // create cols as soon as $gridscope is avavilable
           // grids in tabs with lazy loading come later, so we need to
           // setup a watcher
-          var unwatch = scope.$watch('aweGridHeader', function (gridOptions) {
+          let  unwatch = scope.$watch('aweGridHeader', function (gridOptions) {
             if (gridOptions && "layers" in gridOptions && "clickout" in gridOptions.layers) {
               // Bind grid layers
               viewPort = gridOptions.layers.clickout;
@@ -100,7 +100,7 @@ aweApplication.directive('aweGridHeader',
               /******************************************************************************
                * EVENT LISTENERS
                *****************************************************************************/
-              var listeners = {};
+              let  listeners = {};
               // Capture event for element resize
               listeners['columns-changed'] = scope.$on('columns-changed', refreshHeaders);
               listeners['resize'] = scope.$on("resize", resize);

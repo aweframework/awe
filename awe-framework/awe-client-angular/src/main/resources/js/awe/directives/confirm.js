@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 import "./plugins/uiModal";
 
 // Confirm directive
@@ -19,7 +19,7 @@ aweApplication.directive('aweConfirm',
             pre: function (scope) {
               // Define confirm button size
               scope.confirmSize = $settings.get("defaultComponentSize");
-              var accepted = false;
+              let  accepted = false;
 
               /**
                * Accept action in confirm modal

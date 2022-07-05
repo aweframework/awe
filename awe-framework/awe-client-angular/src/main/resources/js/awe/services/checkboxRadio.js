@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import { DefaultSpin } from "./../data/options";
+import {aweApplication} from "./../awe";
+import {DefaultSpin} from "./../data/options";
 
 // Checkbox Radio service
 aweApplication.factory('CheckboxRadio',
@@ -25,7 +25,7 @@ aweApplication.factory('CheckboxRadio',
         this.component = new Criterion(this.scope, this.id, this.element);
 
         // Link to initialization methods
-        var checkboxradio = this;
+        let  checkboxradio = this;
         this.component.asCheckbox = function () {
           return checkboxradio.asCheckbox();
         };
@@ -41,7 +41,7 @@ aweApplication.factory('CheckboxRadio',
          */
         asCheckbox: function () {
           // Initialize criterion
-          var component = this.component;
+          let  component = this.component;
           if (!component.asCriterion()) {
             // If criterion is wrong, cancel initialization
             return false;
@@ -51,7 +51,7 @@ aweApplication.factory('CheckboxRadio',
           component.scope.spinOptions = component.scope.spinOptions || DefaultSpin.small;
 
           // Add a default value if values has no data
-          var checkedValue = component.model.defaultValues || 1;
+          let  checkedValue = component.model.defaultValues || 1;
 
           // Flag to checked or not
           component.scope.checked = String(component.model.selected) === String(checkedValue);
@@ -83,7 +83,7 @@ aweApplication.factory('CheckboxRadio',
            * @param {type} data
            */
           component.api.updateModelValues = function (data) {
-            var model = component.model;
+            let  model = component.model;
             if (model && "selected" in data) {
               // Store selected values
               model.selected = Control.formatDataList(data.selected);
@@ -99,7 +99,7 @@ aweApplication.factory('CheckboxRadio',
          */
         asRadio: function () {
           // Initialize criterion
-          var component = this.component;
+          let  component = this.component;
 
           // Define spin options
           component.scope.spinOptions = component.scope.spinOptions || DefaultSpin.small;
@@ -111,15 +111,15 @@ aweApplication.factory('CheckboxRadio',
           }
 
           // Generate group address
-          var group = component.controller.group;
-          var groupAddress = _.cloneDeep(component.address);
+          let  group = component.controller.group;
+          let  groupAddress = _.cloneDeep(component.address);
           groupAddress.component = group;
 
           // Set model value
           component.value = component.model.values[0].value;
 
           // Change model with group attribute
-          var viewModels = Control.getAddressViewModel(component.address);
+          let  viewModels = Control.getAddressViewModel(component.address);
           if (!(group in viewModels)) {
             viewModels[group] = {
               selected: null,
@@ -128,7 +128,7 @@ aweApplication.factory('CheckboxRadio',
           }
 
           // Change group selected model
-          var selectedList = Utilities.asArray(component.model.selected);
+          let  selectedList = Utilities.asArray(component.model.selected);
           if (selectedList.length > 0) {
             viewModels[group].selected = selectedList[0];
             viewModels[group].defaultValues = selectedList[0];
@@ -160,7 +160,7 @@ aweApplication.factory('CheckboxRadio',
           /* API METHODS                                                        */
           /**********************************************************************/
           // Update API for single radio
-          var retrieveEmptyObject = function () {
+          let  retrieveEmptyObject = function () {
             return {};
           };
           component.api.getData = retrieveEmptyObject;
@@ -170,7 +170,7 @@ aweApplication.factory('CheckboxRadio',
           /* GROUP API METHODS                                                  */
           /**********************************************************************/
 
-          var viewApis = Control.getAddressViewApi(component.address);
+          let  viewApis = Control.getAddressViewApi(component.address);
           viewApis[group] = {};
 
           // Add API for group
@@ -180,7 +180,7 @@ aweApplication.factory('CheckboxRadio',
            */
           viewApis[group].getData = function () {
             // Initialize data
-            var data = {};
+            let  data = {};
             data[group] = component.model.selected;
             return data;
           };

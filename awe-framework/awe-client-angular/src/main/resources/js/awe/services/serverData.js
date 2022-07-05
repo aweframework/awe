@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 import _ from "lodash";
 
 // Server data service
@@ -24,7 +24,7 @@ aweApplication.factory('ServerData',
          * @returns {String} Screen template
          */
         getScreenData: function (screen, view) {
-          var parameters = ServerData.getFormValues();
+          let  parameters = ServerData.getFormValues();
           parameters[$settings.get("serverActionKey")] = "screen-data";
           parameters["view"] = view;
           if (screen !== null) {
@@ -35,8 +35,8 @@ aweApplication.factory('ServerData',
           }
 
           // Generate server action
-          var serverAction = {type: 'server', parameters: parameters};
-          var actionList = [serverAction];
+          let  serverAction = {type: 'server', parameters: parameters};
+          let  actionList = [serverAction];
 
           // Add action to actions stack
           return ActionController.addActionList(actionList, false, {});
@@ -190,7 +190,7 @@ aweApplication.factory('ServerData',
          * @param {Function} onLoad on loaded method
          */
         preloadAngularTemplate: function (template, onLoad) {
-          var templateUrl = ServerData.getAngularTemplateUrl(template.path);
+          let  templateUrl = ServerData.getAngularTemplateUrl(template.path);
           ServerData.get(templateUrl).success(function (data, status) {
             if (data && status === 200) {
               $templateCache.put(template.name || template.path, data);
@@ -230,8 +230,8 @@ aweApplication.factory('ServerData',
          */
         getFormValues: function () {
           // Retrieve action data
-          var model = {};
-          var api = Storage.get("api");
+          let  model = {};
+          let  api = Storage.get("api");
 
           // Retrieve components from each view
           _.each(api, function (view) {
@@ -272,7 +272,7 @@ aweApplication.factory('ServerData',
          */
         launchServerAction: function (action, parameters) {
           // Retrieve form values
-          var message = {
+          let  message = {
             action: action,
             target: action.attr("callbackTarget"),
             values: action.attr("parameters") || {}
@@ -286,7 +286,7 @@ aweApplication.factory('ServerData',
 
           // Retrieve target specific attributes for the server call
           if (message.target) {
-            var target = Control.getAddressApi(message.target);
+            let  target = Control.getAddressApi(message.target);
             if (target && target.getSpecificFields) {
               // Add form values
               _.merge(message.values, target.getSpecificFields());
@@ -294,7 +294,7 @@ aweApplication.factory('ServerData',
           }
 
           // Launch server action
-          var request = Connection.sendMessage(message);
+          let  request = Connection.sendMessage(message);
           action.onCancel = function () {
             if (request && request.reject) {
               request.reject();
@@ -309,10 +309,10 @@ aweApplication.factory('ServerData',
          * @param {Boolean} silent Silent action
          */
         getServerAction: function (address, custom, async, silent) {
-          var screenData = Storage.get("screen")[address.view];
+          let  screenData = Storage.get("screen")[address.view];
 
           // Generate action
-          var action = {
+          let  action = {
             type: 'server',
             async: async,
             silent: silent,
@@ -341,7 +341,7 @@ aweApplication.factory('ServerData',
          */
         sendQuery: function (address, custom, async, silent) {
           // Generate server action
-          var action = ServerData.getServerAction(address, custom, async, silent);
+          let  action = ServerData.getServerAction(address, custom, async, silent);
           // Add action to actions stack
           return ActionController.addActionList([action], true, {address: address, context: ""});
         },
@@ -354,7 +354,7 @@ aweApplication.factory('ServerData',
         sendMaintain: function (custom, async, silent) {
           // Generate server action
           // Generate action
-          var action = {
+          let  action = {
             type: 'server',
             async: async,
             silent: silent,

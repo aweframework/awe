@@ -8,6 +8,11 @@ module.exports = {
 	organizationName: 'aweframework',
 	projectName: 'awe',
 	themeConfig: {
+		docs: {
+			sidebar: {
+				hideable: true,
+			},
+		},
 		navbar: {
 			title: 'Awe',
 			logo: {
@@ -100,11 +105,11 @@ module.exports = {
 			copyright: `Copyright © ${new Date().getFullYear()} Awe framework, Almis Informática S.L.`,
 		},
 		algolia: {
+			appId: 'G6FC3RBAES',
 			apiKey: 'bbb756b741640f975ac0158bcedcefcb',
 			indexName: 'aweframework_awe',
 			contextualSearch: true,
 		},
-		hideableSidebar: true,
 		colorMode: {
 			defaultMode: 'dark',
 			disableSwitch: false,

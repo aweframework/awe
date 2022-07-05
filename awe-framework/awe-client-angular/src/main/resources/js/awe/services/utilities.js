@@ -36,7 +36,7 @@ aweApplication.factory('AweUtilities',
          * alert(AweUtilities.isString(miVariable));
          */
         isMobile: function () {
-          var check = false;
+          let  check = false;
           (function (a) {
             if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) {
               check = true;
@@ -48,9 +48,9 @@ aweApplication.factory('AweUtilities',
          * Retrieve the browser
          */
         getBrowser: function () {
-          var userAgent = $window.navigator.userAgent;
-          var browsers = {chrome: /chrome/i, safari: /safari/i, firefox: /firefox/i, ie: /msie|trident/i};
-          for (var key in browsers) {
+          let  userAgent = $window.navigator.userAgent;
+          let  browsers = {chrome: /chrome/i, safari: /safari/i, firefox: /firefox/i, ie: /msie|trident/i};
+          for (let  key in browsers) {
             if (browsers[key].test(userAgent)) {
               return key;
             }
@@ -66,12 +66,12 @@ aweApplication.factory('AweUtilities',
          * @return {String}  Date plus diff
          */
         dateAdd: function (date, diff, type, separator) {
-          var _dateOut = "";
+          let  _dateOut = "";
           if (date.length < 10) {
             return date;
           }
-          var _dateArr = date.split(separator);
-          var _date = new Date(parseInt(_dateArr[2], 10), parseInt(_dateArr[1], 10) - 1, parseInt(_dateArr[0], 10));
+          let  _dateArr = date.split(separator);
+          let  _date = new Date(parseInt(_dateArr[2], 10), parseInt(_dateArr[1], 10) - 1, parseInt(_dateArr[0], 10));
           switch (type) {
             case "D":
               _date.setDate(parseInt(_date.getDate(), 10) + diff);
@@ -96,22 +96,22 @@ aweApplication.factory('AweUtilities',
          */
         getCurrentTime: function () {
           // Get current date
-          var now = new Date();
+          let  now = new Date();
 
           // Retrieve data
-          var hh = now.getHours();
-          var mm = now.getMinutes();
-          var ss = now.getSeconds();
-          var ms = now.getMilliseconds();
+          let  hh = now.getHours();
+          let  mm = now.getMinutes();
+          let  ss = now.getSeconds();
+          let  ms = now.getMilliseconds();
 
           // Format data
-          var fhh = hh <= 9 ? "0" + hh : hh;
-          var fmm = mm <= 9 ? "0" + mm : mm;
-          var fss = ss <= 9 ? "0" + ss : ss;
-          var fms = ms <= 9 ? "00" + ms : ms <= 99 ? "0" + ms : ms;
+          let  fhh = hh <= 9 ? "0" + hh : hh;
+          let  fmm = mm <= 9 ? "0" + mm : mm;
+          let  fss = ss <= 9 ? "0" + ss : ss;
+          let  fms = ms <= 9 ? "00" + ms : ms <= 99 ? "0" + ms : ms;
 
           // Merge data
-          var formattedTime = fhh + ":" + fmm + ":" + fss + "." + fms;
+          let  formattedTime = fhh + ":" + fmm + ":" + fss + "." + fms;
 
           // Return formatted time
           return formattedTime;
@@ -132,7 +132,7 @@ aweApplication.factory('AweUtilities',
          * @return {Object} JSON object
          */
         parseJSON: function (json) {
-          var output;
+          let  output;
           switch (typeof json) {
             case "object":
               output = json;
@@ -170,10 +170,10 @@ aweApplication.factory('AweUtilities',
          * @return {String} Capitalized string
          */
         capitalize: function (data) {
-          var low = data.toLowerCase();
-          var words = low.split(" ");
-          var wordsCap = [];
-          for (var i = 0, t = words.length; i < t; i++) {
+          let  low = data.toLowerCase();
+          let  words = low.split(" ");
+          let  wordsCap = [];
+          for (let  i = 0, t = words.length; i < t; i++) {
             if (words[i].length > 0) {
               wordsCap.push(words[i].charAt(0).toUpperCase() + words[i].substr(1, words[i].length - 1));
             }
@@ -248,7 +248,7 @@ aweApplication.factory('AweUtilities',
          * @return String without new lines
          */
         removeNewlines: function (s) {
-          var _out = s;
+          let  _out = s;
           if (Utilities.isString(s)) {
             _out = s.replace(/\\\\n/ig, '').replace(/\\\n/ig, '').replace(/\\n/ig, '').replace(/\n/ig, '');
           }
@@ -260,7 +260,7 @@ aweApplication.factory('AweUtilities',
          * @return String encoded
          */
         fixValue: function (s) {
-          var _out = s;
+          let  _out = s;
           if (Utilities.isString(s)) {
             _out = s === "&#160;" ? "" : s;
           }
@@ -272,7 +272,7 @@ aweApplication.factory('AweUtilities',
          * @return Object clean
          */
         cleanObject: function (o) {
-          for (var key in o) {
+          for (let  key in o) {
             if (Utilities.isNull(o[key])) {
               o[key] = "";
             } else {
@@ -292,7 +292,7 @@ aweApplication.factory('AweUtilities',
             case "number":
               return true;
             case "string":
-              var numberPattern = /(\-\d+)?\d*\.?\d*/i;
+              let  numberPattern = /(\-\d+)?\d*\.?\d*/i;
               return numberPattern.test(n);
             default:
               return false;
@@ -381,8 +381,8 @@ aweApplication.factory('AweUtilities',
          * @returns {boolean} boolean evaluated
          */
         parseBoolean: function (booleanString) {
-          var booleanValue = false;
-          var boolean = Utilities.trim(String(booleanString)).toLowerCase();
+          let  booleanValue = false;
+          let  boolean = Utilities.trim(String(booleanString)).toLowerCase();
           if (boolean === "true" || boolean === "1") {
             booleanValue = true;
           }
@@ -404,7 +404,7 @@ aweApplication.factory('AweUtilities',
          * @returns {object} $settings sanitized
          */
         sanitize: function (unsanitized, definition) {
-          var sanitized = {};
+          let  sanitized = {};
           _.each(unsanitized, function (value, setting) {
             if (typeof definition[setting] === 'string') {
               sanitized[setting] = Utilities.sanitizeSetting(value, definition[setting]);
@@ -444,9 +444,9 @@ aweApplication.factory('AweUtilities',
          */
         watchersContainedIn: function (scope, deferred) {
           // Check the watches contained in scope
-          var checkWatches = function () {
-            var watchers = (scope.$$watchers) ? scope.$$watchers.length : 0;
-            var child = scope.$$childHead;
+          let  checkWatches = function () {
+            let  watchers = (scope.$$watchers) ? scope.$$watchers.length : 0;
+            let  child = scope.$$childHead;
             while (child) {
               watchers += (child.$$watchers) ? child.$$watchers.length : 0;
               child = child.$$nextSibling;
@@ -471,9 +471,9 @@ aweApplication.factory('AweUtilities',
           if (container && container.length > 0) {
             _.each(container, function (node) {
               // Retrieve node to compile
-              var $node = $(node);
+              let  $node = $(node);
               // 1: Get Contents
-              var contents = $node.contents();
+              let  contents = $node.contents();
               // 2: Detach contents (if detach)
               if (detach) {
                 contents.detach();
@@ -494,8 +494,8 @@ aweApplication.factory('AweUtilities',
          * @return {Mixed} which elements have changed | false
          */
         modelChanged: function (component, launchers) {
-          var changes = false;
-          var launcherId = Utilities.getAddressId(component.address);
+          let  changes = false;
+          let  launcherId = Utilities.getAddressId(component.address);
 
           // Check if launcher is in launchers
           if (launcherId in launchers) {
@@ -511,11 +511,11 @@ aweApplication.factory('AweUtilities',
          * @param {type} parameters
          */
         defineModelChangeListeners: function (listeners, parameters) {
-          var scope = parameters.scope;
-          var service = parameters.service;
+          let  scope = parameters.scope;
+          let  service = parameters.service;
           listeners[parameters.method] = scope.$on("modelChanged", function (event, launchers) {
             // Set as editing or not
-            var changes = Utilities.modelChanged(scope, launchers);
+            let  changes = Utilities.modelChanged(scope, launchers);
             if (Utilities.checkAttributes(changes, parameters.check)) {
               service[parameters.method](changes);
             }
@@ -539,7 +539,7 @@ aweApplication.factory('AweUtilities',
          * @returns {undefined}
          */
         checkAttributes: function (element, attributes) {
-          var check = true;
+          let  check = true;
           // Phase 1: check
           if (element) {
             if (attributes) {
@@ -560,7 +560,7 @@ aweApplication.factory('AweUtilities',
          * @returns {undefined}
          */
         checkAddress: function (address1, address2, check) {
-          var launch = true;
+          let  launch = true;
           // Phase 1: check
           if (check) {
             _.each(check, function (index) {
@@ -631,7 +631,7 @@ aweApplication.factory('AweUtilities',
          * @private
          */
         getSizeString: function (size) {
-          var sizeString = "";
+          let  sizeString = "";
           // Bytes
           if (size < 1024) {
             sizeString = Math.floor(size) + "B";
@@ -668,11 +668,11 @@ aweApplication.factory('AweUtilities',
          */
         getAttribute: function (address, attribute) {
           // Value definition
-          var value;
-          var model = Storage.get("model");
-          var api = Storage.get("api");
-          var modelView = model[address.view];
-          var apiView = api[address.view];
+          let  value;
+          let  model = Storage.get("model");
+          let  api = Storage.get("api");
+          let  modelView = model[address.view];
+          let  apiView = api[address.view];
           // Call controller-specified getAttribute function (if exists)
           if (address.component in apiView && apiView[address.component].getAttribute) {
             value = apiView[address.component].getAttribute(attribute, address.column, address.row);
@@ -688,7 +688,7 @@ aweApplication.factory('AweUtilities',
          * @returns {undefined}
          */
         removeChildren: function (node) {
-          var last;
+          let  last;
           while (last = node.lastChild) {
             node.removeChild(last);
           }
@@ -699,7 +699,7 @@ aweApplication.factory('AweUtilities',
          * @return {Array} value as array
          */
         asArray: function (value) {
-          var outputArray = [];
+          let  outputArray = [];
           if (!Utilities.isEmpty(value)) {
             if (angular.isArray(value)) {
               outputArray = value;
@@ -802,7 +802,7 @@ aweApplication.factory('AweUtilities',
          * @returns {Boolean}
          */
         compareEqualValues: function (value1, value2) {
-          var equals;
+          let  equals;
           if (typeof value1 === typeof value2) {
             equals = value1 === value2;
           } else {
@@ -887,7 +887,7 @@ aweApplication.factory('AweUtilities',
          * @return {String} addressId
          */
         getAddressId: function (address) {
-          var addressId = address.component;
+          let  addressId = address.component;
           if ("column" in address && address.column && "row" in address && address.row) {
             addressId = Utilities.getCellId(address);
           }

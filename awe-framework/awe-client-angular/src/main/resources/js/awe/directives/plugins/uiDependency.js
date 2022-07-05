@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 
 // Dependency plugin
 aweApplication.directive('uiDependency',
@@ -7,9 +7,9 @@ aweApplication.directive('uiDependency',
       return {
         restrict: 'A',
         link: function (scope, elem, attrs) {
-          var initialized = false;
+          let  initialized = false;
           // Watch for controller changes
-          var initWatch = scope.$watch(attrs.uiDependency, initPlugin);
+          let  initWatch = scope.$watch(attrs.uiDependency, initPlugin);
           /**
            * Plugin initialization
            * @param {object} component plugin parameters

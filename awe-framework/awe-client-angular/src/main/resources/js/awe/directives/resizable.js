@@ -22,7 +22,7 @@ aweApplication.directive('aweResizable',
              */
             pre: function (scope) {
               // Init as component
-              var component = new Component(scope, scope.resizableId);
+              let  component = new Component(scope, scope.resizableId);
               if (!component.asComponent()) {
                 // If component initialization is wrong, cancel initialization
                 return false;
@@ -48,7 +48,7 @@ aweApplication.directive('aweResizable',
              * @param {Object} element
              */
             post: function (scope, element) {
-              var style = window.getComputedStyle(element[0], null),
+              let  style = window.getComputedStyle(element[0], null),
                 w,
                 h,
                 vx = scope.rCenteredX ? 2 : 1, // if centered double velocity
@@ -57,8 +57,8 @@ aweApplication.directive('aweResizable',
                 dragDir,
                 axis;
 
-              var drag = function (e) {
-                var offset = axis === 'x' ? start - e.clientX : start - e.clientY;
+              let  drag = function (e) {
+                let  offset = axis === 'x' ? start - e.clientX : start - e.clientY;
                 switch (dragDir) {
                   case 'top':
                     if (scope.flex) {

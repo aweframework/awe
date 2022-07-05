@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import { ClientActions } from "../../data/actions";
+import {aweApplication} from "./../../awe";
+import {ClientActions} from "../../data/actions";
 
 // Chart events service
 aweApplication.factory('ChartEvents', ['AweUtilities', 'ActionController',
@@ -8,7 +8,7 @@ aweApplication.factory('ChartEvents', ['AweUtilities', 'ActionController',
     /*********
      * EVENTS
      *********/
-    var ChartEvents = {
+    let  ChartEvents = {
       mapActions: function (component) {
         /**
          * Event listeners
@@ -55,7 +55,7 @@ aweApplication.factory('ChartEvents', ['AweUtilities', 'ActionController',
       onAddPoints: function (parameters, scope) {
         if ("data" in parameters && "rows" in parameters.data) {
           // Get points data from action
-          var points = parameters.data.rows;
+          let  points = parameters.data.rows;
           // Add points
           scope.component.addPoints(points);
         }

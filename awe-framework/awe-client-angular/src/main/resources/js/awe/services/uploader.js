@@ -30,7 +30,7 @@ aweApplication.factory('Uploader',
         this.id = id;
         this.element = element;
         this.component = new Criterion(this.scope, this.id, this.element);
-        var uploader = this;
+        let  uploader = this;
         this.component.asUploader = function () {
           return uploader.init();
         };
@@ -41,10 +41,10 @@ aweApplication.factory('Uploader',
          * Initialize date criteria
          */
         init: function () {
-          var component = this.component;
+          let  component = this.component;
           // Define type as text
           component.uploaderUID = 0;
-          var updateTimer, destination;
+          let  updateTimer, destination;
 
           if (!component.asCriterion()) {
             // If criterion is wrong, cancel initialization
@@ -95,7 +95,7 @@ aweApplication.factory('Uploader',
                 destination: destination
               };
 
-              var uploader = Upload.upload({
+              let  uploader = Upload.upload({
                   url: ServerData.getFileUrl("upload"),
                   headers: $settings.getAuthenticationHeaders(),
                   fields: parameters, // additional data to send
@@ -113,7 +113,7 @@ aweApplication.factory('Uploader',
                 },
                 // On progress
                 function(evt) {
-                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    let  progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
                     component.onFileStatus(progressPercentage);
                 });
 
@@ -132,11 +132,11 @@ aweApplication.factory('Uploader',
             // Launch clear file action
             $utilities.timeout(function () {
               component.deleting = true;
-              var deleteValues = {type: "delete-file"};
+              let  deleteValues = {type: "delete-file"};
               deleteValues["filename"] = component.model.selected;
               deleteValues["destination"] = destination;
 
-              var serverAction = ServerData.getServerAction(component.address, deleteValues, true, true);
+              let  serverAction = ServerData.getServerAction(component.address, deleteValues, true, true);
               $actionController.addActionList([serverAction], false, {address: component.address, context: component.context});
             });
           };
@@ -150,13 +150,13 @@ aweApplication.factory('Uploader',
             // Launch clear file action
             $utilities.timeout(function () {
               // Generate download parameters
-              var parameters = {
+              let  parameters = {
                 filename: component.model.selected,
                 destination: destination
               }
 
               // Generate url parameter
-              var fileData = ServerData.getFileData("download", parameters);
+              let  fileData = ServerData.getFileData("download", parameters);
 
               // Download file
               $utilities.downloadFile(fileData);
@@ -210,7 +210,7 @@ aweApplication.factory('Uploader',
            * Retrieve visible value
            */
           component.getVisibleValue = function () {
-            var visibleValue = "";
+            let  visibleValue = "";
             if (component.model.name && component.model.size) {
               visibleValue = component.model.name + " (" + $utilities.getSizeString(component.model.size) + ")";
             }
@@ -249,9 +249,9 @@ aweApplication.factory('Uploader',
            */
           component.onModelChanged = function () {
             if (component.model.selected && !component.model.name) {
-              var fileInfo = {type: "file-info"};
+              let  fileInfo = {type: "file-info"};
               fileInfo["filename"] = component.model.selected;
-              var serverAction = ServerData.getServerAction(component.address, fileInfo, true, true);
+              let  serverAction = ServerData.getServerAction(component.address, fileInfo, true, true);
               $actionController.addActionList([serverAction], false, {address: component.address, context: component.context});
             } else {
               if (!component.model.selected) {

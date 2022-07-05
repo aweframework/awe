@@ -284,7 +284,7 @@ aweApplication.factory('DateTime',
         // Check flag showFutureDates
         if ('showFutureDates' in component.controller && !component.controller['showFutureDates']) {
           // Get selected value to disable next future dates
-          var targetDate = component.model.selected;
+          let  targetDate = component.model.selected;
           if (targetDate) {
             dateOptions.endDate = targetDate;
           }

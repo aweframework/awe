@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import { templateSelectorColumn } from "../../services/selector";
+import {aweApplication} from "./../../awe";
+import {templateSelectorColumn} from "../../services/selector";
 
 // Column select directive
 aweApplication.directive('aweColumnSelect',
@@ -11,8 +11,8 @@ aweApplication.directive('aweColumnSelect',
         template: templateSelectorColumn,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
-          var column = new Column(attrs);
-          var component = new Selector(scope, column.id, elem);
+          let  column = new Column(attrs);
+          let  component = new Selector(scope, column.id, elem);
 
           // Initialize criterion and column
           if (column.init(component).asSelect()) {

@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.5.3</version>
+    <version>4.6.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -38,6 +38,7 @@
 
   <properties>
     <sonar.exclusions>src/**</sonar.exclusions>
+    <dependency-check.skip>true</dependency-check.skip>
     <archetype.test.ignoreEOLStyle>true</archetype.test.ignoreEOLStyle>
     <archetype.test.debug>false</archetype.test.debug>
   </properties>

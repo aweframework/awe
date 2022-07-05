@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "../../services/checkboxRadio";
 
 // Button radio directive
@@ -16,7 +16,7 @@ aweApplication.directive('aweInputButtonRadio',
         },
         link: function (scope, elem, attrs) {
           // Initialize checkbox
-          var component = new CheckboxRadio(scope, scope.criterionId, elem);
+          let  component = new CheckboxRadio(scope, scope.criterionId, elem);
           component.specialClass = "btn-" + scope.size;
           scope.initialized = component.asRadio();
         }

@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import { ClientActions } from "../data/actions";
+import {aweApplication} from "./../awe";
+import {ClientActions} from "../data/actions";
 import _ from "lodash";
 
 // Form directive
@@ -25,21 +25,21 @@ aweApplication.directive('aweForm',
        * @returns {Array}
        */
       const getReseteableScopes = function (target, scope) {
-        var reseteableScopes = [];
+        let  reseteableScopes = [];
         if (target) {
           // Reset target model
-          var reseteableComponents = [".criterion", ".grid", ".chart"];
-          var targetId = "#" + target;
-          var reseteableTarget = "";
+          let  reseteableComponents = [".criterion", ".grid", ".chart"];
+          let  targetId = "#" + target;
+          let  reseteableTarget = "";
           _.each(reseteableComponents, function (reseteableComponent) {
             reseteableTarget += reseteableTarget === "" ? "" : ",";
             reseteableTarget += targetId + " " + reseteableComponent;
           });
-          var $target = $(reseteableTarget);
+          let  $target = $(reseteableTarget);
           if ($target.length) {
             // If target has children, reset all children
             _.each($target, function (reseteable) {
-              var $reseteable = $(reseteable);
+              let  $reseteable = $(reseteable);
               if ($reseteable.children().length > 0) {
                 _.each($reseteable.children(), function(child) {
                   if($(child).scope) {
@@ -80,22 +80,20 @@ aweApplication.directive('aweForm',
           scope.showValidation = false;
 
           // Check if action is for a specific target
-          var target = action.attr("target");
+          let  target = action.attr("target");
+          let  $base = $(document.body);
           if (target) {
             // Validate an element and children
-            var $target = $("#" + target);
-            var $base;
+            let  $target = $("#" + target);
             if ($target.is(".form-control")) {
               $base = $target.closest(".criterion");
             } else {
               $base = $target;
             }
-          } else {
-            $base = $(document.body);
           }
 
           // Launch validation
-          var errorList = Validator.validateNode($base);
+          let  errorList = Validator.validateNode($base);
 
           // Check if validation has been sucessful
           $actionController.finishAction(action, errorList.length === 0);
@@ -113,7 +111,7 @@ aweApplication.directive('aweForm',
          * @param {Action} action Action received
          */
         setValid: function (action) {
-          var target = action.attr("callbackTarget");
+          let  target = action.attr("callbackTarget");
           Control.launchApiMethod(target, "changeValidation", ["invalid", false]);
           $actionController.acceptAction(action);
         },
@@ -122,8 +120,8 @@ aweApplication.directive('aweForm',
          * @param {Action} action Action received
          */
         setInvalid: function (action) {
-          var parameters = action.attr("parameters");
-          var target = action.attr("callbackTarget");
+          let  parameters = action.attr("parameters");
+          let  target = action.attr("callbackTarget");
           Control.launchApiMethod(target, "changeValidation", [{
               invalid: {
                 message: parameters.message
@@ -156,12 +154,12 @@ aweApplication.directive('aweForm',
          */
         serverDownload: function (action, scope) {
           // Launch server action for printing
-          var parameters = {};
-          var target = action.attr("callbackTarget");
+          let  parameters = {};
+          let  target = action.attr("callbackTarget");
 
           // Store parameters
           _.merge(parameters, action.attr("parameters"), ServerData.getFormValues());
-          var targetAction = parameters[$settings.get("targetActionKey")];
+          let  targetAction = parameters[$settings.get("targetActionKey")];
 
           // Retrieve target specific attributes for the server call
           if (target) {
@@ -173,7 +171,7 @@ aweApplication.directive('aweForm',
           }
 
           // Generate url parameter
-          var fileData = ServerData.getFileData("download/maintain/" + targetAction, parameters);
+          let  fileData = ServerData.getFileData("download/maintain/" + targetAction, parameters);
           fileData.action = action;
 
           // Download file
@@ -185,12 +183,12 @@ aweApplication.directive('aweForm',
          */
         fill: function (action) {
           // Retrieve parameters
-          var parameters = _.cloneDeep(action.attr("parameters"));
-          var data = parameters.datalist;
-          var address = action.attr("callbackTarget");
+          let  parameters = _.cloneDeep(action.attr("parameters"));
+          let  data = parameters.datalist;
+          let  address = action.attr("callbackTarget");
 
           // Generate model
-          var model = data;
+          let  model = data;
           model.values = model.rows;
           delete model.rows;
 
@@ -225,9 +223,9 @@ aweApplication.directive('aweForm',
          */
         select: function (action) {
           // Retrieve parameters
-          var parameters = _.cloneDeep(action.attr("parameters"));
-          var values = parameters.values;
-          var address = action.attr("callbackTarget");
+          let  parameters = _.cloneDeep(action.attr("parameters"));
+          let  values = parameters.values;
+          let  address = action.attr("callbackTarget");
 
           // Call the method update seleted value from API
           Control.changeModelAttribute(address, {selected: values}, true);
@@ -242,10 +240,10 @@ aweApplication.directive('aweForm',
          */
         reset: function (action, scope) {
           // Get parameters
-          var view = action.attr("view");
+          let  view = action.attr("view");
 
           // Check reset target
-          var reseteableScopes = getReseteableScopes(action.attr("target"), scope);
+          let  reseteableScopes = getReseteableScopes(action.attr("target"), scope);
           _.each(reseteableScopes, function (reseteableScope) {
             reseteableScope.$broadcast("reset-scope", view);
           });
@@ -260,10 +258,10 @@ aweApplication.directive('aweForm',
          */
         restore: function (action, scope) {
           // Get parameters
-          var view = action.attr("view");
+          let  view = action.attr("view");
 
           // Check restore target
-          var reseteableScopes = getReseteableScopes(action.attr("target"), scope);
+          let  reseteableScopes = getReseteableScopes(action.attr("target"), scope);
           _.each(reseteableScopes, function (reseteableScope) {
             reseteableScope.$broadcast("restore-scope", view);
           });
@@ -278,10 +276,10 @@ aweApplication.directive('aweForm',
          */
         restoreTarget: function (action, scope) {
           // Get parameters
-          var view = action.attr("view");
+          let  view = action.attr("view");
 
           // Check restore target
-          var reseteableScopes = getReseteableScopes(action.attr("target"), scope);
+          let  reseteableScopes = getReseteableScopes(action.attr("target"), scope);
           _.each(reseteableScopes, function (reseteableScope) {
             reseteableScope.$broadcast("restore-scope-target", view);
           });
@@ -304,7 +302,7 @@ aweApplication.directive('aweForm',
           action.attr("alive", true);
 
           // Launch a logout server action
-          var parameters = {};
+          let  parameters = {};
           parameters[$settings.get("serverActionKey")] = "logout";
           action.attr("parameters", parameters);
           FormActions.server(action);
@@ -318,17 +316,17 @@ aweApplication.directive('aweForm',
          */
         checkModelUpdated: function (action) {
           // Get target
-          var target = action.attr("callbackTarget");
+          let  target = action.attr("callbackTarget");
           // Get view
-          var view = action.attr("view");
-          var context = action.attr("context");
+          let  view = action.attr("view");
+          let  context = action.attr("context");
           // Check if model is different than initial model
-          var changes = Control.checkModelChanged(view);
+          let  changes = Control.checkModelChanged(view);
 
           if (changes) {
             // Create message to show in confirm action
-            var targetMessage = 'CONFIRM_UPDATE_DATA';
-            var message = {
+            let  targetMessage = 'CONFIRM_UPDATE_DATA';
+            let  message = {
               title: 'CONFIRM_TITLE_UPDATED_DATA',
               message: 'CONFIRM_MESSAGE_UPDATED_DATA'
             };
@@ -336,7 +334,7 @@ aweApplication.directive('aweForm',
             Control.addMessageToScope(view, targetMessage, message);
 
             // Create confirm action
-            var confirmAction = {type: 'confirm'};
+            let  confirmAction = {type: 'confirm'};
 
             // Add parameters
             confirmAction.parameters = {'target': targetMessage};
@@ -354,17 +352,17 @@ aweApplication.directive('aweForm',
          */
         checkModelNoUpdated: function (action) {
           // Get target
-          var target = action.attr("callbackTarget");
+          let  target = action.attr("callbackTarget");
           // Get view
-          var view = action.attr("view");
-          var context = action.attr("context");
+          let  view = action.attr("view");
+          let  context = action.attr("context");
           // Check if model is equal than initial model
-          var changes = Control.checkModelChanged(view);
+          let  changes = Control.checkModelChanged(view);
 
           if (!changes) {
             // Create message to show in confirm action
-            var targetMessage = 'CONFIRM_NOT_UPDATE_DATA';
-            var message = {
+            let  targetMessage = 'CONFIRM_NOT_UPDATE_DATA';
+            let  message = {
               title: 'CONFIRM_TITLE_NOT_UPDATED_DATA',
               message: 'CONFIRM_MESSAGE_NOT_UPDATED_DATA'
             };
@@ -372,7 +370,7 @@ aweApplication.directive('aweForm',
             Control.addMessageToScope(view, targetMessage, message);
 
             // Create confirm action
-            var confirmAction = {type: 'confirm'};
+            let  confirmAction = {type: 'confirm'};
 
             // Add parameters
             confirmAction.parameters = {'target': targetMessage};
@@ -390,17 +388,17 @@ aweApplication.directive('aweForm',
          */
         checkModelEmpty: function (action) {
           // Get target
-          var target = action.attr("callbackTarget");
+          let  target = action.attr("callbackTarget");
           // Get view
-          var view = action.attr("view");
-          var context = action.attr("context");
+          let  view = action.attr("view");
+          let  context = action.attr("context");
           // Check if model is different than initial model
-          var empty = Control.checkModelEmpty(view);
+          let  empty = Control.checkModelEmpty(view);
 
           if (empty) {
             // Create message to show in confirm action
-            var targetMessage = 'CONFIRM_EMPTY_DATA';
-            var message = {
+            let  targetMessage = 'CONFIRM_EMPTY_DATA';
+            let  message = {
               title: 'CONFIRM_TITLE_EMPTY_DATA',
               message: 'CONFIRM_MESSAGE_EMPTY_DATA'
             };
@@ -408,7 +406,7 @@ aweApplication.directive('aweForm',
             Control.addMessageToScope(view, targetMessage, message);
 
             // Create confirm action
-            var confirmAction = {type: 'confirm'};
+            let  confirmAction = {type: 'confirm'};
 
             // Add parameters
             confirmAction.parameters = {'target': targetMessage};
@@ -442,7 +440,7 @@ aweApplication.directive('aweForm',
           scope.element = elem;
 
           // Define listeners
-          var listeners = {};
+          let  listeners = {};
           _.each(ClientActions.form, function (actionOptions, actionId) {
             listeners[actionId] = scope.$on("/action/" + actionId, function (event, action) {
               return FormActions[actionOptions.method](action, scope);

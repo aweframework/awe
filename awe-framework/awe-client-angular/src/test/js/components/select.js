@@ -1,8 +1,8 @@
-import { DefaultSettings } from "./../../../main/resources/js/awe/data/options";
-import { launchScreenAction } from "../utils";
+import {DefaultSettings} from "./../../../main/resources/js/awe/data/options";
+import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/select.js', function() {
-  var $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage;
+  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage;
 
   // Mock module
   beforeEach(function() {
@@ -33,7 +33,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/select.js', fu
 
   it('replaces the element with the appropriate content', function() {
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-select input-select-id='RefreshTime'></awe-input-select>")($rootScope);
+    let  element = $compile("<awe-input-select input-select-id='RefreshTime'></awe-input-select>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
 
@@ -47,7 +47,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/select.js', fu
     $rootScope.firstLoad = true;
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-select input-select-id='RefreshTime'></awe-input-select>")($rootScope);
+    let  element = $compile("<awe-input-select input-select-id='RefreshTime'></awe-input-select>")($rootScope);
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
           id: "RefreshTime",
           controller: {numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"select", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true},
@@ -72,7 +72,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/select.js', fu
     $rootScope.firstLoad = true;
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-suggest input-suggest-id='RefreshTime'></awe-input-suggest>")($rootScope);
+    let  element = $compile("<awe-input-suggest input-suggest-id='RefreshTime'></awe-input-suggest>")($rootScope);
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
           id: "RefreshTime",
           controller: {numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"select", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true},
@@ -97,7 +97,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/select.js', fu
     $rootScope.firstLoad = true;
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-select-multiple input-select-multiple-id='RefreshTime'></awe-input-select-multiple>")($rootScope);
+    let  element = $compile("<awe-input-select-multiple input-select-multiple-id='RefreshTime'></awe-input-select-multiple>")($rootScope);
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
           id: "RefreshTime",
           controller: {numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"select", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true},
@@ -122,7 +122,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/select.js', fu
     $rootScope.firstLoad = true;
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-input-suggest-multiple input-suggest-multiple-id='RefreshTime'></awe-input-suggest-multiple>")($rootScope);
+    let  element = $compile("<awe-input-suggest-multiple input-suggest-multiple-id='RefreshTime'></awe-input-suggest-multiple>")($rootScope);
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
           id: "RefreshTime",
           controller: {numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"select", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true},

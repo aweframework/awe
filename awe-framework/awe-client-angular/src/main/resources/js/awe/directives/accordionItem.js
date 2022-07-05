@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Accordion item
 aweApplication.directive('aweAccordionItem',
@@ -16,13 +16,13 @@ aweApplication.directive('aweAccordionItem',
         },
         link: function (scope, element) {
           // Init as component
-          var component = new Component(scope, scope.itemId);
+          let  component = new Component(scope, scope.itemId);
           if (!component.asComponent()) {
             // If component initialization is wrong, cancel initialization
             return false;
           }
           // Read component data from screen
-          var parent = scope.$parent.$parent;
+          let  parent = scope.$parent.$parent;
 
           // Get controller values and assign to scope
           scope.label = component.controller.label;

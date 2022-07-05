@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Info dropdown directive
 aweApplication.directive('aweInfoDropdown', ['ServerData', 'Component', 'ActionController',
@@ -21,13 +21,13 @@ aweApplication.directive('aweInfoDropdown', ['ServerData', 'Component', 'ActionC
       },
       link: function (scope) {
         // Init as component
-        var component = new Component(scope, scope.infoId);
+        let  component = new Component(scope, scope.infoId);
         if (!component.asComponent()) {
           // If component initialization is wrong, cancel initialization
           return false;
         }
         // Define extra controls
-        var controller = {
+        let  controller = {
           hasChildren: false
         };
         // Define controller

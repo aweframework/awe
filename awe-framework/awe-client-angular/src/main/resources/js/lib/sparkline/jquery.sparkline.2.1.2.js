@@ -213,7 +213,7 @@
 (function($) {
     'use strict';
 
-    var UNSET_OPTION = {},
+    let  UNSET_OPTION = {},
         getDefaults, createClass, SPFormat, clipval, quartile, normalizeValue, normalizeValues,
         remove, isNumber, all, sum, addCSS, ensureArray, formatNumber, RangeMap,
         MouseHandler, Tooltip, barHighlightMixin,
@@ -380,7 +380,7 @@
      */
 
     createClass = function (/* [baseclass, [mixin, ...]], definition */) {
-        var Class, args;
+        let  Class, args;
         Class = function () {
             this.init.apply(this, arguments);
         };
@@ -419,11 +419,11 @@
         },
 
         render: function (fieldset, lookups, options) {
-            var self = this,
+            let  self = this,
                 fields = fieldset,
                 match, token, lookupkey, fieldvalue, prec;
             return this.format.replace(this.fre, function () {
-                var lookup;
+                let  lookup;
                 token = arguments[1];
                 lookupkey = arguments[3];
                 match = self.precre.exec(token);
@@ -476,7 +476,7 @@
     };
 
     quartile = function (values, q) {
-        var vl;
+        let  vl;
         if (q === 2) {
             vl = Math.floor(values.length / 2);
             return values.length % 2 ? values[vl] : (values[vl-1] + values[vl]) / 2;
@@ -493,7 +493,7 @@
     };
 
     normalizeValue = function (val) {
-        var nf;
+        let  nf;
         switch (val) {
             case 'undefined':
                 val = undefined;
@@ -517,7 +517,7 @@
     };
 
     normalizeValues = function (vals) {
-        var i, result = [];
+        let  i, result = [];
         for (i = vals.length; i--;) {
             result[i] = normalizeValue(vals[i]);
         }
@@ -525,7 +525,7 @@
     };
 
     remove = function (vals, filter) {
-        var i, vl, result = [];
+        let  i, vl, result = [];
         for (i = 0, vl = vals.length; i < vl; i++) {
             if (vals[i] !== filter) {
                 result.push(vals[i]);
@@ -539,7 +539,7 @@
     };
 
     formatNumber = function (num, prec, groupsize, groupsep, decsep) {
-        var p, i;
+        let  p, i;
         num = (prec === false ? parseFloat(num).toString() : num.toFixed(prec)).split('');
         p = (p = $.inArray('.', num)) < 0 ? num.length : p;
         if (p < num.length) {
@@ -554,7 +554,7 @@
     // determine if all values of an array match a value
     // returns true if the array is empty
     all = function (val, arr, ignoreNull) {
-        var i;
+        let  i;
         for (i = arr.length; i--; ) {
             if (ignoreNull && arr[i] === null) continue;
             if (arr[i] !== val) {
@@ -566,7 +566,7 @@
 
     // sums the numeric values in an array, ignoring other values
     sum = function (vals) {
-        var total = 0, i;
+        let  total = 0, i;
         for (i = vals.length; i--;) {
             total += typeof vals[i] === 'number' ? vals[i] : 0;
         }
@@ -579,7 +579,7 @@
 
     // http://paulirish.com/2008/bookmarklet-inject-new-css-rules/
     addCSS = function(css) {
-        var tag;
+        let  tag;
         //if ('\v' == 'v') /* ie only */ {
         if (document.createStyleSheet) {
             document.createStyleSheet().cssText = css;
@@ -593,7 +593,7 @@
 
     // Provide a cross-browser interface to a few simple drawing primitives
     $.fn.simpledraw = function (width, height, useExisting, interact) {
-        var target, mhandler;
+        let  target, mhandler;
         if (useExisting && (target = this.data('_jqs_vcanvas'))) {
             return target;
         }
@@ -604,7 +604,7 @@
 
         } else if ($.fn.sparkline.canvas === undefined) {
             // No function defined yet -- need to see if we support Canvas or VML
-            var el = document.createElement('canvas');
+            let  el = document.createElement('canvas');
             if (!!(el.getContext && el.getContext('2d'))) {
                 // Canvas is available
                 $.fn.sparkline.canvas = function(width, height, target, interact) {
@@ -640,7 +640,7 @@
     };
 
     $.fn.cleardraw = function () {
-        var target = this.data('_jqs_vcanvas');
+        let  target = this.data('_jqs_vcanvas');
         if (target) {
             target.reset();
         }
@@ -648,7 +648,7 @@
 
     $.RangeMapClass = RangeMap = createClass({
         init: function (map) {
-            var key, range, rangelist = [];
+            let  key, range, rangelist = [];
             for (key in map) {
                 if (map.hasOwnProperty(key) && typeof key === 'string' && key.indexOf(':') > -1) {
                     range = key.split(':');
@@ -663,7 +663,7 @@
         },
 
         get: function (value) {
-            var rangelist = this.rangelist,
+            let  rangelist = this.rangelist,
                 i, range, result;
             if ((result = this.map[value]) !== undefined) {
                 return result;
@@ -687,7 +687,7 @@
 
     MouseHandler = createClass({
         init: function (el, options) {
-            var $el = $(el);
+            let  $el = $(el);
             this.$el = $el;
             this.options = options;
             this.currentPageX = 0;
@@ -708,7 +708,7 @@
         },
 
         registerCanvas: function (canvas) {
-            var $canvas = $(canvas.canvas);
+            let  $canvas = $(canvas.canvas);
             this.canvas = canvas;
             this.$canvas = $canvas;
             $canvas.mouseenter($.proxy(this.mouseenter, this));
@@ -725,7 +725,7 @@
         },
 
         mouseclick: function (e) {
-            var clickEvent = $.Event('sparklineClick');
+            let  clickEvent = $.Event('sparklineClick');
             clickEvent.originalEvent = e;
             clickEvent.sparklines = this.splist;
             this.$el.trigger(clickEvent);
@@ -747,7 +747,7 @@
 
         mouseleave: function () {
             $(document.body).unbind('mousemove.jqs');
-            var splist = this.splist,
+            let  splist = this.splist,
                  spcount = splist.length,
                  needsRefresh = false,
                  sp, i;
@@ -782,7 +782,7 @@
         },
 
         updateDisplay: function () {
-            var splist = this.splist,
+            let  splist = this.splist,
                  spcount = splist.length,
                  needsRefresh = false,
                  offset = this.$canvas.offset(),
@@ -829,7 +829,7 @@
             'float: left !important;',
 
         init: function (options) {
-            var tooltipClassname = options.get('tooltipClassname', 'jqstooltip'),
+            let  tooltipClassname = options.get('tooltipClassname', 'jqstooltip'),
                 sizetipStyle = this.sizeStyle,
                 offset;
             this.container = options.get('tooltipContainer') || document.body;
@@ -941,11 +941,11 @@
     pending = [];
     $.fn.sparkline = function (userValues, userOptions) {
         return this.each(function () {
-            var options = new $.fn.sparkline.options(this, userOptions),
+            let  options = new $.fn.sparkline.options(this, userOptions),
                  $this = $(this),
                  render, i;
             render = function () {
-                var values, width, height, tmp, mhandler, sp, vals;
+                let  values, width, height, tmp, mhandler, sp, vals;
                 if (userValues === 'html' || userValues === undefined) {
                     vals = this.getAttribute(options.get('tagValuesAttribute'));
                     if (vals === undefined || vals === null) {
@@ -1020,8 +1020,8 @@
 
 
     $.sparkline_display_visible = function () {
-        var el, i, pl;
-        var done = [];
+        let  el, i, pl;
+        let  done = [];
         for (i = 0, pl = pending.length; i < pl; i++) {
             el = pending[i][0];
             if ($(el).is(':visible') && !$(el).parents().is(':hidden')) {
@@ -1048,7 +1048,7 @@
      */
     $.fn.sparkline.options = createClass({
         init: function (tag, userOptions) {
-            var extendedOptions, defaults, base, tagOptionType;
+            let  extendedOptions, defaults, base, tagOptionType;
             this.userOptions = userOptions = userOptions || {};
             this.tag = tag;
             this.tagValCache = {};
@@ -1067,7 +1067,7 @@
 
 
         getTagSetting: function (key) {
-            var prefix = this.tagOptionsPrefix,
+            let  prefix = this.tagOptionsPrefix,
                 val, i, pairs, keyval;
             if (prefix === false || prefix === undefined) {
                 return UNSET_OPTION;
@@ -1099,7 +1099,7 @@
         },
 
         get: function (key, defaultval) {
-            var tagOption = this.getTagSetting(key),
+            let  tagOption = this.getTagSetting(key),
                 result;
             if (tagOption !== UNSET_OPTION) {
                 return tagOption;
@@ -1126,7 +1126,7 @@
          * Setup the canvas
          */
         initTarget: function () {
-            var interactive = !this.options.get('disableInteraction');
+            let  interactive = !this.options.get('disableInteraction');
             if (!(this.target = this.$el.simpledraw(this.width, this.height, this.options.get('composite'), interactive))) {
                 this.disabled = true;
             } else {
@@ -1156,7 +1156,7 @@
          * Highlight an item based on the moused-over x,y co-ordinate
          */
         setRegionHighlight: function (el, x, y) {
-            var currentRegion = this.currentRegion,
+            let  currentRegion = this.currentRegion,
                 highlightEnabled = !this.options.get('disableHighlight'),
                 newRegion;
             if (x > this.canvasWidth || y > this.canvasHeight || x < 0 || y < 0) {
@@ -1202,7 +1202,7 @@
          * Fetch the HTML to display as a tooltip
          */
         getCurrentRegionTooltip: function () {
-            var options = this.options,
+            let  options = this.options,
                 header = '',
                 entries = [],
                 fields, formats, formatlen, fclass, text, i,
@@ -1270,7 +1270,7 @@
         getCurrentRegionFields: function () {},
 
         calcHighlightColor: function (color, options) {
-            var highlightColor = options.get('highlightColor'),
+            let  highlightColor = options.get('highlightColor'),
                 lighten = options.get('highlightLighten'),
                 parse, mult, rgbnew, i;
             if (highlightColor) {
@@ -1296,7 +1296,7 @@
 
     barHighlightMixin = {
         changeHighlight: function (highlight) {
-            var currentRegion = this.currentRegion,
+            let  currentRegion = this.currentRegion,
                 target = this.target,
                 shapeids = this.regionShapes[currentRegion],
                 newShapes;
@@ -1316,7 +1316,7 @@
         },
 
         render: function () {
-            var values = this.values,
+            let  values = this.values,
                 target = this.target,
                 regionShapes = this.regionShapes,
                 shapes, ids, i, j;
@@ -1366,7 +1366,7 @@
         },
 
         getRegion: function (el, x, y) {
-            var i,
+            let  i,
                 regionMap = this.regionMap; // maps regions to value positions
             for (i = regionMap.length; i--;) {
                 if (regionMap[i] !== null && x >= regionMap[i][0] && x <= regionMap[i][1]) {
@@ -1377,7 +1377,7 @@
         },
 
         getCurrentRegionFields: function () {
-            var currentRegion = this.currentRegion;
+            let  currentRegion = this.currentRegion;
             return {
                 isNull: this.yvalues[currentRegion] === null,
                 x: this.xvalues[currentRegion],
@@ -1389,7 +1389,7 @@
         },
 
         renderHighlight: function () {
-            var currentRegion = this.currentRegion,
+            let  currentRegion = this.currentRegion,
                 target = this.target,
                 vertex = this.vertices[currentRegion],
                 options = this.options,
@@ -1416,7 +1416,7 @@
         },
 
         removeHighlight: function () {
-            var target = this.target;
+            let  target = this.target;
             if (this.highlightSpotId) {
                 target.removeShapeId(this.highlightSpotId);
                 this.highlightSpotId = null;
@@ -1428,7 +1428,7 @@
         },
 
         scanValues: function () {
-            var values = this.values,
+            let  values = this.values,
                 valcount = values.length,
                 xvalues = this.xvalues,
                 yvalues = this.yvalues,
@@ -1474,7 +1474,7 @@
         },
 
         processRangeOptions: function () {
-            var options = this.options,
+            let  options = this.options,
                 normalRangeMin = options.get('normalRangeMin'),
                 normalRangeMax = options.get('normalRangeMax');
 
@@ -1502,7 +1502,7 @@
         },
 
         drawNormalRange: function (canvasLeft, canvasTop, canvasHeight, canvasWidth, rangey) {
-            var normalRangeMin = this.options.get('normalRangeMin'),
+            let  normalRangeMin = this.options.get('normalRangeMin'),
                 normalRangeMax = this.options.get('normalRangeMax'),
                 ytop = canvasTop + Math.round(canvasHeight - (canvasHeight * ((normalRangeMax - this.miny) / rangey))),
                 height = Math.round((canvasHeight * (normalRangeMax - normalRangeMin)) / rangey);
@@ -1510,7 +1510,7 @@
         },
 
         render: function () {
-            var options = this.options,
+            let  options = this.options,
                 target = this.target,
                 canvasWidth = this.canvasWidth,
                 canvasHeight = this.canvasHeight,
@@ -1704,7 +1704,7 @@
         type: 'bar',
 
         init: function (el, values, options, width, height) {
-            var barWidth = parseInt(options.get('barWidth'), 10),
+            let  barWidth = parseInt(options.get('barWidth'), 10),
                 barSpacing = parseInt(options.get('barSpacing'), 10),
                 chartRangeMin = options.get('chartRangeMin'),
                 chartRangeMax = options.get('chartRangeMax'),
@@ -1753,8 +1753,8 @@
 
             numValues = [];
             stackRanges = stacked ? [] : numValues;
-            var stackTotals = [];
-            var stackRangesNeg = [];
+            let  stackTotals = [];
+            let  stackRangesNeg = [];
             for (i = 0, vlen = values.length; i < vlen; i++) {
                 if (stacked) {
                     vlist = values[i];
@@ -1844,12 +1844,12 @@
         },
 
         getRegion: function (el, x, y) {
-            var result = Math.floor(x / this.totalBarWidth);
+            let  result = Math.floor(x / this.totalBarWidth);
             return (result < 0 || result >= this.values.length) ? undefined : result;
         },
 
         getCurrentRegionFields: function () {
-            var currentRegion = this.currentRegion,
+            let  currentRegion = this.currentRegion,
                 values = ensureArray(this.values[currentRegion]),
                 result = [],
                 value, i;
@@ -1866,7 +1866,7 @@
         },
 
         calcColor: function (stacknum, value, valuenum) {
-            var colorMapByIndex = this.colorMapByIndex,
+            let  colorMapByIndex = this.colorMapByIndex,
                 colorMapByValue = this.colorMapByValue,
                 options = this.options,
                 color, newColor;
@@ -1890,7 +1890,7 @@
          * Render bar(s) for a region
          */
         renderRegion: function (valuenum, highlight) {
-            var vals = this.values[valuenum],
+            let  vals = this.values[valuenum],
                 options = this.options,
                 xaxisOffset = this.xaxisOffset,
                 result = [],
@@ -1960,7 +1960,7 @@
         type: 'tristate',
 
         init: function (el, values, options, width, height) {
-            var barWidth = parseInt(options.get('barWidth'), 10),
+            let  barWidth = parseInt(options.get('barWidth'), 10),
                 barSpacing = parseInt(options.get('barSpacing'), 10);
             tristate._super.init.call(this, el, values, options, width, height);
 
@@ -1989,7 +1989,7 @@
         },
 
         getCurrentRegionFields: function () {
-            var currentRegion = this.currentRegion;
+            let  currentRegion = this.currentRegion;
             return {
                 isNull: this.values[currentRegion] === undefined,
                 value: this.values[currentRegion],
@@ -1999,7 +1999,7 @@
         },
 
         calcColor: function (value, valuenum) {
-            var values = this.values,
+            let  values = this.values,
                 options = this.options,
                 colorMapByIndex = this.colorMapByIndex,
                 colorMapByValue = this.colorMapByValue,
@@ -2020,7 +2020,7 @@
         },
 
         renderRegion: function (valuenum, highlight) {
-            var values = this.values,
+            let  values = this.values,
                 options = this.options,
                 target = this.target,
                 canvasHeight, height, halfHeight,
@@ -2085,7 +2085,7 @@
         },
 
         getCurrentRegionFields: function () {
-            var currentRegion = this.currentRegion;
+            let  currentRegion = this.currentRegion;
             return {
                 isNull: this.values[currentRegion] === undefined,
                 value: this.values[currentRegion],
@@ -2094,7 +2094,7 @@
         },
 
         renderRegion: function (valuenum, highlight) {
-            var values = this.values,
+            let  values = this.values,
                 options = this.options,
                 min = this.min,
                 max = this.max,
@@ -2124,7 +2124,7 @@
         type: 'bullet',
 
         init: function (el, values, options, width, height) {
-            var min, max, vals;
+            let  min, max, vals;
             bullet._super.init.call(this, el, values, options, width, height);
 
             // values: target, performance, range1, range2, range3
@@ -2155,12 +2155,12 @@
         },
 
         getRegion: function (el, x, y) {
-            var shapeid = this.target.getShapeAt(el, x, y);
+            let  shapeid = this.target.getShapeAt(el, x, y);
             return (shapeid !== undefined && this.shapes[shapeid] !== undefined) ? this.shapes[shapeid] : undefined;
         },
 
         getCurrentRegionFields: function () {
-            var currentRegion = this.currentRegion;
+            let  currentRegion = this.currentRegion;
             return {
                 fieldkey: currentRegion.substr(0, 1),
                 value: this.values[currentRegion.substr(1)],
@@ -2169,7 +2169,7 @@
         },
 
         changeHighlight: function (highlight) {
-            var currentRegion = this.currentRegion,
+            let  currentRegion = this.currentRegion,
                 shapeid = this.valueShapes[currentRegion],
                 shape;
             delete this.shapes[shapeid];
@@ -2190,7 +2190,7 @@
         },
 
         renderRange: function (rn, highlight) {
-            var rangeval = this.values[rn],
+            let  rangeval = this.values[rn],
                 rangewidth = Math.round(this.canvasWidth * ((rangeval - this.min) / this.range)),
                 color = this.options.get('rangeColors')[rn - 2];
             if (highlight) {
@@ -2200,7 +2200,7 @@
         },
 
         renderPerformance: function (highlight) {
-            var perfval = this.values[1],
+            let  perfval = this.values[1],
                 perfwidth = Math.round(this.canvasWidth * ((perfval - this.min) / this.range)),
                 color = this.options.get('performanceColor');
             if (highlight) {
@@ -2211,7 +2211,7 @@
         },
 
         renderTarget: function (highlight) {
-            var targetval = this.values[0],
+            let  targetval = this.values[0],
                 x = Math.round(this.canvasWidth * ((targetval - this.min) / this.range) - (this.options.get('targetWidth') / 2)),
                 targettop = Math.round(this.canvasHeight * 0.10),
                 targetheight = this.canvasHeight - (targettop * 2),
@@ -2223,7 +2223,7 @@
         },
 
         render: function () {
-            var vlen = this.values.length,
+            let  vlen = this.values.length,
                 target = this.target,
                 i, shape;
             if (!bullet._super.render.call(this)) {
@@ -2255,7 +2255,7 @@
         type: 'pie',
 
         init: function (el, values, options, width, height) {
-            var total = 0, i;
+            let  total = 0, i;
 
             pie._super.init.call(this, el, values, options, width, height);
 
@@ -2278,12 +2278,12 @@
         },
 
         getRegion: function (el, x, y) {
-            var shapeid = this.target.getShapeAt(el, x, y);
+            let  shapeid = this.target.getShapeAt(el, x, y);
             return (shapeid !== undefined && this.shapes[shapeid] !== undefined) ? this.shapes[shapeid] : undefined;
         },
 
         getCurrentRegionFields: function () {
-            var currentRegion = this.currentRegion;
+            let  currentRegion = this.currentRegion;
             return {
                 isNull: this.values[currentRegion] === undefined,
                 value: this.values[currentRegion],
@@ -2294,7 +2294,7 @@
         },
 
         changeHighlight: function (highlight) {
-            var currentRegion = this.currentRegion,
+            let  currentRegion = this.currentRegion,
                  newslice = this.renderSlice(currentRegion, highlight),
                  shapeid = this.valueShapes[currentRegion];
             delete this.shapes[shapeid];
@@ -2304,7 +2304,7 @@
         },
 
         renderSlice: function (valuenum, highlight) {
-            var target = this.target,
+            let  target = this.target,
                 options = this.options,
                 radius = this.radius,
                 borderWidth = options.get('borderWidth'),
@@ -2335,7 +2335,7 @@
         },
 
         render: function () {
-            var target = this.target,
+            let  target = this.target,
                 values = this.values,
                 options = this.options,
                 radius = this.radius,
@@ -2384,7 +2384,7 @@
         },
 
         getCurrentRegionFields: function () {
-            var result = [
+            let  result = [
                 { field: 'lq', value: this.quartiles[0] },
                 { field: 'med', value: this.quartiles[1] },
                 { field: 'uq', value: this.quartiles[2] }
@@ -2405,7 +2405,7 @@
         },
 
         render: function () {
-            var target = this.target,
+            let  target = this.target,
                 values = this.values,
                 vlen = values.length,
                 options = this.options,
@@ -2626,7 +2626,7 @@
          */
         _calculatePixelDims: function (width, height, canvas) {
             // XXX This should probably be a configurable option
-            var match;
+            let  match;
             match = this._pxregex.exec(height);
             if (match) {
                 this.pixelHeight = match[1];
@@ -2645,7 +2645,7 @@
          * Generate a shape object and id for later rendering
          */
         _genShape: function (shapetype, shapeargs) {
-            var id = shapeCount++;
+            let  id = shapeCount++;
             shapeargs.unshift(id);
             return new VShape(this, id, shapetype, shapeargs);
         },
@@ -2714,7 +2714,7 @@
         },
 
         _getContext: function (lineColor, fillColor, lineWidth) {
-            var context = this.canvas.getContext('2d');
+            let  context = this.canvas.getContext('2d');
             if (lineColor !== undefined) {
                 context.strokeStyle = lineColor;
             }
@@ -2726,7 +2726,7 @@
         },
 
         reset: function () {
-            var context = this._getContext();
+            let  context = this._getContext();
             context.clearRect(0, 0, this.pixelWidth, this.pixelHeight);
             this.shapes = {};
             this.shapeseq = [];
@@ -2734,7 +2734,7 @@
         },
 
         _drawShape: function (shapeid, path, lineColor, fillColor, lineWidth) {
-            var context = this._getContext(lineColor, fillColor, lineWidth),
+            let  context = this._getContext(lineColor, fillColor, lineWidth),
                 i, plen;
             context.beginPath();
             context.moveTo(path[0][0] + 0.5, path[0][1] + 0.5);
@@ -2754,7 +2754,7 @@
         },
 
         _drawCircle: function (shapeid, x, y, radius, lineColor, fillColor, lineWidth) {
-            var context = this._getContext(lineColor, fillColor, lineWidth);
+            let  context = this._getContext(lineColor, fillColor, lineWidth);
             context.beginPath();
             context.arc(x, y, radius, 0, 2 * Math.PI, false);
             if (this.targetX !== undefined && this.targetY !== undefined &&
@@ -2770,7 +2770,7 @@
         },
 
         _drawPieSlice: function (shapeid, x, y, radius, startAngle, endAngle, lineColor, fillColor) {
-            var context = this._getContext(lineColor, fillColor);
+            let  context = this._getContext(lineColor, fillColor);
             context.beginPath();
             context.moveTo(x, y);
             context.arc(x, y, radius, startAngle, endAngle, false);
@@ -2800,7 +2800,7 @@
         },
 
         replaceWithShape: function (shapeid, shape) {
-            var shapeseq = this.shapeseq,
+            let  shapeseq = this.shapeseq,
                 i;
             this.shapes[shape.id] = shape;
             for (i = shapeseq.length; i--;) {
@@ -2812,7 +2812,7 @@
         },
 
         replaceWithShapes: function (shapeids, shapes) {
-            var shapeseq = this.shapeseq,
+            let  shapeseq = this.shapeseq,
                 shapemap = {},
                 sid, i, first;
 
@@ -2835,7 +2835,7 @@
         },
 
         insertAfterShape: function (shapeid, shape) {
-            var shapeseq = this.shapeseq,
+            let  shapeseq = this.shapeseq,
                 i;
             for (i = shapeseq.length; i--;) {
                 if (shapeseq[i] === shapeid) {
@@ -2847,7 +2847,7 @@
         },
 
         removeShapeId: function (shapeid) {
-            var shapeseq = this.shapeseq,
+            let  shapeseq = this.shapeseq,
                 i;
             for (i = shapeseq.length; i--;) {
                 if (shapeseq[i] === shapeid) {
@@ -2866,7 +2866,7 @@
         },
 
         render: function () {
-            var shapeseq = this.shapeseq,
+            let  shapeseq = this.shapeseq,
                 shapes = this.shapes,
                 shapeCount = shapeseq.length,
                 context = this._getContext(),
@@ -2888,7 +2888,7 @@
 
     VCanvas_vml = createClass(VCanvas_base, {
         init: function (width, height, target) {
-            var groupel;
+            let  groupel;
             VCanvas_vml._super.init.call(this, width, height, target);
             if (target[0]) {
                 target = target[0];
@@ -2909,7 +2909,7 @@
         },
 
         _drawShape: function (shapeid, path, lineColor, fillColor, lineWidth) {
-            var vpath = [],
+            let  vpath = [],
                 initial, stroke, fill, closed, vel, plen, i;
             for (i = 0, plen = path.length; i < plen; i++) {
                 vpath[i] = '' + (path[i][0]) + ',' + (path[i][1]);
@@ -2930,7 +2930,7 @@
         },
 
         _drawCircle: function (shapeid, x, y, radius, lineColor, fillColor, lineWidth) {
-            var stroke, fill, vel;
+            let  stroke, fill, vel;
             x -= radius;
             y -= radius;
             stroke = lineColor === undefined ? ' stroked="false" ' : ' strokeWeight="' + lineWidth + 'px" strokeColor="' + lineColor + '" ';
@@ -2945,7 +2945,7 @@
         },
 
         _drawPieSlice: function (shapeid, x, y, radius, startAngle, endAngle, lineColor, fillColor) {
-            var vpath, startx, starty, endx, endy, stroke, fill, vel;
+            let  vpath, startx, starty, endx, endy, stroke, fill, vel;
             if (startAngle === endAngle) {
                 return '';  // VML seems to have problem when start angle equals end angle.
             }
@@ -2995,7 +2995,7 @@
         },
 
         appendShape: function (shape) {
-            var vel = this['_draw' + shape.type].apply(this, shape.args);
+            let  vel = this['_draw' + shape.type].apply(this, shape.args);
             if (this.rendered) {
                 this.group.insertAdjacentHTML('beforeEnd', vel);
             } else {
@@ -3006,14 +3006,14 @@
         },
 
         replaceWithShape: function (shapeid, shape) {
-            var existing = $('#jqsshape' + shapeid),
+            let  existing = $('#jqsshape' + shapeid),
                 vel = this['_draw' + shape.type].apply(this, shape.args);
             existing[0].outerHTML = vel;
         },
 
         replaceWithShapes: function (shapeids, shapes) {
             // replace the first shapeid with all the new shapes then toast the remaining old shapes
-            var existing = $('#jqsshape' + shapeids[0]),
+            let  existing = $('#jqsshape' + shapeids[0]),
                 replace = '',
                 slen = shapes.length,
                 i;
@@ -3027,18 +3027,18 @@
         },
 
         insertAfterShape: function (shapeid, shape) {
-            var existing = $('#jqsshape' + shapeid),
+            let  existing = $('#jqsshape' + shapeid),
                  vel = this['_draw' + shape.type].apply(this, shape.args);
             existing[0].insertAdjacentHTML('afterEnd', vel);
         },
 
         removeShapeId: function (shapeid) {
-            var existing = $('#jqsshape' + shapeid);
+            let  existing = $('#jqsshape' + shapeid);
             this.group.removeChild(existing[0]);
         },
 
         getShapeAt: function (el, x, y) {
-            var shapeid = el.id.substr(8);
+            let  shapeid = el.id.substr(8);
             return shapeid;
         },
 

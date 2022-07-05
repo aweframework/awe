@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Option directive
 aweApplication.directive('aweOption',
@@ -25,8 +25,8 @@ aweApplication.directive('aweOption',
           'status': '='
         },
         compile: function (tElem) {
-          var contents = tElem.contents().remove();
-          var compiledContents;
+          let  contents = tElem.contents().remove();
+          let  compiledContents;
 
           return {
             pre: function (scope, elem) {
@@ -44,14 +44,14 @@ aweApplication.directive('aweOption',
               /**
                * Check if option is opened
                */
-              var isOpened = function () {
+              let  isOpened = function () {
                 return scope.optionName in scope.selectedOption.opened;
               };
 
               /**
                * Check if option is opened
                */
-              var isFloating = function () {
+              let  isFloating = function () {
                 return scope.firstLevel && scope.status.resolution !== 'mobile';
               };
 
@@ -60,7 +60,7 @@ aweApplication.directive('aweOption',
                * @returns {Array}
                */
               scope.getStaticOptionClasses = function () {
-                var classes = [];
+                let  classes = [];
 
                 // Visible children
                 if (scope.hasVisibleChildren()) {
@@ -85,7 +85,7 @@ aweApplication.directive('aweOption',
                * @returns {Array}
                */
               scope.getOptionClasses = function () {
-                var classes = [];
+                let  classes = [];
                 // Opened status
                 if (isOpened()) {
                   if (isFloating() && scope.status.minimized) {
@@ -108,7 +108,7 @@ aweApplication.directive('aweOption',
                * @returns {Array}
                */
               scope.getStaticSubmenuClasses = function () {
-                var classes = [];
+                let  classes = [];
 
                 // First level classes
                 if (scope.firstLevel) {
@@ -126,7 +126,7 @@ aweApplication.directive('aweOption',
                * @returns {Array}
                */
               scope.getSubmenuClasses = function () {
-                var classes = [];
+                let  classes = [];
 
                 // Opened status
                 if (isOpened()) {

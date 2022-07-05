@@ -24,7 +24,7 @@ aweApplication.controller("MessageController",
        * @returns {undefined}
        */
       $ctrl.closeAlert = function (index) {
-        var alert = $ctrl.alerts.splice(index, 1)[0];
+        let  alert = $ctrl.alerts.splice(index, 1)[0];
         if (alert && "action" in alert) {
           $actionController.acceptAction(alert.action);
           if ("timer" in alert) {
@@ -40,7 +40,7 @@ aweApplication.controller("MessageController",
        * @returns {Object} message text
        */
       function getMessageText(view, parameters) {
-        var messageText = {};
+        let  messageText = {};
         if (parameters) {
           // Retrieve title and parameters
           if ("target" in parameters) {
@@ -127,13 +127,13 @@ aweApplication.controller("MessageController",
           timeout = $settings.get('messageTimeout')[parameters.type];
 
           // Generate message
-          var messageContent = {
+          let  messageContent = {
             type: type,
             action: action
           };
 
           // Retrieve message text
-          var messageText = getMessageText(action.attr("view"), parameters);
+          let  messageText = getMessageText(action.attr("view"), parameters);
           if ("title" in messageText && !$utilities.isEmpty(messageText.title)) {
             messageContent.title = messageText.title;
           }

@@ -19,16 +19,16 @@
 
 !function( $ ) {
 
-	var WinReszier = (function(){
-		var registered = [];
-		var inited = false;
-		var timer;
-		var resize = function(ev) {
+	let  WinReszier = (function(){
+		let  registered = [];
+		let  inited = false;
+		let  timer;
+		let  resize = function(ev) {
 			clearTimeout(timer);
 			timer = setTimeout(notify, 100);
 		};
-		var notify = function() {
-			for(var i=0, cnt=registered.length; i<cnt; i++) {
+		let  notify = function() {
+			for(let  i=0, cnt=registered.length; i<cnt; i++) {
 				registered[i].apply();
 			}
 		};
@@ -41,7 +41,7 @@
 				}
 			},
 			unregister: function(fn) {
-				for(var i=0, cnt=registered.length; i<cnt; i++) {
+				for(let  i=0, cnt=registered.length; i<cnt; i++) {
 					if (registered[i] == fn) {
 						delete registered[i];
 						break;
@@ -51,7 +51,7 @@
 		};
 	}());
 
-	var TabDrop = function(element, options) {
+	let  TabDrop = function(element, options) {
 		this.element = $(element);
 		this.dropdown = $('<li class="dropdown hide pull-right tabdrop">' +
 				'<a class="dropdown-toggle" data-toggle="dropdown" href="#">' +
@@ -68,7 +68,7 @@
 		constructor: TabDrop,
 
 		layout: function() {
-			var collection = [];
+			let  collection = [];
 			this.dropdown.removeClass('hide');
 			this.element
 				.append(this.dropdown.find('li'))
@@ -98,7 +98,7 @@
 
 	$.fn.tabdrop = function ( option ) {
 		return this.each(function () {
-			var $this = $(this),
+			let  $this = $(this),
 				data = $this.data('tabdrop'),
 				options = typeof option === 'object' && option;
 			if (!data)  {

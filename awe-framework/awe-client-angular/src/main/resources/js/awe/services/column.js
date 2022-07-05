@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "./../awe";
 
 // Column service
 aweApplication.factory('Column',
@@ -16,7 +16,7 @@ aweApplication.factory('Column',
        * @returns {unresolved}
        */
       function fixAddress(address) {
-        var addressFixed = $utilities.parseJSON(address);
+        let  addressFixed = $utilities.parseJSON(address);
         delete addressFixed.hash;
         return addressFixed;
       }
@@ -37,16 +37,16 @@ aweApplication.factory('Column',
          * @param {Component} component
          */
         init: function (component) {
-          var column = this;
+          let  column = this;
           component.editing = false;
 
           // Scope attributes
           component.scope.initialized = false;
           component.scope.iconLoader = "icon";
           component.scope.loaderIcon = "fa-spinner fa-spin";
-          var $gridNode = $('#scope-' + column.address.component);
+          let  $gridNode = $('#scope-' + column.address.component);
           column.gridScope = $gridNode.scope() || component.col.grid.appScope;
-          var gridComponent = column.gridScope.component;
+          let  gridComponent = column.gridScope.component;
 
           /******************************************************************************
            * COMPONENT METHODS
@@ -131,7 +131,7 @@ aweApplication.factory('Column',
            * @param {boolean} editing Editing
            * @returns {undefined}
            */
-          var changeCellVisibility = function (editing) {
+          let  changeCellVisibility = function (editing) {
             if (component.element) {
               if (editing) {
                 component.element.find(".edition").show();
@@ -146,9 +146,9 @@ aweApplication.factory('Column',
           /**
            * Retrieves visible value for the array
            */
-          var updateEditing = function () {
-            var editing = false;
-            var selected = gridComponent.model.selected;
+          let  updateEditing = function () {
+            let  editing = false;
+            let  selected = gridComponent.model.selected;
             if (selected && selected.length === 1 && String(selected[0]) === String(component.address.row)) {
               editing = true;
 
@@ -168,7 +168,7 @@ aweApplication.factory('Column',
           /**
            * Update address and model (in case of rowId change)
            */
-          var updateAddressAndModel = function () {
+          let  updateAddressAndModel = function () {
             // Get new address
             column.address = fixAddress(column.attributes.cellAddress);
 
@@ -184,7 +184,7 @@ aweApplication.factory('Column',
             $control.setAddressApi(component.address, component.api);
 
             // Check if cell is already initialized
-            var alreadyInitialized = gridComponent.checkInitialized(component.address);
+            let  alreadyInitialized = gridComponent.checkInitialized(component.address);
 
             // Calculate scope view
             component.view = component.address.view;
@@ -193,7 +193,7 @@ aweApplication.factory('Column',
             component.model = gridComponent.getModel(component.address);
 
             // Get controller from grid controller
-            var controller = gridComponent.getController(component.address);
+            let  controller = gridComponent.getController(component.address);
 
             // If controller, add id and type values
             if (controller) {
@@ -236,7 +236,7 @@ aweApplication.factory('Column',
            * @param {object} data New model data attributes
            */
           component.api.updateModelValues = function (data) {
-            var model = $control.getAddressModel(component.address);
+            let  model = $control.getAddressModel(component.address);
             if (model) {
               _.merge(model, data);
               component.updateVisibleValue();
@@ -260,7 +260,7 @@ aweApplication.factory('Column',
 
           // watch for external changes to model and re-render element
           component.listeners['cellFooterChanged'] = component.scope.$on("footer-changed", function (event, parameters) {
-            var footer = parameters.footer;
+            let  footer = parameters.footer;
             // Retrieve visible value
             if (component.address.row === "footer" && component.address.column in footer) {
               // Regenerate footer model
@@ -276,7 +276,7 @@ aweApplication.factory('Column',
 
           // On number format check new visible value
           component.listeners["cellModelChanged"] = component.scope.$on("modelChanged", function (event, launchers) {
-            var changes = $utilities.modelChanged(component, launchers);
+            let  changes = $utilities.modelChanged(component, launchers);
             if (changes) {
               // Change grid value
               component.api.updateModelValues(changes);

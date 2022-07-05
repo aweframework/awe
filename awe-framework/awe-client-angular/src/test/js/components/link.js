@@ -1,7 +1,7 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/js/components/link.js', function () {
-  var $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $sce;
+  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $sce;
   let model = {
     page: 1,
     records: 1,
@@ -65,7 +65,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/link.js', func
     spyOn($control, 'checkOnlyComponent').and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-link/>")($rootScope);
+    let  element = $compile("<awe-link/>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
     expect(element[0].tagName).toBe("A");
@@ -77,7 +77,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/link.js', func
     spyOn($control, 'checkOnlyComponent').and.returnValue(true);
 
     // Compile a piece of HTML containing the directive
-    var element = $compile("<awe-link link-id='Link'/>")($rootScope);
+    let  element = $compile("<awe-link link-id='Link'/>")($rootScope);
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
     expect(element.attr("link-id")).toEqual("Link");

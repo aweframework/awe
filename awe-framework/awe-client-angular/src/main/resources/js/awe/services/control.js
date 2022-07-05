@@ -12,29 +12,29 @@ aweApplication.factory('Control',
     function (Utilities, Storage, $log) {
 
       // Storage constants
-      var INITIAL = "initial-";
-      var MODEL = "model";
-      var CONTROLLER = "controller";
-      var API = "api";
+      let  INITIAL = "initial-";
+      let  MODEL = "model";
+      let  CONTROLLER = "controller";
+      let  API = "api";
 
       // Model constants
-      var SELECTED = "selected";
-      var PREVIOUS = "previous";
+      let  SELECTED = "selected";
+      let  PREVIOUS = "previous";
 
       // Address constants
-      var VIEW = "view";
-      var COMPONENT = "component";
-      var COLUMN = "column";
-      var ROW = "row";
+      let  VIEW = "view";
+      let  COMPONENT = "component";
+      let  COLUMN = "column";
+      let  ROW = "row";
 
-      var Control = {
+      let  Control = {
         /**
          * Retrieve an address target
          * @param {Object} address
          * @return {Object} Address type
          */
         getAddressType: function (address) {
-          var addressType;
+          let  addressType;
           if (address && VIEW in address && COMPONENT in address && COLUMN in address && ROW in address) {
             addressType = "cell";
           } else if (address && VIEW in address && COMPONENT in address) {
@@ -53,7 +53,7 @@ aweApplication.factory('Control',
          * @return {Object} controller/model
          */
         getTarget: function (address, action) {
-          var target = null;
+          let  target = null;
           // Check if address, action, view and component exists in both checks
           let view = address && VIEW in address ? address[VIEW] : null;
           let component = address && COMPONENT in address ? address[COMPONENT] : null;
@@ -139,12 +139,12 @@ aweApplication.factory('Control',
          * @return {boolean} true if have changed | false
          */
         checkModelChanged: function (view) {
-          var changes = false;
-          var model = Storage.get(MODEL);
-          var initialValue = INITIAL + SELECTED;
+          let  changes = false;
+          let  model = Storage.get(MODEL);
+          let  initialValue = INITIAL + SELECTED;
           // Get model of view
           if (view in model) {
-            var modelView = model[view];
+            let  modelView = model[view];
             // Compare each selected values of element
             _.each(modelView, function (modelValue) {
               if (initialValue in modelValue && !_.isEqual(modelValue[SELECTED], modelValue[initialValue])) {
@@ -160,14 +160,14 @@ aweApplication.factory('Control',
          * @return {boolean} true if all null | false
          */
         checkModelEmpty: function (view) {
-          var empty = true;
-          var model = Storage.get(MODEL);
-          var controller = Storage.get(CONTROLLER);
+          let  empty = true;
+          let  model = Storage.get(MODEL);
+          let  controller = Storage.get(CONTROLLER);
 
           // Get model of view
           if (view in model) {
-            var modelView = model[view];
-            var controllerView = controller[view];
+            let  modelView = model[view];
+            let  controllerView = controller[view];
             // Compare each selected values of element
             _.each(modelView, function (modelValue, componentId) {
               if (componentId in controller &&
@@ -186,7 +186,7 @@ aweApplication.factory('Control',
          * @param {object} message Message to add
          */
         addMessageToScope: function (view, messageId, message) {
-          var messages = Storage.get("messages");
+          let  messages = Storage.get("messages");
           messages[view][messageId] = message;
         },
         /**
@@ -195,7 +195,7 @@ aweApplication.factory('Control',
          * @param {string} messageId (Message Id)
          */
         getMessageFromScope: function (view, messageId) {
-          var messages = Storage.get("messages");
+          let  messages = Storage.get("messages");
           return messages[view][messageId];
         },
         /**
@@ -204,8 +204,8 @@ aweApplication.factory('Control',
          * @param {Object} changes
          */
         publishModelChanged: function (address, changes) {
-          var launchers = {};
-          var launcherId = Utilities.getAddressId(address);
+          let  launchers = {};
+          let  launcherId = Utilities.getAddressId(address);
           launchers[launcherId] = changes;
           Control.publish("modelChanged", launchers);
         },
@@ -262,7 +262,7 @@ aweApplication.factory('Control',
          * @return {Object} controller
          */
         getAddressViewController: function (address) {
-          var controller = Storage.get(CONTROLLER);
+          let  controller = Storage.get(CONTROLLER);
           return controller[address[VIEW]];
         },
         /**
@@ -271,7 +271,7 @@ aweApplication.factory('Control',
          * @return {Object} model
          */
         getAddressViewModel: function (address) {
-          var model = Storage.get(MODEL);
+          let  model = Storage.get(MODEL);
           return model[address[VIEW]];
         },
         /**
@@ -280,7 +280,7 @@ aweApplication.factory('Control',
          * @return {Object} api
          */
         getAddressViewApi: function (address) {
-          var api = Storage.get(API);
+          let  api = Storage.get(API);
           return api[address[VIEW]];
         },
         /**
@@ -322,8 +322,8 @@ aweApplication.factory('Control',
          * @return {mixed} formatted data
          */
         formatDataList: function (data) {
-          var formattedData;
-          var dataList = Utilities.asArray(data);
+          let  formattedData;
+          let  dataList = Utilities.asArray(data);
           switch (dataList.length) {
             case 0:
               formattedData = null;
@@ -350,10 +350,10 @@ aweApplication.factory('Control',
          * @param {Object} attributes Attributes to set
          */
         changeControllerAttribute: function (address, attributes) {
-          var controller = Control.getAddressController(address);
+          let  controller = Control.getAddressController(address);
           if (controller) {
             _.each(attributes, function (attribute, attributeId) {
-              var initialAttribute = INITIAL + attributeId;
+              let  initialAttribute = INITIAL + attributeId;
               if (!(initialAttribute in controller)) {
                 controller[initialAttribute] = _.cloneDeep(controller[attributeId]);
               }
@@ -370,14 +370,14 @@ aweApplication.factory('Control',
          * @param {String} attribute Attribute to restore
          */
         restoreControllerAttribute: function (address, attribute) {
-          var controller = Control.getAddressController(address);
-          var initialAttribute = INITIAL + attribute;
+          let  controller = Control.getAddressController(address);
+          let  initialAttribute = INITIAL + attribute;
           if (controller) {
             if (initialAttribute in controller) {
               controller[attribute] = _.cloneDeep(controller[initialAttribute]);
             }
             // Publish controller change
-            var changes = {};
+            let  changes = {};
             changes[attribute] = controller[attribute];
             Control.publishControllerChanged(address, changes);
           }
@@ -389,10 +389,10 @@ aweApplication.factory('Control',
          * @param {Boolean} publish Publish model changed
          */
         changeModelAttribute: function (address, attributes, publish) {
-          var model = Control.getAddressModel(address);
+          let  model = Control.getAddressModel(address);
           if (model) {
             _.each(attributes, function (attribute, attributeId) {
-              var initialAttribute = INITIAL + attributeId;
+              let  initialAttribute = INITIAL + attributeId;
               if (!(initialAttribute in model) && Storage.get("status")[address.view] === "loaded") {
                 if (attributeId === SELECTED) {
                   model[initialAttribute] = _.cloneDeep(model[PREVIOUS]);
@@ -422,10 +422,10 @@ aweApplication.factory('Control',
          * @param {String} attribute Model attribute
          */
         restoreModelAttribute: function (address, attribute) {
-          var model = Control.getAddressModel(address);
+          let  model = Control.getAddressModel(address);
           // Publish model change
           if (model) {
-            var attributes = {};
+            let  attributes = {};
             attributes[attribute] = model.defaultValues;
             Control.changeModelAttribute(address, attributes, true);
           }
@@ -436,14 +436,14 @@ aweApplication.factory('Control',
          * @param {String} attribute Model attribute
          */
         restoreInitialModelAttribute: function (address, attribute) {
-          var model = Control.getAddressModel(address);
-          var initialAttribute = INITIAL + attribute;
+          let  model = Control.getAddressModel(address);
+          let  initialAttribute = INITIAL + attribute;
           if (model) {
             if (initialAttribute in model) {
               model[attribute] = _.cloneDeep(model[initialAttribute]);
             }
             // Publish controller change
-            var changes = {};
+            let  changes = {};
             changes[attribute] = model[attribute];
             Control.changeModelAttribute(address, changes, true);
           }
@@ -454,7 +454,7 @@ aweApplication.factory('Control',
          * @param {String} attribute Model attribute
          */
         resetModelAttribute: function (address, attribute) {
-          var attributes = {};
+          let  attributes = {};
           attributes[attribute] = null;
           Control.changeModelAttribute(address, attributes, true);
         },
@@ -465,7 +465,7 @@ aweApplication.factory('Control',
          * @param {object} publish Publish the change
          */
         changeViewModel: function (view, modelView, publish) {
-          var model = Storage.get(MODEL);
+          let  model = Storage.get(MODEL);
           model[view] = modelView;
           if (publish) {
             Control.publish("modelChanged", model[view]);
@@ -475,7 +475,7 @@ aweApplication.factory('Control',
          * Destroy all views
          */
         destroyAllViews: function () {
-          var controls = [MODEL, CONTROLLER, API];
+          let  controls = [MODEL, CONTROLLER, API];
           _.each(controls, function (control) {
             Storage.put(control, {});
           });
@@ -486,8 +486,8 @@ aweApplication.factory('Control',
          * @param {String} attribute Attribute to get
          */
         getControllerAttribute: function (address, attribute) {
-          var controller = Control.getAddressController(address);
-          var value = null;
+          let  controller = Control.getAddressController(address);
+          let  value = null;
           if (controller) {
             value = controller[attribute];
           }
@@ -499,8 +499,8 @@ aweApplication.factory('Control',
          * @param {String} attribute Attribute to get
          */
         getModelAttribute: function (address, attribute) {
-          var model = Control.getAddressModel(address);
-          var value = null;
+          let  model = Control.getAddressModel(address);
+          let  value = null;
           if (model) {
             value = model[attribute];
           }
@@ -513,7 +513,7 @@ aweApplication.factory('Control',
          * @param {Array} parameters Method parameters (array)
          */
         launchApiMethod: function (address, method, parameters) {
-          var api = Control.getAddressApi(address);
+          let  api = Control.getAddressApi(address);
           if (api && method in api) {
             api[method].apply(api, parameters);
           } else {
