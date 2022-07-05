@@ -13,19 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * REST security configuration
  */
-@DependsOn("aweUserDetailsService")
 @EnableConfigurationProperties({AweRestConfigProperties.class, JWTProperties.class})
 @Configuration
 public class RestSecurityConfiguration extends ServiceConfig {
@@ -49,53 +47,56 @@ public class RestSecurityConfiguration extends ServiceConfig {
   }
 
   /**
-   * Rest security configuration adapter
+   * Awe Rest http security filter chain
+   *
+   * @param httpSecurity Http security
+   * @return security filter chain
+   * @throws Exception exception
    */
-  @Configuration
+  @Bean(name = "aweRestSecurityFilterChain")
   @Order(99)
-  public class RestSecurityConfigurationImpl extends WebSecurityConfigurerAdapter {
+  public SecurityFilterChain restFilterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity
+      // Filter /api urls
+      .antMatcher("/api/**").authorizeRequests()
+      // Disable csrf
+      .and().csrf().disable()
+      // No session cookie for API endpoints
+      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      // Handles unauthorized attempts to access protected URLS
+      .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
+      // Swagger UI
+      .and().authorizeRequests().antMatchers(AUTH_LIST).permitAll()
 
-    @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
-      httpSecurity
-        // Disable csrf
-        .csrf().disable()
-        // No session cookie for API endpoints
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        // Handles unauthorized attempts to access protected URLS
-        .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
-        // Swagger UI
-        .and().authorizeRequests().antMatchers(AUTH_LIST).permitAll()
-        // Filter /api urls
-        .and().antMatcher("/api/**").authorizeRequests()
-         // Filter public queries and maintains
-        .antMatchers("/api/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
-        .antMatchers("/api/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
-        .antMatchers("/api/public/data/**").access("@publicQueryMaintainFilter.isPublicQuery(request)")
-        .antMatchers("/api/public/maintain/**").access("@publicQueryMaintainFilter.isPublicMaintain(request)");
+      // Filter public queries and maintains
+      .antMatchers("/api/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
+      .antMatchers("/api/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
+      .antMatchers("/api/public/data/**").access("@publicQueryMaintainFilter.isPublicQuery(request)")
+      .antMatchers("/api/public/maintain/**").access("@publicQueryMaintainFilter.isPublicMaintain(request)");
 
-      // Add JWT (Json web token) filters
-      httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
-      httpSecurity.addFilterBefore(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
-    }
+    // Add JWT (Json web token) filters
+    httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.addFilterBefore(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
 
-    @Bean
-    ModelMapper modelMapper() {
-      return new ModelMapper();
-    }
+    return httpSecurity.build();
+  }
 
-    /**
-     * JWT Token service
-     *
-     * @return JWTTokenService
-     */
-    @Bean
-    JWTTokenService jwtTokenService(JWTProperties jwtProperties) {
-      return new JWTTokenService(jwtProperties.getAuthorizationHeader(),
-        jwtProperties.getPrefix(),
-        jwtProperties.getSecret(),
-        jwtProperties.getIssuer(),
-        jwtProperties.getExpirationTime());
-    }
+  @Bean
+  ModelMapper modelMapper() {
+    return new ModelMapper();
+  }
+
+  /**
+   * JWT Token service
+   *
+   * @return JWTTokenService
+   */
+  @Bean
+  JWTTokenService jwtTokenService(JWTProperties jwtProperties) {
+    return new JWTTokenService(jwtProperties.getAuthorizationHeader(),
+      jwtProperties.getPrefix(),
+      jwtProperties.getSecret(),
+      jwtProperties.getIssuer(),
+      jwtProperties.getExpirationTime());
   }
 }

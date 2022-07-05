@@ -253,7 +253,7 @@ Javadoc test:
     - job: Build project
       artifacts: false
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dbrowser=${BROWSER} -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   artifacts:

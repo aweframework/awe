@@ -1,12 +1,14 @@
 package com.almis.awe.testing.selenium;
 
+import com.almis.awe.testing.model.types.FrontendType;
+
 public class InstructionsFactory {
   private InstructionsFactory() {}
-  public static IAweInstructions getInstance(String type) {
+  public static IAweInstructions getInstance(FrontendType type) {
     switch (type) {
-      case "react":
+      case REACT:
         return new ReactAweInstructions();
-      case "angular":
+      case ANGULAR:
       default:
         return new AngularAweInstructions();
     }

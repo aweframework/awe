@@ -10,15 +10,15 @@ import com.almis.awe.developer.service.TranslationService;
 import com.almis.awe.developer.translators.ITranslator;
 import com.almis.awe.model.component.XStreamSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties({BaseConfigProperties.class, DeveloperConfigProperties.class})
 public class DeveloperConfig {
 

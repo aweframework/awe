@@ -1,22 +1,32 @@
 package com.almis.awe.config;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Profile({"gitlab-ci"})
-@Order(1)
-@EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@Configuration
+public class SecurityConfig {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  /**
+   * Custom http security filter chain for test
+   *
+   * @param httpSecurity Http security
+   * @return security filter chain
+   * @throws Exception Http security config error
+   */
+  @Bean(name = "testSecurityFilterChain")
+  @Order(1)
+  public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
     // Disable CSRF for microservices tests
-    http.requestMatchers().antMatchers("/alu-microservice/**",
-            "/alu-service-bis/**",
-            "/testapi/**")
-            .and().csrf().disable();
+    httpSecurity.requestMatchers().antMatchers("/alu-microservice/**",
+        "/alu-service-bis/**",
+        "/testapi/**")
+      .and().csrf().disable();
+
+    return httpSecurity.build();
   }
 }
