@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.6.0
+*05/07/2022*
+
+- **[HAS IMPACTS]** Update AWE to Spring Boot 2.7.X. [MR #381](https://gitlab.com/aweframework/awe/-/merge_requests/381) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.5.3
 *30/05/2022*
 
