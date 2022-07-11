@@ -16,7 +16,7 @@ public enum BrowserType {
   /**
    * Internet Explorer browser in local host
    */
-  IE("IE"),
+  IE("ie"),
   /**
    * Opera browser in local host
    */
@@ -30,9 +30,9 @@ public enum BrowserType {
    */
   HEADLESS_CHROME("headless-chrome"),
   /**
-   * Headless Firefox browser
+   * Firefox browser in remote host
    */
-  REMOTE_FIREFOX("headless-firefox"),
+  REMOTE_FIREFOX("remote-firefox"),
   /**
    * Chrome browser in remote host
    */
