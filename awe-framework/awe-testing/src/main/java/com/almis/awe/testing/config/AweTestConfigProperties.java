@@ -54,7 +54,7 @@ public class AweTestConfigProperties {
   /**
    * Server port of selenium tests
    */
-  private int serverPort= 8080;
+  private int serverPort = 8080;
   /**
    * Context path of selenium tests
    */

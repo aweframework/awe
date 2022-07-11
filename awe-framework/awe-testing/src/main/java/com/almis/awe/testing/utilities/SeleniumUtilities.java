@@ -4,6 +4,7 @@ import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.config.TestConfig;
 import com.almis.awe.testing.extensions.SeleniumExtension;
 import com.almis.awe.testing.model.SeleniumModel;
+import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
@@ -41,28 +39,17 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 @ContextConfiguration(classes = TestConfig.class, initializers = ConfigDataApplicationContextInitializer.class)
 public class SeleniumUtilities implements IAweInstructions {
 
-  @Autowired
-  private AweTestConfigProperties properties;
-
   // Constants
   private static final Integer RETRY_COUNT = 10;
-  private static final String PARENT_ELEMENT = "')]/..";
   private static final String TEXT_VALUE = " text: '";
-  private static final String CELL_SEARCH_CONTAINS_XPATH = "//*[contains(@class,'ui-grid-row')]//*[contains(@class,'ui-grid-cell-contents')]//text()[contains(.,'";
-  private static final String SELECT_DROP_CONTENTS_XPATH = "//*[@id='select2-drop']//*[contains(@class,'select2-result-label')]//text()[contains(.,'";
   private static final String DAY = "day";
   private static final String MONTH = "month";
   private static final String YEAR = "year";
-  private static final By DATEPICKER = By.cssSelector(".datepicker");
-  private static final By GRID_LOADER_SELECTOR = By.cssSelector(".grid-loader");
-  private static final By SELECT_DROP_INPUT = By.cssSelector("#select2-drop input.select2-input");
-  private static final By SELECT_DROP_INPUT_NOT_HIDDEN = By.cssSelector("#select2-drop :not(.select2-search-hidden) input.select2-input");
-  private static final By SELECT_DROP_RESULTS = By.cssSelector("#select2-drop .select2-results li");
-  private static final ExpectedCondition<Boolean> GRID_LOADER_IS_NOT_VISIBLE = invisibilityOfElementLocated(GRID_LOADER_SELECTOR);
-  private static final ExpectedCondition<Boolean> LOADER_IS_NOT_VISIBLE = invisibilityOfElementLocated(By.cssSelector(".loader"));
 
+  @Autowired
+  private AweTestConfigProperties properties;
   private SeleniumModel seleniumModel;
-  private IAweInstructions instructions;
+  private IAweFrontEndInstructions frontEndInstructions;
 
   /**
    * Get driver
@@ -70,7 +57,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @return Get driver
    */
   public WebDriver getDriver() {
-    return this.instructions.getDriver();
+    return this.seleniumModel.getDriver();
   }
 
   /**
@@ -91,11 +78,11 @@ public class SeleniumUtilities implements IAweInstructions {
     seleniumModel = model;
     model.setProperties(properties);
 
-    this.instructions = InstructionsFactory
+    this.frontEndInstructions = (IAweFrontEndInstructions) InstructionsFactory
       .getInstance(properties.getFrontend())
       .setSeleniumModel(seleniumModel);
 
-    return this.instructions;
+    return this.frontEndInstructions;
   }
 
   /**
@@ -264,116 +251,6 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Retrieve parent selector in css
-   *
-   * @param criterionName Criterion name
-   * @return Css parent selector
-   */
-  private String getCriterionSelectorCss(String criterionName) {
-    return "[criterion-id='" + criterionName + "']";
-  }
-
-  /**
-   * Retrieve parent selector in css
-   *
-   * @param gridId   Grid id
-   * @param rowId    Row id
-   * @param columnId Column id
-   * @return Css parent selector
-   */
-  private String getParentSelectorCss(String gridId, String rowId, String columnId) {
-    if (rowId == null && columnId == null) {
-      return getGridScopeCss(gridId) + " .ui-grid-header-checkbox label.checkbox";
-    } else if (rowId == null) {
-      return getGridScopeCss(gridId) + " .ui-grid-row-selected [column-id='" + columnId + "'] ";
-    } else {
-      return getGridScopeCss(gridId) + " [row-id='" + rowId + "'] [column-id='" + columnId + "'] ";
-    }
-  }
-
-  /**
-   * Get grid scope in css
-   *
-   * @param gridId Grid id
-   * @return Grid scope string
-   */
-  private String getGridScopeCss(String gridId) {
-    return ".grid [id='scope-" + gridId + "']";
-  }
-
-  /**
-   * Retrieve parent selector in xpath
-   *
-   * @param gridId   Grid id
-   * @param rowId    Row id
-   * @param columnId Column id
-   * @return Css parent selector
-   */
-  private String getParentSelectorXpath(String gridId, String rowId, String columnId) {
-    if (rowId == null) {
-      return containsGridOrTreeGrid(gridId) + "//*[contains(@class, 'ui-grid-row-selected')]//*[@column-id='" + columnId + "']";
-    } else {
-      return containsGridOrTreeGrid(gridId) + "//*[@row-id='" + rowId + "']//*[@column-id='" + columnId + "']";
-    }
-  }
-
-  /**
-   * Retrieve header column selector in xpath
-   *
-   * @param gridId   Grid id
-   * @param columnId Column id
-   * @return Css parent selector
-   */
-  private String getHeaderSelectorXpath(String gridId, String columnId) {
-    return containsGridOrTreeGrid(gridId) + "//*[contains(@class, 'ui-grid-header-cell-row')]//*[@column-id='" + columnId + "']";
-  }
-
-  /**
-   * Retrieve grid scroll zone
-   *
-   * @param gridId Grid identifier
-   * @return Scroll zone
-   */
-  private By getGridScrollZone(String gridId) {
-    return By.xpath(containsGridOrTreeGrid(gridId) + "//*[contains(@class, 'ui-grid-render-container-body')]//*[contains(@class, 'ui-grid-render-container')]//*[contains(@class, 'ui-grid-viewport')]");
-  }
-
-
-  /**
-   * Retrieve parent selector in xpath
-   *
-   * @param gridId Grid id
-   * @return Css parent selector
-   */
-  private String getGridSelectorXpath(String gridId) {
-    if (gridId == null) {
-      return "";
-    } else {
-      return containsGridOrTreeGrid(gridId);
-    }
-  }
-
-  /**
-   * Retrieve criterion css selector
-   *
-   * @param parentSelector Parent selector
-   * @return Criterion input selector
-   */
-  private By getCriterionInputSelector(String parentSelector) {
-    return By.cssSelector(parentSelector + " input," + parentSelector + " textarea");
-  }
-
-  /**
-   * Get xpath string for grid or treegrid
-   *
-   * @param gridId Grid identifier
-   * @return Xpath string
-   */
-  private String containsGridOrTreeGrid(String gridId) {
-    return "//*[@grid-id='" + gridId + "' or @tree-grid-id='" + gridId + "']";
-  }
-
-  /**
    * Select a date in datepicker
    *
    * @param parentSelector Parent selector
@@ -384,11 +261,11 @@ public class SeleniumUtilities implements IAweInstructions {
     clickDateFromSelector(parentSelector);
 
     // Wait until datepicker is visible
-    checkVisible(DATEPICKER);
+    checkVisible(frontEndInstructions.getDatepicker());
 
     // Write text on date
-    By activeSelector = By.xpath("//*[contains(@class,'datepicker')]//*[contains(@class,'active')]");
-    writeTextFromSelector(getCriterionInputSelector(parentSelector), dateValue, true, activeSelector);
+    By activeSelector = frontEndInstructions.getActiveDatepicker();
+    writeTextFromSelector(frontEndInstructions.getCriterionInput(parentSelector), dateValue, true, activeSelector);
 
     // Make click twice if datepicker is still visible
     if (!seleniumModel.getDriver().findElements(activeSelector).isEmpty()) {
@@ -396,7 +273,7 @@ public class SeleniumUtilities implements IAweInstructions {
     }
 
     // Wait for not visible
-    checkNotVisible(DATEPICKER);
+    checkNotVisible(frontEndInstructions.getDatepicker());
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -414,13 +291,13 @@ public class SeleniumUtilities implements IAweInstructions {
     clickDateFromSelector(parentSelector);
 
     // Wait until datepicker is visible
-    waitUntil(visibilityOfElementLocated(DATEPICKER));
+    waitUntil(visibilityOfElementLocated(frontEndInstructions.getDatepicker()));
 
     // Click on selector
-    click(By.xpath("//*[contains(@class,'datepicker')]//*[contains(@class,'datepicker-" + type + "s')]//*[contains(@class,'" + type + "') and not(contains(@class, 'old')) and not(contains(@class, 'new'))]//text()[.='" + search + "']/.."));
+    click(frontEndInstructions.getCellFromDatepicker(type, search));
 
     // Wait for not visible
-    checkNotVisible(DATEPICKER);
+    checkNotVisible(frontEndInstructions.getDatepicker());
   }
 
   /**
@@ -440,24 +317,40 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Click on datepicker
+   * Click on date criterion input
    *
    * @param parentSelector Parent selector
    */
   private void clickDateFromSelector(String parentSelector) {
-    clickSelector(By.cssSelector(parentSelector + " input"));
+    clickSelector(frontEndInstructions.getDateCriterion(parentSelector));
+  }
+
+  /**
+   * Checks if loader is not visible
+   *
+   * @return Condition for loader visibility
+   */
+  private ExpectedCondition<Boolean> checkIfLoaderIsNotVisible() {
+    return invisibilityOfElementLocated(frontEndInstructions.getLoaderSelector());
+  }
+
+  /**
+   * Checks if grid loader is not visible
+   *
+   * @return Condition for grid visibility
+   */
+  private ExpectedCondition<Boolean> checkIfGridLoaderIsNotVisible() {
+    return invisibilityOfElementLocated(frontEndInstructions.getGridLoaderSelector());
   }
 
   /**
    * Click on row
    *
-   * @param parentSelector Parent selector
+   * @param selector Row selector
    */
-  private void clickRowFromSelector(String parentSelector) {
-    By selector = By.xpath(parentSelector);
-
+  private void clickRowFromSelector(By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE));
+    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
 
     // Click button
     click(selector);
@@ -466,23 +359,21 @@ public class SeleniumUtilities implements IAweInstructions {
   /**
    * Click on row with a text
    *
-   * @param parentSelector Grid to search in
-   * @param search         Text to search
+   * @param gridId Grid to search in
+   * @param search Text to search
    */
-  private void clickRowContentsFromSelector(String parentSelector, String search) {
-    clickRowFromSelector(parentSelector + CELL_SEARCH_CONTAINS_XPATH + search + PARENT_ELEMENT);
+  private void clickRowContentsFromSelector(String gridId, String search) {
+    clickRowFromSelector(frontEndInstructions.findGridCell(gridId, search));
   }
 
   /**
    * Context menu on row
    *
-   * @param parentSelector Text to search
+   * @param selector Selector to apply
    */
-  private void contextMenuFromSelector(String parentSelector) {
-    By selector = By.xpath(parentSelector);
-
+  private void contextMenuFromSelector(By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE));
+    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
 
     // Click button
     contextMenu(selector);
@@ -505,7 +396,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Move mouse to avoid help popovers
    */
   private void moveMouse() {
-    By popoverSelector = By.cssSelector(".popover:not(.ng-hide)");
+    By popoverSelector = frontEndInstructions.getPopover();
     try {
       // Safecheck
       int safecheck = 0;
@@ -585,7 +476,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @return Text from criterion
    */
   private String getTextFromSelector(String parentSelector) {
-    By selector = getCriterionInputSelector(parentSelector);
+    By selector = frontEndInstructions.getCriterionInput(parentSelector);
 
     // Wait for element present
     waitUntil(presenceOfElementLocated(selector));
@@ -600,7 +491,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param parentSelector parent selector
    */
   private void clickCheckboxFromSelector(String parentSelector) {
-    By selector = By.cssSelector(parentSelector + " .input label," + parentSelector);
+    By selector = frontEndInstructions.getCheckbox(parentSelector);
 
     // Wait for element present
     waitUntil(presenceOfElementLocated(selector));
@@ -615,8 +506,8 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param parentSelector Select box
    */
   private void selectClick(String parentSelector) {
-    By selector = By.cssSelector(parentSelector + " .select2-choice");
-    By loaderSelector = By.cssSelector(parentSelector + " .loader");
+    By selector = frontEndInstructions.getSelectChoice(parentSelector);
+    By loaderSelector = frontEndInstructions.getSelectLoader(parentSelector);
 
     // Wait for loader
     waitUntil(invisibilityOfElementLocated(loaderSelector));
@@ -628,7 +519,7 @@ public class SeleniumUtilities implements IAweInstructions {
     click(selector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(By.cssSelector("#select2-drop")));
+    waitUntil(presenceOfElementLocated(frontEndInstructions.getSelectDropdownList()));
   }
 
   /**
@@ -641,7 +532,7 @@ public class SeleniumUtilities implements IAweInstructions {
     selectClick(parentSelector);
 
     // Click option
-    click(By.cssSelector("#select2-drop li:first-of-type"));
+    click(frontEndInstructions.getSelectDropdownListFirstElement());
   }
 
   /**
@@ -654,7 +545,7 @@ public class SeleniumUtilities implements IAweInstructions {
     selectClick(parentSelector);
 
     // Click option
-    click(By.cssSelector("#select2-drop li:last-of-type"));
+    click(frontEndInstructions.getSelectDropdownListLastElement());
   }
 
   /**
@@ -680,17 +571,20 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void suggestFromSelector(String parentSelector, String search, String label) {
     // Wait for element present
-    waitUntil(LOADER_IS_NOT_VISIBLE);
+    waitUntil(checkIfLoaderIsNotVisible());
 
     // Click on selector
     selectClick(parentSelector);
 
+    // Selectors
+    By suggestDropdownListInput = frontEndInstructions.getSuggest();
+
     // Wait for element present
-    waitUntil(presenceOfElementLocated(SELECT_DROP_INPUT));
+    waitUntil(presenceOfElementLocated(suggestDropdownListInput));
 
     // Write text
-    if (isWritable(SELECT_DROP_INPUT_NOT_HIDDEN)) {
-      sendKeys(SELECT_DROP_INPUT, search);
+    if (isWritable(frontEndInstructions.getSuggestInput())) {
+      sendKeys(suggestDropdownListInput, search);
     }
 
     // Wait for loading bar
@@ -707,19 +601,20 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search         Search string
    */
   private void suggestLastFromSelector(String parentSelector, String search) {
-    By selector = By.cssSelector("#select2-drop li:last-of-type .select2-result-label");
+    By selector = frontEndInstructions.getSuggestDropdownListLastElement();
+    By suggestDropdownListInput = frontEndInstructions.getSuggestInput();
 
     // Wait for element present
-    waitUntil(LOADER_IS_NOT_VISIBLE);
+    waitUntil(checkIfLoaderIsNotVisible());
 
     // Click on selector
     selectClick(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(SELECT_DROP_INPUT));
+    waitUntil(presenceOfElementLocated(suggestDropdownListInput));
 
     // Write username
-    sendKeys(SELECT_DROP_INPUT, search);
+    sendKeys(suggestDropdownListInput, search);
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -741,17 +636,17 @@ public class SeleniumUtilities implements IAweInstructions {
   private void suggestMultipleFromSelector(String parentSelector, boolean clear, String search, String label) {
     // Safecheck
     int safecheck = 0;
-    By searchBox = By.cssSelector(parentSelector + " input.select2-input");
+    By searchBox = frontEndInstructions.getSuggestMultipleInput(parentSelector);
 
     // Wait for element present
-    waitUntil(LOADER_IS_NOT_VISIBLE);
+    waitUntil(checkIfLoaderIsNotVisible());
 
     // Wait for element present
     waitUntil(presenceOfElementLocated(searchBox));
 
     // Clear selector
     if (clear) {
-      By clearSelector = By.cssSelector(parentSelector + " .select2-search-choice-close");
+      By clearSelector = frontEndInstructions.getSuggestMultipleChoiceClose(parentSelector);
       while (!getElements(clearSelector).isEmpty() && safecheck < RETRY_COUNT) {
         click(clearSelector);
         safecheck++;
@@ -771,11 +666,9 @@ public class SeleniumUtilities implements IAweInstructions {
   /**
    * Click on save row and wait
    *
-   * @param parentSelector Parent selector
+   * @param selector Save row selector
    */
-  private void saveRowFromSelector(String parentSelector) {
-    By selector = By.cssSelector(parentSelector);
-
+  private void saveRowFromSelector(By selector) {
     // Wait for element present
     waitUntil(presenceOfElementLocated(selector));
 
@@ -872,7 +765,7 @@ public class SeleniumUtilities implements IAweInstructions {
       waitUntil(visibilityOfElementLocated(By.name(option)));
 
       // If it is not the last option, check if it is already opened
-      List<WebElement> openedChildren = getElements(By.xpath("//*[@name='" + option + "']/following-sibling::ul[contains(@class,'opened')]"));
+      List<WebElement> openedChildren = getElements(frontEndInstructions.getMenuOpenedChildren(option));
       if (optionNumber == menuOptions.length || openedChildren.isEmpty()) {
         // Click on screen
         click(By.name(option));
@@ -882,7 +775,7 @@ public class SeleniumUtilities implements IAweInstructions {
     }
 
     // Wait for element not visible
-    waitUntil(invisibilityOfElementLocated(By.cssSelector(".mm-dropdown-first")));
+    waitUntil(invisibilityOfElementLocated(frontEndInstructions.getMenuDropdown()));
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -907,7 +800,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Wait for loading bar to hide
    */
   protected void waitForLoadingBar() {
-    waitUntil(invisibilityOfElementLocated(By.id("loading-bar")));
+    waitUntil(invisibilityOfElementLocated(frontEndInstructions.getLoadingBar()));
   }
 
   /**
@@ -915,7 +808,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void waitForLoadingGrid() {
     // Wait for element not visible
-    waitUntil(GRID_LOADER_IS_NOT_VISIBLE);
+    waitUntil(checkIfGridLoaderIsNotVisible());
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -927,7 +820,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param buttonName Button name
    */
   protected void waitForButton(String buttonName) {
-    waitForSelector(By.cssSelector("#" + buttonName + ":not([disabled])"));
+    waitForSelector(frontEndInstructions.getButton(buttonName));
   }
 
   /**
@@ -936,7 +829,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param tabCriterionName Tab criterion name
    */
   protected void waitForTab(String tabCriterionName) {
-    waitForSelector(By.cssSelector("[criterion-id='" + tabCriterionName + "'] .nav-tabs:not(.disabled)"));
+    waitForSelector(frontEndInstructions.getTab(tabCriterionName));
   }
 
   /**
@@ -949,7 +842,7 @@ public class SeleniumUtilities implements IAweInstructions {
     pause(100);
 
     // Wait for context button
-    waitForSelector(By.cssSelector(".context-menu [option-id='" + buttonName + "'] a:not([disabled])"));
+    waitForSelector(frontEndInstructions.getContextButton(buttonName));
   }
 
   /**
@@ -959,7 +852,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param contains Text to check
    */
   protected void waitForText(String clazz, String contains) {
-    By selector = By.xpath("//*[contains(@class,'" + clazz + "')]//text()[contains(.,'" + contains + PARENT_ELEMENT);
+    By selector = frontEndInstructions.containsText(clazz, contains);
 
     // Wait for element visible
     waitUntil(visibilityOfElementLocated(selector));
@@ -1028,7 +921,7 @@ public class SeleniumUtilities implements IAweInstructions {
     waitForButton(buttonName);
 
     // Click button
-    By selector = By.cssSelector("#" + buttonName + ":not([disabled])");
+    By selector = frontEndInstructions.getButton(buttonName);
     clickSelector(selector);
 
     if (waitForLoadingBar) {
@@ -1049,7 +942,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By contextButtonSelector = null;
     for (String contextButtonOption : contextButtonOptionList) {
       // Set context button name
-      contextButtonSelector = By.cssSelector(".context-menu [option-id='" + contextButtonOption + "'] a:not([disabled])");
+      contextButtonSelector = frontEndInstructions.getContextButton(contextButtonOption);
 
       // Wait for context button
       waitForContextButton(contextButtonOption);
@@ -1079,11 +972,10 @@ public class SeleniumUtilities implements IAweInstructions {
     waitForTab(tabName);
 
     // Tab selector
-    clickSelector(By.cssSelector(getCriterionSelectorCss(tabName) + " span[translate-multiple*='" + tabLabel + "']"));
-    By tabActive = By.cssSelector(getCriterionSelectorCss(tabName) + " li.active span[translate-multiple*='" + tabLabel + "']");
+    clickSelector(frontEndInstructions.getTab(tabName, tabLabel));
 
     // Wait for tab active
-    waitUntil(visibilityOfElementLocated(tabActive));
+    waitUntil(visibilityOfElementLocated(frontEndInstructions.getTabActive(tabName, tabLabel)));
   }
 
   /**
@@ -1092,7 +984,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param infoButtonName Button name
    */
   protected void clickInfoButton(String infoButtonName) {
-    clickSelector(By.cssSelector("[info-dropdown-id='" + infoButtonName + "'] a"));
+    clickSelector(frontEndInstructions.getInfoButton(infoButtonName));
   }
 
   /**
@@ -1104,10 +996,10 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void clickTreeButton(String gridId, String rowId) {
 
     // Click on tree button
-    clickSelector(By.cssSelector("[tree-grid-id='" + gridId + "'] [row-id='" + rowId + "'] i.tree-icon"));
+    clickSelector(frontEndInstructions.getTreeButton(gridId, rowId));
 
     // Check loader is not visible
-    checkNotVisible(".fa-spin");
+    checkNotVisible(frontEndInstructions.getTreeButtonLoader());
 
     // Pause to wait tree leaf to open
     pause(250);
@@ -1119,7 +1011,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param criterionName Datepicker name
    */
   protected void clickDate(String criterionName) {
-    clickDateFromSelector(getCriterionSelectorCss(criterionName));
+    clickDateFromSelector(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -1129,7 +1021,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickDate(String gridId, String columnId) {
-    clickDateFromSelector(getParentSelectorCss(gridId, null, columnId));
+    clickDateFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
   }
 
   /**
@@ -1140,7 +1032,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickDate(String gridId, String rowId, String columnId) {
-    clickDateFromSelector(getParentSelectorCss(gridId, rowId, columnId));
+    clickDateFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId));
   }
 
   /**
@@ -1150,7 +1042,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param dateValue Date to select
    */
   protected void selectDate(String dateName, CharSequence dateValue) {
-    selectDateFromSelector(getCriterionSelectorCss(dateName), dateValue);
+    selectDateFromSelector(frontEndInstructions.getCriterionCss(dateName), dateValue);
   }
 
   /**
@@ -1162,7 +1054,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDate(String gridId, String columnId, CharSequence dateValue) {
     // Select date with parent selector
-    selectDateFromSelector(getParentSelectorCss(gridId, null, columnId), dateValue);
+    selectDateFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), dateValue);
   }
 
   /**
@@ -1175,7 +1067,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDate(String gridId, String rowId, String columnId, CharSequence dateValue) {
     // Select date with parent selector
-    selectDateFromSelector(getParentSelectorCss(gridId, rowId, columnId), dateValue);
+    selectDateFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId), dateValue);
   }
 
   /**
@@ -1185,7 +1077,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param day      Day to select
    */
   protected void selectDay(String dateName, @Nonnull Integer day) {
-    selectFromDatepicker(getCriterionSelectorCss(dateName), DAY, day.toString());
+    selectFromDatepicker(frontEndInstructions.getCriterionCss(dateName), DAY, day.toString());
   }
 
   /**
@@ -1197,7 +1089,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDay(String gridId, String columnId, @Nonnull Integer day) {
     // Select date with parent selector
-    selectFromDatepicker(getParentSelectorCss(gridId, null, columnId), DAY, day.toString());
+    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), DAY, day.toString());
   }
 
   /**
@@ -1210,7 +1102,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDay(String gridId, String rowId, String columnId, @Nonnull Integer day) {
     // Select date with parent selector
-    selectFromDatepicker(getParentSelectorCss(gridId, rowId, columnId), DAY, day.toString());
+    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, rowId, columnId), DAY, day.toString());
   }
 
   /**
@@ -1240,7 +1132,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param month    Month to select
    */
   protected void selectMonth(String dateName, String month) {
-    selectFromDatepicker(getCriterionSelectorCss(dateName), MONTH, month);
+    selectFromDatepicker(frontEndInstructions.getCriterionCss(dateName), MONTH, month);
   }
 
   /**
@@ -1252,7 +1144,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectMonth(String gridId, String columnId, String month) {
     // Select date with parent selector
-    selectFromDatepicker(getParentSelectorCss(gridId, null, columnId), MONTH, month);
+    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), MONTH, month);
   }
 
   /**
@@ -1265,7 +1157,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectMonth(String gridId, String rowId, String columnId, String month) {
     // Select date with parent selector
-    selectFromDatepicker(getParentSelectorCss(gridId, rowId, columnId), MONTH, month);
+    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, rowId, columnId), MONTH, month);
   }
 
   /**
@@ -1275,7 +1167,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param year     Year to select
    */
   protected void selectYear(String dateName, @Nonnull Integer year) {
-    selectFromDatepicker(getCriterionSelectorCss(dateName), YEAR, year.toString());
+    selectFromDatepicker(frontEndInstructions.getCriterionCss(dateName), YEAR, year.toString());
   }
 
   /**
@@ -1287,7 +1179,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectYear(String gridId, String columnId, @Nonnull Integer year) {
     // Select date with parent selector
-    selectFromDatepicker(getParentSelectorCss(gridId, null, columnId), YEAR, year.toString());
+    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), YEAR, year.toString());
   }
 
   /**
@@ -1300,7 +1192,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectYear(String gridId, String rowId, String columnId, @Nonnull Integer year) {
     // Select date with parent selector
-    selectFromDatepicker(getParentSelectorCss(gridId, rowId, columnId), YEAR, year.toString());
+    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, rowId, columnId), YEAR, year.toString());
   }
 
   /**
@@ -1309,7 +1201,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param criterionName Criterion name
    */
   protected void clickCheckbox(String criterionName) {
-    clickCheckboxFromSelector(getCriterionSelectorCss(criterionName));
+    clickCheckboxFromSelector(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -1319,7 +1211,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickCheckbox(String gridId, String columnId) {
-    clickCheckboxFromSelector(getParentSelectorCss(gridId, null, columnId));
+    clickCheckboxFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
   }
 
   /**
@@ -1330,7 +1222,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickCheckbox(String gridId, String rowId, String columnId) {
-    clickCheckboxFromSelector(getParentSelectorCss(gridId, rowId, columnId));
+    clickCheckboxFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId));
   }
 
   /**
@@ -1339,7 +1231,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   protected void clickRowContents(String search) {
-    clickRowContentsFromSelector("", search);
+    clickRowContentsFromSelector(null, search);
   }
 
   /**
@@ -1349,7 +1241,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   protected void clickRowContents(String gridId, String search) {
-    clickRowContentsFromSelector(getGridSelectorXpath(gridId), search);
+    clickRowContentsFromSelector(gridId, search);
   }
 
   /**
@@ -1359,7 +1251,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickCell(String gridId, String columnId) {
-    clickRowFromSelector(getParentSelectorXpath(gridId, null, columnId));
+    clickRowFromSelector(frontEndInstructions.getGridCell(gridId, null, columnId));
   }
 
   /**
@@ -1370,7 +1262,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickCell(String gridId, String rowId, String columnId) {
-    clickRowFromSelector(getParentSelectorXpath(gridId, rowId, columnId));
+    clickRowFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
   }
 
   /**
@@ -1389,7 +1281,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   protected void contextMenuRowContents(String gridId, String search) {
-    contextMenuFromSelector(getGridSelectorXpath(gridId) + CELL_SEARCH_CONTAINS_XPATH + search + PARENT_ELEMENT);
+    contextMenuFromSelector(frontEndInstructions.findGridCell(gridId, search));
   }
 
 
@@ -1401,7 +1293,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void contextMenu(String gridId, String rowId, String columnId) {
-    contextMenuFromSelector(getParentSelectorXpath(gridId, rowId, columnId));
+    contextMenuFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
   }
 
   /**
@@ -1450,7 +1342,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param clearText     Clear text
    */
   protected void writeText(String criterionName, CharSequence text, boolean clearText) {
-    writeTextFromSelector(getCriterionInputSelector(getCriterionSelectorCss(criterionName)), text, clearText);
+    writeTextFromSelector(frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName)), text, clearText);
     moveMouseOutOfCriterion();
   }
 
@@ -1491,7 +1383,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeText(String gridId, String rowId, String columnId, CharSequence text, boolean clearText) {
     // Write text on grid
-    By selector = getCriterionInputSelector(getParentSelectorCss(gridId, rowId, columnId));
+    By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getParentCss(gridId, rowId, columnId));
     writeTextFromSelector(selector, text, clearText, selector);
   }
 
@@ -1511,7 +1403,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @return Text from criterion
    */
   protected String getText(String criterionName) {
-    return getTextFromSelector(getCriterionSelectorCss(criterionName));
+    return getTextFromSelector(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -1522,7 +1414,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @return Cell text
    */
   protected String getText(String gridId, String columnId) {
-    return getTextFromSelector(getParentSelectorCss(gridId, null, columnId));
+    return getTextFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
   }
 
   /**
@@ -1534,7 +1426,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @return Cell text
    */
   protected String getText(String gridId, String rowId, String columnId) {
-    return getTextFromSelector(getParentSelectorCss(gridId, rowId, columnId));
+    return getTextFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId));
   }
 
   /**
@@ -1543,7 +1435,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param criterionName Criterion name
    */
   protected void selectFirst(String criterionName) {
-    selectFirstFromSelector(getCriterionSelectorCss(criterionName));
+    selectFirstFromSelector(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -1553,7 +1445,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectFirst(String gridId, String columnId) {
-    selectFirstFromSelector(getParentSelectorCss(gridId, null, columnId));
+    selectFirstFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
   }
 
   /**
@@ -1564,7 +1456,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectFirst(String gridId, String rowId, String columnId) {
-    selectFirstFromSelector(getParentSelectorCss(gridId, rowId, columnId));
+    selectFirstFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId));
   }
 
   /**
@@ -1573,7 +1465,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param criterionName Criterion name
    */
   protected void selectLast(String criterionName) {
-    selectLastFromSelector(getCriterionSelectorCss(criterionName));
+    selectLastFromSelector(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -1583,7 +1475,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectLast(String gridId, String columnId) {
-    selectLastFromSelector(getParentSelectorCss(gridId, null, columnId));
+    selectLastFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
   }
 
   /**
@@ -1594,7 +1486,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectLast(String gridId, String rowId, String columnId) {
-    selectLastFromSelector(getParentSelectorCss(gridId, rowId, columnId));
+    selectLastFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId));
   }
 
   /**
@@ -1604,7 +1496,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label         Label to search
    */
   protected void selectContain(String criterionName, String label) {
-    selectContainFromSelector(getCriterionSelectorCss(criterionName), label);
+    selectContainFromSelector(frontEndInstructions.getCriterionCss(criterionName), label);
   }
 
   /**
@@ -1615,7 +1507,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void selectContain(String gridId, String columnId, String label) {
-    selectContainFromSelector(getParentSelectorCss(gridId, null, columnId), label);
+    selectContainFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), label);
   }
 
   /**
@@ -1627,7 +1519,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void selectContain(String gridId, String rowId, String columnId, String label) {
-    selectContainFromSelector(getParentSelectorCss(gridId, rowId, columnId), label);
+    selectContainFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId), label);
   }
 
   /**
@@ -1636,7 +1528,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param gridId Grid id
    */
   protected void selectAllRowsOfGrid(String gridId) {
-    String parentSelector = getParentSelectorCss(gridId, null, null);
+    String parentSelector = frontEndInstructions.getParentCss(gridId, null, null);
 
     By selector = By.cssSelector(parentSelector);
 
@@ -1654,7 +1546,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param match Match label
    */
   protected void selectResult(String match) {
-    By selector = By.xpath(SELECT_DROP_CONTENTS_XPATH + match + PARENT_ELEMENT);
+    By selector = frontEndInstructions.getSelectResult(match);
 
     // Wait for element present
     waitUntil(presenceOfElementLocated(selector));
@@ -1671,7 +1563,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label         Label to search
    */
   protected void suggest(String criterionName, String search, String label) {
-    suggestFromSelector(getCriterionSelectorCss(criterionName), search, label);
+    suggestFromSelector(frontEndInstructions.getCriterionCss(criterionName), search, label);
   }
 
   /**
@@ -1683,7 +1575,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void suggest(String gridId, String columnId, String search, String label) {
-    suggestFromSelector(getParentSelectorCss(gridId, null, columnId), search, label);
+    suggestFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), search, label);
   }
 
   /**
@@ -1696,7 +1588,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void suggest(String gridId, String rowId, String columnId, String search, String label) {
-    suggestFromSelector(getParentSelectorCss(gridId, rowId, columnId), search, label);
+    suggestFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId), search, label);
   }
 
   /**
@@ -1706,7 +1598,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search        Search string
    */
   protected void suggestLast(String criterionName, String search) {
-    suggestLastFromSelector(getCriterionSelectorCss(criterionName), search);
+    suggestLastFromSelector(frontEndInstructions.getCriterionCss(criterionName), search);
   }
 
   /**
@@ -1717,7 +1609,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search   Search string
    */
   protected void suggestLast(String gridId, String columnId, String search) {
-    suggestLastFromSelector(getParentSelectorCss(gridId, null, columnId), search);
+    suggestLastFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), search);
   }
 
   /**
@@ -1729,7 +1621,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search   Search string
    */
   protected void suggestLast(String gridId, String rowId, String columnId, String search) {
-    suggestLastFromSelector(getParentSelectorCss(gridId, rowId, columnId), search);
+    suggestLastFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId), search);
   }
 
   /**
@@ -1790,7 +1682,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label         Text to find in label
    */
   protected void suggestMultiple(String criterionName, boolean clear, String search, String label) {
-    suggestMultipleFromSelector(getCriterionSelectorCss(criterionName), clear, search, label);
+    suggestMultipleFromSelector(frontEndInstructions.getCriterionCss(criterionName), clear, search, label);
   }
 
   /**
@@ -1802,7 +1694,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Text to find in label
    */
   protected void suggestMultiple(String gridId, String columnId, boolean clear, String search, String label) {
-    suggestMultipleFromSelector(getParentSelectorCss(gridId, null, columnId), clear, search, label);
+    suggestMultipleFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), clear, search, label);
   }
 
   /**
@@ -1815,7 +1707,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Text to find in label
    */
   protected void suggestMultiple(String gridId, String rowId, String columnId, boolean clear, String search, String label) {
-    suggestMultipleFromSelector(getParentSelectorCss(gridId, rowId, columnId), clear, search, label);
+    suggestMultipleFromSelector(frontEndInstructions.getParentCss(gridId, rowId, columnId), clear, search, label);
   }
 
   /**
@@ -1844,7 +1736,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Click on save row and wait
    */
   protected void saveRow() {
-    saveRowFromSelector(".grid-row-save:not([disabled])");
+    saveRowFromSelector(frontEndInstructions.getGridSaveButton());
   }
 
   /**
@@ -1853,7 +1745,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param gridId Grid with the save button
    */
   protected void saveRow(String gridId) {
-    saveRowFromSelector("#" + gridId + "-grid-row-save:not([disabled])");
+    saveRowFromSelector(frontEndInstructions.getGridSaveButton(gridId));
   }
 
 
@@ -1866,7 +1758,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void scrollGrid(String gridId, int horizontal, int vertical) {
     JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
-    WebElement grid = seleniumModel.getDriver().findElement(getGridScrollZone(gridId));
+    WebElement grid = seleniumModel.getDriver().findElement(frontEndInstructions.getGridScrollZone(gridId));
     js.executeScript("arguments[0].scrollTo(arguments[1], arguments[2]);", grid, horizontal, vertical);
   }
 
@@ -1875,17 +1767,21 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void showMouse() {
     JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
-    js.executeScript("var seleniumFollowerImg=document.createElement(\"span\");" +
+    js.executeScript("let seleniumFollowerImg=document.createElement(\"span\");" +
       "seleniumFollowerImg.setAttribute('id', 'selenium_mouse');" +
       "seleniumFollowerImg.setAttribute('style', 'position: absolute; z-index: 99999999999; pointer-events: none; transition: all .1s ease, text-shadow .1s linear; -moz-transition: all .01s linear, text-shadow .1s linear; color: white;-webkit-text-stroke-width: 2px;-webkit-text-stroke-color: #000;');" +
-      "$(seleniumFollowerImg).addClass('fa fa-mouse-pointer fa-2x');" +
+      "seleniumFollowerImg.classList.add('fa', 'fa-mouse-pointer', 'fa-2x');" +
       "document.body.appendChild(seleniumFollowerImg);" +
-      "$(document).mousemove(function(e) {" +
-      "$('#selenium_mouse').css({'left': e.pageX + 'px', 'top': e.pageY + 'px'});" +
+      "document.addEventListener('mousemove', function(e) {" +
+      "let seleniumMouse=document.getElementById(\"selenium_mouse\");" +
+      "seleniumMouse.style.left=e.pageX + 'px';" +
+      "seleniumMouse.style.top=e.pageY + 'px';" +
       "});" +
-      "$(document).click(function(e) {" +
-      "$('#selenium_mouse').css({'text-shadow': '0 0 20px blue', 'color': 'blue'});" +
-      "setTimeout(function() {$('#selenium_mouse').css({'text-shadow': '0 0 0px blue', 'color': 'white'});}, 100);" +
+      "document.addEventListener('click', function(e) {" +
+      "let seleniumMouse=document.getElementById(\"selenium_mouse\");" +
+      "seleniumMouse.style.textShadow='0 0 20px blue';" +
+      "seleniumMouse.style.color='blue';" +
+      "setTimeout(function() {seleniumMouse.style.textShadow='0 0 0px blue';seleniumMouse.style.color='white';}, 100);" +
       "});");
   }
 
@@ -1897,7 +1793,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void sortGrid(String gridId, String columnId) {
     // Click on header
-    clickRowFromSelector(getHeaderSelectorXpath(gridId, columnId));
+    clickRowFromSelector(frontEndInstructions.getGridHeader(gridId, columnId));
 
     // Wait for loading bar
     waitForLoadingGrid();
@@ -1923,7 +1819,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param messageType Message type (success (default), info, warning, danger)
    */
   protected void checkAndCloseMessage(String messageType) {
-    By messageSelector = By.cssSelector(".alert-zone .alert-" + messageType + " button.close");
+    By messageSelector = frontEndInstructions.getMessage(messageType);
 
     // Wait for message selector
     waitUntil(elementToBeClickable(messageSelector));
@@ -2012,12 +1908,11 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param searchList Texts to search for in the grid
    */
   protected void checkRowContentsGrid(String gridId, String... searchList) {
-    String gridSelector = getGridSelectorXpath(gridId);
     for (String search : searchList) {
-      By selector = By.xpath(gridSelector + CELL_SEARCH_CONTAINS_XPATH + search + PARENT_ELEMENT);
+      By selector = frontEndInstructions.findGridCell(gridId, search);
 
       // Wait for element visible
-      waitUntil(and(visibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE));
+      waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
 
       // Check text
       checkTextContains(selector, search);
@@ -2033,10 +1928,10 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search   Search value
    */
   protected void checkCellContents(String gridId, String rowId, String columnId, String search) {
-    By selector = By.xpath(getParentSelectorXpath(gridId, rowId, columnId) + "//text()[contains(.,'" + search + PARENT_ELEMENT);
+    By selector = frontEndInstructions.getGridCellText(gridId, rowId, columnId, search);
 
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE));
+    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
 
     // Check text
     checkTextContains(selector, search);
@@ -2048,9 +1943,9 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Texts to search for in the grid
    */
   protected void checkRowNotContains(String search) {
-    By selector = By.xpath(CELL_SEARCH_CONTAINS_XPATH + search + PARENT_ELEMENT);
+    By selector = frontEndInstructions.findGridCell(null, search);
 
-    ExpectedCondition<Boolean> condition = and(invisibilityOfElementLocated(selector), GRID_LOADER_IS_NOT_VISIBLE);
+    ExpectedCondition<Boolean> condition = and(invisibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible());
 
     // Assert element is not located
     assertWithScreenshot(condition.toString(), condition.apply(seleniumModel.getDriver()));
@@ -2063,7 +1958,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search        Text to check
    */
   protected void checkCriterionContents(String criterionName, String search) {
-    By selector = getCriterionInputSelector(getCriterionSelectorCss(criterionName));
+    By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
 
     // Wait for element visible
     waitUntil(presenceOfElementLocated(selector));
@@ -2079,16 +1974,9 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param criteriaNames Elements to check
    */
   protected void checkCheckboxRadio(boolean isChecked, String... criteriaNames) {
-    String checkedSelector = isChecked ? ":checked" : ":not(:checked)";
-    String activeSelector = isChecked ? ".active" : ":not(.active)";
-    for (String criterionName : criteriaNames) {
-      By selector = By.cssSelector(
-        getCriterionSelectorCss(criterionName) + " .input label input" + checkedSelector + "," +
-          getCriterionSelectorCss(criterionName) + activeSelector);
-
-      // Wait for element visible
-      waitUntil(presenceOfElementLocated(selector));
-    }
+    // Wait for element visible
+    Arrays.stream(criteriaNames)
+      .forEach(criterionName -> waitUntil(presenceOfElementLocated(frontEndInstructions.getCheckboxChecked(criterionName, isChecked))));
   }
 
   /**
@@ -2098,7 +1986,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search        Text to check
    */
   protected void checkSelectContents(String criterionName, String search) {
-    By selector = By.cssSelector(getCriterionSelectorCss(criterionName) + " .select2-chosen");
+    By selector = frontEndInstructions.getSelectChosen(criterionName);
 
     // Wait for element visible
     waitUntil(visibilityOfElementLocated(selector));
@@ -2114,10 +2002,10 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param number        Number of results to check
    */
   protected void checkSelectNumberOfResults(String criterionName, Integer number) {
-    selectClick(getCriterionSelectorCss(criterionName));
+    selectClick(frontEndInstructions.getCriterionCss(criterionName));
 
     // Assert element is not located
-    assertWithScreenshot("Number of elements doesn't match", number == getElements(SELECT_DROP_RESULTS).size());
+    assertWithScreenshot("Number of elements doesn't match", number == getElements(frontEndInstructions.getSelectDropdownListElements()).size());
   }
 
   /**
@@ -2127,7 +2015,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search        Text to check
    */
   protected void checkMultipleSelectorContents(String criterionName, String search) {
-    By selector = By.cssSelector(getCriterionSelectorCss(criterionName) + " .select2-search-choice div");
+    By selector = frontEndInstructions.getSelectMultipleTextContainer(criterionName);
 
     // Wait for element visible
     waitUntil(visibilityOfElementLocated(selector));
@@ -2142,7 +2030,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param messageType Message type
    */
   protected void checkMessageMissing(String messageType) {
-    By messageSelector = By.cssSelector(".alert-zone .alert-" + messageType + " button.close");
+    By messageSelector = frontEndInstructions.getMessage(messageType);
 
     // Wait 1 second
     pause(1000);
