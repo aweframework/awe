@@ -34,7 +34,7 @@ public class DockerServiceFFMpegRecorder extends VideoRecorder {
 
   private void waitForVideoCompleted(File video) {
     try {
-      Awaitility.await().atMost(10L, TimeUnit.SECONDS).pollDelay(1L, TimeUnit.SECONDS).ignoreExceptions().until(video::exists);
+      Awaitility.await().atMost(20L, TimeUnit.SECONDS).pollDelay(1L, TimeUnit.SECONDS).ignoreExceptions().until(video::exists);
     } catch (ConditionTimeoutException var3) {
       throw new RecordingException(var3.getMessage());
     }
