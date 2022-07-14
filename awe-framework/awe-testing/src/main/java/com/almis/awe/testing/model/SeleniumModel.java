@@ -8,6 +8,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.openqa.selenium.WebDriver;
 
 import java.net.InetAddress;
+import java.util.Optional;
 
 @Data
 @Accessors(chain = true)
@@ -31,7 +32,7 @@ public class SeleniumModel {
     if (properties.isRemoteBrowser()) {
       try {
         return String.format("http://%s:%d%s",
-          SystemUtils.IS_OS_LINUX ? InetAddress.getLocalHost().getHostAddress() : "host.docker.internal",
+          Optional.ofNullable(properties.getServerHost()).orElse(SystemUtils.IS_OS_LINUX ? InetAddress.getLocalHost().getHostAddress() : "host.docker.internal"),
           properties.getServerPort(),
           properties.getContextPath());
       } catch (Exception exc) {
