@@ -70,7 +70,7 @@
       </tabcontainer>
       <tabcontainer id="MusMat">
         <criteria id="Pru" value="FndPos" component="hidden" />
-        <grid id="GrdMus" style="expand grid-bordered" multiselect="true" row-numbers="false" initial-load="query" server-action="data" target-action="QryUniTstId" max="30">
+        <grid id="GrdMus" style="expand grid-bordered" multiselect="true" row-numbers="false" initial-load="query" server-action="data" target-action="QryUniTstId" load-all="true" max="30">
           <column label="PARAMETER_TEXT" name="Als1" sort-field="Als" align="left" charlength="20">
             <dependency target-type="hide-column" initial="true">
               <dependency-element id="GrdMus" attribute="selectedRows" condition="ne" value="3" />
@@ -144,10 +144,10 @@
           <column label="PARAMETER_COLOR" name="Col" sort-field="Col" align="center" component="color" charlength="20" />
           <column label="PARAMETER_CHECKBOX" name="ChkBox" sort-field="ChkBox" align="center" component="checkbox" type="boolean" charlength="12" />
           <column label="PARAMETER_DIALOG" name="Dialog" sort-field="Dialog" align="center" icon="plus-circle" component="button" charlength="12">
-            <!--<dependency target-type="show" initial="true">
+            <dependency target-type="show" initial="true">
               <dependency-element id="GrdEdi" attribute="selectedRows" condition="eq" value="1" />
               <dependency-element id="GrdEdi" attribute="selectedRow" condition="eq" id2="GrdEdi" attribute2="currentRow"/>
-            </dependency>-->
+            </dependency>
             <button-action type="server" server-action="maintain-silent" target-action="fillTestDialogGridEditable"/>
             <button-action type="dialog" target="dialogo-modal"/>
           </column>

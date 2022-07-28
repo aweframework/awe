@@ -1,5 +1,16 @@
 # Spring Cloud Kubernetes disabled
 spring:
+  application:
+    name: awe-react
   cloud:
     kubernetes:
       enabled: false
+    gcp:
+      secretmanager:
+        enabled: false
+      core:
+        enabled: false
+# Logging
+logging:
+  file:
+    path: ${project.basedir}/target/logs

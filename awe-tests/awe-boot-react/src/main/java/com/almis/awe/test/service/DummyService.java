@@ -13,7 +13,7 @@ import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.test.bean.Planet;
 import com.almis.awe.test.bean.Planets;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
@@ -32,7 +32,7 @@ import static java.lang.Thread.sleep;
  *
  * @author jbellon
  */
-@Log4j2
+@Slf4j
 @Service
 public class DummyService extends ServiceConfig {
 
@@ -78,19 +78,16 @@ public class DummyService extends ServiceConfig {
   public ServiceData paginate(Long page, Long max) throws AWException {
     ServiceData out = new ServiceData();
     String[] data = new String[65];
-    List<String> subset = new ArrayList<String>();
     for (int i = 0; i < data.length; i++) {
       data[i] = i + "";
     }
 
     int offset = (int) ((page - 1) * max);
-    for (int i = offset; i < offset + max; i++) {
-      subset.add(data[i]);
-    }
+    List<String> subset = new ArrayList<>(Arrays.asList(data).subList(offset, (int) (offset + max)));
 
     DataListBuilder builder = context.getBean(DataListBuilder.class);
     out.setDataList(
-      builder.setServiceQueryResult(subset.toArray(new String[subset.size()]))
+      builder.setServiceQueryResult(subset.toArray(new String[0]))
         .setRecords((long) data.length)
         .setPage(page)
         .setMax(max)
@@ -300,6 +297,7 @@ public class DummyService extends ServiceConfig {
       serviceData.setDataList(new DataList());
       DataListUtil.addColumnWithOneRow(serviceData.getDataList(), "value", date);
     } catch (Exception exc) {
+      // Non useful
     }
 
     return serviceData;
@@ -331,6 +329,7 @@ public class DummyService extends ServiceConfig {
       DataListUtil.addColumn(serviceData.getDataList(), "date6", dates);
       DataListUtil.addColumn(serviceData.getDataList(), "date7", dates);
     } catch (Exception exc) {
+      // Non useful
     }
 
     return serviceData;

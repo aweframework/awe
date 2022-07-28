@@ -24,8 +24,8 @@ module.exports = {
           loader: "less-loader", options: { lessPlugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ],
             minimize: true, sourceMap: true}}]},
       { test : /\.(jpg|gif|png)$/, loader : 'url-loader?limit=100000&name=./images/[hash].[ext]'},
-      { test : /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use : "url-loader?limit=10000&mimetype=application/font-woff&name=./fonts/[hash].[ext]"},
-      { test : /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use : "file-loader?name=./fonts/[hash].[ext]"}
+      { test : /\.woff2?(\?v=\d\.\d\.\d)?$/, use : "url-loader?limit=10000&mimetype=application/font-woff&name=./fonts/[hash].[ext]"},
+      { test : /\.(ttf|eot|svg)(\?v=\d\.\d\.\d)?$/, use : "file-loader?name=./fonts/[hash].[ext]"}
     ]
   },
   resolve : {
