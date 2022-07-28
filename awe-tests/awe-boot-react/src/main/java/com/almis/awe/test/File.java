@@ -5,6 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.file.FileUtil;
+import com.almis.awe.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import java.io.FileNotFoundException;
 public class File extends ServiceConfig {
 
   @Autowired
-  private FileUtil fileUtil;
+  private FileService fileService;
 
   /**
    * Given a file identifier, download a file
@@ -31,16 +32,16 @@ public class File extends ServiceConfig {
   public ServiceData downloadFile(String filedata) throws AWException {
     ServiceData serviceData = new ServiceData();
     String fullPath = null;
-    FileData fileData = fileUtil.stringToFileData(filedata);
+    FileData fileData = FileUtil.stringToFileData(filedata);
 
     try {
-      fullPath = fileUtil.getFullPath(fileData, false);
+      fullPath = fileService.getFullPath(fileData, false);
 
       FileInputStream file = new FileInputStream(fullPath + fileData.getFileName());
       fileData.setFileStream(file);
     } catch (FileNotFoundException exc) {
       throw new AWException(getElements().getLocale("ERROR_TITLE_READING_FILE"),
-              getElements().getLocale("Error reading file {0} from {1}", new Object[]{fileData.getFileName(), fullPath}), exc);
+              getElements().getLocale("Error reading file {0} from {1}", fileData.getFileName(), fullPath), exc);
     }
 
     // Set variables
@@ -56,7 +57,7 @@ public class File extends ServiceConfig {
    */
   public ServiceData getFileInfo(String filedata) throws AWException {
     ServiceData serviceData = new ServiceData();
-    FileData fileData = fileUtil.stringToFileData(filedata);
+    FileData fileData = FileUtil.stringToFileData(filedata);
 
     // Set variables
     String[] out = { filedata, fileData.getFileName() };

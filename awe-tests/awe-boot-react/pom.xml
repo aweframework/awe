@@ -19,14 +19,12 @@
     <java.version>11</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <selenium.version>3.141.59</selenium.version>
-    <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
-    <webdrivermanager.version>3.2.0</webdrivermanager.version>
-    <testng.version>6.14.3</testng.version>
+    <wavefront.version>2.2.2</wavefront.version>
+    <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
     <!-- Frontend configuration -->
-    <node.version>v12.1.0</node.version>
-    <yarn.version>v1.15.2</yarn.version>
+    <node.version>v16.16.0</node.version>
+    <yarn.version>v1.22.19</yarn.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
@@ -52,26 +50,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
-      <exclusions>
-        <!-- Use log4j2 lib -->
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- AWE -->
     <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-spring-boot-starter</artifactId>
-      <exclusions>
-        <!-- Use log4j2 lib -->
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -83,6 +67,11 @@
     <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-builder-spring-boot-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-rest-spring-boot-starter</artifactId>
     </dependency>
 
     <dependency>
@@ -109,13 +98,12 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
-      <exclusions>
-        <!-- Use log4j2 lib -->
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+
+    <!-- Secret management -->
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
     </dependency>
 
     <!-- Redis cache server -->
@@ -138,6 +126,23 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <scope>runtime</scope>
+    </dependency>
+
+    <!-- Flyway modules -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-sqlserver</artifactId>
+    </dependency>
+
+    <!--  Wavefront metrics -->
+    <dependency>
+      <groupId>com.wavefront</groupId>
+      <artifactId>wavefront-spring-boot-starter</artifactId>
+      <version>${wavefront.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -418,6 +423,7 @@
                 <configuration>
                   <arguments>
                     <argument>--integration-test</argument>
+                    <argument>--management.metrics.export.wavefront.enabled=false</argument>
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>
@@ -440,5 +446,26 @@
       </build>
     </profile>
   </profiles>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Add Wavefront Cloud Dependency BOM -->
+      <dependency>
+        <groupId>com.wavefront</groupId>
+        <artifactId>wavefront-spring-boot-bom</artifactId>
+        <version>${wavefront.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Spring Cloud GCP -->
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>spring-cloud-gcp-dependencies</artifactId>
+        <version>2.0.5</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>

@@ -37,7 +37,7 @@
     <window style="expand" label="SCREEN_TEXT_DATA" id="Criteria" expandible="vertical">
       <tag type="div" style="panel-body expand scrollable">
         <criteria left-label="18" label="PARAMETER_TEXT" id="Txt" variable="Txt" component="text" style="col-xs-6 col-sm-3 col-lg-2" value="test"/>
-        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="required {maxlength:4}"/>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true, maxlength:4}"/>
         <criteria left-label="18" label="PARAMETER_TEXT_READONLY" id="TxtRea" variable="TxtRea" component="text" readonly="true" style="col-xs-6 col-sm-3 col-lg-2" initial-load="value" target-action="SysTim" unit="PARAMETER_TEXT">
           <dependency source-type="launcher" target-type="input" target-action="language">
             <dependency-element id="language" view="base" attribute="text" alias="language"/>
