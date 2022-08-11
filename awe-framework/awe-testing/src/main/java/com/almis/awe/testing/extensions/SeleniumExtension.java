@@ -86,7 +86,6 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     firefoxProfile.setPreference("browser.download.improvements_to_download_panel", false);
     FirefoxOptions firefoxOptions = new FirefoxOptions()
       .setProfile(firefoxProfile)
-      .addArguments("--remote-debugging-port=9222")
       .addArguments(windowSize)
       .setLogLevel(FirefoxDriverLogLevel.ERROR);
 
