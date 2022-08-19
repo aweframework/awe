@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.6.1
+*19/08/2022*
+
+- Update spring boot version to 2.7.3. [MR #384](https://gitlab.com/aweframework/awe/-/merge_requests/384) (Pablo Vidal Otero)
+- Create a set of specific instructions for angular and react in awe testing utilities. [MR #382](https://gitlab.com/aweframework/awe/-/merge_requests/382) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.0
 *05/07/2022*
 
