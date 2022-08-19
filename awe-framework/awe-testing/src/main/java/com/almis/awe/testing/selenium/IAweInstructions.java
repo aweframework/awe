@@ -6,4 +6,5 @@ import org.openqa.selenium.WebDriver;
 public interface IAweInstructions {
   WebDriver getDriver();
   IAweInstructions setSeleniumModel(SeleniumModel seleniumModel);
+
 }

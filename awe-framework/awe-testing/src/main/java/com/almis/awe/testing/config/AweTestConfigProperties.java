@@ -50,11 +50,11 @@ public class AweTestConfigProperties {
   /**
    * Server host of selenium tests
    */
-  private String serverHost = "localhost";
+  private String serverHost;
   /**
    * Server port of selenium tests
    */
-  private int serverPort= 8080;
+  private int serverPort = 8080;
   /**
    * Context path of selenium tests
    */
