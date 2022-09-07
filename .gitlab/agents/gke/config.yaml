@@ -8,3 +8,4 @@ gitops:
         - glob: 'production/awe-react/awe*.{yaml,yml,json}'
         - glob: 'staging/redis/*.{yaml,yml,json}'
         - glob: 'production/redis/*.{yaml,yml,json}'
+      inventory_policy: adopt_all
