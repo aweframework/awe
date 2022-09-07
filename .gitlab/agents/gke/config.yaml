@@ -1,3 +1,7 @@
+ci_access:
+  # This agent is accessible from CI jobs in projects in these groups
+  groups:
+    - id: aweframework
 gitops:
   manifest_projects:
     - id: "aweframework/awe-gke-config"
@@ -8,3 +12,4 @@ gitops:
         - glob: 'production/awe-react/awe*.{yaml,yml,json}'
         - glob: 'staging/redis/*.{yaml,yml,json}'
         - glob: 'production/redis/*.{yaml,yml,json}'
+      inventory_policy: adopt_all
