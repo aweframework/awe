@@ -106,7 +106,7 @@ module.exports = {
 		},
 		algolia: {
 			appId: 'G6FC3RBAES',
-			apiKey: 'bbb756b741640f975ac0158bcedcefcb',
+			apiKey: 'bc4e0c0dd0883aac1d7ce0ae2dcb1ad8',
 			indexName: 'aweframework_awe',
 			contextualSearch: true,
 		},
