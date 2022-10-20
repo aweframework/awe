@@ -145,7 +145,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   void addColumnTarget(List<AweThreadInitialization> initializationList, String gridId, Column column) {
     ObjectNode parameters = getRequest().getParametersSafe();
-    parameters.put(AweConstants.COMPONENT_MAX, column.getMax());
+    parameters.put(AweConstants.COMPONENT_MAX, Optional.ofNullable(column.getMax()).orElse(baseConfigProperties.getComponent().getCriteriaRowsPerPage()));
 
     initializationList.add(new AweThreadInitialization()
       .setParameters(parameters)
