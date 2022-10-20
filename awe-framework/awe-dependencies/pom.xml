@@ -22,7 +22,7 @@
     <spring-boot.version>2.7.3</spring-boot.version>
     <spring-cloud.version>2021.0.3</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
-    <node.version>v16.13.0</node.version>
+    <node.version>v16.18.0</node.version>
     <yarn.version>v1.22.15</yarn.version>
     <npm.version>v6.9.0</npm.version>
     <st.version>4.3.1</st.version>
