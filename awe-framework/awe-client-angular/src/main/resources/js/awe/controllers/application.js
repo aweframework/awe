@@ -1,5 +1,12 @@
 import {aweApplication} from "./../awe";
 
+function checkCapsLock($ctrl, event) {
+  // Check caps lock
+  if ("getModifierState" in event) {
+    $ctrl.updateStatus("isCapsLockOn", event.getModifierState('CapsLock'));
+  }
+}
+
 // Application controller
 aweApplication.controller('AppController',
   ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController', '$rootScope',
@@ -39,7 +46,7 @@ aweApplication.controller('AppController',
         }
 
         // Check caps lock
-        $ctrl.updateStatus("isCapsLockOn", $event.originalEvent.getModifierState('CapsLock'));
+        checkCapsLock($ctrl, $event.originalEvent);
       };
 
       /**
@@ -48,7 +55,7 @@ aweApplication.controller('AppController',
        */
       $ctrl.onKeyup = function($event) {
         // Check caps lock
-        $ctrl.updateStatus("isCapsLockOn", $event.originalEvent.getModifierState('CapsLock'));
+        checkCapsLock($ctrl, $event.originalEvent);
       };
 
       /**

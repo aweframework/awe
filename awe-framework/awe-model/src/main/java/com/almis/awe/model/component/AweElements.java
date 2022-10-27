@@ -397,13 +397,14 @@ public class AweElements {
   private Screen readScreen(String screenId, Set<String> includedScreens) throws AWException {
     Screen screen;
     int identifier = 1;
-    String path = baseConfigProperties.getPaths().getScreen() + screenId + baseConfigProperties.getExtensionXml();
+    String path = baseConfigProperties.getPaths().getScreen();
+    String file = screenId + baseConfigProperties.getExtensionXml();
 
     // Clone from list
     if (screenMap.containsKey(screenId)) {
       screen = screenMap.get(screenId);
     } else {
-      screen = elementsDao.readXmlFile(Screen.class, path);
+      screen = elementsDao.readXmlFile(Screen.class, path, file);
     }
 
     if (screen == null) {
@@ -479,9 +480,8 @@ public class AweElements {
    * @param screen Screen
    * @param source Source
    * @return Tag
-   * @throws AWException Error retrieving screen source
    */
-  private Tag getScreenSource(Screen screen, String source) throws AWException {
+  private Tag getScreenSource(Screen screen, String source) {
     for (Tag child : screen.getChildrenByType(Tag.class)) {
       if (source.equalsIgnoreCase(child.getSource())) {
         return child.copy();
@@ -532,10 +532,11 @@ public class AweElements {
    */
   private Menu readMenuFile(String menuId) throws AWException {
     Menu menu;
-    String path = baseConfigProperties.getPaths().getMenu() + menuId + baseConfigProperties.getExtensionXml();
+    String path = baseConfigProperties.getPaths().getMenu();
+    String fileName = menuId + baseConfigProperties.getExtensionXml();
     try {
       // Clone from list
-      menu = elementsDao.readXmlFile(Menu.class, path);
+      menu = elementsDao.readXmlFile(Menu.class, path, fileName);
       if (menu != null) {
         // Set menu identifier
         menu = (Menu) menu.copy().setId(menuId);

@@ -8,6 +8,7 @@ import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -18,12 +19,10 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class AweElementsDao {
@@ -33,6 +32,7 @@ public class AweElementsDao {
   private static final String READING = "Reading ''{0}''{1}";
   private static final String READING_FILES_FROM = "Reading files from ''{0}''{1}";
   private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
+  private static final String ERROR_READING_XML = "Error reading XML - '{}'";
 
   // Autowired services
   private final XStreamSerializer serializer;
@@ -70,17 +70,10 @@ public class AweElementsDao {
    * @param filePath  File path
    */
   public <T extends XMLFile, N extends XMLNode> void readXmlFiles(Class<T> rootClass, Map<String, N> storage, String filePath) {
-    List<String> resultList = new ArrayList<>();
     // For each module read XML files
-    for (String module : baseConfigProperties.getModuleList()) {
-      // Read module file
-      resultList.add(readModuleFile(rootClass, storage, baseConfigProperties.getPaths().getApplication() + module + filePath));
-    }
-
-    // Log results
-    for (String result : resultList) {
-      log.info(result);
-    }
+    Arrays.stream(baseConfigProperties.getModuleList())
+      .map(module -> readModuleFile(rootClass, storage, baseConfigProperties.getPaths().getApplication() + module + filePath))
+      .forEach(log::info);
   }
 
   /**
@@ -117,41 +110,54 @@ public class AweElementsDao {
   private <N extends XMLNode> void readXmlElements(XMLFile fullXml, Map<String, N> storage) {
     // Read XML Elements and store them
     List<N> elementList = fullXml.getBaseElementList();
-    for (N element : elementList) {
-      if (element != null && !storage.containsKey(element.getElementKey())) {
-        // Store element list
-        storage.put(element.getElementKey(), element);
-      }
-    }
+    elementList.stream()
+      .filter(Objects::nonNull)
+      .filter(element -> !storage.containsKey(element.getElementKey()))
+      .forEach(element -> storage.put(element.getElementKey(), element));
   }
 
   /**
    * Read all XML files and store them in the component
    *
    * @param clazz    File class
-   * @param filePath File path
+   * @param basePath File path
+   * @param fileName File name
    * @param <T>      Class type
    * @return Xml file object
    */
   @Cacheable(value = "xml", key = "{ #p0.toString(), #p1 }")
-  public synchronized <T> T readXmlFile(Class<T> clazz, String filePath) {
-    T file = null;
+  public synchronized <T> T readXmlFile(Class<T> clazz, String basePath, String fileName) {
     List<String> messageList = new ArrayList<>();
     // For each module read XML files
-    for (String module : baseConfigProperties.getModuleList()) {
-      if (file == null) {
-        // Get file path
-        String path = baseConfigProperties.getPaths().getApplication() + module + filePath;
-        file = readModuleXmlFile(clazz, path, messageList);
-      }
-    }
+    T file = Arrays.stream(baseConfigProperties.getModuleList())
+      .map(module -> findXmlModulePath(baseConfigProperties.getPaths().getApplication() + module + basePath, fileName))
+      .filter(Strings::isNotEmpty)
+      .map(path -> readModuleXmlFile(clazz, path + fileName, messageList))
+      .filter(Objects::nonNull)
+      .findFirst()
+      .orElse(null);
 
     // Log results
-    for (String result : messageList) {
-      log.info(result);
-    }
+    messageList.forEach(log::info);
 
     return file;
+  }
+
+  private String findXmlModulePath(String basePath, String fileName) {
+    // Read files from path
+    try {
+      PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
+      Resource[] resources = loader.getResources("classpath:" + basePath + "**/" + fileName);
+      return Arrays.stream(resources)
+        .filter(resource -> fileName.equalsIgnoreCase(resource.getFilename()))
+        .map(resource -> basePath)
+        .findFirst()
+        .orElse(null);
+    } catch (Exception exc) {
+      log.warn(ERROR_READING_XML, fileName, exc);
+    }
+
+    return null;
   }
 
   /**
@@ -200,18 +206,10 @@ public class AweElementsDao {
    * @param storage Storage to keep read files
    */
   public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
-    List<String> resultList = new ArrayList<>();
     // For each module read XML files
-    for (String module : baseConfigProperties.getModuleList()) {
-      // Get file path
-      String basePath = baseConfigProperties.getPaths().getApplication() + module + path;
-      resultList.addAll(readModuleFolderXmlFile(clazz, basePath, storage));
-    }
-
-    // Log results
-    for (String result : resultList) {
-      log.info(result);
-    }
+    Arrays.stream(baseConfigProperties.getModuleList())
+      .flatMap(module -> readModuleFolderXmlFile(clazz, baseConfigProperties.getPaths().getApplication() + module + path, storage).stream())
+      .forEach(log::info);
   }
 
   /**
@@ -229,21 +227,39 @@ public class AweElementsDao {
       if (basePathResource.exists()) {
         // Read files from path
         PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
-        Resource[] resources = loader.getResources("classpath:" + path + "*" + baseConfigProperties.getExtensionXml());
+        Resource[] resources = loader.getResources("classpath:" + path + "**/*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
           resultList.add(MessageFormat.format(READING_FILES_FROM, path, OK));
-          for (Resource resource : resources) {
-            String message = readXmlResourceFile(resource, clazz, path, storage);
-            if (message != null) {
-              resultList.add(message);
-            }
-          }
+          resultList.addAll(readXmlFileFolder(resources, clazz, path, storage));
         }
       }
     } catch (IOException exc) {
-      log.info(ERROR_PARSING_XML, path, exc);
+      log.info(ERROR_READING_XML, path, exc);
     }
     return resultList;
+  }
+
+  /**
+   * Read XML Files from subfolder
+   * @param resources
+   * @param clazz
+   * @param path
+   * @param storage
+   * @return
+   * @param <T>
+   */
+  private<T> List<String> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path, Map<String, T> storage) {
+    return Arrays.stream(resources)
+      .map(resource -> {
+        try {
+          return readXmlResourceFile(resource, clazz, path, storage);
+        } catch (IOException exc) {
+          log.warn(ERROR_READING_XML, resource.getFilename(), exc);
+        }
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   /**
@@ -260,7 +276,8 @@ public class AweElementsDao {
       String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
       if (!storage.containsKey(fileName)) {
         storage.put(fileName, fromXML(clazz, resource.getInputStream()));
-        return MessageFormat.format(READING, basePath + fileName + baseConfigProperties.getExtensionXml(), OK);
+        return MessageFormat.format(READING, basePath + Optional.ofNullable(resource.getURL().getPath())
+          .orElse(basePath + resource.getFilename()).split(basePath)[1], OK);
       }
     }
     return null;
@@ -280,13 +297,8 @@ public class AweElementsDao {
     readXmlFiles(Locales.class, localeLanguage, basePath);
 
     // Parse the read locales and store them on the final storage
-    Map<String, String> localeTranslated = new ConcurrentHashMap<>();
-    for (Global locale : localeLanguage.values()) {
-      localeTranslated.put(locale.getName(), StringUtil.parseLocale(locale));
-    }
-
-    // Store the translated locale in localeList
-    localeList.put(language, localeTranslated);
+    localeList.put(language, localeLanguage.values().stream()
+      .collect(Collectors.toMap(Global::getName, StringUtil::parseLocale, (f, s) -> f, ConcurrentHashMap::new)));
 
     return new AsyncResult<>(null);
   }
