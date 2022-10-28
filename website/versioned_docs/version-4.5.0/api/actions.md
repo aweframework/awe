@@ -177,7 +177,6 @@ Actions which works over components in the screen.
 | `data`          | Get data from the server. Fills the `values` list of the criterion | `targetAction`: Query identifier|
 | `value`         | Get a value from the server. Fills the `selected` list of the criterion. *In suggests, this action also fills the `values` list* | `targetAction`: Query identifier |
 | `update-model`  | Get values for some criteria. The query field alias **must** be the criterion id to match. Fills the `selected` list of the criteria | `targetAction`: Query identifier |
-| `update-model-no-cancel`  | It does exactly the same **update-model** action does, but without cancelling the action stack when the query returns a warning/error | `targetAction`: Query identifier |
 | `subscribe`     | Subscribe to a query data retrieval. The subscription stores the component request and broadcasts  data to the component address | `targetAction`: Query identifier |
 | `maintain`      | Launch a maintain process      | `targetAction`: Maintain target identifier  |
 | `maintain-silent` | Launch a maintain process without response message | `targetAction`: Maintain target identifier |
