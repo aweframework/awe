@@ -710,6 +710,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.getColumnPrintData = function (columnId) {
           // Initialize data
           let  data = {};
+          let  columnValues = [];
           let  columnData = [];
           let  address = angular.extend({column: columnId}, component.address);
           let  column = component.getColumn(columnId);
@@ -719,12 +720,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           _.each(component.model.values, function (row) {
             let  rowId = row[component.constants.ROW_IDENTIFIER];
             address.row = rowId;
-            let  isSelected = selected.indexOf(rowId) > -1;
-            let cellValue = {
+            let isSelected = selected.indexOf(rowId) > -1;
+            let cellData = {
               ...component.getCell(row[address.column]),
               label: component.getVisibleData(address, row, column)
             };
-            columnData.push(cellValue);
+            let cellValue = cellData.value;
+            columnValues.push(cellValue);
+            columnData.push(cellData);
 
             // Get selected rows if there is only one row selected
             if (isSelected) {
@@ -733,7 +736,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           });
 
           // Format data list
-          data[columnId] = columnData;
+          data[columnId] = columnValues;
+          data[columnId + $settings.get("dataSuffix")] = columnData;
 
           // Store selected data
           component.getSelectedCellData(data, columnId, selectedRowData);
