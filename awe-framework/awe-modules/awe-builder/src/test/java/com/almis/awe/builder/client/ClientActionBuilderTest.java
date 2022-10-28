@@ -16,6 +16,7 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
@@ -138,6 +139,7 @@ class ClientActionBuilderTest {
   @Test
   void testFillAction() {
     DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "test", Arrays.asList("test", "test", "test", "test", "test"));
     ClientAction action = new FillActionBuilder("targetComponent", dataList).build();
     ClientAction addressedAction = new FillActionBuilder(address, dataList).build();
 
@@ -150,6 +152,8 @@ class ClientActionBuilderTest {
     assertNull(addressedAction.getTarget());
     assertEquals(address, addressedAction.getAddress());
     assertEquals(dataList, addressedAction.getParameters().get("datalist"));
+    assertEquals(1, dataList.getRows().get(0).get("id").getIntegerValue());
+    assertEquals(3, dataList.getRows().get(2).get("id").getIntegerValue());
 
     checkSimpleClientActionBuilder("fill", new FillActionBuilder());
   }
