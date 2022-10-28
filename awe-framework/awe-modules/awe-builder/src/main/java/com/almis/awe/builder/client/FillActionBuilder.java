@@ -1,7 +1,12 @@
 package com.almis.awe.builder.client;
 
+import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.entities.actions.ComponentAddress;
+import com.almis.awe.model.util.data.DataListUtil;
+
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Fill action builder
@@ -28,7 +33,7 @@ public class FillActionBuilder extends ClientActionBuilder<FillActionBuilder> {
   public FillActionBuilder(String target, DataList dataList) {
     setType(TYPE)
       .setTarget(target)
-      .addParameter("datalist", dataList);
+      .addParameter("datalist", fillDataListId(dataList));
   }
 
   /**
@@ -40,6 +45,18 @@ public class FillActionBuilder extends ClientActionBuilder<FillActionBuilder> {
   public FillActionBuilder(ComponentAddress address, DataList dataList) {
     setType(TYPE)
       .setAddress(address)
-      .addParameter("datalist", dataList);
+      .addParameter("datalist", fillDataListId(dataList));
+  }
+
+  /**
+   * Fill datalist ID if it's not defined
+   * @param dataList DataList to fill id
+   * @return Datalist with id filled in
+   */
+  private DataList fillDataListId(DataList dataList) {
+    if (!DataListUtil.hasColumn(dataList, AweConstants.DATALIST_IDENTIFIER)) {
+      DataListUtil.addColumn(dataList, AweConstants.DATALIST_IDENTIFIER, IntStream.range(1, dataList.getRows().size() + 1).boxed().collect(Collectors.toList()));
+    }
+    return dataList;
   }
 }
