@@ -820,30 +820,33 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
 
     // Assert
     expect(data).toEqual({
-      id: [
+      "id": [1, 2, 4, 5, 6, 7],
+      "value": ["tutu", "lala", "lele", "lili", "lolo", "lulu"],
+      "other": [null, null, "asda", null, null, null],
+      "id.data": [
         {"value": 1, "label": 1, "title": "", "cell-style": "", "icon": ""},
         {"value": 2, "label": 2, "title": "", "cell-style": "", "icon": ""},
         {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
         {"value": 5, "label": 5, "title": "", "cell-style": "", "icon": ""},
         {"value": 6, "label": 6, "title": "", "cell-style": "", "icon": ""},
         {"value": 7, "label": 7, "title": "", "cell-style": "", "icon": ""}],
-      value: [
+      "value.data": [
         {"value": "tutu", "label": "tutu", "title": "", "cell-style": "", "icon": ""},
         {"value": "lala", "label": "lala", "title": "", "cell-style": "", "icon": ""},
         {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
         {"value": "lili", "label": "lili", "title": "", "cell-style": "", "icon": ""},
         {"value": "lolo", "label": "lolo", "title": "", "cell-style": "", "icon": ""},
         {"value": "lulu", "label": "lulu", "title": "", "cell-style": "", "icon": ""}],
-      other: [
+      "other.data": [
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""}],
-      "id.selected": {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
-      "value.selected": {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
-      "other.selected": {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
+      "id.selected": 4,
+      "value.selected": "lele",
+      "other.selected": "asda",
       "componentId-id": [4],
       "componentId.data": {
         visibleColumns: [{
@@ -874,36 +877,40 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
         footer: {
           "id": {"value": null, "label": ""},
           "value": {"value": null, "label": ""},
-          "other": {"value": null, "label": ""}}
+          "other": {"value": null, "label": ""}
+        }
       },
       "selectedRowAddress": {view: 'viewId', component: 'componentId', row: 4}
     });
 
     expect(data2).toEqual({
-      id: [
+      "id": [1, 2, 4, 5, 6, 7],
+      "value": ["tutu", "lala", "lele", "lili", "lolo", "lulu"],
+      "other": [null, null, "asda", null, null, null],
+      "id.data": [
         {"value": 1, "label": 1, "title": "", "cell-style": "", "icon": ""},
         {"value": 2, "label": 2, "title": "", "cell-style": "", "icon": ""},
         {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
         {"value": 5, "label": 5, "title": "", "cell-style": "", "icon": ""},
         {"value": 6, "label": 6, "title": "", "cell-style": "", "icon": ""},
         {"value": 7, "label": 7, "title": "", "cell-style": "", "icon": ""}],
-      value: [
+      "value.data": [
         {"value": "tutu", "label": "tutu", "title": "", "cell-style": "", "icon": ""},
         {"value": "lala", "label": "lala", "title": "", "cell-style": "", "icon": ""},
         {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
         {"value": "lili", "label": "lili", "title": "", "cell-style": "", "icon": ""},
         {"value": "lolo", "label": "lolo", "title": "", "cell-style": "", "icon": ""},
         {"value": "lulu", "label": "lulu", "title": "", "cell-style": "", "icon": ""}],
-      other: [
+      "other.data": [
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
         {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""}],
-      "id.selected": {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
-      "value.selected": {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
-      "other.selected": {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
+      "id.selected": 4,
+      "value.selected": "lele",
+      "other.selected": "asda",
       "componentId-id": [4],
       "componentId.data": {
         visibleColumns: [{
@@ -934,7 +941,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
         footer: {
           "id": {"value": null, "label": ""},
           "value": {"value": null, "label": ""},
-          "other": {"value": null, "label": ""}}
+          "other": {"value": null, "label": ""}
+        }
       },
       "selectedRowAddress": {view: 'viewId', component: 'componentId', row: 4},
       ...extraData
