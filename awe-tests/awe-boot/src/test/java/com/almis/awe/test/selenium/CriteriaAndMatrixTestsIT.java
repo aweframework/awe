@@ -224,7 +224,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     setTestTitle("Test criteria: Select and suggest multiple");
 
     // Select on selector
-    suggestMultiple("SelMul", "e", "e");
+    suggestMultiple("SelMul", "test@", "test@");
 
     // Verify text
     checkMultipleSelectorContents("SelMul", "test (test@test.com)");
@@ -236,13 +236,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     checkMultipleSelectorContents("SelMulReq", "General");
 
     // Select on selector
-    suggestMultiple("SugMul", "e", "e");
+    suggestMultiple("SugMul", "test", "test");
 
     // Verify text
     checkMultipleSelectorContents("SugMul", "test (test@test.com)");
 
     // Select on selector
-    suggestMultiple("SugMulReq", "e", "e");
+    suggestMultiple("SugMulReq", "test", "test");
 
     // Verify text
     checkMultipleSelectorContents("SugMulReq", "test (test@test.com)");

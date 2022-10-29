@@ -87,3 +87,8 @@ Insert into TST_CUSTOMER (ID, CUSTOMER_NAME, CUSTOMER_ADDRESS, COUNTRY_ID, CUSTO
 values ('5', 'Customer5', 'Via del Corso 29, Rome', '5', '2020-06-28 00:00:00');
 
 UPDATE AweKey SET KeyVal = '6' where KeyNam = 'CustomerKey';
+
+-- Insert other user
+Insert into ope (IdeOpe, l1_nom, l1_pas, l1_con, l1_dev, l1_act, l1_trt, l1_uti, l1_opr, l1_dat, imp_nom, dat_mod, l1_psd, l1_lan, l1_sgn, PcPrn, EmlSrv, EmlAdr, OpeNam, IdePro, IdeThm)
+values (2,'pei','5e52fee47e6b070565f74372468cdc699de89107',0,null,1,null,0,null,null,'none',null,null,'ENG',1,null,null,'pei@test.com','Manager',1,1);
+UPDATE AweKey SET KeyVal = '3' where KeyNam = 'OpeKey';

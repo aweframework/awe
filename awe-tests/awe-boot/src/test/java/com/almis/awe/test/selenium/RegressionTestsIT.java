@@ -479,15 +479,42 @@ class RegressionTestsIT extends SeleniumUtilities {
     checkSelectContents("SugTst", "");
   }
 
+  /**
+   * Test update suggest multiple with dependency
+   */
+  @Test
+  void t050_updateSuggestMultipleWithDependency() {
+    selectTestModule();
 
-    /**
-     * Suggest delayed
-     * @param selector Selector
-     * @param search1 Search on first case
-     * @param search2 Search on second case
-     * @param match Match result
-     * @param pause Pause
-     */
+    // Title
+    setTestTitle("Update suggest multiple with dependency");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Write on criterion
+    writeText("Txt", "suggest-multiple");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Check suggest value
+    checkMultipleSelectorContents("SugMul", "pei (pei@test.com)");
+    checkMultipleSelectorContents("SugMul", "test (test@test.com)");
+  }
+
+  /**
+   * Suggest delayed
+   *
+   * @param selector Selector
+   * @param search1  Search on first case
+   * @param search2  Search on second case
+   * @param match    Match result
+   * @param pause    Pause
+   */
   private void suggestDelayed(String selector, String search1, String search2, String match, Integer pause) {
     // Write text
     writeText(By.cssSelector(selector + " input.select2-input"), search1);
