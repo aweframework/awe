@@ -1,4 +1,17 @@
 
+# Changelog for AWE 4.6.2
+*31/10/2022*
+
+- Problem showing grids on dialog after opening them twice. [MR #393](https://gitlab.com/aweframework/awe/-/merge_requests/393) (Pablo Javier García Mora)
+- Multiple suggest is not updating right its values when it is updated from outside (a dependency or an action). [MR #392](https://gitlab.com/aweframework/awe/-/merge_requests/392) (Pablo Javier García Mora)
+- Add id column automatically in FillActionBuilder. [MR #391](https://gitlab.com/aweframework/awe/-/merge_requests/391) (Pablo Javier García Mora)
+- Delete server-action=update-model-no-cancel. [MR #390](https://gitlab.com/aweframework/awe/-/merge_requests/390) (Pablo Javier García Mora)
+- Allow having subfolders inside screen folder. [MR #389](https://gitlab.com/aweframework/awe/-/merge_requests/389) (Pablo Javier García Mora)
+- Error with max attribute in select component. [MR #388](https://gitlab.com/aweframework/awe/-/merge_requests/388) (Pablo Javier García Mora)
+- When printing the compound values on cells are fully sent in .selected values instead of in .data values. [MR #387](https://gitlab.com/aweframework/awe/-/merge_requests/387) (Pablo Javier García Mora)
+- Update docusaurus to the last release. [MR #386](https://gitlab.com/aweframework/awe/-/merge_requests/386) (Pablo Vidal Otero)
+- Error searching aweframework doc web. [MR #385](https://gitlab.com/aweframework/awe/-/merge_requests/385) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.6.1
 *19/08/2022*
 

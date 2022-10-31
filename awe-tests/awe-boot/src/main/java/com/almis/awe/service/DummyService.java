@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
@@ -388,5 +389,15 @@ public class DummyService extends ServiceConfig {
   public ServiceData doNothing() {
     logger.info("Launching a test service");
     return new ServiceData();
+  }
+
+  /**
+   * Fill suggest multiple with data
+   *
+   * @return
+   */
+  public ServiceData testSuggestMultiple() {
+    logger.info("Launching a suggest multiple select action");
+    return new ServiceData().addClientAction(new SelectActionBuilder("SugMul", Arrays.asList("test", "pei")).build());
   }
 }

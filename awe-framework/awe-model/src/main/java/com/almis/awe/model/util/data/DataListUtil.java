@@ -42,7 +42,7 @@ public final class DataListUtil {
     Map<String, CellData> row;
     String cellString = "";
 
-    row = getRow(list, rowNumber);
+    row = Optional.ofNullable(getRow(list, rowNumber)).orElse(Collections.emptyMap());
     CellData cell = row.get(key);
     if (cell != null) {
       cellString = cell.getStringValue();
@@ -60,7 +60,7 @@ public final class DataListUtil {
    * @return Single cellData
    */
   public static CellData getCellData(DataList list, Integer rowNumber, String columnName) {
-    return getRow(list, rowNumber).get(columnName);
+    return Optional.ofNullable(getRow(list, rowNumber)).orElse(Collections.emptyMap()).get(columnName);
   }
 
   /**
@@ -71,7 +71,7 @@ public final class DataListUtil {
    * @return Single Hash Map
    */
   public static Map<String, CellData> getRow(DataList list, int rowNumber) {
-    return list.getRows().get(rowNumber);
+    return Optional.ofNullable(list.getRows()).orElse(Collections.emptyList()).stream().skip(rowNumber).findFirst().orElse(null);
   }
 
   /**
@@ -421,17 +421,19 @@ public final class DataListUtil {
    * @return Column list
    */
   public static List<String> getColumnList(DataList list) {
-    // Variable Definition
-    List<String> columnList = new ArrayList<>();
-
     // Get first row
-    if (!list.getRows().isEmpty()) {
-      Map<String, CellData> row = getRow(list, 0);
+    return new ArrayList<>(Optional.ofNullable(getRow(list, 0)).orElse(Collections.emptyMap()).keySet());
+  }
 
-      // Store keyset as columnList
-      columnList.addAll(row.keySet());
-    }
-    return columnList;
+  /**
+   * Retrieve dataList column names
+   *
+   * @param list Datalist
+   * @return Column list
+   */
+  public static boolean hasColumn(DataList list, String columnId) {
+    // Get first row
+    return getColumnList(list).contains(columnId);
   }
 
   /**

@@ -172,7 +172,12 @@
           </dependency>
         </criteria>
         <criteria label="PARAMETER_SELECT_MULTIPLE_READONLY" id="SelMulRea" variable="SelMul" component="select-multiple" style="col-xs-12 col-sm-6 col-lg-4" initial-load="query" target-action="UsrEmlLst" readonly="true" value="test" />
-        <criteria label="PARAMETER_SUGGEST_MULTIPLE" id="SugMul" variable="SugMul" component="suggest-multiple" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="UsrEmlLstTstSugDelay" timeout="1000" />
+        <criteria label="PARAMETER_SUGGEST_MULTIPLE" id="SugMul" variable="SugMul" component="suggest-multiple" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="UsrEmlLstTstSugDelay" check-target="UsrEmlLstTstMul" timeout="1000">
+          <dependency>
+            <dependency-element id="Txt" condition="eq" value="suggest-multiple"/>
+            <dependency-action type="server" server-action="data-silent" target-action="testSuggestMultiple" silent="true" async="true"/>
+          </dependency>
+        </criteria>
         <criteria label="PARAMETER_SUGGEST_MULTIPLE" id="SugMulReq" variable="SugMulReq" component="suggest-multiple" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="UsrEmlLstTstSugDelay" validation="required" strict="false">
           <dependency target-type="set-optional" initial="true">
             <dependency-element id="Txt" condition="gt" value="1"/>

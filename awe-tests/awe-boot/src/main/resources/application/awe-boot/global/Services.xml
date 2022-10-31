@@ -428,4 +428,8 @@
     <java classname="com.almis.awe.service.DummyService" method="getDummyUnprocessedData"/>
   </service>
 
+  <service id="testSuggestMultiple">
+    <java classname="com.almis.awe.service.DummyService" method="testSuggestMultiple"/>
+  </service>
+
 </services>

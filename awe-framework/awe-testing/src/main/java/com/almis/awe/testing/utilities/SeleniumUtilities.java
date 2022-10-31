@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
@@ -705,6 +706,20 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Assert element is not located
     assertWithScreenshot(message, nodeText.contains(text));
+  }
+
+  /**
+   * Check if selector multiple contains text
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkTextMultipleContains(By selector, String text) {
+    List<String> nodeValues = getElements(selector).stream().map(WebElement::getText).collect(Collectors.toList());
+    String message = selector.toString() + " list doesn't contain " + text;
+
+    // Assert element is not located
+    assertWithScreenshot(message, nodeValues.stream().anyMatch(t -> t.contains(text)));
   }
 
   /**
@@ -2021,7 +2036,7 @@ public class SeleniumUtilities implements IAweInstructions {
     waitUntil(visibilityOfElementLocated(selector));
 
     // Check text
-    checkTextContains(selector, search);
+    checkTextMultipleContains(selector, search);
   }
 
   /**

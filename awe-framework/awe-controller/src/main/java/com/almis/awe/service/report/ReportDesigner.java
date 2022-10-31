@@ -460,7 +460,7 @@ public class ReportDesigner extends ServiceConfig {
       List<Object> rowData = new ArrayList<>();
       data.add(rowData);
       for (String field : fields) {
-        ArrayNode fieldData = (ArrayNode) Optional.ofNullable(parameters.get(field)).orElse(JsonNodeFactory.instance.arrayNode());
+        ArrayNode fieldData = (ArrayNode) Optional.ofNullable(parameters.get(field + baseConfigProperties.getComponent().getDataSuffix())).orElse(JsonNodeFactory.instance.arrayNode());
         ColumnType type = storeParameterRowData(fieldData.get(rowIndex), rowData);
 
         // Update column type on first row

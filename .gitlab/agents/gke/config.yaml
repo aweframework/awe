@@ -1,3 +1,7 @@
+ci_access:
+  # This agent is accessible from CI jobs in projects in these groups
+  groups:
+    - id: aweframework
 gitops:
   manifest_projects:
     - id: "aweframework/awe-gke-config"

@@ -309,4 +309,120 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       expect(model.selected).toEqual(null);
     });
   });
+
+  describe('once initialized as multiple suggest', function () {
+    let suggest;
+
+    // Mock module
+    beforeEach(function () {
+      let $scope = $rootScope.$new();
+      $scope.view = "report";
+      $scope.context = "contexto";
+      suggest = new $selector($scope, "tutu", {});
+      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
+      spyOn($control, "checkComponent").and.returnValue(true);
+      suggest.asSuggestMultiple();
+    });
+
+    it('should update model values with api - test 1', function () {
+      let model = {
+        storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
+        values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
+        selected: [2]
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      // Define values to update
+      let data = {values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
+
+      // Update model values
+      // Define values to update
+      suggest.api.updateModelValues(data);
+
+      // Check values updated
+      expect(model.values).toEqual([{value: 0, label: "No"}, {value: 1, label: "Yes"}]);
+      expect(model.selected).toEqual([1]);
+    });
+
+    it('should update model values with api - test 2', function () {
+      let model = {
+        storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
+        values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
+        selected: [2]
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      // Define values to update
+      let data2 = {
+        values: [{value: "A", label: "tutu"}, {value: "B", label: "lala"}, {value: "C", label: "lolo"}],
+        selected: ["B", "C"]
+      };
+
+      // Update model values
+      suggest.api.updateModelValues(data2);
+
+      // Check values updated
+      expect(model.values).toEqual([
+        {value: "A", label: "tutu"},
+        {value: "B", label: "lala"},
+        {value: "C", label: "lolo"}]);
+      expect(model.selected).toEqual(["B", "C"]);
+    });
+
+    it('should update model values with api - test 3', function () {
+      let model = {
+        storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
+        values: [{value: "B", label: "lala"}, {value: 2, label: "Other"}],
+        selected: ["B"]
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      // Define values to update
+      let data = {values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
+
+      // Update model values
+      suggest.api.updateModelValues(data);
+
+      // Check values updated
+      expect(model.values).toEqual([{value: 0, label: "No"}, {value: 1, label: "Yes"}]);
+    });
+
+    it('should update model values with api - test 4', function () {
+      let model = {
+        storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
+        values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}],
+        selected: [1]
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      // Define values to update
+      let data3 = {selected: [0, 2]};
+
+      // Update selected values
+      suggest.api.updateModelValues(data3);
+
+      // Check selected updated
+      expect(model.values).toEqual([{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}]);
+      expect(model.selected).toEqual([0, 2]);
+    });
+
+    it('should update model values with api - test 5', function () {
+      let model = {
+        storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}],
+        values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}],
+        selected: null
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      // Define values to update
+      let data = {values: []};
+
+      // Update selected values
+      suggest.api.updateModelValues(data);
+
+      // Check selected updated
+      expect(model.values).toEqual([]);
+      expect(model.selected).toEqual(null);
+    });
+  });
 });
