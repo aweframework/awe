@@ -343,8 +343,10 @@ aweApplication.factory('GridBase',
           component.resize = function () {
             // Resize grid
             if (component.initialized) {
+              // Reset grid measures
+              grid.measures = {...(grid.measures || {}), width: 0, height: 0};
               Utilities.timeout.cancel(component.resizeTimer);
-              component.resizeTimer = Utilities.timeout(resize);
+              component.resizeTimer = Utilities.timeout(resize, 10);
             }
           };
           /**
