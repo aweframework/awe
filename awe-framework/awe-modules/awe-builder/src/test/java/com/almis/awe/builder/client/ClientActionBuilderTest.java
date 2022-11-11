@@ -105,6 +105,20 @@ class ClientActionBuilderTest {
     checkSimpleClientActionBuilder("redirect", new RedirectActionBuilder());
   }
 
+  /**
+   * Build a redirect action in a new window with ClientActionBuilder
+   */
+  @Test
+  void testRedirectClientActionNewWindow() {
+    ClientAction action = new RedirectActionBuilder("https://alla.que.voy", true).build();
+
+    // Assertions
+    assertEquals("redirect", action.getType());
+    assertEquals("https://alla.que.voy", action.getTarget());
+    assertEquals(true, action.getParameters().get("newWindow"));
+    checkSimpleClientActionBuilder("redirect", new RedirectActionBuilder());
+  }
+
 
   /**
    * Build a redirect screen action with ClientActionBuilder
