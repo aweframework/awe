@@ -121,14 +121,14 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
     delete model.records;
     let comp = new Component(scope, "comp2");
     comp.init();
-    comp.helpNode = {off: jasmine.createSpy('helpNodeOFF')};
+    comp.helpTargets = {comp2: {over: false, timer: null, node: {off: jasmine.createSpy('helpNodeOFF')}}};
 
     // Call destroy
     scopedFunctions["$destroy"]();
 
     // Assert
     expect(comp.alive).toBe(false);
-    expect(comp.helpNode.off).toHaveBeenCalled();
+    expect(comp.helpTargets.comp2.node.off).toHaveBeenCalled();
     expect($utilities.clearListeners).toHaveBeenCalled();
   });
 
@@ -140,7 +140,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
     comp.init();
-    comp.initHelpNode(help);
+    comp.initHelpNode("comp2", help);
     $(help.node).trigger("mouseover");
     $(help.node).trigger("mouseout");
 
@@ -158,7 +158,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
     comp.init();
-    comp.initHelpNode(help);
+    comp.initHelpNode("comp2", help);
     comp.alive = false;
     $(help.node).trigger("mouseover");
     $(help.node).trigger("mouseout");
@@ -180,7 +180,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
     });
     comp.init();
     comp.isDisabled = () => false;
-    comp.initHelpNode(help);
+    comp.initHelpNode("comp2", help);
     $(help.node).trigger("mouseover");
     $(help.node).trigger("mouseout");
 
@@ -196,11 +196,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
     spyOn($utilities, "timeout").and.callFake(fn => {
-      comp.helpOver = false;
+      comp.helpTargets.comp2.over = false;
       fn();
     });
     comp.init();
-    comp.initHelpNode(help);
+    comp.initHelpNode("comp2", help);
     $(help.node).trigger("mouseover");
     $(help.node).trigger("mouseout");
 

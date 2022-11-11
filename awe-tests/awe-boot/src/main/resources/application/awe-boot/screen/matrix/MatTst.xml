@@ -35,7 +35,7 @@
           <grid id="GrdSta" style="expand" initial-load="query" server-action="data" target-action="QryUniTstId" max="30">
             <column label="PARAMETER_TEXT" name="Als" sort-field="Als" align="left" charlength="20" style="separator" />
             <group-header name="GrpHeaCol" label="PARAMETER_TEXT">
-              <column label="PARAMETER_TEXT" name="Des" sort-field="Des" align="left" charlength="40" />
+              <column label="PARAMETER_TEXT" help="HELP_NAME" name="Des" sort-field="Des" align="left" charlength="40" />
               <column label="PARAMETER_TEXT" name="Prg" sort-field="Prg" align="center" charlength="40" component="progress" value="40" server-action="data" target-action="QryChkPrg">
                 <dependency source-type="launcher" target-type="enable-autorefresh" initial="true" target-action="autorefresh">
                   <dependency-element id="SetAutoload" condition="eq" value="1" view="base" />
@@ -43,7 +43,7 @@
                 </dependency>
               </column>
             </group-header>
-            <column label="PARAMETER_TEXT" name="DwnFil" sort-field="Des" align="left" charlength="50" component="text-view" icon="download" unit="5">
+            <column label="PARAMETER_TEXT" help="HELP_NAME" name="DwnFil" sort-field="Des" align="left" charlength="50" component="text-view" icon="download" unit="5">
               <dependency >
                 <dependency-element id="GrdSta" column="DwnFil" attribute="selectedRowValue" event="click" />
                 <dependency-action type="server-download" server-action="get-file-maintain" target-action="downloadFileGrid" />
@@ -314,7 +314,7 @@
         <window style="expand" expandible="vertical">
           <grid id="TreGrd" treegrid="true" expand-column="TreGrd_Nam" tree-id="TreGrd_id" tree-parent="TreGrd_parent" style="expand" server-action="data" load-all="true" target-action="ProModTrePro"
             initial-level="3" autoload="true">
-            <column label="PARAMETER_NAME" name="TreGrd_Nam" sort-field="TreGrd_Nam" align="left" sortable="false" charlength="40" />
+            <column label="PARAMETER_NAME" name="TreGrd_Nam" help="HELP_NAME" sort-field="TreGrd_Nam" align="left" sortable="false" charlength="40" />
             <column label="PARAMETER_LEVEL" name="TreGrd_lev" style="highlight" sort-field="TreGrd_lev" align="right" sortable="false" charlength="20" formatter="number" summary-type="sum">
               <dependency target-type="hide-column" initial="true">
                 <dependency-element id="TreGrd" attribute="selectedRows" condition="eq" value="1" />
