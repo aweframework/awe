@@ -41,6 +41,7 @@ export const ClientActions = {
     "server": {method: "server"},
     "server-print": {method: "serverPrint"},
     "server-download": {method: "serverDownload"},
+
     "fill": {method: "fill"},
     "update-controller": {method: "updateController"},
     "select": {method: "select"},

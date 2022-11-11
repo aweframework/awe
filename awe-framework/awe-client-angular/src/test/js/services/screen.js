@@ -1,5 +1,5 @@
-import { DefaultSettings } from "./../../../main/resources/js/awe/data/options";
-import { launchScreenAction } from "../utils";
+import {DefaultSettings} from "./../../../main/resources/js/awe/data/options";
+import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', function() {
   let $injector, $utilities, $settings, $actionController, $windowMock, $control, $rootScope, $state, $storage, $httpBackend, $location;
@@ -225,6 +225,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
     $windowMock.location = { href : "" };
     launchScreenAction($injector, "redirect", "redirect", {id: 2, target: "http://alla.que.voy"}, () => {
       expect($windowMock.location.href).toBe("http://alla.que.voy");
+      done();
+    });
+  });
+
+  // Launch redirect action in a new window
+  it('should launch a redirect action in a new window', function(done) {
+    $windowMock.location = { href : "" };
+    $windowMock.open = () => null;
+    spyOn($windowMock, "open");
+    launchScreenAction($injector, "redirect", "redirect", {id: 2, target: "http://alla.que.voy", parameters: {newWindow: true}}, () => {
+      expect($windowMock.open).toHaveBeenCalledTimes(1);
       done();
     });
   });

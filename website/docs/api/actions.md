@@ -17,16 +17,16 @@ or
 
 ## Action attributes
 
-| Attribute     | Use          | Type      |  Description                    |   Values                                     |
-| ------------- | -------------|-----------|---------------------------------|----------------------------------------------|
-| `type`        | **Required** | String    | Action to be launched.          | See [client action list](#client-actions)    |
-| `target`      | Optional     | String    | Target of the action            | Option, message or component identifier, depending on the action type |
-| `context`     | Optional     | String    | Context where the target is     | View where the component is or screen context|
-| `server-action`| Optional     | String    | Server action call              | See [server action list](#server-actions)    |
-| `target-action`| Optional     | String    | Target to call on the server    |                                              |
-| `silent`      | Optional     | Boolean   | Launch the action without showing the loading bar |                            |
-| `async`       | Optional     | Boolean   | Launch the action in the [async stack](#async-stack) |                         |
-| `value`       | Optional     | String    | Value to set to the criterion in case action is "value" type |
+| Attribute       |     Use      |   Type    | Description                                                  | Values                                                                |
+|-----------------|:------------:|:---------:|--------------------------------------------------------------|-----------------------------------------------------------------------|
+| `type`          | **Required** |  String   | Action to be launched.                                       | See [client action list](#client-actions)                             |
+| `target`        |   Optional   |  String   | Target of the action                                         | Option, message or component identifier, depending on the action type |
+| `context`       |   Optional   |  String   | Context where the target is                                  | View where the component is or screen context                         |
+| `server-action` |   Optional   |  String   | Server action call                                           | See [server action list](#server-actions)                             |
+| `target-action` |   Optional   |  String   | Target to call on the server                                 |                                                                       |
+| `silent`        |   Optional   |  Boolean  | Launch the action without showing the loading bar            |                                                                       |
+| `async`         |   Optional   |  Boolean  | Launch the action in the [async stack](#async-stack)         |                                                                       |
+| `value`         |   Optional   |  String   | Value to set to the criterion in case action is "value" type |                                                                       |
 
 ## Client actions
 
@@ -38,25 +38,25 @@ Actions retrieved by the application to execute a generic action. These actions 
 
 #### General actions
 
-| Action                   | Description                                                                                  |
-| ------------------------ | -------------------------------------------------------------------------------------------- |
-| `reset`                  | Empty all criteria on the screen                                                             |
-| `restore`                | Restore to initial values all criteria on the screen                                         |
-| `restore-target`         | Restore to target values all criteria on the screen                                          |
-| `validate`               | Launch a validation on all criteria on the screen                                          |
-| `print`                  | Launch a screen print. Same as navigator print option                                      |
-| `confirm-updated-data`   | Launch a confirm dialog to warn the user that there are criteria with data in the screen, and may lost them when navigating to another screen |
-| `confirm-not-updated-data`| Launch a confirm dialog to warn the user that the criteria in the screen have not been updated|
-| `confirm-empty-data`     | Launch a confirm dialog to warn the user that all the criteria in the screen are empty     |
-| `resize`                 | Launch a screen resize (useful for screen size changes)                                    |
-| `toggle-menu`            | Show/Hide the menu                                                                           |
-| `toggle-navbar`          | Show/Hide the navigation bar                                                                 |
-| `disable-dependencies`   | Disable the [dependency](dependencies.md) system                                             |
-| `enable-dependencies`    | Enable the [dependency](dependencies.md) system                                              |
-| `cancel`                 | Clear the current stack                                                                      |
-| `value`                  | Set a value to a criterion                                                                   |
-| `wait`                   | Wait an amount of milliseconds defined on `target` attribute                                 |
-| `close-window`           | Tries to close the current browser window (sometimes it'll ask to the user)                  |
+| Action                     | Description                                                                                                                                   |
+|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `reset`                    | Empty all criteria on the screen                                                                                                              |
+| `restore`                  | Restore to initial values all criteria on the screen                                                                                          |
+| `restore-target`           | Restore to target values all criteria on the screen                                                                                           |
+| `validate`                 | Launch a validation on all criteria on the screen                                                                                             |
+| `print`                    | Launch a screen print. Same as navigator print option                                                                                         |
+| `confirm-updated-data`     | Launch a confirm dialog to warn the user that there are criteria with data in the screen, and may lost them when navigating to another screen |
+| `confirm-not-updated-data` | Launch a confirm dialog to warn the user that the criteria in the screen have not been updated                                                |
+| `confirm-empty-data`       | Launch a confirm dialog to warn the user that all the criteria in the screen are empty                                                        |
+| `resize`                   | Launch a screen resize (useful for screen size changes)                                                                                       |
+| `toggle-menu`              | Show/Hide the menu                                                                                                                            |
+| `toggle-navbar`            | Show/Hide the navigation bar                                                                                                                  |
+| `disable-dependencies`     | Disable the [dependency](dependencies.md) system                                                                                              |
+| `enable-dependencies`      | Enable the [dependency](dependencies.md) system                                                                                               |
+| `cancel`                   | Clear the current stack                                                                                                                       |
+| `value`                    | Set a value to a criterion                                                                                                                    |
+| `wait`                     | Wait an amount of milliseconds defined on `target` attribute                                                                                  |
+| `close-window`             | Tries to close the current browser window (sometimes it'll ask to the user)                                                                   |
 
 ### Message
 
@@ -64,16 +64,16 @@ Actions that eventually can show a message to the user.
 
 #### Message actions
 
-| Action               | Description                                                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
-| `confirm`            | Launch a confirm dialog with the message defined on `target` attribute                         |
+| Action    | Description                                                            |
+|-----------|------------------------------------------------------------------------|
+| `confirm` | Launch a confirm dialog with the message defined on `target` attribute |
 
 
 #### Message attributes
 
-| Attribute            | Use          | Type      |  Description                    |   Values                            |
-| -------------------- | -------------|-----------|---------------------------------|-------------------------------------|
-| `target`             | **Required** | String    | Message identifier              |                                     |
+| Attribute |     Use      |  Type  | Description        | Values |
+|-----------|:------------:|:------:|--------------------|--------|
+| `target`  | **Required** | String | Message identifier |        |
 
 ### Navigation
 
@@ -81,20 +81,24 @@ Navigation actions are used to move from one screen to another.
 
 #### Navigation actions
 
-| Action               | Description                                                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
-| `back`               | Go to the previous screen. Same as navigator back button. Does **not** need `target` attribute.  |
-| `forward`            | Go to the next screen. Same as navigator forward button. Does **not** need `target` attribute.   |
-| `screen`             | Go to a screen. **Needs** `target` attribute.                                                    |                         
-| `reload`             | Reload current screen                                                                            |
-| `logout`             | Log out and exit the private menu.  Does **not** need `target` attribute.                        |  
+| Action           | Description                                                                                                                                              |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `back`           | Go to the previous screen. Same as navigator back button. Does **not** need `target` attribute.                                                          |
+| `forward`        | Go to the next screen. Same as navigator forward button. Does **not** need `target` attribute.                                                           |
+| `screen`         | Go to a screen. **Needs** `target` attribute.                                                                                                            |                         
+| `reload`         | Reload current screen                                                                                                                                    |
+| `logout`         | Log out and exit the private menu.  Does **not** need `target` attribute.                                                                                |  
+| `redirect`       | Redirects the current screen to a new URL defined in `target` attribute. If parameter `newWindow` is set to `true`, the URL will be open in a new window |  
+| `redirectScreen` | Launches a `redirect` action if the current screen matches the `screen` parameter                                                                        |
 
 #### Navigation attributes
 
-| Attribute            | Use          | Type      |  Description                    |   Values                            |
-| -------------------- | -------------|-----------|---------------------------------|-------------------------------------|
-| `target`             | *Depends* on action | String | Option identifier           |                                |
-| `context`            | Optional     | String    | Context of the screen. If not defined, the context is the same as the launcher screen has. | `screen/public` for public options, `screen/home` for private options |
+| Attribute   |         Use         |  Type   | Description                                                                                | Values                                                                |
+|-------------|:-------------------:|:-------:|--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| `target`    | *Depends* on action | String  | Option identifier                                                                          |                                                                       |
+| `context`   |      Optional       | String  | Context of the screen. If not defined, the context is the same as the launcher screen has. | `screen/public` for public options, `screen/home` for private options |
+| `newWindow` |      Optional       | Boolean | Open the redirect url in a new window.                                                     |                                                                       |
+| `screen`    | *Depends* on action | String  | Screen to check when launching the `redirectScreen` action.                                |                                                                       |
 
 ### Component
 
@@ -102,97 +106,97 @@ Actions which works over components in the screen.
 
 #### Component actions
 
-| Action                  | Description                                                                |  Works on           |
-| ----------------------- | -------------------------------------------------------------------------- | ------------------- |
-| `add-class`             | Add the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`  |
-| `remove-class`                 | Remove the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag` |
-| `reset`                 | Empty a criterion value                                                    | `criteria`, `grid`, `chart`  |
-| `restore`               | Restore to initial values a criterion                                      | `criteria`, `grid`, `chart`  |
-| `start-load`            | Sets a component as *loading*                                              | `criteria`, `grid`, `chart`  |
-| `validate`              | Launch a validation on the criterion or criteria inside the `target` tag | `tag`, `criteria`   |
-| `dialog`                | Opens a modal dialog                                                       | `dialog`            |
-| `close`                 | Closes a dialog                                                            | `dialog`            |
-| `filter`                | Reload a grid                                                              | `grid`              |
-| `add-row`               | Add an empty row at the bottom of the grid | `grid` |
-| `add-row-top`           | Add an empty row at the top of the grid | `grid` |
-| `add-row-up`            | Add an empty row over the selected row     | `grid` |
-| `add-row-down`          | Add an empty row below the selected row    | `grid` |
-| `copy-row`              | Copy the selected row at the bottom of the grid | `grid` |
-| `copy-row-top`          | Copy the selected row at the top of the grid | `grid` |
-| `copy-row-up`           | Copy the selected row over the selected row     | `grid` |
-| `copy-row-down`         | Copy the selected row below the selected row    | `grid` |
-| `delete-row`            | Delete the selected row                         | `grid` | 
-| `save-row`              | Save the selected row                           | `grid` |
-| `check-one-selected`    | Checks if there is one row selected                                        | `grid`              |
-| `check-some-selected`   | Checks if there is one or more rows selected                               | `grid`              |
-| `check-records-saved`   | Checks if all records are stored (user is not editing a row)               | `grid`              |
-| `check-records-generated`| Checks if there is at least one row in the grid                            | `grid`              |
-| `select-first-row`     | Selects the first row of the grid                                          | `grid`              |
-| `select-last-row`      | Selects the last row of the grid                                           | `grid`              |
-| `select-all-rows`     | Select all rows of the grid                                          | `grid`              |
-| `unselect-all-rows`      | Unselect all rows of the grid                                           | `grid`              |
-| `validate-selected-row`| Launch a validation on the selected row of the grid                      | `grid`              |
-| `change-theme`         | Changes the theme to the value defined on the `target` criterion           | `criteria`          |
-| `change-language`      | Changes the language to the value defined on the `target` criterion        | `criteria`          |
-| `reload-language`      | Reload the language searching for changes                                  | `criteria`          |
-| `next-step`            | Move to the next step of the wizard                                        | `wizard`            |
-| `prev-step`            | Move to the previous step of the wizard                                    | `wizard`            |
-| `first-step`           | Move to the first step of the wizard                                       | `wizard`            |
-| `last-step`            | Move to the last step of the wizard                                        | `wizard`            |
-| `nth-step`             | Move to the nth step of the wizard                                         | `wizard`            |
+| Action                    | Description                                                                                                | Works on                    |
+|---------------------------|------------------------------------------------------------------------------------------------------------|-----------------------------|
+| `add-class`               | Add the css class/classes defined on `target-action` to the tag with the selector defined on `target`      | `tag`                       |
+| `remove-class`            | Remove the css class/classes defined on `target-action` to the tag with the selector defined on `target`   | `tag`                       |
+| `reset`                   | Empty a criterion value                                                                                    | `criteria`, `grid`, `chart` |
+| `restore`                 | Restore to initial values a criterion                                                                      | `criteria`, `grid`, `chart` |
+| `start-load`              | Sets a component as *loading*                                                                              | `criteria`, `grid`, `chart` |
+| `validate`                | Launch a validation on the criterion or criteria inside the `target` tag                                   | `tag`, `criteria`           |
+| `dialog`                  | Opens a modal dialog                                                                                       | `dialog`                    |
+| `close`                   | Closes a dialog                                                                                            | `dialog`                    |
+| `filter`                  | Reload a grid                                                                                              | `grid`                      |
+| `add-row`                 | Add an empty row at the bottom of the grid                                                                 | `grid`                      |
+| `add-row-top`             | Add an empty row at the top of the grid                                                                    | `grid`                      |
+| `add-row-up`              | Add an empty row over the selected row                                                                     | `grid`                      |
+| `add-row-down`            | Add an empty row below the selected row                                                                    | `grid`                      |
+| `copy-row`                | Copy the selected row at the bottom of the grid                                                            | `grid`                      |
+| `copy-row-top`            | Copy the selected row at the top of the grid                                                               | `grid`                      |
+| `copy-row-up`             | Copy the selected row over the selected row                                                                | `grid`                      |
+| `copy-row-down`           | Copy the selected row below the selected row                                                               | `grid`                      |
+| `delete-row`              | Delete the selected row                                                                                    | `grid`                      | 
+| `save-row`                | Save the selected row                                                                                      | `grid`                      |
+| `check-one-selected`      | Checks if there is one row selected                                                                        | `grid`                      |
+| `check-some-selected`     | Checks if there is one or more rows selected                                                               | `grid`                      |
+| `check-records-saved`     | Checks if all records are stored (user is not editing a row)                                               | `grid`                      |
+| `check-records-generated` | Checks if there is at least one row in the grid                                                            | `grid`                      |
+| `select-first-row`        | Selects the first row of the grid                                                                          | `grid`                      |
+| `select-last-row`         | Selects the last row of the grid                                                                           | `grid`                      |
+| `select-all-rows`         | Select all rows of the grid                                                                                | `grid`                      |
+| `unselect-all-rows`       | Unselect all rows of the grid                                                                              | `grid`                      |
+| `validate-selected-row`   | Launch a validation on the selected row of the grid                                                        | `grid`                      |
+| `change-theme`            | Changes the theme to the value defined on the `target` criterion                                           | `criteria`                  |
+| `change-language`         | Changes the language to the value defined on the `target` criterion                                        | `criteria`                  |
+| `reload-language`         | Reload the language searching for changes                                                                  | `criteria`                  |
+| `next-step`               | Move to the next step of the wizard                                                                        | `wizard`                    |
+| `prev-step`               | Move to the previous step of the wizard                                                                    | `wizard`                    |
+| `first-step`              | Move to the first step of the wizard                                                                       | `wizard`                    |
+| `last-step`               | Move to the last step of the wizard                                                                        | `wizard`                    |
+| `nth-step`                | Move to the nth step of the wizard                                                                         | `wizard`                    |
 
 #### Component attributes
 
-| Attribute            | Use          | Type      |  Description                    |   Values                            |
-| -------------------- | -------------|-----------|---------------------------------|-------------------------------------|
-| `target`               | **Required** | String    | Component or tag identifier     |                                     |
-| `context`              | Optional     | String    | Context of the component. If not defined, the context is the same as the launcher component has. | `base` for the menu container screen, `report@home` for the menu options |
+| Attribute |     Use      |  Type  | Description                                                                                      | Values                                                                   |
+|-----------|:------------:|:------:|--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| `target`  | **Required** | String | Component or tag identifier                                                                      |                                                                          |
+| `context` |   Optional   | String | Context of the component. If not defined, the context is the same as the launcher component has. | `base` for the menu container screen, `report@home` for the menu options |
 
 ### Server call
 
 #### Server call actions
 
-| Action               | Description                                                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------ |
-| `server`             | Launch a server call with screen parameters                                                      |
-| `server-print`       | Launch a server call with screen parameters and print information                                |
-| `server-download`    | Launch a server call with screen parameters to call an action which will download a file         |
+| Action            | Description                                                                              |
+|-------------------|------------------------------------------------------------------------------------------|
+| `server`          | Launch a server call with screen parameters                                              |
+| `server-print`    | Launch a server call with screen parameters and print information                        |
+| `server-download` | Launch a server call with screen parameters to call an action which will download a file |
 
 #### Server call attributes
 
-| Attribute            | Use          | Type      |  Description                      |   Values                            |
-| -------------------- | ------------ | --------- | --------------------------------- | ----------------------------------- |
-| `target`             | Optional     | String    | Component or message identifier for callback |                          |
-| `context`            | Optional     | String    | Context of the component for callback. If not defined, the context is the same as the launcher component has. | `base` for the menu container screen, `report@home` for the menu options |
-| `server-action`      | **Required** | String    | Action to launch on server.      | See [server actions](#server-actions) |
-| `target-action`      | **Required** | String    | Target for the server action | [Query identifier](query-definition.md) or [Maintain identifier](maintain-definition.md) |
+| Attribute       |     Use      |  Type  | Description                                                                                                   | Values                                                                                   |
+|-----------------|:------------:|:------:|---------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `target`        |   Optional   | String | Component or message identifier for callback                                                                  |                                                                                          |
+| `context`       |   Optional   | String | Context of the component for callback. If not defined, the context is the same as the launcher component has. | `base` for the menu container screen, `report@home` for the menu options                 |
+| `server-action` | **Required** | String | Action to launch on server.                                                                                   | See [server actions](#server-actions)                                                    |
+| `target-action` | **Required** | String | Target for the server action                                                                                  | [Query identifier](query-definition.md) or [Maintain identifier](maintain-definition.md) |
 
 ## Server actions
  
-| Action          |  Description                     | Values                                       |
-| --------------- | -------------------------------- | -------------------------------------------- |
-| `login`         | Log in into the application      | User and password                            |
-| `logout`        |                                  |                                              |
-| `screen`        | Navigate to a screen             | `target`: Menu option identifier             |
-| `data`          | Get data from the server. Fills the `values` list of the criterion | `targetAction`: Query identifier|
-| `value`         | Get a value from the server. Fills the `selected` list of the criterion. *In suggests, this action also fills the `values` list* | `targetAction`: Query identifier |
-| `update-model`  | Get values for some criteria. The query field alias **must** be the criterion id to match. Fills the `selected` list of the criteria | `targetAction`: Query identifier |
-| `subscribe`     | Subscribe to a query data retrieval. The subscription stores the component request and broadcasts  data to the component address | `targetAction`: Query identifier |
-| `maintain`      | Launch a maintain process      | `targetAction`: Maintain target identifier  |
-| `maintain-silent` | Launch a maintain process without response message | `targetAction`: Maintain target identifier |
-| `maintain-async` | Launch a maintain process without any response | `targetAction`: Maintain target identifier |
-| `validate` | Launch a query, and if it returns a warning or an error, invalidates the launcher with a message | `targetAction`: Query identifier |
-| `unique` |  Launch a query, and if it returns data, invalidates the launcher | `targetAction`: Query identifier |
-| `control` | Launch a query, and if it doesn't finish OK, returns a message | `targetAction`: Query identifier |
-| `control-cancel`  |  Launch a query, and if it doesn't finish OK, returns a message and cancels the action queue | `targetAction`: Query identifier |
-| `control-confirm` |  Launch a query, and if it doesn't finish OK, returns a confirm message| `targetAction`: Query identifier, `target`: Confirm message identifier |
-| `control-confirm-cancel` |   Launch a query, and if it finish OK, cancels the queue and if it finishes with an error, returns a confirm message | `targetAction`: Query identifier, `target`: Confirm message identifier |
-| `control-confirm-message` |  Launch a query, and if it doesn't finish OK, returns a confirm message with the query message output | `targetAction`: Query identifier |
-| `control-empty-cancel` |  Launch a query, and if it does not return data, it shows a message and cancels the queue | `targetAction`: Query identifier, `target`: Message identifier |
-| `control-unique-cancel` |  Launch a query, and if it returns data, it shows a message and cancels the queue | `targetAction`: Query identifier, `target`: Message identifier |
-| `app-help` |  Shows the automatically generated screen help based on screen attributes | `target`: Screen identifier (optional) |
-| `help` |  Get the application help book in the current language |                            |
-| `get-file-maintain` |  Launch a maintain process and retrieve a file to download |                            |
+| Action                    | Description                                                                                                                          | Values                                                                 |
+|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| `login`                   | Log in into the application                                                                                                          | User and password                                                      |
+| `logout`                  |                                                                                                                                      |                                                                        |
+| `screen`                  | Navigate to a screen                                                                                                                 | `target`: Menu option identifier                                       |
+| `data`                    | Get data from the server. Fills the `values` list of the criterion                                                                   | `targetAction`: Query identifier                                       |
+| `value`                   | Get a value from the server. Fills the `selected` list of the criterion. *In suggests, this action also fills the `values` list*     | `targetAction`: Query identifier                                       |
+| `update-model`            | Get values for some criteria. The query field alias **must** be the criterion id to match. Fills the `selected` list of the criteria | `targetAction`: Query identifier                                       |
+| `subscribe`               | Subscribe to a query data retrieval. The subscription stores the component request and broadcasts  data to the component address     | `targetAction`: Query identifier                                       |
+| `maintain`                | Launch a maintain process                                                                                                            | `targetAction`: Maintain target identifier                             |
+| `maintain-silent`         | Launch a maintain process without response message                                                                                   | `targetAction`: Maintain target identifier                             |
+| `maintain-async`          | Launch a maintain process without any response                                                                                       | `targetAction`: Maintain target identifier                             |
+| `validate`                | Launch a query, and if it returns a warning or an error, invalidates the launcher with a message                                     | `targetAction`: Query identifier                                       |
+| `unique`                  | Launch a query, and if it returns data, invalidates the launcher                                                                     | `targetAction`: Query identifier                                       |
+| `control`                 | Launch a query, and if it doesn't finish OK, returns a message                                                                       | `targetAction`: Query identifier                                       |
+| `control-cancel`          | Launch a query, and if it doesn't finish OK, returns a message and cancels the action queue                                          | `targetAction`: Query identifier                                       |
+| `control-confirm`         | Launch a query, and if it doesn't finish OK, returns a confirm message                                                               | `targetAction`: Query identifier, `target`: Confirm message identifier |
+| `control-confirm-cancel`  | Launch a query, and if it finish OK, cancels the queue and if it finishes with an error, returns a confirm message                   | `targetAction`: Query identifier, `target`: Confirm message identifier |
+| `control-confirm-message` | Launch a query, and if it doesn't finish OK, returns a confirm message with the query message output                                 | `targetAction`: Query identifier                                       |
+| `control-empty-cancel`    | Launch a query, and if it does not return data, it shows a message and cancels the queue                                             | `targetAction`: Query identifier, `target`: Message identifier         |
+| `control-unique-cancel`   | Launch a query, and if it returns data, it shows a message and cancels the queue                                                     | `targetAction`: Query identifier, `target`: Message identifier         |
+| `app-help`                | Shows the automatically generated screen help based on screen attributes                                                             | `target`: Screen identifier (optional)                                 |
+| `help`                    | Get the application help book in the current language                                                                                |                                                                        |
+| `get-file-maintain`       | Launch a maintain process and retrieve a file to download                                                                            |                                                                        |
 
 ## Client actions from Java services
 
@@ -200,10 +204,10 @@ These kind of actions are used to execute client actions from java services in t
 
 ### General actions from java services
 
-| Action           |  Description                     | Parameters                                   |
-| ---------------- | -------------------------------- | -------------------------------------------- |
+| Action           | Description                                   | Parameters                                                                                                        |
+|------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
 | `message`        | Send a message to the client (without target) | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
-| `target-message` | Send a message to a client component | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
+| `target-message` | Send a message to a client component          | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
 
 **message**
 
@@ -240,10 +244,10 @@ serviceData.addClientAction(messageAction);
 
 ### Criteria actions from java services
 
-| Action          |  Description                     | Parameters                                   |
-| --------------- | -------------------------------- | -------------------------------------------- |
-| `select`        | Fill a criterion selected values | `values` - Datalist with criteria value      |
-| `fill`          | Fill a criterion list of available values | `rows` -  rows of datalist (at least must have `value` and `label` fields) |
+| Action   | Description                               | Parameters                                                                 |
+|----------|-------------------------------------------|----------------------------------------------------------------------------|
+| `select` | Fill a criterion selected values          | `values` - Datalist with criteria value                                    |
+| `fill`   | Fill a criterion list of available values | `rows` -  rows of datalist (at least must have `value` and `label` fields) |
 
 **select**
 
@@ -270,29 +274,29 @@ ServiceData setCriteriaValue() {
 
 ### Grid actions from java services
 
-| Action          |  Description                     | Parameters                                   |
-| --------------- | -------------------------------- | -------------------------------------------- |
-| `fill` | Fill a grid with datalist   | `rows` -  rows of datalist |
-| | | `total` - Number of total pages of datalist |
-| | | `page` - Page of datalist |
-| | | `records` - Records number of datalist |
-| `add-columns`  | Add columns to structure grid   | `columns` - ArrayNode with column structure  |
-| `replace-columns` | Replace columns grid with other columns structure   | `columns` - ArrayNode with column structure  |
-| `update-cell`  | Update cell in grid. Used to update cellData with other value, style, icon, title ...   | `values` - ObjectNode with cell attributes|
-| `add-row`      | Add a row at the bottom of the grid | `row` - row values (optional)|
-| | | `selectedRow` - Selected row identifier (optional) |
-| `add-row-top`  | Add a row at the top of the grid | `row` - row values (optional) |
-| | | `selectedRow` - Selected row identifier (optional) |
-| `add-row-up`   | Add a row over the selected row | `row` - row values (optional) |
-| | | `selectedRow` - Selected row identifier (optional) |
-| `add-row-down` | Add a row below the selected row | `row` - row values (optional) |
-| | | `selectedRow` - Selected row identifier (optional) |
-| `copy-row`     | Copy the selected row at the bottom of the grid | `selectedRow` - Selected row identifier (optional) |
-| `copy-row-top` | Copy the selected row at the top of the grid | `selectedRow` - Selected row identifier (optional) |
-| `copy-row-up`  | Copy the selected row over the selected row | `selectedRow` - Selected row identifier (optional) |
-| `copy-row-down`| Copy the selected row below the selected row | `selectedRow` - Selected row identifier (optional) |
-| `update-row`   | Update the selected row values | `row` - row values, `rowId` - id of row to be updated (if none given, selected one will be selected), `style` - CSS class to add to the row (optional) |
-| `delete-row`   | Delete the selected row                         |  | 
+| Action            | Description                                                                           | Parameters                                                                                                                                             |
+|-------------------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fill`            | Fill a grid with datalist                                                             | `rows` -  rows of datalist                                                                                                                             |
+|                   |                                                                                       | `total` - Number of total pages of datalist                                                                                                            |
+|                   |                                                                                       | `page` - Page of datalist                                                                                                                              |
+|                   |                                                                                       | `records` - Records number of datalist                                                                                                                 |
+| `add-columns`     | Add columns to structure grid                                                         | `columns` - ArrayNode with column structure                                                                                                            |
+| `replace-columns` | Replace columns grid with other columns structure                                     | `columns` - ArrayNode with column structure                                                                                                            |
+| `update-cell`     | Update cell in grid. Used to update cellData with other value, style, icon, title ... | `values` - ObjectNode with cell attributes                                                                                                             |
+| `add-row`         | Add a row at the bottom of the grid                                                   | `row` - row values (optional)                                                                                                                          |
+|                   |                                                                                       | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `add-row-top`     | Add a row at the top of the grid                                                      | `row` - row values (optional)                                                                                                                          |
+|                   |                                                                                       | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `add-row-up`      | Add a row over the selected row                                                       | `row` - row values (optional)                                                                                                                          |
+|                   |                                                                                       | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `add-row-down`    | Add a row below the selected row                                                      | `row` - row values (optional)                                                                                                                          |
+|                   |                                                                                       | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `copy-row`        | Copy the selected row at the bottom of the grid                                       | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `copy-row-top`    | Copy the selected row at the top of the grid                                          | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `copy-row-up`     | Copy the selected row over the selected row                                           | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `copy-row-down`   | Copy the selected row below the selected row                                          | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `update-row`      | Update the selected row values                                                        | `row` - row values, `rowId` - id of row to be updated (if none given, selected one will be selected), `style` - CSS class to add to the row (optional) |
+| `delete-row`      | Delete the selected row                                                               |                                                                                                                                                        | 
 
 **fill**
 
@@ -440,11 +444,11 @@ columnList.add(columnType );
 
 ### Chart actions from java services
 
-| Action          |  Description                     | Parameters                                   |
-| --------------- | -------------------------------- | -------------------------------------------- |
-| `replace-chart-series` | Replace the series of one chart   | `series` - ArrayNode with chart series  |
-| `add-chart-series` | Add one serie to chart   | `series` - ArrayNode with chart serie  |
-| `remove-chart-series` | Remove the series of one chart   | `series` - ArrayNode with chart series  |
+| Action                 | Description                        | Parameters                             |
+|------------------------|------------------------------------|----------------------------------------|
+| `replace-chart-series` | Replace the series of one chart    | `series` - ArrayNode with chart series |
+| `add-chart-series`     | Add one serie to chart             | `series` - ArrayNode with chart serie  |
+| `remove-chart-series`  | Remove the series of one chart     | `series` - ArrayNode with chart series |
 
 **replace-chart-series**
 

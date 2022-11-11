@@ -307,9 +307,15 @@ aweApplication.factory("Screen",
          */
         redirect: function (action) {
           let url = action.attr("target");
+          let newWindow = action.attr("parameters")?.newWindow || false;
 
-          // Redirect browser
-          $window.location.href = url;
+          if (newWindow) {
+            // Open url in new window
+            $window.open(url, "_blank");
+          } else {
+            // Redirect browser
+            $window.location.href = url;
+          }
 
           // Close action
           $actionController.acceptAction(action);
@@ -319,7 +325,7 @@ aweApplication.factory("Screen",
          * @param {Action} action Action received
          */
         redirectScreen: function (action) {
-          let screen = action.attr("parameters").screen;
+          let screen = action.attr("parameters")?.screen || null;
           let view = "report" in $storage.get("screen") ? $storage.get("screen")["report"] : $storage.get("screen")["base"];
           if (screen === view.name) {
             $screen.redirect(action);
