@@ -21,7 +21,6 @@ aweApplication.factory('Component',
        * @param {object} component
        */
       function destroyTimers(component) {
-        Utilities.timeout.cancel(component.helpTimer);
         Utilities.interval.cancel(component.autoRefreshTimer);
       }
 
@@ -30,8 +29,11 @@ aweApplication.factory('Component',
        * @param {object} component
        */
       function destroy(component) {
-        component.helpNode && component.helpNode.off();
-        component.helpOver = false;
+        Object.values(component.helpTargets || {}).forEach(target => {
+          target.over = false;
+          target.node.off();
+          Utilities.timeout.cancel(target.timer);
+        });
         component.alive = false;
         destroyTimers(component);
         // Clear listeners
@@ -366,33 +368,38 @@ aweApplication.factory('Component',
         },
         /**
          * Initialize a help node events
+         * @param {String} name Component name
          * @param {Object} help Object
          */
-        initHelpNode: function (help) {
-          let  component = this;
-          component.helpOver = false;
-          component.helpNode = $(help.node);
-          let  isDisabled = function () {
+        initHelpNode: function (name, help) {
+          let component = this;
+          component.helpTargets = {...component.helpTargets || {},
+            [name]: {
+              over: false,
+              node: $(help.node),
+              timer: null
+          }};
+          let isDisabled = function () {
             return component.isDisabled ? component.isDisabled() : false;
           };
-          let  onEnter = function () {
+          let onEnter = function () {
             if (component.alive && !isDisabled()) {
-              component.helpOver = true;
-              Utilities.timeout.cancel(component.helpTimer);
-              component.helpTimer = Utilities.timeout(showHelp, $settings.get("helpTimeout"));
+              component.helpTargets[name].over = true;
+              Utilities.timeout.cancel(component.helpTargets[name].timer);
+              component.helpTargets[name].timer = Utilities.timeout(showHelp, $settings.get("helpTimeout"));
             }
           };
           let showHelp = function () {
-            if (component.helpOver && !isDisabled()) {
+            if (component.helpTargets[name].over && !isDisabled()) {
               Control.publish('showHelp', help);
             }
           };
-          let  onLeave = function () {
-            component.helpOver = false;
-            Utilities.timeout.cancel(component.helpTimer);
+          let onLeave = function () {
+            component.helpTargets[name].over = false;
+            Utilities.timeout.cancel(component.helpTargets[name].timer);
             Control.publish('hideHelp');
           };
-          component.helpNode.on({mouseenter: onEnter, mousedown: onLeave, mouseleave: onLeave});
+          component.helpTargets[name].node.on({mouseenter: onEnter, mousedown: onLeave, mouseleave: onLeave});
         },
         /**
          * Checks autoload

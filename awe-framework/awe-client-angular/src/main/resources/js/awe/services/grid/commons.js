@@ -1568,6 +1568,22 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           }
         };
 
+        component.initHelpColumns = function() {
+          component.controller.columnModel.forEach(column => {
+            if ("help" in column) {
+              Utilities.timeout(function () {
+                // Initialize help node
+                let help = {
+                  node: component.element.find(`[column-id='${column.id}']`),
+                  text: column.help,
+                  image: column.helpImage
+                };
+                component.initHelpNode(component.id, help);
+              });
+            }
+          });
+        };
+
         /** ******************************************************************* */
         /* EVENTS */
         /** ******************************************************************* */

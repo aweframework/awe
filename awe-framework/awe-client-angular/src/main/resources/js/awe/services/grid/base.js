@@ -164,6 +164,8 @@ aweApplication.factory('GridBase',
               component.initialized = true;
               // Resize grid
               component.resize();
+              // Init help columns
+              component.initHelpColumns();
             });
           };
           /**

@@ -3158,6 +3158,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_TEXT"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -4525,7 +4526,7 @@
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_TEXT"></strong></td>
-            <td translate-multiple=""></td>
+            <td translate-multiple="HELP_NAME"></td>
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_TEXT"></strong></td>
@@ -4533,7 +4534,7 @@
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_TEXT"></strong></td>
-            <td translate-multiple=""></td>
+            <td translate-multiple="HELP_NAME"></td>
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_TEXT"></strong></td>
@@ -4913,7 +4914,7 @@
           <tbody>
           <tr>
             <td><strong translate-multiple="PARAMETER_NAME"></strong></td>
-            <td translate-multiple=""></td>
+            <td translate-multiple="HELP_NAME"></td>
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_LEVEL"></strong></td>

@@ -38,7 +38,7 @@
   <tag source="center" expandible="vertical">
     <window style="expand" label="SCREEN_TEXT_DATA" id="Criteria" expandible="vertical">
       <tag type="div" style="panel-body expand scrollable">
-        <criteria label="PARAMETER_TEXT" id="Txt" variable="Txt" component="text" style="col-xs-6 col-sm-3 col-lg-2" value="test">
+        <criteria label="PARAMETER_TEXT" id="Txt" help="PARAMETER_TEXT" variable="Txt" component="text" style="col-xs-6 col-sm-3 col-lg-2" value="test">
           <dependency >
             <dependency-element id="Txt" condition="eq" value="radios"/>
             <dependency-action type="value" target="RadBoxGrp2" value="Radio1"/>

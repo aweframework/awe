@@ -172,12 +172,12 @@ aweApplication.factory('Button',
             if (component.controller && "help" in component.controller) {
               Utilities.timeout(function () {
                 // Initialize help node
-                component.scope.help = {
+                let help = {
                   node: button.element.find(".help-target"),
                   text: component.controller.help,
                   image: component.controller.helpImage
                 };
-                component.initHelpNode(component.scope.help);
+                component.initHelpNode(component.id, help);
               }, 100);
             }
           };

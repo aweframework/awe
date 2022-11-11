@@ -366,12 +366,12 @@ aweApplication.factory('Criterion',
             if (controller && "help" in controller) {
               Utilities.timeout(function () {
                 // Initialize help node
-                component.scope.help = {
+                let help = {
                   node: component.element.find(".help-target"),
                   text: controller.help,
                   image: controller.helpImage
                 };
-                component.initHelpNode(component.scope.help);
+                component.initHelpNode(component.id, help);
               });
             }
           }
