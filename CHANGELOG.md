@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.6.3
+*14/11/2022*
+
+- Allow to have an action which opens an url in a new window. [MR #395](https://gitlab.com/aweframework/awe/-/merge_requests/395) (Pablo Javier García Mora)
+- Show help messages on column headers. [MR #394](https://gitlab.com/aweframework/awe/-/merge_requests/394) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.2
 *31/10/2022*
 

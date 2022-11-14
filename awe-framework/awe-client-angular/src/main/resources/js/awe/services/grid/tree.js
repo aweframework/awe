@@ -209,6 +209,8 @@ aweApplication.factory('GridTree',
               component.updateModel();
               // Filter selection on initialization
               component.currentSelection = component.model.selected || [];
+              // Init help columns
+              component.initHelpColumns();
             });
           };
 

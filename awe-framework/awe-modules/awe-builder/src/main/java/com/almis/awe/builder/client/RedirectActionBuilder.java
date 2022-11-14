@@ -25,4 +25,16 @@ public class RedirectActionBuilder extends ClientActionBuilder<RedirectActionBui
     setType(TYPE)
       .setTarget(url);
   }
+
+  /**
+   * Constructor with url and new window
+   *
+   * @param url   Redirect URL
+   * @param newWindow Open in new window
+   */
+  public RedirectActionBuilder(String url, boolean newWindow) {
+    setType(TYPE)
+      .setTarget(url)
+      .addParameter("newWindow", newWindow);
+  }
 }
