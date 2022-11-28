@@ -82,14 +82,13 @@ class LocaleFileServiceTest {
    * Test translate a text with the same language from/to
    * Skip call api request
    *
-   * @throws AWException AWE exception
    */
   @Test
-  void readLocalesFromFileNotFound() throws Exception {
+  void readLocalesFromFileNotFound() {
     // Launch
     when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
     when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");
-    Assertions.assertNull(localeFileService.readLocalesFromFile("en"));
+    Assertions.assertThrows(NullPointerException.class, () -> localeFileService.readLocalesFromFile("en"));
   }
 
   /**
