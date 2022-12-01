@@ -1394,6 +1394,20 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * Test query with when clause with multiple filters.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testCaseWhenWithMultipleFilters() throws Exception {
+    String queryName = "testCaseWithMultipleConditionInWhen";
+    String variables = "";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"label\":null,\"id\":1},{\"label\":\"PURPLE-HILLS\",\"id\":2},{\"label\":\"SUNNY\",\"id\":3},{\"label\":\"SUNSET\",\"id\":4}]}}},{\"type\":\"end-load\",\"parameters\":{}}]\n";
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultJson(queryName, result, 4, 1, 1, 4);
+  }
+
+  /**
    * Test of launchAction method, of class ActionController.
    *
    * @throws Exception Test error
@@ -3301,8 +3315,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       .andExpect(status().isOk());
 
     if (expected != null) {
-      logger.warn("Result: {}", mockMvcPerform.andReturn().getResponse().getContentAsString());
-      logger.warn("Expect: {}", expected);
+      logger.info("Result: {}", mockMvcPerform.andReturn().getResponse().getContentAsString());
+      logger.info("Expect: {}", expected);
       mockMvcPerform.andExpect(content().json(expected));
     }
 

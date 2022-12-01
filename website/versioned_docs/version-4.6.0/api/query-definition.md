@@ -359,25 +359,27 @@ Round field with 2 decimals: 'round(column, 2)'
 
 ### Case element
 
-The *case* element allows to generate a list of `when` clauses inside a `field` element. An `else` clause must be defined at the end of the `case` clause. 
+The *case* element allows to generate a list of `when` clauses inside a `field` element. An `else` clause must be defined at the end of the `case` clause.
 It has the same attributes than a [filter element](#filter-element) **plus** some extra features:
 
-| Attribute     | Use      | Type      |  Description                    |   Values                                           |
-| ------------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| alias | Optional | String | Alias of field. It used to describe the field |  |
-| noprint| Optional | Boolean | Used to set a field as no printable. (Field value isn't loaded in resultset)  | |
-| transform | Optional | String | Used to format the field value | See [this](#transform-attribute) for more info about transform attribute. |
-| pattern | Optional | String| Used in a number type field, defines the pattern to format the number  | See [this page](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) for more info |
-| translate | Optional | String| Translates the output with an enumerated group identifier | **Note:** If the field value is equal to an enumerated value, output the enumerated label |
-| function | Optional | String | To apply sql function to field|The possible values are defined in [field functions](#field-functions) |
-| cast  | Optional | String | Changes the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE` |
+| Attribute | Use      | Type    | Description                                                                  | Values                                                                                               |
+|-----------|----------|---------|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| alias     | Optional | String  | Alias of field. It used to describe the field                                |                                                                                                      |
+| noprint   | Optional | Boolean | Used to set a field as no printable. (Field value isn't loaded in resultset) |                                                                                                      |
+| transform | Optional | String  | Used to format the field value                                               | See [this](#transform-attribute) for more info about transform attribute.                            |
+| pattern   | Optional | String  | Used in a number type field, defines the pattern to format the number        | See [this page](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) for more info |
+| translate | Optional | String  | Translates the output with an enumerated group identifier                    | **Note:** If the field value is equal to an enumerated value, output the enumerated label            |
+| function  | Optional | String  | To apply sql function to field                                               | The possible values are defined in [field functions](#field-functions)                               |
+| cast      | Optional | String  | Changes the field format                                                     | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                            |
 
 > **NEW!**: As described on [filter element](#filter-element), `left-operand` and `right-operand` must contain
 > a node of `field`, `constant`, `operation` or `case` as well. Same case for the `then` and `else` elements.
 
+> **NEW!**: You can use multiple filters inside `when` clause using `and` clause as described [here](#where-element).
+
 #### Case examples
 
-Case field: 
+Case field:
 
 ```sql
 CASE WHEN (Nam = "sunset") THEN 1 WHEN (Nam = "sunny") THEN 2 WHEN (Nam = "purple-hills") THEN 3 ELSE 0 END AS "value"
@@ -417,6 +419,50 @@ will be generated as:
   <variable id="sunset" type="STRING" value="sunset"/>
   <variable id="sunny" type="STRING" value="sunny"/>
   <variable id="purple-hills" type="STRING" value="purple-hills"/>
+</query>
+```
+
+Case field:
+
+```sql
+CASE WHEN (Nam = "sunset" AND Thm = "summer") THEN 1 ELSE 0 END AS "value"
+```
+
+will be generated as:
+
+```xml
+<query id="testCaseWhenMultipleFilters">
+  <table id="AweThm"/>
+  <case alias="Nam">
+    <when>
+      <and>
+        <filter condition="eq">
+          <left-operand>
+            <field id="Nam"/>
+          </left-operand>
+          <right-operand>
+            <field variable="sunset"/>
+          </right-operand>
+        </filter>
+        <filter condition="eq">
+          <left-operand>
+            <field id="Thm"/>
+          </left-operand>
+          <right-operand>
+            <field variable="summer"/>
+          </right-operand>
+        </filter>
+      </and>
+      <then>
+        <constant value="1" type="INTEGER"/>
+      </then>
+    </when>
+    <else>
+      <constant value="0" type="INTEGER"/>
+    </else>
+  </case>
+  <variable id="sunset" type="STRING" value="sunset"/>
+  <variable id="summer" type="STRING" value="summer"/>
 </query>
 ```
 
