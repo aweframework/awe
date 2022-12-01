@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.6.4
+*01/12/2022*
+
+- Add 'AND' operator in queries with CASE. [MR #399](https://gitlab.com/aweframework/awe/-/merge_requests/399) (Pablo Vidal Otero)
+- Update spring boot version to 2.7.6. [MR #398](https://gitlab.com/aweframework/awe/-/merge_requests/398) (Pablo Vidal Otero)
+- Adapt awe compilation to JDK 17. [MR #397](https://gitlab.com/aweframework/awe/-/merge_requests/397) (Pablo Vidal Otero)
+- Fix oracle scripts for 2fa. [MR #396](https://gitlab.com/aweframework/awe/-/merge_requests/396) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.3
 *14/11/2022*
 
