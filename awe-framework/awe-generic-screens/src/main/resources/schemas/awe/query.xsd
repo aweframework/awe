@@ -270,9 +270,10 @@
     <xs:sequence>
       <xs:element ref="left-operand" minOccurs="0"/>
       <xs:element ref="right-operand" minOccurs="0"/>
+      <xs:element ref="and" minOccurs="0"/>
       <xs:element ref="then"/>
     </xs:sequence>
-    <xs:attributeGroup ref="filterAttr"/>
+    <xs:attributeGroup ref="caseWhenFilterAttr"/>
   </xs:complexType>
 
   <!-- Filter Type -->
@@ -417,8 +418,7 @@
   </xs:attributeGroup>
 
   <!-- Filter Attributes -->
-  <xs:attributeGroup name="filterAttr">
-    <xs:attribute name="condition" use="required" type="conditionEnum"/>
+  <xs:attributeGroup name="filterAttrBase">
     <xs:attribute name="left-field" type="identifierType"/>
     <xs:attribute name="left-table" type="identifierType"/>
     <xs:attribute name="left-variable" type="identifierType"/>
@@ -432,6 +432,18 @@
     <xs:attribute name="optional" type="booleanEnum"/>
     <xs:attribute name="query" type="identifierType"/>
     <xs:attribute name="type" type="valueTypeEnum"/>
+  </xs:attributeGroup>
+
+  <!-- Where condition filter attributes -->
+  <xs:attributeGroup name="filterAttr">
+    <xs:attributeGroup ref="filterAttrBase"/>
+    <xs:attribute name="condition" use="required" type="conditionEnum"/>
+  </xs:attributeGroup>
+
+  <!-- When condition filter attributes -->
+  <xs:attributeGroup name="caseWhenFilterAttr">
+    <xs:attributeGroup ref="filterAttrBase"/>
+    <xs:attribute name="condition" type="conditionEnum"/>
   </xs:attributeGroup>
 
   <!-- Order Call Attributes -->

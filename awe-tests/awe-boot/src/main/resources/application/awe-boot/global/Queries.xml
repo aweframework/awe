@@ -2379,6 +2379,46 @@
     <order-by field="value" table="t" type="ASC" nulls="FIRST"/>
   </query>
 
+  <query id="testCaseWithMultipleConditionInWhen">
+    <table query="testCaseWithMultipleConditionInWhenSubquery" alias="t"/>
+    <field id="label" table="t"/>
+    <order-by field="label" table="t" type="ASC" nulls="FIRST"/>
+  </query>
+
+
+  <query id="testCaseWithMultipleConditionInWhenSubquery" distinct="true">
+    <table id="AweThm"/>
+    <case alias="label">
+      <when left-field="Nam" condition="eq" right-variable="sunset">
+        <then>
+          <constant value="SUNSET"/>
+        </then>
+      </when>
+      <when left-field="Nam" condition="eq" right-variable="purple-hills">
+        <then>
+          <constant value="PURPLE-HILLS"/>
+        </then>
+      </when>
+      <when>
+        <and>
+          <filter left-field="Nam" condition="eq" right-variable="sunny"/>
+          <filter left-field="Nam" condition="is not null"/>
+        </and>
+        <then>
+          <constant value="SUNNY"/>
+        </then>
+      </when>
+      <else>
+        <constant value="null" type="NULL"/>
+      </else>
+    </case>
+    <variable id="sunset" type="STRING" value="sunset"/>
+    <variable id="sunny" type="STRING" value="sunny"/>
+    <variable id="purple-hills" type="STRING" value="purple-hills"/>
+    <variable id="null" type="NULL"/>
+  </query>
+
+
   <query id="testCaseWhenElseDistinctSubquery" distinct="true">
     <table id="AweThm"/>
     <case alias="value">

@@ -8,7 +8,7 @@ include:
   - template: Dependency-Scanning.gitlab-ci.yml
   - template: License-Scanning.gitlab-ci.yml
 
-image: maven:3.8-openjdk-11-slim
+image: maven:3.8-openjdk-17-slim
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -118,9 +118,9 @@ Build project:
       paths:
         - .m2/repository/
 
-Build project (jdk latest):
+Build project:jdk 18:
   extends: .build
-  image: maven:3.8-openjdk-17-slim
+  image: maven:3.8-openjdk-18-slim
 
 Build website:
   extends: .build-website
@@ -137,6 +137,7 @@ Build website with i18n:
     # Do translations
     - yarn --cwd website crowdin:sync
     - yarn --cwd website build
+  resource_group: crowdin
   rules:
     - <<: *if-develop
     - <<: *if-master
@@ -242,7 +243,7 @@ Javadoc test:
 # Browser testing extension
 .browser-testing:
   # Important! Do not use slim version (it doesn't have the necessary fonts)
-  image: maven:3.8-openjdk-11
+  image: maven:3.8-openjdk-17
   stage: integration test
   allow_failure: true
   variables:
