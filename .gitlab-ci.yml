@@ -137,6 +137,7 @@ Build website with i18n:
     # Do translations
     - yarn --cwd website crowdin:sync
     - yarn --cwd website build
+  resource_group: crowdin
   rules:
     - <<: *if-develop
     - <<: *if-master
