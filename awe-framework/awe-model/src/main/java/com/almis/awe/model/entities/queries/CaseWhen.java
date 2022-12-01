@@ -28,18 +28,27 @@ public class CaseWhen extends Filter {
   @XStreamAlias("then")
   private TransitionField thenOperand;
 
+  // Optional AND filters
+  @XStreamAlias("and")
+  private FilterAnd filterAnd;
+
   @Override
   public CaseWhen copy() {
     return ((CaseWhen) super.copy())
+      .setFilterAnd(ListUtil.copyElement(filterAnd))
       .setThenOperand(ListUtil.copyElement(thenOperand));
   }
 
   @Override
   public String toString() {
     String thenString = "";
+    String conditionWhen = super.toString();
+    if (getFilterAnd() != null) {
+      conditionWhen = getFilterAnd().toString();
+    }
     if (getThenOperand() != null) {
       thenString = getThenOperand().toString();
     }
-    return "WHEN " + super.toString() + " THEN " + thenString;
+    return "WHEN " + conditionWhen + " THEN " + thenString;
   }
 }

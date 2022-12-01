@@ -350,7 +350,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
 
     if (field.getCaseWhenList() != null) {
       for (CaseWhen caseWhen : field.getCaseWhenList()) {
-        BooleanExpression filter = getFilters(caseWhen);
+        BooleanExpression filter = caseWhen.getFilterAnd() != null ? getFilterGroups(caseWhen.getFilterAnd()) : getFilters(caseWhen);
         Expression caseThen = getOperandExpression(getSqlFieldFromTransition(caseWhen.getThenOperand()));
         if (caseList == null) {
           caseList = initialCase.when(filter).then(caseThen);
