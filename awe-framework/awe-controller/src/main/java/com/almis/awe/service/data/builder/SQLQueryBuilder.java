@@ -321,14 +321,14 @@ public class SQLQueryBuilder extends SQLBuilder {
    *
    * @param finalQuery SQLQuery created in build method
    */
-  private void doGroupBy(SQLQuery<Tuple> finalQuery) {
+  private void doGroupBy(SQLQuery<Tuple> finalQuery) throws AWException {
     // List of partial Expressions from filters
     Expression[] groupExpressions = new Expression[getQuery().getGroupByList().size()];
 
     int i = 0;
     for (GroupBy groupby : getQuery().getGroupByList()) {
       // Store the path created
-      groupExpressions[i] = getSimpleFieldExpression(groupby.getTable(), groupby.getField(), groupby.getFunction());
+      groupExpressions[i] = groupby.getGroupByCase() != null ? getCaseExpression(groupby.getGroupByCase()) : getSimpleFieldExpression(groupby.getTable(), groupby.getField(), groupby.getFunction());
       i++;
     }
 
