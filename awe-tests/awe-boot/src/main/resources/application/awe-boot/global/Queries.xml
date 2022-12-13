@@ -2379,6 +2379,36 @@
     <order-by field="value" table="t" type="ASC" nulls="FIRST"/>
   </query>
 
+  <query id="testGroupByWithCase">
+    <table id="ope" alias="o"/>
+    <field id="l1_nom" table="o" alias="Nam"/>
+    <case alias="theme">
+      <when left-field="IdeThm" condition="eq" right-variable="1">
+        <then>
+          <constant value="SUNSET"/>
+        </then>
+      </when>
+      <else>
+        <constant value="OTHER" />
+      </else>
+    </case>
+    <order-by field="l1_nom" table="o" type="ASC" nulls="FIRST"/>
+    <group-by field="l1_nom"/>
+    <group-by>
+      <case alias="theme">
+        <when left-field="IdeThm" condition="eq" right-variable="1">
+          <then>
+            <constant value="SUNSET"/>
+          </then>
+        </when>
+        <else>
+          <constant value="OTHER" />
+        </else>
+      </case>
+    </group-by>
+    <variable id="1" type="INTEGER" value="1"/>
+  </query>
+
   <query id="testCaseWithMultipleConditionInWhen">
     <table query="testCaseWithMultipleConditionInWhenSubquery" alias="t"/>
     <field id="label" table="t"/>

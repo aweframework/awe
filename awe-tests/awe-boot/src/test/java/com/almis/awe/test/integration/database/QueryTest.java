@@ -1394,6 +1394,22 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * Test Case clause inside group-by
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testCaseInGroupBy() throws Exception {
+    String queryName = "testGroupByWithCase";
+    String variables = "";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"theme\":\"SUNSET\",\"Nam\":\"donald\",\"id\":1},{\"theme\":\"SUNSET\",\"Nam\":\"jaimito\",\"id\":2},{\"theme\":\"SUNSET\",\"Nam\":\"jorgito\",\"id\":3},{\"theme\":\"SUNSET\",\"Nam\":\"juanito\",\"id\":4},{\"theme\":\"SUNSET\",\"Nam\":\"test\",\"id\":5}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    logger.info(expected);
+    logger.info(result);
+    assertResultJson(queryName, result, 5, 1, 1, 5);
+  }
+
+  /**
    * Test query with when clause with multiple filters.
    *
    * @throws Exception Test error
