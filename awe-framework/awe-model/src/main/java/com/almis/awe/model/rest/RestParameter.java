@@ -35,6 +35,10 @@ public class RestParameter {
      */
     REQUEST,
     /**
+     * Parameter from variable
+     */
+    VARIABLE,
+    /**
      * Parameter with static value
      */
     VALUE
