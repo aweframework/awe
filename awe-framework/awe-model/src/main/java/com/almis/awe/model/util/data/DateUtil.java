@@ -145,7 +145,7 @@ public final class DateUtil {
       // Parse initial date
       if (date != null && !"".equalsIgnoreCase(date)) {
         LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WEB_PARSER);
-        webDat = java.sql.Date.valueOf(localDate);
+        webDat = new Date(java.sql.Date.valueOf(localDate).getTime());
       }
     } catch (Exception exc) {
       log.error("[{}] Error parsing WEB date to date -{}-", UTILITY_NAME, date, exc);
@@ -401,7 +401,7 @@ public final class DateUtil {
    */
   public static java.util.Date sqlDate2JavaDate(String date) {
     LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_SQL);
-    return java.sql.Date.valueOf(localDate);
+    return new Date(java.sql.Date.valueOf(localDate).getTime());
   }
 
   /**
@@ -412,7 +412,7 @@ public final class DateUtil {
    */
   public static java.util.Date wbs2JavaDate(String date) {
     LocalDate localDate = LocalDate.parse(date, DATE_FORMAT_WBS);
-    return java.sql.Date.valueOf(localDate);
+    return new Date(java.sql.Date.valueOf(localDate).getTime());
   }
 
   /**
@@ -423,7 +423,7 @@ public final class DateUtil {
    */
   public static java.util.Date rdb2Date(String date) {
     /* Return web date string */
-    return java.sql.Date.valueOf(LocalDate.parse(date, DATE_FORMAT_RDB));
+    return new Date(java.sql.Date.valueOf(LocalDate.parse(date, DATE_FORMAT_RDB)).getTime());
   }
 
   /**
