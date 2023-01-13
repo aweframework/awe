@@ -614,7 +614,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     // Act selecting the variable type
     switch (type) {
       case DATE:
-        return Expressions.asDate(DateUtil.web2Date(value));
+        return Expressions.asDate(DateUtil.web2SqlDate(value));
       case TIMESTAMP:
         return Expressions.asDateTime(DateUtil.web2Timestamp(value));
       case FLOAT:
