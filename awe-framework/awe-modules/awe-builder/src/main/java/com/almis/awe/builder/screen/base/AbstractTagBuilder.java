@@ -263,4 +263,15 @@ public abstract class AbstractTagBuilder<T, I extends Element> extends AbstractE
     addAllElements(wizardBuilder);
     return (T) this;
   }
+
+  /**
+   * Add image
+   *
+   * @param imageBuilder
+   * @return
+   */
+  public T addImage(ImageBuilder... imageBuilder) {
+    addAllElements(imageBuilder);
+    return (T) this;
+  }
 }

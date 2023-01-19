@@ -627,6 +627,7 @@ For each component designed in AWE you have a `builder` to define its behaviour:
 - `TabBuilder` and `TabContainerBuilder`: Builds a `<tab>` component.
 - `WizardBuilder` and `WizardPanelBuilder`: Builds a `<wizard>` component.
 - `ButtonBuilder` and `ButtonActionBuilders`: Builds `<button>` components.
+- `ImageBuilder`: Builds an `<img>` component.
 - `ContextButtonBuilder` and `ContextSeparatorBuilder`: Builds `<context-button>` components.
 - `DependencyBuilder`, `DependencyActionBuilder` and `DependencyElementBuilder`: Builds `<dependency>` components.
 
