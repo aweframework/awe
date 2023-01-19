@@ -1100,6 +1100,31 @@ class ScreenBuilderTest {
   }
 
   /**
+   * Build a single screen with an image
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addImage() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setLabel("LABEL")
+        .setStyle("expand")
+        .setType("div")
+        .addImage(new ImageBuilder()
+          .setUrl("http://server/image.png")
+          .setAlternateUrl("http://server/alt-image.png")
+          .setStyle("image-style")));
+
+    Screen screen = builder.build();
+    assertEquals("http://server/image.png", ((Image) screen.getElementList().get(0).getElementList().get(0)).getUrl());
+    assertEquals("http://server/alt-image.png", ((Image) screen.getElementList().get(0).getElementList().get(0)).getAlternateUrl());
+    assertEquals("image-style", (screen.getElementList().get(0).getElementList().get(0)).getStyle());
+  }
+
+  /**
    * Set null screen
    */
   @Test
