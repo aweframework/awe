@@ -8,6 +8,7 @@ import com.almis.awe.builder.client.css.AddCssClassActionBuilder;
 import com.almis.awe.builder.client.css.RemoveCssClassActionBuilder;
 import com.almis.awe.builder.client.grid.*;
 import com.almis.awe.builder.enumerates.RowPosition;
+import com.almis.awe.builder.model.SuggestValue;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.FileData;
@@ -17,6 +18,7 @@ import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
@@ -261,6 +263,48 @@ class ClientActionBuilderTest {
     assertEquals(valueList, addressedActionWithList.getParameters().get("values"));
 
     checkSimpleClientActionBuilder("select", new SelectActionBuilder());
+  }
+
+  /**
+   * Build a fill-suggest action with ClientActionBuilder
+   */
+  @Test
+  void testFillSuggestAction() throws Exception {
+    ObjectMapper mapper = new ObjectMapper();
+    List<SuggestValue> values = Arrays.asList(
+      new SuggestValue("aaa", "aaa"),
+      new SuggestValue("bbb", "bbb"),
+      new SuggestValue("ccc", "ccc"),
+      new SuggestValue("ddd", "ddd"));
+    List<SuggestValue> expectedValues = Arrays.asList(
+      new SuggestValue("aaa", "aaa"),
+      new SuggestValue("bbb", "bbb"));
+    ClientAction action = new FillSuggestActionBuilder("targetComponent", new SuggestValue("aaa", "aaa"), new SuggestValue("bbb", "bbb")).build();
+    ClientAction addressedAction = new FillSuggestActionBuilder(address, new SuggestValue("aaa", "aaa"), new SuggestValue("bbb", "bbb")).build();
+    ClientAction actionWithList = new FillSuggestActionBuilder("targetComponent", values).build();
+    ClientAction addressedActionWithList = new FillSuggestActionBuilder(address, values).build();
+
+    // Assertions
+    assertEquals("fill-suggest", action.getType());
+    assertEquals("targetComponent", action.getTarget());
+    assertEquals(mapper.valueToTree(expectedValues), mapper.valueToTree(action.getParameters().get("values")));
+
+    assertEquals("fill-suggest", addressedAction.getType());
+    assertNull(addressedAction.getTarget());
+    assertEquals(address, addressedAction.getAddress());
+    assertEquals(mapper.valueToTree(expectedValues), mapper.valueToTree(addressedAction.getParameters().get("values")));
+
+    // Assertions
+    assertEquals("fill-suggest", actionWithList.getType());
+    assertEquals("targetComponent", actionWithList.getTarget());
+    assertEquals(mapper.valueToTree(values), mapper.valueToTree(actionWithList.getParameters().get("values")));
+
+    assertEquals("fill-suggest", addressedActionWithList.getType());
+    assertNull(addressedActionWithList.getTarget());
+    assertEquals(address, addressedActionWithList.getAddress());
+    assertEquals(mapper.valueToTree(values), mapper.valueToTree(addressedActionWithList.getParameters().get("values")));
+
+    checkSimpleClientActionBuilder("fill-suggest", new FillSuggestActionBuilder());
   }
 
   /**

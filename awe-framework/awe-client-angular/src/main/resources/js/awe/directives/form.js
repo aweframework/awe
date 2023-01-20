@@ -199,6 +199,22 @@ aweApplication.directive('aweForm',
           $actionController.acceptAction(action);
         },
         /**
+         * Fill suggest model with action values
+         * @param {Action} action Action received
+         */
+        fillSuggest: function (action) {
+          // Retrieve parameters
+          let parameters = _.cloneDeep(action.attr("parameters"));
+          let values = parameters.values;
+          let address = action.attr("callbackTarget");
+
+          // Call the method update seleted value from API
+          Control.changeModelAttribute(address, {selected: values, model: values}, true);
+
+          // Finish action
+          $actionController.acceptAction(action);
+        },
+        /**
          * Update controller with action values
          * @param {object} action Action received
          */

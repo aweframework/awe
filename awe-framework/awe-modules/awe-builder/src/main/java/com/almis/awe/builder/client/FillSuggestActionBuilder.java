@@ -1,23 +1,24 @@
 package com.almis.awe.builder.client;
 
+import com.almis.awe.builder.model.SuggestValue;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 
 import java.util.List;
 
 /**
- * Select action builder
+ * Fill suggest action builder
  *
  * @author pgarcia
  */
-public class SelectActionBuilder extends ClientActionBuilder<SelectActionBuilder> {
+public class FillSuggestActionBuilder extends ClientActionBuilder<FillSuggestActionBuilder> {
 
-  private static final String TYPE = "select";
+  private static final String TYPE = "fill-suggest";
   private static final String VALUES = "values";
 
   /**
    * Empty constructor
    */
-  public SelectActionBuilder() {
+  public FillSuggestActionBuilder() {
     setType(TYPE);
   }
 
@@ -27,7 +28,7 @@ public class SelectActionBuilder extends ClientActionBuilder<SelectActionBuilder
    * @param target Target
    * @param values Value list
    */
-  public SelectActionBuilder(String target, List<?> values) {
+  public FillSuggestActionBuilder(String target, List<SuggestValue> values) {
     setType(TYPE)
       .setTarget(target)
       .addParameter(VALUES, values);
@@ -39,7 +40,7 @@ public class SelectActionBuilder extends ClientActionBuilder<SelectActionBuilder
    * @param target Target
    * @param values Value list
    */
-  public SelectActionBuilder(String target, Object... values) {
+  public FillSuggestActionBuilder(String target, SuggestValue... values) {
     setType(TYPE)
       .setTarget(target)
       .addParameter(VALUES, values);
@@ -51,7 +52,7 @@ public class SelectActionBuilder extends ClientActionBuilder<SelectActionBuilder
    * @param address Target
    * @param values  Value list
    */
-  public SelectActionBuilder(ComponentAddress address, List<?> values) {
+  public FillSuggestActionBuilder(ComponentAddress address, List<SuggestValue> values) {
     setType(TYPE)
       .setAddress(address)
       .addParameter(VALUES, values);
@@ -63,7 +64,7 @@ public class SelectActionBuilder extends ClientActionBuilder<SelectActionBuilder
    * @param address Target
    * @param values  Value list
    */
-  public SelectActionBuilder(ComponentAddress address, Object... values) {
+  public FillSuggestActionBuilder(ComponentAddress address, SuggestValue... values) {
     setType(TYPE)
       .setAddress(address)
       .addParameter(VALUES, values);
