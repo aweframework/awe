@@ -43,6 +43,7 @@ export const ClientActions = {
     "server-download": {method: "serverDownload"},
 
     "fill": {method: "fill"},
+    "fill-suggest": {method: "fillSuggest"},
     "update-controller": {method: "updateController"},
     "select": {method: "select"},
     "logout": {method: "logout"},
