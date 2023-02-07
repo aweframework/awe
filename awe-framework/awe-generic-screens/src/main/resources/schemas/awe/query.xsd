@@ -142,7 +142,10 @@
 
   <!-- Group By Element -->
   <xs:complexType name="groupByType">
-    <xs:attributeGroup ref="orderAttr" />
+    <xs:sequence minOccurs="0">
+      <xs:element ref="case" />
+    </xs:sequence>
+    <xs:attributeGroup ref="groupBytAttr" />
   </xs:complexType>
 
   <!-- Order By Type -->
@@ -449,6 +452,13 @@
   <!-- Order Call Attributes -->
   <xs:attributeGroup name="orderAttr">
     <xs:attribute name="field" use="required" type="identifierType"/>
+    <xs:attribute name="table" type="identifierType"/>
+    <xs:attribute name="function" type="functionTypeEnum"/>
+  </xs:attributeGroup>
+
+  <!-- GroupBy Call Attributes -->
+  <xs:attributeGroup name="groupBytAttr">
+    <xs:attribute name="field" type="identifierType"/>
     <xs:attribute name="table" type="identifierType"/>
     <xs:attribute name="function" type="functionTypeEnum"/>
   </xs:attributeGroup>

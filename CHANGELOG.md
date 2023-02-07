@@ -1,4 +1,19 @@
 
+# Changelog for AWE 4.6.5
+*07/02/2023*
+
+- The View Pdf File method is not implemented. [MR #410](https://gitlab.com/aweframework/awe/-/merge_requests/410) (Pablo Vidal Otero)
+- Update spring boot version to 2.7.8. [MR #409](https://gitlab.com/aweframework/awe/-/merge_requests/409) (Pablo Vidal Otero)
+- Add an action which fills both values and selected attributes of a suggest component. [MR #408](https://gitlab.com/aweframework/awe/-/merge_requests/408) (Pablo Javier García Mora)
+- Add ImageBuilder to allow using images with the awe-builder module. [MR #407](https://gitlab.com/aweframework/awe/-/merge_requests/407) (Pablo Javier García Mora)
+- Error passing DATE variables to sql services. [MR #406](https://gitlab.com/aweframework/awe/-/merge_requests/406) (Pablo Vidal Otero)
+- Fix Date (java.sql.Date). [MR #405](https://gitlab.com/aweframework/awe/-/merge_requests/405) (Pablo Javier García Mora)
+- Allow sending variables (in addition to request parameters) as default values for microservice calls. [MR #404](https://gitlab.com/aweframework/awe/-/merge_requests/404) (Pablo Javier García Mora)
+- Pick the new ADE version. [MR #403](https://gitlab.com/aweframework/awe/-/merge_requests/403) (Pablo Javier García Mora)
+- Make threadsafe the parameter list for microservices. [MR #402](https://gitlab.com/aweframework/awe/-/merge_requests/402) (Pablo Javier García Mora)
+- Add action control-empty-cancel in xsd. [MR #401](https://gitlab.com/aweframework/awe/-/merge_requests/401) (Pablo Javier García Mora)
+- Allow  CASE clause in GROUP BY. [MR #400](https://gitlab.com/aweframework/awe/-/merge_requests/400) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.6.4
 *01/12/2022*
 

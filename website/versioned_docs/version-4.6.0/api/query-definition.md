@@ -776,6 +776,8 @@ The *group by* element has the following attributes:
 | table | Optional | String | Table alias to group the results         |                                                    |
 | function | Optional | String | Function to apply to the field        |The possible values are defined in [field functions](#field-functions)|
 
+Also, you can use `CASE` operation inside `group-by`.
+
 ### Order by element
 
 The *order by* element has the following attributes:

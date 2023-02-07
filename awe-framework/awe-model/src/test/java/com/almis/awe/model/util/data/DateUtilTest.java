@@ -161,8 +161,8 @@ class DateUtilTest {
 
   @Test
   void dat2SqlDate() {
-    java.sql.Date expectedDate = java.sql.Date.valueOf(LocalDate.parse("10/02/1085", DATE_FORMAT_WEB));
-    Date date = DateUtil.web2Date("10/02/1085");
+    Date date = DateUtil.web2Date("10/02/1985");
+    java.sql.Date expectedDate = DateUtil.web2SqlDate("10/02/1985");
     assertEquals(expectedDate, DateUtil.dat2SqlDate(date));
   }
 
@@ -193,8 +193,9 @@ class DateUtilTest {
 
   @Test
   void sqlDate2Date() {
-    Date expectedDate = DateUtil.web2Date("10/02/1085");
-    assertEquals(expectedDate.getTime(), DateUtil.sqlDate2Date((java.sql.Date) expectedDate).getTime());
+    java.sql.Date expectedDate = DateUtil.web2SqlDate("10/02/1985");
+    Date checkDate = DateUtil.web2Date("10/02/1985");
+    assertEquals(checkDate.getTime(), DateUtil.sqlDate2Date(expectedDate).getTime());
   }
 
   @Test

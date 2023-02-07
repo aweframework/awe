@@ -94,7 +94,7 @@ public class MicroserviceConnector extends AbstractRestConnector {
     ServiceDetails serviceDetails = Optional.ofNullable(microservicesConfig.get(microservice.getName())).orElse(new ServiceDetails().setName(microservice.getName()));
     Optional.ofNullable(serviceDetails.getParameters()).orElse(Collections.emptyList())
       .forEach(parameter -> {
-        paramsMapFromRequest.put(parameter.getName(), getParameter(parameter));
+        paramsMapFromRequest.put(parameter.getName(), getParameter(parameter, paramsMapFromRequest));
         addParameterToService(microservice, parameter);
       });
   }
@@ -105,11 +105,13 @@ public class MicroserviceConnector extends AbstractRestConnector {
    * @param restParameter Rest parameter
    * @return Parameter value
    */
-  private Object getParameter(RestParameter restParameter) {
+  private Object getParameter(RestParameter restParameter, Map<String, Object> variableList) {
 
     switch (restParameter.getType()) {
       case SESSION:
         return getSession().getParameter(restParameter.getValue());
+      case VARIABLE:
+        return variableList.get(restParameter.getValue());
       case REQUEST:
         return queryUtil.getRequestParameter(restParameter.getValue());
       case VALUE:
@@ -130,7 +132,7 @@ public class MicroserviceConnector extends AbstractRestConnector {
     parameter.setType(ParameterType.STRING.toString());
     List<ServiceInputParameter> parameterList = microservice.getParameterList();
     if (parameterList == null) {
-      parameterList = new ArrayList<>();
+      parameterList = Collections.synchronizedList(new ArrayList<>());
     }
     parameterList.add(parameter);
     microservice.setParameterList(parameterList);

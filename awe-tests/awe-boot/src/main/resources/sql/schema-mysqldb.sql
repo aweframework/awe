@@ -60,8 +60,8 @@ l1_uti int, --- unused
 l1_opr char(6), --- unused
 l1_dat DATE, --- Last connection date
 imp_nom char(32) DEFAULT 'none',
-dat_mod datetime, --- User update date
-l1_psd datetime, --- Date of password expiration
+dat_mod timestamp, --- User update date
+l1_psd timestamp, --- Date of password expiration
 l1_lan char(3), --- User language
 l1_sgn int, --- User signed
 PcPrn varchar(255), --- User printer
@@ -245,7 +245,7 @@ Act int default 1 not NULL --- Active (1) or not (0)
 --  - HISdat Date of audit
 --  - HISact Action made: (I) Insert, (U) Update, (D) Delete
 --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS HISAweAppPar (HISope varchar(20) not NULL, HISdat datetime not NULL, HISact varchar(1) not NULL, IdeAweAppPar int NULL, ParNam varchar(40) NULL, ParVal varchar(60) NULL, Cat int NULL, Des varchar(250) NULL, Act int DEFAULT 1 NULL);
+CREATE TABLE IF NOT EXISTS HISAweAppPar (HISope varchar(20) not NULL, HISdat timestamp not NULL, HISact varchar(1) not NULL, IdeAweAppPar int NULL, ParNam varchar(40) NULL, ParVal varchar(60) NULL, Cat int NULL, Des varchar(250) NULL, Act int DEFAULT 1 NULL);
 CREATE INDEX HISAweAppParI1 ON HISAweAppPar (HISope, HISdat, HISact);
 CREATE TABLE IF NOT EXISTS HISAweThm (HISope varchar(20) not NULL, HISdat date not NULL, HISact varchar(1) not NULL, IdeThm int NULL, Nam varchar(100) NULL, Act int NULL);
 CREATE INDEX HISAweThmI1 ON HISAweThm (HISope, HISdat, HISact);
@@ -352,8 +352,8 @@ CREATE TABLE IF NOT EXISTS AweSchExe
     IdeTsk INTEGER not NULL,
     GrpTsk VARCHAR(40) not NULL,
     ExeTsk INTEGER not NULL,
-    IniDat DATETIME not NULL,
-    EndDat DATETIME,
+    IniDat TIMESTAMP not NULL,
+    EndDat TIMESTAMP,
     ExeTim INTEGER,
     Sta    INTEGER not NULL,
     LchBy  VARCHAR(200),

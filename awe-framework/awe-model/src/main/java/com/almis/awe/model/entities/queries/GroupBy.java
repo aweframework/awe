@@ -41,6 +41,10 @@ public class GroupBy implements Copyable {
   @XStreamAsAttribute
   private String function;
 
+  // Optional case expression for group by
+  @XStreamAlias("case")
+  private Case groupByCase;
+
   @Override
   public GroupBy copy() {
     return this.toBuilder().build();
@@ -48,7 +52,14 @@ public class GroupBy implements Copyable {
 
   @Override
   public String toString() {
+    StringBuilder builder = new StringBuilder();
+
     String fieldTable = getTable() != null ? getTable() + "." + getField() : getField();
-    return getFunction() != null ? getFunction() + "(" + fieldTable + ")" : fieldTable;
+    if (groupByCase != null) {
+      builder.append(getGroupByCase().toString());
+    } else if (getFunction() != null) {
+      builder.append(getFunction()).append("(").append(fieldTable).append(")");
+    } else builder.append(fieldTable);
+    return builder.toString();
   }
 }

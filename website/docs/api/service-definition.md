@@ -44,60 +44,59 @@ The xml structure of services is:
 For easier development of services, not all elements are required.
 
 
-| Element     | Use      | Multiples instances    | Description                                        |
-| ----------- | ---------|------------------------|----------------------------------------------------|
-| services | **Required**| No | Root element of services xml file|
-| [service](#service-element) | **Required**| Yes |Outlines the service. Also describes the **kind of service** (java service or web service)  |
-| [java](#java-element) | **Optional**| No | Used to define java services  |
-| [microservice](#microservice-element) | **Optional**| No | Used to define microservices  |
-| [rest](#rest-service-element) | **Optional**| No | Used to define rest services  |
-| [service-parameter](#service-parameter-element) | **Optional**| No | Used to pass parameters to service  |
+| Element                                         | Use          | Multiples instances | Description                                                                                |
+|-------------------------------------------------|--------------|---------------------|--------------------------------------------------------------------------------------------|
+| services                                        | **Required** | No                  | Root element of services xml file                                                          |
+| [service](#service-element)                     | **Required** | Yes                 | Outlines the service. Also describes the **kind of service** (java service or web service) |
+| [java](#java-element)                           | **Optional** | No                  | Used to define java services                                                               |
+| [microservice](#microservice-element)           | **Optional** | No                  | Used to define microservices                                                               |
+| [rest](#rest-service-element)                   | **Optional** | No                  | Used to define rest services                                                               |
+| [service-parameter](#service-parameter-element) | **Optional** | No                  | Used to pass parameters to service                                                         |
 
 ### Service element
 
 Service element has the following attributes:
 
-| Attribute    | Use          | Type      |  Description                                       |   Values                                |
-| ------------ | -------------|-----------|----------------------------------------------------|-----------------------------------------|
-| id           | **Required** | String    | Name of service                                    |  **Note:** The id must be unique        |
-| launch-phase | Optional     | String    | Launch the service in some application points      | `APPLICATION_START`, `APPLICATION_END`, 
-`CLIENT_START`, `CLIENT_END` |
+| Attribute                    | Use          | Type   | Description                                   | Values                                                                |
+|------------------------------|--------------|--------|-----------------------------------------------|-----------------------------------------------------------------------|
+| id                           | **Required** | String | Name of service                               | **Note:** The id must be unique                                       |
+| launch-phase                 | Optional     | String | Launch the service in some application points | `APPLICATION_START`, `APPLICATION_END`,  `CLIENT_START`, `CLIENT_END` |
 
 ### Java element
 
 Java element has the following attributes:
 
-| Attribute   | Use          | Type      |  Description                        |   Values                                           |
-| ----------- | -------------|-----------|-------------------------------------|----------------------------------------------------|
-| classname   | **Required** | String    | Class name of java service                                    | Ex.: `classname="com.almis.awe.core.services.controller.AccessController"`
-| method      | **Required** | String    | Method name of class to be executed                           | Ex.: `method="login"` |
-| qualifier   | Optional     | String    | Qualifier bean name. If uses `@Qualifier` spring annotation   | Ex.: `qualifier="myBean"` |
+| Attribute   | Use          | Type   | Description                                                 | Values                                                                     |
+|-------------|--------------|--------|-------------------------------------------------------------|----------------------------------------------------------------------------|
+| classname   | **Required** | String | Class name of java service                                  | Ex.: `classname="com.almis.awe.core.services.controller.AccessController"` |
+| method      | **Required** | String | Method name of class to be executed                         | Ex.: `method="login"`                                                      |
+| qualifier   | Optional     | String | Qualifier bean name. If uses `@Qualifier` spring annotation | Ex.: `qualifier="myBean"`                                                  |
 
 ### Microservice element
 
 Microservice element has the following attributes:
 
-| Attribute    | Use          | Type      |  Description                         |   Values                                           |
-| ------------ | -------------|-----------|------------------------------------- |----------------------------------------------------|
-| name         | **Required** | String    | Name of web service                  | **Note:** Must be unique                           |
-| method       | **Required** | String    | REST method.                         | **GET**: Send the parameters as part of the endpoint - POST**: Send the parameters in the request body |
-| endpoint     | **Required** | String    | Path to REST call                    | Ej: /data/ServiceData or /maintain/ServiceMaintain |
-| wrapper      | Optional     | String    | Classname to wrap REST call response | Ej: com.almis.awe.test.bean.Postman                     |
-| content-type | Optional     | String    | Way to send the parameters           | `URLENCODED` (default), `JSON`                     |
-| cacheable    | Optional     | Boolean   | Used to set service as cacheable     | Default value is `false`                           |
+| Attribute    | Use          | Type    | Description                          | Values                                                                                                 |
+|--------------|--------------|---------|--------------------------------------|--------------------------------------------------------------------------------------------------------|
+| name         | **Required** | String  | Name of web service                  | **Note:** Must be unique                                                                               |
+| method       | **Required** | String  | REST method.                         | **GET**: Send the parameters as part of the endpoint - POST**: Send the parameters in the request body |
+| endpoint     | **Required** | String  | Path to REST call                    | Ej: /data/ServiceData or /maintain/ServiceMaintain                                                     |
+| wrapper      | Optional     | String  | Classname to wrap REST call response | Ej: com.almis.awe.test.bean.Postman                                                                    |
+| content-type | Optional     | String  | Way to send the parameters           | `URLENCODED` (default), `JSON`                                                                         |
+| cacheable    | Optional     | Boolean | Used to set service as cacheable     | Default value is `false`                                                                               |
 
 ### REST service element
 
 REST service element has the following attributes:
 
-| Attribute    | Use          | Type      |  Description                         |   Values                                             |
-| ------------ | ------------ |-----------|--------------------------------------|----------------------------------------------------- |
-| server       | Optional     | String    | REST server property                 | Used to retrieve the `rest.server.[server]` property |
-| method       | **Required** | String    | REST method.                         | **GET**: Send the parameters as part of the endpoint - **POST**: Send the parameters in the request body |
-| endpoint     | **Required** | String    | Path to REST call                    | Ej: /data/ServiceData or /maintain/ServiceMaintain   |
-| wrapper      | Optional     | String    | Classname to wrap REST call response | Ej: com.almis.awe.test.bean.Postman                       |
-| content-type | Optional     | String    | Way to send the parameters           | `URLENCODED` (default), `JSON`                       |
-| cacheable    | Optional     | Boolean   | Used to set service as cacheable     | Default value is `false`                             |
+| Attribute    | Use          | Type    | Description                          | Values                                                                                                   |
+|--------------|--------------|---------|--------------------------------------|----------------------------------------------------------------------------------------------------------|
+| server       | Optional     | String  | REST server property                 | Used to retrieve the `rest.server.[server]` property                                                     |
+| method       | **Required** | String  | REST method.                         | **GET**: Send the parameters as part of the endpoint - **POST**: Send the parameters in the request body |
+| endpoint     | **Required** | String  | Path to REST call                    | Ej: /data/ServiceData or /maintain/ServiceMaintain                                                       |
+| wrapper      | Optional     | String  | Classname to wrap REST call response | Ej: com.almis.awe.test.bean.Postman                                                                      |
+| content-type | Optional     | String  | Way to send the parameters           | `URLENCODED` (default), `JSON`                                                                           |
+| cacheable    | Optional     | Boolean | Used to set service as cacheable     | Default value is `false`                                                                                 |
 
 ### Service parameter element
 
@@ -414,7 +413,7 @@ There is the procedure to set set query and maintain variable values in Java.
 
 ## **Microservices**
 
-Microservices are connectors to REST-defined services. It's xml structure is:
+Microservices are connectors to REST-defined services. Its xml structure is:
 
 ```xml
 <service id="[service_name]">
@@ -449,16 +448,27 @@ Microservices are connectors to REST-defined services. It's xml structure is:
   </web>
 </service>
 ```
-
-> **Note:** `microservice.name` attributes are optional. `name` attribute is used to allow overwrite microservice name and set auth configuration. 
-> Microservice configuration example:
+> **Note:** `microservice.name` attributes are optional. `name` attribute is used to allow overwrite microservice name and set auth configuration.
+>
+> You can define specific microservice parameters to be sent in all requests:
 >
 >```properties
-># microservice.[name]=
-> microservice.myservice=overwrite-service-name
-> microservice.myservice.authentication=basic
-> microservice.myservice.authentication.username=rest_username
-> microservice.myservice.authentication.password=ENC(rest_password_encoded)
+> ################################################
+> # Microservice properties
+> ################################################
+> awe.rest.services.myservice.base-url=http://localhost:18081
+> # Microservice parameters
+> awe.rest.services.myservice.parameters[0].name=database
+> awe.rest.services.myservice.parameters[0].value=_database_
+> awe.rest.services.myservice.parameters[0].type=variable
+> awe.rest.services.myservice.parameters[1].name=username
+> awe.rest.services.myservice.parameters[1].value=user
+> awe.rest.services.myservice.parameters[1].type=session
+> awe.rest.services.myservice.parameters[2].name=currentDate
+> awe.rest.services.myservice.parameters[2].value=currentDate
+> awe.rest.services.myservice.parameters[2].type=request
+> awe.rest.services.myservice.parameters[3].name=numPar
+> awe.rest.services.myservice.parameters[3].value=3
 >```
 
 ## **REST services**
@@ -480,10 +490,10 @@ REST services are very useful to connect to REST API's. Their xml structure is:
 > Rest server configuration example:
 >
 >```properties
-> rest.server.core=http://localhost:18080/core
-> rest.server.core.authentication=basic
-> rest.server.core.authentication.username=rest_username
-> rest.server.core.authentication.password=ENC(rest_password_encoded)
+> awe.rest.services.core.base-url=http://localhost:18080/core
+> awe.rest.services.core.authentication.type=basic
+> awe.rest.services.core.authentication.username=rest_username
+> awe.rest.services.core.authentication.password=ENC(rest_password_encoded)
 >```
 
 ### REST services examples

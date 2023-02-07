@@ -97,6 +97,20 @@ serviceData.addClientAction(new SelectActionBuilder("my-select", value1, value2,
 
 This sample sends a list of selected values to `"my-select"` component.
 
+####  **`fill-suggest` action builder**
+
+This action sends a list of selected values and labels to a suggest component.
+
+Usage:
+
+```java
+List<Object> values = new ArrayList();
+// ...
+serviceData.addClientAction(new FillSuggestActionBuilder("my-suggest", values).build());
+```
+
+This sample sends a list of selected values and labels to `"my-suggest"` component.
+
 ####  **`filter` action builder**
 
 This action calls a component to reload itself:
@@ -627,6 +641,7 @@ For each component designed in AWE you have a `builder` to define its behaviour:
 - `TabBuilder` and `TabContainerBuilder`: Builds a `<tab>` component.
 - `WizardBuilder` and `WizardPanelBuilder`: Builds a `<wizard>` component.
 - `ButtonBuilder` and `ButtonActionBuilders`: Builds `<button>` components.
+- `ImageBuilder`: Builds an `<img>` component.
 - `ContextButtonBuilder` and `ContextSeparatorBuilder`: Builds `<context-button>` components.
 - `DependencyBuilder`, `DependencyActionBuilder` and `DependencyElementBuilder`: Builds `<dependency>` components.
 

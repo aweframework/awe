@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import static com.almis.awe.model.type.CellDataType.*;
@@ -201,9 +202,9 @@ public class CellData implements Comparable<CellData>, Copyable {
         if (getObjectValue() instanceof ByteArrayInputStream) {
           log.error("Could not parse date from {}: {}", getObjectValue(), getObjectValue().getClass().getName());
           return null;
-        } else {
-          return stringToDate(getStringValue());
-        }
+        } else if (getObjectValue() instanceof LocalDateTime) {
+          return DateUtil.asUtilDate(getObjectValue());
+      } else return stringToDate(getStringValue());
         // Get value as date
       case STRING:
       default:
