@@ -678,6 +678,7 @@
   <locale name="ERROR_TITLE_UNDEFINED_SESSION" value="Undefined session"/>
   <locale name="ERROR_TITLE_VALIDATION" value="Error during validation"/>
   <locale name="ERROR_TITLE_VARIABLE_DEFINITION" value="Error in variable definition"/>
+  <locale name="ERROR_TITLE_VIEWING_PDF_FILE" value="Error loading PDF file"/>
   <locale name="ERROR_TITLE_WEB_SERVICE_CALL" value="Error calling Web Service"/>
   <locale name="ERROR_TITLE_WRONG_FILE_STRUCTURE" value="Wrong file structure"/>
   <locale name="EXECUTION_DATE" value="Execution date"/>

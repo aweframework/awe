@@ -1244,6 +1244,17 @@
   </target>
 
   <!--
+  REPORTS
+  -->
+  <!-- View pdf file -->
+  <target name="view-pdf-report">
+    <serve service="viewPdf">
+      <variable id="filePath" type="STRING" name="filePath" />
+    </serve>
+  </target>
+
+
+  <!--
   HELP
   -->
 
