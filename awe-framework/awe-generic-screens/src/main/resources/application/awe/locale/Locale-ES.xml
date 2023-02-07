@@ -681,6 +681,7 @@
   <locale name="ERROR_TITLE_UNDEFINED_SESSION" value="Sesión no definida"/>
   <locale name="ERROR_TITLE_VALIDATION" value="Error en la validación"/>
   <locale name="ERROR_TITLE_VARIABLE_DEFINITION" value="Error en la definición de variable"/>
+  <locale name="ERROR_TITLE_VIEWING_PDF_FILE" value="Error cargando el fichero PDF"/>
   <locale name="ERROR_TITLE_WEB_SERVICE_CALL" value="Error llamando a un Web Service"/>
   <locale name="ERROR_TITLE_WRONG_FILE_STRUCTURE" value="Fichero mal definido"/>
   <locale name="EXECUTION_DATE" value="Fecha ejecución"/>

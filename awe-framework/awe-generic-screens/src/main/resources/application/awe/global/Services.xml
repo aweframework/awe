@@ -169,7 +169,9 @@
     <java classname="com.almis.awe.service.LogService" method="changeLevel" />
   </service>
   <service id="viewPdf">
-    <java classname="com.almis.awe.service.ReportService" method="viewPdfFile" />
+    <java classname="com.almis.awe.service.ReportService" method="viewPdfFile">
+      <service-parameter type="STRING" name="filePath" />
+    </java>
   </service>
   <service id="sendMessageToUser">
     <java classname="com.almis.awe.service.BroadcastService" method="sendMessageToUser">

@@ -1087,11 +1087,6 @@
     </answer>
   </action>
 
-  <!-- VIEW PDF FILE -->
-  <action id="view-pdf-file" format="PDF_VIEWER">
-    <call service="viewPdf" />
-  </action>
-
   <!-- APPLICATION LOCALS RETRIEVAL -->
   <action id="get-locals" format="JSON">
     <call service="getApplicationLocales" />

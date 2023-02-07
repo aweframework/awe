@@ -71,7 +71,6 @@ public class WebSecurityConfig {
     "/action/get-file",
     "/action/file-info",
     "/action/delete-file",
-    "/action/view-pdf-file",
     // File and upload controllers
     "/file/text",
     "/file/stream",
