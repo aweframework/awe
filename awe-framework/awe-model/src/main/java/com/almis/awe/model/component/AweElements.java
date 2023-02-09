@@ -36,6 +36,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.PostConstruct;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -171,24 +172,49 @@ public class AweElements {
 
     // Init profiles
     profileList = new ConcurrentHashMap<>();
-    results.add(elementsDao.readFolderXmlFilesAsync(Profile.class, baseConfigProperties.getPaths().getProfile(), profileList));
+    results.addAll(
+      Arrays.stream(baseConfigProperties.getModuleList())
+        .sequential()
+        .map(module ->
+          elementsDao.readModuleFolderXmlFile(Profile.class, baseConfigProperties.getPaths().getApplication() +
+              module +
+              baseConfigProperties.getPaths().getProfile(),
+            profileList))
+        .collect(Collectors.toList()));
 
     // Init screens
     screenMap = new ConcurrentHashMap<>();
     if (baseConfigProperties.isPreloadScreens()) {
-      results.add(elementsDao.readFolderXmlFilesAsync(Screen.class, baseConfigProperties.getPaths().getScreen(), screenMap));
+      results.addAll(
+        Arrays.stream(baseConfigProperties.getModuleList())
+          .sequential()
+          .map(module ->
+            elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
+                module +
+                baseConfigProperties.getPaths().getScreen(),
+              screenMap))
+          .collect(Collectors.toList()));
     }
 
     // Initialize locales
     localeList = new ConcurrentHashMap<>();
     // For each language read local files
-    results.addAll(baseConfigProperties.getLanguageList()
-      .parallelStream()
-      .map(language -> elementsDao.readLocaleAsync(baseConfigProperties.getPaths().getLocale() +
-        baseConfigProperties.getFiles().getLocale() +
-        language.toUpperCase() +
-        baseConfigProperties.getExtensionXml(), language, localeList))
-      .collect(Collectors.toList()));
+    results.addAll(
+      Arrays.stream(baseConfigProperties.getModuleList())
+        .sequential()
+        .flatMap(module ->
+          baseConfigProperties.getLanguageList()
+            .parallelStream()
+            .map(language ->
+              elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),
+                  module,
+                  baseConfigProperties.getPaths().getLocale() +
+                    baseConfigProperties.getFiles().getLocale() +
+                    language.toUpperCase() +
+                    baseConfigProperties.getExtensionXml())
+                .toString(), language, localeList))
+            .collect(Collectors.toList()).stream())
+        .collect(Collectors.toList()));
 
     return results;
   }

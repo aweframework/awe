@@ -18,6 +18,8 @@ import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,7 +43,7 @@ public class AweElementsDao {
   /**
    * Autowired constructor
    *
-   * @param serializer Serializer
+   * @param serializer           Serializer
    * @param baseConfigProperties Base config properties
    */
   public AweElementsDao(XStreamSerializer serializer, BaseConfigProperties baseConfigProperties) {
@@ -84,6 +86,7 @@ public class AweElementsDao {
    * @param filePath  File path
    */
   public <T extends XMLFile, N extends XMLNode> String readModuleFile(Class<T> rootClass, Map<String, N> storage, String filePath) {
+    Path logPath = Paths.get(filePath);
     try {
       // Unmarshall XML (if it exists)
       Resource resource = new ClassPathResource(filePath);
@@ -92,13 +95,13 @@ public class AweElementsDao {
 
         // Read all XML elements
         readXmlElements(fullXml, storage);
-        return MessageFormat.format(READING, filePath, OK);
+        return MessageFormat.format(READING, logPath, OK);
       }
     } catch (IOException exc) {
-      log.error(ERROR_PARSING_XML, filePath, exc);
+      log.error(ERROR_PARSING_XML, logPath, exc);
     }
 
-    return MessageFormat.format(READING, filePath, KO);
+    return MessageFormat.format(READING, logPath, KO);
   }
 
   /**
@@ -170,46 +173,20 @@ public class AweElementsDao {
    */
   private <T> T readModuleXmlFile(Class<T> clazz, String filePath, List<String> messageList) {
     T file = null;
+    Path logFilePath = Paths.get(filePath);
     try {
       // Unmarshall XML
       Resource resource = new ClassPathResource(filePath);
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
         file = fromXML(clazz, resourceInputStream);
-        messageList.add(MessageFormat.format(READING, filePath, OK));
+        messageList.add(MessageFormat.format(READING, logFilePath, OK));
       }
     } catch (IOException exc) {
-      log.error(ERROR_PARSING_XML, filePath, exc);
+      log.error(ERROR_PARSING_XML, logFilePath, exc);
     }
 
     return file;
-  }
-
-  /**
-   * Read all XML files and store them in the component
-   *
-   * @param clazz   File class
-   * @param path    Base directory path
-   * @param storage Storage to keep read files
-   */
-  @Async("contextlessTaskExecutor")
-  public <T> Future<String> readFolderXmlFilesAsync(Class<T> clazz, String path, Map<String, T> storage) {
-    readFolderXmlFiles(clazz, path, storage);
-    return new AsyncResult<>(null);
-  }
-
-  /**
-   * Read all XML files and store them in the component
-   *
-   * @param clazz   File class
-   * @param path    Base directory path
-   * @param storage Storage to keep read files
-   */
-  public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
-    // For each module read XML files
-    Arrays.stream(baseConfigProperties.getModuleList())
-      .flatMap(module -> readModuleFolderXmlFile(clazz, baseConfigProperties.getPaths().getApplication() + module + path, storage).stream())
-      .forEach(log::info);
   }
 
   /**
@@ -219,8 +196,10 @@ public class AweElementsDao {
    * @param path  Base directory path
    * @return Xml file object
    */
-  public <T> List<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
+  @Async("contextlessTaskExecutor")
+  public <T> Future<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
     List<String> resultList = new ArrayList<>();
+    Path logPath = Paths.get(path);
     try {
       // Check resource path
       Resource basePathResource = new ClassPathResource(path);
@@ -229,25 +208,27 @@ public class AweElementsDao {
         PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
         Resource[] resources = loader.getResources("classpath:" + path + "**/*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
-          resultList.add(MessageFormat.format(READING_FILES_FROM, path, OK));
+          log.info(MessageFormat.format(READING_FILES_FROM, logPath, OK));
           resultList.addAll(readXmlFileFolder(resources, clazz, path, storage));
+          resultList.forEach(log::info);
         }
       }
     } catch (IOException exc) {
-      log.info(ERROR_READING_XML, path, exc);
+      log.error(ERROR_READING_XML, logPath, exc);
     }
-    return resultList;
+    return new AsyncResult<>(null);
   }
 
   /**
    * Read XML Files from subfolder
+   *
    * @param resources XML File resources
-   * @param clazz Target class to map
-   * @param path XML File path
-   * @param storage Storage map
+   * @param clazz     Target class to map
+   * @param path      XML File path
+   * @param storage   Storage map
    * @return Message list
    */
-  private<T> List<String> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path, Map<String, T> storage) {
+  private <T> List<String> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path, Map<String, T> storage) {
     return Arrays.stream(resources)
       .map(resource -> {
         try {
@@ -275,8 +256,8 @@ public class AweElementsDao {
       String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
       if (!storage.containsKey(fileName)) {
         storage.put(fileName, fromXML(clazz, resource.getInputStream()));
-        return MessageFormat.format(READING, basePath + Optional.ofNullable(resource.getURL().getPath())
-          .orElse(basePath + resource.getFilename()).split(basePath)[1], OK);
+        return MessageFormat.format(READING, Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())
+          .orElse(basePath + resource.getFilename()).split(basePath)[1]).toString(), OK);
       }
     }
     return null;
@@ -290,14 +271,17 @@ public class AweElementsDao {
    * @param localeList locale list
    */
   @Async("contextlessTaskExecutor")
-  public Future<String> readLocaleAsync(String basePath, String language, Map<String, Map<String, String>> localeList) {
+  public Future<String> readLocaleModuleAsync(String basePath, String language, Map<String, Map<String, String>> localeList) {
     // Create a local storage and read the locales from all modules
     Map<String, Global> localeLanguage = new ConcurrentHashMap<>();
-    readXmlFiles(Locales.class, localeLanguage, basePath);
+    log.info(readModuleFile(Locales.class, localeLanguage, basePath));
 
     // Parse the read locales and store them on the final storage
-    localeList.put(language, localeLanguage.values().stream()
-      .collect(Collectors.toMap(Global::getName, StringUtil::parseLocale, (f, s) -> f, ConcurrentHashMap::new)));
+    Map<String, String> newLanguageMap = localeLanguage.values().stream()
+      .collect(Collectors.toMap(Global::getName, StringUtil::parseLocale, (f, s) -> f, ConcurrentHashMap::new));
+    Map<String, String> languageLocaleMap = Optional.ofNullable(localeList.get(language)).orElse(new ConcurrentHashMap<>());
+    newLanguageMap.putAll(languageLocaleMap);
+    localeList.put(language, newLanguageMap);
 
     return new AsyncResult<>(null);
   }
