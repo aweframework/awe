@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -52,12 +53,12 @@ import static com.almis.awe.model.constant.AweConstants.*;
 @Slf4j
 public class AweElements {
 
+  private static final String NOT_FOUND = " not found: ";
   // Autowired services
   private final WebApplicationContext context;
   private final AweElementsDao elementsDao;
   private final Environment environment;
   private final BaseConfigProperties baseConfigProperties;
-
   // Elements
   private Map<String, EnumeratedGroup> enumeratedList;
   private Map<String, Query> queryList;
@@ -69,18 +70,15 @@ public class AweElements {
   private Map<String, Profile> profileList;
   private Map<String, Menu> menuList;
   private Map<String, Screen> screenMap;
-
   // Locale list
   private Map<String, Map<String, String>> localeList;
-
-  private static final String NOT_FOUND = " not found: ";
 
   /**
    * Autowired constructor
    *
-   * @param context Application context
+   * @param context              Application context
    * @param baseConfigProperties base configuration properties
-   * @param elementsDao Element DAO
+   * @param elementsDao          Element DAO
    */
   public AweElements(WebApplicationContext context, BaseConfigProperties baseConfigProperties, AweElementsDao elementsDao) {
     this.context = context;
@@ -95,7 +93,7 @@ public class AweElements {
   @PostConstruct
   public void init() {
     log.info(LOG_LINE);
-    log.info( "----------------------------- AWE starting ... -----------------------------------");
+    log.info("----------------------------- AWE starting ... -----------------------------------");
     log.info(LOG_LINE);
 
     // Initialize Awe Elements (Read all XML sources)
@@ -104,19 +102,14 @@ public class AweElements {
     log.info("=============================");
 
     // Initialize global files
-    log.info(" ===== Initializing global and screen files ===== ");
-    waitForTermination(initGlobalFiles(), "global");
-    log.info(" ===== Finished loading global and screen files  ===== ");
+    log.info(" ===== Initializing global, screen and locale files ===== ");
+    waitForTermination(initGlobalScreenAndLocaleFiles(), "global, screen and locale");
+    log.info(" ===== Finished loading global, screen and locale files  ===== ");
 
     // Initialize menu files
     log.info(" ===== Initializing menu files ===== ");
     initMenuFiles();
     log.info(" ===== Finished loading menu files  ===== ");
-
-    // Initialize locale files
-    log.info(" ===== Initializing locale files ===== ");
-    waitForTermination(initLocaleFiles(), "locale");
-    log.info(" ===== Finished loading locale files  ===== ");
   }
 
   /**
@@ -138,7 +131,7 @@ public class AweElements {
   /**
    * Read all XML files and store them in the component
    */
-  private List<Future<String>> initGlobalFiles() {
+  private List<Future<String>> initGlobalScreenAndLocaleFiles() {
     List<Future<String>> results = new ArrayList<>();
 
     // Init enumerated
@@ -186,6 +179,17 @@ public class AweElements {
       results.add(elementsDao.readFolderXmlFilesAsync(Screen.class, baseConfigProperties.getPaths().getScreen(), screenMap));
     }
 
+    // Initialize locales
+    localeList = new ConcurrentHashMap<>();
+    // For each language read local files
+    results.addAll(baseConfigProperties.getLanguageList()
+      .parallelStream()
+      .map(language -> elementsDao.readLocaleAsync(baseConfigProperties.getPaths().getLocale() +
+        baseConfigProperties.getFiles().getLocale() +
+        language.toUpperCase() +
+        baseConfigProperties.getExtensionXml(), language, localeList))
+      .collect(Collectors.toList()));
+
     return results;
   }
 
@@ -202,27 +206,6 @@ public class AweElements {
       log.error("Error initializing menus", exc);
       exc.log();
     }
-  }
-
-  /**
-   * Read all XML files and store them in the component
-   */
-  private List<Future<String>> initLocaleFiles() {
-    List<Future<String>> results = new ArrayList<>();
-
-    // Initialize locales
-    localeList = new ConcurrentHashMap<>();
-    // For each language read local files
-    for (String language : baseConfigProperties.getLanguageList()) {
-      // Get file name
-      String fileName = baseConfigProperties.getFiles().getLocale() + language.toUpperCase();
-      String path = baseConfigProperties.getPaths().getLocale() + fileName + baseConfigProperties.getExtensionXml();
-
-      // Read locale file for language
-      results.add(elementsDao.readLocaleAsync(path, language, localeList));
-    }
-
-    return results;
   }
 
   /**

@@ -100,7 +100,6 @@ public class TemplateDao {
    * @param screen     Screen
    * @param developers Help for developers
    * @return Screen template
-   * @throws AWException Error generating breadcrumbs
    */
   private ST generateScreenHelp(Screen screen, boolean developers) {
     // Generate template from screen
@@ -128,6 +127,6 @@ public class TemplateDao {
    * @return TagList elements XML template
    */
   public String generateTaglistXml(List<Element> tagListElements) {
-    return tagListElements.stream().map(e -> aweElementsDao.toXMLString(Element.class, e)).collect(Collectors.joining());
+    return tagListElements.stream().map(aweElementsDao::toXMLString).collect(Collectors.joining());
   }
 }
