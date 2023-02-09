@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class LocaleFileService extends ServiceConfig {
     try {
       // Unmarshall XML
       if (xmlFile.exists()) {
-        try (InputStream resourceInputStream = new FileInputStream(xmlFile)) {
+        try (InputStream resourceInputStream = Files.newInputStream(xmlFile.toPath())) {
           xml = serializer.getObjectFromXml((Class<? extends XMLFile>) Locales.class, resourceInputStream);
           log.debug("Reading '{}' - OK", xmlFile);
         }

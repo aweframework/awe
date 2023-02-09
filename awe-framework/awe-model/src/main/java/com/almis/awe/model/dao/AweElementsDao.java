@@ -126,7 +126,7 @@ public class AweElementsDao {
    * @return Xml file object
    */
   @Cacheable(value = "xml", key = "{ #p0.toString(), #p1 }")
-  public synchronized <T> T readXmlFile(Class<T> clazz, String basePath, String fileName) {
+  public <T> T readXmlFile(Class<T> clazz, String basePath, String fileName) {
     List<String> messageList = new ArrayList<>();
     // For each module read XML files
     T file = Arrays.stream(baseConfigProperties.getModuleList())
@@ -241,12 +241,11 @@ public class AweElementsDao {
 
   /**
    * Read XML Files from subfolder
-   * @param resources
-   * @param clazz
-   * @param path
-   * @param storage
-   * @return
-   * @param <T>
+   * @param resources XML File resources
+   * @param clazz Target class to map
+   * @param path XML File path
+   * @param storage Storage map
+   * @return Message list
    */
   private<T> List<String> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path, Map<String, T> storage) {
     return Arrays.stream(resources)
@@ -306,22 +305,20 @@ public class AweElementsDao {
   /**
    * Deserialize string template
    *
-   * @param clazz    Object class
    * @param template String template
    * @return Object deserialized
    */
-  public synchronized <T> String toXMLString(Class<T> clazz, T template) {
-    return serializer.writeStringFromObject(clazz, template);
+  public <T> String toXMLString(T template) {
+    return serializer.writeStringFromObject(template);
   }
 
   /**
    * Deserialize string template
    *
-   * @param clazz    Object class
    * @param template String template
    * @return Object deserialized
    */
-  public synchronized <T> T parseTemplate(Class<T> clazz, String template) {
+  public <T> T parseTemplate(Class<T> clazz, String template) {
     return serializer.getObjectFromTemplate(clazz, template);
   }
 
@@ -332,7 +329,7 @@ public class AweElementsDao {
    * @param stream XML Stream
    * @return Object deserialized
    */
-  private synchronized <T> T fromXML(Class<T> clazz, InputStream stream) {
+  private <T> T fromXML(Class<T> clazz, InputStream stream) {
     return serializer.getObjectFromXml(clazz, stream);
   }
 }
