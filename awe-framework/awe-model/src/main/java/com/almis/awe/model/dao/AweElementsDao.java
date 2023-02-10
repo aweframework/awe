@@ -8,6 +8,7 @@ import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
@@ -31,10 +32,12 @@ public class AweElementsDao {
 
   private static final String OK = " - OK";
   private static final String KO = " - NOT FOUND";
-  private static final String READING = "Reading ''{0}''{1}";
+  private static final String READING = "Reading ''{0}''{1} - elapsed time: {2}s";
   private static final String READING_FILES_FROM = "Reading files from ''{0}''{1}";
   private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
   private static final String ERROR_READING_XML = "Error reading XML - '{}'";
+  private static final String WARNING_FILE_TOO_BIG = "WARNING! This file is very big and takes too much time to load: {}";
+  private static final int LONG_FILE_TIME_TO_LOAD = 5000;
 
   // Autowired services
   private final XStreamSerializer serializer;
@@ -87,6 +90,7 @@ public class AweElementsDao {
    */
   public <T extends XMLFile, N extends XMLNode> String readModuleFile(Class<T> rootClass, Map<String, N> storage, String filePath) {
     Path logPath = Paths.get(filePath);
+    long startTime = System.currentTimeMillis();
     try {
       // Unmarshall XML (if it exists)
       Resource resource = new ClassPathResource(filePath);
@@ -95,13 +99,19 @@ public class AweElementsDao {
 
         // Read all XML elements
         readXmlElements(fullXml, storage);
-        return MessageFormat.format(READING, logPath, OK);
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
+          log.warn(WARNING_FILE_TOO_BIG, logPath);
+        }
+        return MessageFormat.format(READING, logPath, OK,
+          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false));
       }
     } catch (IOException exc) {
       log.error(ERROR_PARSING_XML, logPath, exc);
     }
 
-    return MessageFormat.format(READING, logPath, KO);
+    return MessageFormat.format(READING, logPath, KO,
+      DurationFormatUtils.formatDuration(System.currentTimeMillis() - startTime, "s.SSS", false));
   }
 
   /**
@@ -173,6 +183,7 @@ public class AweElementsDao {
    */
   private <T> T readModuleXmlFile(Class<T> clazz, String filePath, List<String> messageList) {
     T file = null;
+    long startTime = System.currentTimeMillis();
     Path logFilePath = Paths.get(filePath);
     try {
       // Unmarshall XML
@@ -180,7 +191,12 @@ public class AweElementsDao {
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
         file = fromXML(clazz, resourceInputStream);
-        messageList.add(MessageFormat.format(READING, logFilePath, OK));
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        messageList.add(MessageFormat.format(READING, logFilePath, OK,
+          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false)));
+        if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
+          log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
+        }
       }
     } catch (IOException exc) {
       log.error(ERROR_PARSING_XML, logFilePath, exc);
@@ -252,12 +268,19 @@ public class AweElementsDao {
    * @throws IOException Error reading resource
    */
   private <T> String readXmlResourceFile(Resource resource, Class<T> clazz, String basePath, Map<String, T> storage) throws IOException {
+    long startTime = System.currentTimeMillis();
     if (resource.exists()) {
       String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
       if (!storage.containsKey(fileName)) {
         storage.put(fileName, fromXML(clazz, resource.getInputStream()));
-        return MessageFormat.format(READING, Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())
-          .orElse(basePath + resource.getFilename()).split(basePath)[1]).toString(), OK);
+        String logFilePath = Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())
+          .orElse(basePath + resource.getFilename()).split(basePath)[1]).toString();
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
+          log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
+        }
+        return MessageFormat.format(READING, logFilePath, OK,
+          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false));
       }
     }
     return null;
