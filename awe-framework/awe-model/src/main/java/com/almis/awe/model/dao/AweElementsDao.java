@@ -38,6 +38,7 @@ public class AweElementsDao {
   private static final String ERROR_READING_XML = "Error reading XML - '{}'";
   private static final String WARNING_FILE_TOO_BIG = "WARNING! This file is very big and takes too much time to load: {}";
   private static final int LONG_FILE_TIME_TO_LOAD = 5000;
+  public static final String LOG_SECONDS_FORMAT = "s.SSS";
 
   // Autowired services
   private final XStreamSerializer serializer;
@@ -104,14 +105,14 @@ public class AweElementsDao {
           log.warn(WARNING_FILE_TOO_BIG, logPath);
         }
         return MessageFormat.format(READING, logPath, OK,
-          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false));
+          DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false));
       }
     } catch (IOException exc) {
       log.error(ERROR_PARSING_XML, logPath, exc);
     }
 
     return MessageFormat.format(READING, logPath, KO,
-      DurationFormatUtils.formatDuration(System.currentTimeMillis() - startTime, "s.SSS", false));
+      DurationFormatUtils.formatDuration(System.currentTimeMillis() - startTime, LOG_SECONDS_FORMAT, false));
   }
 
   /**
@@ -193,7 +194,7 @@ public class AweElementsDao {
         file = fromXML(clazz, resourceInputStream);
         long elapsedTime = System.currentTimeMillis() - startTime;
         messageList.add(MessageFormat.format(READING, logFilePath, OK,
-          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false)));
+          DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false)));
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
           log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
         }
@@ -208,40 +209,14 @@ public class AweElementsDao {
   /**
    * Read all XML files and store them in the component
    *
-   * @param clazz   File class
-   * @param path    Base directory path
-   * @param storage Storage to keep read files
-   */
-  /*@Async("contextlessTaskExecutor")
-  public <T> Future<String> readFolderXmlFilesAsync(Class<T> clazz, String path, Map<String, T> storage) {
-    readFolderXmlFiles(clazz, path, storage);
-    return new AsyncResult<>(null);
-  }*/
-
-  /**
-   * Read all XML files and store them in the component
-   *
-   * @param clazz   File class
-   * @param path    Base directory path
-   * @param storage Storage to keep read files
-   */
-  /*public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
-    // For each module read XML files
-    Arrays.stream(baseConfigProperties.getModuleList())
-      .flatMap(module -> readModuleFolderXmlFile(clazz, baseConfigProperties.getPaths().getApplication() + module + path, storage).stream())
-      .forEach(log::info);
-  }*/
-
-  /**
-   * Read all XML files and store them in the component
-   *
    * @param clazz File class
    * @param path  Base directory path
    * @return Xml file object
    */
   @Async("contextlessTaskExecutor")
-  public <T> Future<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
+  public <T> Future<Map<String, T>> readModuleFolderXmlFile(Class<T> clazz, String path) {
     Path logPath = Paths.get(path);
+    Map<String, T> storage = new ConcurrentHashMap<>();
     try {
       // Check resource path
       Resource basePathResource = new ClassPathResource(path);
@@ -251,13 +226,13 @@ public class AweElementsDao {
         Resource[] resources = loader.getResources("classpath:" + path + "**/*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
           log.info(MessageFormat.format(READING_FILES_FROM, logPath, OK));
-          readXmlFileFolder(resources, clazz, path).forEach(storage::putIfAbsent);
+          storage = readXmlFileFolder(resources, clazz, path);
         }
       }
     } catch (IOException exc) {
       log.error(ERROR_READING_XML, logPath, exc);
     }
-    return new AsyncResult<>(null);
+    return new AsyncResult<>(storage);
   }
 
   /**
@@ -271,7 +246,6 @@ public class AweElementsDao {
   private <T> Map<String, T> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path) {
     return Arrays.stream(resources)
       .map(resource -> readXmlResourceFile(resource, clazz, path))
-      .filter(Objects::nonNull)
       .flatMap(m -> m.entrySet().stream())
       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
@@ -300,36 +274,29 @@ public class AweElementsDao {
           log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
         }
         log.info(MessageFormat.format(READING, logFilePath, OK,
-          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false)));
+          DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false)));
         return storage;
       } catch (IOException exc) {
         log.error(ERROR_READING_XML, resource.getFilename(), exc);
       }
     }
-    return null;
+    return Collections.emptyMap();
   }
 
   /**
    * Read a locale file asynchronously
    *
    * @param basePath   base path
-   * @param language   language
-   * @param localeList locale list
    */
   @Async("contextlessTaskExecutor")
-  public Future<String> readLocaleModuleAsync(String basePath, String language, Map<String, Map<String, String>> localeList) {
+  public Future<Map<String, String>> readLocaleModuleAsync(String basePath) {
     // Create a local storage and read the locales from all modules
     Map<String, Global> localeLanguage = new ConcurrentHashMap<>();
     log.info(readModuleFile(Locales.class, localeLanguage, basePath));
 
     // Parse the read locales and store them on the final storage
-    Map<String, String> newLanguageMap = localeLanguage.values().stream()
-      .collect(Collectors.toMap(Global::getName, StringUtil::parseLocale, (f, s) -> f, ConcurrentHashMap::new));
-    Map<String, String> languageLocaleMap = Optional.ofNullable(localeList.get(language)).orElse(new ConcurrentHashMap<>());
-    newLanguageMap.putAll(languageLocaleMap);
-    localeList.put(language, newLanguageMap);
-
-    return new AsyncResult<>(null);
+    return new AsyncResult<>(localeLanguage.values().stream()
+      .collect(Collectors.toMap(Global::getName, StringUtil::parseLocale, (f, s) -> f, ConcurrentHashMap::new)));
   }
 
   /**

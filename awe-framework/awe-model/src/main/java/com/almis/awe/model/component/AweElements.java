@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
+import com.almis.awe.model.dto.XMLInitData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.access.Profile;
 import com.almis.awe.model.entities.actions.Action;
@@ -104,7 +105,7 @@ public class AweElements {
 
     // Initialize global files
     log.info(" ===== Initializing global, screen and locale files ===== ");
-    waitForTermination(initGlobalScreenAndLocaleFiles(), "global, screen and locale");
+    waitForTermination(initGlobalScreenAndLocaleFiles());
     log.info(" ===== Finished loading global, screen and locale files  ===== ");
 
     // Initialize menu files
@@ -116,105 +117,137 @@ public class AweElements {
   /**
    * Wait executor for termination
    *
-   * @param results future results
+   * @param initData Initialize data threads
    */
-  protected void waitForTermination(List<Future<String>> results, String fileType) {
-    for (Future<String> result : results) {
+  protected void waitForTermination(XMLInitData initData) {
+    for (Future<String> result : initData.getGeneral()) {
       try {
         result.get();
       } catch (InterruptedException | ExecutionException exc) {
-        log.error(" ===== ERROR loading {} Files  ===== ", fileType, exc);
+        log.error(" ===== ERROR loading XML initialization files  ===== ", exc);
         Thread.currentThread().interrupt();
       }
     }
+
+    // Read profile list
+    profileList = new ConcurrentHashMap<>();
+    initData.getProfileResults()
+      .stream()
+      .map(r -> waitForMap(r, "profile"))
+      .forEach(m -> m.forEach(profileList::putIfAbsent));
+
+    // Read screen list
+    screenMap = new ConcurrentHashMap<>();
+    initData.getScreenResults()
+      .stream()
+      .map(r -> waitForMap(r, "screen"))
+      .forEach(m -> m.forEach(screenMap::putIfAbsent));
+
+    // Read locale list
+    localeList = new ConcurrentHashMap<>();
+    initData.getLocaleResults()
+      .forEach(result -> baseConfigProperties.getLanguageList()
+        .forEach(language -> {
+          Map<String, String> mergedLocales = Optional.ofNullable(localeList.get(language)).orElse(new ConcurrentHashMap<>());
+          waitForMap(result.get(language), "locale").forEach(mergedLocales::putIfAbsent);
+          localeList.put(language, mergedLocales);
+        }));
+  }
+
+  /**
+   * Wait executor for termination
+   *
+   * @param result   future results
+   * @param fileType File type
+   */
+  protected <T> Map<String, T> waitForMap(Future<Map<String, T>> result, String fileType) {
+    try {
+      return result.get();
+    } catch (InterruptedException | ExecutionException exc) {
+      log.error(" ===== ERROR loading {} files  ===== ", fileType, exc);
+      Thread.currentThread().interrupt();
+    }
+    return Collections.emptyMap();
   }
 
   /**
    * Read all XML files and store them in the component
    */
-  private List<Future<String>> initGlobalScreenAndLocaleFiles() {
-    List<Future<String>> results = new ArrayList<>();
+  private XMLInitData initGlobalScreenAndLocaleFiles() {
+    XMLInitData initData = new XMLInitData();
 
     // Init enumerated
     enumeratedList = new ConcurrentHashMap<>();
     String path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEnumerated() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Enumerated.class, enumeratedList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Enumerated.class, enumeratedList, path));
 
     // Init queries
     queryList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQuery() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Queries.class, queryList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Queries.class, queryList, path));
 
     // Init queues
     queueList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQueue() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Queues.class, queueList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Queues.class, queueList, path));
 
     // Init maintains
     maintainList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getMaintain() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Maintain.class, maintainList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Maintain.class, maintainList, path));
 
     // Init emails
     emailList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEmail() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
 
     // Init service
     serviceList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getServices() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
 
     // Init actions
     actionList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getActions() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Actions.class, actionList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Actions.class, actionList, path));
 
     // Init profiles
-    profileList = new ConcurrentHashMap<>();
-    results.addAll(
-      Arrays.stream(baseConfigProperties.getModuleList())
-        .sequential()
-        .map(module ->
-          elementsDao.readModuleFolderXmlFile(Profile.class, baseConfigProperties.getPaths().getApplication() +
-            module +
-            baseConfigProperties.getPaths().getProfile(), profileList))
-        .collect(Collectors.toList()));
+    initData.setProfileResults(Arrays.stream(baseConfigProperties.getModuleList())
+      .sequential()
+      .map(module -> elementsDao.readModuleFolderXmlFile(Profile.class, baseConfigProperties.getPaths().getApplication() +
+        module +
+        baseConfigProperties.getPaths().getProfile()))
+      .collect(Collectors.toList()));
 
     // Init screens
-    screenMap = new ConcurrentHashMap<>();
     if (baseConfigProperties.isPreloadScreens()) {
-      results.addAll(
-        Arrays.stream(baseConfigProperties.getModuleList())
-          .sequential()
-          .map(module ->
-            elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
-              module +
-              baseConfigProperties.getPaths().getScreen(), screenMap))
-          .collect(Collectors.toList()));
+      initData.setScreenResults(Arrays.stream(baseConfigProperties.getModuleList())
+        .sequential()
+        .map(module -> elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
+          module +
+          baseConfigProperties.getPaths().getScreen()))
+        .collect(Collectors.toList()));
     }
 
-    // Initialize locales
-    localeList = new ConcurrentHashMap<>();
     // For each language read local files
-    results.addAll(
-      Arrays.stream(baseConfigProperties.getModuleList())
-        .sequential()
-        .flatMap(module ->
-          baseConfigProperties.getLanguageList()
-            .parallelStream()
-            .map(language ->
-              elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),
-                  module,
-                  baseConfigProperties.getPaths().getLocale() +
-                    baseConfigProperties.getFiles().getLocale() +
-                    language.toUpperCase() +
-                    baseConfigProperties.getExtensionXml())
-                .toString(), language, localeList))
-            .collect(Collectors.toList()).stream())
-        .collect(Collectors.toList()));
-
-    return results;
+    initData.setLocaleResults(Arrays.stream(baseConfigProperties.getModuleList())
+      .sequential()
+      .map(module -> baseConfigProperties.getLanguageList()
+        .parallelStream()
+        .flatMap(language -> {
+          Map<String, Future<Map<String, String>>> languageMap = new ConcurrentHashMap<>();
+          languageMap.put(language, elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),
+              module,
+              baseConfigProperties.getPaths().getLocale() +
+                baseConfigProperties.getFiles().getLocale() +
+                language.toUpperCase() +
+                baseConfigProperties.getExtensionXml())
+            .toString()));
+          return languageMap.entrySet().stream();
+        })
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+      .collect(Collectors.toList()));
+    return initData;
   }
 
   /**
