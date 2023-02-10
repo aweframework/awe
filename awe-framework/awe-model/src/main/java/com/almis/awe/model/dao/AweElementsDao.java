@@ -212,11 +212,11 @@ public class AweElementsDao {
    * @param path    Base directory path
    * @param storage Storage to keep read files
    */
-  @Async("contextlessTaskExecutor")
+  /*@Async("contextlessTaskExecutor")
   public <T> Future<String> readFolderXmlFilesAsync(Class<T> clazz, String path, Map<String, T> storage) {
     readFolderXmlFiles(clazz, path, storage);
     return new AsyncResult<>(null);
-  }
+  }*/
 
   /**
    * Read all XML files and store them in the component
@@ -225,12 +225,12 @@ public class AweElementsDao {
    * @param path    Base directory path
    * @param storage Storage to keep read files
    */
-  public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
+  /*public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
     // For each module read XML files
     Arrays.stream(baseConfigProperties.getModuleList())
       .flatMap(module -> readModuleFolderXmlFile(clazz, baseConfigProperties.getPaths().getApplication() + module + path, storage).stream())
       .forEach(log::info);
-  }
+  }*/
 
   /**
    * Read all XML files and store them in the component
@@ -239,8 +239,8 @@ public class AweElementsDao {
    * @param path  Base directory path
    * @return Xml file object
    */
-  public <T> List<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
-    List<String> resultList = new ArrayList<>();
+  @Async("contextlessTaskExecutor")
+  public <T> Future<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
     Path logPath = Paths.get(path);
     try {
       // Check resource path
@@ -250,14 +250,14 @@ public class AweElementsDao {
         PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
         Resource[] resources = loader.getResources("classpath:" + path + "**/*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
-          resultList.add(MessageFormat.format(READING_FILES_FROM, logPath, OK));
-          resultList.addAll(readXmlFileFolder(resources, clazz, path, storage));
+          log.info(MessageFormat.format(READING_FILES_FROM, logPath, OK));
+          readXmlFileFolder(resources, clazz, path).forEach(storage::putIfAbsent);
         }
       }
     } catch (IOException exc) {
       log.error(ERROR_READING_XML, logPath, exc);
     }
-    return resultList;
+    return new AsyncResult<>(null);
   }
 
   /**
@@ -266,21 +266,14 @@ public class AweElementsDao {
    * @param resources XML File resources
    * @param clazz     Target class to map
    * @param path      XML File path
-   * @param storage   Storage map
    * @return Message list
    */
-  private <T> List<String> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path, Map<String, T> storage) {
+  private <T> Map<String, T> readXmlFileFolder(Resource[] resources, Class<T> clazz, String path) {
     return Arrays.stream(resources)
-      .map(resource -> {
-        try {
-          return readXmlResourceFile(resource, clazz, path, storage);
-        } catch (IOException exc) {
-          log.warn(ERROR_READING_XML, resource.getFilename(), exc);
-        }
-        return null;
-      })
+      .map(resource -> readXmlResourceFile(resource, clazz, path))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .flatMap(m -> m.entrySet().stream())
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   /**
@@ -289,23 +282,28 @@ public class AweElementsDao {
    * @param resource Resource
    * @param clazz    Resource class
    * @param basePath Base path
-   * @param storage  Storage
+   * @return Resource file read
    * @throws IOException Error reading resource
    */
-  private <T> String readXmlResourceFile(Resource resource, Class<T> clazz, String basePath, Map<String, T> storage) throws IOException {
+  private <T> Map<String, T> readXmlResourceFile(Resource resource, Class<T> clazz, String basePath) {
     long startTime = System.currentTimeMillis();
+    Map<String, T> storage = new HashMap<>();
     if (resource.exists()) {
-      String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
-      if (!storage.containsKey(fileName)) {
-        storage.put(fileName, fromXML(clazz, resource.getInputStream()));
+      try {
+        T file = fromXML(clazz, resource.getInputStream());
+        String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
+        storage.put(fileName, file);
         String logFilePath = Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())
           .orElse(basePath + resource.getFilename()).split(basePath)[1]).toString();
         long elapsedTime = System.currentTimeMillis() - startTime;
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
           log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
         }
-        return MessageFormat.format(READING, logFilePath, OK,
-          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false));
+        log.info(MessageFormat.format(READING, logFilePath, OK,
+          DurationFormatUtils.formatDuration(elapsedTime, "s.SSS", false)));
+        return storage;
+      } catch (IOException exc) {
+        log.error(ERROR_READING_XML, resource.getFilename(), exc);
       }
     }
     return null;
