@@ -208,12 +208,38 @@ public class AweElementsDao {
   /**
    * Read all XML files and store them in the component
    *
+   * @param clazz   File class
+   * @param path    Base directory path
+   * @param storage Storage to keep read files
+   */
+  @Async("contextlessTaskExecutor")
+  public <T> Future<String> readFolderXmlFilesAsync(Class<T> clazz, String path, Map<String, T> storage) {
+    readFolderXmlFiles(clazz, path, storage);
+    return new AsyncResult<>(null);
+  }
+
+  /**
+   * Read all XML files and store them in the component
+   *
+   * @param clazz   File class
+   * @param path    Base directory path
+   * @param storage Storage to keep read files
+   */
+  public <T> void readFolderXmlFiles(Class<T> clazz, String path, Map<String, T> storage) {
+    // For each module read XML files
+    Arrays.stream(baseConfigProperties.getModuleList())
+      .flatMap(module -> readModuleFolderXmlFile(clazz, baseConfigProperties.getPaths().getApplication() + module + path, storage).stream())
+      .forEach(log::info);
+  }
+
+  /**
+   * Read all XML files and store them in the component
+   *
    * @param clazz File class
    * @param path  Base directory path
    * @return Xml file object
    */
-  @Async("contextlessTaskExecutor")
-  public <T> Future<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
+  public <T> List<String> readModuleFolderXmlFile(Class<T> clazz, String path, Map<String, T> storage) {
     List<String> resultList = new ArrayList<>();
     Path logPath = Paths.get(path);
     try {
@@ -224,15 +250,14 @@ public class AweElementsDao {
         PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
         Resource[] resources = loader.getResources("classpath:" + path + "**/*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
-          log.info(MessageFormat.format(READING_FILES_FROM, logPath, OK));
+          resultList.add(MessageFormat.format(READING_FILES_FROM, logPath, OK));
           resultList.addAll(readXmlFileFolder(resources, clazz, path, storage));
-          resultList.forEach(log::info);
         }
       }
     } catch (IOException exc) {
       log.error(ERROR_READING_XML, logPath, exc);
     }
-    return new AsyncResult<>(null);
+    return resultList;
   }
 
   /**
