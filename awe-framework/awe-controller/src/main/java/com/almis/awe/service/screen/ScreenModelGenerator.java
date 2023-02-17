@@ -471,10 +471,10 @@ public class ScreenModelGenerator extends ServiceConfig {
           radioValues.put(AweConstants.JSON_LABEL_PARAMETER, new CellData(criterion.getId()));
           radioValues.put(AweConstants.JSON_VALUE_PARAMETER, radioValue);
           model.getValues().add(radioValues);
-          model.getSelected().clear();
           // Radio VARIABLE VALUE
           if (criterion.isChecked()) {
             // Check attribute CHECKED to add selected VALUE
+            model.getSelected().clear();
             model.getSelected().add(radioValue);
           }
           break;
