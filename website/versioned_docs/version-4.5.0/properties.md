@@ -217,8 +217,8 @@ These are the Email engine configuration properties for AWE projects. They have 
 
 These are the Developer module configuration properties for AWE projects. They have the prefix `awe.developer`.
 
-| Name                                                                                                                                       | Description                                      | Default value                                             |
-|--------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------|
+| Name                                                                                                                                          | Description                                      | Default value                                             |
+|-----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|-----------------------------------------------------------|
 | <a name="awe.developer.path"></a> [awe.developer.path](#awe.developer.path)                                                                   | Developer path. Used to manage the locale files. | `${user.home}/awe-developer`                              |
 | <a name="awe.developer.path-file"></a> [awe.developer.path-file](#awe.developer.path-file)                                                    | Path file name.                                  | `path.properties`                                         |
 | <a name="awe.developer.path-property"></a> [awe.developer.path-property](#awe.developer.path-property)                                        | Path property name.                              | `path.project`                                            |
@@ -226,7 +226,7 @@ These are the Developer module configuration properties for AWE projects. They h
 | <a name="awe.developer.translation.mymemory.key"></a> [awe.developer.translation.mymemory.key](#awe.developer.translation.mymemory.key)       | MyMemory api key.                                | `10ecdc1ed89ac3ebed3b`                                    |
 | <a name="awe.developer.translation.mymemory.host"></a> [awe.developer.translation.mymemory.host](#awe.developer.translation.mymemory.host)    | MyMemory translation service host.               | `api.mymemory.translated.net`                             |
 | <a name="awe.developer.translation.mymemory.email"></a> [awe.developer.translation.mymemory.email](#awe.developer.translation.mymemory.email) | Translation service reference email.             | `awe@almis.com`                                           |
-| <a name="awe.developer.translation.rapidapi.key"></a> [awe.developer.translation.rapidapi.key](#awe.developer.translation.rapidapi.key)       | RapidAPI api key.   .                            | `f20790a0d6msh98d1dad8f0e3da9p10eb19jsn671d6cab2ec5`      |
+| <a name="awe.developer.translation.rapidapi.key"></a> [awe.developer.translation.rapidapi.key](#awe.developer.translation.rapidapi.key)       | RapidAPI api key.                                |                                                           |
 | <a name="awe.developer.translation.rapidapi.host"></a> [awe.developer.translation.rapidapi.host](#awe.developer.translation.rapidapi.host)    | RapidAPI translation service host.               | `translated-mymemory---translation-memory.p.rapidapi.com` |
 | <a name="awe.developer.translation.rapidapi.email"></a> [awe.developer.translation.rapidapi.email](#awe.developer.translation.rapidapi.email) | Translation service reference email.             | `awe@almis.com`                                           |
 
