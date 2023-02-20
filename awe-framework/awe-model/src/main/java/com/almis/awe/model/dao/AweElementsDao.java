@@ -33,7 +33,7 @@ public class AweElementsDao {
   private static final String OK = " - OK";
   private static final String KO = " - NOT FOUND";
   private static final String READING = "Reading ''{0}''{1} - elapsed time: {2}s";
-  private static final String READING_FILES_FROM = "Reading files from ''{0}''{1}";
+  private static final String READING_FILES_FROM = "Reading files from '{}'{}";
   private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
   private static final String ERROR_READING_XML = "Error reading XML - '{}'";
   private static final String WARNING_FILE_TOO_BIG = "WARNING! This file is very big and takes too much time to load: {}";
@@ -196,7 +196,7 @@ public class AweElementsDao {
         messageList.add(MessageFormat.format(READING, logFilePath, OK,
           DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false)));
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
-          log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
+          log.warn(WARNING_FILE_TOO_BIG, logFilePath);
         }
       }
     } catch (IOException exc) {
@@ -225,11 +225,11 @@ public class AweElementsDao {
         PathMatchingResourcePatternResolver loader = new PathMatchingResourcePatternResolver();
         Resource[] resources = loader.getResources("classpath:" + path + "**/*" + baseConfigProperties.getExtensionXml());
         if (resources.length > 0) {
-          log.info(MessageFormat.format(READING_FILES_FROM, logPath, OK));
+          log.info(READING_FILES_FROM, logPath, OK);
           storage = readXmlFileFolder(resources, clazz, path);
         }
       }
-    } catch (IOException exc) {
+    } catch (Exception exc) {
       log.error(ERROR_READING_XML, logPath, exc);
     }
     return new AsyncResult<>(storage);
@@ -271,12 +271,12 @@ public class AweElementsDao {
           .orElse(basePath + resource.getFilename()).split(basePath)[1]).toString();
         long elapsedTime = System.currentTimeMillis() - startTime;
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
-          log.warn(MessageFormat.format(WARNING_FILE_TOO_BIG, logFilePath));
+          log.warn(WARNING_FILE_TOO_BIG, logFilePath);
         }
         log.info(MessageFormat.format(READING, logFilePath, OK,
           DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false)));
         return storage;
-      } catch (IOException exc) {
+      } catch (Exception exc) {
         log.error(ERROR_READING_XML, resource.getFilename(), exc);
       }
     }
