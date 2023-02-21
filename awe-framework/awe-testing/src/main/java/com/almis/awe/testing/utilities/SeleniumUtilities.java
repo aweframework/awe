@@ -986,11 +986,26 @@ public class SeleniumUtilities implements IAweInstructions {
     // Wait for tab not disabled
     waitForTab(tabName);
 
-    // Tab selector
-    clickSelector(frontEndInstructions.getTab(tabName, tabLabel));
+    // Get tab selector
+    By tabSelector = frontEndInstructions.getTab(tabName, tabLabel);
 
-    // Wait for tab active
-    waitUntil(visibilityOfElementLocated(frontEndInstructions.getTabActive(tabName, tabLabel)));
+    // If tab is visible, click on tab
+    if (getDriver().findElement(tabSelector).isDisplayed()) {
+      // Tab selector
+      clickSelector(tabSelector);
+
+      // Wait for tab active
+      waitUntil(visibilityOfElementLocated(frontEndInstructions.getTabActive(tabName, tabLabel)));
+    } else {
+      // If not visible, click on tab menu, wait for dropdown and click on dropdown option
+      clickSelector(frontEndInstructions.getTabMenu(tabName));
+
+      // Wait for tab label
+      clickSelector(frontEndInstructions.getTabMenuDropdownOption(tabName, tabLabel));
+
+      // Wait for dropdown not visible
+      waitUntil(invisibilityOfElementLocated(frontEndInstructions.getTabMenuDropdown(tabName)));
+    }
   }
 
   /**
@@ -1009,6 +1024,9 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param rowId  Row id
    */
   protected void clickTreeButton(String gridId, String rowId) {
+
+    // Wait until visible
+    waitUntil(visibilityOfElementLocated(frontEndInstructions.getTreeButton(gridId, rowId)));
 
     // Click on tree button
     clickSelector(frontEndInstructions.getTreeButton(gridId, rowId));

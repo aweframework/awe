@@ -167,11 +167,23 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getTab(String tabId, String tabLabel) {
-    return By.cssSelector(String.format("%s span[translate-multiple*='%s']", getCriterionCss(tabId), tabLabel));
+    return By.cssSelector(String.format("%s span[translate-multiple='%s']", getCriterionCss(tabId), tabLabel));
+  }
+
+  public By getTabMenu(String tabId) {
+    return By.cssSelector(String.format("%s .nav-tabs:not(.disabled) .tabdrop > .dropdown-toggle", getCriterionCss(tabId)));
+  }
+
+  public By getTabMenuDropdown(String tabId) {
+    return By.cssSelector(String.format("%s .nav-tabs:not(.disabled) .tabdrop > .dropdown-menu", getCriterionCss(tabId)));
+  }
+
+  public By getTabMenuDropdownOption(String tabId, String tabLabel) {
+    return By.cssSelector(String.format("%s .nav-tabs:not(.disabled) .tabdrop > .dropdown-menu > li span[translate-multiple='%s']", getCriterionCss(tabId), tabLabel));
   }
 
   public By getTabActive(String tabId, String tabLabel) {
-    return By.cssSelector(String.format("%s li.active span[translate-multiple*='%s']", getCriterionCss(tabId), tabLabel));
+    return By.cssSelector(String.format("%s li.active span[translate-multiple='%s']", getCriterionCss(tabId), tabLabel));
   }
 
   public By getContextButton(String buttonId) {

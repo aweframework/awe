@@ -170,6 +170,18 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(String.format("%s span[translate-multiple*='%s']", getCriterionCss(tabId), tabLabel));
   }
 
+  public By getTabMenu(String tabId) {
+    return By.cssSelector(String.format("[criterion-id='%s'] .nav-tabs:not(.disabled) .tabdrop > .dropdown-toggle", tabId));
+  }
+
+  public By getTabMenuDropdown(String tabId) {
+    return By.cssSelector(String.format("[criterion-id='%s'] .nav-tabs:not(.disabled) .tabdrop > .dropdown-menu", tabId));
+  }
+
+  public By getTabMenuDropdownOption(String tabId, String tabLabel) {
+    return By.cssSelector(String.format("[criterion-id='%s'] .nav-tabs:not(.disabled) .tabdrop > .dropdown-menu > li span[translate-multiple*='%s']", getCriterionCss(tabId), tabLabel));
+  }
+
   public By getTabActive(String tabId, String tabLabel) {
     return By.cssSelector(String.format("%s li.active span[translate-multiple*='%s']", getCriterionCss(tabId), tabLabel));
   }

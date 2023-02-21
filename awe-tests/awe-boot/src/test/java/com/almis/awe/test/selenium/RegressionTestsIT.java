@@ -54,7 +54,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     waitForButton("ButPrn");
 
     // Click on tab
-    clickTab("TabSelMat", "EDITABLE");
+    clickTab("TabSelMat", "ENUM_MATRIX_EDITABLE");
 
     // Check row contents
     checkRowContents("Prueba - adminflare");
