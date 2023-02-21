@@ -157,6 +157,31 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   By getTabActive(String tabId, String tabLabel);
 
+  /**
+   * Get tab menu
+   *
+   * @param tabId Tab identifier
+   * @return Tab menu button selector
+   */
+  By getTabMenu(String tabId);
+
+  /**
+   * Get tab menu dropdown
+   *
+   * @param tabId Tab identifier
+   * @return Tab menu dropdown selector
+   */
+  By getTabMenuDropdown(String tabId);
+
+  /**
+   * Get tab menu dropdown option
+   *
+   * @param tabId Tab identifier
+   * @param tabLabel Tab label
+   * @return Tab menu dropdown option selector
+   */
+  By getTabMenuDropdownOption(String tabId, String tabLabel);
+
   /*
   =================================
   CONTEXT BUTTON
