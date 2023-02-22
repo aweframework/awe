@@ -1,7 +1,10 @@
 package com.almis.awe.model.entities.access;
 
+import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.Copyable;
+import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.util.data.ListUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import lombok.Data;
@@ -24,7 +27,7 @@ import java.util.List;
 @NoArgsConstructor
 @Accessors(chain = true)
 @XStreamAlias("profile")
-public class Profile implements Copyable {
+public class Profile implements Copyable, XMLNode {
 
   private static final long serialVersionUID = -7990480714029113566L;
 
@@ -37,5 +40,14 @@ public class Profile implements Copyable {
     return this.toBuilder()
       .restrictions(ListUtil.copyList(getRestrictions()))
       .build();
+  }
+
+  /**
+   * @return the elementKey
+   */
+  @JsonIgnore
+  @Override
+  public String getElementKey() {
+    return AweConstants.NO_KEY;
   }
 }

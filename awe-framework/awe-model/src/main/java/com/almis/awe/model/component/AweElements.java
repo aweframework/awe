@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
+import com.almis.awe.model.dto.XMLInitData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.access.Profile;
 import com.almis.awe.model.entities.actions.Action;
@@ -36,11 +37,13 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.PostConstruct;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -52,12 +55,12 @@ import static com.almis.awe.model.constant.AweConstants.*;
 @Slf4j
 public class AweElements {
 
+  private static final String NOT_FOUND = " not found: ";
   // Autowired services
   private final WebApplicationContext context;
   private final AweElementsDao elementsDao;
   private final Environment environment;
   private final BaseConfigProperties baseConfigProperties;
-
   // Elements
   private Map<String, EnumeratedGroup> enumeratedList;
   private Map<String, Query> queryList;
@@ -69,18 +72,15 @@ public class AweElements {
   private Map<String, Profile> profileList;
   private Map<String, Menu> menuList;
   private Map<String, Screen> screenMap;
-
   // Locale list
   private Map<String, Map<String, String>> localeList;
-
-  private static final String NOT_FOUND = " not found: ";
 
   /**
    * Autowired constructor
    *
-   * @param context Application context
+   * @param context              Application context
    * @param baseConfigProperties base configuration properties
-   * @param elementsDao Element DAO
+   * @param elementsDao          Element DAO
    */
   public AweElements(WebApplicationContext context, BaseConfigProperties baseConfigProperties, AweElementsDao elementsDao) {
     this.context = context;
@@ -95,7 +95,7 @@ public class AweElements {
   @PostConstruct
   public void init() {
     log.info(LOG_LINE);
-    log.info( "----------------------------- AWE starting ... -----------------------------------");
+    log.info("----------------------------- AWE starting ... -----------------------------------");
     log.info(LOG_LINE);
 
     // Initialize Awe Elements (Read all XML sources)
@@ -104,89 +104,150 @@ public class AweElements {
     log.info("=============================");
 
     // Initialize global files
-    log.info(" ===== Initializing global and screen files ===== ");
-    waitForTermination(initGlobalFiles(), "global");
-    log.info(" ===== Finished loading global and screen files  ===== ");
+    log.info(" ===== Initializing global, screen and locale files ===== ");
+    waitForTermination(initGlobalScreenAndLocaleFiles());
+    log.info(" ===== Finished loading global, screen and locale files  ===== ");
 
     // Initialize menu files
     log.info(" ===== Initializing menu files ===== ");
     initMenuFiles();
     log.info(" ===== Finished loading menu files  ===== ");
-
-    // Initialize locale files
-    log.info(" ===== Initializing locale files ===== ");
-    waitForTermination(initLocaleFiles(), "locale");
-    log.info(" ===== Finished loading locale files  ===== ");
   }
 
   /**
    * Wait executor for termination
    *
-   * @param results future results
+   * @param initData Initialize data threads
    */
-  protected void waitForTermination(List<Future<String>> results, String fileType) {
-    for (Future<String> result : results) {
+  protected void waitForTermination(XMLInitData initData) {
+    for (Future<String> result : initData.getGeneral()) {
       try {
         result.get();
       } catch (InterruptedException | ExecutionException exc) {
-        log.error(" ===== ERROR loading {} Files  ===== ", fileType, exc);
+        log.error(" ===== ERROR loading XML initialization files  ===== ", exc);
         Thread.currentThread().interrupt();
       }
     }
+
+    // Read profile list
+    profileList = new ConcurrentHashMap<>();
+    initData.getProfileResults()
+      .stream()
+      .map(r -> waitForMap(r, "profile"))
+      .forEach(m -> m.forEach(profileList::putIfAbsent));
+
+    // Read screen list
+    screenMap = new ConcurrentHashMap<>();
+    initData.getScreenResults()
+      .stream()
+      .map(r -> waitForMap(r, "screen"))
+      .forEach(m -> m.forEach(screenMap::putIfAbsent));
+
+    // Read locale list
+    localeList = new ConcurrentHashMap<>();
+    initData.getLocaleResults()
+      .forEach(result -> baseConfigProperties.getLanguageList()
+        .forEach(language -> {
+          Map<String, String> mergedLocales = Optional.ofNullable(localeList.get(language)).orElse(new ConcurrentHashMap<>());
+          waitForMap(result.get(language), "locale").forEach(mergedLocales::putIfAbsent);
+          localeList.put(language, mergedLocales);
+        }));
+  }
+
+  /**
+   * Wait executor for termination
+   *
+   * @param result   future results
+   * @param fileType File type
+   */
+  protected <T> Map<String, T> waitForMap(Future<Map<String, T>> result, String fileType) {
+    try {
+      return result.get();
+    } catch (InterruptedException | ExecutionException exc) {
+      log.error(" ===== ERROR loading {} files  ===== ", fileType, exc);
+      Thread.currentThread().interrupt();
+    }
+    return Collections.emptyMap();
   }
 
   /**
    * Read all XML files and store them in the component
    */
-  private List<Future<String>> initGlobalFiles() {
-    List<Future<String>> results = new ArrayList<>();
+  private XMLInitData initGlobalScreenAndLocaleFiles() {
+    XMLInitData initData = new XMLInitData();
 
     // Init enumerated
     enumeratedList = new ConcurrentHashMap<>();
     String path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEnumerated() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Enumerated.class, enumeratedList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Enumerated.class, enumeratedList, path));
 
     // Init queries
     queryList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQuery() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Queries.class, queryList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Queries.class, queryList, path));
 
     // Init queues
     queueList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQueue() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Queues.class, queueList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Queues.class, queueList, path));
 
     // Init maintains
     maintainList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getMaintain() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Maintain.class, maintainList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Maintain.class, maintainList, path));
 
     // Init emails
     emailList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEmail() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
 
     // Init service
     serviceList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getServices() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
 
     // Init actions
     actionList = new ConcurrentHashMap<>();
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getActions() + baseConfigProperties.getExtensionXml();
-    results.add(elementsDao.readXmlFilesAsync(Actions.class, actionList, path));
+    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Actions.class, actionList, path));
 
     // Init profiles
-    profileList = new ConcurrentHashMap<>();
-    results.add(elementsDao.readFolderXmlFilesAsync(Profile.class, baseConfigProperties.getPaths().getProfile(), profileList));
+    initData.setProfileResults(Arrays.stream(baseConfigProperties.getModuleList())
+      .sequential()
+      .map(module -> elementsDao.readModuleFolderXmlFile(Profile.class, baseConfigProperties.getPaths().getApplication() +
+        module +
+        baseConfigProperties.getPaths().getProfile()))
+      .collect(Collectors.toList()));
 
     // Init screens
-    screenMap = new ConcurrentHashMap<>();
     if (baseConfigProperties.isPreloadScreens()) {
-      results.add(elementsDao.readFolderXmlFilesAsync(Screen.class, baseConfigProperties.getPaths().getScreen(), screenMap));
+      initData.setScreenResults(Arrays.stream(baseConfigProperties.getModuleList())
+        .sequential()
+        .map(module -> elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
+          module +
+          baseConfigProperties.getPaths().getScreen()))
+        .collect(Collectors.toList()));
     }
 
-    return results;
+    // For each language read local files
+    initData.setLocaleResults(Arrays.stream(baseConfigProperties.getModuleList())
+      .sequential()
+      .map(module -> baseConfigProperties.getLanguageList()
+        .parallelStream()
+        .flatMap(language -> {
+          Map<String, Future<Map<String, String>>> languageMap = new ConcurrentHashMap<>();
+          languageMap.put(language, elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),
+              module,
+              baseConfigProperties.getPaths().getLocale() +
+                baseConfigProperties.getFiles().getLocale() +
+                language.toUpperCase() +
+                baseConfigProperties.getExtensionXml())
+            .toString()));
+          return languageMap.entrySet().stream();
+        })
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+      .collect(Collectors.toList()));
+    return initData;
   }
 
   /**
@@ -202,27 +263,6 @@ public class AweElements {
       log.error("Error initializing menus", exc);
       exc.log();
     }
-  }
-
-  /**
-   * Read all XML files and store them in the component
-   */
-  private List<Future<String>> initLocaleFiles() {
-    List<Future<String>> results = new ArrayList<>();
-
-    // Initialize locales
-    localeList = new ConcurrentHashMap<>();
-    // For each language read local files
-    for (String language : baseConfigProperties.getLanguageList()) {
-      // Get file name
-      String fileName = baseConfigProperties.getFiles().getLocale() + language.toUpperCase();
-      String path = baseConfigProperties.getPaths().getLocale() + fileName + baseConfigProperties.getExtensionXml();
-
-      // Read locale file for language
-      results.add(elementsDao.readLocaleAsync(path, language, localeList));
-    }
-
-    return results;
   }
 
   /**

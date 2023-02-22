@@ -999,6 +999,17 @@
     <variable id="CrtAct" type="INTEGER" name="CrtAct" />
   </query>
 
+  <query id="check-profile-acronym">
+    <table id="AwePro" alias="profiles"/>
+    <field id="IdePro" table="profiles" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="Acr" left-table="profiles" condition="eq" right-variable="acronym" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="acronym" type="STRING" name="Acr"/>
+  </query>
+
   <!-- THEMES SUGGEST -->
   <query id="ThmSug" distinct="true" cacheable="true">
     <table id="AweThm" />

@@ -13,7 +13,7 @@ import java.net.URI;
 @FeignClient(name = "RapidAPIClient", url = "https://${awe.translation.rapidapi.host:}")
 public interface RapidAPIFeignClient {
 
-  @GetMapping("/api/get?langpair={languageFrom}|{languageTo}")
+  @GetMapping("/get?langpair={languageFrom}|{languageTo}")
   ResponseEntity<TranslationResponse> translate(URI baseUrl, @RequestParam("q") String text,
                                                @PathVariable("languageFrom") String languageFrom, @PathVariable("languageTo") String languageTo,
                                                @RequestParam("key") String myMemoryKey, @RequestParam("de") String email,

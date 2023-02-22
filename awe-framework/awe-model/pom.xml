@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.6.5</version>
+    <version>4.6.6</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -17,7 +17,7 @@
   <description>Awe Model Module</description>
 
   <properties>
-    <xstream.version>1.4.14</xstream.version>
+    <xstream.version>1.4.20</xstream.version>
     <!-- Sonar properties -->
     <application.folder>.</application.folder>
     <performancetest.host>localhost</performancetest.host>

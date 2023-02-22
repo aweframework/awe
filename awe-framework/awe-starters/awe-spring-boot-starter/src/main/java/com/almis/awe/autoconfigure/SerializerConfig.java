@@ -2,6 +2,18 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.XStreamSerializer;
+import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.access.Profile;
+import com.almis.awe.model.entities.actions.Actions;
+import com.almis.awe.model.entities.email.Emails;
+import com.almis.awe.model.entities.enumerated.Enumerated;
+import com.almis.awe.model.entities.locale.Locales;
+import com.almis.awe.model.entities.maintain.Maintain;
+import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.queries.Queries;
+import com.almis.awe.model.entities.queues.Queues;
+import com.almis.awe.model.entities.screen.Screen;
+import com.almis.awe.model.entities.services.Services;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -78,6 +90,23 @@ public class SerializerConfig {
   public XStreamMarshaller xStreamMarshaller() {
     XStreamMarshaller xstreamMarshaller = new XStreamMarshaller();
     xstreamMarshaller.setStreamDriver(new DomDriver(null, new NoNameCoder()));
+
+    // Process annotations
+    xstreamMarshaller.getXStream().processAnnotations(new Class[]{
+      Element.class,
+      Enumerated.class,
+      Queries.class,
+      Queues.class,
+      Maintain.class,
+      Emails.class,
+      Services.class,
+      Actions.class,
+      Profile.class,
+      Screen.class,
+      Menu.class,
+      Locales.class
+    });
+
     return xstreamMarshaller;
   }
 
