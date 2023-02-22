@@ -1,4 +1,14 @@
 
+# Changelog for AWE 4.6.6
+*22/02/2023*
+
+- Validate unique columns on new profile screen.. [MR #416](https://gitlab.com/aweframework/awe/-/merge_requests/416) (Pablo Javier García Mora)
+- Selenium utilities: check active tab on the three lines (many tabs). [MR #415](https://gitlab.com/aweframework/awe/-/merge_requests/415) (Pablo Javier García Mora)
+- Fix the training docs. [MR #414](https://gitlab.com/aweframework/awe/-/merge_requests/414) (Pablo Javier García Mora)
+- Fix RapidAPI integration to translate text. [MR #413](https://gitlab.com/aweframework/awe/-/merge_requests/413) (Pablo Javier García Mora)
+- Improve XML loading process. [MR #412](https://gitlab.com/aweframework/awe/-/merge_requests/412) (Pablo Javier García Mora)
+- Empty value when setting a radio button value previously retrieved. [MR #411](https://gitlab.com/aweframework/awe/-/merge_requests/411) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.5
 *07/02/2023*
 
