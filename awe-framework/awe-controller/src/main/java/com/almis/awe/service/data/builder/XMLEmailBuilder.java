@@ -139,7 +139,7 @@ public class XMLEmailBuilder extends EmailBuilder {
 
         // Insert new attachment for each email item
         if (!filePath.isEmpty() && !fileName.isEmpty()) {
-          addAttachment(fileName, new File(fileName));
+          addAttachment(fileName, new File(filePath));
         }
       }
     }
