@@ -295,8 +295,7 @@ aweApplication.factory('GridMultioperation',
               enableColumnResizing: false,
               enableColumnMoving: false,
               enableColumnMenu: false,
-              enableFiltering: false,
-              enableSorting: false
+              enableFiltering: false
             };
 
             component.addToColumnModel(colModel);

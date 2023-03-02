@@ -3,6 +3,8 @@ package com.almis.awe.service;
 import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.Planet;
+import com.almis.awe.model.Planets;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
@@ -10,6 +12,7 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,19 +78,16 @@ public class DummyService extends ServiceConfig {
   public ServiceData paginate(Long page, Long max) throws AWException {
     ServiceData out = new ServiceData();
     String[] data = new String[65];
-    List<String> subset = new ArrayList<String>();
     for (int i = 0; i < data.length; i++) {
       data[i] = i + "";
     }
 
     int offset = (int) ((page - 1) * max);
-    for (int i = offset; i < offset + max; i++) {
-      subset.add(data[i]);
-    }
+    List<String> subset = new ArrayList<>(Arrays.asList(data).subList(offset, (int) (offset + max)));
 
     DataListBuilder builder = context.getBean(DataListBuilder.class);
     out.setDataList(
-            builder.setServiceQueryResult(subset.toArray(new String[subset.size()]))
+            builder.setServiceQueryResult(subset.toArray(new String[0]))
                     .setRecords((long) data.length)
                     .setPage(page)
                     .setMax(max)
@@ -297,6 +297,7 @@ public class DummyService extends ServiceConfig {
       serviceData.setDataList(new DataList());
       DataListUtil.addColumnWithOneRow(serviceData.getDataList(), "value", date);
     } catch (Exception exc) {
+      // Avoid exception
     }
 
     return serviceData;
@@ -328,6 +329,7 @@ public class DummyService extends ServiceConfig {
       DataListUtil.addColumn(serviceData.getDataList(), "date6", dates);
       DataListUtil.addColumn(serviceData.getDataList(), "date7", dates);
     } catch (Exception exc) {
+      // Avoid exception
     }
 
     return serviceData;
@@ -359,6 +361,7 @@ public class DummyService extends ServiceConfig {
     // Get calendar 3 years ago
     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     calendar.add(Calendar.YEAR, -3);
+    calendar.add(Calendar.MONTH, -1);
     DataListUtil.addColumn(serviceData.getDataList(), "dateSince", Collections.singletonList(calendar.getTime()));
 
     return serviceData;
@@ -399,5 +402,47 @@ public class DummyService extends ServiceConfig {
   public ServiceData testSuggestMultiple() {
     logger.info("Launching a suggest multiple select action");
     return new ServiceData().addClientAction(new SelectActionBuilder("SugMul", Arrays.asList("test", "pei")).build());
+  }
+
+  /**
+   * Retrieve dummy data
+   *
+   * @param planet Planet bean
+   * @return Service data
+   */
+  public ServiceData getDummyData(Planet planet) {
+    return new ServiceData();
+  }
+
+  /**
+   * Retrieve dummy data
+   *
+   * @param planet Planet bean
+   * @return Service data
+   */
+  public ServiceData getDummyData(JsonNode planet) {
+    return new ServiceData()
+      .setTitle("tutu")
+      .setMessage("lala");
+  }
+
+  /**
+   * Retrieve dummy data
+   *
+   * @param planetList Planet bean list
+   * @return Service data
+   */
+  public ServiceData getDummyData(List<Planet> planetList) {
+    return new ServiceData();
+  }
+
+  /**
+   * Retrieve dummy data
+   *
+   * @param planets Planets bean
+   * @return Service data
+   */
+  public ServiceData getDummyData(Planets planets) {
+    return new ServiceData();
   }
 }
