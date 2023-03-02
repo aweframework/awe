@@ -45,7 +45,7 @@ public class ServiceMaintainConnector extends ServiceConfig implements MaintainC
       LogUtil.checkpoint(timeLapse);
 
       // Log query
-      log.info("[{}] => Prepare service time: {}s - Service time: {}s - Total time: {}s",
+      log.info("[{}] => Prepare service time: {}s - Service time: {}s - {}",
         query.getService(),
         LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
         LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),

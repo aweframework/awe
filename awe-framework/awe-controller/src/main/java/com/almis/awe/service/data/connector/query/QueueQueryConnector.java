@@ -70,7 +70,7 @@ public class QueueQueryConnector extends AbstractQueryConnector {
     LogUtil.checkpoint(timeLapse);
 
     // Log query
-    log.info("[{}] =>  {} records. Prepare queue time: {}s - Queue time: {}s - Datalist time: {}s - Total time: {}s",
+    log.info("[{}] =>  {} records. Prepare queue time: {}s - Queue time: {}s - Datalist time: {}s - {}",
       query.getId(),
       result.getDataList().getRecords(),
       LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
@@ -106,7 +106,7 @@ public class QueueQueryConnector extends AbstractQueryConnector {
     LogUtil.checkpoint(timeLapse);
 
     // Log query
-    log.info("[{}] =>  Prepare queue time: {}s - Queue time: {}s - Total time: {}s",
+    log.info("[{}] =>  Prepare queue time: {}s - Queue time: {}s - {}",
       query.getId(),
       LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
       LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
@@ -135,7 +135,7 @@ public class QueueQueryConnector extends AbstractQueryConnector {
     LogUtil.checkpoint(timeLapse);
 
     // Log query
-    log.info("[{}] => Subscription data retrieved - Datalist time: {}s - Total time: {}s",
+    log.info("[{}] => Subscription data retrieved - Datalist time: {}s - {}",
       query.getId(),
       LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
       LogUtil.getTotalTime(timeLapse));

@@ -118,7 +118,7 @@ public class EnumQueryConnector extends AbstractQueryConnector {
     LogUtil.checkpoint(timeLapse);
 
     // Log query
-    log.info("[{}] => {} records. Create enumerated time: {}s - Enumerated time: {}s - Datalist time: {}s - Total time: {}s",
+    log.info("[{}] => {} records. Create enumerated time: {}s - Enumerated time: {}s - Datalist time: {}s - {}",
             enumId,
             result.getDataList().getRecords(),
             LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
