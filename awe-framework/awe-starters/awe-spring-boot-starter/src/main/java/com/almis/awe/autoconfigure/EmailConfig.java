@@ -82,14 +82,13 @@ public class EmailConfig {
   /**
    * Email service
    * @param mailSender Mail sender
-   * @param emailBuilder Email builder
    * @param baseConfigProperties Base configuration properties
    * @return Email service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public EmailService emailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder, BaseConfigProperties baseConfigProperties) {
-    return new EmailService(mailSender, emailBuilder, baseConfigProperties);
+  public EmailService emailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties) {
+    return new EmailService(mailSender, baseConfigProperties);
   }
 
   /////////////////////////////////////////////

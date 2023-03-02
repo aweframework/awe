@@ -33,19 +33,16 @@ public class EmailService extends ServiceConfig {
   private static final String CRLF = "\n";
   // Autowired services
   private final JavaMailSender mailSender;
-  private final XMLEmailBuilder emailBuilder;
   private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
    * @param mailSender           Email sender
-   * @param emailBuilder         Email builder
    * @param baseConfigProperties Base configuration properties
    */
-  public EmailService(JavaMailSender mailSender, XMLEmailBuilder emailBuilder, BaseConfigProperties baseConfigProperties) {
+  public EmailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties) {
     this.mailSender = mailSender;
-    this.emailBuilder = emailBuilder;
     this.baseConfigProperties = baseConfigProperties;
   }
 
@@ -58,7 +55,7 @@ public class EmailService extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
 
     // Build message
-    ParsedEmail parsedEmail = emailBuilder
+    ParsedEmail parsedEmail = this.getBean(XMLEmailBuilder.class)
       .setEmail(email)
       .setParameters(parameters)
       .parseEmail()
