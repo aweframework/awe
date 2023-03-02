@@ -86,6 +86,35 @@ class DataListBuilderTest {
   }
 
   /**
+   * Test of check data list utilities
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDataListBuilderMergeDataLists() throws Exception {
+    // Prepare
+    DataListBuilder builder = new DataListBuilder();
+    builder.addColumn("test1", Arrays.asList("value1", "value2", "asdzz3", "val", "aaaaa5", "tutu"), "STRING");
+    builder.addColumn("test2", Arrays.asList("asasa1", "value2", "asdzz3", "val", "value5"), "STRING");
+    builder.addColumn("test3", Arrays.asList("asasa1", "value2", "value3", "val", "aaaaa5", "lere"), "STRING");
+
+    DataListBuilder builder2 = new DataListBuilder();
+    builder2.addColumn("test1", Arrays.asList("value1", "value2", "value2", "asdzz3", "val", "aaaaa5", "tutu"), "STRING");
+    builder2.addColumn("test2", Arrays.asList("asasa1", "value2", "value2", "asdzz3", "val", "value5"), "STRING");
+    builder2.addColumn("test3", Arrays.asList("asasa1", "value2", "value2", "value3", "val", "aaaaa5", "lere"), "STRING");
+
+    // Run
+    DataListBuilder builder3 = new DataListBuilder();
+    builder3.addDataList(builder.setRecords(15L).build());
+    builder3.addDataList(builder2.setRecords(22L).build());
+    DataList output = builder3.build();
+
+    // Assert
+    assertEquals(13, output.getRows().size());
+    assertEquals(37L, output.getRecords());
+  }
+
+  /**
    * Test of sort data list of integers
    * with null values at FIRST and DESC sort
    *

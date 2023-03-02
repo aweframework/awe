@@ -455,9 +455,6 @@ public class DataListBuilder extends ServiceConfig {
     // Generate the list
     if (dataListList != null) {
       doMerge();
-
-      // Update records (new records on merge)
-      setRecords((long) dataList.getRows().size());
     }
   }
 
@@ -652,9 +649,11 @@ public class DataListBuilder extends ServiceConfig {
    * Merge datalists
    */
   private void doMerge() {
+    this.records = 0L;
     for (DataList list : dataListList) {
       // Get all rows from all lists
       dataList.getRows().addAll(list.getRows());
+      this.records += list.getRecords();
     }
   }
 
