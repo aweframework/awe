@@ -408,7 +408,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     String sqlShortened = StringUtil.shortenText(sql, databaseConfigProperties.getLimitLogSize(), "...");
 
     // Log operation
-    log.info("{}[{}{}] [{}] => {} rows affected - Elapsed time: {}s",
+    log.info("{}[\u001B[34m{}\u001B[0m{}] [{}] => {} rows affected - {}",
       auditMessage, queryId, indexMessage, sqlShortened, updated, LogUtil.getTotalTime(timeLapse));
 
     return updated;

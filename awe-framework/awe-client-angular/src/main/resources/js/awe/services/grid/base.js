@@ -186,7 +186,7 @@ aweApplication.factory('GridBase',
                 enableColumnMoving: false,
                 enableColumnMenu: false,
                 enableFiltering: false,
-                enableSorting: false
+                sortable: false
               };
               component.controller.columnModel.unshift(checkboxes);
             }
@@ -205,7 +205,7 @@ aweApplication.factory('GridBase',
                 enableColumnMoving: false,
                 enableColumnMenu: false,
                 enableFiltering: false,
-                enableSorting: false
+                sortable: false
               };
               component.controller.columnModel.unshift(rowNumbers);
             }

@@ -155,7 +155,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       LogUtil.checkpoint(timeLapse);
 
       // Log query
-      log.info("[{}] [{}] => {} records. Create query time: {}s - Sql time: {}s - Datalist time: {}s - Total time: {}s",
+      log.info("[\u001B[34m{}\u001B[0m] [{}] => {} records. Create query time: {}s - Sql time: {}s - Datalist time: {}s - {}",
         query.getId(), sql, records,
         LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
         LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),

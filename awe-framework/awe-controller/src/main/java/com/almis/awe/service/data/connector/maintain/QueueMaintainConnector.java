@@ -51,7 +51,7 @@ public class QueueMaintainConnector extends ServiceConfig implements MaintainCon
       LogUtil.checkpoint(timeLapse);
 
       // Log query
-      log.info("[{}] => Prepare queue time: {}s - Queue time: {}s - Total time: {}s",
+      log.info("[{}] => Prepare queue time: {}s - Queue time: {}s - {}",
               query.getId(),
               LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
               LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),

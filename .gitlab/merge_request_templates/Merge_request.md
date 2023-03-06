@@ -1,4 +1,3 @@
-
 ## What does this MR do
 
 !-- Briefly describe what this MR is about --
@@ -6,8 +5,6 @@
 ## Related issues
 
 !-- Mention the issue(s) this MR closes or is related to (Ex.: Closes #5) --
-
-Closes 
 
 ### Your checklist for this pull request
 🚨 Please review the [guidelines for contributing](../../CONTRIBUTING.md) to this repository.
@@ -23,3 +20,5 @@ Closes
 Please describe your pull request.
 
 💔 Thank you from AWE team!
+
+/assign me

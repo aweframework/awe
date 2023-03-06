@@ -23,7 +23,7 @@ The complete sql query structure is the following:
 ```xml
 <!-- Example sql query -->
 
-<query id="[Query Id]" cacheable="[Cacheable]" distinct="Distinct" manage-pagination="Pagination" post-process="Post processed">
+<query id="[Query Id]" cacheable="[Cacheable]" distinct="Distinct" managed-pagination="Pagination" post-process="Post processed">
   <table id="[Table id]" schema="[Schema name]" alias="[Table alias] query="[Subquery]"/>
   <field id="[Field id]" table="[Table field]" alias="[Alias field]"/>
   ...
@@ -103,17 +103,17 @@ To simplify the development of queries, not all elements are required.
 
 The *query* element has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Query identifier                        | **Note:**  The id name must be unique              |
-| distinct| Optional | Boolean | Used to return only distinct (different) values | By default is `false`                 |
-| cacheable| Optional | Boolean | Used to set a query as cacheable (in order to save data in memory and avoid executing the query again)  | By default is `false`. **Note:** If you set a **query as cacheable** and there are subqueries, you must define on it the same variables that all subqueries have. |
-| manage-pagination| Optional | Boolean | To set a query as paginated (to load just the data in that specific page, not all query registries).  Used to achieve high performance in queries with a very high number of records. | By default is `false`. **Note:** Use this parameter only in queries without totalize. |
-| post-process| Optional | Boolean | Launch or not the processing of the datalist that AWE performs, in order to to allow developers to do their own post processing | By default is `true`. **Note:** Only apply in service queries. For more info. see [service query](#service-query)|
-| public | Optional | Boolean | Allows the query to run without the need to be logged | By default is `false`|
-| enumerated | Optional | String | The name of enumerate to fill the query  | **Note:** Only applies in enumerated queries. For more info. see [enumerated query](#enumerated-query)|
-| service | Optional | String | The name of service to fill the query  | **Note:** Only applies in service queries. For more info. see [service query](#service-query)|
-| queue | Optional | String | The name of queue to fill the query  | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)|
+| Attribute          | Use      | Type      |  Description                    |   Values                                           |
+|--------------------| ---------|-----------|---------------------------------|----------------------------------------------------|
+| id                 | **Required** | String | Query identifier                        | **Note:**  The id name must be unique              |
+| distinct           | Optional | Boolean | Used to return only distinct (different) values | By default is `false`                 |
+| cacheable          | Optional | Boolean | Used to set a query as cacheable (in order to save data in memory and avoid executing the query again)  | By default is `false`. **Note:** If you set a **query as cacheable** and there are subqueries, you must define on it the same variables that all subqueries have. |
+| managed-pagination | Optional | Boolean | To set a query as paginated (to load just the data in that specific page, not all query registries).  Used to achieve high performance in queries with a very high number of records. | By default is `false`. **Note:** Use this parameter only in queries without totalize. |
+| post-process       | Optional | Boolean | Launch or not the processing of the datalist that AWE performs, in order to to allow developers to do their own post processing | By default is `true`. **Note:** Only apply in service queries. For more info. see [service query](#service-query)|
+| public             | Optional | Boolean | Allows the query to run without the need to be logged | By default is `false`|
+| enumerated         | Optional | String | The name of enumerate to fill the query  | **Note:** Only applies in enumerated queries. For more info. see [enumerated query](#enumerated-query)|
+| service            | Optional | String | The name of service to fill the query  | **Note:** Only applies in service queries. For more info. see [service query](#service-query)|
+| queue              | Optional | String | The name of queue to fill the query  | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)|
 
 ### Table element
 

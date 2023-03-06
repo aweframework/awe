@@ -30,13 +30,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AweElementsDao {
 
-  private static final String OK = " - OK";
-  private static final String KO = " - NOT FOUND";
+  private static final String OK = " - \u001B[1m\u001B[32mOK\u001B[0m";
+  private static final String KO = " - \u001B[1m\u001B[90mNOT FOUND\u001B[0m";
   private static final String READING = "Reading ''{0}''{1} - elapsed time: {2}s";
   private static final String READING_FILES_FROM = "Reading files from '{}'{}";
-  private static final String ERROR_PARSING_XML = "Error parsing XML - '{}'";
-  private static final String ERROR_READING_XML = "Error reading XML - '{}'";
-  private static final String WARNING_FILE_TOO_BIG = "WARNING! This file is very big and takes too much time to load: {}";
+  private static final String ERROR_PARSING_XML = "\u001B[31mError parsing XML - '{}'\u001B[0m";
+  private static final String ERROR_READING_XML = "\u001B[31mError reading XML - '{}'\u001B[0m";
+  private static final String WARNING_FILE_TOO_BIG = "\u001B[93mWARNING! This file is very big and takes too much time to load: {}\u001B[0m";
   private static final int LONG_FILE_TIME_TO_LOAD = 5000;
   public static final String LOG_SECONDS_FORMAT = "s.SSS";
 

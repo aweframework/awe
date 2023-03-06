@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.6.7
+*06/03/2023*
+
+- DataListBuilder does not store records properly when merge datalists. [MR #420](https://gitlab.com/aweframework/awe/-/merge_requests/420) (Pablo Javier García Mora)
+- Problem sending email. [MR #419](https://gitlab.com/aweframework/awe/-/merge_requests/419) (Pablo Vidal Otero)
+- Clicking on grid row number header retrieves an error. [MR #418](https://gitlab.com/aweframework/awe/-/merge_requests/418) (Pablo Javier García Mora)
+- Problem with Email engine and attachment element. [MR #417](https://gitlab.com/aweframework/awe/-/merge_requests/417) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.6.6
 *22/02/2023*
 

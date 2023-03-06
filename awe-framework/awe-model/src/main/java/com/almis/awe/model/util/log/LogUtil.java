@@ -12,6 +12,13 @@ import java.util.List;
  */
 public class LogUtil {
 
+  private static final String TOTAL_TIME_STRING = "Total time: ";
+  private static final String SECONDS = "s";
+  private static final String END_COLOR = "\u001B[0m";
+  private static final String RED_COLOR = "\u001B[31m";
+  private static final String ORANGE_COLOR = "\u001B[38:5:208m";
+  private static final String YELLOW_COLOR = "\u001B[33m";
+
   /**
    * Constructor
    */
@@ -70,7 +77,20 @@ public class LogUtil {
    * @param timeLapse Time lapse
    * @return Elapsed time
    */
-  public static double getTotalTime(List<Long> timeLapse) {
-    return getElapsed(timeLapse, 0, timeLapse.size() - 1);
+  public static String getTotalTime(List<Long> timeLapse) {
+    double time = getElapsed(timeLapse, 0, timeLapse.size() - 1);
+    if (time > 10) {
+      // En rojo
+      return RED_COLOR + TOTAL_TIME_STRING + time + SECONDS + " WARNING!" + END_COLOR;
+    } else if (time > 5) {
+      // En naranja
+      return ORANGE_COLOR + TOTAL_TIME_STRING + time + SECONDS + END_COLOR;
+    } else if (time > 2) {
+      // En amarillo
+      return YELLOW_COLOR + TOTAL_TIME_STRING + time + SECONDS + END_COLOR;
+    } else {
+      // En blanco
+      return TOTAL_TIME_STRING + time + SECONDS;
+    }
   }
 }

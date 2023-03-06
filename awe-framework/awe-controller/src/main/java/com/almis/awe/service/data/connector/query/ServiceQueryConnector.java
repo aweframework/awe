@@ -70,7 +70,7 @@ public class ServiceQueryConnector extends AbstractQueryConnector {
     LogUtil.checkpoint(timeLapse);
 
     // Log query
-    log.info("[{}] =>  {} records. Prepare service time: {}s - Service time: {}s - Datalist time: {}s - Total time: {}s",
+    log.info("[{}] =>  {} records. Prepare service time: {}s - Service time: {}s - Datalist time: {}s - {}",
       query.getService(),
       result.getDataList().getRecords(),
       LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
