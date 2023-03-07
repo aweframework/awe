@@ -537,7 +537,7 @@
     <field id="Nam" table="mod" alias="module" />
     <field id="Opt" table="scrRes" alias="option" />
     <field id="AccMod" table="scrRes" alias="access" />
-    <computed alias="restricted" format="'[access]' == 'R' ? true : false" eval="true" nullValue="R"/>
+    <field id="AccMod" table="scrRes" alias="restricted" translate="IsRestricted"/>
     <join type="LEFT">
       <table id="AwePro" alias="pro" />
       <and>

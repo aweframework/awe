@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 /*
  * File Imports
@@ -51,13 +52,12 @@ public class EnumeratedGroup implements XMLNode, Copyable {
    * @return Label of the value
    */
   public String findLabel(String value) {
-    for (Global option : this.getOptionList()) {
-      if (option.getValue().equalsIgnoreCase(value)) {
-        return option.getLabel();
-      }
-    }
-
-    return value;
+    String notNullValue = Optional.ofNullable(value).orElse("");
+    return this.getOptionList().stream()
+      .filter(option -> option.getValue().equalsIgnoreCase(notNullValue))
+      .map(Global::getLabel)
+      .findFirst()
+      .orElse(notNullValue);
   }
 
   @JsonIgnore
