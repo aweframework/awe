@@ -293,4 +293,10 @@
     <option label="PROFILE" value="profile"/>
     <option label="SECURITY" value="security"/>
   </group>
+
+  <group id="IsRestricted">
+    <option label="true" value="R" />
+    <option label="false" value="A" />
+    <option label="true" value="" />
+  </group>
 </enumerated>
