@@ -2,7 +2,7 @@ package com.almis.awe.service.report;
 
 import com.almis.ade.api.ADE;
 import com.almis.ade.api.bean.input.PrintBean;
-import com.almis.ade.api.fluid.engine.generic.TemplateExporterBuilderService;
+import com.almis.ade.api.fluid.engine.generic.TemplateExporterBuilder;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
@@ -78,7 +78,7 @@ public class ReportGenerator extends ServiceConfig {
     String fileName = StringUtil.fixFileName(getLocale(screen.getLabel()) + "_" + currentDate);
 
     // Llamar a ADE con el bean creado
-    TemplateExporterBuilderService builderService = buildReport(printBean, fileName);
+    TemplateExporterBuilder builderService = buildReport(printBean, fileName);
 
 
     // Generar los formatos que haya definido el usuario y crear las acciones de descarga de los ficheros
@@ -108,7 +108,7 @@ public class ReportGenerator extends ServiceConfig {
    * @return Report exporter
    * @throws AWException Error building report
    */
-  private TemplateExporterBuilderService buildReport(PrintBean printBean, String fileName) throws AWException {
+  private TemplateExporterBuilder buildReport(PrintBean printBean, String fileName) throws AWException {
     try {
       // Generate file
       return adeAPI
@@ -131,7 +131,7 @@ public class ReportGenerator extends ServiceConfig {
    * @return Service data with output formats
    * @throws AWException Error generating output formats
    */
-  private ServiceData generateReportFormats(TemplateExporterBuilderService builderService, List<String> formats, String fileName) throws AWException {
+  private ServiceData generateReportFormats(TemplateExporterBuilder builderService, List<String> formats, String fileName) throws AWException {
     ServiceData serviceData = new ServiceData();
     String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
     for (String format : formats) {
@@ -151,7 +151,7 @@ public class ReportGenerator extends ServiceConfig {
    * @return future with generate report action
    * @throws AWException AWE exception
    */
-  public ClientAction generateReportFormat(TemplateExporterBuilderService builderService, String format, String fileName, String basePath) throws AWException {
+  public ClientAction generateReportFormat(TemplateExporterBuilder builderService, String format, String fileName, String basePath) throws AWException {
     String mimeType;
     String fullFileName = fileName;
 
