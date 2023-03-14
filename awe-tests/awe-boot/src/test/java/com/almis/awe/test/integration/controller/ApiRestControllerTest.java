@@ -2,7 +2,6 @@ package com.almis.awe.test.integration.controller;
 
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
-import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.rest.dto.RequestParameter;
 import com.almis.awe.rest.service.JWTTokenService;
@@ -74,14 +73,12 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void authenticate_success() {
       // Build entity and variable maps
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
-      LoginRequest loginRequest = new LoginRequest()
-        .setUsername("test")
-        .setPassword("test");
-      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
-
+      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"))
+              .queryParam("username", "test")
+              .queryParam("password", "test");
+      HttpEntity<String> entity = new HttpEntity<>(headers);
       ResponseEntity<LoginResponse> response = restTemplate.exchange(builder.toUriString(),
-              HttpMethod.POST, loginRequestEntity, LoginResponse.class);
+              HttpMethod.POST, entity, LoginResponse.class);
       assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
       assertNotNull(Objects.requireNonNull(response.getBody()).getToken());
     }
@@ -89,13 +86,12 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void authenticateWithBadCredentials_unauthorized() {
       // Build entity and variable maps
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
-      LoginRequest loginRequest = new LoginRequest()
-        .setUsername("test")
-        .setPassword("dummy");
-      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
+      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"))
+              .queryParam("username", "test")
+              .queryParam("password", "dummy");
+      HttpEntity<String> entity = new HttpEntity<>(headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
-              HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
+              HttpMethod.POST, entity, AweRestResponse.class);
       assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
       assertEquals("Bad credentials", Objects.requireNonNull(response.getBody()).getMessage());
     }
@@ -103,13 +99,12 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void authenticateWithUserNotFound_unauthorized() {
       // Build entity and variable maps
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
-      LoginRequest loginRequest = new LoginRequest()
-        .setUsername("foo")
-        .setPassword("dummy");
-      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
+      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"))
+              .queryParam("username", "foo")
+              .queryParam("password", "dummy");
+      HttpEntity<String> entity = new HttpEntity<>(headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
-              HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
+              HttpMethod.POST, entity, AweRestResponse.class);
       assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
       assertEquals("User not found or not active", Objects.requireNonNull(response.getBody()).getMessage());
     }

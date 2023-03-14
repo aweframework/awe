@@ -2,8 +2,6 @@ package com.almis.awe.rest.security;
 
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
-import com.almis.awe.rest.dto.JwtTokenInfo;
-import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -49,36 +48,22 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
     // Get user info from request
-    try {
-      LoginRequest loginRequest = new ObjectMapper()
-        .readValue(request.getInputStream(), LoginRequest.class);
-
-      return super.getAuthenticationManager().authenticate(
-          new UsernamePasswordAuthenticationToken(
-            loginRequest.getUsername(),
-            loginRequest.getPassword(),
-            new ArrayList<>())
-        );
-    } catch (IOException ex) {
-      log.error("Error retrieving request input data", ex);
-      throw new UsernameNotFoundException("There was a problem retrieving user credentials from request");
-    }
+    String username = obtainUsername(request);
+    String password = obtainPassword(request);
+    return super.getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>()));
   }
 
   @Override
   protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                           FilterChain chain,
-                                          Authentication auth) throws IOException {
+                                          Authentication auth) throws IOException, ServletException {
     // Provide JWT token
-    JwtTokenInfo tokenInfo = jwtTokenService.generateToken(auth, response);
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
-    response.getWriter().write(objectMapper.writeValueAsString(tokenInfo));
-    response.getWriter().flush();
+    jwtTokenService.generateToken(auth, response);
+    chain.doFilter(request, response);
   }
 
   @Override
-  protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
+  protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 
     log.warn("[awe-rest] [/api/authenticate] Unsuccessful authentication in: " + exception.getMessage());
 

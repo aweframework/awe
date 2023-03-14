@@ -1,7 +1,6 @@
 package com.almis.awe.rest.service;
 
 import com.almis.awe.config.ServiceConfig;
-import com.almis.awe.rest.dto.JwtTokenInfo;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -63,28 +62,19 @@ public class JWTTokenService extends ServiceConfig {
    * @param authentication Authentication object
    * @param response {@link HttpServletResponse}
    */
-  public JwtTokenInfo generateToken(Authentication authentication, HttpServletResponse response) {
-    final String username = ((UserDetails) authentication.getPrincipal()).getUsername();
-    final Date expiresAt = new Date(System.currentTimeMillis() + expiration.toMillis());
-
+  public void generateToken(Authentication authentication, HttpServletResponse response) {
     String token = JWT.create()
-            .withSubject(username)
-            .withExpiresAt(expiresAt)
+            .withSubject(((UserDetails) authentication.getPrincipal()).getUsername())
+            .withExpiresAt(new Date(System.currentTimeMillis() + expiration.toMillis()))
             .withIssuer(issuer)
             .sign(Algorithm.HMAC512(secret.getBytes()));
 
     // Add auth header
     response.addHeader(authorizationHeader, prefix + " " + token);
-
-    return new JwtTokenInfo()
-      .setToken(prefix + " " + token)
-      .setIssuer(issuer)
-      .setUsername(username)
-      .setExpiredAt(expiresAt);
   }
 
   /**
-   * Verify token. Check if it has JWT format and if not expired
+   * Verify token. Check if it has JWT format and if not expiredh
    * @param token JWT token
    * @return Decode JWT token
    */

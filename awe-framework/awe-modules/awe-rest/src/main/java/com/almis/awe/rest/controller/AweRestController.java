@@ -5,7 +5,6 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.rest.dto.AweRestResponse;
-import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.rest.dto.RequestParameter;
 import com.almis.awe.rest.service.JWTTokenService;
@@ -32,7 +31,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 /**
  * REST API awe-rest  for launching queries and maintains
@@ -74,7 +72,8 @@ public class AweRestController {
 
   /**
    * Authenticate service. Generate JWT Token for authentication
-   * @param loginRequest Login request
+   * @param username User name
+   * @param password User password
    * @param httpServletResponse response
    * @return LoginResponse with jwt token info
    */
@@ -88,16 +87,15 @@ public class AweRestController {
           @ApiResponse(responseCode = "400", description = "Bad request"),
           @ApiResponse(responseCode = "401", description = "Unauthorized. User not found or invalid credentials"),
           @ApiResponse(responseCode = "500", description = "Internal error")})
-  public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
-    Assert.notNull(loginRequest.getUsername());
-    Assert.notNull(loginRequest.getPassword());
+  public ResponseEntity<LoginResponse> authenticate(@Parameter(description = "User name to be authenticated", required = true) @RequestParam String username, @Parameter(description = "Credentials of user", required = true) @RequestParam String password, HttpServletResponse httpServletResponse) {
+    Assert.notNull(password);
     // Decode http response authorization header
     String authorizationHeader = httpServletResponse.getHeader(jwtTokenService.getAuthorizationHeader());
     String token = jwtTokenService.extractToken(authorizationHeader);
     DecodedJWT decodedJWT = jwtTokenService.verifyToken(token);
 
     LoginResponse loginResponse = new LoginResponse();
-    loginResponse.setUsername(loginRequest.getUsername());
+    loginResponse.setUsername(username);
     loginResponse.setToken(decodedJWT.getToken());
     loginResponse.setIssuer(decodedJWT.getIssuer());
     loginResponse.setExpiresAt(decodedJWT.getExpiresAt());
