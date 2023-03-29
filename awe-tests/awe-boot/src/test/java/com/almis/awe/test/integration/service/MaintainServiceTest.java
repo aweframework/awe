@@ -65,7 +65,7 @@ class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
     MaintainService mock = spy(maintainService);
     doReturn(maintainService.getDatabaseConnection()).when(mock).getDatabaseConnection(anyString());
     mock.launchMaintain("SimpleSingleInsertFromVariableValue", "aweora1");
-    verify(mock, times(1)).getDatabaseConnection("aweora1");
+    verify(mock, times(1)).getDatabaseConnection(any(ObjectNode.class));
   }
 
   /**
@@ -90,7 +90,7 @@ class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
     MaintainService mock = spy(maintainService);
     doReturn(maintainService.getDatabaseConnection()).when(mock).getDatabaseConnection(anyString());
     mock.launchPrivateMaintain("SimpleSingleInsertFromVariableValue", "aweora1");
-    verify(mock, times(1)).getDatabaseConnection("aweora1");
+    verify(mock, times(1)).getDatabaseConnection(any(ObjectNode.class));
   }
 
 }

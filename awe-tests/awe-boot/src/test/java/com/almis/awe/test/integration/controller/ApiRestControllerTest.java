@@ -63,7 +63,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
       .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) // 1 min
       .withIssuer("AWE ISSUER")
       .sign(Algorithm.HMAC512(jwtTokenService.getSecret().getBytes()));
-    headers.add("Authorization", jwtTokenService.getPrefix() + " " + jwtToken);
+    headers.setBearerAuth(jwtToken);
   }
 
   @Nested

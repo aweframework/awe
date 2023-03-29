@@ -2,6 +2,7 @@ package com.almis.awe.rest.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
@@ -9,6 +10,7 @@ import java.util.Date;
  * JWT Token info dto. Fill by "/api/authenticate" rest service
  */
 @Data
+@Accessors(chain = true)
 public class LoginResponse {
   @Schema(title = "User name", example = "foo" )
   private String username;

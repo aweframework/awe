@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.scheduler.dao.SchedulerDAO;
@@ -29,18 +30,37 @@ public class SchedulerService extends ServiceConfig {
   private final TaskDAO taskDAO;
   private final SchedulerDAO schedulerDAO;
   private final CalendarDAO calendarDAO;
+  private final boolean isRemoteEnabled;
+  private final boolean isSchedulerInstance;
 
   /**
    * Constructor
    */
-  public SchedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO) {
+  public SchedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO,
+                          boolean isRemoteEnabled, boolean isSchedulerInstance) {
     this.taskDAO = taskDAO;
     this.schedulerDAO = schedulerDAO;
     this.calendarDAO = calendarDAO;
+    this.isRemoteEnabled = isRemoteEnabled;
+    this.isSchedulerInstance = isSchedulerInstance;
   }
 
   /**
    * Start the scheduler service
+   * Requires QUARTZ
+   *
+   * @throws AWException Error starting scheduler
+   */
+  public ServiceData startOnInit() throws AWException {
+    if (!isRemoteEnabled || isSchedulerInstance) {
+      return schedulerDAO.start();
+    }
+    return new ServiceData();
+  }
+
+  /**
+   * Start the scheduler service
+   * Requires QUARTZ
    *
    * @throws AWException Error starting scheduler
    */
@@ -50,6 +70,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Start the scheduler service
+   * Requires QUARTZ
    *
    * @throws AWException Error starting scheduler
    */
@@ -59,6 +80,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Stop the scheduler service
+   * Requires QUARTZ
    *
    * @throws AWException Error stopping scheduler
    */
@@ -68,6 +90,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Scheduler's emergency reboot method
+   * Requires QUARTZ
    *
    * @throws AWException Error restarting scheduler
    */
@@ -77,6 +100,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Clear all scheduled tasks and stop the scheduler.
+   * Requires QUARTZ
    *
    * @return Service data
    */
@@ -86,6 +110,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Get currently executing jobs from the scheduler instance
+   * Requires QUARTZ
    *
    * @return Service data
    * @throws AWException Error retrieving currently executing jobs
@@ -97,6 +122,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Get configured
+   * Requires QUARTZ
    *
    * @return Configured jobs
    * @throws AWException Error retrieving configured jobs
@@ -107,6 +133,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Returns information about the configured scheduler
+   * Requires QUARTZ
    *
    * @return Scheduler metadata
    * @throws AWException Error retrieving scheduler metadata
@@ -117,6 +144,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Retrieve the task list
+   * Requires QUARTZ
    *
    * @return ServiceData
    * @throws AWException Error retrieving task list
@@ -127,6 +155,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Retrieve the task progress status
+   * Requires LOG FILES
    *
    * @return ServiceData
    * @throws AWException Error retrieving task execution list
@@ -147,17 +176,19 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Execute the selected task now
+   * Requires QUARTZ
    *
    * @param taskId Task identifier
    * @return ServiceData
    * @throws AWException Error executing task
    */
-  public ServiceData executeTaskNow(Integer taskId) throws AWException {
-    return taskDAO.executeTaskNow(taskId);
+  public ServiceData executeTaskNow(Integer taskId, String user) throws AWException {
+    return taskDAO.executeTaskNow(taskId, user);
   }
 
   /**
    * Pause the selected task
+   * Requires QUARTZ
    *
    * @param taskId Task identifier
    * @return ServiceData
@@ -177,6 +208,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Resume the selected task
+   * Requires QUARTZ
    *
    * @param taskId Task identifier
    * @return ServiceData
@@ -195,35 +227,20 @@ public class SchedulerService extends ServiceConfig {
   }
 
   /**
-   * OBJECT
    * Insert and schedule a new task
+   * Requires QUARTZ
    *
-   * @param taskId          Task identifier
-   * @param sendStatus      Status to send list
-   * @param sendDestination Destination target list
+   * @param taskId Task identifier
    * @return ServiceData
    * @throws AWException Error inserting task
    */
-  public ServiceData insertSchedulerTask(Integer taskId, List<Integer> sendStatus, List<Integer> sendDestination) throws AWException {
+  public ServiceData insertSchedulerTask(Integer taskId) throws AWException {
     return taskDAO.insertTask(taskId);
   }
 
   /**
    * Update and reschedule a task
-   *
-   * @param taskId          Task identifier
-   * @param sendStatus      Status to send list
-   * @param sendDestination Destination target list
-   * @return ServiceData
-   * @throws AWException Error updating task
-   */
-  public ServiceData updateSchedulerTask(Integer taskId, List<Integer> sendStatus, List<Integer> sendDestination) throws AWException {
-    return taskDAO.updateTask(taskId);
-  }
-
-
-  /**
-   * Update and reschedule a task
+   * Requires QUARTZ
    *
    * @param taskId Task identifier list
    * @return ServiceData
@@ -235,6 +252,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Delete a task from scheduler
+   * Requires QUARTZ
    *
    * @param ideTsk Task identifier list
    * @return ServiceData
@@ -246,6 +264,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Delete a single task from scheduler
+   * Requires QUARTZ
    *
    * @param ideTsk Task identifier list
    * @return ServiceData
@@ -303,6 +322,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Purge execution logs
+   * Requires LOG FILES
    *
    * @param taskId     Task identifier
    * @param executions Number of executions to purge
@@ -315,16 +335,22 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Purge execution logs on application start
+   * Requires LOG FILES
    *
    * @return Service data
    * @throws AWException Error purging executions
    */
   public ServiceData purgeExecutionsAtStart() throws AWException {
-    return taskDAO.purgeExecutionsAtStart();
+    if (!isRemoteEnabled || isSchedulerInstance) {
+      return taskDAO.purgeExecutionsAtStart();
+    }
+
+    return new ServiceData();
   }
 
   /**
    * Pause the selected calendar
+   * Requires QUARTZ
    *
    * @param calendarIdList Calendar identifier list
    * @return ServiceData
@@ -336,6 +362,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Resume the selected calendar
+   * Requires QUARTZ
    *
    * @param calendarIdList Calendar identifier list
    * @return ServiceData
@@ -347,6 +374,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Check if the scheduler contains the selected calendar
+   * Requires QUARTZ
    *
    * @param calendarIdList Calendar identifier list
    * @return ServiceData
@@ -358,6 +386,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Insert and schedule a new calendar
+   * Requires QUARTZ
    *
    * @param calendarIde Calendar identifier
    * @return ServiceData
@@ -369,6 +398,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Insert and schedule a new calendar
+   * Requires QUARTZ
    *
    * @param calendarId     Calendar identifier
    * @param replace        Replace calendar
@@ -382,6 +412,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Insert and schedule a new calendar
+   * Requires QUARTZ
    *
    * @param calendarId     Calendar identifier
    * @param replace        Replace calendar
@@ -396,6 +427,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Update and schedule a new calendar
+   * Requires QUARTZ
    *
    * @param calendarId Calendar identifier
    * @return ServiceData
@@ -407,6 +439,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Delete selected calendars
+   * Requires QUARTZ
    *
    * @param calendarIdList Calendar identifier list
    * @return ServiceData
@@ -418,6 +451,7 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Delete a calendar from scheduler
+   * Requires QUARTZ
    *
    * @param calendarId Calendar identifier
    * @return ServiceData
@@ -438,12 +472,14 @@ public class SchedulerService extends ServiceConfig {
 
   /**
    * Compute next fire times
+   * Requires QUARTZ
    *
-   * @param times # of fire times to compute
+   * @param times    # of fire times to compute
+   * @param schedule Schedule
    * @return Service data
    * @throws AWException Error computing next fire times
    */
-  public ServiceData computeNextFireTimes(Integer times) throws AWException {
-    return calendarDAO.computeNextFireTimes(times);
+  public ServiceData computeNextFireTimes(Integer times, Schedule schedule) throws AWException {
+    return calendarDAO.computeNextFireTimes(times, schedule);
   }
 }

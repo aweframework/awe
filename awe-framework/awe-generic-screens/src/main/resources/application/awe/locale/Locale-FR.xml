@@ -212,10 +212,10 @@
   <locale name="ENUM_ENV_PRE" value="Preproduction"/>
   <locale name="ENUM_ENV_PRO" value="Production"/>
   <locale name="ENUM_EXECUTE_COMMAND" value="Commande"/>
-  <locale name="ENUM_EXECUTE_MAINTAIN" value="Maintain"/>
-  <locale name="ENUM_GRD_STL" value="Grid style"/>
+  <locale name="ENUM_EXECUTE_MAINTAIN" value="Maintenance"/>
+  <locale name="ENUM_GRD_STL" value="Style de grille"/>
   <locale name="ENUM_GRID" value="Matrice"/>
-  <locale name="ENUM_HDG_STL" value="Column header style"/>
+  <locale name="ENUM_HDG_STL" value="Style d'en-tête de colonne"/>
   <locale name="ENUM_JAVA" value="Java"/>
   <locale name="ENUM_LAN_EN" value="Anglais"/>
   <locale name="ENUM_LAN_ES" value="Espagnol"/>

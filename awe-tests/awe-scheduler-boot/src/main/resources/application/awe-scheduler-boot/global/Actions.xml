@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Actions.xml
+    Created on : 5 de febrero de 2010, 12:46
+    Author     : Pablo GARCIA
+    Description:
+        Purpose of the document follows.
+-->
+
+<actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/actions.xsd">
+</actions>
+

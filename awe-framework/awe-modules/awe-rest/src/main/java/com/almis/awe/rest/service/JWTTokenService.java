@@ -77,7 +77,7 @@ public class JWTTokenService extends ServiceConfig {
     response.addHeader(authorizationHeader, prefix + " " + token);
 
     return new JwtTokenInfo()
-      .setToken(prefix + " " + token)
+      .setToken(token)
       .setIssuer(issuer)
       .setUsername(username)
       .setExpiredAt(expiresAt);

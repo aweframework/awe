@@ -1,4 +1,4 @@
-package com.almis.awe.scheduler.service;
+package com.almis.awe.scheduler.service.scheduled;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
@@ -11,6 +11,7 @@ import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
+import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.service.MaintainService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -183,7 +184,7 @@ public abstract class JobService extends ServiceConfig {
       job.getTask().setStatus(TaskStatus.JOB_ERROR);
       job.getTask().getReport().setReportMessage(exc.getMessage());
       job.getExecution().setDescription(serviceData.getMessage());
-      log.error("[SCHEDULER][TASK_QUERY {}] Error on batch, process {}" + job.getTask().getAction(), job.getTask().getTrigger().getKey(), exc);
+      log.error("[SCHEDULER][TASK_QUERY {}] Error on batch, process {}", job.getTask().getTrigger().getKey(), job.getTask().getAction(), exc);
       throw new AWException(exc.toString(), exc);
     } finally {
       // Interrupt timer
