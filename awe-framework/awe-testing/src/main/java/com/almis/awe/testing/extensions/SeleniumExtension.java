@@ -95,6 +95,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
       .addArguments("--no-sandbox")
       .addArguments("--disable-dev-shm-usage")
       .addArguments("--disable-gpu")
+      .addArguments("--remote-allow-origins=*")
       .addArguments(windowSize);
 
     // Setup edge options
