@@ -16,6 +16,7 @@
 
   <modules>
     <module>awe-boot</module>
+    <module>awe-scheduler-boot</module>
   </modules>
 
   <build>

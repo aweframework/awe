@@ -1,21 +1,23 @@
-package com.almis.awe.scheduler.job.report;
+package com.almis.awe.scheduler.service.report;
 
+import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.enums.ReportType;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import static com.almis.awe.scheduler.constant.ReportConstants.*;
 
 @Slf4j
-public class EmailReportJob extends ReportJob {
+public class SchedulerEmailReportService extends ServiceConfig implements ISchedulerReportService {
 
   // Constants
   private static final String LIST_START = "<li><b>";
@@ -37,7 +39,7 @@ public class EmailReportJob extends ReportJob {
    * @param maintainService Maintain service
    * @param queryService    Query service
    */
-  public EmailReportJob(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService) {
+  public SchedulerEmailReportService(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService) {
     this.queryUtil = queryUtil;
     this.maintainService = maintainService;
     this.queryService = queryService;
@@ -45,25 +47,25 @@ public class EmailReportJob extends ReportJob {
   }
 
   @Override
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-    // Store task and execution
-    super.execute(context);
+  public ReportType getType() {
+    return ReportType.EMAIL;
+  }
 
+  public void execute(Task task, TaskExecution taskExecution) {
     // Store task and execution in parameters
-    ObjectNode parameters = queryUtil.getParameters(getTask().getDatabase());
-    parameters.set(REPORT_DESTINATION_EMAILS, mapper.valueToTree(getTask().getReport().getReportEmailDestination()));
-    parameters.put(REPORT_TITLE, getTask().getReport().getReportTitle());
-    parameters.put(REPORT_MESSAGE_HTML, constructHTMLMessage());
-    parameters.put(REPORT_MESSAGE_TEXT, constructTextMessage());
+    ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+    parameters.set(REPORT_DESTINATION_EMAILS, mapper.valueToTree(task.getReport().getReportEmailDestination()));
+    parameters.put(REPORT_TITLE, task.getReport().getReportTitle());
+    parameters.put(REPORT_MESSAGE_HTML, constructHTMLMessage(task, taskExecution));
+    parameters.put(REPORT_MESSAGE_TEXT, constructTextMessage(task, taskExecution));
 
     try {
       maintainService.launchPrivateMaintain(REPORT_MAINTAIN_TARGET, parameters);
     } catch (AWException exc) {
       // Log error
-      log.error("Report generation error for task {}", getTask().getTaskId(), exc);
+      log.error("Report generation error for task {}", task.getTaskId(), exc);
     }
   }
-
 
   /**
    * Get HTML string with report message with title
@@ -71,11 +73,11 @@ public class EmailReportJob extends ReportJob {
    * @return
    * @throws AWException
    */
-  private String constructHTMLMessage() {
+  private String constructHTMLMessage(Task task, TaskExecution execution) {
     String msg = "";
     msg += "<html>";
-    msg += constructHTMLHeader(getTask().getReport().getReportTitle() != null ? getTask().getReport().getReportTitle() : getLocale(PARAMETER_TASK_DETAILS));
-    msg += constructHTMLBody();
+    msg += constructHTMLHeader(task.getReport().getReportTitle() != null ? task.getReport().getReportTitle() : getLocale(PARAMETER_TASK_DETAILS));
+    msg += constructHTMLBody(task, execution);
     msg += "</html>";
     return msg;
   }
@@ -102,17 +104,17 @@ public class EmailReportJob extends ReportJob {
    *
    * @return String
    */
-  private String constructHTMLBody() {
+  private String constructHTMLBody(Task task, TaskExecution execution) {
     String msg = "";
     // Construct HTML body
-    msg += "<p>" + getTask().getReport().getReportMessage() + "</p>";
+    msg += "<p>" + task.getReport().getReportMessage() + "</p>";
     msg += "<div style=\"border:1px solid black;\">";
     try {
       msg += "<br><b><u>" + getLocale(PARAMETER_TASK_DETAILS) + "</u></b>";
-      msg += getTaskDetailsMessage();
+      msg += getTaskDetailsMessage(task, execution);
     } catch (Exception exc) {
       // No details
-      log.error("Error generating HTML task details for task #{} execution #{}", getExecution().getTaskId(), getExecution().getExecutionId(), exc);
+      log.error("Error generating HTML task details for task #{} execution #{}", execution.getTaskId(), execution.getExecutionId(), exc);
     }
     msg += "</div>";
     return msg;
@@ -124,39 +126,39 @@ public class EmailReportJob extends ReportJob {
    * @return
    * @throws AWException
    */
-  private String getTaskDetailsMessage() throws AWException {
+  private String getTaskDetailsMessage(Task task, TaskExecution execution) throws AWException {
     StringBuilder builder = new StringBuilder();
 
-    String launchType = queryService.findLabel("LchTxtTyp", getExecution().getGroupId());
-    String statusColor = queryService.findLabel("StaColor", getExecution().getStatus().toString());
-    String statusText = queryService.findLabel("StaTyp", getExecution().getStatus().toString());
+    String launchType = queryService.findLabel("LchTxtTyp", execution.getGroupId());
+    String statusColor = queryService.findLabel("StaColor", execution.getStatus().toString());
+    String statusText = queryService.findLabel("StaTyp", execution.getStatus().toString());
 
     // Construct HTML task details message
     builder.append("<div><ul>");
-    builder.append(LIST_START).append(getLocale(PARAMETER_NAME)).append(BOLD_END).append(getTask().getName()).append(LIST_END);
-    builder.append(LIST_START).append(getLocale(PARAMETER_IDE)).append(BOLD_END).append(getTask().getTrigger().getKey()).append(LIST_END);
+    builder.append(LIST_START).append(getLocale(PARAMETER_NAME)).append(BOLD_END).append(task.getName()).append(LIST_END);
+    builder.append(LIST_START).append(getLocale(PARAMETER_IDE)).append(BOLD_END).append(task.getTaskId()).append(LIST_END);
     builder.append(LIST_START).append(getLocale(PARAMETER_LAUNCH_TYPE)).append(BOLD_END).append(getLocale(launchType)).append(LIST_END);
-    builder.append(LIST_START).append(getLocale(PARAMETER_DESCRIPTION)).append(BOLD_END).append(getTask().getDescription()).append(LIST_END);
+    builder.append(LIST_START).append(getLocale(PARAMETER_DESCRIPTION)).append(BOLD_END).append(task.getDescription()).append(LIST_END);
     builder.append("<li style=\"margin-top:12px;\"><b>")
       .append(getLocale(PARAMETER_STATUS)).append(BOLD_END)
       .append("<span style = \"padding:10px;color:white;-moz-border-radius: 20px; -webkit-border-radius: 20px; border-radius: 20px;background-color:")
       .append(statusColor).append("\">").append(getLocale(statusText)).append("</span></li>)");
 
-    switch (TaskStatus.valueOf(getExecution().getStatus())) {
+    switch (TaskStatus.valueOf(execution.getStatus())) {
       case JOB_ERROR:
-        builder.append(LIST_START).append(getLocale(ERROR_LOG)).append(BOLD_END).append(getExecution().getDescription()).append(LIST_END);
+        builder.append(LIST_START).append(getLocale(ERROR_LOG)).append(BOLD_END).append(execution.getDescription()).append(LIST_END);
         break;
       case JOB_WARNING:
       case JOB_INFO:
-        builder.append(LIST_START).append(queryService.findLabel("StaTit", getExecution().getStatus().toString())).append(BOLD_END).append(getExecution().getDescription()).append(LIST_END);
+        builder.append(LIST_START).append(queryService.findLabel("StaTit", execution.getStatus().toString())).append(BOLD_END).append(execution.getDescription()).append(LIST_END);
         break;
       default:
     }
 
-    builder.append(LIST_START).append(getLocale(PARAMETER_EXECUTED_COMMAND)).append(BOLD_END).append(getTask().getAction()).append(LIST_END);
+    builder.append(LIST_START).append(getLocale(PARAMETER_EXECUTED_COMMAND)).append(BOLD_END).append(task.getAction()).append(LIST_END);
     builder.append(LIST_START).append(getLocale(PARAMETER_PARAMETERS)).append(BOLD_END).append(LIST_END);
     builder.append("<ul>");
-    for (TaskParameter parameter : getTask().getParameterList()) {
+    for (TaskParameter parameter : task.getParameterList()) {
       builder.append(LIST_START).append(parameter.getName()).append(BOLD_END).append(parameter.getValue()).append(LIST_END);
     }
     builder.append("</ul></li>");
@@ -172,10 +174,10 @@ public class EmailReportJob extends ReportJob {
    * @return
    * @throws AWException
    */
-  private String constructTextMessage() {
+  private String constructTextMessage(Task task, TaskExecution execution) {
     String msg = "";
-    msg += getTask().getReport().getReportTitle() != null ? getTask().getReport().getReportTitle() : getLocale(PARAMETER_TASK_DETAILS) + NEW_LINE;
-    msg += constructTextBody();
+    msg += task.getReport().getReportTitle() != null ? task.getReport().getReportTitle() : getLocale(PARAMETER_TASK_DETAILS) + NEW_LINE;
+    msg += constructTextBody(task, execution);
     return msg;
   }
 
@@ -184,16 +186,16 @@ public class EmailReportJob extends ReportJob {
    *
    * @return String
    */
-  private String constructTextBody() {
+  private String constructTextBody(Task task, TaskExecution execution) {
     String msg = "";
     // Construct text body
-    msg += getTask().getReport().getReportMessage() + "\n\n";
+    msg += task.getReport().getReportMessage() + "\n\n";
     try {
       msg += getLocale(PARAMETER_TASK_DETAILS) + NEW_LINE;
-      msg += getTextTaskDetailsMessage();
+      msg += getTextTaskDetailsMessage(task, execution);
     } catch (Exception exc) {
       // No details
-      log.error("Error generating text task details for task #{} execution #{}", getExecution().getTaskId(), getExecution().getExecutionId(), exc);
+      log.error("Error generating text task details for task #{} execution #{}", execution.getTaskId(), execution.getExecutionId(), exc);
     }
     return msg;
   }
@@ -204,34 +206,34 @@ public class EmailReportJob extends ReportJob {
    * @return
    * @throws AWException
    */
-  private String getTextTaskDetailsMessage() throws AWException {
+  private String getTextTaskDetailsMessage(Task task, TaskExecution execution) throws AWException {
     StringBuilder builder = new StringBuilder();
 
-    String launchType = queryService.findLabel("LchTxtTyp", getExecution().getGroupId());
-    String statusText = queryService.findLabel("StaTyp", getExecution().getStatus().toString());
+    String launchType = queryService.findLabel("LchTxtTyp", execution.getGroupId());
+    String statusText = queryService.findLabel("StaTyp", execution.getStatus().toString());
 
     // Construct HTML task details message
-    builder.append(getLocale(PARAMETER_NAME)).append(COLON_SPACE).append(getTask().getName()).append(NEW_LINE);
-    builder.append(getLocale(PARAMETER_IDE)).append(COLON_SPACE).append(getTask().getTrigger().getKey()).append(NEW_LINE);
+    builder.append(getLocale(PARAMETER_NAME)).append(COLON_SPACE).append(task.getName()).append(NEW_LINE);
+    builder.append(getLocale(PARAMETER_IDE)).append(COLON_SPACE).append(task.getTaskId()).append(NEW_LINE);
     builder.append(getLocale(PARAMETER_LAUNCH_TYPE)).append(COLON_SPACE).append(getLocale(launchType)).append(NEW_LINE);
-    builder.append(getLocale(PARAMETER_DESCRIPTION)).append(COLON_SPACE).append(getTask().getDescription()).append(NEW_LINE);
+    builder.append(getLocale(PARAMETER_DESCRIPTION)).append(COLON_SPACE).append(task.getDescription()).append(NEW_LINE);
     builder.append(getLocale(PARAMETER_STATUS)).append(COLON_SPACE).append(getLocale(statusText)).append(NEW_LINE);
 
-    switch (TaskStatus.valueOf(getExecution().getStatus())) {
+    switch (TaskStatus.valueOf(execution.getStatus())) {
       case JOB_ERROR:
-        builder.append(getLocale(ERROR_LOG)).append(COLON_SPACE).append(getExecution().getDescription()).append(NEW_LINE);
+        builder.append(getLocale(ERROR_LOG)).append(COLON_SPACE).append(execution.getDescription()).append(NEW_LINE);
         break;
       case JOB_WARNING:
       case JOB_INFO:
-        builder.append(queryService.findLabel("StaTit", getExecution().getStatus().toString())).append(COLON_SPACE).append(getExecution().getDescription()).append(NEW_LINE);
+        builder.append(queryService.findLabel("StaTit", execution.getStatus().toString())).append(COLON_SPACE).append(execution.getDescription()).append(NEW_LINE);
         break;
       default:
         break;
     }
 
-    builder.append(getLocale(PARAMETER_EXECUTED_COMMAND)).append(COLON_SPACE).append(getTask().getAction()).append(NEW_LINE);
+    builder.append(getLocale(PARAMETER_EXECUTED_COMMAND)).append(COLON_SPACE).append(task.getAction()).append(NEW_LINE);
     builder.append(getLocale(PARAMETER_PARAMETERS)).append(NEW_LINE);
-    for (TaskParameter parameter : getTask().getParameterList()) {
+    for (TaskParameter parameter : task.getParameterList()) {
       builder.append("  - " + parameter.getName()).append(COLON_SPACE).append(parameter.getValue()).append(NEW_LINE);
     }
 

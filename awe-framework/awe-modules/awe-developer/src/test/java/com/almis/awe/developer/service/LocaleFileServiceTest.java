@@ -84,7 +84,7 @@ class LocaleFileServiceTest {
    *
    */
   @Test
-  void readLocalesFromFileNotFound() {
+  void readLocalesFromFileNotFound() throws AWException {
     // Launch
     when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
     when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");

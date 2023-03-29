@@ -15,8 +15,6 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.builder.cron.PatternBuilder;
 import com.almis.awe.scheduler.util.TaskUtil;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.almis.awe.scheduler.constant.CronConstants.*;
 import static com.almis.awe.scheduler.constant.QueryConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.YEAR_LABEL;
 import static com.almis.awe.scheduler.constant.TaskConstants.YEAR_VALUE;
@@ -86,7 +83,7 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Get calendar for the given ID on the given database
    *
-   * @param alias Calendar alias
+   * @param alias      Calendar alias
    * @param calendarId Calendar identifier
    * @return Calendar
    * @throws AWException Error retrieving calendar
@@ -112,8 +109,8 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarIde Calendar identifier
-   * @param replace Replace calendar
+   * @param calendarIde    Calendar identifier
+   * @param replace        Replace calendar
    * @param updateTriggers Update task triggers
    * @return ServiceData
    * @throws AWException Error inserting scheduler calendar
@@ -125,10 +122,10 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Insert and schedule a new calendar
    *
-   * @param calendarId Calendar identifier
-   * @param replace Replace calendar
+   * @param calendarId     Calendar identifier
+   * @param replace        Replace calendar
    * @param updateTriggers Update task triggers
-   * @param alias Calendar alias
+   * @param alias          Calendar alias
    * @return ServiceData
    * @throws AWException Error inserting scheduler calendar
    */
@@ -188,7 +185,7 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Reschedule task with the new calendar id
    *
-   * @param task Task to reschedule
+   * @param task       Task to reschedule
    * @param calendarId Calendar identifier
    * @throws AWException Error rescheduling task with calendar
    */
@@ -287,17 +284,15 @@ public class CalendarDAO extends ServiceConfig {
   /**
    * Compute next fire times
    *
-   * @param times # of fire times to compute
+   * @param times    # of fire times to compute
+   * @param schedule Schedule
    * @return Service data
    * @throws AWException Error computing next fire times
    */
-  public ServiceData computeNextFireTimes(int times) throws AWException {
+  public ServiceData computeNextFireTimes(int times, Schedule schedule) throws AWException {
     ServiceData serviceData = new ServiceData();
 
     try {
-      // Read schedule
-      Schedule schedule = getSchedule();
-
       // Build trigger
       TriggerBuilder<? extends Trigger> triggerBuilder = TriggerBuilder
         .newTrigger()
@@ -411,53 +406,5 @@ public class CalendarDAO extends ServiceConfig {
    */
   private <T extends Trigger> ScheduleBuilder<T> buildSchedule(Schedule schedule) throws AWException {
     return new PatternBuilder(schedule).build();
-  }
-
-  /**
-   * get parameters for generating cron from context
-   *
-   * @return Schedule
-   */
-  private Schedule getSchedule() {
-    return new Schedule()
-      .setRepeatType(readJsonAsInteger(getRequest().getParameter(CRON_PARAMETER_REPEAT_TYPE)))
-      .setRepeatNumber(readJsonAsInteger(getRequest().getParameter(CRON_PARAMETER_REPEAT_NUMBER)))
-      .setCalendarId(readJsonAsInteger(getRequest().getParameter(CRON_PARAMETER_CALENDAR_IDE)))
-      .setInitialDate(DateUtil.web2Date(getRequest().getParameterAsString(CRON_PARAMETER_INITIAL_DATE)))
-      .setInitialTime(getRequest().getParameterAsString(CRON_PARAMETER_INITIAL_TIME))
-      .setEndDate(DateUtil.web2Date(getRequest().getParameterAsString(CRON_PARAMETER_END_DATE)))
-      .setEndTime(getRequest().getParameterAsString(CRON_PARAMETER_END_TIME))
-      .setDate(DateUtil.web2Date(getRequest().getParameterAsString(CRON_PARAMETER_DATE)))
-      .setTime(getRequest().getParameterAsString(CRON_PARAMETER_TIME))
-      .setYearList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_YEARS)))
-      .setMonthList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_MONTHS)))
-      .setWeekList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_WEEKS)))
-      .setDayList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_DAYS)))
-      .setWeekDayList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_WEEKDAYS)))
-      .setHourList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_HOURS)))
-      .setMinuteList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_MINUTES)))
-      .setSecondList(readJsonAsList(getRequest().getParameter(CRON_PARAMETER_SECONDS)));
-  }
-
-  /**
-   * Read json node as integer
-   *
-   * @param jsonNode Json node
-   * @return Integer value
-   */
-  private Integer readJsonAsInteger(JsonNode jsonNode) {
-    return jsonNode.isNull() ? null : Integer.parseInt(jsonNode.asText());
-  }
-
-  /**
-   * Read json node as integer list
-   *
-   * @param jsonNode Node
-   * @return Integer list
-   */
-  private List<String> readJsonAsList(JsonNode jsonNode) {
-    ObjectMapper mapper = new ObjectMapper();
-    return jsonNode.isNull() ? null : mapper.convertValue(jsonNode, new TypeReference<List<String>>() {
-    });
   }
 }

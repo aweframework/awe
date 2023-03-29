@@ -6,6 +6,7 @@ import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.report.Report;
 import com.almis.awe.scheduler.bean.trigger.CronPattern;
 import com.almis.awe.scheduler.enums.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.quartz.JobDetail;
@@ -62,9 +63,11 @@ public class Task implements Serializable {
   private List<TaskParameter> parameterList;
 
   // The trigger that the task is going to have, null if the task is manual.
+  @JsonIgnore
   private Trigger trigger = null;
 
   // The job that the task is going to execute or check
+  @JsonIgnore
   private JobDetail job = null;
 
   // The calendar associated to the task

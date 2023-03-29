@@ -128,7 +128,7 @@
           <column label="PARAMETER_LAUNCHED_BY" name="ExeLchBy" sortable="false" align="center" charlength="12" />
           <column label="PARAMETER_STARTED_AT" name="ExeLstTim" sortable="false" align="center" charlength="16" />
           <column label="EXECUTION_TIME" name="ExeTim" sortable="false" align="center" charlength="14" />
-          <column label="PARAMETER_PROGRESS" name="ExePrg"  sortable="false" component="progress" align="center" charlength="20" server-action="data-silent" target-action="getTaskProgressStatus"/>
+          <column label="PARAMETER_PROGRESS" name="ExePrg"  sortable="false" component="progress" align="center" charlength="20"/>
           <column label="PARAMETER_STATUS" name="ExeStaIco" sortable="false" component="icon" align="center" charlength="8" />
         </grid>
       </window>

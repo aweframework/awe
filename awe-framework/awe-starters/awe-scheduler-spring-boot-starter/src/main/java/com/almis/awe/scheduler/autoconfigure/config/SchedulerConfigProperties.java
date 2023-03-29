@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -45,4 +46,36 @@ public class SchedulerConfigProperties {
    */
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration taskTimeout = Duration.ofSeconds(1800);
+
+  /**
+   * Flag which indicates if scheduler is in a separate instance
+   */
+  private boolean remoteEnabled = false;
+
+  /**
+   * URL to call to remote scheduler instance
+   */
+  private URI remoteSchedulerUrl;
+
+  /**
+   * Flag which indicates if instance is a separate scheduler instance
+   */
+  private boolean schedulerInstance = false;
+
+  /**
+   * URL to call from remote scheduler instance
+   */
+  private URI remoteCallbackUrl;
+  /**
+   * Remote call is secured (Auth is required)
+   */
+  private boolean remoteCallbackSecureEnabled = true;
+  /**
+   * Remote user name
+   */
+  private String remoteCallbackUser;
+  /**
+   * Remote password
+   */
+  private String remoteCallbackPassword;
 }

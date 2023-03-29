@@ -5,21 +5,26 @@ import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
 import com.almis.awe.scheduler.dao.*;
+import com.almis.awe.scheduler.factory.ReportServiceFactory;
+import com.almis.awe.scheduler.feign.RemoteScheduler;
 import com.almis.awe.scheduler.filechecker.FTPFileChecker;
 import com.almis.awe.scheduler.filechecker.FileChecker;
 import com.almis.awe.scheduler.filechecker.FileClient;
 import com.almis.awe.scheduler.filechecker.FolderFileChecker;
 import com.almis.awe.scheduler.job.execution.ProgressJob;
 import com.almis.awe.scheduler.job.execution.TimeoutJob;
-import com.almis.awe.scheduler.job.report.BroadcastReportJob;
-import com.almis.awe.scheduler.job.report.EmailReportJob;
-import com.almis.awe.scheduler.job.report.MaintainReportJob;
 import com.almis.awe.scheduler.job.scheduled.CommandJob;
 import com.almis.awe.scheduler.job.scheduled.MaintainJob;
 import com.almis.awe.scheduler.listener.SchedulerEventListener;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
-import com.almis.awe.scheduler.service.*;
+import com.almis.awe.scheduler.service.ExecutionService;
+import com.almis.awe.scheduler.service.RemoteSchedulerService;
+import com.almis.awe.scheduler.service.SchedulerService;
+import com.almis.awe.scheduler.service.TaskService;
+import com.almis.awe.scheduler.service.report.*;
+import com.almis.awe.scheduler.service.scheduled.CommandJobService;
+import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
@@ -27,16 +32,20 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
+import java.util.List;
+
 /**
  * Scheduler module configuration
  */
 @Configuration
+@EnableFeignClients(clients = {RemoteScheduler.class})
 @EnableConfigurationProperties({SchedulerConfigProperties.class})
 public class SchedulerConfig {
 
@@ -96,7 +105,17 @@ public class SchedulerConfig {
    */
   @Bean
   public SchedulerService schedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO) {
-    return new SchedulerService(taskDAO, schedulerDAO, calendarDAO);
+    return new SchedulerService(taskDAO, schedulerDAO, calendarDAO, schedulerConfigProperties.isRemoteEnabled(), schedulerConfigProperties.isSchedulerInstance());
+  }
+
+  /**
+   * Define Scheduler service
+   *
+   * @return Scheduler service
+   */
+  @Bean
+  public RemoteSchedulerService remoteSchedulerService(SchedulerService schedulerService, RemoteScheduler remoteScheduler) {
+    return new RemoteSchedulerService(schedulerService, remoteScheduler, schedulerConfigProperties.isRemoteEnabled());
   }
 
   /**
@@ -130,7 +149,14 @@ public class SchedulerConfig {
    */
   @Bean
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher) {
-    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, schedulerConfigProperties.getTaskTimeout());
+    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      schedulerConfigProperties.getTaskTimeout(),
+      schedulerConfigProperties.isSchedulerInstance(),
+      schedulerConfigProperties.getRemoteCallbackUrl(),
+      schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
+      schedulerConfigProperties.getRemoteCallbackUser(),
+      schedulerConfigProperties.getRemoteCallbackPassword()
+    );
   }
 
   /**
@@ -141,6 +167,32 @@ public class SchedulerConfig {
   @Bean
   public CommandJobService commandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO) {
     return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO, schedulerConfigProperties.getTaskTimeout());
+  }
+
+  /**
+   * Scheduler report service
+   *
+   * @return Scheduler report service
+   */
+  @Bean
+  public SchedulerReportService schedulerReportService() {
+    return new SchedulerReportService();
+  }
+
+  /**
+   * Report job service
+   *
+   * @param schedulerReportService Scheduler report service
+   * @return Report job service
+   */
+  @Bean
+  public ReportJobService reportJobService(SchedulerReportService schedulerReportService) {
+    return new ReportJobService(schedulerReportService,
+      schedulerConfigProperties.isSchedulerInstance(),
+      schedulerConfigProperties.getRemoteCallbackUrl(),
+      schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
+      schedulerConfigProperties.getRemoteCallbackUser(),
+      schedulerConfigProperties.getRemoteCallbackPassword());
   }
 
   /*
@@ -192,36 +244,44 @@ public class SchedulerConfig {
   }
 
   /**
-   * Define maintain report job
+   * Define maintain report service
    *
-   * @return Scheduler job
+   * @return Maintain report service
    */
   @Bean
-  @Scope("prototype")
-  public MaintainReportJob maintainReportJob(QueryUtil queryUtil, MaintainService maintainService) {
-    return new MaintainReportJob(queryUtil, maintainService);
+  public SchedulerMaintainReportService maintainReportService(QueryUtil queryUtil, MaintainService maintainService) {
+    return new SchedulerMaintainReportService(queryUtil, maintainService);
   }
 
   /**
    * Define email report job
    *
-   * @return Scheduler job
+   * @return Email report service
    */
   @Bean
-  @Scope("prototype")
-  public EmailReportJob emailReportJob(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService) {
-    return new EmailReportJob(queryUtil, maintainService, queryService);
+  public SchedulerEmailReportService emailReportService(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService) {
+    return new SchedulerEmailReportService(queryUtil, maintainService, queryService);
   }
 
   /**
-   * Define broadcast report job
+   * Define broadcast report service
    *
-   * @return Scheduler job
+   * @return Broadcast report service
    */
   @Bean
-  @Scope("prototype")
-  public BroadcastReportJob broadcastReportJob(BroadcastService broadcastService) {
-    return new BroadcastReportJob(broadcastService);
+  public SchedulerBroadcastReportService broadcastReportService(BroadcastService broadcastService) {
+    return new SchedulerBroadcastReportService(broadcastService);
+  }
+
+  /**
+   * Report service factory
+   *
+   * @param schedulerReportServiceList Scheduler report service list
+   * @return Report service factory bean
+   */
+  @Bean
+  public ReportServiceFactory reportServiceFactory(List<ISchedulerReportService> schedulerReportServiceList) {
+    return new ReportServiceFactory(schedulerReportServiceList);
   }
 
   /*

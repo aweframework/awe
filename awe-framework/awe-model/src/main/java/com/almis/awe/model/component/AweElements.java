@@ -233,7 +233,7 @@ public class AweElements {
     initData.setLocaleResults(Arrays.stream(baseConfigProperties.getModuleList())
       .sequential()
       .map(module -> baseConfigProperties.getLanguageList()
-        .parallelStream()
+        .stream()
         .flatMap(language -> {
           Map<String, Future<Map<String, String>>> languageMap = new ConcurrentHashMap<>();
           languageMap.put(language, elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),

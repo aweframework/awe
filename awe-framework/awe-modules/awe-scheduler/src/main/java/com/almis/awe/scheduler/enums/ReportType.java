@@ -7,7 +7,7 @@ public enum ReportType {
   MAINTAIN(3),
   NOTIFICATION(4);
 
-  private Integer value;
+  private final Integer value;
 
   ReportType(Integer value) {
     this.value = value;
