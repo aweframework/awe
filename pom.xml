@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.6.8-SNAPSHOT</version>
+  <version>4.6.8</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.6.8-SNAPSHOT</revision>
+    <revision>4.6.8</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
