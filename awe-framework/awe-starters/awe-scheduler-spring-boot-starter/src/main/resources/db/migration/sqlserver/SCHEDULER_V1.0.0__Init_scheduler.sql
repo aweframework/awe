@@ -201,7 +201,7 @@ CREATE TABLE HISAweSchSrv
     Act    INT
 );
 
-CREATE TABLE HISAweSchTsk
+CREATE TABLE HisAweSchTsk
 (
     HISope    VARCHAR(20)  not NULL,
     HISdat    DATETIME     not NULL,
@@ -234,7 +234,7 @@ CREATE TABLE HISAweSchTsk
     site      VARCHAR(200) not NULL
 );
 
-CREATE TABLE HISAweSchTskLch
+CREATE TABLE HisAweSchTskLch
 (
     HISope   VARCHAR(20) not NULL,
     HISdat   DATETIME    not NULL,
@@ -265,7 +265,7 @@ CREATE TABLE HISAweSchTskLch
     SrvPwd   VARCHAR(200)
 );
 
-CREATE TABLE HISAweSchTskPar
+CREATE TABLE HisAweSchTskPar
 (
     HISope VARCHAR(20) not NULL,
     HISdat DATETIME    not NULL,
@@ -303,9 +303,9 @@ ALTER TABLE AweSchTskPar
 CREATE INDEX HISAweSchCalI1 ON HISAweSchCal (HISope, HISdat, HISact);
 CREATE INDEX HISAweSchCalDatI1 ON HISAweSchCalDat (HISope, HISdat, HISact);
 CREATE INDEX HISAweSchSrvI1 ON HISAweSchSrv (HISope, HISdat, HISact);
-CREATE INDEX HISAweSchTskI1 ON HISAweSchTsk (HISope, HISdat, HISact);
-CREATE INDEX HISAweSchTskLchI1 ON HISAweSchTskLch (HISope, HISdat, HISact);
-CREATE INDEX HISAweSchTskParI1 ON HISAweSchTskPar (HISope, HISdat, HISact);
+CREATE INDEX HisAweSchTskI1 ON HisAweSchTsk (HISope, HISdat, HISact);
+CREATE INDEX HisAweSchTskLchI1 ON HisAweSchTskLch (HISope, HISdat, HISact);
+CREATE INDEX HisAweSchTskParI1 ON HisAweSchTskPar (HISope, HISdat, HISact);
 
 ALTER TABLE AweSchCal
     ADD CONSTRAINT PK_AweSchCal PRIMARY KEY (Ide);

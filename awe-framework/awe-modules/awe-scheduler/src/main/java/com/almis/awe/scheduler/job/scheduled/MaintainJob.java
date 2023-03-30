@@ -1,6 +1,6 @@
 package com.almis.awe.scheduler.job.scheduled;
 
-import com.almis.awe.scheduler.service.MaintainJobService;
+import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
 import lombok.extern.slf4j.Slf4j;
 
 /**

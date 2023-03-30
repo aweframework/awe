@@ -4,7 +4,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.constant.JobConstants;
-import com.almis.awe.scheduler.service.JobService;
+import com.almis.awe.scheduler.service.scheduled.JobService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

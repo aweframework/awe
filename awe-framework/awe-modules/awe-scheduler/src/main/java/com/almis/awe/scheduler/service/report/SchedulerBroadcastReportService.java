@@ -1,16 +1,17 @@
-package com.almis.awe.scheduler.job.report;
+package com.almis.awe.scheduler.service.report;
 
 import com.almis.awe.builder.client.MessageActionBuilder;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.enums.ReportType;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.service.BroadcastService;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 @Slf4j
-public class BroadcastReportJob extends ReportJob {
+public class SchedulerBroadcastReportService implements ISchedulerReportService {
 
   // Autowired services
   private final BroadcastService broadcastService;
@@ -20,18 +21,19 @@ public class BroadcastReportJob extends ReportJob {
    *
    * @param broadcastService Broadcast service
    */
-  public BroadcastReportJob(BroadcastService broadcastService) {
+  public SchedulerBroadcastReportService(BroadcastService broadcastService) {
     this.broadcastService = broadcastService;
   }
 
-  @Override
-  public void execute(JobExecutionContext context) throws JobExecutionException {
-    // Store task and execution
-    super.execute(context);
-
+  public void execute(Task task, TaskExecution taskExecution) {
     // Generate the message action
-    ClientAction message = new MessageActionBuilder(getMessageType(), getTask().getReport().getReportMessage(), getExecution().getDescription()).build();
-    broadcastService.broadcastMessageToUsers(message, getTask().getReport().getReportUserDestination().toArray(new String[0]));
+    ClientAction message = new MessageActionBuilder(getMessageType(taskExecution), task.getReport().getReportMessage(), taskExecution.getDescription()).build();
+    broadcastService.broadcastMessageToUsers(message, task.getReport().getReportUserDestination().toArray(new String[0]));
+  }
+
+  @Override
+  public ReportType getType() {
+    return ReportType.BROADCAST;
   }
 
   /**
@@ -39,8 +41,8 @@ public class BroadcastReportJob extends ReportJob {
    *
    * @return String
    */
-  private AnswerType getMessageType() {
-    switch (TaskStatus.valueOf(getExecution().getStatus())) {
+  private AnswerType getMessageType(TaskExecution execution) {
+    switch (TaskStatus.valueOf(execution.getStatus())) {
       case JOB_OK:
         return AnswerType.OK;
       case JOB_ERROR:

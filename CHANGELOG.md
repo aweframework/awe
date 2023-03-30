@@ -1,4 +1,14 @@
 
+# Changelog for AWE 4.6.8
+*30/03/2023*
+
+- Set checkbox value to '0' when resetting instead of null value. [MR #427](https://gitlab.com/aweframework/awe/-/merge_requests/427) (Pablo Javier García Mora)
+- Error with chrome selenium driver. [MR #426](https://gitlab.com/aweframework/awe/-/merge_requests/426) (Pablo Vidal Otero)
+- Change AWE rest authentication API. [MR #424](https://gitlab.com/aweframework/awe/-/merge_requests/424) (Pablo Vidal Otero)
+- Update ade and spring boot version. [MR #423](https://gitlab.com/aweframework/awe/-/merge_requests/423) (Pablo Vidal Otero)
+- Add a REST controller to scheduler module, allowing it to keep in a separate module. [MR #422](https://gitlab.com/aweframework/awe/-/merge_requests/422) (Pablo Javier García Mora)
+- The query getOptionRestrictionFromDatabase is very slow the first time launched. [MR #421](https://gitlab.com/aweframework/awe/-/merge_requests/421) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.7
 *06/03/2023*
 

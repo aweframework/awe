@@ -125,12 +125,13 @@
       <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
     </where>
     <order-by field="IniDat" type="DESC"/>
-    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
   <!-- Scheduler task list -->
   <query id="getTaskExecutionListFixed" service="getTaskExecutionList">
     <field id="id"/>
+    <field id="ExeTsk"/>
     <field id="IdeTsk"/>
     <field id="GrpTsk"/>
     <field id="Sta"/>
@@ -140,11 +141,8 @@
     <field id="ExeStaIco"/>
     <field id="ExePrg"/>
     <field id="LchBy" alias="ExeLchBy"/>
+    <field id="ExecutionLogPath"/>
     <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
-  </query>
-
-  <query id="getTaskProgressStatus" service="getTaskProgressStatus">
-    <variable id="address" type="OBJECT" name="address"/>
   </query>
 
   <!-- Scheduler task list query for task load service (Java) -->

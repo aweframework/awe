@@ -11,7 +11,7 @@ import java.net.URI;
 @FeignClient(name = "MyMemoryClient", url = "https://${awe.translation.mymemory.host:}")
 public interface MyMemoryFeignClient {
 
-  @GetMapping("/api/get?langpair={languageFrom}|{languageTo}")
+  @GetMapping("/get?langpair={languageFrom}|{languageTo}")
   TranslationResponse translate(URI baseUrl, @RequestParam("q") String text,
                                                @PathVariable("languageFrom") String languageFrom, @PathVariable("languageTo") String languageTo,
                                                @RequestParam("key") String key, @RequestParam("de") String email);

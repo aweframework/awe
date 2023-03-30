@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -67,7 +66,7 @@ class SecurityIntegrationTest extends AbstractSpringAppIntegrationTest {
   }
 
   @Test
-  @WithMockCustomUser(username = "test")
+  @WithMockCustomUser()
   void givenAuthUserAndInvalidCSRFToken_shouldForbidden403() throws Exception {
     mockMvc.perform(post("/action/data/SimpleGetAll")
         .with(csrf().useInvalidToken())
@@ -89,14 +88,4 @@ class SecurityIntegrationTest extends AbstractSpringAppIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON))
       .andExpect(status().isUnauthorized());
   }
-
-  @Test
-  void givenUserCallGetAuthenticate_shouldMethodNowAllowed405() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/authenticate")
-        .queryParam("username", "test")
-        .queryParam("password", "test")
-        .contentType(MediaType.APPLICATION_JSON))
-      .andExpect(status().isMethodNotAllowed());
-  }
-
 }

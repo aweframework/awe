@@ -76,7 +76,7 @@ public class WebSecurityConfig {
     "/file/stream",
     "/file/download",
     "/file/upload",
-    "/file/delete",
+    "/file/delete"
   };
 
   // Data list urls

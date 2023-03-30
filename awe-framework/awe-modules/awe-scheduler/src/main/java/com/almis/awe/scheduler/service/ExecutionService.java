@@ -3,16 +3,12 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
-import com.almis.awe.scheduler.enums.ReportType;
 import com.almis.awe.scheduler.enums.TriggerType;
 import com.almis.awe.scheduler.factory.JobFactory;
-import com.almis.awe.scheduler.factory.ReportFactory;
 import com.almis.awe.scheduler.factory.TriggerFactory;
+import com.almis.awe.scheduler.job.report.ReportJob;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
+import org.quartz.*;
 
 import java.util.Arrays;
 import java.util.concurrent.Future;
@@ -46,8 +42,8 @@ public class ExecutionService {
    * Start timeout job
    *
    * @param execution Task execution
-   * @param timeout Timeout task
-   * @param process Future process
+   * @param timeout   Timeout task
+   * @param process   Future process
    */
   public void startTimeoutJob(TaskExecution execution, long timeout, Future<ServiceData> process) {
     JobDataMap data = new JobDataMap();
@@ -67,7 +63,7 @@ public class ExecutionService {
   /**
    * Start progress job
    *
-   * @param execution Task execution
+   * @param execution   Task execution
    * @param averageTime Average time
    */
   public void startProgressJob(TaskExecution execution, Integer averageTime) {
@@ -106,7 +102,7 @@ public class ExecutionService {
   /**
    * Start report job
    *
-   * @param task Scheduler task
+   * @param task      Scheduler task
    * @param execution Task execution
    */
   public void startReportJob(Task task, TaskExecution execution) {
@@ -122,7 +118,9 @@ public class ExecutionService {
       data.put(TASK_JOB_EXECUTION, execution);
 
       // Create report object
-      JobDetail reportJob = ReportFactory.getInstance(ReportType.valueOf(task.getReportType()), data);
+      JobDetail reportJob = JobBuilder.newJob().ofType(ReportJob.class)
+        .setJobData(data)
+        .build();
 
       // If there is a report job, schedule it
       if (reportJob != null) {

@@ -585,6 +585,7 @@ public class TaskDAO extends ServiceConfig {
    */
   public ServiceData getTaskExecutionList(Integer taskId) throws AWException {
     ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    parameters.put(TASK_ID, taskId);
     ServiceData serviceData = queryService.launchPrivateQuery("getTaskExecutionList", parameters);
     long averageExecution = getAverageTime(taskId);
     String logPath = executionLogPath;
@@ -717,9 +718,9 @@ public class TaskDAO extends ServiceConfig {
    * @return ServiceData
    * @throws AWException Error executing immediate task
    */
-  public ServiceData executeTaskNow(Integer taskId) throws AWException {
+  public ServiceData executeTaskNow(Integer taskId, String user) throws AWException {
     // Creates a task that is executed at the moment it is added to the scheduler
-    executeImmediateTask(taskId, TriggerType.MANUAL, getSession().getUser(), null);
+    executeImmediateTask(taskId, TriggerType.MANUAL, user, null);
 
     // Log launched task
     log.info("Task launched manually: {}", taskId);
@@ -900,8 +901,7 @@ public class TaskDAO extends ServiceConfig {
       row.put(TASK_PARAMETER_VALUE, new CellData(""));
       dataList.getRows().add(row);
     }
-    serviceData.setDataList(dataList);
-    return serviceData;
+    return serviceData.setDataList(dataList);
   }
 
   /**

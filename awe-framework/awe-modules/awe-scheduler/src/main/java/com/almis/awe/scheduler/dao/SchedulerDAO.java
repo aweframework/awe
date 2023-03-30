@@ -262,12 +262,12 @@ public class SchedulerDAO extends ServiceConfig {
 
     List<Trigger> triggerDetails = new ArrayList<>();
     try {
-      List<String> triggerGroupNames = this.scheduler.getTriggerGroupNames();
+      List<String> triggerGroupNames = scheduler.getTriggerGroupNames();
 
       for (String triggerGroupName : triggerGroupNames) {
-        Set<TriggerKey> triggerKeys = this.scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroupName));
+        Set<TriggerKey> triggerKeys = scheduler.getTriggerKeys(GroupMatcher.triggerGroupEquals(triggerGroupName));
         for (TriggerKey triggerKey : triggerKeys) {
-          triggerDetails.add(this.scheduler.getTrigger(triggerKey));
+          triggerDetails.add(scheduler.getTrigger(triggerKey));
         }
       }
     } catch (Exception e) {
@@ -289,7 +289,7 @@ public class SchedulerDAO extends ServiceConfig {
     try {
       DataList dataList = new DataList();
       Map<String, CellData> row = new HashMap<>();
-      SchedulerMetaData metadata = this.scheduler.getMetaData();
+      SchedulerMetaData metadata = scheduler.getMetaData();
       row.put("schedulerInstanceId", new CellData(metadata.getSchedulerInstanceId()));
       row.put("schedulerName", new CellData(metadata.getSchedulerName()));
       row.put("schedulerVersion", new CellData(metadata.getVersion()));
