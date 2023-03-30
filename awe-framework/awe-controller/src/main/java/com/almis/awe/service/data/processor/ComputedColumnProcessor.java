@@ -72,7 +72,7 @@ public class ComputedColumnProcessor implements ColumnProcessor {
 
     // Calculate translate
     if (computed.isTranslate()) {
-      translateProcessor = new TranslateCellProcessor(elements, computed, elements.getEnumerated(computed.getTranslate()));
+      translateProcessor = new TranslateCellProcessor(elements, computed, variableMap, elements.getEnumerated(computed.getTranslate()));
     }
 
     // Generate format matcher

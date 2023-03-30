@@ -24,7 +24,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
-    <jacoco.base.reports>${project.basedir}/../awe-boot/target</jacoco.base.reports>
+    <jacoco.base.reports>${project.basedir}/../awe-scheduler-boot/target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
     <jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>
     <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>

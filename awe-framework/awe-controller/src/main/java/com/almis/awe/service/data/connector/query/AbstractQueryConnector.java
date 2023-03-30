@@ -192,7 +192,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     // Add transformations & translations
     if (query.getSqlFieldList() != null) {
       for (SqlField field : query.getSqlFieldList()) {
-        addFieldTransformations(field, builder);
+        addFieldTransformations(field, builder, variables);
       }
     }
 
@@ -227,9 +227,10 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    *
    * @param field   Field
    * @param builder Builder
+   * @param variables Variable map
    * @throws AWException AWE exception
    */
-  private void addFieldTransformations(OutputField field, DataListBuilder builder) throws AWException {
+  private void addFieldTransformations(OutputField field, DataListBuilder builder, Map<String, QueryParameter> variables) throws AWException {
     // Check transformations
     if (field.isTransform()) {
       TransformCellProcessor transformProcessor = new TransformCellProcessor(elements, field, numericService, encodeService);
@@ -238,7 +239,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
 
     // Check translations
     if (field.isTranslate()) {
-      TranslateCellProcessor translateProcessor = new TranslateCellProcessor(elements, field, elements.getEnumerated(field.getTranslate()));
+      TranslateCellProcessor translateProcessor = new TranslateCellProcessor(elements, field, variables, elements.getEnumerated(field.getTranslate()));
       builder.addTranslate(translateProcessor);
     }
 

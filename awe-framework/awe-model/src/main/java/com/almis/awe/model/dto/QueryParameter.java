@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.io.ObjectOutputStream;
  *
  * @author jbellon
  */
+@Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 public class QueryParameter implements Copyable {
 
