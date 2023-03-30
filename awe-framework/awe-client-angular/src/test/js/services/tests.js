@@ -3,6 +3,7 @@ require('./ajax.js');
 require('./column.js');
 require('./component.js');
 require('./criterion.js');
+require('./checkboxRadio.js');
 require('./comet.js');
 require('./connection.js');
 require('./control.js');
