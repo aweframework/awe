@@ -1,14 +1,14 @@
-import {aweApplication} from "./../awe";
-import {DefaultSpin} from "./../data/options";
+import {aweApplication} from "../awe";
+import {DefaultSpin} from "../data/options";
 
 // Checkbox Radio service
 aweApplication.factory('CheckboxRadio',
   ['Criterion', 'Control', 'AweUtilities',
     /**
      * Criterion generic methods
-     * @param {Service} Criterion
-     * @param {Service} Control
-     * @param {Service} Utilities
+     * @param {Criterion} Criterion
+     * @param {Control} Control
+     * @param {Utilities} Utilities
      */
     function (Criterion, Control, Utilities) {
 
@@ -59,6 +59,24 @@ aweApplication.factory('CheckboxRadio',
 
           // Add group to address
           component.address.group = component.controller.group;
+
+          /******************************************************************************
+           * COMPONENT METHODS
+           *****************************************************************************/
+
+          /**
+           * Restore criterion
+           */
+          component.onRestore = function () {
+            component.scope.updateSelected(String(component.model.defaultValues) === String(checkedValue));
+          };
+
+          /**
+           * Reset criterion
+           */
+          component.onReset = function () {
+            component.scope.updateSelected(false);
+          };
 
           /******************************************************************************
            * SCOPE METHODS

@@ -33,7 +33,7 @@
       <button-action type="dialog" target="PrnOpt"/>
     </button>
     <button button-type="button" label="BUTTON_RESET" icon="eraser" id="ButRst" help="HELP_RESET_BUTTON">
-      <button-action type="restore" />
+      <button-action type="reset" />
     </button>
     <button button-type="button" label="BUTTON_CONFIRM" icon="save" id="ButCnf" help="HELP_CONFIRM_BUTTON">
       <button-action type="confirm-not-updated-data" />
