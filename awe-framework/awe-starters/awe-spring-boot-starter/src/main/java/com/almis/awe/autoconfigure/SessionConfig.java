@@ -13,7 +13,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.MapSessionRepository;
 import org.springframework.web.context.annotation.SessionScope;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AWE Session configuration class
@@ -59,5 +62,15 @@ public class SessionConfig {
   public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService,
                                              AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
     return new AweSessionDetails(aweClientTracker, queryService, connectionTracker, broadcastService, sessionConfigProperties);
+  }
+
+  /**
+   * Session repository
+   * @return Map session repository
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MapSessionRepository sessionRepository() {
+    return new MapSessionRepository(new ConcurrentHashMap<>());
   }
 }

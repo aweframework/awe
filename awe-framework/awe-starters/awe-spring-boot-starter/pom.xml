@@ -67,6 +67,12 @@
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
 
+    <!-- Spring session -->
+    <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-core</artifactId>
+    </dependency>
+
     <!-- Active MQ -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

@@ -1,6 +1,5 @@
 import {aweApplication} from "../awe";
-import {Stomp} from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import {Client} from "@stomp/stompjs";
 
 // Comet service
 aweApplication.factory('Comet',
@@ -33,8 +32,16 @@ aweApplication.factory('Comet',
          * @private
          */
         getWebsocketClient: function() {
-          let client = Stomp.over(new SockJS($utilities.getContextPath() + '/websocket', undefined, {timeout: 10 * 1000}));
-          client.connectHeaders = {'Authorization': connectionToken};
+          const client = new Client({
+            brokerURL: $utilities.getContextPath().replace("http", "ws") + '/websocket',
+            connectHeaders: {
+              'Authorization': connectionToken
+            },
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+          });
+
           return client;
         },
         /**
@@ -85,11 +92,13 @@ aweApplication.factory('Comet',
           // Set defer
           events["connect"] = $utilities.q.defer();
 
+          const client = $comet.getWebsocketClient();
+
           // Set connection
-          $comet.setConnection($comet.getWebsocketClient());
+          $comet.setConnection(client);
 
           // On connection
-          $comet.getConnection().onConnect = function (frame) {
+          client.onConnect = function (frame) {
             // Subscribe to all broadcasted messages
             $comet.subscribe("broadcast");
 
@@ -100,8 +109,42 @@ aweApplication.factory('Comet',
             events["connect"].resolve();
           };
 
+          client.onWebSocketClose = evn => {
+            switch (evn.code) {
+              // Session disconnected
+              case 1008:
+                if ($comet.isConnected()) {
+                  console.warn("Session disconnected. Returning to signin screen", evn);
+                  actionController.addActionList([
+                    {
+                      type: "message",
+                      async: true,
+                      silent: true,
+                      parameters: {
+                        type: "warn",
+                        title: "ERROR_TITLE_SESSION_EXPIRED",
+                        message: "ERROR_MESSAGE_SESSION_EXPIRED"
+                      }
+                    },
+                    {type: "logout"},
+                  ], true, {});
+                }
+                break;
+              // Server disconnected
+              case 1001:
+                console.warn("Server disconnected, trying to reconnect", evn);
+                break;
+              // Server reconnection
+              case 1006:
+                break;
+              // Graceful disconnection
+              default:
+                console.info("Graceful websocket disconnection", evn);
+            }
+          };
+
           // On connection error
-          $comet.getConnection().onStompError = function (frame) {
+          client.onStompError = frame => {
             // Reject initialization
             events["connect"].reject();
 
@@ -114,7 +157,7 @@ aweApplication.factory('Comet',
           };
 
           // Activate client
-          $comet.getConnection().activate();
+          client.activate();
 
           // Return connection promise
           return events["connect"].promise;
