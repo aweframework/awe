@@ -44,11 +44,8 @@ class WebsocketTestsIT extends SeleniumUtilities {
     // Pause 5 seconds
     pause(5000);
 
-    // Go to broadcast screen
-    gotoScreen("tools", "sites");
-
     // Accept danger message
-    checkAndCloseMessage("danger");
+    checkAndCloseMessage("warn");
 
     // Do login
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
