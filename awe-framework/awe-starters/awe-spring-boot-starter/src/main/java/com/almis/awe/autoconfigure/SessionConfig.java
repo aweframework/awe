@@ -70,7 +70,7 @@ public class SessionConfig {
    * @return Map session repository
    */
   @Bean
-  @ConditionalOnProperty(value = "spring.session.store-type", havingValue = "none")
+  @ConditionalOnProperty(name = "spring.session.store-type", havingValue = "none")
   @ConditionalOnMissingBean
   public MapSessionRepository sessionRepository() {
     return new MapSessionRepository(new ConcurrentHashMap<>());
