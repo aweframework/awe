@@ -630,7 +630,7 @@ The where element structure is the following one:
 
 ```xml
   <query id="WhereTest">
-    <table id="HisAweThm" />
+    <table id="HISAweThm" />
     <field id="hisact" alias="typ" />
     <where>
       <and>
@@ -649,7 +649,7 @@ The having structure is the next one, is the same as where element:
 
 ```xml
   <query id="HavTst" public="true">
-    <table id="HisAweThm" />
+    <table id="HISAweThm" />
     <field id="hisact" alias="typ" />
     <field id="sum(1)" alias="act"/>
     <group-by field="HisAct"/>
