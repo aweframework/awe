@@ -4,12 +4,11 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.service.ActionService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.opentelemetry.api.trace.Span;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Manage all incoming action requests
@@ -21,7 +20,6 @@ public class ActionController {
   // Autowired services
   private final ActionService actionService;
   private final AweRequest request;
-  private final Tracer tracer;
 
   /**
    * Autowired constructor
@@ -30,10 +28,9 @@ public class ActionController {
    * @param aweRequest    Awe request
    */
   @Autowired
-  public ActionController(ActionService actionService, AweRequest aweRequest, Tracer tracer) {
+  public ActionController(ActionService actionService, AweRequest aweRequest) {
     this.actionService = actionService;
     this.request = aweRequest;
-    this.tracer = tracer;
   }
 
   /**
@@ -51,7 +48,7 @@ public class ActionController {
     request.setParameterList(parameters);
 
     // Span traces
-    this.addCustomSpan("actionId", actionId);
+   this.addCustomSpan("actionId", actionId);
 
     // Launch action
     return actionService.launchAction(actionId);
@@ -88,6 +85,9 @@ public class ActionController {
    * @param value Span value
    */
   private void addCustomSpan(String key, String value) {
-      Objects.requireNonNull(tracer.currentSpanCustomizer()).tag(key, value);
+    //Get current Span
+    Span span = Span.current();
+    //Add custom attributes to Span
+    span.setAttribute(key, value);
   }
 }

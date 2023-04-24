@@ -101,12 +101,6 @@
       <optional>true</optional>
     </dependency>
 
-    <!-- Sleuth metrics -->
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-sleuth-instrumentation</artifactId>
-    </dependency>
-
     <!-- AWE Libraries -->
     <dependency>
       <groupId>com.almis.awe</groupId>

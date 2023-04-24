@@ -59,10 +59,10 @@ public class SQLConfig {
    * @param databaseContextHolder Database context holder
    * @return Datasource bean
    */
-  @Bean
+  @Bean(name = "dataSource")
   @ConditionalOnProperty(name = "awe.database.multidatabase-enable", havingValue = "true")
   @ConditionalOnMissingBean
-  public AweRoutingDataSource aweRoutingDataSource(AweDatabaseContextHolder databaseContextHolder) {
+  public DataSource aweRoutingDataSource(AweDatabaseContextHolder databaseContextHolder) {
     return new AweRoutingDataSource(databaseContextHolder);
   }
 
