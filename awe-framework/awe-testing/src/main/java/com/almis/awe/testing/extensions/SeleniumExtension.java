@@ -205,7 +205,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     System.setProperty("isDocker", properties.getRecorderUrl() == null ? "browser" : "browserRecorder");
     URL url = new URL(String.format("http://%s:%d%s", properties.getBrowserHost(), properties.getBrowserPort(), browserHubPath));
     log.info("{} URL is {}", properties.getBrowser(), url);
-    RemoteWebDriver webDriver = new RemoteWebDriver(url, capabilities);
+    RemoteWebDriver webDriver = new RemoteWebDriver(url, capabilities, false);
 
     Point position = new Point(0, 0);
     Dimension dimension = new Dimension(properties.getBrowserWidth(), properties.getBrowserHeight());

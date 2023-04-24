@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
@@ -460,9 +461,9 @@ public class QueryService extends ServiceConfig {
    */
   public void initDatasourceConnections() {
     try {
-      AweRoutingDataSource dataSource = getBean(AweRoutingDataSource.class);
-      if (dataSource != null) {
-        dataSource.loadDataSources();
+      DataSource dataSource = getBean(DataSource.class);
+      if (dataSource != null && dataSource instanceof AweRoutingDataSource) {
+        ((AweRoutingDataSource) dataSource).loadDataSources();
       }
     } catch (Exception exc) {
       log.info("AweRoutingDataSource not found. Using default datasource");
@@ -474,9 +475,9 @@ public class QueryService extends ServiceConfig {
    */
   public void reloadDatasourceConnections() {
     try {
-      AweRoutingDataSource dataSource = getBean(AweRoutingDataSource.class);
-      if (dataSource != null) {
-        dataSource.reloadDataSources();
+      DataSource dataSource = getBean(DataSource.class);
+      if (dataSource != null && dataSource instanceof AweRoutingDataSource) {
+        ((AweRoutingDataSource) dataSource).reloadDataSources();
       }
     } catch (Exception exc) {
       log.info("AweRoutingDataSource not found. Using default datasource");

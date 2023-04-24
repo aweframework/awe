@@ -91,6 +91,7 @@ build/
 deploy/
 node/
 node_modules/
+grafana-data/
 
 ######################
 # Logs
