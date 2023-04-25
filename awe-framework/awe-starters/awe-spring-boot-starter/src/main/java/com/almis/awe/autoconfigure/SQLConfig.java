@@ -61,7 +61,6 @@ public class SQLConfig {
    */
   @Bean(name = "dataSource")
   @ConditionalOnProperty(name = "awe.database.multidatabase-enable", havingValue = "true")
-  @ConditionalOnMissingBean
   public DataSource aweRoutingDataSource(AweDatabaseContextHolder databaseContextHolder) {
     return new AweRoutingDataSource(databaseContextHolder);
   }
