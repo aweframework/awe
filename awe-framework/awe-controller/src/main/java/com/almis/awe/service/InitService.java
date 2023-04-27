@@ -9,10 +9,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.almis.awe.model.constant.AweConstants.DOUBLE_LOG_LINE;
 import static com.almis.awe.model.constant.AweConstants.LOG_LINE;
@@ -82,8 +79,18 @@ public class InitService extends ServiceConfig implements DisposableBean {
    */
   public void launchPhaseServices(LaunchPhaseType phase) {
     List<Service> serviceList;
+
     try {
       serviceList = getElements().getPhaseServices(phase);
+      switch (phase) {
+        case APPLICATION_START:
+        case CLIENT_START:
+          // Search from awe to application file
+          Collections.reverse(serviceList);
+          break;
+        default:
+          // Search from application file to awe
+      }
     } catch (AWException exc) {
       log.error(exc.getMessage(), exc);
       serviceList = new ArrayList<>();
@@ -100,6 +107,7 @@ public class InitService extends ServiceConfig implements DisposableBean {
     Map<String, Object> parameters = new HashMap<>();
     for (Service service : serviceList) {
       try {
+        log.info("\tLaunching initial service: [\u001B[32m{}\u001B[0m]", service.getId());
         launcherService.callService(service.getId(), parameters);
       } catch (AWException exc) {
         log.error(exc.getMessage(), exc);
