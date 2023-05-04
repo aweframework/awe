@@ -217,6 +217,10 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void click(WebElement element) {
     String conditionMessage = "";
+    // Wait until element is clickable
+    waitUntil(elementToBeClickable(element));
+
+    // Click on element
     try {
       new Actions(seleniumModel.getDriver())
         .moveToElement(element)
@@ -238,6 +242,11 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void contextMenu(By selector) {
     String conditionMessage = "";
+
+    // Wait until element is clickable
+    waitUntil(elementToBeClickable(selector));
+
+    // Click on element
     try {
       WebElement element = getElement(selector);
       new Actions(seleniumModel.getDriver())
