@@ -4,7 +4,6 @@ import com.almis.awe.component.AweRoutingDataSource;
 import com.almis.awe.config.DatabaseConfigProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -60,56 +59,52 @@ public class FlywayMigrationConfig {
   @PostConstruct
   public void initFlyway() {
 
-    try {
-      Integer indexBaseLine = 0;
-      log.info("=======  Migrating default database  =======");
+    log.info("=======  Migrating default database  =======");
+    for (String module : databaseConfigProperties.getMigrationModules()) {
+      Flyway customFlyway = customizeFlywayConfig(module, dataSource);
+
+      // Migrate first connection
+      log.info("=======  Migrating database of {} module  =======", module);
+      customFlyway.migrate();
+      log.info("======= Current version of {} module: {}", module, customFlyway.info().current().getVersion());
+    }
+
+    if (dataSource instanceof AweRoutingDataSource) {
+      // Load dataSources
+      ((AweRoutingDataSource) dataSource).loadDataSources();
+      // Spread scripts migration
+      log.info("========== Migrating databases of [AweDbs] table defined in default database ... ==========");
       for (String module : databaseConfigProperties.getMigrationModules()) {
-        Flyway customFlyway = customizeFlywayConfig(module, dataSource, indexBaseLine);
-
-        // Migrate first connection
-        log.info("=======  Migrating database of {} module  =======", module);
-        customFlyway.migrate();
-        log.info("======= Current version of {} module: {}", module, customFlyway.info().current().getVersion());
+        ((AweRoutingDataSource) dataSource).getResolvedDataSources().forEach((key, value) -> {
+            log.info("========== Migrating database {} for module {} ... ==========", key, module);
+            Flyway customFlyway = customizeFlywayConfig(module, value);
+            customFlyway.migrate();
+            log.info("======= Current version of module {} from database {}: {}", module, key, customFlyway.info().current().getVersion());
+          }
+        );
       }
-
-      if (dataSource instanceof AweRoutingDataSource) {
-        // Load dataSources
-        ((AweRoutingDataSource) dataSource).loadDataSources();
-        // Spread scripts migration
-        log.info("========== Migrating databases of [AweDbs] table defined in default database ... ==========");
-        for (String module : databaseConfigProperties.getMigrationModules()) {
-          ((AweRoutingDataSource) dataSource).getResolvedDataSources().forEach((key, value) -> {
-              log.info("========== Migrating database {} for module {} ... ==========", key, module);
-              Flyway customFlyway = customizeFlywayConfig(module, value, indexBaseLine);
-              customFlyway.migrate();
-              log.info("======= Current version of module {} from database {}: {}", module, key, customFlyway.info().current().getVersion());
-            }
-          );
-        }
-      }
-    } catch (FlywayException ex) {
-      log.error("There was a problem initializing Flyway", ex);
     }
   }
-
 
   /**
    * Customize configuration
    *
    * @param module Name of module to apply migration scripts
    */
-  private Flyway customizeFlywayConfig(String module, DataSource dataSource, Integer indexBaseLine) {
+  private Flyway customizeFlywayConfig(String module, DataSource dataSource) {
 
-    final String scriptPrefix = String.format(databaseConfigProperties.getMigrationPrefix(), module);
-    final String repeatableScriptPrefix = String.format(databaseConfigProperties.getMigrationRepeatablePrefix(), module);
+    final String scriptPrefix = String.format(flyway.getConfiguration().getSqlMigrationPrefix(), module);
+    final String repeatableScriptPrefix = String.format(flyway.getConfiguration().getRepeatableSqlMigrationPrefix(), module);
     FluentConfiguration configuration = new FluentConfiguration()
-      .baselineOnMigrate(true)
-      .baselineVersion(indexBaseLine.toString())
+      .baselineOnMigrate(flyway.getConfiguration().isBaselineOnMigrate())
+      .baselineVersion(flyway.getConfiguration().getBaselineVersion())
       .sqlMigrationPrefix(scriptPrefix)
       .repeatableSqlMigrationPrefix(repeatableScriptPrefix)
       .table("flyway_schema_" + module)
       .locations(flyway.getConfiguration().getLocations())
       .dataSource(dataSource);
-    return Flyway.configure().configuration(configuration).load();
+    return Flyway.configure()
+      .configuration(configuration)
+      .load();
   }
 }
