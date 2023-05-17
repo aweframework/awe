@@ -1,5 +1,8 @@
 package com.almis.awe.testing.selenium;
 
+import com.almis.awe.testing.enumerated.MenuBehavior;
+import com.almis.awe.testing.enumerated.RowEditBehavior;
+import com.almis.awe.testing.enumerated.SuggestBehavior;
 import org.openqa.selenium.By;
 
 public interface IAweFrontEndInstructions extends IAweInstructions {
@@ -71,6 +74,20 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   MENU
   =================================
   */
+
+  /**
+   * Get menu behavior
+   * @return Menu click behavior
+   */
+  MenuBehavior getMenuBehavior();
+
+  /**
+   * Get menu option
+   *
+   * @param option Option to check
+   * @return Opened children selector
+   */
+  By getMenuOption(String option);
 
   /**
    * Get opened children in menu
@@ -308,6 +325,12 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   By findGridCell(String gridId, String search);
 
+  /**
+   * Get row edit behavior
+   * @return Row edit behavior
+   */
+  RowEditBehavior getRowEditBehavior();
+
   /*
   =================================
   CHECKBOX
@@ -414,18 +437,41 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   */
 
   /**
+   * Get suggest behavior
+   * @return Suggest text behavior
+   */
+  SuggestBehavior getSuggestBehavior();
+
+  /**
    * Get suggest
    *
+   * @param parent Parent CSS selector
    * @return Suggest selector
    */
-  By getSuggest();
+  By getSuggest(String parent);
 
   /**
    * Get suggest with input
    *
+   * @param parent Parent CSS selector
    * @return Suggest with input not hidden selector
    */
-  By getSuggestInput();
+  By getSuggestInput(String parent);
+
+  /**
+   * Get suggest result
+   *
+   * @param match Match result
+   * @return Suggest result element
+   */
+  By getSuggestResult(String match);
+
+  /**
+   * Get suggest dropdown list
+   *
+   * @return Suggest dropdown list selector
+   */
+  By getSuggestDropdownList();
 
   /**
    * Get suggest dropdown list last element
@@ -433,6 +479,29 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Suggest dropdown list last element selector
    */
   By getSuggestDropdownListLastElement();
+
+  /**
+   * Get suggest choice button
+   *
+   * @param parentSelector Parent selector in CSS
+   * @return Suggest choice button selector
+   */
+  By getSuggestChoice(String parentSelector);
+
+  /**
+   * Get suggest loader
+   *
+   * @param parentSelector Parent selector in CSS
+   * @return Suggest loader selector
+   */
+  By getSuggestLoader(String parentSelector);
+
+  /**
+   * Get suggest chosen element
+   * @param criterionName Criterion name
+   * @return Select chosen element selector
+   */
+  By getSuggestChosen(String criterionName);
 
   /*
   =================================

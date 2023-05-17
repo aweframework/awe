@@ -651,8 +651,8 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     // Pause for 5 seconds
     pause(5000);
 
-    // Click on grid
-    clickRowContents("GrdEdi", "adminflare");
+    // Edit row
+    editRow("GrdEdi", "adminflare");
 
     // Click on date
     clickDate("GrdEdi", "FilDat");
@@ -669,11 +669,11 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     // Check date on second row
     checkCellContents("GrdEdi", "2", "Dat", date);
 
-    // Click on grid
-    clickRowContents("GrdEdi", "asphalt");
+    // Edit row
+    editRow("GrdEdi", "asphalt");
 
-    // Click on grid
-    clickRowContents("GrdEdi", "clean");
+    // Edit row
+    editRow("GrdEdi", "clean");
 
     // Click on date
     selectDate("GrdEdi", "Dat", "23/10/1978");
@@ -732,8 +732,8 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     // Check icon
     checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-plus");
 
-    // Click on a cell
-    clickCell("GrdMuo", "1", "Des2");
+    // Edit row
+    editRow("GrdMuo", "1", "Des2");
 
     // Write on text
     writeText("GrdMuo", "Des2", "asdasda");
@@ -787,16 +787,16 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     pause(500);
 
     // Click on a cell
-    clickCell("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
 
     // Click on a cell
-    clickCell("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
 
     // Click on a cell
-    clickCell("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
 
     // Click on a cell
-    clickCell("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
 
     // Save row
     saveRow("TreGrdEdi");

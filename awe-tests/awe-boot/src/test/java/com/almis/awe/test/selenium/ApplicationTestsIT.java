@@ -273,7 +273,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     searchAndWait();
 
     // Click on row
-    clickRowContents("testKey");
+    editRow("testKey");
 
     // Insert text
     writeText("GrdKeyLst", "KeyVal", "1");
@@ -413,8 +413,8 @@ class ApplicationTestsIT extends SeleniumUtilities {
     // Wait for button
     searchAndWait();
 
-    // Click on row
-    clickRowContents("application-info");
+    // Edit row
+    editRow("application-info");
 
     // Select on selector
     selectContain("GrdScrAccLst", "AccMod",  "Restricted");
@@ -764,7 +764,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     searchAndWait();
 
     // Click on row
-    clickRowContents("Dbs");
+    editRow("Dbs");
 
     // Select on selector
     writeText("GrdScrCnf", "Val",  "false");
