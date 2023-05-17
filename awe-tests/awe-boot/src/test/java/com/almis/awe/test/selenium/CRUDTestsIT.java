@@ -232,8 +232,8 @@ class CRUDTestsIT extends SeleniumUtilities {
     // Write on criterion
     writeText("Nam", "Site changed");
 
-    // Click row
-    clickRowContents("Base");
+    // Edit row
+    editRow("Base");
 
     // Suggest on column selector
     suggest("SitModDbsLst", "IdeDbs", "awedb2", "awedb2");
@@ -359,7 +359,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     suggest("Scr", "Usr", "Usr");
 
     // Click row
-    clickRowContents("test");
+    editRow("test");
 
     // Suggest on column selector
     selectContain("MdlUsrLst", "IdeThm", "grass");
@@ -371,7 +371,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkRowContentsGrid("MdlUsrLst","grass");
 
     // Click row
-    clickRowContents("TST");
+    editRow("TST");
 
     // Suggest on column selector
     selectContain("MdlPrfLst", "IdePro", "ADM - Administrator");
@@ -383,7 +383,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkRowContentsGrid("MdlPrfLst","ADM - Administrator");
 
     // Click row
-    clickRowContents("Site changed");
+    editRow("Site changed");
 
     // Suggest on column selector
     selectContain("MdlSitDbsLst", "IdeDbs", "awedb2");
@@ -575,7 +575,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Des", "This is a tes case of modify DB");
 
     // Click on row
-    clickRowContents("Site changed");
+    editRow("Site changed");
 
     // Suggest on column selector
     suggest("SitModDbsLst", "IdeMod", "Test", "Test");
