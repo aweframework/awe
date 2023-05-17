@@ -46,18 +46,6 @@ public class DatabaseConfigProperties {
   private String[] migrationModules = {"AWE"};
 
   /**
-   * Script migration prefix pattern name.
-   * Default value [Module]_V (Ex: AWE_V)
-   */
-  private String migrationPrefix = "%s_V";
-
-  /**
-   * Repeatable script migration prefix pattern name.
-   * Default value [Module]_R (Ex: AWE_R)
-   */
-  private String migrationRepeatablePrefix = "%s_R";
-
-  /**
    * Enable audit operations in AWE database engine.
    * Default value true
    */
