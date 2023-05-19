@@ -1588,7 +1588,9 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param clearText     Clear text
    */
   protected void writeText(String criterionName, CharSequence text, boolean clearText) {
-    writeTextFromSelector(frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName)), text, clearText);
+    By criterionSelector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
+    waitUntil(visibilityOfElementLocated(criterionSelector));
+    writeTextFromSelector(criterionSelector, text, clearText);
     moveMouseOutOfCriterion();
   }
 
