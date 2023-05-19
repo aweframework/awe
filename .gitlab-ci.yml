@@ -431,8 +431,6 @@ Build package:
     - job: Build project
     - job: Launch Sonar
       artifacts: false
-  services:
-    - docker:dind
   tags:
     - docker
   script:
