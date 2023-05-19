@@ -431,6 +431,8 @@ Build package:
     - job: Build project
     - job: Launch Sonar
       artifacts: false
+  services:
+    - docker:dind
   script:
     # Gitlab container
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
