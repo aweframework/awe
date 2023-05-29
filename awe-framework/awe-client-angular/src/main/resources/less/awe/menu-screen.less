@@ -1,0 +1,44 @@
+// Styles for menu button screens
+
+.menu-screen-header {
+  padding: 10px;
+  font-weight: bold;
+  margin: 6px;
+  border-bottom: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.menu-screen-button {
+  height: 140px;
+  font-size: 18px;
+  width: 48vw;
+  margin-bottom: 6px;
+  > i {
+    display: block;
+    text-align: center;
+    font-size: 40px;
+    padding-bottom: 10px;
+  }
+  > span {
+    white-space: normal;
+    line-height: 24px;
+  }
+}
+
+@media (min-width: 1501px) {
+  .menu-screen-button {
+    width: 12vw;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1500px) {
+  .menu-screen-button {
+    width: 24vw;
+  }
+}
+
+@media (max-width: 767px) {
+  .menu-screen-button {
+    width: 48vw;
+  }
+}

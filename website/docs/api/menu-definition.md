@@ -21,11 +21,11 @@ The menu files must have the following skeleton:
 </menu>
 ```
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| screen | **Required**| String | Is the default screen that will be showed at beginning |  |
-| context| Optional | String | Is the context where all the options will be launched (if an specific context is not defined) |   See [contexts](#contexts) |
-| default-action | Optional | String | Is the action that all the options will call (if an specific action is not defined) |  |
+| Attribute      | Use          | Type     | Description                                                                                   | Values                    |
+|----------------|--------------|----------|-----------------------------------------------------------------------------------------------|---------------------------|
+| screen         | **Required** | String   | Is the default screen that will be showed at beginning                                        |                           |
+| context        | Optional     | String   | Is the context where all the options will be launched (if an specific context is not defined) | See [contexts](#contexts) |
+| default-action | Optional     | String   | Is the action that all the options will call (if an specific action is not defined)           |                           |
 
 There is a new tag too to define the position, and the menu type inside a screen: menu-container:
 
@@ -51,11 +51,11 @@ For vertical menu
 
 The [context](#menu-structure) attribute defines **where** are the options defined inside the menu going to be launched. There are several defined context which can be used depending on the menu type:
 
-| Context path          | Menu     | Description                                                 |
-| --------------------- | -------- | ----------------------------------------------------------- |
-| `screen`              | public   | Useful for a single login page without menu                 |
-| `screen/public/home`  | public   | This context is used when the main page must have a menu. In this case the parameter `screen.configuration.home` must **not** be empty, as this will be the screen showed inside the menu. The menu container initial screen will be the one defined on the menu screen attribute |
-| `screen/private/home` | private  | This context will be used when logging on application. In this case the parameter `screen.configuration.information` must **not** be empty, as this will be the screen showed inside the private menu (when the user and the profile haven't any initial screen definition). The menu container initial screen will be the one defined on the menu screen attribute   |
+| Context path          | Menu    | Description                                                                                                                                                                                                                                                                                                                                                         |
+|-----------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `screen`              | public  | Useful for a single login page without menu                                                                                                                                                                                                                                                                                                                         |
+| `screen/public/home`  | public  | This context is used when the main page must have a menu. In this case the parameter `screen.configuration.home` must **not** be empty, as this will be the screen showed inside the menu. The menu container initial screen will be the one defined on the menu screen attribute                                                                                   |
+| `screen/private/home` | private | This context will be used when logging on application. In this case the parameter `screen.configuration.information` must **not** be empty, as this will be the screen showed inside the private menu (when the user and the profile haven't any initial screen definition). The menu container initial screen will be the one defined on the menu screen attribute |
 
 ## Options structure
 
@@ -63,7 +63,7 @@ This is a set of options skeleton code:
 
 ```xml
 <option module="[module]" name="[Option name]" label="[Option label] icon="[Icon option]">
-  <option name="[Option name]" label="[Option label]" screen="[Screen name]"/>
+  <option name="[Option name]" label="[Option label]" screen="[Screen name]" menu-screen="[Is menu screen]"/>
   ---
 </option>
 ---
@@ -72,14 +72,57 @@ This is a set of options skeleton code:
 
 Inside the tools option there are a set of options, some of them are 'invisible'. It is necessary to define all the screen the user can access, because if a screen is not defined in the menu it will not be accessible to any user. Also, you can add options inside options, making a multilevel menu.
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| name | **Required**| String | Is the option name, which is used in the profile files and AweScrRes to restrict an option access. If a parent option is restricted, all children are restricted too|  |
-| screen | Optional | String | Describes the screen that will be accessed when the user clicks on the option |  |
-| label | Optional | String | Is a literal which contains the option name | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| module | Optional | String | Defines the module name. Now you can set different menu options for each module | These module names must be configured in table AweMod and it must be the session variable module |
-| separator| Optional | Boolean | If set to true, the option is converted into a separator line | Default value is `false`|
-| icon | Optional | String | Defines an icon which will be shown before the option label | You can view the whole icon list [here](http://fortawesome.github.io/Font-Awesome/icons/) |
+| Attribute   | Use          | Type    | Description                                                                                                                                                            | Values                                                                                           |
+|-------------|--------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| name        | **Required** | String  | Is the option name, which is used in the profile files and AweScrRes to restrict an option access. If a parent option is restricted, all children are restricted too   |                                                                                                  |
+| screen      | Optional     | String  | Describes the screen that will be accessed when the user clicks on the option                                                                                          |                                                                                                  |
+| label       | Optional     | String  | Is a literal which contains the option name                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                       |
+| module      | Optional     | String  | Defines the module name. Now you can set different menu options for each module                                                                                        | These module names must be configured in table AweMod and it must be the session variable module |
+| separator   | Optional     | Boolean | If set to true, the option is converted into a separator line                                                                                                          | Default value is `false`                                                                         |
+| icon        | Optional     | String  | Defines an icon which will be shown before the option label                                                                                                            | You can view the whole icon list [here](http://fortawesome.github.io/Font-Awesome/icons/)        |
+| menu-screen | Optional     | Boolean | The option is an autogenerated screen with sub-options                                                                                                                 | See [menu-screen](#menu-screen) for more information                                             |
+
+## Menu screen
+
+The **menu screen** is a new type of autogenerated screen which contains a list of buttons with the options defined 
+inside the `menu-screen` option. The visibility of these buttons can be managed with the screen access configuration 
+screen.
+
+This is an example of menu-screen definition option:
+
+```xml 
+<option name="button-menu" label="MENU_TEST_BUTTON_MENU" icon="th" menu-screen="true" screen="test-button-screen">
+  <option name="button-option-0" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="flask"/>
+  <option name="button-group-1" label="MENU_TEST_BUTTON_MENU_GROUP_1" icon="keyboard-o">
+    <option name="button-option-1" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o"/>
+    <option name="button-option-2" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right"/>
+    <option name="button-option-3" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+    <option name="button-option-31" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+  </option>
+  <option name="button-group-2" label="MENU_TEST_BUTTON_MENU_GROUP_2" icon="file-text-o">
+    <option name="button-option-4" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o"/>
+    <option name="button-option-5" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right"/>
+    <option name="button-option-6" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+    <option name="button-option-7" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="table"/>
+    <option name="button-option-8" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right"/>
+    <option name="button-option-9" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="sitemap"/>
+  </option>
+  <option name="button-group-3" label="MENU_TEST_BUTTON_MENU_GROUP_3">
+    <option name="button-option-10" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o"/>
+    <option name="button-option-11" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right"/>
+    <option name="button-option-12" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+    <option name="button-option-13" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+    <option name="button-option-14" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+  </option>
+</option>
+```
+
+Which generates a screen like: 
+
+<img alt="Menu screen" src={require('@docusaurus/useBaseUrl').default('img/MenuScreen.png')}/>
+
+Each button links to the correspondent option defined inside the `menu-screen` option. 
+There is also a grouping level (only one) which generates a header to group some options inside
 
 ## Examples
 

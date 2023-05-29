@@ -215,7 +215,7 @@
   <locale name="ENUM_EXECUTE_MAINTAIN" value="Maintenance"/>
   <locale name="ENUM_GRD_STL" value="Style de grille"/>
   <locale name="ENUM_GRID" value="Matrice"/>
-  <locale name="ENUM_HDG_STL" value="Style d'en-tête de colonne"/>
+  <locale name="ENUM_HDG_STL" value="Style d&apos;en-tête de colonne"/>
   <locale name="ENUM_JAVA" value="Java"/>
   <locale name="ENUM_LAN_EN" value="Anglais"/>
   <locale name="ENUM_LAN_ES" value="Espagnol"/>
@@ -363,7 +363,6 @@
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="Probleme dans l&apos;envoie de mail"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="Probleme dans le process de maintenance"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="Probleme executant le rollback d&apos;une transaction"/>
-  <locale name="ERROR_MESSAGE_ENUMERATED_NOT_DEFINED" value="Le énuméré {0} n&apos;est pas défini"/>
   <locale name="ERROR_MESSAGE_EMAIL_ADD_ATTACH" value="Il y avait une erreur de joindre des fichiers"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_CC" value="Il y avait une erreur de générer la partie [CC]"/>
   <locale name="ERROR_MESSAGE_EMAIL_GENERATE_CCO" value="Il y avait une erreur de générer la partie [CCO]"/>
@@ -376,6 +375,7 @@
   <locale name="ERROR_MESSAGE_EMPTY_MAINTAIN_OUTPUT" value="L&apos;operation de maintenance -{0}- n&apos;a pas fini correctement"/>
   <locale name="ERROR_MESSAGE_EMPTY_QUERY_OUTPUT" value="La requette n&apos;a pas finalise correctement"/>
   <locale name="ERROR_MESSAGE_EMPTY_SERVICE_OUTPUT" value="Le service n&apos;a pas fini correctement"/>
+  <locale name="ERROR_MESSAGE_ENUMERATED_NOT_DEFINED" value="Le énuméré {0} n&apos;est pas défini"/>
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="L&apos;exécution de la méthode {1} dans la classe {0} a causé un problème"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Probleme a l&apos;instantiation d&apos;une classe"/>
   <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Il y avait un problème d&apos;exécuter la requête {0}. {1}"/>
@@ -832,6 +832,10 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_SETTINGS" value="Réglages"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extracteur"/>
   <locale name="MENU_STATIC_AUDIT" value="Audit de státics"/>
+  <locale name="MENU_TEST_BUTTON_MENU" value="Menú de botones"/>
+  <locale name="MENU_TEST_BUTTON_MENU_GROUP_1" value="Groupe 1"/>
+  <locale name="MENU_TEST_BUTTON_MENU_GROUP_2" value="Groupe 2"/>
+  <locale name="MENU_TEST_BUTTON_MENU_GROUP_3" value="Groupe 3"/>
   <locale name="MENU_TEST_MATRIX_TREE" value="Test de la matrice d&apos;arbre"/>
   <locale name="MENU_TOOLS" value="Outils"/>
   <locale name="MENU_TOOLS_AWE_APPPAR" value="Paramètres d&apos;application"/>

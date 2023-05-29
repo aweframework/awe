@@ -9,7 +9,7 @@ export const routeMethods = {
       let view = routeMethods.view(p);
       return $serverData.getScreenData(routeMethods.screen(p), view).then(() => view);
     }],
-  "template": (p) => angular.element(document).injector().get('ServerData').getTemplateUrl(routeMethods.screen(p), routeMethods.view(p)),
+  "template": (p) => angular.element(document).injector().get('ServerData').getTemplateUrl(routeMethods.screen(p), routeMethods.view(p), p.r),
   "view": (p) => "subScreenId" in p ? "report" : "base",
   "screen": (p) => "subScreenId" in p ? p.subScreenId.split("?")[0] : "screenId" in p ? p.screenId.split("?")[0] : null
 };
@@ -20,9 +20,9 @@ const viewControllerData = {"controller": "ViewController", "templateUrl": route
 // Set up states
 export const states = [
   {"name": 'index', "url": "/", "views": {"base": {...viewControllerData}}},
-  {"name": 'global', "url": "/screen/:screenId", "views": {"base": {...viewControllerData}}},
+  {"name": 'global', "url": "/screen/:screenId", "views": {"base": {...viewControllerData}}, "params": {"r": null}},
   {"name": 'public', "url": "/screen/public/:screenId", "views": {"base": {...viewControllerData, "abstract": true}}},
-  {"name": 'public.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.public}}}},
+  {"name": 'public.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.public}}}, "params": {"r": null}},
   {"name": 'private', "url": "/screen/private/:screenId", "views": {"base": {...viewControllerData, "abstract": true}}},
-  {"name": 'private.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.private}}}}
+  {"name": 'private.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.private}}}, "params": {"r": null}}
 ];

@@ -43,14 +43,16 @@ describe('awe-framework/awe-client-angular/src/test/js/services/utilities.js', f
 
   it('should get state', function() {
     // Assert
-    expect($utilities.getState("/screen/public/home/tutu", false)).toEqual({to: 'public.screen', parameters: {screenId: "home", subScreenId: "tutu"}});
-    expect($utilities.getState("/screen/private/home/tutu", false)).toEqual({to: 'private.screen', parameters: {screenId: "home", subScreenId: "tutu"}});
-    expect($utilities.getState("/screen/tutu", false)).toEqual({to: 'global', parameters: {screenId: "tutu"}});
-    expect($utilities.getState("/", false)).toEqual({to: 'index', parameters: {}});
-    expect($utilities.getState("/ascasc/Asvasv", false)).toEqual({to: 'index', parameters: {}});
+    expect($utilities.getState("/screen/public/home/tutu", false)).toEqual({to: 'public.screen', parameters: {screenId: "home", subScreenId: "tutu", r: undefined}});
+    expect($utilities.getState("/screen/private/home/tutu", false)).toEqual({to: 'private.screen', parameters: {screenId: "home", subScreenId: "tutu", r: undefined}});
+    expect($utilities.getState("/screen/tutu", false)).toEqual({to: 'global', parameters: {screenId: "tutu", r: undefined}});
+    expect($utilities.getState("/", false)).toEqual({to: 'index', parameters: {r: undefined}});
+    expect($utilities.getState("/ascasc/Asvasv", false)).toEqual({to: 'index', parameters: {r: undefined}});
     expect($utilities.getState("/screen/public/home/tutu", true).to).toEqual('public.screen');
     expect($utilities.getState("/screen/public/home/tutu", true).parameters.screenId).toEqual('home');
-    expect($utilities.getState("/screen/public/home/tutu", true).parameters.subScreenId).toContain('tutu?');
+    expect($utilities.getState("/screen/public/home/tutu", true).parameters.subScreenId).toEqual('tutu');
+    expect($utilities.getState("/screen/public/home/tutu", true).parameters.r).not.toBe(undefined);
+    expect($utilities.getState("/screen/public/home/tutu", false).parameters.r).toBe(undefined)
   });
 
   it('should get row index', function() {
