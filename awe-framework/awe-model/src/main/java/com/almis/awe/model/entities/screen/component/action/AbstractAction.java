@@ -75,6 +75,10 @@ public abstract class AbstractAction extends Element {
   @XStreamAsAttribute
   private String targetAction;
 
+  // Reload action
+  @JsonProperty("reload")
+  public boolean reload;
+
   @Override
   @JsonIgnore
   public String getTemplate() {
@@ -113,6 +117,7 @@ public abstract class AbstractAction extends Element {
       .setTarget(getTarget() != null ? getTarget() : getName())
       .setValue(getValue())
       .setLabel(getLabel())
+      .setReload(isReload())
       .setServerAction(getServerAction())
       .setTargetAction(getTargetAction());
   }

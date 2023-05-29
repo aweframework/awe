@@ -6,6 +6,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.builder.MenuScreenBuilder;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.cache.annotation.CacheRemoveAll;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Manage application Menus
@@ -684,8 +686,42 @@ public class MenuService extends ServiceConfig {
     // Store json data as javascript
     serviceData.addVariable(AweConstants.ACTION_MENU_OPTIONS, new CellData(menu.getElementList()));
 
+    // Regenerate menu screen list
+    regenerateMenuScreens();
+
     // Return service data
     return serviceData;
+  }
+
+  public void regenerateMenuScreens() {
+    try {
+      generateMenuScreens(getMenuWithRestrictions());
+    } catch (AWException exc) {
+      log.error("Error regenerating menu screens", exc);
+    }
+  }
+
+  /**
+   * Read and generate menu screens
+   * @param menu Menu to generate screens for
+   */
+  public void generateMenuScreens(Menu menu) {
+    // Generate menu screens
+    List<Screen> screenList = menu.getMenuScreenOptions().stream()
+      .map(this::generateMenuScreen)
+      .collect(Collectors.toList());
+
+    // Store menu screens
+    screenList.forEach(getElements()::setScreen);
+  }
+
+  /**
+   * Generate a new screen based on options
+   * @param option Menu screen option
+   * @return Generated menu screen
+   */
+  private Screen generateMenuScreen(Option option) {
+    return new MenuScreenBuilder(option).build();
   }
 
   /**

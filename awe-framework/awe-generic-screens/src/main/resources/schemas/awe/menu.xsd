@@ -61,6 +61,7 @@
     <xs:attribute name="screen" type="xs:string"/>
     <xs:attribute name="separator" type="booleanEnum"/>
     <xs:attribute name="icon" type="xs:string"/>
+    <xs:attribute name="menu-screen" type="booleanEnum"/>
     <xs:attribute name="server-action" type="serverActionEnum"/>
     <xs:attribute name="target-action" type="xs:string"/>
   </xs:attributeGroup>

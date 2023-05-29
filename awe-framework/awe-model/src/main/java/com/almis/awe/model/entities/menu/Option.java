@@ -16,7 +16,10 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Option Class
@@ -61,6 +64,11 @@ public class Option extends AbstractAction {
   @XStreamAlias("screen")
   @XStreamAsAttribute
   private String screen;
+
+  // Option screen menu
+  @XStreamAlias("menu-screen")
+  @XStreamAsAttribute
+  private Boolean menuScreen;
 
   // Option is restricted
   @XStreamOmitField
@@ -131,6 +139,17 @@ public class Option extends AbstractAction {
   }
 
   /**
+   * Returns if option is menu screen or not
+   *
+   * @return Option is visible
+   */
+  @JsonGetter("menuScreen")
+  public boolean isMenuScreen() {
+    return getMenuScreen() != null && getMenuScreen();
+  }
+
+
+  /**
    * Retrieve Option list
    *
    * @return Option list
@@ -197,6 +216,20 @@ public class Option extends AbstractAction {
       // Check module
       child.setParent(this);
       child.defineRelationship();
+    }
+  }
+
+  /**
+   * Get all menu screen options
+   */
+  @JsonIgnore
+  public List<Option> getMenuScreenOptions() {
+    if (isMenuScreen()) {
+      return new ArrayList<>(Collections.singletonList(this));
+    } else {
+      return getOptions().stream()
+        .flatMap(option -> option.getMenuScreenOptions().stream())
+        .collect(Collectors.toList());
     }
   }
 }

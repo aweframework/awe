@@ -38,7 +38,9 @@ aweApplication.directive('aweOption',
                * Check if option is opened
                */
               scope.hasVisibleChildren = function () {
-                return $filter('allowedOption')(scope.controller.options).length > 0 && !scope.controller.separator;
+                return $filter('allowedOption')(scope.controller.options).length > 0 &&
+                  !scope.controller.separator &&
+                  !scope.controller.menuScreen;
               };
 
               /**

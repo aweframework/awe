@@ -79,7 +79,7 @@ public class TemplateDao {
     ST optionTemplate = helpTemplateGroup.createStringTemplate(helpTemplateGroup.rawGetTemplate(AweConstants.TEMPLATE_HELP_OPTION));
 
     String optionLabel = option.getLabel();
-    if (option.getScreen() != null) {
+    if (option.getScreen() != null && !option.isMenuScreen()) {
       Screen screen = menuService.getOptionScreen(option.getName());
       optionLabel = screen.getLabel();
       optionTemplate.add(AweConstants.TEMPLATE_CONTENT, generateScreenHelp(screen, developers));

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Menu Class
@@ -105,5 +106,17 @@ public class Menu extends Element {
       // Check module
       option.defineRelationship();
     }
+  }
+
+  /**
+   * Define all options parent
+   */
+  @JsonIgnore
+  public List<Option> getMenuScreenOptions() {
+    return getElementList().stream()
+      .filter(Option.class::isInstance)
+      .map(Option.class::cast)
+      .flatMap(option -> option.getMenuScreenOptions().stream())
+      .collect(Collectors.toList());
   }
 }

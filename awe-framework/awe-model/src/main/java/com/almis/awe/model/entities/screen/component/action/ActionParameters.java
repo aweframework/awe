@@ -11,4 +11,5 @@ public class ActionParameters {
   private String label;
   private String serverAction;
   private String targetAction;
+  private boolean reload;
 }

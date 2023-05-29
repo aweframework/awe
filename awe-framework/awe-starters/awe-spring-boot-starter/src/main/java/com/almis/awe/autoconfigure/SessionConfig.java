@@ -6,6 +6,7 @@ import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
+import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.session.AweSessionDetails;
@@ -40,33 +41,36 @@ public class SessionConfig {
 
   /**
    * Session service
+   * @param menuService Menu service
    *
    * @return Session service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public SessionService sessionService() {
-    return new SessionService();
+  public SessionService sessionService(MenuService menuService) {
+    return new SessionService(menuService);
   }
 
   /**
    * Session details
    *
-   * @param aweClientTracker         Awe Client tracker
-   * @param queryService             Query service
-   * @param connectionTracker        connection tracker
-   * @param sessionConfigProperties  Session properties
+   * @param aweClientTracker        Awe Client tracker
+   * @param queryService            Query service
+   * @param sessionService          Session service
+   * @param connectionTracker       connection tracker
+   * @param sessionConfigProperties Session properties
    * @return Session details bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService,
+  public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
                                              AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
-    return new AweSessionDetails(aweClientTracker, queryService, connectionTracker, broadcastService, sessionConfigProperties);
+    return new AweSessionDetails(aweClientTracker, queryService, sessionService, connectionTracker, broadcastService, sessionConfigProperties);
   }
 
   /**
    * Session repository
+   *
    * @return Map session repository
    */
   @Bean

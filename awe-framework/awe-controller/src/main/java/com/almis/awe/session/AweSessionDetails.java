@@ -13,6 +13,7 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
+import com.almis.awe.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,21 +33,26 @@ public class AweSessionDetails extends ServiceConfig {
   // Autowired services
   private final AweClientTracker clientTracker;
   private final QueryService queryService;
+  private final SessionService sessionService;
   private final AweConnectionTracker connectionTracker;
   private final BroadcastService broadcastService;
   private final SessionConfigProperties sessionConfigProperties;
 
   /**
    * Autowired constructor
-   *  @param aweClientTracker         awe client tracker
-   * @param queryService             query service
-   * @param connectionTracker        connection tracker
-   * @param broadcastService         Broadcasting service
-   * @param sessionConfigProperties  Session properties
+   *
+   * @param aweClientTracker        awe client tracker
+   * @param queryService            query service
+   * @param sessionService          session service
+   * @param connectionTracker       connection tracker
+   * @param broadcastService        Broadcasting service
+   * @param sessionConfigProperties Session properties
    */
-  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
+  public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
+                           AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
     this.clientTracker = aweClientTracker;
     this.queryService = queryService;
+    this.sessionService = sessionService;
     this.connectionTracker = connectionTracker;
     this.broadcastService = broadcastService;
     this.sessionConfigProperties = sessionConfigProperties;
@@ -62,7 +68,7 @@ public class AweSessionDetails extends ServiceConfig {
     userDetails.setFullyAuthenticated(true);
 
     // Store user in session
-    getSession().setParameter(SESSION_USER, userDetails.getUsername());
+    sessionService.setSessionParameter(SESSION_USER, userDetails.getUsername());
 
     // Store user details
     storeUserDetails(userDetails);
@@ -123,14 +129,14 @@ public class AweSessionDetails extends ServiceConfig {
         DataList queryData = queryOutput.getDataList();
         if (queryData != null && !queryData.getRows().isEmpty()) {
           Map<String, CellData> row = queryData.getRows().get(0);
-          getSession().setParameter(paramName, row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue());
+          sessionService.setSessionParameter(paramName, row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue());
         }
       } catch (Exception exc) {
         log.error("There has been an error trying to retrieve the session parameter '{}'", paramName, exc);
         getSession().setParameter(SESSION_FAILURE, exc);
       }
     });
-   }
+  }
 
   /**
    * Store user details

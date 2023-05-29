@@ -115,9 +115,10 @@ aweApplication.factory('ServerData',
          * Retrieve a screen template code
          * @param {String} screen Screen name
          * @param {String} view Screen view
+         * @param {String} random Random number to avoid cache
          * @returns {String} Screen template
          */
-        getTemplateUrl: function (screen, view) {
+        getTemplateUrl: function (screen, view, random) {
           let template = "";
           // Add option
           if (!$utilities.isEmpty(screen)) {
@@ -127,7 +128,7 @@ aweApplication.factory('ServerData',
           }
 
           // Retrieve url
-          return Connection.getRawUrl() + template;
+          return Connection.getRawUrl() + template + (random ? "?r=" + random : "");
         },
         /**
          * Retrieve a screen template code

@@ -387,7 +387,7 @@ aweApplication.factory('GridEvents',
               let columnPrintData = component.getColumnPrintData(c.id);
               let selectedColumnPrintData = columnPrintData[c.id + component.constants.SELECTED_TAIL] || [];
 
-              // For each value, we add it to its location (at the beggining, the
+              // For each value, we add it to its location (at the beginning, the
               // array corresponding to the row won't be created
               selectedColumnPrintData.forEach((cellPrintData, index) => {
                 // Index + 1 because first row is for column's names
