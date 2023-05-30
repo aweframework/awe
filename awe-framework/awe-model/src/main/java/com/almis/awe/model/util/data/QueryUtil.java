@@ -102,6 +102,12 @@ public class QueryUtil extends ServiceConfig {
       variableMap.put(AweConstants.QUERY_DATABASE, new QueryParameter(aliasParameter, false, ParameterType.STRING));
     }
 
+    // Add language variable
+    JsonNode langParameter = getRequestParameter(AweConstants.QUERY_LANGUAGE, parameters);
+    if (langParameter != null && !langParameter.isNull()) {
+      variableMap.put(AweConstants.QUERY_LANGUAGE, new QueryParameter(langParameter, false, ParameterType.STRING));
+    }
+
     return variableMap;
   }
 

@@ -30,6 +30,7 @@ class AuthenticationConfigTest {
       RestConfig.class))
     .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class)
     .withPropertyValues("awe.application.module-list=awe",
+      "spring.session.store-type=none",
       "spring.cache.type=NONE",
       "awe.database.enabled=false")
     .withBean(NoOpCacheManager.class)

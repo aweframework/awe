@@ -89,7 +89,6 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | max         | Optional     | Integer   | Max number of records to retrieve when the column is initialized with target-action   | Default value is `30` |
 | visibility  | Optional     | Boolean   | Initial visibility of the column component | Default value is `true` |
 | frozen      | Optional     | Boolean   | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height |  Default value is `false` |
-| excel-print-format| Optional     | String| When printing to excel, if we want to print the cells as number, we need to use this attribute and set its value as "numeric". **NOTE:** If the column has a "numeric" component, it is not needed to define this attribute to print the cells as numbers | |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
 

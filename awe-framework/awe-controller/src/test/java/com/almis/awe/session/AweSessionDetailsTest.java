@@ -12,6 +12,7 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
+import com.almis.awe.service.SessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,6 +64,9 @@ class AweSessionDetailsTest {
   private AweElements aweElements;
 
   @Mock
+  private SessionService sessionService;
+
+  @Mock
   private AweClientTracker clientTracker;
 
   @Mock
@@ -93,7 +97,8 @@ class AweSessionDetailsTest {
     SecurityContextHolder.setContext(securityContext);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     aweSessionDetails.onLoginSuccess();
-    verify(aweSession, times(9)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    verify(aweSession, times(8)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    verify(sessionService, times(1)).setSessionParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
   }
 
 
@@ -119,7 +124,8 @@ class AweSessionDetailsTest {
     SecurityContextHolder.setContext(securityContext);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     aweSessionDetails.onLoginSuccess();
-    verify(aweSession, times(9)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    verify(aweSession, times(8)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    verify(sessionService, times(1)).setSessionParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
   }
 
   @Test

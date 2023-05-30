@@ -61,7 +61,7 @@ create TABLE IF NOT EXISTS AweNotUsr
 --  DDL for HISTORIC TABLES
 --------------------------------------------------------
 
-create TABLE IF NOT EXISTS HisAweSub
+create TABLE IF NOT EXISTS HISAweSub
 (
     HISope VARCHAR(20),
     HISdat DATE,
@@ -73,7 +73,7 @@ create TABLE IF NOT EXISTS HisAweSub
     Act    INTEGER
 );
 
-create TABLE IF NOT EXISTS HisAweSubUsr
+create TABLE IF NOT EXISTS HISAweSubUsr
 (
     HISope VARCHAR(20),
     HISdat DATE,
@@ -85,7 +85,7 @@ create TABLE IF NOT EXISTS HisAweSubUsr
     SubEma INTEGER
 );
 
-create TABLE IF NOT EXISTS HisAweNot
+create TABLE IF NOT EXISTS HISAweNot
 (
     HISope VARCHAR(20) not NULL,
     HISdat DATE        not NULL,
@@ -101,7 +101,7 @@ create TABLE IF NOT EXISTS HisAweNot
     Dat    DATE
 );
 
-create TABLE IF NOT EXISTS HisAweNotUsr
+create TABLE IF NOT EXISTS HISAweNotUsr
 (
     HISope    VARCHAR(20) not NULL,
     HISdat    DATE        not NULL,
@@ -120,10 +120,10 @@ create UNIQUE INDEX IF NOT EXISTS PK_AWESUB ON AweSub (Ide);
 create UNIQUE INDEX IF NOT EXISTS PK_AWESUBUSR ON AweSubUsr (Ide);
 create UNIQUE INDEX IF NOT EXISTS PK_AWENOT ON AweNot (Ide);
 create UNIQUE INDEX IF NOT EXISTS PK_AWENOTUSR ON AweNotUsr (Ide);
-create INDEX IF NOT EXISTS HisAweSubI1 ON HisAweSub (HISope, HISdat, HISact);
-create INDEX IF NOT EXISTS HisAweSubUsrI1 ON HisAweSubUsr (HISope, HISdat, HISact);
-create INDEX IF NOT EXISTS HisAweNotI1 ON HisAweNot (HISope, HISdat, HISact);
-create INDEX IF NOT EXISTS HisAweNotUsrI1 ON HisAweNotUsr (HISope, HISdat, HISact);
+create INDEX IF NOT EXISTS HISAweSubI1 ON HISAweSub (HISope, HISdat, HISact);
+create INDEX IF NOT EXISTS HISAweSubUsrI1 ON HISAweSubUsr (HISope, HISdat, HISact);
+create INDEX IF NOT EXISTS HISAweNotI1 ON HISAweNot (HISope, HISdat, HISact);
+create INDEX IF NOT EXISTS HISAweNotUsrI1 ON HISAweNotUsr (HISope, HISdat, HISact);
 alter table AweSub add CONSTRAINT IF NOT EXISTS PK_AWESUB PRIMARY KEY (Ide);
 alter table AweSubUsr add CONSTRAINT IF NOT EXISTS PK_AWESUBUSR PRIMARY KEY (Ide);
 alter table AweNot add CONSTRAINT IF NOT EXISTS PK_AWENOT PRIMARY KEY (Ide);

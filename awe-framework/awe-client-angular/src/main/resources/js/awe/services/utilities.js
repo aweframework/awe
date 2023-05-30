@@ -948,7 +948,9 @@ aweApplication.factory('AweUtilities',
           }
 
           if (reload && maxState != null) {
-            state.parameters[maxState] += "?" + Math.floor(Math.random() * 100);
+            state.parameters['r'] = Math.floor(Math.random() * 100000000);
+          } else {
+            state.parameters['r'] = undefined;
           }
 
           return state;

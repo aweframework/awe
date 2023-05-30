@@ -1,5 +1,8 @@
 package com.almis.awe.testing.selenium;
 
+import com.almis.awe.testing.enumerated.MenuBehavior;
+import com.almis.awe.testing.enumerated.RowEditBehavior;
+import com.almis.awe.testing.enumerated.SuggestBehavior;
 import com.almis.awe.testing.model.SeleniumModel;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -126,6 +129,10 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(String.format("%s//*[contains(@class,'ui-grid-row')]//*[contains(@class,'ui-grid-cell-contents')]//text()[contains(.,'%s')]/..", getGridXpath(gridId), search));
   }
 
+  public RowEditBehavior getRowEditBehavior() {
+    return RowEditBehavior.SINGLE_CLICK;
+  }
+
   public By getPopover() {
     return By.cssSelector(".popover:not(.ng-hide)");
   }
@@ -136,6 +143,14 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
 
   public By getMessage(String type) {
     return By.cssSelector(String.format(".alert-zone .alert-%s button.close", type));
+  }
+
+  public MenuBehavior getMenuBehavior() {
+    return MenuBehavior.CLICK_ALL;
+  }
+
+  public By getMenuOption(String option) {
+    return By.cssSelector(String.format("[name='%s']", option));
   }
 
   public By getMenuOpenedChildren(String option) {
@@ -237,12 +252,30 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(String.format("%s .select2-search-choice div", getCriterionCss(criterionName)));
   }
 
-  public By getSuggest() {
+  public SuggestBehavior getSuggestBehavior() { return SuggestBehavior.TEXT; };
+
+  public By getSuggestChoice(String parentSelector) {
+    return By.cssSelector(String.format("%s .select2-choice", parentSelector));
+  }
+
+  public By getSuggestLoader(String parentSelector) {
+    return By.cssSelector(String.format("%s .loader", parentSelector));
+  }
+
+  public By getSuggest(String parentSelector) {
     return By.cssSelector("#select2-drop input.select2-input");
   }
 
-  public By getSuggestInput() {
+  public By getSuggestInput(String parentSelector) {
     return By.cssSelector("#select2-drop :not(.select2-search-hidden) input.select2-input");
+  }
+
+  public By getSuggestChosen(String criterionName) {
+    return By.cssSelector(String.format("%s .select2-chosen", getCriterionCss(criterionName)));
+  }
+
+  public By getSuggestDropdownList() {
+    return By.cssSelector("#select2-drop");
   }
 
   public By getSuggestDropdownListLastElement() {
@@ -255,5 +288,9 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
 
   public By getSuggestMultipleChoiceClose(String parentSelector) {
     return By.cssSelector(String.format("%s .select2-search-choice-close", parentSelector));
+  }
+
+  public By getSuggestResult(String match) {
+    return By.xpath(String.format("//*[@id='select2-drop']//*[contains(@class,'select2-result-label')]//text()[contains(.,'%s')]/..", match));
   }
 }

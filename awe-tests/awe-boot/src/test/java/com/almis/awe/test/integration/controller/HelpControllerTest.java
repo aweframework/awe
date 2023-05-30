@@ -61,6 +61,6 @@ class HelpControllerTest extends AbstractSpringAppIntegrationTest {
       .andExpect(content().encoding("UTF-8"))
       .andReturn();
 
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    assertEquals(expected, result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")));
   }
 }

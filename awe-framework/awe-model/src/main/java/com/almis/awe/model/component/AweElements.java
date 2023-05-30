@@ -202,7 +202,7 @@ public class AweElements {
     initData.getGeneral().add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
 
     // Init service
-    serviceList = new ConcurrentHashMap<>();
+    serviceList = Collections.synchronizedMap(new LinkedHashMap<>());
     path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getServices() + baseConfigProperties.getExtensionXml();
     initData.getGeneral().add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
 
@@ -762,7 +762,6 @@ public class AweElements {
     // Variable definition
     List<Service> phaseServices = new ArrayList<>();
 
-    // Search from application file to awe file
     for (Service service : serviceList.values()) {
       if (phase.toString().equalsIgnoreCase(service.getLaunchPhase())) {
         phaseServices.add(service.copy());

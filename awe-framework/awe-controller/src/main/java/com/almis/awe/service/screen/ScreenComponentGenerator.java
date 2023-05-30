@@ -177,7 +177,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param menuContainer Menu container
    * @param currentMenu   Current menu
    */
-  private void generateScreenMenu(MenuContainer menuContainer, Menu currentMenu, List<AweThreadInitialization> initializationList) throws AWException {
+  private void generateScreenMenu(MenuContainer menuContainer, Menu currentMenu, List<AweThreadInitialization> initializationList) {
     // If the component is a menu container, store the menu in the component
     Menu menu = currentMenu.copy();
     menuContainer.setMenu(menu);
@@ -204,6 +204,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
         AbstractAction action = ButtonAction.builder()
           .serverAction(serverAction)
           .screenContext(context)
+          .reload(option.isMenuScreen())
           .target(option.getName())
           .build();
 
@@ -218,7 +219,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param grid               Grid component
    * @param initializationList Initialization list
    */
-  private void generateScreenGrid(Grid grid, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList) throws AWException {
+  private void generateScreenGrid(Grid grid, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList) {
     // If the component is a grid, store columns' initial load
     List<Column> columns = grid.getElementsByType(Column.class);
     List<ScreenColumn> columnList = new ArrayList<>();

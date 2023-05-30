@@ -305,8 +305,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
 
     // FILL PARAMETERS
 
-    // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    // Edit row
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "45");
@@ -391,7 +391,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "3");
@@ -491,7 +491,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "45");
@@ -664,7 +664,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // UPDATE PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "33");

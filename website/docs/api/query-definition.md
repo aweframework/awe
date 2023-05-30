@@ -115,6 +115,11 @@ The *query* element has the following attributes:
 | service            |    Optional    |  String   | The name of service to fill the query                                                                                                                                                 | **Note:** Only applies in service queries. For more info. see [service query](#service-query)                                                                     |
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
 
+## SQL elements
+
+The following elements are translated into a SQL clause. 
+They are part of the standard SQL instructions:
+
 ### Table element
 
 The *table* element has the following attributes:
@@ -516,114 +521,6 @@ will be generated as:
 </query>
 ```
 
-### Computed element
-
-The *computed* element has the following attributes:
-
-| Attribute |     Use      |   Type   | Description                                                                                                    | Values                                                                                                                 |
-|-----------|:------------:|:--------:|----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| alias     | **Required** |  String  | Computed field output name                                                                                     |                                                                                                                        |
-| format    | **Required** |  String  | Used to insert another field alias as variables. It has the same **syntax** as the **javascript** eval element | (Ex. [code] - [description] will take the code field and concatenate it with the description field with a " - " string |
-| eval      |   Optional   | Boolean  | Evaluates computed format as expression                                                                        | By defaul is `false`                                                                                                   |
-| nullValue |   Optional   |  String  | Sets a value to null values in computed fields                                                                 | Ex: `nullValue="ZERO"` set "ZERO" to null values                                                                       |
-| transform |   Optional   |  String  | Used to format the computed value                                                                              | See [this](#transform-attribute) for more info about transform attribute.                                              |
-| pattern   |   Optional   |  String  | Used in a computed with numeric value, defines the pattern to format the number                                | See [this page](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) for more info                   |
-| translate |   Optional   |  String  | Translates the output with an enumerated group identifier                                                      | **Note:** If the field value is equal to an enumerated value, output the enumerated label                              |
-| label     |   Optional   |  String  | To use an international i18n label in the computed                                                             | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                             |
-
-#### Computed examples
-
-```xml
-<!-- Computed for add string "Prueba" to field Nam -->
-<query id="QryEdiSug" cacheable="true">
- <table id="AweThm"/>
- <field id="IdeThm" alias="value" />
- <field id="Nam" alias="name" />
- <computed alias="label" format="Prueba - [name]"/>
- <where>
-  <or>
-   <filter left-field="Nam" condition="like" right-variable="Nam" ignorecase="true"/>
-  </or>
- </where>
- <variable id="Nam" type="STRINGB" name="suggest" />
-</query>
-```
-
-```xml
-<!-- Using computed to get value of field "Value" as a label field -->
-<query id="ProNamLst" service="ProFilLst" cacheable="true">
-  <field id="value" />
-  <computed format="[value]" alias="label" />
-</query>
-```
-
-### Compound element
-
-The *compound* structure is the next one:
-
-```xml
-<compound alias="[Compound alias]">
-  <computed format="[Format]" alias="[Alias]"/>
-  <computed format="[Format]" alias="[Alias]"/>
-  ...
-</compound>
-```
-
-The *compound* element has the following attributes:
-
-| Attribute |      Use       |    Type     | Description                 | Values                                                 |
-|-----------|:--------------:|:-----------:|-----------------------------|--------------------------------------------------------|
-| alias     |  **Required**  |   String    | Is the compound identifier  | **Note:**  The alias name must be unique in the query  |
-
-#### Compound examples
-
-> Use compound element to get complex output structures.
-
-```xml
-<!-- This compound get label and icon from many computeds-->
-
-<query id="DbsLst" cacheable="true">
- <table id="AweDbs"/>
- <field id="IdeDbs" alias="IdeDbs" />
- <field id="Als" alias="Als" />
- <field id="Des" alias="Des" />
- <field id="Act" alias="Act" />
- <field id="Act" alias="ActTxt" translate="Es1Es0"/>
- <compound alias="ActIco">
-  <computed format="GENERAL_STATUS_FA_[Act]" alias="icon"/>
-  <computed format="[ActTxt]" alias="label"/>
- </compound>
-</query>
-```
-Usage of the icon compound:
-
-* The compound `alias` must match the icon field `id` in the grid.
-* The computed element with the alias `icon` contains the icon to be set the the icon field. 
-In this case, there is an enum with the icons identifier.
-* The computed element with the alias `label` contains the string to be shown on mosue over.
-
-```xml
-<!-- This compound get label and value as [Nam] field from many computeds fields -->
-
-<query id="ScrCnfLst" cacheable="true">
- <table id="AweScrCnf" alias="scrCnf"/>
- <field id="IdeAweScrCnf" table="scrCnf" alias="IdeAweScrCnf" />
- <field id="IdeOpe" table="scrCnf" alias="IdeOpe" />
- <field id="IdePro" table="scrCnf" alias="IdePro" />
- <field id="Nam" table="scrCnf" alias="NamVal" />
- <compound alias="Nam">
-  <computed format="[NamVal]" alias="value"/>
-  <computed format="[NamVal]" alias="label"/>
- </compound>
- <where>
-  <and> 
-   <filter left-field="Act" left-table="scrCnf" condition="eq" right-variable="Act" optional="true"/>
-  </and>
- </where>
- <variable id="Act" type="INTEGER" name="CrtAct" />
-</query>
-```
-
 ### Join element
 
 The join structure is the next one:
@@ -676,7 +573,7 @@ The where element structure is the following one:
 
 ```xml
   <query id="WhereTest">
-    <table id="HisAweThm" />
+    <table id="HISAweThm" />
     <field id="hisact" alias="typ" />
     <where>
       <and>
@@ -695,7 +592,7 @@ The having structure is the next one, is the same as where element:
 
 ```xml
   <query id="HavTst" public="true">
-    <table id="HisAweThm" />
+    <table id="HISAweThm" />
     <field id="hisact" alias="typ" />
     <field id="sum(1)" alias="act"/>
     <group-by field="HisAct"/>
@@ -789,6 +686,120 @@ The *order by* element has the following attributes:
 | function  |   Optional    |  String  | Function to apply to the field   | The possible values are defined in [field functions](#field-functions)         |
 | type      |   Optional    |  String  | Order direction                  | The possible values are `DESC` or `ASC`. By default is `ASC`                   |
 | nulls     |   Optional    |  String  | Whether to sort the null fields  | The possible values are `FIRST` or `LAST`. By default depends on database type |
+
+## Post-Process elements
+
+The following elements are very powerful in order to generate results, but they are evaluated 
+**after** the generated SQL clause, and may introduce some slowness on query retrieval.
+Have this in mind when using them when designing data retrieval on big queries.
+
+### Computed element
+
+The *computed* element has the following attributes:
+
+| Attribute |     Use      |   Type   | Description                                                                                                    | Values                                                                                                                 |
+|-----------|:------------:|:--------:|----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| alias     | **Required** |  String  | Computed field output name                                                                                     |                                                                                                                        |
+| format    | **Required** |  String  | Used to insert another field alias as variables. It has the same **syntax** as the **javascript** eval element | (Ex. [code] - [description] will take the code field and concatenate it with the description field with a " - " string |
+| eval      |   Optional   | Boolean  | Evaluates computed format as expression                                                                        | By defaul is `false`                                                                                                   |
+| nullValue |   Optional   |  String  | Sets a value to null values in computed fields                                                                 | Ex: `nullValue="ZERO"` set "ZERO" to null values                                                                       |
+| transform |   Optional   |  String  | Used to format the computed value                                                                              | See [this](#transform-attribute) for more info about transform attribute.                                              |
+| pattern   |   Optional   |  String  | Used in a computed with numeric value, defines the pattern to format the number                                | See [this page](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) for more info                   |
+| translate |   Optional   |  String  | Translates the output with an enumerated group identifier                                                      | **Note:** If the field value is equal to an enumerated value, output the enumerated label                              |
+| label     |   Optional   |  String  | To use an international i18n label in the computed                                                             | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                             |
+
+#### Computed examples
+
+```xml
+<!-- Computed for add string "Prueba" to field Nam -->
+<query id="QryEdiSug" cacheable="true">
+ <table id="AweThm"/>
+ <field id="IdeThm" alias="value" />
+ <field id="Nam" alias="name" />
+ <computed alias="label" format="Prueba - [name]"/>
+ <where>
+  <or>
+   <filter left-field="Nam" condition="like" right-variable="Nam" ignorecase="true"/>
+  </or>
+ </where>
+ <variable id="Nam" type="STRINGB" name="suggest" />
+</query>
+```
+
+```xml
+<!-- Using computed to get value of field "Value" as a label field -->
+<query id="ProNamLst" service="ProFilLst" cacheable="true">
+  <field id="value" />
+  <computed format="[value]" alias="label" />
+</query>
+```
+
+### Compound element
+
+The *compound* structure is the next one:
+
+```xml
+<compound alias="[Compound alias]">
+  <computed format="[Format]" alias="[Alias]"/>
+  <computed format="[Format]" alias="[Alias]"/>
+  ...
+</compound>
+```
+
+The *compound* element has the following attributes:
+
+| Attribute |      Use       |    Type     | Description                 | Values                                                 |
+|-----------|:--------------:|:-----------:|-----------------------------|--------------------------------------------------------|
+| alias     |  **Required**  |   String    | Is the compound identifier  | **Note:**  The alias name must be unique in the query  |
+
+#### Compound examples
+
+> Use compound element to get complex output structures.
+
+```xml
+<!-- This compound get label and icon from many computeds-->
+
+<query id="DbsLst" cacheable="true">
+ <table id="AweDbs"/>
+ <field id="IdeDbs" alias="IdeDbs" />
+ <field id="Als" alias="Als" />
+ <field id="Des" alias="Des" />
+ <field id="Act" alias="Act" />
+ <field id="Act" alias="ActTxt" translate="Es1Es0"/>
+ <compound alias="ActIco">
+  <computed format="GENERAL_STATUS_FA_[Act]" alias="icon"/>
+  <computed format="[ActTxt]" alias="label"/>
+ </compound>
+</query>
+```
+Usage of the icon compound:
+
+* The compound `alias` must match the icon field `id` in the grid.
+* The computed element with the alias `icon` contains the icon to be set the the icon field.
+  In this case, there is an enum with the icons identifier.
+* The computed element with the alias `label` contains the string to be shown on mosue over.
+
+```xml
+<!-- This compound get label and value as [Nam] field from many computeds fields -->
+
+<query id="ScrCnfLst" cacheable="true">
+ <table id="AweScrCnf" alias="scrCnf"/>
+ <field id="IdeAweScrCnf" table="scrCnf" alias="IdeAweScrCnf" />
+ <field id="IdeOpe" table="scrCnf" alias="IdeOpe" />
+ <field id="IdePro" table="scrCnf" alias="IdePro" />
+ <field id="Nam" table="scrCnf" alias="NamVal" />
+ <compound alias="Nam">
+  <computed format="[NamVal]" alias="value"/>
+  <computed format="[NamVal]" alias="label"/>
+ </compound>
+ <where>
+  <and> 
+   <filter left-field="Act" left-table="scrCnf" condition="eq" right-variable="Act" optional="true"/>
+  </and>
+ </where>
+ <variable id="Act" type="INTEGER" name="CrtAct" />
+</query>
+```
 
 ### Totalize element
 
@@ -888,7 +899,14 @@ These are the possible variable types:
 * **LIST_TO_STRING**: Retrieve a list of values and manage them as a comma separated values in a string
 * **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values
 	
-     
+### Special variables
+
+There are a set of special variables which **don't need to be declared as variable on the query** and
+affects the behaviour of the results:
+
+- **lang**: Makes translation (with `translate="XxxXxx"` attribute) to use this language instead of the session
+one
+
 ## Enumerated query
 
 An enumerated query is a call to an enumerated group in the **Enumerated.xml** file.

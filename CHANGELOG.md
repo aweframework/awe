@@ -1,4 +1,18 @@
 
+# Changelog for AWE 4.6.9
+*30/05/2023*
+
+- Menu is retrieving the profile with the current module restricted. [MR #439](https://gitlab.com/aweframework/awe/-/merge_requests/439) (Pablo Javier García Mora)
+- New option screen for menu options. [MR #438](https://gitlab.com/aweframework/awe/-/merge_requests/438) (Pablo Javier García Mora)
+- Throw exception in Flyway migration. [MR #437](https://gitlab.com/aweframework/awe/-/merge_requests/437) (Pablo Vidal Otero)
+- Improve Selenium Utilities clicking behaviour with waits until element is clickable. [MR #436](https://gitlab.com/aweframework/awe/-/merge_requests/436) (Pablo Javier García Mora)
+- Change order of service launching in STARTs phases. [MR #435](https://gitlab.com/aweframework/awe/-/merge_requests/435) (Pablo Vidal Otero)
+- Build observability stack in awe-boot test application. [MR #434](https://gitlab.com/aweframework/awe/-/merge_requests/434) (Pablo Vidal Otero)
+- Adapt ReactInstructions in AWE Testing to react engine. [MR #433](https://gitlab.com/aweframework/awe/-/merge_requests/433) (Pablo Javier García Mora)
+- Fix Scheduler historization table from HisAweSchTsk to HISAweSchTsk. [MR #432](https://gitlab.com/aweframework/awe/-/merge_requests/432) (Pablo Javier García Mora)
+- Added stompjs management. [MR #431](https://gitlab.com/aweframework/awe/-/merge_requests/431) (Pablo Javier García Mora)
+- Queries add language parameter in order to use in translate functionallity. [MR #430](https://gitlab.com/aweframework/awe/-/merge_requests/430) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.8
 *30/03/2023*
 

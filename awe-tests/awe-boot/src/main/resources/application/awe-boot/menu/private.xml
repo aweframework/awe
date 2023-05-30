@@ -91,6 +91,30 @@
       <option name="layout-test" label="MENU_TEST_LAYOUT 1" screen="layout" icon="th-large"/>
       <option name="layout2-test" label="MENU_TEST_LAYOUT 2" screen="layout2" icon="th-large"/>
     </option>
+    <option name="button-menu" label="MENU_TEST_BUTTON_MENU" icon="th" menu-screen="true" screen="test-button-screen">
+      <option name="button-option-0" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="flask" />
+      <option name="button-group-1" label="MENU_TEST_BUTTON_MENU_GROUP_1" icon="keyboard-o" >
+        <option name="button-option-1" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o" />
+        <option name="button-option-2" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right" />
+        <option name="button-option-3" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
+        <option name="button-option-31" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
+      </option>
+      <option name="button-group-2" label="MENU_TEST_BUTTON_MENU_GROUP_2" icon="file-text-o" >
+        <option name="button-option-4" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o" />
+        <option name="button-option-5" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right" />
+        <option name="button-option-6" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
+        <option name="button-option-7" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="table" />
+        <option name="button-option-8" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right" />
+        <option name="button-option-9" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="sitemap" />
+      </option>
+      <option name="button-group-3" label="MENU_TEST_BUTTON_MENU_GROUP_3" >
+        <option name="button-option-10" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o" />
+        <option name="button-option-11" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right" />
+        <option name="button-option-12" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
+        <option name="button-option-13" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
+        <option name="button-option-14" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
+      </option>
+    </option>
     <option name="wizard-test" label="MENU_TEST_WIZARD" screen="wizard" icon="magic"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>

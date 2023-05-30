@@ -106,7 +106,7 @@
   -->
   <!-- Insert scheduled task -->
   <target name="NewSchedulerTask">
-    <insert audit="HisAweSchTsk">
+    <insert audit="HISAweSchTsk">
       <table id="AweSchTsk" />
       <field id="Ide" sequence="SchTskKey" variable="IdeTsk" />
       <field id="Nam" variable="Nam" />
@@ -159,7 +159,7 @@
       <variable id="site" type="STRING" session="site"/>
     </insert>
 
-    <insert audit="HisAweSchTskLch">
+    <insert audit="HISAweSchTskLch">
       <table id="AweSchTskLch" />
       <field id="Ide" sequence="SchTskLch" variable="IdeTskLch"/>
       <field id="IdeTsk" variable="IdeTsk" />
@@ -244,7 +244,7 @@
 
   <!-- Update scheduled task -->
   <target name="UpdateSchedulerTask">
-    <update audit="HisAweSchTsk">
+    <update audit="HISAweSchTsk">
       <table id="AweSchTsk" />
       <field id="Nam" variable="Nam" />
       <field id="Des" variable="Des" />
@@ -296,7 +296,7 @@
       <variable id="RepMntId" type="STRING" name="RepMntId"/>
     </update>
 
-    <update audit="HisAweSchTskLch">
+    <update audit="HISAweSchTskLch">
       <table id="AweSchTskLch" />
       <field id="RptNum" variable="RptNum" />
       <field id="RptTyp" variable="RptTyp" />
@@ -460,7 +460,7 @@
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
     </delete>
 
-    <delete audit="HisAweSchTskPar" multiple="audit">
+    <delete audit="HISAweSchTskPar" multiple="audit">
       <table id="AweSchTskPar" />
       <field id="IdeTsk" variable="IdeTsk" audit="true"/>
       <where>
@@ -471,7 +471,7 @@
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
     </delete>
 
-    <delete audit="HisAweSchTskLch" multiple="audit">
+    <delete audit="HISAweSchTskLch" multiple="audit">
       <table id="AweSchTskLch" />
       <field id="IdeTsk" variable="IdeTsk" audit="true"/>
       <where>
@@ -482,7 +482,7 @@
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
     </delete>
 
-    <delete audit="HisAweSchTsk" multiple="audit">
+    <delete audit="HISAweSchTsk" multiple="audit">
       <table id="AweSchTsk" />
       <field id="Ide" variable="IdeTsk" audit="true"/>
       <where>
@@ -576,7 +576,7 @@
       </where>
       <variable id="Ide" type="INTEGER" name="Ide" />
     </delete>
-    <update audit="HisAweSchTskLch">
+    <update audit="HISAweSchTskLch">
       <table id="AweSchTskLch"/>
       <constant id="IdeCal" value="NULL" type="NULL"/>
       <where>

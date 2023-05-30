@@ -6,14 +6,19 @@ import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
+import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.session.AweSessionDetails;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.MapSessionRepository;
 import org.springframework.web.context.annotation.SessionScope;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * AWE Session configuration class
@@ -36,28 +41,42 @@ public class SessionConfig {
 
   /**
    * Session service
+   * @param menuService Menu service
    *
    * @return Session service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public SessionService sessionService() {
-    return new SessionService();
+  public SessionService sessionService(MenuService menuService) {
+    return new SessionService(menuService);
   }
 
   /**
    * Session details
    *
-   * @param aweClientTracker         Awe Client tracker
-   * @param queryService             Query service
-   * @param connectionTracker        connection tracker
-   * @param sessionConfigProperties  Session properties
+   * @param aweClientTracker        Awe Client tracker
+   * @param queryService            Query service
+   * @param sessionService          Session service
+   * @param connectionTracker       connection tracker
+   * @param sessionConfigProperties Session properties
    * @return Session details bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService,
+  public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
                                              AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
-    return new AweSessionDetails(aweClientTracker, queryService, connectionTracker, broadcastService, sessionConfigProperties);
+    return new AweSessionDetails(aweClientTracker, queryService, sessionService, connectionTracker, broadcastService, sessionConfigProperties);
+  }
+
+  /**
+   * Session repository
+   *
+   * @return Map session repository
+   */
+  @Bean
+  @ConditionalOnProperty(name = "spring.session.store-type", havingValue = "none")
+  @ConditionalOnMissingBean
+  public MapSessionRepository sessionRepository() {
+    return new MapSessionRepository(new ConcurrentHashMap<>());
   }
 }

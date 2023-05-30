@@ -13,11 +13,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.session.Session;
+import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 /**
  * Awe Web Socket configuration.
@@ -27,7 +27,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 @Configuration
 @EnableConfigurationProperties(BaseConfigProperties.class)
 @EnableWebSocketMessageBroker
-public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
+public class WebsocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> {
 
   // Autowired components
   private final BaseConfigProperties baseConfigProperties;
@@ -61,11 +61,9 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
    * @param registry Stomp end point registry
    */
   @Override
-  public void registerStompEndpoints(StompEndpointRegistry registry) {
+  public void configureStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint("/websocket")
-      .setAllowedOriginPatterns(securityConfigProperties.getAllowedOriginPatterns())
-      .addInterceptors(new HttpSessionHandshakeInterceptor())
-      .withSockJS();
+      .setAllowedOriginPatterns(securityConfigProperties.getAllowedOriginPatterns());
   }
 
   /**

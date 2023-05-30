@@ -23,7 +23,6 @@ variables:
   UT_OPTS: "-Dskip.frontend=true -DgenerateUnitReport=true"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CI_PROJECT_URL_SSH: "origin git@gitlab.com:aweframework/awe.git"
-  DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: gitlab-ci
   KUBERNETES_PROJECT_ID: wired-armor-229610
   KUBERNETES_CLUSTER_NAME: awe-boot-cluster

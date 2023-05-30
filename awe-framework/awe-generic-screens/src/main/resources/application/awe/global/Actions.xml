@@ -445,6 +445,7 @@
         <type>tree-branch</type>
         <parameters>
           <parameter name="datalist" variable="DATA" />
+          <parameter name="row" parameter="expandingBranch"/>
         </parameters>
       </response>
       <response>
@@ -456,6 +457,7 @@
         <type>tree-branch</type>
         <parameters>
           <parameter name="datalist" variable="DATA" />
+          <parameter name="row" parameter="expandingBranch"/>
         </parameters>
       </response>
       <response>
@@ -475,6 +477,7 @@
         <type>tree-branch</type>
         <parameters>
           <parameter name="datalist" variable="DATA" />
+          <parameter name="row" parameter="expandingBranch"/>
         </parameters>
       </response>
       <response>

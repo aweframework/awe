@@ -61,7 +61,7 @@ create TABLE IF NOT EXISTS AweNotUsr
 --  DDL for HISTORIC TABLES
 -- ------------------------------------------------------
 
-create TABLE IF NOT EXISTS HisAweSub
+create TABLE IF NOT EXISTS HISAweSub
 (
     HISope VARCHAR(20),
     HISdat DATE,
@@ -73,7 +73,7 @@ create TABLE IF NOT EXISTS HisAweSub
     Act    INTEGER
 );
 
-create TABLE IF NOT EXISTS HisAweSubUsr
+create TABLE IF NOT EXISTS HISAweSubUsr
 (
     HISope VARCHAR(20),
     HISdat DATE,
@@ -85,7 +85,7 @@ create TABLE IF NOT EXISTS HisAweSubUsr
     SubEma INTEGER
 );
 
-create TABLE IF NOT EXISTS HisAweNot
+create TABLE IF NOT EXISTS HISAweNot
 (
     HISope VARCHAR(20) not NULL,
     HISdat DATE        not NULL,
@@ -101,7 +101,7 @@ create TABLE IF NOT EXISTS HisAweNot
     Dat    DATE
 );
 
-create TABLE IF NOT EXISTS HisAweNotUsr
+create TABLE IF NOT EXISTS HISAweNotUsr
 (
     HISope    VARCHAR(20) not NULL,
     HISdat    DATE        not NULL,
@@ -120,10 +120,10 @@ create UNIQUE INDEX PK_AWESUB ON AweSub (Ide);
 create UNIQUE INDEX PK_AWESUBUSR ON AweSubUsr (Ide);
 create UNIQUE INDEX PK_AWENOT ON AweNot (Ide);
 create UNIQUE INDEX PK_AWENOTUSR ON AweNotUsr (Ide);
-create INDEX HisAweSubI1 ON HisAweSub (HISope, HISdat, HISact);
-create INDEX HisAweSubUsrI1 ON HisAweSubUsr (HISope, HISdat, HISact);
-create INDEX HisAweNotI1 ON HisAweNot (HISope, HISdat, HISact);
-create INDEX HisAweNotUsrI1 ON HisAweNotUsr (HISope, HISdat, HISact);
+create INDEX HISAweSubI1 ON HISAweSub (HISope, HISdat, HISact);
+create INDEX HISAweSubUsrI1 ON HISAweSubUsr (HISope, HISdat, HISact);
+create INDEX HISAweNotI1 ON HISAweNot (HISope, HISdat, HISact);
+create INDEX HISAweNotUsrI1 ON HISAweNotUsr (HISope, HISdat, HISact);
 alter table AweSub add CONSTRAINT PK_AWESUB PRIMARY KEY (Ide);
 alter table AweSubUsr add CONSTRAINT PK_AWESUBUSR PRIMARY KEY (Ide);
 alter table AweNot add CONSTRAINT PK_AWENOT PRIMARY KEY (Ide);

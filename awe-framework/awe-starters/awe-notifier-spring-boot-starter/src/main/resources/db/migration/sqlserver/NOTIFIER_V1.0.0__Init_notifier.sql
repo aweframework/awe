@@ -61,7 +61,7 @@ create TABLE AweNotUsr
 --  DDL for HISTORIC TABLES
 --------------------------------------------------------
 
-create TABLE HisAweSub
+create TABLE HISAweSub
 (
     HISope VARCHAR(20),
     HISdat DATE,
@@ -73,7 +73,7 @@ create TABLE HisAweSub
     Act    INTEGER
 );
 
-create TABLE HisAweSubUsr
+create TABLE HISAweSubUsr
 (
     HISope VARCHAR(20),
     HISdat DATE,
@@ -85,7 +85,7 @@ create TABLE HisAweSubUsr
     SubEma INTEGER
 );
 
-create TABLE HisAweNot
+create TABLE HISAweNot
 (
     HISope VARCHAR(20) not NULL,
     HISdat DATE        not NULL,
@@ -101,7 +101,7 @@ create TABLE HisAweNot
     Dat    DATETIME
 );
 
-create TABLE HisAweNotUsr
+create TABLE HISAweNotUsr
 (
     HISope    VARCHAR(20) not NULL,
     HISdat    DATE        not NULL,
@@ -120,10 +120,10 @@ create UNIQUE INDEX PK_AWESUB ON AweSub (Ide);
 create UNIQUE INDEX PK_AWESUBUSR ON AweSubUsr (Ide);
 create UNIQUE INDEX PK_AWENOT ON AweNot (Ide);
 create UNIQUE INDEX PK_AWENOTUSR ON AweNotUsr (Ide);
-create INDEX HisAweSubI1 ON HisAweSub (HISope, HISdat, HISact);
-create INDEX HisAweSubUsrI1 ON HisAweSubUsr (HISope, HISdat, HISact);
-create INDEX HisAweNotI1 ON HisAweNot (HISope, HISdat, HISact);
-create INDEX HisAweNotUsrI1 ON HisAweNotUsr (HISope, HISdat, HISact);
+create INDEX HISAweSubI1 ON HISAweSub (HISope, HISdat, HISact);
+create INDEX HISAweSubUsrI1 ON HISAweSubUsr (HISope, HISdat, HISact);
+create INDEX HISAweNotI1 ON HISAweNot (HISope, HISdat, HISact);
+create INDEX HISAweNotUsrI1 ON HISAweNotUsr (HISope, HISdat, HISact);
 
 -- Notifier sequences
 insert into AweKey (KeyNam, KeyVal) values ('Sub', (select coalesce(max(Ide),0) + 1 from AweSub));
