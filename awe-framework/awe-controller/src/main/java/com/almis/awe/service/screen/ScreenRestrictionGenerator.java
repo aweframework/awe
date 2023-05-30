@@ -28,7 +28,7 @@ public class ScreenRestrictionGenerator extends ServiceConfig {
 
       // Apply restriction
       if (option != null) {
-        option.setRestricted(Boolean.valueOf(restricted));
+        option.setRestricted(Boolean.parseBoolean(restricted));
       }
     }
   }
@@ -39,12 +39,11 @@ public class ScreenRestrictionGenerator extends ServiceConfig {
    * @param menu Component map
    */
   public void applyModuleRestriction(String module, Menu menu) {
-    // For each column, store value in components
-    for (Option option: menu.getElementsByType(Option.class)) {
-      if (option.getModule() != null && module != null && !module.equalsIgnoreCase(option.getModule())) {
-        option.setRestricted(true);
-        deepRestriction(option);
-      }
+    // Apply module restriction to menu
+    if (module != null) {
+      menu.getElementsByType(Option.class).stream()
+        .filter(option -> option.getModule() != null && !module.equalsIgnoreCase(option.getModule()))
+        .forEach(this::deepRestriction);
     }
   }
 
@@ -53,10 +52,10 @@ public class ScreenRestrictionGenerator extends ServiceConfig {
    * @param currentOption Current option
    */
   private void deepRestriction(Option currentOption) {
-    // For each column, store value in components
-    for (Option option: currentOption.getElementsByType(Option.class)) {
-      // Apply restriction
-      option.setRestricted(true);
-    }
+    // Set option as restricted
+    currentOption.setRestricted(true);
+
+    // Retrieve each option child and restrict it
+    currentOption.getElementsByType(Option.class).forEach(option -> option.setRestricted(true));
   }
 }
