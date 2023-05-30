@@ -6,7 +6,6 @@ import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
-import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.session.AweSessionDetails;
@@ -41,14 +40,13 @@ public class SessionConfig {
 
   /**
    * Session service
-   * @param menuService Menu service
    *
    * @return Session service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public SessionService sessionService(MenuService menuService) {
-    return new SessionService(menuService);
+  public SessionService sessionService() {
+    return new SessionService();
   }
 
   /**

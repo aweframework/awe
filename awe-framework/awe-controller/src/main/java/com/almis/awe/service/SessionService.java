@@ -4,8 +4,6 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.component.AweSession;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.almis.awe.model.constant.AweConstants.SESSION_MODULE;
-
 /**
  * Session service
  *
@@ -13,12 +11,6 @@ import static com.almis.awe.model.constant.AweConstants.SESSION_MODULE;
  */
 @Slf4j
 public class SessionService extends ServiceConfig {
-
-  private final MenuService menuService;
-
-  public SessionService(MenuService menuService) {
-    this.menuService = menuService;
-  }
 
   /**
    * Retrieve session parameter
@@ -45,11 +37,6 @@ public class SessionService extends ServiceConfig {
     AweSession session = getSession();
     if (isSessionValid(session)) {
       session.setParameter(name, value);
-
-      // If session is module, update menu screens
-      if (SESSION_MODULE.equalsIgnoreCase(name)) {
-        menuService.regenerateMenuScreens();
-      }
     }
   }
 

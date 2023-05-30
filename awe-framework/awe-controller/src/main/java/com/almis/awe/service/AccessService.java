@@ -130,6 +130,9 @@ public class AccessService extends ServiceConfig {
     Menu menu = menuService.getMenu();
     String initialUrl = "/" + menu.getScreenContext() + "/" + userDetails.getInitialScreen();
 
+    // Regenerate menu options
+    menuService.regenerateMenuScreens();
+
     // Store initial url in session
     getSession().setParameter(SESSION_INITIAL_URL, initialUrl);
 
