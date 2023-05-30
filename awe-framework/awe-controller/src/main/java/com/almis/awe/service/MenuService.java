@@ -132,11 +132,6 @@ public class MenuService extends ServiceConfig {
 
     // Apply restrictions if logged in
     if (getSession().isAuthenticated()) {
-      String module = getSession().getParameter(String.class, AweConstants.SESSION_MODULE);
-
-      // Apply module restrictions
-      screenRestrictionGenerator.applyModuleRestriction(module, menu);
-
       // Get restrictions
       ServiceData queryOutput = queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
       DataList queryRestrictions = queryOutput.getDataList();
@@ -146,6 +141,52 @@ public class MenuService extends ServiceConfig {
     }
 
     return menu;
+  }
+
+  /**
+   * Retrieve the menu with all restrictions (included modules)
+   *
+   * @return Retrieved menu
+   * @throws AWException Menu has not been found
+   */
+  public Menu getMenuWithAllRestrictions() throws AWException {
+    return getMenuWithAllRestrictions(getMenu());
+  }
+
+  /**
+   * Retrieve the menu with all restrictions (included modules)
+   *
+   * @param menuType Menu type
+   * @return Retrieved menu
+   * @throws AWException Menu has not been found
+   */
+  public Menu getMenuWithAllRestrictions(String menuType) throws AWException {
+    return getMenuWithAllRestrictions(getMenu(menuType));
+  }
+
+  /**
+   * Retrieve the menu with all restrictions (included modules)
+   *
+   * @param menu Menu
+   * @return Retrieved menu
+   * @throws AWException Menu has not been found
+   */
+  public Menu getMenuWithAllRestrictions(Menu menu) throws AWException {
+
+    Menu restrictedMenu = menu;
+
+    // Apply restrictions if logged in
+    if (getSession().isAuthenticated()) {
+      String module = getSession().getParameter(String.class, AweConstants.SESSION_MODULE);
+
+      // Apply module restrictions
+      screenRestrictionGenerator.applyModuleRestriction(module, restrictedMenu);
+
+      // Apply configuration restrictions
+      restrictedMenu = getMenuWithRestrictions(restrictedMenu);
+    }
+
+    return restrictedMenu;
   }
 
   /**
