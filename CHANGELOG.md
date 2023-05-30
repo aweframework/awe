@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.6.10
+*30/05/2023*
+
+- Cyclic dependency when using Redis as cache manager. [MR #440](https://gitlab.com/aweframework/awe/-/merge_requests/440) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.9
 *30/05/2023*
 
