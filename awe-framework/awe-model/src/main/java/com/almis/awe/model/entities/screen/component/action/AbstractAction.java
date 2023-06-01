@@ -14,6 +14,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Optional;
+
 /**
  * AbstractAction Class
  * Used to parse screen actions with XStream
@@ -129,8 +131,9 @@ public abstract class AbstractAction extends Element {
    */
   @JsonGetter("type")
   public String getServerActionConverter() {
-    String serverActionValue = getType() != null ? getType() : getServerAction();
-    return serverActionValue != null ? serverActionValue : "server";
+    return Optional.ofNullable(getType())
+      .orElse(Optional.ofNullable(getServerAction())
+        .orElse("server"));
   }
 
   @JsonIgnore
