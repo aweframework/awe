@@ -39,15 +39,17 @@ public class MenuScreenBuilder {
       .setLabel(menuOption.getLabel());
 
     // Add center tag
-    Tag center = (Tag) new Tag()
-      .setSource("center")
-      .setExpand("vertical")
-      .setStyle("expand menu-screen-container")
-      .setId(menuOption.getName() + "-center");
+    Tag center = new Tag().setSource("center");
     screen.addElement(center);
 
+    Tag container = (Tag) new Tag()
+      .setType("div")
+      .setStyle("menu-screen-container")
+      .setId(menuOption.getName() + "-center");
+    center.addElement(container);
+
     // Add every option as button
-    center.setElementList(menuOption.getOptions().stream()
+    container.setElementList(menuOption.getOptions().stream()
       .filter(option -> !option.isRestricted())
       .map(this::generateOptionElement)
       .collect(Collectors.toList()));

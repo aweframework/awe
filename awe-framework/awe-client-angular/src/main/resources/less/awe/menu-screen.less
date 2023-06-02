@@ -10,9 +10,13 @@
 
 .menu-screen-button {
   height: 140px;
-  font-size: 18px;
-  width: 48vw;
+  font-size: 16px;
+  text-transform: capitalize;
+  font-variant: small-caps;
+  width: 6vw;
   margin-bottom: 6px;
+  border: 0;
+  background: transparent !important;
   > i {
     display: block;
     text-align: center;
@@ -21,24 +25,36 @@
   }
   > span {
     white-space: normal;
-    line-height: 24px;
+    line-height: 20px;
   }
 }
 
-@media (min-width: 1501px) {
+@media (min-width: 2001px) {
+  .menu-screen-button {
+    width: 6vw;
+  }
+}
+
+@media (min-width: 1001px) and (max-width: 2000px) {
   .menu-screen-button {
     width: 12vw;
   }
 }
 
-@media (min-width: 768px) and (max-width: 1500px) {
+@media (min-width: 769px) and (max-width: 1000px) {
   .menu-screen-button {
-    width: 24vw;
+    width: 18vw;
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .menu-screen-button {
-    width: 48vw;
+    width: 23vw;
+  }
+}
+
+@media (max-width: 640px) {
+  .menu-screen-button.btn .button-text  {
+    display: inherit;
   }
 }
