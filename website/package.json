@@ -20,6 +20,7 @@
     "@crowdin/crowdin-api-client": "1.23.1",
     "@docusaurus/core": "2.4.1",
     "@docusaurus/preset-classic": "2.4.1",
+    "jdeploy": "^4.0.22",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",
     "clsx": "^1.1.1",
