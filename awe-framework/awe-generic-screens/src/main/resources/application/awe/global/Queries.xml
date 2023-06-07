@@ -514,6 +514,122 @@
     <variable id="active" type="INTEGER" name="CrtSta" />
   </query>
 
+  <query id="restrictions-per-option" cacheable="true">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <constant value="1" type="INTEGER" function="SUM" alias="restrictions"/>
+    <group-by field="Opt"/>
+    <where>
+      <filter left-field="Opt" condition="eq" right-variable="option" optional="true"/>
+    </where>
+    <variable id="option" type="STRING" name="option-name.selected"/>
+  </query>
+
+  <query id="menu-option-tree" service="getMenuOptionTree"/>
+
+  <query id="menu-restrictions" cacheable="true">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="restriction" />
+    <where>
+      <or>
+        <filter left-field="IdeOpe" condition="eq" right-variable="user" optional="true"/>
+        <and>
+          <filter left-field="IdeOpe" condition="is null"/>
+          <filter left-variable="user" condition="is null"/>
+        </and>
+      </or>
+      <or>
+        <filter left-field="IdePro" condition="eq" right-variable="profile" optional="true"/>
+        <and>
+          <filter left-field="IdePro" condition="is null"/>
+          <filter left-variable="profile" condition="is null"/>
+        </and>
+      </or>
+      <filter left-field="Act" condition="eq" right-variable="active"/>
+      <filter left-field="Opt" condition="eq" right-variable="option" optional="true"/>
+    </where>
+    <variable id="user" type="INTEGER" name="user"/>
+    <variable id="profile" type="INTEGER" name="profile"/>
+    <variable id="option" type="STRING" name="option"/>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+
+  <query id="menu-restrictions-with-user-profile" cacheable="true">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="restriction" />
+    <join>
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="ope" condition="eq" right-variable="user" />
+        <filter left-field="IdePro" left-table="ope" condition="eq" right-field="IdePro" right-table="scrRes"/>
+      </and>
+    </join>
+    <where>
+      <filter left-field="IdeOpe" left-table="scrRes" condition="is null"/>
+      <filter left-field="Act" condition="eq" right-variable="active"/>
+    </where>
+    <variable id="user" type="INTEGER" name="user"/>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+
+  <query id="menu-option-tree-by-module" service="getMenuOptionTreeByModule">
+    <variable id="user" type="INTEGER" name="selected-user"/>
+    <variable id="profile" type="INTEGER" name="selected-profile"/>
+    <variable id="module" type="STRING" name="selected-module"/>
+  </query>
+
+  <query id="restriction-list">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="IdeAweScrRes" table="scrRes" alias="id" />
+    <field id="IdeAweScrRes" table="scrRes" alias="IdeAweScrRes" />
+    <field id="IdePro" table="scrRes" alias="IdeProVal" />
+    <field id="Nam" table="pro" alias="IdeProNam" />
+    <compound alias="IdePro">
+      <computed alias="value" format="[IdeProVal]"/>
+      <computed alias="label" format="[IdeProNam]"/>
+    </compound>
+    <field id="IdeOpe" table="scrRes" alias="IdeOpeVal" />
+    <field id="l1_nom" table="ope" alias="IdeOpeNam" />
+    <compound alias="IdeOpe">
+      <computed alias="value" format="[IdeOpeVal]"/>
+      <computed alias="label" format="[IdeOpeNam]"/>
+    </compound>
+    <field id="IdeMod" table="scrRes" alias="IdeModVal" />
+    <compound alias="IdeMod">
+      <computed alias="value" format="[IdeModVal]"/>
+      <computed alias="label" format="[Mod]"/>
+    </compound>
+    <field id="Nam" table="mod" alias="Mod" />
+    <field id="AccMod" table="scrRes" alias="AccMod" />
+    <field id="Act" table="scrRes" alias="Act" />
+    <join type="LEFT">
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="scrRes" condition="eq" right-field="IdeOpe" right-table="ope" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="scrRes" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweMod" alias="mod" />
+      <and>
+        <filter left-field="IdeMod" left-table="scrRes" condition="eq" right-field="IdeMod" right-table="mod" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Opt" left-table="scrRes" condition="in" right-variable="Opt"/>
+      </and>
+    </where>
+    <variable id="Opt" type="STRING" name="option-name.selected" />
+  </query>
+
   <!-- NAME OF PROFILE FILES LIST (Service ProFilLst -->
   <query id="ProNamLst" service="ProFilLst" cacheable="true">
     <field id="value" />

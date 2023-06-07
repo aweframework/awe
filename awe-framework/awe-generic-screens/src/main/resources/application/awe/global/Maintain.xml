@@ -551,6 +551,134 @@
     </multiple>
   </target>
 
+  <target name="updateScreenRestrictionNew">
+    <multiple audit="HISAweScrRes" grid="restriction-list">
+      <table id="AweScrRes" />
+      <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true" />
+      <field id="IdePro" variable="IdePro" />
+      <field id="IdeOpe" variable="IdeOpe" />
+      <field id="Opt" variable="Opt" />
+      <field id="AccMod" variable="AccMod" />
+      <field id="Act" variable="Act" />
+      <variable id="IdeAweScrRes" type="INTEGER" name="IdeAweScrRes" />
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Opt" type="STRING" name="option-name.selected" />
+      <variable id="AccMod" type="STRING" name="AccMod" />
+      <variable id="Act" type="INTEGER" name="Act" />
+    </multiple>
+  </target>
+
+  <target name="updateMenuRestrictionTree">
+    <serve service="updateMenuRestrictionTree">
+      <variable id="option" type="STRING" name="option-name.selected" />
+    </serve>
+  </target>
+
+  <target name="allowMenuOption">
+    <serve service="allowMenuOption">
+      <variable id="user" type="INTEGER" name="selected-user"/>
+      <variable id="profile" type="INTEGER" name="selected-profile"/>
+      <variable id="option" type="STRING" name="option-name.selected" />
+    </serve>
+  </target>
+
+  <target name="restrictMenuOption">
+    <serve service="restrictMenuOption">
+      <variable id="user" type="INTEGER" name="selected-user"/>
+      <variable id="profile" type="INTEGER" name="selected-profile"/>
+      <variable id="option" type="STRING" name="option-name.selected" />
+    </serve>
+  </target>
+
+  <target name="removeRestriction">
+    <serve service="removeRestriction">
+      <variable id="user" type="INTEGER" name="selected-user"/>
+      <variable id="profile" type="INTEGER" name="selected-profile"/>
+      <variable id="option" type="STRING" name="option-name.selected" />
+    </serve>
+  </target>
+
+  <target name="new-restriction">
+    <insert audit="HISAweScrRes">
+      <table id="AweScrRes" />
+      <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true" />
+      <field id="IdePro" variable="profile" />
+      <field id="IdeOpe" variable="user" />
+      <field id="Opt" variable="option" />
+      <field id="AccMod" variable="restriction" />
+      <field id="Act" variable="active" />
+      <variable id="IdeAweScrRes" type="INTEGER" name="IdeAweScrRes" />
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option" />
+      <variable id="restriction" type="STRING" name="restriction" />
+      <variable id="active" type="INTEGER" name="active" />
+    </insert>
+  </target>
+
+  <target name="update-restriction">
+    <update audit="HISAweScrRes">
+      <table id="AweScrRes" />
+      <field id="IdePro" variable="profile" />
+      <field id="IdeOpe" variable="user" />
+      <field id="Opt" variable="option" />
+      <field id="AccMod" variable="restriction" />
+      <field id="Act" variable="active" />
+      <where>
+        <or>
+          <filter left-field="IdeOpe" condition="eq" right-variable="user" optional="true"/>
+          <and>
+            <filter left-field="IdeOpe" condition="is null"/>
+            <filter left-variable="user" condition="is null"/>
+          </and>
+        </or>
+        <or>
+          <filter left-field="IdePro" condition="eq" right-variable="profile" optional="true"/>
+          <and>
+            <filter left-field="IdePro" condition="is null"/>
+            <filter left-variable="profile" condition="is null"/>
+          </and>
+        </or>
+        <filter left-field="Opt" condition="eq" right-variable="option"/>
+      </where>
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option" />
+      <variable id="restriction" type="STRING" name="restriction" />
+      <variable id="active" type="INTEGER" name="active" />
+    </update>
+  </target>
+
+  <target name="delete-restriction">
+    <delete audit="HISAweScrRes">
+      <table id="AweScrRes" />
+      <field id="IdePro" variable="profile" audit="true" />
+      <field id="IdeOpe" variable="user" audit="true" />
+      <field id="Opt" variable="option" audit="true" />
+      <where>
+        <or>
+          <filter left-field="IdeOpe" condition="eq" right-variable="user" optional="true"/>
+          <and>
+            <filter left-field="IdeOpe" condition="is null"/>
+            <filter left-variable="user" condition="is null"/>
+          </and>
+        </or>
+        <or>
+          <filter left-field="IdePro" condition="eq" right-variable="profile" optional="true"/>
+          <and>
+            <filter left-field="IdePro" condition="is null"/>
+            <filter left-variable="profile" condition="is null"/>
+          </and>
+        </or>
+        <filter left-field="Opt" condition="eq" right-variable="option"/>
+      </where>
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option" />
+    </delete>
+  </target>
+
   <!-- Screen configuration Multiple -->
   <target name="updateScreenConfiguration">
     <multiple grid="GrdScrCnf">

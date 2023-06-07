@@ -61,8 +61,10 @@
   <option name="settings" label="MENU_SETTINGS" icon="cog">
     <option name="security" label="MENU_TOOLS_SECURITY" icon="unlock-alt">
       <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccRes" icon="eye-slash"/>
-      <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock"/>
+      <option name="screen-access-upgraded" label="MENU_TOOLS_SCREENS_ACCESS" screen="screen-access" icon="eye-slash"/>
+      <option name="menu-access" label="MENU_TOOLS_MENU_ACCESS" screen="menu-access" icon="eye-slash"/>
     </option>
+    <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock"/>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop"/>
   </option>
   <option module="Test" name="test" label="MENU_TEST" icon="flask">

@@ -13,6 +13,7 @@
   <locale name="BUTTON_ACTIVATE" value="Activar"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activar tareas seleccionadas"/>
   <locale name="BUTTON_ADD" value="Agregar"/>
+  <locale name="BUTTON_ALLOW" value="Permitir acceso"/>
   <locale name="BUTTON_AUDIT" value="Auditoría"/>
   <locale name="BUTTON_BACK" value="Volver"/>
   <locale name="BUTTON_CANCEL" value="Cancelar"/>
@@ -39,8 +40,10 @@
   <locale name="BUTTON_PREVIOUS" value="Anterior"/>
   <locale name="BUTTON_PRINT" value="Imprimir"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimir selección"/>
+  <locale name="BUTTON_REMOVE" value="Eliminar restricción"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Restablecer 2FA"/>
+  <locale name="BUTTON_RESTRICT" value="Restringir acceso"/>
   <locale name="BUTTON_RUN" value="Comenzar"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Guardar markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Guardar fila"/>
@@ -769,6 +772,7 @@
   <locale name="HELP_SCREEN_TITLE_MDL_NEW" value="Nuevo módulo"/>
   <locale name="HELP_SCREEN_TITLE_MDL_UPD" value="Modificación de módulo"/>
   <locale name="HELP_SCREEN_TITLE_MDL_VIW" value="Consulta de módulo"/>
+  <locale name="HELP_SCREEN_TITLE_MENU_ACCESS" value="Restricciones de acceso al menú"/>
   <locale name="HELP_SCREEN_TITLE_OPT" value="Gestión de opciones del sistema"/>
   <locale name="HELP_SCREEN_TITLE_OPT_UPD" value="Modificación de opción del sistema"/>
   <locale name="HELP_SCREEN_TITLE_OPT_VIW" value="Consulta de opción del sistema"/>
@@ -850,6 +854,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_TOOLS_COMMANDS" value="Comandos"/>
   <locale name="MENU_TOOLS_DATABASE" value="Bases de datos"/>
   <locale name="MENU_TOOLS_GROUPS" value="Grupos de correo"/>
+  <locale name="MENU_TOOLS_MENU_ACCESS" value="Restricciones de menú"/>
   <locale name="MENU_TOOLS_MODULES" value="Módulos"/>
   <locale name="MENU_TOOLS_OPTIONS" value="Opciones del sistema"/>
   <locale name="MENU_TOOLS_PROFILES" value="Perfiles"/>
@@ -893,6 +898,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_ACC_ID" value="Id cuenta"/>
   <locale name="PARAMETER_ACC_NAM" value="Nombre cuenta"/>
   <locale name="PARAMETER_ACC_NUM" value="Numero cuenta"/>
+  <locale name="PARAMETER_ACCESS" value="Acceso"/>
   <locale name="PARAMETER_ACCESS_MODE" value="Modo de acceso"/>
   <locale name="PARAMETER_ACRONYM" value="Acrónimo"/>
   <locale name="PARAMETER_ACTIVE" value="Activo"/>
@@ -1028,6 +1034,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_REPEAT_EACH" value="Repetir cada"/>
   <locale name="PARAMETER_REPORT" value="Informe"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientación"/>
+  <locale name="PARAMETER_RESTRICTION" value="Restricción"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Repita contraseña"/>
   <locale name="PARAMETER_SCREEN" value="Pantalla"/>
   <locale name="PARAMETER_SCRIPT" value="Script"/>
@@ -1106,6 +1113,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Cargando"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximizar"/>
+  <locale name="SCREEN_TEXT_MENU" value="Menú"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Mensaje de {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Modulo"/>
   <locale name="SCREEN_TEXT_NAVIGATION" value="Navegación"/>
@@ -1164,6 +1172,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_MDL_NEW" value="Nuevo módulo"/>
   <locale name="SCREEN_TITLE_MDL_UPD" value="Modificación de módulo"/>
   <locale name="SCREEN_TITLE_MDL_VIW" value="Consulta de módulo"/>
+  <locale name="SCREEN_TITLE_MENU_ACCESS" value="Restricciones de menú"/>
   <locale name="SCREEN_TITLE_OPT" value="Gestión de opciones del sistema"/>
   <locale name="SCREEN_TITLE_OPT_UPD" value="Modificación de opción del sistema"/>
   <locale name="SCREEN_TITLE_OPT_VIW" value="Consulta de opción del sistema"/>

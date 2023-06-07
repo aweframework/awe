@@ -105,7 +105,7 @@ public class Option extends AbstractAction {
    *
    * @param restricted Option is restricted
    */
-  public void setRestricted(boolean restricted) {
+  public Option setRestricted(boolean restricted) {
 
     // Set restriction to actual option
     this.restricted = restricted;
@@ -116,6 +116,8 @@ public class Option extends AbstractAction {
     for (Option option : options) {
       option.setRestricted(restricted);
     }
+
+    return this;
   }
 
   /**
@@ -126,6 +128,16 @@ public class Option extends AbstractAction {
   @JsonIgnore
   public boolean isInvisible() {
     return getInvisible() != null && getInvisible();
+  }
+
+  /**
+   * Returns if option is separator or not
+   *
+   * @return Option is separator
+   */
+  @JsonGetter("separator")
+  public boolean isSeparator() {
+    return getSeparator() != null && getSeparator();
   }
 
   /**

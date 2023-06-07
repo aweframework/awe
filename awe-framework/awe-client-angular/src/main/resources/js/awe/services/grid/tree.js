@@ -232,9 +232,10 @@ aweApplication.factory('GridTree',
               } else {
                 grid.api.treeBase.collapseRow(row);
               }
-            } else {
-              setNodeIcon(row);
             }
+
+            // Set node icon
+            setNodeIcon(row);
             deferRowsRendered().then(function () {
               component.updateGridScrollBars();
             });

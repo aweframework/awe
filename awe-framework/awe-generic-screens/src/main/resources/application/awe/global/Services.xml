@@ -119,6 +119,42 @@
       <service-parameter type="STRING" name="restriction" />
     </java>
   </service>
+  <service id="getMenuOptionTree">
+    <java classname="com.almis.awe.service.MenuService" method="getMenuOptionTree"/>
+  </service>
+  <service id="getMenuOptionTreeByModule">
+    <java classname="com.almis.awe.service.MenuService" method="getMenuOptionTreeByModule">
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="updateMenuRestrictionTree">
+    <java classname="com.almis.awe.service.MenuService" method="updateMenuRestrictionTree">
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="allowMenuOption">
+    <java classname="com.almis.awe.service.MenuService" method="allowMenuOption">
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="restrictMenuOption">
+    <java classname="com.almis.awe.service.MenuService" method="restrictMenuOption">
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="removeRestriction">
+    <java classname="com.almis.awe.service.MenuService" method="removeRestriction">
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
   <service id="getScreenElementList">
     <java classname="com.almis.awe.service.ScreenService" method="getScreenElementList">
       <service-parameter type="STRING" name="screenName" />
