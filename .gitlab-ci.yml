@@ -134,7 +134,7 @@ Build website with i18n:
   script:
     - yarn --cwd website install
     # Do translations
-    - yarn --cwd website crowdin:sync
+    - sudo yarn --cwd website crowdin:sync
     - yarn --cwd website build
   resource_group: crowdin
   rules:
