@@ -13,6 +13,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Event when websocket is connected
@@ -41,10 +42,10 @@ public class WebSocketEventListener {
    */
   @EventListener
   public void onConnectEvent(SessionConnectEvent event) {
-    log.info("[WebSocket Connect Event]");
     StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
     Principal user = event.getUser();
 
+    log.debug("[WebSocket Connect Event] User: {}", Optional.ofNullable(user).map(Principal::getName).orElse("PUBLIC"));
     if (user != null) {
       String token = Objects.requireNonNull(accessor.getNativeHeader(AweConstants.SESSION_CONNECTION_HEADER)).get(0);
       connectionTracker.initializeUserConnections(user.getName(), token, (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("HTTP.SESSION.ID"));
@@ -58,7 +59,7 @@ public class WebSocketEventListener {
    */
   @EventListener
   public void onConnectedEvent(SessionConnectedEvent event) {
-    log.info("[WebSocket Connected Event]");
+    log.debug("[WebSocket Connected Event]");
     StompHeaderAccessor.wrap(event.getMessage());
   }
 
@@ -69,7 +70,9 @@ public class WebSocketEventListener {
    */
   @EventListener
   public void onDisconnectEvent(SessionDisconnectEvent event) {
-    log.info("[WebSocket Disconnect Event]");
+    Principal user = event.getUser();
+
+    log.debug("[WebSocket Disconnect Event] User: {}", Optional.ofNullable(user).map(Principal::getName).orElse("PUBLIC"));
     StompHeaderAccessor.wrap(event.getMessage());
 
     // Launch client end services

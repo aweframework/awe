@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ScrAccRes.xml
+    Created on : 15 de Enero de 2014
+    Author     : Pablo Vidal
+    Description: Ventana de herramientas - Gesti?n de acceso a las opciones de Men?
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_SECURITY_SCREEN" help="HELP_SCREEN_TITLE_SECURITY_SCREEN">
+  <tag source="buttons">
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButScr">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <button label="BUTTON_CONFIRM" icon="save" id="ButCnf" help="HELP_CONFIRM_BUTTON">
+      <button-action type="validate" target="ScreenCriteria" />
+      <button-action type="confirm" target="UpdMsg" />
+      <button-action type="server" server-action="maintain" target-action="updateScreenRestrictionNew" />
+      <button-action type="server" server-action="refresh-menu"/>
+      <button-action type="server" server-action="maintain-silent" target-action="updateMenuRestrictionTree" />
+      <button-action type="filter" target="restriction-list" />
+    </button>
+  </tag>
+  <tag source="center" type="div" style="expand" expandible="horizontal" id="ScreenCriteria">
+    <window id="menu-options" style="expand" maximize="true" label="SCREEN_TEXT_MENU">
+      <grid id="menu-option-tree" treegrid="true" tree-id="option-id" tree-parent="parent-option" tree-leaf="option-is-leaf" expand-column="option" style="expand" server-action="data" target-action="menu-option-tree" initial-load="query" load-all="true">
+        <column name="option-id" hidden="true"/>
+        <column name="parent-option" hidden="true"/>
+        <column name="option-is-leaf" hidden="true"/>
+        <column label="PARAMETER_OPTION" name="option-name" component="text-view" sortable="false" align="left" charlength="50"/>
+        <column label="PARAMETER_MODULE" name="module-name" sortable="false" align="center" charlength="20"/>
+        <column label="#" name="number-of-restrictions" sortable="false" align="center" charlength="6"/>
+        <dependency>
+          <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+          <dependency-element id="menu-option-tree" event="select-row"/>
+          <dependency-action type="filter" target="restriction-list"/>
+        </dependency>
+      </grid>
+    </window>
+    <window id="restrictions" style="expand-2x" maximize="true" label="SCREEN_TEXT_RESTRICTIONS">
+      <grid id="restriction-list" style="expand" server-action="data" target-action="restriction-list" editable="true" send-operations="true" max="20">
+        <column name="IdeAweScrRes" hidden="true" />
+        <column label="PARAMETER_USER" name="IdeOpe" sort-field="ope.IdeOpe" align="left" charlength="25" initial-load="query" component="suggest" server-action="data" target-action="UsrSug">
+          <dependency target-type="set-editable" initial="true">
+            <dependency-element id="restriction-list" column="IdePro" attribute="selectedRowValue" condition="eq" value="" />
+          </dependency>
+        </column>
+        <column label="PARAMETER_PROFILE" name="IdePro" sort-field="IdePro" align="left" charlength="25" initial-load="query" component="select" target-action="ProSel" optional="true">
+          <dependency target-type="set-editable" initial="true">
+            <dependency-element id="restriction-list" column="IdeOpe" attribute="selectedRowValue" condition="eq" value="" />
+          </dependency>
+        </column>
+        <column label="PARAMETER_ACCESS_MODE" name="AccMod" sort-field="AccMod" align="center" charlength="30" component="select" initial-load="query" server-action="data" target-action="ResAccModSel"
+                validation="required" />
+        <column label="PARAMETER_ACTIVE" name="Act" sort-field="Act" align="center" charlength="10" component="select" validation="required" initial-load="enum" server-action="data"
+                target-action="Es1Es0" value="1" />
+        <button label="BUTTON_NEW" icon="plus-circle" id="ButGrdAdd">
+          <button-action type="add-row" target="restriction-list" silent="true" />
+        </button>
+        <button label="BUTTON_DELETE" icon="trash" id="ButGrdDel">
+          <button-action type="delete-row" target="restriction-list" silent="true" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="restriction-list" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </button>
+      </grid>
+    </window>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center"/>
+  </tag>
+  <tag source="hidden">
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE" />
+  </tag>
+</screen>

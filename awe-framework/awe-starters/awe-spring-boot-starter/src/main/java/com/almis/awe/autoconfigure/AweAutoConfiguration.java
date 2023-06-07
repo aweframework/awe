@@ -57,9 +57,9 @@ import javax.servlet.http.HttpServletResponse;
 @Configuration
 @EnableCaching
 @EnableConfigurationProperties(value = {BaseConfigProperties.class,
-        NumericConfigProperties.class,
-        DatabaseConfigProperties.class,
-        RestConfigProperties.class})
+  NumericConfigProperties.class,
+  DatabaseConfigProperties.class,
+  RestConfigProperties.class})
 public class AweAutoConfiguration {
 
   // Autowired beans
@@ -67,7 +67,8 @@ public class AweAutoConfiguration {
 
   /**
    * Autowired constructor
-   *  @param context     Context
+   *
+   * @param context Context
    */
   @Autowired
   public AweAutoConfiguration(WebApplicationContext context) {
@@ -87,7 +88,8 @@ public class AweAutoConfiguration {
 
   /**
    * Encode service bean
-   * @param baseConfigProperties Base configuration properties
+   *
+   * @param baseConfigProperties     Base configuration properties
    * @param securityConfigProperties Security configuration properties
    * @return EncodeService bean
    */
@@ -111,7 +113,8 @@ public class AweAutoConfiguration {
 
   /**
    * Awe Elements bean
-   * @param elementsDao Elements DAO
+   *
+   * @param elementsDao          Elements DAO
    * @param baseConfigProperties Base configuration properties
    * @return Awe Elements bean
    */
@@ -144,7 +147,7 @@ public class AweAutoConfiguration {
   /**
    * Awe Elements DAO
    *
-   * @param serializer XStream serializer
+   * @param serializer           XStream serializer
    * @param baseConfigProperties Base config properties
    * @return Awe Elements bean
    */
@@ -292,8 +295,10 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public MenuService menuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
-                                 ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
-    return new MenuService(queryService, screenRestrictionGenerator, screenComponentGenerator, initialLoadDao, baseConfigProperties, securityConfigProperties);
+                                 ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
+                                 SecurityConfigProperties securityConfigProperties) {
+    return new MenuService(queryService, screenRestrictionGenerator, screenComponentGenerator, initialLoadDao,
+      baseConfigProperties, securityConfigProperties);
   }
 
   /**
@@ -510,8 +515,9 @@ public class AweAutoConfiguration {
 
   /**
    * Report designer constructor
-   * @param queryService Query service
-   * @param mapper Object mapper
+   *
+   * @param queryService         Query service
+   * @param mapper               Object mapper
    * @param baseConfigProperties Base config properties
    * @return Report designer bean
    */
@@ -553,8 +559,8 @@ public class AweAutoConfiguration {
   /**
    * REST connector
    *
-   * @param requestFactory Request factory
-   * @param objectMapper   Object mapper
+   * @param requestFactory       Request factory
+   * @param objectMapper         Object mapper
    * @param restConfigProperties Rest config properties
    * @return REST connector bean
    */
@@ -637,7 +643,7 @@ public class AweAutoConfiguration {
    * Service builder
    *
    * @param launcherService Launcher service
-   * @param queryUtil QueryUtil service
+   * @param queryUtil       QueryUtil service
    * @return Service builder bean
    */
   @Bean
@@ -648,6 +654,7 @@ public class AweAutoConfiguration {
 
   /**
    * Awe logging filter
+   *
    * @return servlet filter
    */
   @Bean
@@ -657,10 +664,11 @@ public class AweAutoConfiguration {
 
   /**
    * Awe MDC Task decorator
+   *
    * @return awe MDC task decorator
    */
   @Bean
-  public AweMDCTaskDecorator aweMDCTaskDecorator (){
+  public AweMDCTaskDecorator aweMDCTaskDecorator() {
     return new AweMDCTaskDecorator();
   }
 }
