@@ -807,5 +807,6 @@ public class AweElements {
           "menu", "profile", "locale"})
   public void clearXMLCache() {
     // No code, only cache evict
+    log.info("Clearing XML files cache...");
   }
 }
