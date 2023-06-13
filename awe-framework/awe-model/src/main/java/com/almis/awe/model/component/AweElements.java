@@ -30,7 +30,8 @@ import com.almis.awe.model.type.LaunchPhaseType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -76,6 +77,10 @@ public class AweElements {
   // Locale list
   private Map<String, Map<String, String>> localeList;
 
+  private static final List<String> CACHE_NAMES = Arrays.asList("xml", "enumerated", "query", "queue", "maintain",
+    "email", "service", "action", "screen", "menu", "profile", "locale", "helpTemplates", "angularTemplates",
+    "screenTemplates");
+
   /**
    * Autowired constructor
    *
@@ -97,6 +102,7 @@ public class AweElements {
   public void init() {
     log.info(LOG_LINE);
     log.info("----------------------------- AWE starting ... -----------------------------------");
+    clearXMLCache();
     log.info(LOG_LINE);
 
     // Initialize Awe Elements (Read all XML sources)
@@ -801,12 +807,16 @@ public class AweElements {
   }
 
   /**
-   * Evict XML cache on application end
+   * Clear XML cache
    */
-  @CacheEvict({"xml", "enumerated", "query", "queue", "maintain", "email", "service", "action", "screen",
-          "menu", "profile", "locale"})
-  public void clearXMLCache() {
-    // No code, only cache evict
-    log.info("Clearing XML files cache...");
+  private void clearXMLCache() {
+    log.info("Clearing XML and templates from distributed cache on startup...");
+    CacheManager cacheManager = context.getBean(CacheManager.class);
+    cacheManager.getCacheNames()
+      .parallelStream()
+      .filter(CACHE_NAMES::contains)
+      .map(cacheManager::getCache)
+      .filter(Objects::nonNull)
+      .forEach(Cache::clear);
   }
 }
