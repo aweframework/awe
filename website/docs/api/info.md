@@ -46,39 +46,39 @@ The xml structure of navigation bar component is the following:
 
 ### info attributes
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| `id`          | **Required** | String    | Info element identifier. For reference purposes |  |
-| `field`       | Optional     | String    | Name of model attribute to get value of target-action | Ex.: `field="label"` Get label attribute of target-action data result |
-| `title`       | Optional     | String    | Info static text show when over | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| `label`       | Optional     | String    | Info text (outside the criterion) |**Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
-| `style`       | Optional     | String    | Info CSS classes |   | 
-| `dropdown-style` | Optional     | String    | Info dropdown box CSS classes |   | 
-| `icon`        | Optional     | String    | Icon identifier | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) | 
-| `unit`        | Optional     | String    | Info unit. Use it with info icon to show a number as stacked style  |  | 
-| `session`     | Optional     | String    | Session variable to load the criterion | Session variable identifier | 
-| `value`       | Optional     | String    | Info default value |   | 
-| `property`    | Optional     | String    | Property variable to load the criterion | Property variable identifier |  
-| `server-action`| Optional     | String    | Server action call | See [server action list](actions.md#server-actions) |  
-| `target-action`| Optional     | String    | Target to call on the server | |  
+| Attribute        | Use          | Type   | Description                                                        | Values                                                                     |
+|------------------|--------------|--------|--------------------------------------------------------------------|----------------------------------------------------------------------------|
+| `id`             | **Required** | String | Info element identifier. For reference purposes                    |                                                                            |
+| `field`          | Optional     | String | Name of model attribute to get value of target-action              | Ex.: `field="label"` Get label attribute of target-action data result      |
+| `title`          | Optional     | String | Info static text show when over                                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| `label`          | Optional     | String | Info text (outside the criterion)                                  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| `style`          | Optional     | String | Info CSS classes                                                   |                                                                            | 
+| `dropdown-style` | Optional     | String | Info dropdown box CSS classes                                      |                                                                            | 
+| `icon`           | Optional     | String | Icon identifier                                                    | **Note:** You can check all iconsets at [icons](icons.md) screen           | 
+| `unit`           | Optional     | String | Info unit. Use it with info icon to show a number as stacked style |                                                                            | 
+| `session`        | Optional     | String | Session variable to load the criterion                             | Session variable identifier                                                | 
+| `value`          | Optional     | String | Info default value                                                 |                                                                            | 
+| `property`       | Optional     | String | Property variable to load the criterion                            | Property variable identifier                                               |  
+| `server-action`  | Optional     | String | Server action call                                                 | See [server action list](actions.md#server-actions)                        |  
+| `target-action`  | Optional     | String | Target to call on the server                                       |                                                                            |  
 
 
 
 ### info-button attributes
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| `title`     | Optional     | String   | Static text show when over button | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| `info-style`| Optional     | String    | Css style of info-button container |  |
+| Attribute    | Use      | Type   | Description                        | Values                                                                     |
+|--------------|----------|--------|------------------------------------|----------------------------------------------------------------------------|
+| `title`      | Optional | String | Static text show when over button  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| `info-style` | Optional | String | Css style of info-button container |                                                                            |
 
 > **Note:** info-button element has other attributes as button element. You can see more info [here](button.md#button-attributes).
 
 ### info-criteria attributes
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| `title`     | Optional     | String   | Static text show when over criteria | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| `info-style`| Optional     | String    | Css style of info-criteria container | Ex.: `info-style="form-group"` |
+| Attribute    | Use      | Type   | Description                          | Values                                                                     |
+|--------------|----------|--------|--------------------------------------|----------------------------------------------------------------------------|
+| `title`      | Optional | String | Static text show when over criteria  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| `info-style` | Optional | String | Css style of info-criteria container | Ex.: `info-style="form-group"`                                             |
 
 > **Note:** info-criteria element has the same attributes as criteria element. You can see more info [here](criteria.md#criteria-attributes).
 

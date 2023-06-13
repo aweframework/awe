@@ -1,5 +1,5 @@
 import {aweApplication} from "./../../awe";
-import "../../services/button";
+import {templateColumnButton} from "../../services/button";
 
 // Column button directive
 aweApplication.directive('aweColumnButton',
@@ -9,9 +9,7 @@ aweApplication.directive('aweColumnButton',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/button');
-        },
+        template: templateColumnButton,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           const column = new Column(attrs);

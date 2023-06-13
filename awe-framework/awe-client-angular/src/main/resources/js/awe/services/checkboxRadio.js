@@ -1,5 +1,31 @@
 import {aweApplication} from "../awe";
 import {DefaultSpin} from "../data/options";
+import {getIconTemplate} from "./component";
+
+export const templateButtonCheckbox = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': checked, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
+         ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly" ng-focus="focus()" ng-blur="blur()"/>
+  <i></i>       
+  ${getIconTemplate("{{::iconClass}}", "i")}
+  <span class="lbl label-{{::size}}">
+    <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    {{controller.label| translateMultiple}}
+  </span>
+  <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</label>`;
+export const templateButtonRadio = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': component.model.selected === component.value, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-focus="focus()" ng-blur="blur()"
+         ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
+  <i></i>       
+  ${getIconTemplate("{{::iconClass}}", "i")}
+  <span class="lbl label-{{::size}}">
+    <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    {{controller.label| translateMultiple}}
+  </span>
+  <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</label>`;
 
 // Checkbox Radio service
 aweApplication.factory('CheckboxRadio',

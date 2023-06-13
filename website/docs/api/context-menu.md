@@ -35,20 +35,20 @@ The xml structure of context menus is the following:
 
 ## Context menu elements
 
-| Element     | Use      | Multiples instances    | Description                                        |
-| ----------- | ---------|------------------------|----------------------------------------------------|
-| [context-button](#context-button-attributes) | **Required** | Yes | Context button element of the menu. Defines one element of the context menu |
-| [button-action](#button-action-attributes) | **Required** | Yes | Action of the context button. You can define a list of button actions |
-| [context-separator](#context-separator-attributes) | Optional | Yes | Separator line of context button list |
-| [dependency](dependencies.md) | Optional | Yes | List of dependencies attached to the button |
+| Element                                            | Use          | Multiples instances | Description                                                                 |
+|----------------------------------------------------|--------------|---------------------|-----------------------------------------------------------------------------|
+| [context-button](#context-button-attributes)       | **Required** | Yes                 | Context button element of the menu. Defines one element of the context menu |
+| [button-action](#button-action-attributes)         | **Required** | Yes                 | Action of the context button. You can define a list of button actions       |
+| [context-separator](#context-separator-attributes) | Optional     | Yes                 | Separator line of context button list                                       |
+| [dependency](dependencies.md)                      | Optional     | Yes                 | List of dependencies attached to the button                                 |
 
 ### Context button attributes
 
-| Name |  Type | Use | Description     | Values |
-| ------ | -------| ---------------------- | ----------------------------------|---------------------------------------- |
-|`id`| String | **Required** | Context button identifier ||
-|`label`| String | **Required** | Label of the context button. | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-|`icon` | String | Optional | Icon name of the context button | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/)  |
+| Name    | Type   | Use          | Description                     | Values                                                                     |
+|---------|--------|--------------|---------------------------------|----------------------------------------------------------------------------|
+| `id`    | String | **Required** | Context button identifier       |                                                                            |
+| `label` | String | **Required** | Label of the context button.    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| `icon`  | String | Optional     | Icon name of the context button | **Note:** You can check all iconsets at [icons](icons.md) screen           |
 
 > **Note:** The context button has the same attributes as button element. You can see more info [here](button.md#button-attributes)
 
@@ -58,9 +58,9 @@ The xml structure of context menus is the following:
 
 ### Context separator attributes
 
-| Name |  Type | Use | Description     | Values |
-| ------ | -------| ---------------------- | ----------------------------------|---------------------------------------- |
-|`name`| String | Optional | Context separator identifier ||
+| Name   | Type   | Use      | Description                  | Values |
+|--------|--------|----------|------------------------------|--------|
+| `name` | String | Optional | Context separator identifier |        |
 
 ## Examples
 

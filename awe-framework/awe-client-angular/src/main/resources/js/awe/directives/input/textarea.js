@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import "./../../services/text";
+import {aweApplication} from "./../../awe";
+import {textareaInputTemplate} from "../../services/text";
 
 // Textarea directive
 aweApplication.directive('aweInputTextarea',
@@ -8,9 +8,7 @@ aweApplication.directive('aweInputTextarea',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/textarea');
-        },
+        template: textareaInputTemplate,
         scope: {
           'criterionId': '@inputTextareaId'
         },

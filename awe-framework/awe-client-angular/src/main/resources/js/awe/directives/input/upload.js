@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import "../../services/uploader";
+import {aweApplication} from "./../../awe";
+import {uploaderInputTemplate} from "../../services/uploader";
 
 // Upload directive
 aweApplication.directive('aweInputUploader',
@@ -8,9 +8,7 @@ aweApplication.directive('aweInputUploader',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/upload');
-        },
+        template: uploaderInputTemplate,
         scope: {
           'criterionId': '@inputUploaderId'
         },

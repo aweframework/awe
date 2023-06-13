@@ -41,14 +41,14 @@
         <column label="PARAMETER_RESTRICTION" name="restriction" component="icon" sortable="false" align="center" charlength="12" style="fa-2x"/>
         <context-button label="BUTTON_ALLOW" icon="check-circle-o" id="CtxButGrdAlw">
           <button-action type="server" server-action="maintain-silent" target-action="allowMenuOption" silent="true" />
-          <button-action type="server" server-action="refresh-menu"/>
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
           <dependency target-type="enable" initial="true">
             <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
           </dependency>
         </context-button>
         <context-button label="BUTTON_RESTRICT" icon="minus-circle" id="CtxButGrdRes">
           <button-action type="server" server-action="maintain-silent" target-action="restrictMenuOption" silent="true" />
-          <button-action type="server" server-action="refresh-menu"/>
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
           <dependency target-type="enable" initial="true">
             <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
           </dependency>
@@ -56,7 +56,7 @@
         <context-separator name="context-separator-remove"/>
         <context-button label="BUTTON_REMOVE" icon="trash" id="CtxButGrdRmv">
           <button-action type="server" server-action="maintain-silent" target-action="removeRestriction" silent="true" />
-          <button-action type="server" server-action="refresh-menu"/>
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
           <dependency target-type="enable" initial="true">
             <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
             <dependency-element id="menu-option-tree" column="restriction" attribute="selectedRowValue" condition="ne" value="" />
@@ -64,21 +64,21 @@
         </context-button>
         <button label="BUTTON_ALLOW" icon="check-circle-o" id="ButGrdAlw">
           <button-action type="server" server-action="maintain-silent" target-action="allowMenuOption" silent="true" />
-          <button-action type="server" server-action="refresh-menu"/>
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
           <dependency target-type="enable" initial="true">
             <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
           </dependency>
         </button>
         <button label="BUTTON_RESTRICT" icon="minus-circle" id="ButGrdRes">
           <button-action type="server" server-action="maintain-silent" target-action="restrictMenuOption" silent="true" />
-          <button-action type="server" server-action="refresh-menu"/>
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
           <dependency target-type="enable" initial="true">
             <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
           </dependency>
         </button>
         <button label="BUTTON_REMOVE" icon="trash" id="ButGrdRmv">
           <button-action type="server" server-action="maintain-silent" target-action="removeRestriction" silent="true" />
-          <button-action type="server" server-action="refresh-menu"/>
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
           <dependency target-type="enable" initial="true">
             <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
             <dependency-element id="menu-option-tree" column="restriction" attribute="selectedRowValue" condition="ne" value="" />

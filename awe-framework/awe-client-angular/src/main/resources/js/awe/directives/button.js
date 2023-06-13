@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import "../services/button";
+import {aweApplication} from "./../awe";
+import {templateButton} from "../services/button";
 
 // Button directive
 aweApplication.directive('aweButton',
@@ -9,7 +9,7 @@ aweApplication.directive('aweButton',
         restrict: 'E',
         transclude: true,
         replace: true,
-        templateUrl: () => $serverData.getAngularTemplateUrl('button'),
+        template: templateButton,
         scope: {
           'buttonId': '@'
         },

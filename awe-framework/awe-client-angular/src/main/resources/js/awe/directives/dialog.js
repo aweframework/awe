@@ -1,5 +1,23 @@
 import {aweApplication} from "./../awe";
 import "./plugins/uiModal";
+import {getIconTemplate} from "../services/component";
+
+const template = `<div ng-attr-id="{{::controller.id}}" ng-cloak>
+  <div class="modal fade" ui-modal on-close="component.closeDialog()" ng-cloak>
+    <div class="modal-dialog {{::controller.style}}"  ng-class="::{'fullHeight expandible-vertical': isExpandible}">
+      <div class="modal-content" ng-class="::{'expand expandible-vertical': isExpandible}">
+        <div ng-if="::controller.label" class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">
+            ${getIconTemplate("panel-title-icon")}
+            <span translate-multiple="{{::controller.label}}"></span>
+          </h4>
+        </div>
+        <div ng-class="::{'expand expandible-vertical': isExpandible}" ng-transclude></div>
+      </div>
+    </div>
+  </div>
+</div>`;
 
 // Dialog directive
 aweApplication.directive('aweDialog',
@@ -9,9 +27,7 @@ aweApplication.directive('aweDialog',
         restrict: 'E',
         transclude: true,
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('dialog');
-        },
+        template,
         scope: {
           modalId: '@dialogId'
         },

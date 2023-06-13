@@ -1,4 +1,22 @@
 import {aweApplication} from "./../awe";
+import {getIconTemplate} from "./component";
+
+export const templateButton = `<div ng-show="controller.visible" class="{{::groupClass}}" ui-dependency="dependencies" ng-cloak>
+  <button type="{{::component.buttonType}}" id="{{::buttonId}}" title="{{controller.title| translateMultiple}}"
+          class="{{classes}}" ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
+    ${getIconTemplate("button-icon", "i")}
+    <span ng-if="::controller.label" class="button-text" translate-multiple="{{controller.label}}"></span>
+  </button>
+  <awe-context-menu ng-cloak></awe-context-menu>
+</div>`;
+
+export const templateColumnButton = `<div ng-show="component.controller.visible" class="column text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <button type="button" id="{{component.id}}" title="{{component.model.values[0].title| translateMultiple}}"
+          class="{{classes}} {{component.model.values[0].style}}" ng-disabled="isDisabled()" ng-click="onClick($event)" ng-mousedown="onMouseDown()" ng-cloak>
+    ${getIconTemplate("button-icon", "i")}
+    <span ng-if="component.model.values[0].label" class="button-text" translate-multiple="{{component.model.values[0].label}}"></span>
+  </button>
+</div>`;
 
 // Button service
 aweApplication.factory('Button',

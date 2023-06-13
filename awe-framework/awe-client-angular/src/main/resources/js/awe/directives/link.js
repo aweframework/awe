@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {getIconTemplate} from "../services/component";
 
 // Video directive
 aweApplication.directive('aweLink',
@@ -16,7 +17,7 @@ aweApplication.directive('aweLink',
         transclude: true,
         template:
           `<a class="{{::controller.style}}" title="{{::controller.title | translate}}" ng-href="{{trustSrc(controller.url)}}" target="_blank">
-            <i ng-if="::controller.icon" class="fa fa-{{::controller.icon}}"></i>
+            ${getIconTemplate()}
             <span ng-if="::controller.label" class="link-text" translate-multiple="{{controller.label}}"></span>
           </a>`,
         scope: {

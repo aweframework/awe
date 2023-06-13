@@ -9,12 +9,12 @@ helpApplication(content) ::= <<
   <nav ui-toc="help-content" scroll="help-container" class="tocify nav-pills"></nav>
 </div>
 >>
-helpOption(e,title,level,content) ::= <<
-<h$level$ id="$title$" class="help-snippet text-primary">
-  $if(e.icon)$<i class="fa fa-$e.icon$ fa-lg fa-fw"></i>$endif$
+helpOption(e,title,level,content,icon) ::= <<
+$icon$
+<h$level$ id="$title$" class="help-snippet help-header text-primary">
   {{'$title$'| translateMultiple}}
 </h$level$>
-<hr/>
+<hr class="help-header-separator"/>
 $content$
 >>
 helpScreen(e,content) ::= <<

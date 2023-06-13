@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import { templateNumeric } from "../../services/numeric";
+import {aweApplication} from "./../../awe";
+import {templateNumeric} from "../../services/numeric";
 
 // Numeric directive
 aweApplication.directive('aweInputNumeric',
@@ -12,7 +12,7 @@ aweApplication.directive('aweInputNumeric',
         scope: {
           'criterionId': '@inputNumericId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           scope.initialized = new Numeric(scope, scope.criterionId, elem).asNumeric();
         }
       };

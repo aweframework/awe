@@ -14,21 +14,21 @@
     <message id="UniMsg" title="WARNING_TITLE_DUPLICATED_USER" message="WARNING_MESSAGE_DUPLICATED_USER"/>
   </tag>
   <tag source="buttons">
-    <button button-type="button" label="BUTTON_BACK" icon="arrow-circle-left" id="ButBck" help="HELP_BACK_BUTTON">
+    <button button-type="button" label="BUTTON_BACK" icon="mdi:arrow_back" id="ButBck" help="HELP_BACK_BUTTON">
       <button-action type="confirm-updated-data"/>
       <button-action type="back"/>
     </button>
-    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
+    <button label="BUTTON_SCREEN_HELP" icon="mdi:help" id="ButHlp" help="HELP_HELP_BUTTON">
       <button-action type="dialog" target="HlpOpt" />
     </button>
-    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+    <button label="BUTTON_PRINT" icon="mdi:print" id="ButPrn" help="HELP_PRINT_BUTTON">
       <button-action type="validate" />
       <button-action type="dialog" target="PrnOpt" />
     </button>
-    <button button-type="button" label="BUTTON_RESET" icon="eraser" id="ButRst" help="HELP_RESET_BUTTON">
+    <button button-type="button" label="BUTTON_RESET" icon="mdi:backspace" id="ButRst" help="HELP_RESET_BUTTON">
       <button-action type="restore" />
     </button>
-    <button button-type="button" label="BUTTON_CONFIRM" icon="save" id="ButCnf" help="HELP_CONFIRM_BUTTON">
+    <button button-type="button" label="BUTTON_CONFIRM" icon="mdi:save" id="ButCnf" help="HELP_CONFIRM_BUTTON">
       <button-action type="confirm-not-updated-data" />
       <button-action type="validate" />
       <button-action type="confirm" target="UniMsg"/>

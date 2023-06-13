@@ -31,6 +31,7 @@
     "downloadjs": "^1.4.7",
     "pdfobject": "^2.1.1",
     "font-awesome": "^4.7.0",
+    "material-icons": "^1.13.8",
     "highcharts": "^4.1.8",
     "jquery": "^2.2.4",
     "jquery-ui": "^1.12.1",

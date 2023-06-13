@@ -38,31 +38,31 @@ When the screen size is too small (mobile devices) the buttons defined on the `b
 
 ## Button attributes
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id          | Optional | String    | Button identifier. For reference purposes |                                          |
-| label       | Optional | String    | Button text                     | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
-| style       | Optional | String    | Button CSS classes              |                                                    |
-| icon        | Optional | String    | Icon identifier                 | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
-| button-type | Optional | String    | Button default behaviour        | `button` (default), `submit` or `reset`. See [button types](#button-types) |
-| size        | Optional     | String    | Criterion size              | `sm` (default), `md` or `lg`.                      |
-| value | Optional     | String    | For setting one string value for button |  |
-| help-text | Optional     | String | Help text to show in button as help | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
-| help-image | Optional     | String | Url image to show in button as help | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)|
+| Attribute   | Use      | Type   | Description                                | Values                                                                     |
+|-------------|----------|--------|--------------------------------------------|----------------------------------------------------------------------------|
+| id          | Optional | String | Button identifier. For reference purposes  |                                                                            |
+| label       | Optional | String | Button text                                | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| style       | Optional | String | Button CSS classes                         |                                                                            |
+| icon        | Optional | String | Icon identifier                            | **Note:** You can check all iconsets at [icons](icons.md) screen           |
+| button-type | Optional | String | Button default behaviour                   | `button` (default), `submit` or `reset`. See [button types](#button-types) |
+| size        | Optional | String | Criterion size                             | `sm` (default), `md` or `lg`.                                              |
+| value       | Optional | String | For setting one string value for button    |                                                                            |
+| help-text   | Optional | String | Help text to show in button as help        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| help-image  | Optional | String | Url image to show in button as help        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 
 ## Button types
 
-| Type   | Description                   |   Image                                                                    |
-| ------ | ----------------------------- | -------------------------------------------------------------------------- |
-|`button`| Standard button. Does nothing if there are no button actions attached | <img alt="Button" src={require('@docusaurus/useBaseUrl').default('img/Button.png')} />   |
-|`submit`| Submit button. Is called when a user presses INTRO inside a criterion | <img alt="Submit" src={require('@docusaurus/useBaseUrl').default('img/Submit.png')} />   |
-|`reset` | Reset button. If clicked launches a reset action | <img alt="Reset" src={require('@docusaurus/useBaseUrl').default('img/Reset.png')} />         |
+| Type     | Description                                                           | Image                                                                                  |
+|----------|-----------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| `button` | Standard button. Does nothing if there are no button actions attached | <img alt="Button" src={require('@docusaurus/useBaseUrl').default('img/Button.png')} /> |
+| `submit` | Submit button. Is called when a user presses INTRO inside a criterion | <img alt="Submit" src={require('@docusaurus/useBaseUrl').default('img/Submit.png')} /> |
+| `reset`  | Reset button. If clicked launches a reset action                      | <img alt="Reset" src={require('@docusaurus/useBaseUrl').default('img/Reset.png')} />   |
 
 ## Button events
 
-| Event   | Description                                                                  |
-| ------- | ---------------------------------------------------------------------------- |
-| `click` | Launched when an user clicks the button                                       |
+| Event   | Description                             |
+|---------|-----------------------------------------|
+| `click` | Launched when an user clicks the button |
 
 ## Button actions
 

@@ -1,9 +1,67 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 import ngFileUpload from "ng-file-upload";
+import {getIconTemplate} from "./component";
 
 // Require file upload
 aweApplication.requires.push(ngFileUpload);
+
+export const uploaderInputTemplate = `<div ng-show="controller.visible" class="criterion uploader" ng-class="criterionClass" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-attr-for="::controller.id" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      {{controller.label| translateMultiple}}
+    </label>
+    <div class="validator input {{::validatorGroup}} focus-target">
+      <div ng-show="component.uploading" class="uploading-{{::size}}">
+        <div class="progress progress-striped active" ng-if="component.uploading">
+          <div class="progress-bar" ng-style="{width: component.uploadProgress}"></div>
+        </div>
+      </div>
+      <div ng-show="model.selected === null && !component.uploading" class="pixel-file-input {{classes}}"
+           ng-disabled="controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)">
+        ${getIconTemplate("{{::iconClass}}")}
+        <span class="pfi-filename pfi-placeholder">{{controller.placeholder| translateMultiple}}</span>
+        <div class="pfi-actions" ng-if="!controller.readonly">
+          <button type="button" class="btn btn-xs btn-primary pfi-choose" translate-multiple="BUTTON_CHOOSE" ng-focus="focus()" ng-blur="blur()"></button>
+        </div>
+      </div>
+      <div ng-show="model.selected !== null && !component.uploading" class="pixel-file-input {{classes}}" ng-disabled="controller.readonly" >
+        ${getIconTemplate("{{::iconClass}}")}
+        <span class="pfi-filename" ng-click="downloadFile($event)">{{component.visibleValue}}</span>
+        <div class="pfi-actions" ng-if="!controller.readonly">
+          <button type="button" ng-click="clearFile($event)" class="btn btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()"><i class="fa {{component.deleting ? 'fa-refresh fa-spin' : 'fa-times'}}"></i> <span translate-multiple="BUTTON_CLEAR"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+export const uploaderColumnTemplate = `<div ng-show="component.controller.visible" class="validator column-input criterion uploader text-{{::component.controller.align}} {{component.model.values[0].style}} no-animate" ui-dependency="dependencies" ng-cloak>
+  <div class="visible-value" ng-cloak>{{component.visibleValue}}</div>
+  <div class="edition focus-target">
+    <div ng-show="component.uploading" class="uploading-{{::size}} no-animate">
+      <div class="progress progress-striped active" ng-if="component.uploading">
+        <div class="progress-bar" ng-style="{width: component.uploadProgress}"></div>
+      </div>
+    </div>
+    <div ng-show="component.model.selected === null && !component.uploading" class="pixel-file-input {{classes}} no-animate"
+         ng-disabled="component.controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)">
+      ${getIconTemplate("{{::iconClass}}")}
+      <span class="pfi-filename pfi-placeholder">{{::component.controller.placeholder| translateMultiple}}</span>
+      <div class="pfi-actions" ng-if="!component.controller.readonly">
+        <button type="button" class="btn btn-xs btn-primary pfi-choose" translate-multiple="BUTTON_CHOOSE" ng-focus="focus()" ng-blur="blur()"></button>
+      </div>
+    </div>
+    <div ng-show="component.model.selected !== null && !component.uploading" class="pixel-file-input {{classes}} no-animate" ng-disabled="component.controller.readonly">
+      ${getIconTemplate("{{::iconClass}}")}
+      <span class="pfi-filename" ng-click="downloadFile($event)">{{component.visibleValue}}</span>
+      <div class="pfi-actions" ng-if="!component.controller.readonly">
+        <button type="button" ng-click="clearFile($event)" class="btn btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()"><i class="fa {{component.deleting ? 'fa-refresh fa-spin' : 'fa-times'}}"></i> <span translate-multiple="BUTTON_CLEAR"></span></button>
+      </div>
+    </div>
+  </div>
+</div>`;
 
 // Uploader service
 aweApplication.factory('Uploader',

@@ -41,59 +41,59 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 
 ## Criteria structure
 
-| Element     | Use      | Multiples instances    | Description                                        |
-| ----------- | ---------|------------------------|----------------------------------------------------|
-| [criteria](#general-attributes) | **Required** | No | Global node of criteria. Defines the criterion attributes |
-| [dependency](dependencies.md) | Optional | Yes | List of dependencies attached to the criterion |
+| Element                         | Use          | Multiples instances | Description                                               |
+|---------------------------------|--------------|---------------------|-----------------------------------------------------------|
+| [criteria](#general-attributes) | **Required** | No                  | Global node of criteria. Defines the criterion attributes |
+| [dependency](dependencies.md)   | Optional     | Yes                 | List of dependencies attached to the criterion            |
 
 ### General attributes
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| id          | **Required** | String    | Criterion identifier. For reference purposes |                                   |
-| component   | **Required** | String    | Criterion type              | See [components](#components)                      |
-| label       | Optional     | String    | Criterion text (outside the criterion) | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| placeholder | Optional     | String    | Criterion text (inside the criterion) | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| style       | Optional     | String    | Criterion CSS classes       | See [Bootstrap positioning](http://getbootstrap.com/css/#grid-example-basic) for criteria sizing |
-| initial-load | Optional   | String    | Server action call to load the criterion data (launched at window generation) | `enum` (for [enumerated](enumerate-definition.md)), `query` (for [query call](query-definition.md) loading the **[values](#how-does-it-work)** part of the criterion) or `value` (for [query call](query-definition.md) loading the **[selected](#how-does-it-work)** part of the criterion)  |
-| server-action | Optional   | String    | Server action call          | See [server action list](actions.md#server-actions)   |
-| target-action | Optional   | String    | Target to call on the server|                                                    |
-| max | Optional   | Integer | Max number of values | **Note:** Default value is set in property `var.def.rpp` in file base.properties |
-| autoload | Optional   | Boolean | Launch target-action when the screen has been initialized | **Note:** Default value is `false` |
-| autorefresh| Optional   | Integer | Launch the target-action every X seconds | **Note:** The value is in seconds |
-| variable    | Optional     | String    | Parameter to fill the criterion value | **Identifier** of a criterion in the **previous screen** |
-| value       | Optional     | String    | Criterion default value     |                                                    |
-| session     | Optional     | String    | Session variable to load the criterion | Session variable identifier             |
-| property    | Optional     | String    | Property variable to load the criterion | Property variable identifier           |
-| validation  | Optional     | String    | Validation rules            | See [validation](../guides/validation-guide.md) |
-| readonly    | Optional     | Boolean   | Set criterion as readonly   | Default value is `false`                           |
-| size        | Optional     | String    | Criterion size              | `sm` (default), `md` or `lg`.                      |
-| unit        | Optional     | String    | Criterion unit text         | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| icon        | Optional     | String    | Icon identifier             | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
-| printable   | Optional     | String    | Check if criterion is printable | `true`, `false`, `excel`, `all`, `tab`         |
-| help        | Optional     | String    | Help text for the criterion | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| help-image  | Optional     | String    | Help image for the criterion | This **must** be a image path |
-| left-label  | Optional     | Integer   | Put the label on the left **and** give it a size in chars | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label |
+| Attribute     | Use          | Type    | Description                                                                   | Values                                                                                                                                                                                                                                                                                       |
+|---------------|--------------|---------|-------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id            | **Required** | String  | Criterion identifier. For reference purposes                                  |                                                                                                                                                                                                                                                                                              |
+| component     | **Required** | String  | Criterion type                                                                | See [components](#components)                                                                                                                                                                                                                                                                |
+| label         | Optional     | String  | Criterion text (outside the criterion)                                        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
+| placeholder   | Optional     | String  | Criterion text (inside the criterion)                                         | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
+| style         | Optional     | String  | Criterion CSS classes                                                         | See [Bootstrap positioning](http://getbootstrap.com/css/#grid-example-basic) for criteria sizing                                                                                                                                                                                             |
+| initial-load  | Optional     | String  | Server action call to load the criterion data (launched at window generation) | `enum` (for [enumerated](enumerate-definition.md)), `query` (for [query call](query-definition.md) loading the **[values](#how-does-it-work)** part of the criterion) or `value` (for [query call](query-definition.md) loading the **[selected](#how-does-it-work)** part of the criterion) |
+| server-action | Optional     | String  | Server action call                                                            | See [server action list](actions.md#server-actions)                                                                                                                                                                                                                                          |
+| target-action | Optional     | String  | Target to call on the server                                                  |                                                                                                                                                                                                                                                                                              |
+| max           | Optional     | Integer | Max number of values                                                          | **Note:** Default value is set in property `var.def.rpp` in file base.properties                                                                                                                                                                                                             |
+| autoload      | Optional     | Boolean | Launch target-action when the screen has been initialized                     | **Note:** Default value is `false`                                                                                                                                                                                                                                                           |
+| autorefresh   | Optional     | Integer | Launch the target-action every X seconds                                      | **Note:** The value is in seconds                                                                                                                                                                                                                                                            |
+| variable      | Optional     | String  | Parameter to fill the criterion value                                         | **Identifier** of a criterion in the **previous screen**                                                                                                                                                                                                                                     |
+| value         | Optional     | String  | Criterion default value                                                       |                                                                                                                                                                                                                                                                                              |
+| session       | Optional     | String  | Session variable to load the criterion                                        | Session variable identifier                                                                                                                                                                                                                                                                  |
+| property      | Optional     | String  | Property variable to load the criterion                                       | Property variable identifier                                                                                                                                                                                                                                                                 |
+| validation    | Optional     | String  | Validation rules                                                              | See [validation](../guides/validation-guide.md)                                                                                                                                                                                                                                              |
+| readonly      | Optional     | Boolean | Set criterion as readonly                                                     | Default value is `false`                                                                                                                                                                                                                                                                     |
+| size          | Optional     | String  | Criterion size                                                                | `sm` (default), `md` or `lg`.                                                                                                                                                                                                                                                                |
+| unit          | Optional     | String  | Criterion unit text                                                           | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
+| icon          | Optional     | String  | Icon identifier                                                               | **Note:** You can check all iconsets at [icons](icons.md) screen                                                                                                                                                                                                                             |
+| printable     | Optional     | String  | Check if criterion is printable                                               | `true`, `false`, `excel`, `all`, `tab`                                                                                                                                                                                                                                                       |
+| help          | Optional     | String  | Help text for the criterion                                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
+| help-image    | Optional     | String  | Help image for the criterion                                                  | This **must** be a image path                                                                                                                                                                                                                                                                |
+| left-label    | Optional     | Integer | Put the label on the left **and** give it a size in chars                     | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label                                                                                                                                                                      |
 
 ### Specific attributes
 
-| Attribute     | Criterion                        | Type      |  Description                |   Values                    |
-| ------------- | -------------------------------- | --------- | --------------------------- | --------------------------- |
-| optional      | [Select](#select-criterion)      | Boolean   | Allow selecting a empty value | Default value is `false`  |
-| area-rows     | [Textarea](#textarea-criterion)  | Integer   | Number of rows of the textarea | Default value is `3` |
-| number-format | [Numeric](#numeric-criterion)    | String    | Format of the number | See [autonumeric plugin](http://www.decorplanit.com/plugin/) |
-| capitalize    | [Select](#select-criterion), [Suggest](#suggest-criterion) | Boolean   | Put the first letter of the options in uppercase and the others in lowercase | Default value is `false` |
-| strict        | [Suggest](#suggest-criterion)    | Boolean   | Allow the user only to select the list values | Default value is `true` |
-| check-target | [Suggest](#suggest-criterion)    | String | Target action to be launched if label is not defined at suggest initialization | Default value is the defined at `target-action` |
-| checked       | [Checkbox](#checkbox-criterion), [Radio](#radio-button-criterion) | Boolean   | Mark the criterion as checked initially | Default value is `false` |
-| group         | [Checkbox](#checkbox-criterion), [Radio](#radio-button-criterion)  | String    | Group of the criterion (for validation and management purposes) | |
-| show-slider   | [Numeric](#numeric-criterion)  | Boolean    | Used to show the graphic component slider | **Note:** Only apply in numeric criteria |
-| destination   | [Uploader](#uploader-criterion)  | String | Destination relative folder to upload the file |   |
-| show-weekends | [Date](#date-criterion) | Boolean    | For enable or disable the weekend days | Default value is `true`  |
-| show-future-dates| [Date](#date-criterion) | Boolean | For enable or disable the future days after date value selected | Default value is `true` |
-| date-format| [Date](#date-criterion) | String | To set the format of the date you want to show | Default value is `dd/MM/yyyy`. **Note:** See the format in the following [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html)  |
-| date-show-today-button| [Date](#date-criterion) | Boolean | To show or not the button to select today date | Default value is `true` |
-| date-view-mode| [Date](#date-criterion) | String | Select 'days', 'months' or 'years' to set the minimum magnitude to be shown | Default value is `days` |
+| Attribute              | Criterion                                                         | Type    | Description                                                                    | Values                                                                                                                                               |
+|------------------------|-------------------------------------------------------------------|---------|--------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| optional               | [Select](#select-criterion)                                       | Boolean | Allow selecting a empty value                                                  | Default value is `false`                                                                                                                             |
+| area-rows              | [Textarea](#textarea-criterion)                                   | Integer | Number of rows of the textarea                                                 | Default value is `3`                                                                                                                                 |
+| number-format          | [Numeric](#numeric-criterion)                                     | String  | Format of the number                                                           | See [autonumeric plugin](http://www.decorplanit.com/plugin/)                                                                                         |
+| capitalize             | [Select](#select-criterion), [Suggest](#suggest-criterion)        | Boolean | Put the first letter of the options in uppercase and the others in lowercase   | Default value is `false`                                                                                                                             |
+| strict                 | [Suggest](#suggest-criterion)                                     | Boolean | Allow the user only to select the list values                                  | Default value is `true`                                                                                                                              |
+| check-target           | [Suggest](#suggest-criterion)                                     | String  | Target action to be launched if label is not defined at suggest initialization | Default value is the defined at `target-action`                                                                                                      |
+| checked                | [Checkbox](#checkbox-criterion), [Radio](#radio-button-criterion) | Boolean | Mark the criterion as checked initially                                        | Default value is `false`                                                                                                                             |
+| group                  | [Checkbox](#checkbox-criterion), [Radio](#radio-button-criterion) | String  | Group of the criterion (for validation and management purposes)                |                                                                                                                                                      |
+| show-slider            | [Numeric](#numeric-criterion)                                     | Boolean | Used to show the graphic component slider                                      | **Note:** Only apply in numeric criteria                                                                                                             |
+| destination            | [Uploader](#uploader-criterion)                                   | String  | Destination relative folder to upload the file                                 |                                                                                                                                                      |
+| show-weekends          | [Date](#date-criterion)                                           | Boolean | For enable or disable the weekend days                                         | Default value is `true`                                                                                                                              |
+| show-future-dates      | [Date](#date-criterion)                                           | Boolean | For enable or disable the future days after date value selected                | Default value is `true`                                                                                                                              |
+| date-format            | [Date](#date-criterion)                                           | String  | To set the format of the date you want to show                                 | Default value is `dd/MM/yyyy`. **Note:** See the format in the following [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html) |
+| date-show-today-button | [Date](#date-criterion)                                           | Boolean | To show or not the button to select today date                                 | Default value is `true`                                                                                                                              |
+| date-view-mode         | [Date](#date-criterion)                                           | String  | Select 'days', 'months' or 'years' to set the minimum magnitude to be shown    | Default value is `days`                                                                                                                              |
 
 ## Components
 
@@ -133,17 +133,17 @@ Numeric criterion with slider enabled
 
 This attribute is used to format the numeric criterion and the slider. It is specified in json object format.
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| min         | Optional | Number    | The minimum possible value | Ex: `{min: 5}`                                          |
-| max         | Optional | Number    | The maximum possible value     | Ex: `{max: 5}`                                          |
-| aSign       | Optional | String    | Desired currency symbol  | Ex: `{aSign: ' €'}`                                       |
-| pSign       | Optional | String    | Controls the placement of the currency symbol | pSign: 'p' to prefix or pSign: 's' to suffix (**default**) |
-| aPad        | Optional | Boolean    | Controls padding of the decimal places | **true** always pads the decimal with zeros or **false**  (**default**) to no padding |
-| precision   | Optional | Number    | Number of decimals |  **Note:** The thousand & decimal separators can not be the same |
-| step        | Optional | Number    | Slider increment step | Ex: `{step: 5}`                                       |
-| ticks       | Optional | Array    | Used to define the values of ticks in slider. Tick marks are indicators to denote special values in the range. This option overwrites min and max options | Ex: `{ticks: [-1000, -500, 0, 500, 1000]}` |
-| ticks_labels| Optional | Array    | Defines the labels below the tick marks. Accepts HTML input | Ex: `{ticks_labels: ['-$1000', '-$500', '$0', '$500', '$1000']}` |
+| Attribute    | Use      | Type    | Description                                                                                                                                               | Values                                                                                |
+|--------------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| min          | Optional | Number  | The minimum possible value                                                                                                                                | Ex: `{min: 5}`                                                                        |
+| max          | Optional | Number  | The maximum possible value                                                                                                                                | Ex: `{max: 5}`                                                                        |
+| aSign        | Optional | String  | Desired currency symbol                                                                                                                                   | Ex: `{aSign: ' €'}`                                                                   |
+| pSign        | Optional | String  | Controls the placement of the currency symbol                                                                                                             | pSign: 'p' to prefix or pSign: 's' to suffix (**default**)                            |
+| aPad         | Optional | Boolean | Controls padding of the decimal places                                                                                                                    | **true** always pads the decimal with zeros or **false**  (**default**) to no padding |
+| precision    | Optional | Number  | Number of decimals                                                                                                                                        | **Note:** The thousand & decimal separators can not be the same                       |
+| step         | Optional | Number  | Slider increment step                                                                                                                                     | Ex: `{step: 5}`                                                                       |
+| ticks        | Optional | Array   | Used to define the values of ticks in slider. Tick marks are indicators to denote special values in the range. This option overwrites min and max options | Ex: `{ticks: [-1000, -500, 0, 500, 1000]}`                                            |
+| ticks_labels | Optional | Array   | Defines the labels below the tick marks. Accepts HTML input                                                                                               | Ex: `{ticks_labels: ['-$1000', '-$500', '$0', '$500', '$1000']}`                      |
 
 > **Note:** You can view all autonumeric attributes [here](http://www.decorplanit.com/plugin/) and the slider attributes [here](https://github.com/seiyria/bootstrap-slider#options)
 
@@ -190,15 +190,15 @@ Allows the user to search a value by typing some characters of the seek value.
 
 ### Select VS Suggest
 
-| Select   		| Suggest          |
-| ----------- | ------------ |
-| The list of values is "fixed"         | The list can change every time you interact with the component 		 | 
-| The list is loaded when you enter into the window        | The list is loaded when you interact with the component	 |
-| Filtered in the client       | Can be filtered in client and server		 |
-| You have to use it when the list of values is small and with fixed number of values.       | It can be used with both small and large lists		 |
-| Use attribute "max"=0        | Use attribute "max" to limit the data returned by the server.		 |
-|    | You must use the variable "suggest" to filter.		 |
-| Not used when there are interrelationships between criteria        | Mandatory use when there are interrelationships with other criteria.		 |
+| Select                                                                               | Suggest                                                                |
+|--------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| The list of values is "fixed"                                                        | The list can change every time you interact with the component         | 
+| The list is loaded when you enter into the window                                    | The list is loaded when you interact with the component                |
+| Filtered in the client                                                               | Can be filtered in client and server                                   |
+| You have to use it when the list of values is small and with fixed number of values. | It can be used with both small and large lists                         |
+| Use attribute "max"=0                                                                | Use attribute "max" to limit the data returned by the server.          |
+|                                                                                      | You must use the variable "suggest" to filter.                         |
+| Not used when there are interrelationships between criteria                          | Mandatory use when there are interrelationships with other criteria. 	 |
 
 ### Multiple select criterion
 

@@ -51,7 +51,7 @@ class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
             .andExpect(content().encoding("UTF-8"))
             .andReturn();
 
-    assertEquals(result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")), expected);
+    assertEquals(expected, result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")));
   }
 
   /**
@@ -80,7 +80,7 @@ class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
    */
   @Test
   void testGetAngularSubTemplate() throws Exception {
-    testTemplate("templates/Criterion.txt", "/template/angular/input/text", status().isOk());
+    testTemplate("templates/Criterion.txt", "/template/angular/input/checkbox", status().isOk());
   }
 
   /**
