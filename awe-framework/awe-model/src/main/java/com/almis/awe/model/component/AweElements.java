@@ -30,6 +30,7 @@ import com.almis.awe.model.type.LaunchPhaseType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -797,5 +798,14 @@ public class AweElements {
    */
   public ApplicationContext getApplicationContext() {
     return context;
+  }
+
+  /**
+   * Evict XML cache on application end
+   */
+  @CacheEvict({"xml", "enumerated", "query", "queue", "maintain", "email", "service", "action", "screen",
+          "menu", "profile", "locale"})
+  public void clearXMLCache() {
+    // No code, only cache evict
   }
 }
