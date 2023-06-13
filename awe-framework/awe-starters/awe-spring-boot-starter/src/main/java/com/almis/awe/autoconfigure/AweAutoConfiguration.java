@@ -5,6 +5,7 @@ import com.almis.awe.component.AweLoggingFilter;
 import com.almis.awe.component.AweMDCTaskDecorator;
 import com.almis.awe.config.*;
 import com.almis.awe.dao.InitialLoadDao;
+import com.almis.awe.listener.CacheListener;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.XStreamSerializer;
@@ -37,6 +38,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -670,5 +672,15 @@ public class AweAutoConfiguration {
   @Bean
   public AweMDCTaskDecorator aweMDCTaskDecorator() {
     return new AweMDCTaskDecorator();
+  }
+
+  /**
+   * Cache Listener
+   *
+   * @return awe Cache Listener
+   */
+  @Bean
+  public CacheListener cacheListener(CacheManager cacheManager) {
+    return new CacheListener(cacheManager);
   }
 }
