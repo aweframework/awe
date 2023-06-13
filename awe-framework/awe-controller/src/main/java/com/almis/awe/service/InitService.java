@@ -56,6 +56,8 @@ public class InitService extends ServiceConfig implements DisposableBean {
     log.info("=======  Launching application end services  =========");
     log.info(DOUBLE_LOG_LINE);
     launchPhaseServices(LaunchPhaseType.APPLICATION_END);
+    // Clear XML File cache
+    getElements().clearXMLCache();
     log.info(LOG_LINE);
     log.info("-----------------------------  AWE STOPPING  -------------------------------------");
     log.info(LOG_LINE);
