@@ -10,7 +10,6 @@ import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -138,7 +137,6 @@ public class AweElementsDao {
    * @param <T>      Class type
    * @return Xml file object
    */
-  @Cacheable(value = "xml", key = "{ #p0.toString(), #p1 }")
   public <T> T readXmlFile(Class<T> clazz, String basePath, String fileName) {
     List<String> messageList = new ArrayList<>();
     // For each module read XML files

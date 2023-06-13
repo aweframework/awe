@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.cache.annotation.CacheRemoveAll;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -723,7 +722,6 @@ public class MenuService extends ServiceConfig {
    * @return Menu options
    * @throws AWException Error generating menu
    */
-  @CacheRemoveAll(cacheName = PROFILE)
   public ServiceData refreshMenu() throws AWException {
     ServiceData serviceData = new ServiceData();
     Menu menu = getMenuWithRestrictions();

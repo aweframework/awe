@@ -5,7 +5,6 @@ import com.almis.awe.component.AweLoggingFilter;
 import com.almis.awe.component.AweMDCTaskDecorator;
 import com.almis.awe.config.*;
 import com.almis.awe.dao.InitialLoadDao;
-import com.almis.awe.listener.CacheListener;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.XStreamSerializer;
@@ -30,15 +29,12 @@ import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +43,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -134,12 +131,12 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public ObjectMapper objectMapper() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
-    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-    objectMapper.registerModule(new JavaTimeModule());
-    return objectMapper;
+    return new Jackson2ObjectMapperBuilder()
+      .failOnUnknownProperties(false)
+      .defaultViewInclusion(false)
+      .featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+      .modules(new JavaTimeModule())
+      .build();
   }
 
   /////////////////////////////////////////////
@@ -674,13 +671,4 @@ public class AweAutoConfiguration {
     return new AweMDCTaskDecorator();
   }
 
-  /**
-   * Cache Listener
-   *
-   * @return awe Cache Listener
-   */
-  @Bean
-  public CacheListener cacheListener(CacheManager cacheManager) {
-    return new CacheListener(cacheManager);
-  }
 }
