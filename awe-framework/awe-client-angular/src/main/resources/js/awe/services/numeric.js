@@ -1,4 +1,5 @@
 import {aweApplication} from "./../awe";
+import {getIconTemplate} from "./component";
 import "../directives/plugins/uiNumeric";
 import "../directives/plugins/uiSlider";
 
@@ -12,7 +13,7 @@ export const templateNumeric =
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input  {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">
-      <span ng-if="::controller.icon" ng-class="::iconClass" ng-cloak></span>
+      ${getIconTemplate("{{::iconClass}}")}
       <input ui-numeric="aweNumericOptions" class="form-control text-right {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly" ng-press-enter="submit($event)"
              placeholder="{{controller.placeholder| translateMultiple}}" ng-focus="focus()" ng-blur="blur()"/>
@@ -31,7 +32,7 @@ export const templateNumericColumn =
     <input ui-numeric="aweNumericOptions" class="form-control text-right col-xs-12 {{classes}} {{component.model.values[0].style}}" autocomplete="off"
            ng-disabled="component.controller.readonly" ng-focus="focus()" ng-blur="blur()"
            placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-click="click($event)" ng-press-enter="saveRow($event)"/>
-    <span ng-if="::component.controller.icon" ng-class="::iconClass" ng-cloak></span>
+    ${getIconTemplate("{{::iconClass}}")}
   </div>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
 </div>`;

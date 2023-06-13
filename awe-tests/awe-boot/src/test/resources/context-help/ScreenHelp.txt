@@ -1,8 +1,8 @@
-<h1 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-  <i class="fa fa-sitemap fa-lg fa-fw"></i>
+<i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
+<h1 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
   {{'SCREEN_TITLE_SIT'| translateMultiple}}
 </h1>
-<hr/>
+<hr class="help-header-separator"/>
 <div class="help-snippet">
   <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
 </div>

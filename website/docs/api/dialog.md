@@ -24,14 +24,14 @@ A dialog is a graphical item that provides the functionality of showing a modal 
 
 ## Dialog attributes
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id          | Optional | String    | Dialog identifier. For reference purposes |                                          |
-| label       | Optional | String    | Dialog title                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
-| icon        | Optional | String    | Icon identifier                 | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
-| style       | Optional | String    | Style of the screen (css classes) | CSS classes separated by space (`' '`)             |
-| help        | Optional | String    | Help text you want to show      | The name of a literal with the message             |
-| on-close  | Optional | String    | Behaviour of the stack after closing the dialog  | `accept` (default), `reject`- Reject cancels the stack, accept continues executing stack actions  |
+| Attribute | Use      | Type    | Description                                     | Values                                                                                           |
+|-----------|----------|---------|-------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| id        | Optional | String  | Dialog identifier. For reference purposes       |                                                                                                  |
+| label     | Optional | String  | Dialog title                                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                       |
+| icon      | Optional | String  | Icon identifier                                 | **Note:** You can check all iconsets at [icons](icons.md) screen                                 |
+| style     | Optional | String  | Style of the screen (css classes)               | CSS classes separated by space (`' '`)                                                           |
+| help      | Optional | String  | Help text you want to show                      | The name of a literal with the message                                                           |
+| on-close  | Optional | String  | Behaviour of the stack after closing the dialog | `accept` (default), `reject`- Reject cancels the stack, accept continues executing stack actions |
 
 > **Note:** You can add the styles `modal-lg`, `modal-md` or `modal-sm` to change the width of the dialog.
 

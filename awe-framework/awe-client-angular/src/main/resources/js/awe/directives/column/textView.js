@@ -1,4 +1,5 @@
 import {aweApplication} from "./../../awe";
+import {textViewColumnTemplate} from "../../services/text";
 
 // Column textView directive
 aweApplication.directive('aweColumnTextView',
@@ -7,9 +8,7 @@ aweApplication.directive('aweColumnTextView',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/textView');
-        },
+        template: textViewColumnTemplate,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

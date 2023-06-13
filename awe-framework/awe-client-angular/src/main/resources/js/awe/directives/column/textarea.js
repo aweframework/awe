@@ -1,5 +1,5 @@
 import {aweApplication} from "./../../awe";
-import "./../../services/text";
+import {textareaColumnTemplate} from "../../services/text";
 
 // Column textarea directive
 aweApplication.directive('aweColumnTextarea',
@@ -8,9 +8,7 @@ aweApplication.directive('aweColumnTextarea',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/textarea');
-        },
+        template: textareaColumnTemplate,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

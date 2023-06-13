@@ -56,7 +56,7 @@ and call the `notify` method on the `NotifierService` bean:
   * `subscription`: Subscription **acronym**
   * `title`: Notification title (30 characters max)
   * `description`: Notification description (250 characters max)
-  * `icon`: Notification icon (choose them from [FontAwesome](https://fontawesome.com/v4.7.0/icons/))
+  * `icon`: Notification icon (choose them from [icons](/api/icons.md) screen)
   * `type`: Notification type:
     * `NORMAL`: Standard notification (gray)
     * `OK`: Success notification (green)

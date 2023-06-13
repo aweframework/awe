@@ -1,5 +1,6 @@
 import {aweApplication} from "./../awe";
 import "../directives/plugins/uiSelect";
+import {getIconTemplate} from "./component";
 
 // Selector template
 export const templateSelector =
@@ -11,7 +12,7 @@ export const templateSelector =
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">
-      <span ng-if="::controller.icon" ng-class="::iconClass" ng-cloak></span>
+      ${getIconTemplate("{{::iconClass}}")}
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control {{classes}}" initialized="initialized" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
@@ -29,7 +30,7 @@ export const templateSelectorColumn =
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}" value="{{component.model.selected}}"
              ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off"/>
     </div>
-    <span ng-if="::component.controller.icon" ng-class="::iconClass" ng-cloak></span>
+    ${getIconTemplate("{{::iconClass}}")}
   </span>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
 </div>`;

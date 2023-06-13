@@ -24,12 +24,12 @@ A window is a container with a title bar. It also can be maximized or restored, 
 
 ## Window structure
 
-| Element     | Use      | Multiples instances    | Description                                        |
-| ----------- | ---------|------------------------|----------------------------------------------------|
-|[window](#window-attributes) | **Required** | No | Global node of window. Describes the window attributes |
-| [tag](tags.md) | Optional | Yes | A [tag](tags.md) list inside the window, usually with styles like `panel-body` and `panel-footer` |
-| [grid](grids.md) | Optional | No | A [grid](grids.md) inside the window  |
-| [chart](chart.md) | Optional | No | A [chart](chart.md) inside the window |
+| Element                      | Use          | Multiples instances   | Description                                                                                       |
+|------------------------------|--------------|-----------------------|---------------------------------------------------------------------------------------------------|
+| [window](#window-attributes) | **Required** | No                    | Global node of window. Describes the window attributes                                            |
+| [tag](tags.md)               | Optional     | Yes                   | A [tag](tags.md) list inside the window, usually with styles like `panel-body` and `panel-footer` |
+| [grid](grids.md)             | Optional     | No                    | A [grid](grids.md) inside the window                                                              |
+| [chart](chart.md)            | Optional     | No                    | A [chart](chart.md) inside the window                                                             |
 
 > **Note** There are two special styles you can use as tag styles on windows:
 > * `panel-body`: A special style to define the content of a window. It adds margins to the content.
@@ -38,14 +38,14 @@ A window is a container with a title bar. It also can be maximized or restored, 
 
 ## Window attributes
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id          | Optional | String    | Window identifier. For reference purposes |                                          |
-| label       | Optional | String    | Window title                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
-| style       | Optional | String    | Window CSS classes              | **Note:** Here you can use `expand` class to set the window as expandible |
-| icon        | Optional | String    | Icon identifier                 | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
-| expandible  | Optional | String    | How to [expand](layout.md) the window children | `vertical`, `horizontal` |
-| maximize    | Optional | Boolean   | Whether to show the maximize icon or not |                                  |
+| Attribute  | Use      | Type    | Description                                    | Values                                                                     |
+|------------|----------|---------|------------------------------------------------|----------------------------------------------------------------------------|
+| id         | Optional | String  | Window identifier. For reference purposes      |                                                                            |
+| label      | Optional | String  | Window title                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| style      | Optional | String  | Window CSS classes                             | **Note:** Here you can use `expand` class to set the window as expandible  |
+| icon       | Optional | String  | Icon identifier                                | **Note:** You can check all iconsets at [icons](icons.md) screen           |
+| expandible | Optional | String  | How to [expand](layout.md) the window children | `vertical`, `horizontal`                                                   |
+| maximize   | Optional | Boolean | Whether to show the maximize icon or not       |                                                                            |
 
 ## Examples
 

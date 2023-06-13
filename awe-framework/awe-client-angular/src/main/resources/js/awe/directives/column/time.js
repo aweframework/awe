@@ -1,5 +1,5 @@
 import {aweApplication} from "./../../awe";
-import "../../services/dateTime";
+import {timeColumnTemplate} from "../../services/dateTime";
 
 // Column timepicker directive
 aweApplication.directive('aweColumnTime',
@@ -9,9 +9,7 @@ aweApplication.directive('aweColumnTime',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/time');
-        },
+        template: timeColumnTemplate,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

@@ -1,15 +1,26 @@
 import {aweApplication} from "./../awe";
+import {getIconTemplate} from "../services/component";
+
+const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class="getOptionClasses()" ng-cloak>
+  <a ng-if="::!controller.separator" title="{{::optionTitle| translateMultiple}}" name="{{::optionName}}" class="{{::optionStyle}}"
+     ng-click="optionClick()">
+    ${getIconTemplate("menu-icon")}
+    <span ng-if="::optionText" class="mm-text" translate-multiple="{{::optionText}}"></span>
+  </a>
+  <ul ng-if="::hasVisibleChildren()" class="{{::getStaticSubmenuClasses()}}" ng-class="getSubmenuClasses()">
+    <div ng-if="::optionText" class="mmc-title" translate-multiple="{{::optionText}}"></div>
+    <awe-option ng-repeat="option in controller.options| allowedOption track by option.name" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}" close-first-level="closeFirstLevel()" first-level="false" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}" option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
+  </ul>
+</li>`;
 
 // Option directive
 aweApplication.directive('aweOption',
-  ['ServerData', 'ActionController', '$compile', '$filter',
-    function (serverData, ActionController, $compile, $filter) {
+  ['ServerData', 'ActionController', '$compile', '$filter', 'AweUtilities',
+    function (serverData, ActionController, $compile, $filter, $util) {
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('option');
-        },
+        template,
         scope: {
           'optionName': '@',
           'optionTitle': '@',
@@ -41,6 +52,13 @@ aweApplication.directive('aweOption',
                 return $filter('allowedOption')(scope.controller.options).length > 0 &&
                   !scope.controller.separator &&
                   !scope.controller.menuScreen;
+              };
+
+              /**
+               * Get option icon
+               */
+              scope.getIcon = function () {
+                return $util.extractIcon(scope.optionIcon);
               };
 
               /**

@@ -94,11 +94,11 @@
       <option name="layout2-test" label="MENU_TEST_LAYOUT 2" screen="layout2" icon="th-large"/>
     </option>
     <option name="button-menu" label="MENU_TEST_BUTTON_MENU" icon="th" menu-screen="true" screen="test-button-screen">
-      <option name="button-option-0" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="flask" />
-      <option name="button-option-01" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="flask" />
-      <option name="button-option-02" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="flask" />
+      <option name="button-option-0" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="mdi:science"  />
+      <option name="button-option-01" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="mdi:toys"  />
+      <option name="button-option-02" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="mdi:developer_board" />
       <option name="button-group-1" label="MENU_TEST_BUTTON_MENU_GROUP_1" icon="keyboard-o" >
-        <option name="button-option-1" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o" />
+        <option name="button-option-1" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="mdi:keyboard" />
         <option name="button-option-2" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right" />
         <option name="button-option-3" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
         <option name="button-option-31" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />

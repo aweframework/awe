@@ -1,6 +1,11 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 
+export function getIconTemplate(style = "", tag = "span") {
+  return `<${tag} ng-if="getIcon().family == 'fa'" class="${style} fa fa-{{getIcon().name}}" ng-cloak></${tag}>
+          <${tag} ng-if="getIcon().family == 'mdi'" class="${style} material-icons" ng-cloak>{{getIcon().name}}</${tag}>`;
+}
+
 // Component service
 aweApplication.factory('Component',
   ['Control', 'AweSettings', 'AweUtilities', 'ServerData', 'ActionController', 'DependencyController', '$log',
@@ -134,6 +139,13 @@ aweApplication.factory('Component',
             component.controller = Control.getAddressController(component.address) || {};
             component.controller.id = component.id;
             component.scope.controller = component.controller;
+
+            /**
+             * Retrieve icon from component
+             */
+            component.scope.getIcon = function () {
+              return Utilities.extractIcon(component.model.values?.[0]?.icon || component.controller?.icon);
+            };
 
             if (!component.scope.iconLoader) {
               component.scope.iconLoader = component.controller.iconLoading;

@@ -1,5 +1,6 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "../../services/dateTime";
+import {calendarInputTemplate} from "../../services/dateTime";
 
 // Filtered calendar directive
 aweApplication.directive('aweInputFilteredCalendar',
@@ -8,9 +9,7 @@ aweApplication.directive('aweInputFilteredCalendar',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/date');
-        },
+        template: calendarInputTemplate,
         scope: {
           'criterionId': '@inputFilteredCalendarId'
         },

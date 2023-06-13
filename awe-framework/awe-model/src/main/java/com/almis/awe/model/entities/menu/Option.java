@@ -160,7 +160,6 @@ public class Option extends AbstractAction {
     return getMenuScreen() != null && getMenuScreen();
   }
 
-
   /**
    * Retrieve Option list
    *

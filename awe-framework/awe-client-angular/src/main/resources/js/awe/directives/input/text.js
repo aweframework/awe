@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import "./../../services/text";
+import {aweApplication} from "./../../awe";
+import {textInputTemplate} from "../../services/text";
 
 // Text directive
 aweApplication.directive('aweInputText',
@@ -8,7 +8,7 @@ aweApplication.directive('aweInputText',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: () => $serverData.getAngularTemplateUrl('input/text'),
+        template: textInputTemplate,
         scope: {
           'criterionId': '@inputTextId'
         },

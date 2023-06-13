@@ -1,5 +1,6 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "angular-bootstrap-colorpicker";
+import {templateInputColor} from "../../services/criterion";
 
 // Add requirements
 aweApplication.requires.push("colorpicker.module");
@@ -11,9 +12,7 @@ aweApplication.directive('aweInputColor',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/color');
-        },
+        template: templateInputColor,
         scope: {
           'criterionId': '@inputColorId'
         },
