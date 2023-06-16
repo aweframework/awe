@@ -444,9 +444,11 @@ public class MaintainService extends ServiceConfig {
 
     for (MaintainQuery maintainQuery : queryList) {
       maintainQuery.setOperationId(maintainTarget.getName() + "-" + operationNumber++);
-      if (maintainQuery instanceof Commit && manageConnection) {
+      if (maintainQuery instanceof Commit) {
         // If is a commit, launch it
-        databaseConnection.getConnection().commit();
+        if (manageConnection) {
+          databaseConnection.getConnection().commit();
+        }
       } else if (maintainQuery instanceof RetrieveData) {
         QueryLauncher queryLauncher = getBean(QueryLauncher.class);
         result = queryLauncher.launchQuery(maintainQuery, parameters);
