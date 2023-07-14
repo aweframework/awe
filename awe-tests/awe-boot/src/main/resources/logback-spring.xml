@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!-- Includes -->
-    <include resource="com/almis/awe/logging/awe-log.xml"/>
-    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/>
+    <springProfile name="!cloud">
+        <!-- Includes -->
+        <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/>
+        <include resource="com/almis/awe/logging/awe-log.xml"/>
+    </springProfile>
+
+    <springProfile name="cloud">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeContext>false</includeContext>
+                <includeMdc>true</includeMdc>
+                <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter"/>
+            </encoder>
+        </appender>
+        <root level="info">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 
 </configuration>
