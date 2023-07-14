@@ -1,4 +1,20 @@
 
+# Changelog for AWE 4.7.0
+*14/07/2023*
+
+- Change console pattern. [MR #452](https://gitlab.com/aweframework/awe/-/merge_requests/452) (Pablo Vidal Otero)
+- Change logback console pattern. [MR #451](https://gitlab.com/aweframework/awe/-/merge_requests/451) (Pablo Vidal Otero)
+- Generar chart con utf-8. [MR #450](https://gitlab.com/aweframework/awe/-/merge_requests/450) (Pablo Javier García Mora)
+- Verify computed eval is working with service data output. [MR #449](https://gitlab.com/aweframework/awe/-/merge_requests/449) (Pablo Javier García Mora)
+- Error manage maintain commit operation. [MR #448](https://gitlab.com/aweframework/awe/-/merge_requests/448) (Pablo Vidal Otero)
+- Datasource health don't work without flyway migration. [MR #447](https://gitlab.com/aweframework/awe/-/merge_requests/447) (Pablo Vidal Otero)
+- Remove XML files from cache when application is down. [MR #446](https://gitlab.com/aweframework/awe/-/merge_requests/446) (Pablo Javier García Mora)
+- Allow to pick some other icon sets. [MR #445](https://gitlab.com/aweframework/awe/-/merge_requests/445) (Pablo Javier García Mora)
+- Error flyway migration strategy. [MR #444](https://gitlab.com/aweframework/awe/-/merge_requests/444) (Pablo Vidal Otero)
+- Change the screen access screen to make it more usable, p.e. with a treegrid. [MR #443](https://gitlab.com/aweframework/awe/-/merge_requests/443) (Pablo Javier García Mora)
+- In the menu-screen you can't put more than one option if it's not inside a header, as it doesn't flow to the left. [MR #442](https://gitlab.com/aweframework/awe/-/merge_requests/442) (Pablo Javier García Mora)
+- Allow 'type' attribute inside the options to launch server actions. [MR #441](https://gitlab.com/aweframework/awe/-/merge_requests/441) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.6.10
 *30/05/2023*
 
