@@ -83,7 +83,26 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     // Setup firefox options
     FirefoxProfile firefoxProfile = new FirefoxProfile();
     firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
-    firefoxProfile.setPreference("browser.download.improvements_to_download_panel", false);
+    // Set profile to accept untrusted certificates
+    firefoxProfile.setAcceptUntrustedCertificates(true);
+
+    // Set profile to not assume certificate issuer is untrusted
+    firefoxProfile.setAssumeUntrustedCertificateIssuer(false);
+
+    //Set download location and file types
+    firefoxProfile.setPreference("browser.download.folderList",2);
+    firefoxProfile.setPreference("browser.download.manager.showWhenStarting", false);
+    firefoxProfile.setPreference("browser.helperApps.neverAsk.saveToDisk","text/csv,application/pdf,application/csv,application/vnd.ms-excel");
+    firefoxProfile.setPreference("browser.download.start_downloads_in_tmp_dir", true);
+
+    // Set to false so popup not displayed when download finished.
+    firefoxProfile.setPreference("browser.download.manager.showAlertOnComplete", false);
+    firefoxProfile.setPreference("browser.download.panel.shown", false);
+    firefoxProfile.setPreference("browser.download.useToolkitUI", true);
+
+    // Set this to true to disable the pdf opening
+    firefoxProfile.setPreference("pdfjs.disabled", true);
+
     FirefoxOptions firefoxOptions = new FirefoxOptions()
       .setProfile(firefoxProfile)
       .addArguments(windowSize)
