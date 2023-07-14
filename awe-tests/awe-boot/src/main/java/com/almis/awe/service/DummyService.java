@@ -445,4 +445,21 @@ public class DummyService extends ServiceConfig {
   public ServiceData getDummyData(Planets planets) {
     return new ServiceData();
   }
+
+  /**
+   * Retrieve service data for computed
+   * @return Service Data
+   */
+  public ServiceData testGetServiceDataForComputed() {
+    DataList dataList = new DataList();
+
+    DataListUtil.addColumnWithOneRow(dataList, "integer", 1);
+    DataListUtil.addColumnWithOneRow(dataList, "text", "text");
+    DataListUtil.addColumnWithOneRow(dataList, "empty", null);
+    DataListUtil.addColumnWithOneRow(dataList, "float", 1.2f);
+    DataListUtil.addColumnWithOneRow(dataList, "double", 1.2d);
+    DataListUtil.addColumnWithOneRow(dataList, "zero", 0);
+
+    return new ServiceData().setDataList(dataList);
+  }
 }
