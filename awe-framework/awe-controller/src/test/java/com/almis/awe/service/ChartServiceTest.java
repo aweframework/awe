@@ -221,7 +221,7 @@ class ChartServiceTest {
     row = new HashMap<>();
     row.put("id", new CellData(6));
     row.put("parent", new CellData("default"));
-    row.put("category", new CellData("Pepe"));
+    row.put("category", new CellData("Pépè"));
     row.put("subserie1", new CellData(0.2f));
     detail.addRow(row);
     row = new HashMap<>();
