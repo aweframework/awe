@@ -89,9 +89,34 @@ public class TemplateDao {
     optionTemplate.add(AweConstants.TEMPLATE_E, option);
     optionTemplate.add(AweConstants.TEMPLATE_TITLE, optionLabel);
     optionTemplate.add(AweConstants.TEMPLATE_LEVEL, level);
+    optionTemplate.add(AweConstants.TEMPLATE_ICON, getIconTemplate(option.getIcon()));
 
     // Retrieve code
     return optionTemplate;
+  }
+
+  private String getIconTemplate(String iconValue) {
+    String iconTemplate = "";
+    if (iconValue != null) {
+      String[] iconValues = iconValue.split(":");
+      String icon = iconValue;
+      String family = "fa";
+      if (iconValues.length == 2) {
+        family = iconValues[0];
+        icon = iconValues[1];
+      }
+
+      switch (family) {
+        case "mdi":
+          iconTemplate = "<i role=\"icon\" class=\"help-icon text-primary material-icons\">" + icon + "</i>";
+          break;
+        case "fa":
+        default:
+          iconTemplate = "<i role=\"icon\" class=\"help-icon text-primary fa fa-" + icon + " fa-2x fa-fw\"></i>";
+          break;
+      }
+    }
+    return iconTemplate;
   }
 
   /**

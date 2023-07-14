@@ -25,6 +25,7 @@ public class DialogBuilder extends AbstractTagBuilder<DialogBuilder, Dialog> {
 
   private OnClose onClose;
   private String icon;
+  private String iconSet;
 
   @Override
   public Dialog build() {

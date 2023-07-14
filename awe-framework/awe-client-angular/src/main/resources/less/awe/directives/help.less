@@ -51,6 +51,26 @@
   }
 }
 
+.help-viewer {
+  .help-icon {
+    float: right;
+    margin-top: 24px;
+    display: inline-block;
+    font-size: 2em;
+    &.material-icons {
+      font-size: 2.5em;
+    }
+  }
+
+  .help-header {
+    float: left;
+  }
+
+  .help-header-separator {
+    clear: both;
+  }
+}
+
 .tocify {
   .nav-pills>li {
     margin-right: 0px;
@@ -83,7 +103,7 @@
     }
     .help-snippet {
       page-break-inside: avoid !important;
-      page-break-after: always !important;
+      page-break-after: auto !important;
     }
     .help-content,
     .application-help {

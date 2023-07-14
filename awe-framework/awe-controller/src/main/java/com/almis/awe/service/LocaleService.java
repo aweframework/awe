@@ -6,7 +6,6 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 
-import javax.cache.annotation.CacheRemove;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,7 +21,6 @@ public class LocaleService extends ServiceConfig {
    * @param language New language
    * @return change language
    */
-  @CacheRemove(cacheName = "locale")
   public ServiceData changeLanguage(String language) {
     getSession().setParameter(AweConstants.SESSION_LANGUAGE, language);
     return new ServiceData();

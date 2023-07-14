@@ -59,52 +59,84 @@ public class FlywayMigrationConfig {
   @PostConstruct
   public void initFlyway() {
 
-    log.info("=======  Migrating default database  =======");
+    log.info("\u001B[32m==========  Migrating default database  ==========\u001B[0m");
     for (String module : databaseConfigProperties.getMigrationModules()) {
-      Flyway customFlyway = customizeFlywayConfig(module, dataSource);
+      Flyway customFlyway = customizeFlywayConfig(module.toUpperCase(), dataSource);
 
       // Migrate first connection
-      log.info("=======  Migrating database of {} module  =======", module);
+      log.info("\t\u001B[32m> > Migrating database of \u001B[35m{} \u001B[32mmodule  ...\u001B[0m", module);
       customFlyway.migrate();
-      log.info("======= Current version of {} module: {}", module, customFlyway.info().current().getVersion());
+      log.info("\t\u001B[32m> > Current version of \u001B[35m{} \u001B[32mmodule: {}\n\u001B[0m", module, customFlyway.info().current().getVersion());
     }
 
     if (dataSource instanceof AweRoutingDataSource) {
       // Load dataSources
       ((AweRoutingDataSource) dataSource).loadDataSources();
       // Spread scripts migration
-      log.info("========== Migrating databases of [AweDbs] table defined in default database ... ==========");
+      log.info("\u001B[32m========== Migrating databases defined of [AweDbs] table ... ==========\u001B[0m");
       for (String module : databaseConfigProperties.getMigrationModules()) {
         ((AweRoutingDataSource) dataSource).getResolvedDataSources().forEach((key, value) -> {
-            log.info("========== Migrating database {} for module {} ... ==========", key, module);
-            Flyway customFlyway = customizeFlywayConfig(module, value);
-            customFlyway.migrate();
-            log.info("======= Current version of module {} from database {}: {}", module, key, customFlyway.info().current().getVersion());
-          }
+                  log.info("\t\u001B[32m> > Migrating database \u001B[35m{}\u001B[32m for module \u001B[35m{}\u001B[32m ...\u001B[0m", key, module);
+                  Flyway customFlyway = customizeFlywayConfig(module.toUpperCase(), value);
+                  customFlyway.migrate();
+                  log.info("\t\u001B[32m> > Current version of module \u001B[35m{}\u001B[32m from database \u001B[35m{}: {}\u001B[0m", module, key, customFlyway.info().current().getVersion());
+                }
         );
       }
     }
   }
 
   /**
-   * Customize configuration
+   * Customize flyway configuration
    *
-   * @param module Name of module to apply migration scripts
+   * @param module       Name of module to apply migration scripts
+   * @param dataSource   Datasource
+   * @return flyway object
    */
   private Flyway customizeFlywayConfig(String module, DataSource dataSource) {
 
+    // Custom flyway config fields
     final String scriptPrefix = String.format(flyway.getConfiguration().getSqlMigrationPrefix(), module);
     final String repeatableScriptPrefix = String.format(flyway.getConfiguration().getRepeatableSqlMigrationPrefix(), module);
+
+    // Customize configuration
     FluentConfiguration configuration = new FluentConfiguration()
-      .baselineOnMigrate(flyway.getConfiguration().isBaselineOnMigrate())
-      .baselineVersion(flyway.getConfiguration().getBaselineVersion())
-      .sqlMigrationPrefix(scriptPrefix)
-      .repeatableSqlMigrationPrefix(repeatableScriptPrefix)
-      .table("flyway_schema_" + module)
-      .locations(flyway.getConfiguration().getLocations())
-      .dataSource(dataSource);
+            .dataSource(dataSource)
+            .locations(flyway.getConfiguration().getLocations())
+            .baselineOnMigrate(flyway.getConfiguration().isBaselineOnMigrate())
+            .baselineVersion(flyway.getConfiguration().getBaselineVersion())
+            .baselineDescription(flyway.getConfiguration().getBaselineDescription())
+            .cleanDisabled(flyway.getConfiguration().isCleanDisabled())
+            .cleanOnValidationError(flyway.getConfiguration().isCleanOnValidationError())
+            .connectRetries(flyway.getConfiguration().getConnectRetries())
+            .connectRetriesInterval(flyway.getConfiguration().getConnectRetriesInterval())
+            .createSchemas(flyway.getConfiguration().isCreateSchemas())
+            .defaultSchema(flyway.getConfiguration().getDefaultSchema())
+            .encoding(flyway.getConfiguration().getEncoding())
+            .failOnMissingLocations(flyway.getConfiguration().isFailOnMissingLocations())
+            .initSql(flyway.getConfiguration().getInitSql())
+            .group(flyway.getConfiguration().isGroup())
+            .sqlMigrationPrefix(scriptPrefix)
+            .sqlMigrationSeparator(flyway.getConfiguration().getSqlMigrationSeparator())
+            .sqlMigrationSuffixes(flyway.getConfiguration().getSqlMigrationSuffixes())
+            .tablespace(flyway.getConfiguration().getTablespace())
+            .target(flyway.getConfiguration().getTarget())
+            .validateMigrationNaming(flyway.getConfiguration().isValidateMigrationNaming())
+            .repeatableSqlMigrationPrefix(repeatableScriptPrefix)
+            .installedBy(flyway.getConfiguration().getInstalledBy())
+            .outOfOrder(flyway.getConfiguration().isOutOfOrder())
+            .placeholderPrefix(flyway.getConfiguration().getPlaceholderPrefix())
+            .placeholderReplacement(flyway.getConfiguration().isPlaceholderReplacement())
+            .placeholderSeparator(flyway.getConfiguration().getPlaceholderSeparator())
+            .placeholderSuffix(flyway.getConfiguration().getPlaceholderSuffix())
+            .placeholders(flyway.getConfiguration().getPlaceholders())
+            .skipDefaultCallbacks(flyway.getConfiguration().isSkipDefaultCallbacks())
+            .skipDefaultResolvers(flyway.getConfiguration().isSkipDefaultResolvers())
+            .mixed(flyway.getConfiguration().isMixed())
+            .table("flyway_schema_" + module);
+
     return Flyway.configure()
-      .configuration(configuration)
-      .load();
+            .configuration(configuration)
+            .load();
   }
 }

@@ -1,5 +1,42 @@
 import {aweApplication} from "../awe";
 import {DefaultSpin} from "../data/options";
+import {getIconTemplate} from "./component";
+
+export const templateInputColor = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+      {{controller.label| translateMultiple}}
+    </label>
+    <div class="validator input-group colorpicker-element {{::validatorGroup}} focus-target">
+      ${getIconTemplate("{{::iconClass}}")}
+      <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-press-enter="submit($event)" autocomplete="off" ng-click="click($event)"
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-change="component.modelChange()"/>
+      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      <span class="input-group-addon" colorpicker ng-model="model.selected" ng-change="component.modelChange()" ng-if="!controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>
+      <span class="input-group-addon disabled" ng-if="controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>
+    </div>
+  </div>
+</div>`;
+
+export const templateColumnColor = `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
+  <span class="visible-value" ng-cloak><i class="fa fa-eyedropper" ng-if="component.visibleValue" ng-style="{color: component.visibleValue}"></i>
+    <span class="text-semibold text-xs text-uppercase">{{component.visibleValue}}</span>
+  </span>
+  <span class="edition">
+    <div ng-class="::groupClass" ng-cloak>
+      <div class="validator input-group colorpicker-element input-group-{{::size}} focus-target">
+        <input type="text" class="form-control {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-press-enter="saveRow($event)"
+               ng-blur="blur()" ng-click="click($event)" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-change="component.columnModelChange()"/>
+        <span ng-if="!component.controller.readonly" class="input-group-addon" colorpicker ng-model="component.model.selected" ng-change="component.columnModelChange()" ><i ng-class="{'transparent': !component.model.selected}" ng-style="{backgroundColor: component.model.selected}"></i></span>
+        <span ng-if="component.controller.readonly" class="input-group-addon disabled"><i ng-class="{'transparent': !component.model.selected}" ng-style="{backgroundColor: component.model.selected}"></i></span>
+      </div>
+      ${getIconTemplate("{{::iconClass}}")}
+    </div>
+  </span>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
 
 // Criterion service
 aweApplication.factory('Criterion',
@@ -325,8 +362,7 @@ aweApplication.factory('Criterion',
            * Update icon class
            */
           function updateIconClass() {
-            let icon = "criterion-icon-" + component.scope.size;
-            icon += " form-icon fa fa-" + controller.icon;
+            let icon = "form-icon criterion-icon-" + component.scope.size;
             icon += ("style" in controller && controller.style.indexOf('no-label') === -1) ? " w-label" : "";
             component.scope.iconClass = icon;
           }

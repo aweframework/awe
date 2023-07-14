@@ -1,7 +1,7 @@
 #
 # Crowding configuration
 #
-project_id: '460074'
+project_id_env: CROWDIN_PROJECT_ID
 api_token_env: CROWDIN_PERSONAL_TOKEN
 preserve_hierarchy: true
 

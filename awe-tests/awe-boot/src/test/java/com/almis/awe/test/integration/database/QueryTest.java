@@ -1943,6 +1943,21 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
+  void testDatabaseComputedEvalService() throws Exception {
+    String queryName = "ComputedEvalService";
+    String variables = "\"prueba\":\"lalala\"";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"zero\":0,\"double\":1.2,\"numbers\":\"1,44\",\"integer\":1,\"text\":\"text\",\"label\":\"1-text-X-1.2-1.2-0\",\"id\":1,\"float\":1.2,\"empty\":null}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertQueryResultJson(queryName, result, 1);
+  }
+
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
   void testDatabaseComputedEvalVariableValue() throws Exception {
     String queryName = "ComputedEvalVariableValue";
     String variables = "";

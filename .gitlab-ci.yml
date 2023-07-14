@@ -581,6 +581,9 @@ Start a new release:
     - git checkout ./bin/changelog.sh
     - git add ./CHANGELOG.md
     - git commit -m "Generated CHANGELOG"
+    ## Generate new version of documentation if major or minor
+    - chmod +x ./bin/docusaurus.sh
+    - ./bin/docusaurus.sh
     ## Generate release
     - mvn -B gitflow:release -DskipTestProject=true -DpushRemote=true -DversionProperty=revision
   variables:

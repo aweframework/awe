@@ -30,8 +30,6 @@ import com.almis.awe.model.type.LaunchPhaseType;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
@@ -272,7 +270,6 @@ public class AweElements {
    * @return The ENUMERATED group corresponding the groupId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "enumerated", key = "#p0")
   public EnumeratedGroup getEnumerated(String groupId) throws AWException {
     try {
       // Clone from list
@@ -289,7 +286,6 @@ public class AweElements {
    * @return The query corresponding the queryId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "query", key = "#p0")
   public Query getQuery(String queryId) throws AWException {
     try {
       // Clone from list
@@ -306,7 +302,6 @@ public class AweElements {
    * @return The query corresponding the queryId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "queue", key = "#p0")
   public Queue getQueue(String queueId) throws AWException {
     try {
       // Clone from list
@@ -323,7 +318,6 @@ public class AweElements {
    * @return The MAINTAIN operation corresponding the maintainId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "maintain", key = "#p0")
   public Target getMaintain(String maintainId) throws AWException {
     try {
       // Clone from list
@@ -340,7 +334,6 @@ public class AweElements {
    * @return The email operation corresponding the mntId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "email", key = "#p0")
   public Email getEmail(String emailId) throws AWException {
     try {
       // Clone from list
@@ -357,7 +350,6 @@ public class AweElements {
    * @return The service corresponding the serviceId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "service", key = "#p0")
   public Service getService(String serviceId) throws AWException {
     try {
       // Clone from list
@@ -374,7 +366,6 @@ public class AweElements {
    * @return The action corresponding the actionId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "action", key = "#p0")
   public Action getAction(String actionId) throws AWException {
     try {
       // Clone from list
@@ -391,7 +382,6 @@ public class AweElements {
    * @return The screen corresponding the screenId
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "screen", key = "#p0")
   public Screen getScreen(String screenId) throws AWException {
     Screen screen;
     if (screenMap.containsKey(screenId) && screenMap.get(screenId).getId() != null) {
@@ -417,7 +407,6 @@ public class AweElements {
    * @param screen Screen
    * @return Screen
    */
-  @CachePut(value = "screen", key = "#p0.getId()")
   public Screen setScreen(@NonNull Screen screen) {
     // Store screen
     screenMap.put(screen.getId(), screen);
@@ -537,7 +526,6 @@ public class AweElements {
    * @return Menu object
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "menu", key = "#p0")
   public Menu getMenu(String menuId) throws AWException {
     try {
       // Clone from list
@@ -554,7 +542,6 @@ public class AweElements {
    * @param menu   Menu
    * @return Menu
    */
-  @CachePut(value = "menu", key = "#p0")
   public Menu setMenu(String menuId, Menu menu) {
     // Store menu in list
     menuList.put(menuId, menu);
@@ -596,7 +583,6 @@ public class AweElements {
    * @return Profile object
    * @throws AWException Clone not supported
    */
-  @Cacheable(value = "profile", key = "#p0")
   public Profile getProfile(String profile) throws AWException {
     try {
       // Clone from list
@@ -676,7 +662,6 @@ public class AweElements {
    * @param localeIdentifier Local identifier
    * @return Selected locale
    */
-  @Cacheable(value = "locale", key = "{ #p0, #p1 }")
   public String getLocaleWithLanguage(String localeIdentifier, String language) {
     String locale = localeIdentifier;
     Map<String, String> locales = localeList.get(language.toLowerCase());
@@ -697,7 +682,6 @@ public class AweElements {
    * @param tokenList        Token list to replace
    * @return Selected locale
    */
-  @Cacheable(value = "locale", key = "{ #p0, #p1, #p2.toString() }")
   public String getLocaleWithLanguage(String localeIdentifier, String language, Object... tokenList) {
     String locale = getLocaleWithLanguage(localeIdentifier, language);
     int index = 0;

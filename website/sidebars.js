@@ -113,6 +113,7 @@ module.exports = {
         'api/chart',
         'api/actions',
         'api/dependencies',
+        'api/icons',
       ],
     },
   ],

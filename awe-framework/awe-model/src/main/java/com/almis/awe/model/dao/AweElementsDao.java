@@ -10,7 +10,6 @@ import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AweElementsDao {
 
+  public static final String LOG_SECONDS_FORMAT = "s.SSS";
   private static final String OK = " - \u001B[1m\u001B[32mOK\u001B[0m";
   private static final String KO = " - \u001B[1m\u001B[90mNOT FOUND\u001B[0m";
   private static final String READING = "Reading ''{0}''{1} - elapsed time: {2}s";
@@ -38,8 +38,6 @@ public class AweElementsDao {
   private static final String ERROR_READING_XML = "\u001B[31mError reading XML - '{}'\u001B[0m";
   private static final String WARNING_FILE_TOO_BIG = "\u001B[93mWARNING! This file is very big and takes too much time to load: {}\u001B[0m";
   private static final int LONG_FILE_TIME_TO_LOAD = 5000;
-  public static final String LOG_SECONDS_FORMAT = "s.SSS";
-
   // Autowired services
   private final XStreamSerializer serializer;
   private final BaseConfigProperties baseConfigProperties;
@@ -92,11 +90,11 @@ public class AweElementsDao {
   public <T extends XMLFile, N extends XMLNode> String readModuleFile(Class<T> rootClass, Map<String, N> storage, String filePath) {
     Path logPath = Paths.get(filePath);
     long startTime = System.currentTimeMillis();
-    try {
-      // Unmarshall XML (if it exists)
-      Resource resource = new ClassPathResource(filePath);
-      if (resource.exists()) {
-        XMLFile fullXml = fromXML(rootClass, resource.getInputStream());
+    // Unmarshall XML (if it exists)
+    Resource resource = new ClassPathResource(filePath);
+    if (resource.exists()) {
+      try (InputStream inputStream = resource.getInputStream()) {
+        XMLFile fullXml = fromXML(rootClass, inputStream);
 
         // Read all XML elements
         readXmlElements(fullXml, storage);
@@ -106,9 +104,9 @@ public class AweElementsDao {
         }
         return MessageFormat.format(READING, logPath, OK,
           DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false));
+      } catch (IOException exc) {
+        log.error(ERROR_PARSING_XML, logPath, exc);
       }
-    } catch (IOException exc) {
-      log.error(ERROR_PARSING_XML, logPath, exc);
     }
 
     return MessageFormat.format(READING, logPath, KO,
@@ -139,7 +137,6 @@ public class AweElementsDao {
    * @param <T>      Class type
    * @return Xml file object
    */
-  @Cacheable(value = "xml", key = "{ #p0.toString(), #p1 }")
   public <T> T readXmlFile(Class<T> clazz, String basePath, String fileName) {
     List<String> messageList = new ArrayList<>();
     // For each module read XML files
@@ -186,11 +183,11 @@ public class AweElementsDao {
     T file = null;
     long startTime = System.currentTimeMillis();
     Path logFilePath = Paths.get(filePath);
-    try {
-      // Unmarshall XML
-      Resource resource = new ClassPathResource(filePath);
-      if (resource.exists()) {
-        InputStream resourceInputStream = resource.getInputStream();
+
+    // Unmarshall XML
+    Resource resource = new ClassPathResource(filePath);
+    if (resource.exists()) {
+      try (InputStream resourceInputStream = resource.getInputStream()) {
         file = fromXML(clazz, resourceInputStream);
         long elapsedTime = System.currentTimeMillis() - startTime;
         messageList.add(MessageFormat.format(READING, logFilePath, OK,
@@ -198,9 +195,9 @@ public class AweElementsDao {
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
           log.warn(WARNING_FILE_TOO_BIG, logFilePath);
         }
+      } catch (IOException exc) {
+        log.error(ERROR_PARSING_XML, logFilePath, exc);
       }
-    } catch (IOException exc) {
-      log.error(ERROR_PARSING_XML, logFilePath, exc);
     }
 
     return file;
@@ -263,8 +260,8 @@ public class AweElementsDao {
     long startTime = System.currentTimeMillis();
     Map<String, T> storage = new HashMap<>();
     if (resource.exists()) {
-      try {
-        T file = fromXML(clazz, resource.getInputStream());
+      try (InputStream inputStream = resource.getInputStream()) {
+        T file = fromXML(clazz, inputStream);
         String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
         storage.put(fileName, file);
         String logFilePath = Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())
@@ -286,7 +283,7 @@ public class AweElementsDao {
   /**
    * Read a locale file asynchronously
    *
-   * @param basePath   base path
+   * @param basePath base path
    */
   @Async("contextlessTaskExecutor")
   public Future<Map<String, String>> readLocaleModuleAsync(String basePath) {

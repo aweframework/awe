@@ -4,7 +4,14 @@ Scheduler AWE module logback configuration provided for import
 -->
 
 <included>
+  <!-- Conversion rules -->
+  <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+  <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+  <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+
+  <!-- Properties -->
   <springProperty name="EXECUTION_LOG_PATTERN" scope="context" source="awe.scheduler.execution-log-pattern" defaultValue="%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx"/>
+  <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : [execution=%X{execution} user=%X{user} database=%mdc{database} screen=%mdc{currentScreen}] %m%n%wEx}"/>
   <property name="APPLICATION_LOG_PATH" value="${APPLICATION_LOG_PATH:-/application}"/>
 
   <!-- SCHEDULER FILE Appender -->

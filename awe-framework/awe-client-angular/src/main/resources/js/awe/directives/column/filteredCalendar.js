@@ -1,5 +1,5 @@
 import {aweApplication} from "./../../awe";
-import "../../services/dateTime";
+import {calendarColumnTemplate} from "../../services/dateTime";
 
 // Column filtered calendar directive
 aweApplication.directive('aweColumnFilteredCalendar',
@@ -9,9 +9,7 @@ aweApplication.directive('aweColumnFilteredCalendar',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/date');
-        },
+        template: calendarColumnTemplate,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

@@ -1,4 +1,5 @@
 import {aweApplication} from "./../../awe";
+import {passwordColumnTemplate} from "../../services/text";
 
 // Column password directive
 aweApplication.directive('aweColumnPassword',
@@ -7,9 +8,7 @@ aweApplication.directive('aweColumnPassword',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/password');
-        },
+        template: passwordColumnTemplate,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

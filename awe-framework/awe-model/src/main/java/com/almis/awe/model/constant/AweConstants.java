@@ -77,6 +77,7 @@ public class AweConstants {
   public static final String TEMPLATE_E = "e";
   public static final String TEMPLATE_BREADCRUMBS = "breadcrumbs";
   public static final String TEMPLATE_LEVEL = "level";
+  public static final String TEMPLATE_ICON = "icon";
   public static final String TEMPLATE_CONTENT = "content";
   public static final String TEMPLATE_MESSAGE = MESSAGE;
 
@@ -199,6 +200,13 @@ public class AweConstants {
   public static final String SCREEN_RESTRICTION_QUERY = "getScreenRestrictions";
   public static final String SCREEN_DATABASE_RESTRICTION_QUERY = "getOptionRestrictionFromDatabase";
   public static final String APPLICATION_PARAMETERS_QUERY = "getApplicationParameters";
+  public static final String RESTRICTIONS_PER_OPTION_QUERY = "restrictions-per-option";
+  public static final String MENU_RESTRICTIONS = "menu-restrictions";
+  public static final String MENU_RESTRICTIONS_WITH_USER_PROFILE = "menu-restrictions-with-user-profile";
+
+  public static final String NEW_RESTRICTION = "new-restriction";
+  public static final String UPDATE_RESTRICTION = "update-restriction";
+  public static final String DELETE_RESTRICTION = "delete-restriction";
 
   // Enumerated
   public static final String ATTRIBUTE_LIST = "ScrCnfAtrTyp";

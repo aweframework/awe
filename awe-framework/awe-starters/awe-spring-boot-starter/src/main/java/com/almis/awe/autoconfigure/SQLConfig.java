@@ -2,6 +2,7 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.component.AweRoutingDataSource;
+import com.almis.awe.component.RoutingDatasourceInitializer;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.listener.SpringSQLCloseListener;
@@ -63,6 +64,18 @@ public class SQLConfig {
   @ConditionalOnProperty(name = "awe.database.multidatabase-enable", havingValue = "true")
   public DataSource aweRoutingDataSource(AweDatabaseContextHolder databaseContextHolder) {
     return new AweRoutingDataSource(databaseContextHolder);
+  }
+
+  /**
+   * RoutingDatasourceInitializer bean
+   *
+   * @param dataSource Abstract routing datasource
+   * @return RoutingDatasourceInitializer bean
+   */
+  @Bean
+  @ConditionalOnProperty(name = "awe.database.multidatabase-enable", havingValue = "true")
+  public RoutingDatasourceInitializer routingDatasourceInitializer(DataSource dataSource) {
+    return new RoutingDatasourceInitializer(dataSource);
   }
 
   /**

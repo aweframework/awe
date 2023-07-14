@@ -152,7 +152,7 @@ This component is very useful to show an styled text inside a grid with an icon.
 | value     | Value which will be sent to the server                                                                               |
 | label     | Text which will be shown. You can use [i18n](i18n-internationalization.md) files (locales)                           |
 | title     | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
-| icon      | Icon class. You can check all iconset at [FontAwesome](http://fontawesome.io/icons/)                                 |
+| icon      | Icon class. You can check all iconset at [icons](icons.md) screen                                                    |
 | unit      | Unit label (shown on the right of the cell). You can use [i18n](i18n-internationalization.md) files (locales)        |
 | style     | CSS class to format the contents                                                                                     |
 
@@ -167,7 +167,7 @@ This component is very useful to show an icon inside a grid. The **compound attr
 | value     | Value which will be sent to the server                                                                               |
 | label     | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
 | title     | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
-| icon      | Icon class. You can check all iconset at [FontAwesome](http://fontawesome.io/icons/)                                 |
+| icon      | Icon class. You can check all iconset at [icons](icons.md) screen                                                    |
 | style     | CSS class to format the contents                                                                                     |
 
 #### Formatted text column component
@@ -202,7 +202,7 @@ A button column is a component which allows to launch a set of `button-action` d
 | value     | Value which will be sent to the server                                                                                 |
 | label     | Text to show in the button. You can use [i18n](i18n-internationalization.md) files (locales)                           |
 | title     | Text to show when you move the mouse over the button. You can use [i18n](i18n-internationalization.md) files (locales) |
-| icon      | Icon class to show in the button. You can check all iconset at [FontAwesome](http://fontawesome.io/icons/)             |
+| icon      | Icon class to show in the button. You can check all iconsets at [icons](icons.md) screen                               |
 | style     | CSS class to format the contents                                                                                       |
 
 #### Progress column component
@@ -275,17 +275,17 @@ The data structure **needs** an **identifier per row**, and also a **parent iden
 
 ### Tree grid specific attributes
 
-| Attribute     | Type    | Description                       | Values                                                                             |
-|---------------|---------|-----------------------------------|------------------------------------------------------------------------------------|
-| treegrid      | Boolean | Set grid as treegrid              | Default value is `false`                                                           |
-| tree-id       | String  | Define identifier field           | Default value is `id`                                                              |
-| tree-parent   | String  | Define parent field               | Default value is `parent`                                                          |
-| tree-leaf     | String  | Define the 'is leaf' field        | Default value is `isLeaf`                                                          |
-| expand-column | String  | Name of the column to be expanded | Must be a column identifier                                                        |
-| initial-level | Integer | Initial level to expand           | Default value is `1`                                                               |
-| icon-expand   | String  | Icon of a branch without expand   | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
-| icon-collapse | String  | Icon of a expanded branch         | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
-| icon-leaf     | String  | Icon of a leaf branch             | **Note:** You can check all iconset at [FontAwesome](http://fontawesome.io/icons/) |
+| Attribute     | Type    | Description                       | Values                                                           |
+|---------------|---------|-----------------------------------|------------------------------------------------------------------|
+| treegrid      | Boolean | Set grid as treegrid              | Default value is `false`                                         |
+| tree-id       | String  | Define identifier field           | Default value is `id`                                            |
+| tree-parent   | String  | Define parent field               | Default value is `parent`                                        |
+| tree-leaf     | String  | Define the 'is leaf' field        | Default value is `isLeaf`                                        |
+| expand-column | String  | Name of the column to be expanded | Must be a column identifier                                      |
+| initial-level | Integer | Initial level to expand           | Default value is `1`                                             |
+| icon-expand   | String  | Icon of a branch without expand   | **Note:** You can check all iconsets at [icons](icons.md) screen |
+| icon-collapse | String  | Icon of a expanded branch         | **Note:** You can check all iconsets at [icons](icons.md) screen |
+| icon-leaf     | String  | Icon of a leaf branch             | **Note:** You can check all iconsets at [icons](icons.md) screen |
 
 ## Editable grid
 

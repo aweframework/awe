@@ -972,6 +972,30 @@ aweApplication.factory('AweUtilities',
           return endpoint;
         },
         /**
+         * Extract icon name and family
+         * @param icon
+         */
+        extractIcon: function(icon) {
+          if (icon) {
+            const iconValues = icon.split(":");
+            if (iconValues.length === 2) {
+              return {
+                name: iconValues[1],
+                family: iconValues[0]
+              }
+            } else {
+              return {
+                name: iconValues[0],
+                family: "fa"
+              }
+            }
+          }
+          return {
+            name: null,
+            family: null
+          };
+        },
+        /**
          * Retrieve row index
          * @param {array} values Grid model
          * @param {mixed} rowId Row identifier

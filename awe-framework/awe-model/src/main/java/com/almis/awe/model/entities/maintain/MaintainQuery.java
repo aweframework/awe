@@ -66,4 +66,15 @@ public abstract class MaintainQuery extends Query {
   public MaintainType getMaintainType() {
     return MaintainType.NONE;
   }
+
+  @Override
+  public String toString() {
+    return "MaintainQuery{" +
+            "type='" + getMaintainType() + '\'' +
+            ", auditTable='" + auditTable + '\'' +
+            ", batch=" + batch +
+            ", variableIndex=" + variableIndex +
+            ", operationId='" + operationId + '\'' +
+            '}';
+  }
 }

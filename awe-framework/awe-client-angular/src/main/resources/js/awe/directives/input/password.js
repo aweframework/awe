@@ -1,4 +1,5 @@
 import {aweApplication} from "./../../awe";
+import {passwordInputTemplate} from "../../services/text";
 
 // Password directive
 aweApplication.directive('aweInputPassword',
@@ -7,7 +8,7 @@ aweApplication.directive('aweInputPassword',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: () => $serverData.getAngularTemplateUrl('input/password'),
+        template: passwordInputTemplate,
         scope: {
           'criterionId': '@inputPasswordId'
         },

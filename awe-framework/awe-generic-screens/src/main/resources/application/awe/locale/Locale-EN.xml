@@ -13,6 +13,7 @@
   <locale name="BUTTON_ACTIVATE" value="Activate"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activate selected tasks"/>
   <locale name="BUTTON_ADD" value="Add"/>
+  <locale name="BUTTON_ALLOW" value="Grant access"/>
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Back"/>
   <locale name="BUTTON_CANCEL" value="Cancel"/>
@@ -39,8 +40,10 @@
   <locale name="BUTTON_PREVIOUS" value="Previous"/>
   <locale name="BUTTON_PRINT" value="Print"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Print selection"/>
+  <locale name="BUTTON_REMOVE" value="Unrestrict"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
+  <locale name="BUTTON_RESTRICT" value="Restrict access"/>
   <locale name="BUTTON_RUN" value="Start"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Save markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Save row"/>
@@ -766,6 +769,7 @@
   <locale name="HELP_SCREEN_TITLE_MDL_NEW" value="New module"/>
   <locale name="HELP_SCREEN_TITLE_MDL_UPD" value="Update module"/>
   <locale name="HELP_SCREEN_TITLE_MDL_VIW" value="View module"/>
+  <locale name="HELP_SCREEN_TITLE_MENU_ACCESS" value="Menu access restrictions screen"/>
   <locale name="HELP_SCREEN_TITLE_OPT" value="System options management"/>
   <locale name="HELP_SCREEN_TITLE_OPT_UPD" value="Update system option"/>
   <locale name="HELP_SCREEN_TITLE_OPT_VIW" value="View system option"/>
@@ -847,6 +851,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_TOOLS_COMMANDS" value="Commands"/>
   <locale name="MENU_TOOLS_DATABASE" value="Databases"/>
   <locale name="MENU_TOOLS_GROUPS" value="Mail groups"/>
+  <locale name="MENU_TOOLS_MENU_ACCESS" value="Menu restrictions"/>
   <locale name="MENU_TOOLS_MODULES" value="Modules"/>
   <locale name="MENU_TOOLS_OPTIONS" value="Applications options"/>
   <locale name="MENU_TOOLS_PROFILES" value="Profiles"/>
@@ -890,6 +895,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_ACC_ID" value="Account id"/>
   <locale name="PARAMETER_ACC_NAM" value="Account name"/>
   <locale name="PARAMETER_ACC_NUM" value="Account number"/>
+  <locale name="PARAMETER_ACCESS" value="Access"/>
   <locale name="PARAMETER_ACCESS_MODE" value="Access mode"/>
   <locale name="PARAMETER_ACRONYM" value="Acronym"/>
   <locale name="PARAMETER_ACTIVE" value="Active"/>
@@ -1025,6 +1031,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_REPEAT_EACH" value="Repeat each"/>
   <locale name="PARAMETER_REPORT" value="Report"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
+  <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Retype password"/>
   <locale name="PARAMETER_SCREEN" value="Screen"/>
   <locale name="PARAMETER_SCRIPT" value="Script"/>
@@ -1103,6 +1110,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Loading"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximize"/>
+  <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Message from {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>
   <locale name="SCREEN_TEXT_NAVIGATION" value="Navigation"/>
@@ -1161,6 +1169,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_MDL_NEW" value="New module"/>
   <locale name="SCREEN_TITLE_MDL_UPD" value="Update module"/>
   <locale name="SCREEN_TITLE_MDL_VIW" value="View module"/>
+  <locale name="SCREEN_TITLE_MENU_ACCESS" value="Menu restrictions"/>
   <locale name="SCREEN_TITLE_OPT" value="System options management"/>
   <locale name="SCREEN_TITLE_OPT_UPD" value="Update system option"/>
   <locale name="SCREEN_TITLE_OPT_VIW" value="View system option"/>

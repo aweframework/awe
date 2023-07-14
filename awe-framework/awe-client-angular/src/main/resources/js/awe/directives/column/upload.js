@@ -1,5 +1,5 @@
 import {aweApplication} from "./../../awe";
-import "../../services/uploader";
+import {uploaderColumnTemplate} from "../../services/uploader";
 
 // Column uploader directive
 aweApplication.directive('aweColumnUploader',
@@ -8,9 +8,7 @@ aweApplication.directive('aweColumnUploader',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/upload');
-        },
+        template: uploaderColumnTemplate,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

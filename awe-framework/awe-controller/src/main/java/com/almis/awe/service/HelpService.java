@@ -6,7 +6,6 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -40,7 +39,6 @@ public class HelpService extends ServiceConfig {
    *
    * @return Application help
    */
-  @Cacheable(value = "helpTemplates", key = "'default'")
   public String getApplicationHelp() {
     String help;
 
@@ -63,7 +61,6 @@ public class HelpService extends ServiceConfig {
    * @param optionId Option identifier
    * @return Option help
    */
-  @Cacheable(value = "helpTemplates", key = "#p0")
   public String getOptionHelp(String optionId) {
     String help;
 

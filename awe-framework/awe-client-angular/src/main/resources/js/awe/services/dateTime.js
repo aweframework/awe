@@ -2,8 +2,9 @@ import {aweApplication} from "./../awe";
 import "../directives/plugins/uiDate";
 import "../directives/plugins/uiTime";
 import moment from "moment";
+import {getIconTemplate} from "./component";
 
-export const calendarTemplate =
+export const calendarInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies"
      ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
@@ -14,7 +15,7 @@ export const calendarTemplate =
     </label>
     <div class="validator input-group input-append date {{::validatorGroup}} focus-target" ui-date="aweDateOptions"
          initialized="initialized" ng-readonly="controller.readonly">
-      <span ng-if="::controller.icon" ng-class="::iconClass" ng-cloak></span>
+      ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}"
              placeholder="{{controller.placeholder| translateMultiple}}" autoComplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
@@ -29,7 +30,25 @@ export const calendarTemplate =
   </div>
 </div>`;
 
-export const timeTemplate =
+export const calendarColumnTemplate =
+  `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
+  <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
+  <span class="edition">
+    <div class="input-group input-append date input-group-{{::size}} focus-target" ui-date="aweDateOptions" initialized="initialized">
+      <input type="text" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" placeholder="{{::component.controller.placeholder| translateMultiple}}"
+             ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-blur="blur()"
+             ng-model-options="{updateOn: 'change'}" ng-click="click($event)" ng-change="component.columnModelChange()"
+             ng-press-enter="saveRow($event)" autocomplete="off"/>
+      <span class="input-group-addon add-on">
+        <i class="fa fa-calendar"></i>
+      </span>
+    </div>
+    ${getIconTemplate("{{::iconClass}}")}
+  </span>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
+
+export const timeInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
@@ -38,7 +57,7 @@ export const timeTemplate =
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input-group input-append date {{::validatorGroup}} focus-target">
-      <span ng-if="::controller.icon" ng-class="::iconClass" ng-cloak></span>
+      ${getIconTemplate("{{::iconClass}}")}
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-model="model.selected"
              ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}" ng-press-enter="submit($event)"
@@ -49,6 +68,24 @@ export const timeTemplate =
       </span>
     </div>
   </div>
+</div>`;
+
+export const timeColumnTemplate =
+`<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
+  <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
+  <span class="edition">
+    <div class="input-group input-group-{{::size}} input-append date focus-target">
+      <input type="text" ui-time="aweTimeOptions" class="form-control add-on col-xs-12 {{classes}} {{component.model.values[0].style}}"
+             ng-press-enter="saveRow($event)" autocomplete="off" ng-model="component.model.selected" ng-disabled="component.controller.readonly"
+             ng-model-options="{updateOn: 'change'}" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-focus="focus()"
+             ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" initialized="initialized"/>
+      <span class="input-group-addon add-on">
+        <i class="fa fa-clock-o"></i>
+      </span>
+    </div>
+    ${getIconTemplate("{{::iconClass}}")}
+  </span>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
 // Date and time service

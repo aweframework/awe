@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : menu-access.xml
+    Created on : 5 de Junio de 2023
+    Author     : Pablo García
+    Description: Ventana mejorada de restricciones de menu
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_MENU_ACCESS" help="HELP_SCREEN_TITLE_MENU_ACCESS">
+  <tag source="buttons">
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButScr">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+  </tag>
+  <tag source="center" type="div" style="expand" expandible="vertical" id="ScreenCriteria">
+    <window label="SCREEN_TEXT_CRITERIA" icon="pencil-square-o" expandible="vertical">
+      <tag type="div" style="panel-body expand-maximize" id="AllCriteria">
+        <criteria label="PARAMETER_USER" component="suggest" id="selected-user" icon="user" server-action="data" target-action="UsrSug" style="col-xs-12 col-sm-6 col-lg-2">
+          <dependency target-type="set-editable" initial="true">
+            <dependency-element id="selected-profile" condition="eq" value="" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_PROFILE" component="suggest" id="selected-profile" icon="group" server-action="data" target-action="ProSug" style="col-xs-12 col-sm-6 col-lg-2">
+          <dependency target-type="set-editable" initial="true">
+            <dependency-element id="selected-user" condition="eq" value="" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_MODULE" component="select" id="selected-module" icon="list" initial-load="query" target-action="ModSel" optional="true" style="col-xs-12 col-sm-6 col-lg-2" />
+      </tag>
+    </window>
+    <window id="menu-options" style="expand" maximize="true" icon="bars" label="SCREEN_TEXT_MENU">
+      <grid id="menu-option-tree" treegrid="true" tree-id="option-id" tree-parent="parent-option" tree-leaf="option-is-leaf" expand-column="option" style="expand" server-action="data" target-action="menu-option-tree-by-module" autoload="true" load-all="true">
+        <column name="option-id" hidden="true"/>
+        <column name="parent-option" hidden="true"/>
+        <column name="option-is-leaf" hidden="true"/>
+        <column label="PARAMETER_OPTION" name="option-name" component="text-view" sortable="false" align="left" charlength="100"/>
+        <column label="PARAMETER_ACCESS" name="access" component="icon" sortable="false" align="center" charlength="8" style="fa-2x"/>
+        <column label="PARAMETER_RESTRICTION" name="restriction" component="icon" sortable="false" align="center" charlength="12" style="fa-2x"/>
+        <context-button label="BUTTON_ALLOW" icon="check-circle-o" id="CtxButGrdAlw">
+          <button-action type="server" server-action="maintain-silent" target-action="allowMenuOption" silent="true" />
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-button label="BUTTON_RESTRICT" icon="minus-circle" id="CtxButGrdRes">
+          <button-action type="server" server-action="maintain-silent" target-action="restrictMenuOption" silent="true" />
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator name="context-separator-remove"/>
+        <context-button label="BUTTON_REMOVE" icon="trash" id="CtxButGrdRmv">
+          <button-action type="server" server-action="maintain-silent" target-action="removeRestriction" silent="true" />
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="menu-option-tree" column="restriction" attribute="selectedRowValue" condition="ne" value="" />
+          </dependency>
+        </context-button>
+        <button label="BUTTON_ALLOW" icon="check-circle-o" id="ButGrdAlw">
+          <button-action type="server" server-action="maintain-silent" target-action="allowMenuOption" silent="true" />
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </button>
+        <button label="BUTTON_RESTRICT" icon="minus-circle" id="ButGrdRes">
+          <button-action type="server" server-action="maintain-silent" target-action="restrictMenuOption" silent="true" />
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </button>
+        <button label="BUTTON_REMOVE" icon="trash" id="ButGrdRmv">
+          <button-action type="server" server-action="maintain-silent" target-action="removeRestriction" silent="true" />
+          <button-action type="server" server-action="refresh-menu" silent="true"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="menu-option-tree" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="menu-option-tree" column="restriction" attribute="selectedRowValue" condition="ne" value="" />
+          </dependency>
+        </button>
+        <dependency type="or" initial="true">
+          <dependency-element id="selected-user"/>
+          <dependency-element id="selected-user" condition="eq" value=""/>
+          <dependency-element id="selected-profile"/>
+          <dependency-element id="selected-profile" condition="eq" value=""/>
+          <dependency-element id="selected-module"/>
+          <dependency-element id="selected-module" condition="eq" value=""/>
+          <dependency-action type="reset" target="menu-option-tree"/>
+          <dependency-action type="filter" target="menu-option-tree" />
+        </dependency>
+      </grid>
+    </window>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center"/>
+  </tag>
+</screen>

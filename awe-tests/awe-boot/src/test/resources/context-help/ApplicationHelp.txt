@@ -1,15 +1,15 @@
 <div id="help-content" class="help-content col-md-8 col-print-12" role="main">
   <div class="application-help">
-  <h1 id="MENU_TOOLS" class="help-snippet text-primary">
-    <i class="fa fa-wrench fa-lg fa-fw"></i>
+  <i role="icon" class="help-icon text-primary fa fa-wrench fa-2x fa-fw"></i>
+  <h1 id="MENU_TOOLS" class="help-snippet help-header text-primary">
     {{'MENU_TOOLS'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-sitemap fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -209,11 +209,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_MDL" class="help-snippet text-primary">
-    <i class="fa fa-puzzle-piece fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-puzzle-piece fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_MDL" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_MDL'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MDL"></p>
   </div>
@@ -433,11 +433,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_USR" class="help-snippet text-primary">
-    <i class="fa fa-user fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-user fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_USR" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_USR'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_USR"></p>
   </div>
@@ -715,11 +715,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_PRF" class="help-snippet text-primary">
-    <i class="fa fa-group fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-group fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_PRF" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_PRF'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_PRF"></p>
   </div>
@@ -943,11 +943,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_DBS" class="help-snippet text-primary">
-    <i class="fa fa-database fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-database fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_DBS" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_DBS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_DBS"></p>
   </div>
@@ -1183,11 +1183,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_THM" class="help-snippet text-primary">
-    <i class="fa fa-picture-o fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-picture-o fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_THM" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_THM'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_THM"></p>
   </div>
@@ -1383,11 +1383,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_EML_SRV" class="help-snippet text-primary">
-    <i class="fa fa-envelope fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-envelope fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_EML_SRV" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_EML_SRV'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_EML_SRV"></p>
   </div>
@@ -1601,11 +1601,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_QUE" class="help-snippet text-primary">
-    <i class="fa fa-exchange fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-exchange fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_QUE" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_QUE'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_QUE"></p>
   </div>
@@ -1837,11 +1837,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_AWEKEY" class="help-snippet text-primary">
-    <i class="fa fa-key fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-key fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_AWEKEY" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_AWEKEY'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_AWEKEY"></p>
   </div>
@@ -2051,11 +2051,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_APP_PARAMETERS" class="help-snippet text-primary">
-    <i class="fa fa-cogs fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-cogs fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_APP_PARAMETERS" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_APP_PARAMETERS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_APP_PARAMETERS"></p>
   </div>
@@ -2200,11 +2200,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_BROADCAST" class="help-snippet text-primary">
-    <i class="fa fa-rss fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-rss fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_BROADCAST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_BROADCAST'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_BROADCAST"></p>
   </div>
@@ -2251,11 +2251,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_LOG" class="help-snippet text-primary">
-    <i class="fa fa-file-text fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-file-text fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_LOG" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_LOG'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_LOG"></p>
   </div>
@@ -2360,11 +2360,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_SQL_EXTRACTOR" class="help-snippet text-primary">
-    <i class="fa fa-database fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-database fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_SQL_EXTRACTOR" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SQL_EXTRACTOR'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
@@ -2543,21 +2543,21 @@
         </div>
       </div>
     </div>
-  </div><h1 id="MENU_SETTINGS" class="help-snippet text-primary">
-    <i class="fa fa-cog fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-cog fa-2x fa-fw"></i>
+  <h1 id="MENU_SETTINGS" class="help-snippet help-header text-primary">
     {{'MENU_SETTINGS'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="MENU_TOOLS_SECURITY" class="help-snippet text-primary">
-    <i class="fa fa-unlock-alt fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-unlock-alt fa-2x fa-fw"></i>
+  <h2 id="MENU_TOOLS_SECURITY" class="help-snippet help-header text-primary">
     {{'MENU_TOOLS_SECURITY'| translateMultiple}}
   </h2>
-  <hr/>
-  <h3 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet text-primary">
-    <i class="fa fa-eye-slash fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SECURITY_SCREEN'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SECURITY_SCREEN"></p>
   </div>
@@ -2793,11 +2793,449 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_ENC" class="help-snippet text-primary">
-    <i class="fa fa-lock fa-lg fa-fw"></i>
-    {{'SCREEN_TITLE_ENC'| translateMultiple}}
+  </div><i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
+    {{'SCREEN_TITLE_SECURITY_SCREEN'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
+  <div class="help-snippet">
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SECURITY_SCREEN"></p>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_CONFIRM"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_CONFIRM_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i class="fa fa-table fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_MENU"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon fa fa-columns fa-fw"></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_OPTION"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_MODULE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="#"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i class="fa fa-table fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_RESTRICTIONS"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon fa fa-columns fa-fw"></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_USER"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_PROFILE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ACCESS_MODE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ACTIVE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon fa fa-youtube-play fa-fw"></i>
+          <span class="panel-title" translate-multiple="HELP_BUTTONS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="BUTTON_NEW"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="BUTTON_DELETE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_MENU_ACCESS" class="help-snippet help-header text-primary">
+    {{'SCREEN_TITLE_MENU_ACCESS'| translateMultiple}}
+  </h3>
+  <hr class="help-header-separator"/>
+  <div class="help-snippet">
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MENU_ACCESS"></p>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_USER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PROFILE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_MODULE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i class="fa fa-table fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_MENU"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon fa fa-columns fa-fw"></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_OPTION"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ACCESS"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_RESTRICTION"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon fa fa-youtube-play fa-fw"></i>
+          <span class="panel-title" translate-multiple="HELP_BUTTONS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="BUTTON_ALLOW"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="BUTTON_RESTRICT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="BUTTON_REMOVE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><i role="icon" class="help-icon text-primary fa fa-lock fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_ENC" class="help-snippet help-header text-primary">
+    {{'SCREEN_TITLE_ENC'| translateMultiple}}
+  </h2>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_ENC"></p>
   </div>
@@ -2862,11 +3300,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_SCR_CNF" class="help-snippet text-primary">
-    <i class="fa fa-laptop fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-laptop fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_SCR_CNF" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SCR_CNF'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SCR_CNF"></p>
   </div>
@@ -3104,21 +3542,21 @@
         </div>
       </div>
     </div>
-  </div><h1 id="MENU_TEST" class="help-snippet text-primary">
-    <i class="fa fa-flask fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-flask fa-2x fa-fw"></i>
+  <h1 id="MENU_TEST" class="help-snippet help-header text-primary">
     {{'MENU_TEST'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="MENU_TEST_CRITERIA" class="help-snippet text-primary">
-    <i class="fa fa-object-group fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-object-group fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_CRITERIA" class="help-snippet help-header text-primary">
     {{'MENU_TEST_CRITERIA'| translateMultiple}}
   </h2>
-  <hr/>
-  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-keyboard-o fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -3653,11 +4091,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-align-right fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -4197,11 +4635,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -4357,11 +4795,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_BUTTON_TEST" class="help-snippet text-primary">
-    <i class="fa fa-check fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-check fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_BUTTON_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_BUTTON_TEST'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_BUTTON_TEST"></p>
   </div>
@@ -4445,16 +4883,16 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_TEST_MATRIX" class="help-snippet text-primary">
-    <i class="fa fa-table fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_MATRIX" class="help-snippet help-header text-primary">
     {{'MENU_TEST_MATRIX'| translateMultiple}}
   </h2>
-  <hr/>
-  <h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet text-primary">
-    <i class="fa fa-list-alt fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-list-alt fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_MATRIX_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MATRIX_TEST"></p>
   </div>
@@ -5568,11 +6006,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="MENU_TEST_MATRIX_NUMBERS" class="help-snippet text-primary">
-    <i class="fa fa-list-ol fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-list-ol fa-2x fa-fw"></i>
+  <h3 id="MENU_TEST_MATRIX_NUMBERS" class="help-snippet help-header text-primary">
     {{'MENU_TEST_MATRIX_NUMBERS'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MATRIX_TEST"></p>
   </div>
@@ -5682,11 +6120,11 @@
         </table>
       </div>
     </div>
-  </div><h3 id="MENU_TEST_MATRIX_SUGGEST" class="help-snippet text-primary">
-    <i class="fa fa-list-ul fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-list-ul fa-2x fa-fw"></i>
+  <h3 id="MENU_TEST_MATRIX_SUGGEST" class="help-snippet help-header text-primary">
     {{'MENU_TEST_MATRIX_SUGGEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MATRIX_TEST"></p>
   </div>
@@ -5796,11 +6234,11 @@
         </table>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-list-alt fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-list-alt fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -5972,11 +6410,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet text-primary">
-    <i class="fa fa-table fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_MATRIX_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MATRIX_TEST"></p>
   </div>
@@ -6152,11 +6590,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_TREE_TEST" class="help-snippet text-primary">
-    <i class="fa fa-sitemap fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_TREE_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_TREE_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_TREE_TEST"></p>
   </div>
@@ -6336,16 +6774,16 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_TEST_CHARTS" class="help-snippet text-primary">
-    <i class="fa fa-area-chart fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-area-chart fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_CHARTS" class="help-snippet help-header text-primary">
     {{'MENU_TEST_CHARTS'| translateMultiple}}
   </h2>
-  <hr/>
-  <h3 id="SCREEN_TITLE_CHART_TEST" class="help-snippet text-primary">
-    <i class="fa fa-bar-chart-o fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-bar-chart-o fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_CHART_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CHART_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CHART_TEST"></p>
   </div>
@@ -6563,11 +7001,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_CHART_DYNAMIC_SERIES" class="help-snippet text-primary">
-    <i class="fa fa-line-chart fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-line-chart fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_CHART_DYNAMIC_SERIES" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CHART_DYNAMIC_SERIES'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CHART_DYNAMIC_SERIES"></p>
   </div>
@@ -6607,11 +7045,11 @@
       <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DYNAMIC_SERIES_CHART"></span>
       <span translate-multiple="HELP_CHART" class="text-xxs text-uppercase"></span>
     </h6>
-  </div><h3 id="SCREEN_TITLE_CHART_GRID_PRINT" class="help-snippet text-primary">
-    <i class="fa fa-file-text-o fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-file-text-o fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_CHART_GRID_PRINT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CHART_GRID_PRINT'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CHART_GRID_PRINT"></p>
   </div>
@@ -6784,11 +7222,11 @@
         </div>
       </div>
     </div>
-  </div><h3 id="SCREEN_TITLE_QUE" class="help-snippet text-primary">
-    <i class="fa fa-exchange fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-exchange fa-2x fa-fw"></i>
+  <h3 id="SCREEN_TITLE_QUE" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_QUE'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_QUE"></p>
   </div>
@@ -6986,16 +7424,16 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_TEST_LAYOUT" class="help-snippet text-primary">
-    <i class="fa fa-list-alt fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-list-alt fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_LAYOUT" class="help-snippet help-header text-primary">
     {{'MENU_TEST_LAYOUT'| translateMultiple}}
   </h2>
-  <hr/>
-  <h3 id="layout" class="help-snippet text-primary">
-    <i class="fa fa-th-large fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-th-large fa-2x fa-fw"></i>
+  <h3 id="layout" class="help-snippet help-header text-primary">
     {{'layout'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_layout"></p>
   </div>
@@ -7047,11 +7485,11 @@
       <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_PASS"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
-  </div><h3 id="layout" class="help-snippet text-primary">
-    <i class="fa fa-th-large fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-th-large fa-2x fa-fw"></i>
+  <h3 id="layout" class="help-snippet help-header text-primary">
     {{'layout'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_layout"></p>
   </div>
@@ -7315,16 +7753,16 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_TEST_BUTTON_MENU" class="help-snippet text-primary">
-    <i class="fa fa-th fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-th fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_BUTTON_MENU" class="help-snippet help-header text-primary">
     {{'MENU_TEST_BUTTON_MENU'| translateMultiple}}
   </h2>
-  <hr/>
-  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-flask fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary material-icons">science</i>
+  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -7859,16 +8297,1094 @@
         </div>
       </div>
     </div>
-  </div><h3 id="MENU_TEST_BUTTON_MENU_GROUP_1" class="help-snippet text-primary">
-    <i class="fa fa-keyboard-o fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary material-icons">toys</i>
+  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
+  </h3>
+  <hr class="help-header-separator"/>
+  <div class="help-snippet">
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_BACK"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_BACK_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_PRINT_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESET"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RESET_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_CONFIRM"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_CONFIRM_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_TEXT"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DATE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TIME"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TIME"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TIME_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_FILTERED_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_FILTERED_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_FILTERED_DATE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_COLOR"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_COLOR"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_COLOR_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_NUMBER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_NUMBER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_NUMBER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXTAREA"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXTAREA"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXTAREA_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_UPLOADER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_UPLOADER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_UPLOADER_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_MULTIPLE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_MULTIPLE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><i role="icon" class="help-icon text-primary material-icons">developer_board</i>
+  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
+  </h3>
+  <hr class="help-header-separator"/>
+  <div class="help-snippet">
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_BACK"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_BACK_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_PRINT_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESET"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RESET_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_CONFIRM"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_CONFIRM_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_TEXT"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DATE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TIME"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TIME"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TIME_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_FILTERED_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_FILTERED_DATE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_FILTERED_DATE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_COLOR"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_COLOR"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_COLOR_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_NUMBER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_NUMBER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_NUMBER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXTAREA"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXTAREA"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXTAREA_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_UPLOADER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_UPLOADER"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_UPLOADER_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT_MULTIPLE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_MULTIPLE"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SUGGEST_MULTIPLE_READONLY"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_3"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SELECT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NUMERIC"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-success text-semibold text-sm">
+      <i class="fa fa-pencil-square-o fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TEXT"></span>
+      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-light-gray text-semibold text-sm">
+            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
+          </h6>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i class="fa fa-pencil-square-o fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
+        </div>
+        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon fa fa-list-alt fa-fw"></i>
+        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
+  <h3 id="MENU_TEST_BUTTON_MENU_GROUP_1" class="help-snippet help-header text-primary">
     {{'MENU_TEST_BUTTON_MENU_GROUP_1'| translateMultiple}}
   </h3>
-  <hr/>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-keyboard-o fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary material-icons">keyboard</i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -8403,11 +9919,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-align-right fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -8947,11 +10463,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -9107,11 +10623,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -9267,16 +10783,16 @@
         </div>
       </div>
     </div>
-  </div><h3 id="MENU_TEST_BUTTON_MENU_GROUP_2" class="help-snippet text-primary">
-    <i class="fa fa-file-text-o fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-file-text-o fa-2x fa-fw"></i>
+  <h3 id="MENU_TEST_BUTTON_MENU_GROUP_2" class="help-snippet help-header text-primary">
     {{'MENU_TEST_BUTTON_MENU_GROUP_2'| translateMultiple}}
   </h3>
-  <hr/>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-keyboard-o fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -9811,11 +11327,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-align-right fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -10355,11 +11871,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -10515,11 +12031,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-table fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -11054,11 +12570,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-align-right fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -11598,11 +13114,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-sitemap fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -11758,15 +13274,16 @@
         </div>
       </div>
     </div>
-  </div><h3 id="MENU_TEST_BUTTON_MENU_GROUP_3" class="help-snippet text-primary">
+  </div>
+  <h3 id="MENU_TEST_BUTTON_MENU_GROUP_3" class="help-snippet help-header text-primary">
     {{'MENU_TEST_BUTTON_MENU_GROUP_3'| translateMultiple}}
   </h3>
-  <hr/>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-keyboard-o fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -12301,11 +13818,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet text-primary">
-    <i class="fa fa-align-right fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_CRITERIA_TEST"></p>
   </div>
@@ -12845,11 +14362,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -13005,11 +14522,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -13165,11 +14682,11 @@
         </div>
       </div>
     </div>
-  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet text-primary">
-    <i class="fa fa-refresh fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
+  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SIT"></p>
   </div>
@@ -13325,11 +14842,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_WIZARD" class="help-snippet text-primary">
-    <i class="fa fa-magic fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-magic fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_WIZARD" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_WIZARD'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_WIZARD"></p>
   </div>
@@ -13464,11 +14981,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_ACCORDION_TEST" class="help-snippet text-primary">
-    <i class="fa fa-bars fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-bars fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_ACCORDION_TEST" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_ACCORDION_TEST'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
@@ -13506,11 +15023,11 @@
     </h6>
   </div>
   <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-  </div><h2 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet text-primary">
-    <i class="fa fa-eye-slash fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SECURITY_SCREEN'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_SECURITY_SCREEN"></p>
   </div>
@@ -13764,11 +15281,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_TEST_PIVOT" class="help-snippet text-primary">
-    <i class="fa fa-table fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_PIVOT" class="help-snippet help-header text-primary">
     {{'MENU_TEST_PIVOT'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
@@ -13795,23 +15312,23 @@
       <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DATA"></span>
       <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     </h6>
-  </div><h2 id="MENU_TEST_FILEMANAGER" class="help-snippet text-primary">
-    <i class="fa fa-folder fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-folder fa-2x fa-fw"></i>
+  <h2 id="MENU_TEST_FILEMANAGER" class="help-snippet help-header text-primary">
     {{'MENU_TEST_FILEMANAGER'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
   </div>
-  <h1 id="MENU_SCHEDULER" class="help-snippet text-primary">
-    <i class="fa fa-clock-o fa-lg fa-fw"></i>
+  <i role="icon" class="help-icon text-primary fa fa-clock-o fa-2x fa-fw"></i>
+  <h1 id="MENU_SCHEDULER" class="help-snippet help-header text-primary">
     {{'MENU_SCHEDULER'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="MENU_SCHEDULER_MANAGEMENT" class="help-snippet text-primary">
-    <i class="fa fa-cogs fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-cogs fa-2x fa-fw"></i>
+  <h2 id="MENU_SCHEDULER_MANAGEMENT" class="help-snippet help-header text-primary">
     {{'MENU_SCHEDULER_MANAGEMENT'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_TASKS"></p>
   </div>
@@ -14121,11 +15638,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_SCHEDULER_TASKS" class="help-snippet text-primary">
-    <i class="fa fa-tasks fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-tasks fa-2x fa-fw"></i>
+  <h2 id="MENU_SCHEDULER_TASKS" class="help-snippet help-header text-primary">
     {{'MENU_SCHEDULER_TASKS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_TASKS"></p>
   </div>
@@ -14446,11 +15963,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_SCHEDULER_SERVERS" class="help-snippet text-primary">
-    <i class="fa fa-server fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-server fa-2x fa-fw"></i>
+  <h2 id="MENU_SCHEDULER_SERVERS" class="help-snippet help-header text-primary">
     {{'MENU_SCHEDULER_SERVERS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_SERVERS"></p>
   </div>
@@ -14660,11 +16177,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_SCHEDULER_CALENDARS" class="help-snippet text-primary">
-    <i class="fa fa-calendar fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-calendar fa-2x fa-fw"></i>
+  <h2 id="MENU_SCHEDULER_CALENDARS" class="help-snippet help-header text-primary">
     {{'MENU_SCHEDULER_CALENDARS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_CALENDAR"></p>
   </div>
@@ -14870,16 +16387,16 @@
         </div>
       </div>
     </div>
-  </div><h1 id="MENU_NOTIFIER" class="help-snippet text-primary">
-    <i class="fa fa-flash fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-flash fa-2x fa-fw"></i>
+  <h1 id="MENU_NOTIFIER" class="help-snippet help-header text-primary">
     {{'MENU_NOTIFIER'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="SCREEN_TITLE_SUBSCRIPTIONS" class="help-snippet text-primary">
-    <i class="fa fa-ticket fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-ticket fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_SUBSCRIPTIONS" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_SUBSCRIPTIONS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="SCREEN_HELP_SUBSCRIPTIONS"></p>
   </div>
@@ -15077,11 +16594,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_NOTIFICATIONS" class="help-snippet text-primary">
-    <i class="fa fa-bell fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-bell fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_NOTIFICATIONS" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_NOTIFICATIONS'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="SCREEN_HELP_NOTIFICATIONS"></p>
   </div>
@@ -15301,16 +16818,16 @@
         </div>
       </div>
     </div>
-  </div><h1 id="MENU_DEVELOPER" class="help-snippet text-primary">
-    <i class="fa fa-paint-brush fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-paint-brush fa-2x fa-fw"></i>
+  <h1 id="MENU_DEVELOPER" class="help-snippet help-header text-primary">
     {{'MENU_DEVELOPER'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="SCREEN_TITLE_MNG_PTH" class="help-snippet text-primary">
-    <i class="fa fa-terminal fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-terminal fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_MNG_PTH" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_MNG_PTH'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_MNG_PTH"></p>
   </div>
@@ -15357,11 +16874,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_MNG_LIT" class="help-snippet text-primary">
-    <i class="fa fa-language fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-language fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_MNG_LIT" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_MNG_LIT'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_MNG_LIT"></p>
   </div>
@@ -15611,16 +17128,16 @@
         </div>
       </div>
     </div>
-  </div><h1 id="MENU_HELP" class="help-snippet text-primary">
-    <i class="fa fa-question-circle fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-question-circle fa-2x fa-fw"></i>
+  <h1 id="MENU_HELP" class="help-snippet help-header text-primary">
     {{'MENU_HELP'| translateMultiple}}
   </h1>
-  <hr/>
-  <h2 id="MENU_USER_HELP" class="help-snippet text-primary">
-    <i class="fa fa-book fa-lg fa-fw"></i>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-book fa-2x fa-fw"></i>
+  <h2 id="MENU_USER_HELP" class="help-snippet help-header text-primary">
     {{'MENU_USER_HELP'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_MENU_USER_HELP"></p>
   </div>
@@ -15655,11 +17172,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_HELP_APPLICATION" class="help-snippet text-primary">
-    <i class="fa fa-question fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-question fa-2x fa-fw"></i>
+  <h2 id="MENU_HELP_APPLICATION" class="help-snippet help-header text-primary">
     {{'MENU_HELP_APPLICATION'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_MENU_HELP_APPLICATION"></p>
   </div>
@@ -15694,11 +17211,11 @@
         </div>
       </div>
     </div>
-  </div><h2 id="SCREEN_TITLE_APP_INF" class="help-snippet text-primary">
-    <i class="fa fa-info fa-lg fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary fa fa-info fa-2x fa-fw"></i>
+  <h2 id="SCREEN_TITLE_APP_INF" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_APP_INF'| translateMultiple}}
   </h2>
-  <hr/>
+  <hr class="help-header-separator"/>
   <div class="help-snippet">
     <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_TITLE_APP_INF"></p>
   </div>

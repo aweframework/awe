@@ -16,7 +16,6 @@ import com.almis.awe.model.entities.screen.component.TagList;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
@@ -71,7 +70,6 @@ public class TemplateService extends ServiceConfig {
    * @return Template
    * @throws AWException error generating template
    */
-  @Cacheable(value = "screenTemplates", key = "'default'")
   public String getTemplate() throws AWException {
 
     // Get screen from option
@@ -110,7 +108,6 @@ public class TemplateService extends ServiceConfig {
    * @return Screen template
    * @throws AWException Error generating breadcrumbs
    */
-  @Cacheable(value = "screenTemplates", key = "{ #p1, #p2 }")
   public String generateScreenTemplate(Screen screen, String view, String optionId) throws AWException {
     // Generate template from screen
     ST screenTemplate = screensTemplateGroup.createStringTemplate(screensTemplateGroup.rawGetTemplate(screen.getTemplate()));

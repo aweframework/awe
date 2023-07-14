@@ -1,5 +1,6 @@
 import {aweApplication} from "./../../awe";
 import "angular-bootstrap-colorpicker";
+import {templateColumnColor} from "../../services/criterion";
 
 // Add requirements
 aweApplication.requires.push("colorpicker.module");
@@ -11,9 +12,7 @@ aweApplication.directive('aweColumnColor', [
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: function () {
-        return serverData.getAngularTemplateUrl('column/color');
-      },
+      template: templateColumnColor,
       link: function (scope, elem, attrs) {
         // Create column, criterion and component
         let  column = new Column(attrs);

@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
-    <version>4.6.10</version>
+    <version>4.7.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

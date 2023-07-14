@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import "../../services/dateTime";
+import {aweApplication} from "./../../awe";
+import {timeInputTemplate} from "../../services/dateTime";
 
 // Time directive
 aweApplication.directive('aweInputTime',
@@ -8,9 +8,7 @@ aweApplication.directive('aweInputTime',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/time');
-        },
+        template: timeInputTemplate,
         scope: {
           'criterionId': '@inputTimeId'
         },

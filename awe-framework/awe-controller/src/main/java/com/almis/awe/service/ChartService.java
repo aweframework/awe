@@ -16,8 +16,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -113,14 +115,15 @@ public class ChartService extends ServiceConfig {
    * @throws AWException Error rendering chart
    */
   private String renderChartWithDatasourceMap(Chart chart, Map<String, DataList> datasourceMap) throws AWException {
+    String response = null;
     if (chart != null) {
       // Add data to chart model
       generateData(chart, datasourceMap);
 
       // Generate chart in server
-      return generateChartInServer(chart);
+      response = generateChartInServer(chart);
     }
-    return null;
+    return response;
   }
 
   /**
@@ -131,6 +134,7 @@ public class ChartService extends ServiceConfig {
    */
   private String generateChartInServer(Chart chart) throws AWException {
     RestTemplate restTemplate = getBean(RestTemplate.class);
+    restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
     // Generate parameters
     Map<String, Object> chartData = new HashMap<>();
