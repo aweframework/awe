@@ -740,6 +740,17 @@
     <variable id="variable" type="STRING" name="prueba"/>
   </query>
 
+  <query id="ComputedEvalService" service="testGetServiceDataForComputed">
+    <field id="integer" alias="integer"/>
+    <field id="text" alias="text"/>
+    <field id="empty" alias="empty"/>
+    <field id="float" alias="float"/>
+    <field id="double" alias="double"/>
+    <field id="zero" alias="zero"/>
+    <computed format="'[integer]' == '1' &amp;&amp; '[text]' == 'text' &amp;&amp; '[empty]' == 'X' &amp;&amp; '[float]' == '1.2' &amp;&amp; '[double]' == '1.2' ? '[integer]-[text]-[empty]-[float]-[double]-[zero]' : 0" eval="true" alias="label" nullValue="X"/>
+    <computed format="'[zero]' == '0' &amp;&amp; '[float]' != 'X' &amp;&amp; '[double]' != 'X' ? parseFloat('[float]')*parseFloat('[double]') : 0" eval="true" alias="numbers" nullValue="X" transform="NUMBER"/>
+  </query>
+
   <query id="ComputedEvalVariableValue">
     <table id="AweThm"/>
     <field id="Nam" alias="value"/>
