@@ -213,7 +213,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     // Add totalizators
     if (query.getTotalizeList() != null) {
       for (Totalize totalize : query.getTotalizeList()) {
-        TotalizeColumnProcessor totalizeProcessor = new TotalizeColumnProcessor(elements, numericService, encodeService);
+        TotalizeColumnProcessor totalizeProcessor = new TotalizeColumnProcessor(elements, numericService);
         totalizeProcessor.setFieldList(query.getSqlFieldList()).setTotalize(totalize);
         builder.addTotalize(totalizeProcessor);
       }

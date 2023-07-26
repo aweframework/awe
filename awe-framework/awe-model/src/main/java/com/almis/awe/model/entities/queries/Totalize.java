@@ -31,7 +31,7 @@ public class Totalize implements Copyable {
 
   private static final long serialVersionUID = -1703530186967387913L;
 
-  // Totalize function (SUM, AVG, MAX, MIN)
+  // Totalize function to apply to ALL fields (SUM, AVG, MAX, MIN)
   @XStreamAlias("function")
   @XStreamAsAttribute
   private String function;
