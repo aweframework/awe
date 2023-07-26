@@ -98,7 +98,7 @@
   <xs:element name="totalize-by" type="totalizeElementType" />
 
   <!-- Totalize Field Element -->
-  <xs:element name="totalize-field" type="totalizeElementType" />
+  <xs:element name="totalize-field" type="totalizeFieldType" />
 
   <!-- Group By Element -->
   <xs:element name="group-by" type="groupByType" />
@@ -321,6 +321,12 @@
   <!-- Totalize Element Type -->
   <xs:complexType name="totalizeElementType">
     <xs:attribute name="field" use="required" type="identifierType" />
+  </xs:complexType>
+
+  <!-- Totalize Element Type -->
+  <xs:complexType name="totalizeFieldType">
+    <xs:attribute name="field" use="required" type="identifierType" />
+    <xs:attribute name="function" type="aggregationFunctions" />
   </xs:complexType>
 
   <!-- Table Attributes -->
@@ -589,6 +595,7 @@
       <xs:enumeration value="MINUTE" />
       <xs:enumeration value="SECOND" />
       <xs:enumeration value="TRIM" />
+      <xs:enumeration value="LAG" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -603,7 +610,6 @@
       <xs:enumeration value="SUM" />
       <xs:enumeration value="FIRST_VALUE" />
       <xs:enumeration value="LAST_VALUE" />
-      <xs:enumeration value="LAG" />
     </xs:restriction>
   </xs:simpleType>
 

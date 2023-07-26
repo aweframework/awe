@@ -3,9 +3,14 @@ package com.almis.awe.model.entities.queries;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Optional;
 
 /**
  * SqlField Class
@@ -90,11 +95,7 @@ public abstract class SqlField extends OutputField {
 
   @Override
   public String getIdentifier() {
-    String identifier = super.getIdentifier();
-    if (identifier == null && id != null) {
-      identifier = id;
-    }
-    return identifier;
+    return Optional.ofNullable(getAlias()).orElse(getId());
   }
 
   /**

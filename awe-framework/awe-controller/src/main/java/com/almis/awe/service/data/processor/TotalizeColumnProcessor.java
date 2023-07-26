@@ -8,14 +8,12 @@ import com.almis.awe.model.entities.queries.SqlField;
 import com.almis.awe.model.entities.queries.Totalize;
 import com.almis.awe.model.entities.queries.TotalizeBy;
 import com.almis.awe.model.entities.queries.TotalizeField;
-import com.almis.awe.service.EncodeService;
+import com.almis.awe.model.type.TotalizeFunctionType;
 import com.almis.awe.service.NumericService;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * TransformCellProcessor class
@@ -23,25 +21,23 @@ import java.util.Optional;
 public class TotalizeColumnProcessor implements ColumnProcessor {
   Map<String, CellData> totalizeValues = null;
   Map<String, String> totalizeKeys = null;
+  Map<String, Set<String>> previousValues = null;
   List<SqlField> fieldList = null;
   private Totalize totalize;
 
   // Autowired services
   private final AweElements elements;
   private final NumericService numericService;
-  private final EncodeService encodeService;
 
   /**
    * Totalize column processor constructor
    *
    * @param elements       AWE elements
    * @param numericService Numeric service
-   * @param encodeService  Encode service
    */
-  public TotalizeColumnProcessor(AweElements elements, NumericService numericService, EncodeService encodeService) {
+  public TotalizeColumnProcessor(AweElements elements, NumericService numericService) {
     this.elements = elements;
     this.numericService = numericService;
-    this.encodeService = encodeService;
   }
 
   /**
@@ -77,6 +73,11 @@ public class TotalizeColumnProcessor implements ColumnProcessor {
     // If totalizeKeys is null, generate it
     if (totalizeKeys == null) {
       totalizeKeys = new HashMap<>();
+    }
+
+    // Generate previous values if not defined
+    if (previousValues == null) {
+      previousValues = new HashMap<>();
     }
 
     // Check totalizeBy fields
@@ -124,25 +125,25 @@ public class TotalizeColumnProcessor implements ColumnProcessor {
     Map<String, CellData> totalizeRow = new HashMap<>();
 
     for (SqlField field : fieldList) {
-      String columnIdentifier;
-      String totalizeIdentifier = "-" + totalize.getFunction();
+      TotalizeField totalizeField = totalize.getTotalizeFieldList().stream()
+        .filter(t -> t.getField().equalsIgnoreCase(field.getIdentifier()))
+        .findFirst()
+        .orElse(new TotalizeField());
       CellData cell;
 
-      TransformCellProcessor transformProcessor = new TransformCellProcessor(elements, field, numericService, encodeService);
-
-      columnIdentifier = transformProcessor.getColumnIdentifier();
-      totalizeIdentifier = columnIdentifier + totalizeIdentifier;
+      String totalizeIdentifier = getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType
+        .valueOf(Optional.ofNullable(totalizeField.getFunction())
+          .orElse(totalize.getFunction())));
 
       // Get totalize values
       if (totalizeValues.containsKey(totalizeIdentifier)) {
         // Format output data
         cell = totalizeValues.get(totalizeIdentifier);
-
       } else {
         cell = new CellData();
       }
 
-      totalizeRow.put(columnIdentifier, cell);
+      totalizeRow.put(field.getIdentifier(), cell);
     }
     totalizeValues.clear();
     return totalizeRow;
@@ -222,21 +223,34 @@ public class TotalizeColumnProcessor implements ColumnProcessor {
    * @param totalizeField Totalize field
    */
   private void calculateTotalizedRow(Map<String, CellData> row, TotalizeField totalizeField) {
+    // Check previous values
+    previousValues.computeIfAbsent(totalizeField.getField(), k -> new HashSet<>());
+
     // Big decimal treatment. Choose number type and cast to BigDecimal
     CellData field = Optional.ofNullable(row.get(totalizeField.getField())).orElse(new CellData());
     double doubleValue = fixDoubleValue(field.getDoubleValue(), field.getStringValue());
+    String stringValue = field.getStringValue();
 
-    int cntVal = Optional.ofNullable(getTotalsField(totalizeField, "CNT").getIntegerValue()).orElse(0) + 1;
-    double totVal = Optional.ofNullable(getTotalsField(totalizeField, "SUM").getDoubleValue()).orElse(0.0) + doubleValue;
-    double maxVal = Math.max(Optional.ofNullable(getTotalsField(totalizeField, "MAX").getDoubleValue()).orElse(doubleValue), doubleValue);
-    double minVal = Math.min(Optional.ofNullable(getTotalsField(totalizeField, "MIN").getDoubleValue()).orElse(doubleValue), doubleValue);
+    int cntVal = Optional.ofNullable(getTotalsField(totalizeField, TotalizeFunctionType.CNT).getIntegerValue()).orElse(0) + 1;
+    int cntDistinctVal = Optional.ofNullable(getTotalsField(totalizeField, TotalizeFunctionType.CNT_DISTINCT).getIntegerValue()).orElse(0) +
+      Optional.of(previousValues.get(totalizeField.getField())).filter(s -> s.contains(stringValue.toUpperCase())).map(s -> 0).orElse(1);
+    double totVal = Optional.ofNullable(getTotalsField(totalizeField, TotalizeFunctionType.SUM).getDoubleValue()).orElse(0.0) + doubleValue;
+    double maxVal = Math.max(Optional.ofNullable(getTotalsField(totalizeField, TotalizeFunctionType.MAX).getDoubleValue()).orElse(doubleValue), doubleValue);
+    double minVal = Math.min(Optional.ofNullable(getTotalsField(totalizeField, TotalizeFunctionType.MIN).getDoubleValue()).orElse(doubleValue), doubleValue);
+    String firstVal = Optional.ofNullable(getTotalsField(totalizeField, TotalizeFunctionType.FIRST_VALUE).getStringValue()).filter(StringUtils::isNotBlank).orElse(stringValue);
 
     // Put value on list
-    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "SUM"), new CellData(totVal));
-    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "AVG"), new CellData(Math.ceil(totVal / cntVal)));
-    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "MAX"), new CellData(maxVal));
-    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "MIN"), new CellData(minVal));
-    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, "CNT"), new CellData(cntVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.SUM), new CellData(totVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.AVG), new CellData(Math.ceil(totVal / cntVal)));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.MAX), new CellData(maxVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.MIN), new CellData(minVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.CNT), new CellData(cntVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.CNT_DISTINCT), new CellData(cntDistinctVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.FIRST_VALUE), new CellData(firstVal));
+    totalizeValues.put(getTotalsFieldIdentifier(totalizeField, TotalizeFunctionType.LAST_VALUE), new CellData(stringValue));
+
+    // Store previous values
+    previousValues.get(totalizeField.getField()).add(stringValue);
   }
 
   /**
@@ -246,7 +260,7 @@ public class TotalizeColumnProcessor implements ColumnProcessor {
    * @param operation Operation
    * @return Totals field value
    */
-  private CellData getTotalsField(TotalizeField field, String operation) {
+  private CellData getTotalsField(TotalizeField field, TotalizeFunctionType operation) {
     return Optional.ofNullable(totalizeValues.get(getTotalsFieldIdentifier(field, operation))).orElse(new CellData());
   }
 
@@ -257,8 +271,8 @@ public class TotalizeColumnProcessor implements ColumnProcessor {
    * @param operation Operation
    * @return Field identifier
    */
-  private String getTotalsFieldIdentifier(TotalizeField field, String operation) {
-    return String.format("%s-%s", field.getField(), operation);
+  private String getTotalsFieldIdentifier(TotalizeField field, TotalizeFunctionType operation) {
+    return String.format("%s-%s", field.getField(), operation.toString());
   }
 
   /**

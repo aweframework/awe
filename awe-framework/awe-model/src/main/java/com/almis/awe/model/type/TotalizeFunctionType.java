@@ -13,5 +13,8 @@ public enum TotalizeFunctionType {
   AVG,
   MAX,
   MIN,
-  CNT
+  CNT,
+  CNT_DISTINCT,
+  FIRST_VALUE,
+  LAST_VALUE
 }

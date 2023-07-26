@@ -821,21 +821,32 @@ The totalize structure is the next one:
 
 The *totalize* element has the following attributes:
 
-| Attribute |     Use      |  Type   | Description                                                         | Values                                                       |
-|-----------|:------------:|:-------:|---------------------------------------------------------------------|--------------------------------------------------------------|
-| function  | **Required** | String  | Function used to generate the total                                 | The possible values are `AVG`, `CNT`, `MAX`, `MIN` or `SUM`) |
-| label     | **Required** | String  | Label of the text to appear on `totalizer-field` in totalized rows  |                                                              |
-| field     | **Required** | String  | Field where the totalizer label is going to be shown                |                                                              |
-| style     | **Required** | String  | Is the css style to set in grid wiget                               | The possible values are `TOTAL` or `SUBTOTAL`                |
+| Attribute |     Use      |  Type   | Description                                                         | Values                                                                                          |
+|-----------|:------------:|:-------:|---------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| function  | **Required** | String  | Function used to generate the total                                 | The possible values are defined on [aggregation functions](#aggregation-functions-for-totalize) |
+| label     | **Required** | String  | Label of the text to appear on `totalizer-field` in totalized rows  |                                                                                                 |
+| field     | **Required** | String  | Field where the totalizer label is going to be shown                |                                                                                                 |
+| style     | **Required** | String  | Is the css style to set in grid wiget                               | The possible values are `TOTAL` or `SUBTOTAL`                                                   |
 
 Totalize element has the following elements:
 
-| Element        |      Use      | Multiples instances | Description                                                               |
-|----------------|:-------------:|:-------------------:|---------------------------------------------------------------------------|
-| totalize-field | **Required**  |         Yes         | Has `field` attribute to set the field alias to apply the totalization    |
-| totalize-by    | **Required**  |         Yes         | Has `field` attribute to set the field alias to group in the totalization |
+| Element        |      Use      | Multiples instances | Description                                                                                                                                                                         |
+|----------------|:-------------:|:-------------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| totalize-field | **Required**  |         Yes         | Has `field` attribute to set the field alias to apply the totalization                                                                                                              |
+| totalize-by    | **Required**  |         Yes         | Has `field` attribute to set the field alias to group in the totalization and `function` attribute to define a specific [aggregation function](#aggregation-functions-for-totalize) |
 
-##### Totalize examples
+#### Aggregation functions for totalize
+
+- `AVG`: Values average
+- `CNT`: Counts values
+- `CNT_DISTINCT`: Counts distinct values
+- `MAX`: Max value
+- `MIN`: Min value
+- `SUM`: Sum values
+- `FIRST_VALUE`: First value
+- `LAST_VALUE`: Last value
+
+#### Totalize examples
 
 ```xml
 <!-- Test matrix with totalizer -->
