@@ -13,6 +13,7 @@
   <locale name="BUTTON_ACTIVATE" value="Activar"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activar tareas seleccionadas"/>
   <locale name="BUTTON_ADD" value="Agregar"/>
+  <locale name="BUTTON_ADD_FAVOURITE" value="Añadir pantalla a favoritos"/>
   <locale name="BUTTON_ALLOW" value="Permitir acceso"/>
   <locale name="BUTTON_AUDIT" value="Auditoría"/>
   <locale name="BUTTON_BACK" value="Volver"/>
@@ -41,6 +42,7 @@
   <locale name="BUTTON_PRINT" value="Imprimir"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimir selección"/>
   <locale name="BUTTON_REMOVE" value="Eliminar restricción"/>
+  <locale name="BUTTON_REMOVE_FAVOURITE" value="Eliminar pantalla de favoritos"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Restablecer 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restringir acceso"/>
@@ -825,6 +827,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_BROADCAST" value="Envío de eventos"/>
   <locale name="MENU_CONFIG" value="Configuración"/>
   <locale name="MENU_DEVELOPER" value="Desarrollador"/>
+  <locale name="MENU_FAVOURITES" value="Favoritos"/>
   <locale name="MENU_HELP" value="Ayuda"/>
   <locale name="MENU_HELP_APPLICATION" value="Ayuda aplicación"/>
   <locale name="MENU_LANGUAGES" value="Traducciones"/>

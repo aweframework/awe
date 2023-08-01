@@ -238,6 +238,7 @@
       <service-parameter type="STRING" name="taglist" />
     </java>
   </service>
+  <!-- 2fa -->
   <service id="qr-code">
     <java classname="com.almis.awe.service.TotpService" method="getQRCodeList">
       <service-parameter type="BOOLEAN" name="generate" />
@@ -249,6 +250,19 @@
   <service id="update-2fa-status">
     <java classname="com.almis.awe.service.TotpService" method="update2faStatus">
       <service-parameter type="INTEGER" name="enable" />
+    </java>
+  </service>
+  <!-- Favourites -->
+  <service id="clickFavourite">
+    <java classname="com.almis.awe.service.FavouriteService" method="clickFavourite">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="checkFavourites">
+    <java classname="com.almis.awe.service.FavouriteService" method="checkFavourites">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="option" />
     </java>
   </service>
 </services>

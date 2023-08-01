@@ -1461,4 +1461,46 @@
     </update>
   </target>
 
+  <!--
+  Favourites
+  -->
+
+  <target name="clickFavourite">
+    <serve service="clickFavourite">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="option" type="STRING" name="currentOption"/>
+    </serve>
+  </target>
+
+  <target name="checkFavourites">
+    <serve service="checkFavourites">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="option" type="STRING" name="currentOption"/>
+    </serve>
+  </target>
+
+  <target name="addToFavourites">
+    <insert>
+      <table id="AweUsrFav" />
+      <field id="IdeFav" query="nextIdForFavourites"/>
+      <field id="Ope" variable="user" />
+      <field id="Opt" variable="option" />
+      <field id="Ord" query="nextOrderForUser" />
+      <variable id="user" type="STRING" name="user" />
+      <variable id="option" type="STRING" name="option" />
+    </insert>
+  </target>
+
+  <target name="removeFromFavourites">
+    <delete>
+      <table id="AweUsrFav" />
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user"/>
+        <filter left-field="Opt" condition="eq" right-variable="option"/>
+      </where>
+      <variable id="user" type="STRING" name="user" />
+      <variable id="option" type="STRING" name="option" />
+    </delete>
+  </target>
+
 </maintain>

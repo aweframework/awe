@@ -48,7 +48,6 @@ public class MaintainService extends ServiceConfig {
 
   // Autowired services
   private final MaintainLauncher maintainLauncher;
-  private final AccessService accessService;
   private final QueryUtil queryUtil;
   private final DatabaseConfigProperties databaseConfigProperties;
 
@@ -57,13 +56,11 @@ public class MaintainService extends ServiceConfig {
    * Autowired constructor
    *
    * @param maintainLauncher         Maintain launcher
-   * @param accessService            Access service
    * @param queryUtil                Query utilities
    * @param databaseConfigProperties Database  configuration properties
    */
-  public MaintainService(MaintainLauncher maintainLauncher, AccessService accessService, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
+  public MaintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
     this.maintainLauncher = maintainLauncher;
-    this.accessService = accessService;
     this.queryUtil = queryUtil;
     this.databaseConfigProperties = databaseConfigProperties;
   }
@@ -410,7 +407,7 @@ public class MaintainService extends ServiceConfig {
         maintain = getElements().getMaintain(maintainId).copy();
 
         // If query is private, check security
-        if (checkAvailable && !maintain.isPublic() && !accessService.isAuthenticated()) {
+        if (checkAvailable && !maintain.isPublic() && !getSession().isAuthenticated()) {
           throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
         }
       } else {
@@ -606,7 +603,7 @@ public class MaintainService extends ServiceConfig {
    * @return List of maintain query
    * @throws AWException Error extracting query list
    */
-  private List<MaintainQuery> extractQueryList(Multiple maintain) throws AWException {
+  private List<MaintainQuery> extractQueryList(Multiple maintain) {
 
     // Variable initialization
     List<MaintainQuery> queryList = new ArrayList<>();
@@ -614,52 +611,47 @@ public class MaintainService extends ServiceConfig {
     String typ;
     String rowTypIde = maintain.getGrid() + "-RowTyp";
 
-    try {
-      ArrayNode rowTypeList = (ArrayNode) getRequest().getParameter(rowTypIde);
+    ArrayNode rowTypeList = (ArrayNode) getRequest().getParameter(rowTypIde);
 
-      // Generate
-      for (int i = 0; i < rowTypeList.size(); i++) {
-        // Get Parameters
-        typ = rowTypeList.get(i).asText();
-        MaintainQuery query;
+    // Generate
+    for (int i = 0; i < rowTypeList.size(); i++) {
+      // Get Parameters
+      typ = rowTypeList.get(i).asText();
+      MaintainQuery query;
 
-        switch (RowType.valueOf(typ)) {
-          case UPDATE:
-            // Add an update target
-            query = new Update();
-            addFields(maintain, query, false, true);
-            addFilters(maintain, query);
-            break;
-          case DELETE:
-            // Add a delete target
-            query = new Delete();
-            addFields(maintain, query, false, false);
-            addFilters(maintain, query);
-            break;
-          case INSERT:
-            // Add an insert target
-            query = new Insert();
-            addFields(maintain, query, true, true);
-            break;
-          default:
-            continue;
-        }
-
-        // Add generic fields
-        addTables(maintain, query);
-        addVariables(maintain, query);
-
-        // Add attributes to query
-        query.setVariableIndex(i);
-        query.setLabel(maintain.getLabel());
-        query.setAuditTable(maintain.getAuditTable());
-
-        // Add maintain query to query list
-        queryList.add(query);
+      switch (RowType.valueOf(typ)) {
+        case UPDATE:
+          // Add an update target
+          query = new Update();
+          addFields(maintain, query, false, true);
+          addFilters(maintain, query);
+          break;
+        case DELETE:
+          // Add a delete target
+          query = new Delete();
+          addFields(maintain, query, false, false);
+          addFilters(maintain, query);
+          break;
+        case INSERT:
+          // Add an insert target
+          query = new Insert();
+          addFields(maintain, query, true, true);
+          break;
+        default:
+          continue;
       }
-    } catch (AWException exc) {
-      log.error(getLocale("ERROR_TITLE_MAINTAIN_MULTIPLE"), exc);
-      throw exc;
+
+      // Add generic fields
+      addTables(maintain, query);
+      addVariables(maintain, query);
+
+      // Add attributes to query
+      query.setVariableIndex(i);
+      query.setLabel(maintain.getLabel());
+      query.setAuditTable(maintain.getAuditTable());
+
+      // Add maintain query to query list
+      queryList.add(query);
     }
 
     return queryList;
@@ -696,7 +688,7 @@ public class MaintainService extends ServiceConfig {
    * @param addKeys       Add keys
    * @param addNonKeys    Add non keys
    */
-  private void addFields(Multiple origin, MaintainQuery maintainQuery, boolean addKeys, boolean addNonKeys) throws AWException {
+  private void addFields(Multiple origin, MaintainQuery maintainQuery, boolean addKeys, boolean addNonKeys) {
 
     // Field definition
     List<SqlField> fieldList = new ArrayList<>();
@@ -781,7 +773,7 @@ public class MaintainService extends ServiceConfig {
    * @param origin        Maintain multiple
    * @param maintainQuery Maintain query
    */
-  private void addVariables(Multiple origin, MaintainQuery maintainQuery) throws AWException {
+  private void addVariables(Multiple origin, MaintainQuery maintainQuery) {
     // Set field list to query
     maintainQuery.setVariableDefinitionList(ListUtil.copyList(origin.getVariableDefinitionList()));
   }

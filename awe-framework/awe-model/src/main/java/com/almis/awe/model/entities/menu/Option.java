@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -171,6 +172,17 @@ public class Option extends AbstractAction {
   }
 
   /**
+   * Retrieve option id
+   *
+   * @return Option id
+   */
+  @JsonGetter("id")
+  @Override
+  public String getId() {
+    return Optional.ofNullable(super.getId()).orElse(getName());
+  }
+
+  /**
    * Search an initial option by screen name
    *
    * @param screen Screen name
@@ -216,6 +228,28 @@ public class Option extends AbstractAction {
       }
     }
     return found;
+  }
+
+  /**
+   * Search an initial option by name
+   *
+   * @param optionName Option name
+   * @return Option found
+   */
+  @JsonIgnore
+  public List<Option> getOptionsByName(String optionName) {
+    // Found option
+    List<Option> options = new ArrayList<>();
+    if (optionName.equalsIgnoreCase(getName())) {
+      options.add(this);
+    }
+
+    // Search in child options
+    options.addAll(getOptions().stream()
+      .flatMap(option -> option.getOptionsByName(optionName).stream())
+      .collect(Collectors.toList()));
+
+    return options;
   }
 
   /**
