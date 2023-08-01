@@ -264,6 +264,14 @@ CREATE TABLE AweKey
     Act    number(5) default 1           not NULL  --- Active (1) or not (0)
 );
 
+CREATE TABLE AweUsrFav
+(
+    IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier
+    Ope varchar2(20) NOT NULL,                                         --  User id
+    Opt varchar2(100) NOT NULL,                                        --  Option name
+    Ord number(5) DEFAULT 0                                            --  Option position
+);
+
 --------------------------------------------------------
 --  DDL for Historic Tables
 --  Same fields as plain tables but with 3 key audit fields:
@@ -480,6 +488,8 @@ CREATE TABLE HISAweQue
     Act       number(5) DEFAULT 1
 );
 CREATE INDEX HISAweQueI1 ON HISAweQue (HISope, HISdat, HISact);
+
+
 
 --------------------------------------------------------
 --  DDL for CONSTRAINTS

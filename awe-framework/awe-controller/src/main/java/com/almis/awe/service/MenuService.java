@@ -10,6 +10,7 @@ import com.almis.awe.model.builder.MenuScreenBuilder;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.Favourite;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.access.Profile;
@@ -35,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -44,12 +46,12 @@ import static com.almis.awe.model.constant.AweConstants.*;
 @Slf4j
 public class MenuService extends ServiceConfig {
 
-  private static final String ERROR_TITLE_SCREEN_NOT_DEFINED = "ERROR_TITLE_SCREEN_NOT_DEFINED";
   public static final String OPTION = "option";
   public static final String RESTRICTION = "restriction";
   public static final String ACCESS = "access";
   public static final String TEXT_SUCCESS = "text-success";
   public static final String PROFILE = "profile";
+  private static final String ERROR_TITLE_SCREEN_NOT_DEFINED = "ERROR_TITLE_SCREEN_NOT_DEFINED";
   // Autowired services
   private final QueryService queryService;
   private final ScreenRestrictionGenerator screenRestrictionGenerator;
@@ -57,6 +59,7 @@ public class MenuService extends ServiceConfig {
   private final InitialLoadDao initialLoadDao;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
+  private final FavouriteService favouriteService;
 
   /**
    * Autowired constructor
@@ -67,16 +70,18 @@ public class MenuService extends ServiceConfig {
    * @param initialLoadDao             Initial load service
    * @param baseConfigProperties       Base configuration properties
    * @param securityConfigProperties   Security configuration properties
+   * @param favouriteService           Favourites service
    */
   public MenuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
                      ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                     SecurityConfigProperties securityConfigProperties) {
+                     SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService) {
     this.queryService = queryService;
     this.screenRestrictionGenerator = screenRestrictionGenerator;
     this.screenComponentGenerator = screenComponentGenerator;
     this.initialLoadDao = initialLoadDao;
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
+    this.favouriteService = favouriteService;
   }
 
   /**
@@ -97,7 +102,11 @@ public class MenuService extends ServiceConfig {
       throw new AWException(getLocale("ERROR_TITLE_AUTHENTICATE"), getLocale("ERROR_MESSAGE_AUTHENTICATE"), exc);
     }
 
-    return getMenu(menuId);
+    // Get menu for user
+    Menu menu = getMenu(menuId);
+
+    // Add favourites (if exists)
+    return addFavouritesToMenu(menu);
   }
 
   /**
@@ -734,8 +743,11 @@ public class MenuService extends ServiceConfig {
       throw new AWException(getLocale("ERROR_TITLE_MENU"), getLocale("ERROR_MESSAGE_MENU_NOT_CLONEABLE"), exc);
     }
 
+    // Add favourites (if exists)
+    Menu favouritesMenu = addFavouritesToMenu(menu);
+
     // Store json data as javascript
-    serviceData.addVariable(AweConstants.ACTION_MENU_OPTIONS, new CellData(menu.getElementList()));
+    serviceData.addVariable(AweConstants.ACTION_MENU_OPTIONS, new CellData(favouritesMenu.getElementList()));
 
     // Regenerate menu screen list
     regenerateMenuScreens();
@@ -889,6 +901,54 @@ public class MenuService extends ServiceConfig {
    */
   public ServiceData removeRestriction(Integer user, Integer profile, String option) throws AWException {
     return changeMenuOptionRestriction(user, profile, option, "");
+  }
+
+  /**
+   * Add favourite option list to private menu
+   *
+   * @param menu Menu
+   */
+  private Menu addFavouritesToMenu(Menu menu) throws AWException {
+    // Copy menu
+    Menu newMenu = menu.copy();
+
+    // Get user
+    String user = getSession().getUser();
+    if (user == null) {
+      return newMenu;
+    }
+
+    // Add favourites (if exists)
+    List<Favourite> favourites = favouriteService.getFavourites(user);
+    if (!favourites.isEmpty()) {
+      // Generate favourite option
+      Option favourite = (Option) new Option()
+        .setIcon("star")
+        .setName("favourites")
+        .setLabel("MENU_FAVOURITES");
+
+      // Generate favourite separator
+      Option separator = (Option) new Option()
+        .setSeparator(true)
+        .setName("favourites-separator");
+
+      // Add favourites
+      favourite.setElementList(favourites.stream()
+        .map(Favourite::getOption)
+        .map(menu::getOptionByName)
+        .map(option -> option.copy()
+          .setParent(favourite)
+          .setElementList(Collections.emptyList())
+          .setId("favourite-" + option.getName()))
+        .collect(Collectors.toList()));
+
+      // Update menu
+      newMenu.setElementList(Stream.concat(Stream.of(favourite, separator), newMenu.getElementList().stream()
+        .filter(o -> !(o instanceof Option) || !Arrays.asList("favourites", "favourites-separator").contains(((Option) o).getName())))
+        .collect(Collectors.toList()));
+    }
+
+    return newMenu;
   }
 
   /**

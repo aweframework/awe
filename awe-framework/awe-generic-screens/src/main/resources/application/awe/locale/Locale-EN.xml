@@ -13,6 +13,7 @@
   <locale name="BUTTON_ACTIVATE" value="Activate"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activate selected tasks"/>
   <locale name="BUTTON_ADD" value="Add"/>
+  <locale name="BUTTON_ADD_FAVOURITE" value="Add screen to favourites"/>
   <locale name="BUTTON_ALLOW" value="Grant access"/>
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Back"/>
@@ -41,6 +42,7 @@
   <locale name="BUTTON_PRINT" value="Print"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Print selection"/>
   <locale name="BUTTON_REMOVE" value="Unrestrict"/>
+  <locale name="BUTTON_REMOVE_FAVOURITE" value="Remove screen from favourites"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restrict access"/>
@@ -822,6 +824,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_BROADCAST" value="Broadcasting"/>
   <locale name="MENU_CONFIG" value="Configuration"/>
   <locale name="MENU_DEVELOPER" value="Developer"/>
+  <locale name="MENU_FAVOURITES" value="Favourites"/>
   <locale name="MENU_HELP" value="Help"/>
   <locale name="MENU_HELP_APPLICATION" value="Application help"/>
   <locale name="MENU_LANGUAGES" value="Translations"/>

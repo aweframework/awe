@@ -102,12 +102,7 @@ aweApplication.factory('Control',
          */
         setTarget: function (address, action, value) {
           let target = null;
-          let view;
-          let component;
-          if (address && VIEW in address && COMPONENT in address) {
-            view = address[VIEW];
-            component = address[COMPONENT];
-          }
+          const {view, component} = address || {};
 
           // If storage is not in action, return null;
           if (!Storage.has(action)) return null;
@@ -124,6 +119,7 @@ aweApplication.factory('Control',
               break;
             case "viewAndComponent":
               // Normal component
+              storedAction[view] = storedAction[view] || {};
               storedAction[view][component] = value;
               target = storedAction[view][component];
               break;

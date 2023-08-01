@@ -269,15 +269,14 @@ public class AweAutoConfiguration {
    * Maintain service
    *
    * @param maintainLauncher         Maintain launcher
-   * @param accessService            Access service
    * @param queryUtil                Query utilities
    * @param databaseConfigProperties Database configuration properties
    * @return Maintain service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MaintainService maintainService(MaintainLauncher maintainLauncher, AccessService accessService, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
-    return new MaintainService(maintainLauncher, accessService, queryUtil, databaseConfigProperties);
+  public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
+    return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
   }
 
   /**
@@ -295,9 +294,25 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public MenuService menuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
                                  ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                 SecurityConfigProperties securityConfigProperties) {
+                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService) {
     return new MenuService(queryService, screenRestrictionGenerator, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties);
+      baseConfigProperties, securityConfigProperties, favouriteService);
+  }
+
+  /**
+   * Favourite service
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param dataListService  DataList service
+   * @param maintainService Maintain service
+   * @return Menu service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public FavouriteService favouriteService(QueryService queryService, QueryUtil queryUtil,
+                                           DataListService dataListService, MaintainService maintainService) {
+    return new FavouriteService(queryService, queryUtil, dataListService, maintainService);
   }
 
   /**

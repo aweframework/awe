@@ -24,12 +24,8 @@ public class ScreenRestrictionGenerator extends ServiceConfig {
     for (Map<String, CellData> rule : screenRestriction.getRows()) {
       String optionName = rule.get("option").getStringValue();
       String restricted = rule.get("restricted").getStringValue();
-      Option option = menu.getOptionByName(optionName);
-
-      // Apply restriction
-      if (option != null) {
-        option.setRestricted(Boolean.parseBoolean(restricted));
-      }
+      menu.getOptionsByName(optionName)
+        .forEach(o -> o.setRestricted(Boolean.parseBoolean(restricted)));
     }
   }
 

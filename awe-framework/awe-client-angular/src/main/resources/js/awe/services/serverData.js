@@ -70,6 +70,12 @@ aweApplication.factory('ServerData',
 
             // Change model
             Control.changeViewModel(view, modelView, false);
+
+            // Store specific model (currentOption) for favourites
+            if ("currentOption" in controller["base"]) {
+              const option = data.screen.option;
+              Control.changeModelAttribute({view: "base", component: "currentOption"}, {selected: option}, true);
+            }
           }
         },
         /**

@@ -13,6 +13,7 @@
   <locale name="BUTTON_ACTIVATE" value="Activer"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activer taches selctionnees"/>
   <locale name="BUTTON_ADD" value="Ajouter"/>
+  <locale name="BUTTON_ADD_FAVOURITE" value="Ajouter l&apos;écran aux favoris"/>
   <locale name="BUTTON_ALLOW" value="Autoriser l&apos;accès"/>
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Retourner"/>
@@ -41,6 +42,7 @@
   <locale name="BUTTON_PRINT" value="Imprimer"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimer selectión"/>
   <locale name="BUTTON_REMOVE" value="Supprimer la restriction"/>
+  <locale name="BUTTON_REMOVE_FAVOURITE" value="Supprimer l&apos;écran des favoris"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Réinitialiser 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restreindre l&apos;accès"/>
@@ -822,6 +824,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_BROADCAST" value="Envío de eventos"/>
   <locale name="MENU_CONFIG" value="Configuration"/>
   <locale name="MENU_DEVELOPER" value="Développeur"/>
+  <locale name="MENU_FAVOURITES" value="Favoris"/>
   <locale name="MENU_HELP" value="Aide"/>
   <locale name="MENU_HELP_APPLICATION" value="Application help"/>
   <locale name="MENU_LANGUAGES" value="Traductions"/>

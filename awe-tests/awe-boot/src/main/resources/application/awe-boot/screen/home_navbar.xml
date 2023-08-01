@@ -26,7 +26,7 @@
     <tag type="div" style="navbar-inner">
       <tag type="div" style="navbar-header">
         <tag type="h1">
-          <tag type="span" label="APP_CLIENT"></tag>
+          <tag type="span" label="APP_CLIENT"/>
         </tag>
         <button button-type="button" style="no-class navbar-toggle collapsed" id="ButNavCol"
                 icon="bars icon navbar-icon">
@@ -37,41 +37,12 @@
         <tag type="div" style="right clearfix">
           <!-- Profile -->
           <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
+            <include target-screen="info-buttons" target-source="favourites"/>
             <include target-screen="notification-panel" target-source="notification-panel"/>
             <info-button id="help" icon="question-circle" style="nav-icon-btn-success">
               <button-action type="dialog" target="HlpOpt" />
             </info-button>
-            <info id="ButSetTog" icon="cog" title="SCREEN_TEXT_SETTINGS" dropdown-style="dropdown-lg">
-              <info-criteria icon="puzzle-piece" title="SCREEN_TEXT_MODULE" component="select" id="module"
-                             initial-load="query" target-action="ModNamByOpeSel" session="module"
-                             style="col-xs-12 no-label" info-style="form-group">
-                <dependency>
-                  <dependency-element id="module"/>
-                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarMod"
-                                     silent="true"/>
-                </dependency>
-              </info-criteria>
-              <info-criteria icon="sitemap" title="SCREEN_TEXT_SITE" component="select" id="site" initial-load="query"
-                             target-action="SitNamByOpeSel" session="site" style="col-xs-12 no-label"
-                             info-style="form-group">
-                <dependency>
-                  <dependency-element id="site"/>
-                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarSit"/>
-                  <dependency-action type="server" server-action="data" target-action="DbsAlsBySitModSel"
-                                     target="_database_"/>
-                </dependency>
-              </info-criteria>
-              <info-criteria icon="database" title="SCREEN_TEXT_DBS" component="select" id="_database_"
-                             initial-load="query" target-action="DbsAlsBySitModSel" session="database"
-                             style="col-xs-12 no-label"
-                             info-style="form-group">
-                <dependency>
-                  <dependency-element id="_database_"/>
-                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarDbs"
-                                     silent="true"/>
-                </dependency>
-              </info-criteria>
-            </info>
+            <include target-screen="info-buttons" target-source="siteModuleDatabase"/>
             <info id="ButSetAutRef" icon="refresh" title="SCREEN_TEXT_REFRESH_SETTINGS"
                   dropdown-style="dropdown-lg padding-xs-hr">
               <info-criteria id="RefreshTime" icon="clock-o" title="SCREEN_TEXT_REFRESH_TIME"
@@ -94,30 +65,10 @@
             </info>
             <info id="ButUsrAct" icon="user" initial-load="query" target-action="connectedUser">
               <include target-screen="notification-panel" target-source="user-settings"/>
-              <info-criteria icon="image" title="PARAMETER_THEME" component="select" id="theme" initial-load="query"
-                             target-action="ThmSelVal" session="theme" style="col-xs-12 no-label"
-                             info-style="form-group">
-                <dependency>
-                  <dependency-element id="theme"/>
-                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarThm"
-                                     silent="true"/>
-                  <dependency-action type="change-theme" target="theme"/>
-                </dependency>
-              </info-criteria>
-              <info-criteria icon="language" title="PARAMETER_LANGUAGE" component="select" id="language"
-                             initial-load="enum" target-action="Lan" session="language" style="col-xs-12 no-label"
-                             info-style="form-group">
-                <dependency>
-                  <dependency-element id="language"/>
-                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarLan"
-                                     silent="true"/>
-                  <dependency-action type="change-language" target="language"/>
-                </dependency>
-              </info-criteria>
+              <include target-screen="info-buttons" target-source="themeSelector"/>
+              <include target-screen="info-buttons" target-source="languageSelector"/>
             </info>
-            <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT">
-              <button-action type="logout"/>
-            </info-button>
+            <include target-screen="info-buttons" target-source="logout"/>
           </tag>
         </tag>
       </tag>

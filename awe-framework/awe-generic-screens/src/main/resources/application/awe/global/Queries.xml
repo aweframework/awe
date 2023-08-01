@@ -2334,4 +2334,44 @@
     <variable id="generate" type="BOOLEAN" value="true"/>
   </query>
 
+  <!--
+  Favourites
+  -->
+
+  <query id="getFavourites" cacheable="true">
+    <table id="AweUsrFav"/>
+    <field id="Opt" alias="option"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user"/>
+    </where>
+    <order-by field="Ord" type="ASC"/>
+    <variable id="user" type="STRING" name="user"/>
+  </query>
+
+  <query id="nextIdForFavourites">
+    <table id="AweUsrFav"/>
+    <operation operator="ADD">
+      <operation operator="COALESCE">
+        <field id="IdeFav" function="MAX"/>
+        <constant value="0" type="INTEGER"/>
+      </operation>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+  </query>
+
+  <query id="nextOrderForUser">
+    <table id="AweUsrFav"/>
+    <operation operator="ADD">
+      <operation operator="COALESCE">
+        <field id="Ord" function="MAX"/>
+        <constant value="0" type="INTEGER"/>
+      </operation>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+    </where>
+    <variable id="user" type="STRING" name="user"/>
+  </query>
+
 </queries>
