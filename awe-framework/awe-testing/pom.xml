@@ -19,7 +19,6 @@
     <!-- Application maven properties -->
     <java.version>1.8</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
-    <webdrivermanager.version>5.2.1</webdrivermanager.version>
     <video-recorder-junit5.version>2.0</video-recorder-junit5.version>
     <log4j-over-slf4j.version>1.7.36</log4j-over-slf4j.version>
     <sonar.exclusions>src/**</sonar.exclusions>
