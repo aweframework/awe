@@ -37,12 +37,14 @@
     <aspectjweaver.version>1.9.2</aspectjweaver.version>
     <xtream.version>1.4.20</xtream.version>
     <graalvm.version>21.3.0</graalvm.version>
-    <selenium.version>4.3.0</selenium.version>
+    <selenium.version>4.11.0</selenium.version>
+    <webdrivermanager.version>5.5.2</webdrivermanager.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <querydsl.version>5.0.0</querydsl.version>
     <janino.version>3.1.6</janino.version>
     <totp.version>1.7.1</totp.version>
     <guava.version>31.1-jre</guava.version>
+    <httpclient5.version>5.2.1</httpclient5.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -340,6 +342,11 @@
         <groupId>org.seleniumhq.selenium</groupId>
         <artifactId>selenium-java</artifactId>
         <version>${selenium.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${httpclient5.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
