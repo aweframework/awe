@@ -1,3 +1,4 @@
 com.almis.awe.rest.autoconfigure.RestSecurityConfiguration
 com.almis.awe.rest.autoconfigure.OpenAPIConfiguration
 com.almis.awe.rest.controller.AweRestController
+com.almis.awe.security.authorization.PublicQueryMaintainAuthorization

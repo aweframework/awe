@@ -1,10 +1,9 @@
 package com.almis.awe.rest.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * Login request info. Used by "/api/authenticate" rest service to get a session token

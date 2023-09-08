@@ -3,11 +3,11 @@ package com.almis.awe.service.data.builder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
+import jakarta.mail.internet.InternetAddress;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.mail.internet.InternetAddress;
 import java.io.File;
 
 /**
@@ -77,7 +77,7 @@ public class EmailBuilder extends ServiceConfig {
    *
    * @param name       name of attachment
    * @param attachment file attachment
-   * @return
+   * @return Email builder
    */
   public EmailBuilder addAttachment(String name, File attachment) {
     parsedEmail.getAttachments().put(name, attachment);

@@ -13,12 +13,12 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.mail.internet.InternetAddress;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -28,9 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
-/**
- * Created by dfuentes on 10/05/2017.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -60,8 +57,8 @@ public class XMLEmailBuilder extends EmailBuilder {
   /**
    * Parse given XML email template
    *
-   * @return
-   * @throws AWException
+   * @return XMLEmailBuilder
+   * @throws AWException AWE exception
    */
   public XMLEmailBuilder parseEmail() throws AWException {
     // Collect variables from email and queries
@@ -88,7 +85,7 @@ public class XMLEmailBuilder extends EmailBuilder {
   /**
    * Get variables
    *
-   * @return
+   * @return Map with Variable
    */
   public Map<String, Variable> getVariables() {
     return variables;
@@ -98,11 +95,9 @@ public class XMLEmailBuilder extends EmailBuilder {
    * Set variables
    *
    * @param variable Variable
-   * @return this
    */
-  public XMLEmailBuilder addVariable(Variable variable) {
+  public void addVariable(Variable variable) {
     this.variables.put(variable.getId(), variable);
-    return this;
   }
 
   /**
@@ -222,7 +217,8 @@ public class XMLEmailBuilder extends EmailBuilder {
   /**
    * Parse body list
    *
-   * @param bodyList
+   * @param bodyList Email body
+   * @throws AWException AWE exception
    */
   private void parseBody(List<EmailMessage> bodyList) throws AWException {
     switch (getParsedEmail().getMessageType()) {
@@ -277,7 +273,7 @@ public class XMLEmailBuilder extends EmailBuilder {
   /**
    * Parse subject list from email template
    *
-   * @param subjectList
+   * @param subjectList Email subject
    */
   private void parseSubject(List<EmailMessage> subjectList) {
     StringBuilder subjectMessageBuilder = new StringBuilder();
@@ -301,7 +297,7 @@ public class XMLEmailBuilder extends EmailBuilder {
   /**
    * Collect all variables from email xml template
    *
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   private void collectVariables() throws AWException {
     // Add variables to variable list

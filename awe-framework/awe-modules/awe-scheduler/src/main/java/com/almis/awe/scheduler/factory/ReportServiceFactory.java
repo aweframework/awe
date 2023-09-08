@@ -2,8 +2,8 @@ package com.almis.awe.scheduler.factory;
 
 import com.almis.awe.scheduler.enums.ReportType;
 import com.almis.awe.scheduler.service.report.ISchedulerReportService;
+import jakarta.annotation.PostConstruct;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

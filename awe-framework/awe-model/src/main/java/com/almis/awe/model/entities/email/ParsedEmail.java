@@ -1,10 +1,10 @@
 package com.almis.awe.model.entities.email;
 
 import com.almis.awe.model.type.EmailMessageType;
+import jakarta.mail.internet.InternetAddress;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.Map;
  * <p>
  * Used to parse the Email.xml file with XStream
  * This class is used to parse a single email inside the file
- *
+ * </p>
  * @author Pablo GARCIA - 28/JL/2011
  */
 @Data

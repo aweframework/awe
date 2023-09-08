@@ -16,7 +16,7 @@ import java.util.Set;
  * <p>
  * AWE Broadcast Engine
  * Provides generate function to send information to client
- *
+ * </p>
  * @author Pablo GARCIA
  */
 @Slf4j

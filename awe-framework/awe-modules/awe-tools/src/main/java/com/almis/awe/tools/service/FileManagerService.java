@@ -10,13 +10,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.mysema.commons.lang.Assert;
+import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletException;
 import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -231,7 +231,7 @@ public class FileManagerService implements InitializingBean {
     boolean ret = false;
 
     try (InputStream inputStream = input.getInputStream();
-         OutputStream outputStream = new FileOutputStream(file)) {
+         OutputStream outputStream = Files.newOutputStream(file.toPath())) {
       int read;
       byte[] bytes = new byte[1024];
 
@@ -278,7 +278,6 @@ public class FileManagerService implements InitializingBean {
 
   /**
    * List files operation
-   *
    * List all files or folders in the path
    *
    * @param params Parameters

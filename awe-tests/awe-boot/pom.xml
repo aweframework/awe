@@ -12,12 +12,12 @@
   </parent>
 
   <artifactId>awe-boot</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <name>AWE Integration Tests (V${project.version})</name>
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
     <application.name>awe-boot</application.name>
     <application.acronym>awe-boot</application.acronym>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -63,13 +63,20 @@
       <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
     </dependency>
 
-    <!-- Secret management -->
+    <!-- Google cloud integration -->
     <dependency>
       <groupId>com.google.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
+      <artifactId>spring-cloud-gcp-starter</artifactId>
     </dependency>
 
-    <!-- Redis cache server -->
+    <!-- EHcache -->
+    <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <classifier>jakarta</classifier>
+    </dependency>
+
+    <!-- Redis -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -89,6 +96,14 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-exporter-otlp</artifactId>
     </dependency>
     <!-- Dependencies for jacoco coverage tests -->
     <dependency>
@@ -118,15 +133,6 @@
     <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-developer</artifactId>
-    </dependency>
-    <!-- ehcache and JSR dependencies-->
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.cache</groupId>
-      <artifactId>cache-api</artifactId>
     </dependency>
     <!-- API, java.xml.bind module -->
     <dependency>
@@ -290,11 +296,6 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.prometheus</groupId>
-      <artifactId>simpleclient_tracer_otel_agent</artifactId>
-      <version>0.15.0</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -312,14 +313,6 @@
       </testResource>
     </testResources>
     <plugins>
-
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-      </plugin>
-
       <!-- AWE static resources -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -676,8 +669,6 @@
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>
-                  <fork>true</fork>
-                  <jvmArguments>${failsafe.argLine}</jvmArguments>
                 </configuration>
                 <goals>
                   <goal>start</goal>
@@ -699,20 +690,11 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- Micrometer traces -->
-      <dependency>
-        <groupId>io.micrometer</groupId>
-        <artifactId>micrometer-bom</artifactId>
-        <version>1.9.8</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
       <!-- Spring Cloud GCP -->
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>spring-cloud-gcp-dependencies</artifactId>
-        <version>2.0.5</version>
+        <version>4.7.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

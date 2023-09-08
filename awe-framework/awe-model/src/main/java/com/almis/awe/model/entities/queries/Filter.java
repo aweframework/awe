@@ -18,7 +18,7 @@ import java.util.List;
  * <p>
  * Used to parse the files Queries.xml and Maintain.xml with XStream
  * Filters from queries and maintain
- *
+ * </p>
  * @author Pablo GARCIA - 28/JUN/2010
  */
 @Data

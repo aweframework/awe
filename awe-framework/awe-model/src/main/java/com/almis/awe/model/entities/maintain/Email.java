@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * <p>
  * Used to parse the file Maintain.xml with XStream
  * Target for launching an email send
- *
+ * </p>
  * @author Pablo GARCIA - 09/NOV/2010
  */
 @Getter

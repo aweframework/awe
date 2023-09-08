@@ -21,12 +21,13 @@ public class SecurityConfig {
   @Bean(name = "testSecurityFilterChain")
   @Order(1)
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-    // Disable CSRF for microservices tests
-    httpSecurity.requestMatchers().antMatchers("/alu-microservice/**",
-        "/alu-service-bis/**",
-        "/testapi/**")
-      .and().csrf().disable();
+    httpSecurity.securityMatcher("/alu-microservice/**",
+                    "/alu-service-bis/**",
+                    "/testapi/**")
+            .authorizeHttpRequests(request -> request.anyRequest().permitAll())
+            // Disable CSRF for microservices tests
+            .csrf().disable();
 
-    return httpSecurity.build();
+      return  httpSecurity.build();
   }
 }

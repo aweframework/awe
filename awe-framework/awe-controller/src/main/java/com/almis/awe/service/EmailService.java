@@ -9,21 +9,21 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Part;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 @Slf4j
@@ -65,7 +65,7 @@ public class EmailService extends ServiceConfig {
     sendEmail(parsedEmail);
 
     // Return ok
-    return new AsyncResult<>(serviceData
+    return CompletableFuture.completedFuture(serviceData
       .setTitle("OK_TITLE_EMAIL_OPERATION")
       .setMessage("OK_MESSAGE_EMAIL_OPERATION"));
   }
@@ -132,8 +132,8 @@ public class EmailService extends ServiceConfig {
    * Append attachments
    *
    * @param multipart Attachments
-   * @throws javax.mail.MessagingException Message exception
-   * @throws java.io.IOException           IO exception
+   * @throws MessagingException  Message exception
+   * @throws java.io.IOException IO exception
    */
   protected void generateMultipartAttachments(ParsedEmail email, Multipart multipart) throws MessagingException, IOException {
     for (String fileName : email.getAttachments().keySet()) {

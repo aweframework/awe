@@ -19,10 +19,8 @@ import java.util.*;
  * ChartParameter Class
  * <p>
  * Used to parse a chart parameter or parameter list with XStream
- * <p>
- * <p>
- * Generates an Chart widget
- *
+ * Generates a Chart widget
+ * </p>
  * @author Pablo VIDAL - 21/OCT/2014
  */
 @Getter

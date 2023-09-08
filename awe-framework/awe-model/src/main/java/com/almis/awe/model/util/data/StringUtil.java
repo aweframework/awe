@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * StringUtil Class
  * <p>
  * String Utilities for AWE
- *
+ * </p>
  * @author Pablo GARCIA - 20/JAN/2011
  */
 public final class StringUtil {

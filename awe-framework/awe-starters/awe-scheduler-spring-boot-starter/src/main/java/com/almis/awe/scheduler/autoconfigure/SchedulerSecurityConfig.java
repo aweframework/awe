@@ -24,14 +24,14 @@ public class SchedulerSecurityConfig extends ServiceConfig {
   @Bean(name = "aweSchedulerSecurityFilterChain")
   @Order(98)
   public SecurityFilterChain schedulerFilterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity
-      // Filter /api urls
-      .antMatcher("/scheduler/api/**").anonymous()
-      // Disable csrf
-      .and().csrf().disable()
-      // No session cookie for API endpoints
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      .and().authorizeRequests().anyRequest().permitAll();
+      httpSecurity.securityMatcher("/scheduler/api/**").authorizeHttpRequests(httpRequest -> httpRequest
+                      // Filter /scheduler/api urls
+                      .requestMatchers("/scheduler/api/**").anonymous()
+              )
+              // Disable csrf
+              .csrf().disable()
+              // No session cookie for API endpoints
+              .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     return httpSecurity.build();
   }

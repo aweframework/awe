@@ -17,15 +17,14 @@ import com.almis.awe.model.entities.services.Services;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.graalvm.polyglot.Context;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.oxm.xstream.XStreamMarshaller;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 /**
  * Initialize serializer beans

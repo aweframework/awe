@@ -35,7 +35,7 @@ mvn -B archetype:generate \
 ```
 
 ### Prerequisites
-You must have Maven 3.x installed on your computer as well as a JDK 8 or higher
+You must have Maven 3.x installed on your computer as well as a **JDK 17** or higher
 
 ## Built With
 * [Maven](https://maven.apache.org/) - Dependency Management

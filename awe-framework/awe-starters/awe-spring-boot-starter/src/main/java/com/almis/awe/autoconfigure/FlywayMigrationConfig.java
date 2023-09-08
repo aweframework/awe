@@ -2,6 +2,7 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweRoutingDataSource;
 import com.almis.awe.config.DatabaseConfigProperties;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
@@ -11,7 +12,6 @@ import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 /**
@@ -69,13 +69,13 @@ public class FlywayMigrationConfig {
       log.info("\t\u001B[32m> > Current version of \u001B[35m{} \u001B[32mmodule: {}\n\u001B[0m", module, customFlyway.info().current().getVersion());
     }
 
-    if (dataSource instanceof AweRoutingDataSource) {
+    if (dataSource instanceof AweRoutingDataSource aweRoutingDataSource) {
       // Load dataSources
-      ((AweRoutingDataSource) dataSource).loadDataSources();
+      aweRoutingDataSource.loadDataSources();
       // Spread scripts migration
       log.info("\u001B[32m========== Migrating databases defined of [AweDbs] table ... ==========\u001B[0m");
       for (String module : databaseConfigProperties.getMigrationModules()) {
-        ((AweRoutingDataSource) dataSource).getResolvedDataSources().forEach((key, value) -> {
+        aweRoutingDataSource.getResolvedDataSources().forEach((key, value) -> {
                   log.info("\t\u001B[32m> > Migrating database \u001B[35m{}\u001B[32m for module \u001B[35m{}\u001B[32m ...\u001B[0m", key, module);
                   Flyway customFlyway = customizeFlywayConfig(module.toUpperCase(), value);
                   customFlyway.migrate();

@@ -110,7 +110,7 @@ class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
    */
   @Test
   void testGetDefaultScreenTemplate() throws Exception {
-    testTemplate("templates/DefaultScreen.txt", "/template/screen/", status().isOk());
+    testTemplate("templates/DefaultScreen.txt", "/template/screen", status().isOk());
   }
 
   /**

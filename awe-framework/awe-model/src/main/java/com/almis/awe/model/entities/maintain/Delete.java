@@ -12,10 +12,8 @@ import lombok.experimental.SuperBuilder;
  * Delete Class
  * <p>
  * Used to parse the file Maintain.xml with XStream
- * <p>
- * <p>
  * Target for delete records. Generates a query which allows to filter a group of records and delete them
- *
+ * </p>
  * @author Ismael SERRANO - 28/JUN/2010
  */
 @Getter

@@ -22,7 +22,7 @@ import java.util.Map;
  * Screen data Class
  * <p>
  * Used to retrieve screen data in JSON format
- *
+ * </p>
  * @author Pablo GARCIA - 28/JUN/2010
  */
 @Getter

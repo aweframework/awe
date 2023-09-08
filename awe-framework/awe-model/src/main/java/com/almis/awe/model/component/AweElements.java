@@ -27,6 +27,7 @@ import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.entities.services.Services;
 import com.almis.awe.model.type.LaunchPhaseType;
+import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
@@ -34,7 +35,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.PostConstruct;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
@@ -215,7 +215,7 @@ public class AweElements {
       .map(module -> elementsDao.readModuleFolderXmlFile(Profile.class, baseConfigProperties.getPaths().getApplication() +
         module +
         baseConfigProperties.getPaths().getProfile()))
-      .collect(Collectors.toList()));
+      .toList());
 
     // Init screens
     if (baseConfigProperties.isPreloadScreens()) {
@@ -224,7 +224,7 @@ public class AweElements {
         .map(module -> elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
           module +
           baseConfigProperties.getPaths().getScreen()))
-        .collect(Collectors.toList()));
+        .toList());
     }
 
     // For each language read local files
@@ -244,7 +244,7 @@ public class AweElements {
           return languageMap.entrySet().stream();
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
-      .collect(Collectors.toList()));
+      .toList());
     return initData;
   }
 
@@ -448,16 +448,14 @@ public class AweElements {
     for (Element element : elements) {
 
       // Generate component key if not defined
-      if (element instanceof Component && NO_KEY.equalsIgnoreCase(element.getElementKey())) {
-        Component component = (Component) element;
-        if (!NO_TAG.equalsIgnoreCase(component.getComponentTag())) {
-          element.setId(screenId + "-" + component.getComponentTag() + "-" + (identifier++));
-        }
+      if (element instanceof Component component && NO_KEY.equalsIgnoreCase(element.getElementKey())
+              && !NO_TAG.equalsIgnoreCase(component.getComponentTag())) {
+        element.setId(screenId + "-" + component.getComponentTag() + "-" + (identifier++));
       }
 
       // If component is an included, retrieve included screen and add it
-      if (element instanceof Include) {
-        includeScreen(screenId, (Include) element, new HashSet<>(includedScreens));
+      if (element instanceof Include include) {
+        includeScreen(screenId, include, new HashSet<>(includedScreens));
       }
     }
 
@@ -688,8 +686,7 @@ public class AweElements {
 
     // Escape HTML
     for (Object token : tokenList) {
-      if (token instanceof String) {
-        String stringToken = (String) token;
+      if (token instanceof String stringToken) {
         tokenList[index++] = StringEscapeUtils.escapeHtml4(stringToken);
       }
     }

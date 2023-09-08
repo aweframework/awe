@@ -2,13 +2,13 @@ package com.almis.awe.model.dto;
 
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.util.data.ListUtil;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,7 +21,7 @@ import java.util.Map;
  * DataList Class
  * <p>
  * Data list formatted as an standard data output
- *
+ * </p>
  * @author Pablo GARCIA - 24/JUN/2010
  */
 @Data
