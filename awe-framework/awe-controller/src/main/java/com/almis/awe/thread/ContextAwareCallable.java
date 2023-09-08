@@ -15,17 +15,17 @@ public class ContextAwareCallable<T> implements Callable<T> {
   private final Callable<T> task;
   private final RequestAttributes context;
   private final SecurityContext securityContext;
-
   /**
    * Constructor
    *
-   * @param task task
-   * @param context context
+   * @param task                      task
+   * @param context                   context
    */
   public ContextAwareCallable(Callable<T> task, RequestAttributes context, SecurityContext securityContext) {
     this.task = task;
     this.context = context;
     this.securityContext = securityContext;
+
   }
 
   /**

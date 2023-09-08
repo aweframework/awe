@@ -2,11 +2,10 @@ package com.almis.awe.controller;
 
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.test.listener.TestSessionListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * Session controller class.

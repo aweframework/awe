@@ -18,19 +18,20 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class AuthenticationConfigTest {
 
   private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
-    .withConfiguration(AutoConfigurations.of(AuthenticationConfig.class,
-      SerializerConfig.class,
-      SecurityConfig.class,
-      AuthenticationConfiguration.class,
-      SessionConfig.class,
-      WebsocketConfig.class,
-      TotpAutoConfiguration.class,
-      TemplateConfig.class,
-      AdeAutoConfiguration.class,
-      RestConfig.class))
+    .withConfiguration(AutoConfigurations.of(
+            AuthenticationConfig.class,
+            SerializerConfig.class,
+            SecurityConfig.class,
+            AuthenticationConfiguration.class,
+            SessionConfig.class,
+            WebsocketConfig.class,
+            TotpAutoConfiguration.class,
+            TemplateConfig.class,
+            AdeAutoConfiguration.class,
+            RestConfig.class)
+    )
     .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class)
     .withPropertyValues("awe.application.module-list=awe",
-      "spring.session.store-type=none",
       "spring.cache.type=NONE",
       "awe.database.enabled=false")
     .withBean(NoOpCacheManager.class)

@@ -13,9 +13,9 @@ import com.almis.awe.builder.client.ScreenActionBuilder;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.*;
 

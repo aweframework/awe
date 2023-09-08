@@ -1,13 +1,12 @@
 package com.almis.awe.security.authentication.entrypoint;
 
 import com.almis.awe.session.AweSessionDetails;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -33,7 +32,7 @@ public class ActionAuthenticationEntryPoint implements AuthenticationEntryPoint 
   }
 
   @Override
-  public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException exception) throws IOException, ServletException {
+  public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException exception) throws IOException {
     log.error("Action Authentication entryPoint. Invalid session expired [{}]", httpServletRequest.getSession().getId());
 
     // Clear websocket connections

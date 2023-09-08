@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * <p>
  * Used to parse the Email.xml file with XStream
  * This class is used to parse a single email inside the file
- *
+ * </p>
  * @author Pablo GARCIA - 28/JL/2011
  */
 @Data

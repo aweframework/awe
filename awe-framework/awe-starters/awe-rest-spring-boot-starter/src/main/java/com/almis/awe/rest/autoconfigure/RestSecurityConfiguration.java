@@ -7,6 +7,7 @@ import com.almis.awe.rest.security.JWTAuthenticationEntryPoint;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.rest.service.JWTTokenService;
+import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class RestSecurityConfiguration extends ServiceConfig {
 
-  private static final String[] AUTH_LIST = {
-    // -- Swagger UI v3 (OpenAPI)
-    "/v3/api-docs/**",
-    "/swagger-ui/**"
+  private final PublicQueryMaintainAuthorization publicQueryMaintainAuthorization;
+
+  private static final String[] API_URL_LIST = {
+          "/api/**",
+          // -- Swagger UI v3 (OpenAPI)
+          "/v3/api-docs/**",
+          "/swagger-ui/**"
+  };
+
+  private static final String[] ALLOW_LIST = {
+          "/api/authenticate",
+          // -- Swagger UI v3 (OpenAPI)
+          "/v3/api-docs/**",
+          "/swagger-ui/**"
   };
 
   // Autowire services
@@ -40,7 +51,8 @@ public class RestSecurityConfiguration extends ServiceConfig {
   private final ObjectMapper objectMapper;
 
   @Autowired
-  public RestSecurityConfiguration(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, ObjectMapper objectMapper) {
+  public RestSecurityConfiguration(PublicQueryMaintainAuthorization publicQueryMaintainAuthorization, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, ObjectMapper objectMapper) {
+    this.publicQueryMaintainAuthorization = publicQueryMaintainAuthorization;
     this.authenticationManager = authenticationManager;
     this.userDetailsService = userDetailsService;
     this.objectMapper = objectMapper;
@@ -56,23 +68,20 @@ public class RestSecurityConfiguration extends ServiceConfig {
   @Bean(name = "aweRestSecurityFilterChain")
   @Order(99)
   public SecurityFilterChain restFilterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity
-      // Filter /api urls
-      .antMatcher("/api/**").authorizeRequests()
-      // Disable csrf
-      .and().csrf().disable()
-      // No session cookie for API endpoints
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      // Handles unauthorized attempts to access protected URLS
-      .and().exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
-      // Swagger UI
-      .and().authorizeRequests().antMatchers(AUTH_LIST).permitAll()
-
-      // Filter public queries and maintains
-      .antMatchers("/api/data/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicQuery(request)")
-      .antMatchers("/api/maintain/**").access("isAuthenticated() or @publicQueryMaintainFilter.isPublicMaintain(request)")
-      .antMatchers("/api/public/data/**").access("@publicQueryMaintainFilter.isPublicQuery(request)")
-      .antMatchers("/api/public/maintain/**").access("@publicQueryMaintainFilter.isPublicMaintain(request)");
+    httpSecurity.securityMatcher(API_URL_LIST).authorizeHttpRequests(httpRequest -> httpRequest
+                    // Swagger UI and api authenticate
+                    .requestMatchers(ALLOW_LIST).permitAll()
+                    // Filter public queries and maintains
+                    .requestMatchers("/api/public/data/**", "/api/public/maintain/**").access(publicQueryMaintainAuthorization)
+                    // Any requests needs be authenticated
+                    .anyRequest().authenticated()
+            )
+            // Handles unauthorized attempts to access protected URLS
+            .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
+            // No session cookie for API endpoints
+            .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            // Disable csrf
+            .and().csrf().disable();
 
     // Add JWT (Json web token) filters
     httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);

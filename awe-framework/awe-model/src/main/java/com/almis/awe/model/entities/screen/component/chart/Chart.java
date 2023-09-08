@@ -24,10 +24,8 @@ import java.util.*;
  * Chart Class
  * <p>
  * Used to parse a chart tag with XStream
- * <p>
- * <p>
- * Generates an Chart widget
- *
+ * Generates a Chart widget
+ * </p>
  * @author Pablo VIDAL - 20/OCT/2014
  */
 @Getter
@@ -252,10 +250,7 @@ public class Chart extends AbstractChart {
         case COLUMN_3D:
           chartInfo.put(ChartConstants.TYPE, ChartConstants.COLUMN);
           break;
-        case PIE_3D:
-        case DONUT:
-        case DONUT_3D:
-        case SEMICIRCLE:
+        case PIE_3D, DONUT, DONUT_3D, SEMICIRCLE:
           chartInfo.put(ChartConstants.TYPE, ChartConstants.PIE);
           break;
         default:
@@ -350,16 +345,14 @@ public class Chart extends AbstractChart {
       case COLUMN_3D:
         plotOptionsNode.put(ChartConstants.COLUMN, charTypePlotOpt);
         break;
-      case PIE:
-      case PIE_3D:
+      case PIE, PIE_3D:
         generateLegend(charTypePlotOpt);
         charTypePlotOpt.put(ChartConstants.CURSOR, ChartConstants.POINTER);
         charTypePlotOpt.put(ChartConstants.ALLOW_POINT_SELECT, true);
         plotOptionsNode.put(ChartConstants.PIE, charTypePlotOpt);
         break;
 
-      case DONUT:
-      case DONUT_3D:
+      case DONUT, DONUT_3D:
         generateLegend(charTypePlotOpt);
         charTypePlotOpt.put(ChartConstants.CURSOR, ChartConstants.POINTER);
         charTypePlotOpt.put(ChartConstants.ALLOW_POINT_SELECT, true);

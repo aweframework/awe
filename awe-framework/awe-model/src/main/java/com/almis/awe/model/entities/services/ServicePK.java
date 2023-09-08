@@ -1,10 +1,10 @@
 package com.almis.awe.model.entities.services;
 
 import com.almis.awe.model.util.data.ListUtil;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,7 +16,7 @@ import java.util.List;
  * ServicePK Class
  * <p>
  * Service Key class to make a service call cacheable
- *
+ * </p>
  * @author Pablo GARCIA - 28/JUN/2010
  */
 @Data

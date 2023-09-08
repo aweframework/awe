@@ -6,12 +6,12 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.type.QueueMessageType;
 import com.almis.awe.model.type.QueueMessageWrapperType;
 import com.almis.awe.model.util.data.StringUtil;
+import jakarta.jms.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.jms.*;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
@@ -146,9 +146,7 @@ public class MessageBuilder implements MessageCreator {
             case DOUBLE:
               message.setDouble(parameter.getId(), (Double) parameter.getParameterValue(getValueList()));
               break;
-            case DATE:
-            case TIME:
-            case TIMESTAMP:
+            case DATE, TIME, TIMESTAMP:
               message.setObject(parameter.getId(), parameter.getParameterValue(getValueList()));
               break;
             case STRING:

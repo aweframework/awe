@@ -26,7 +26,7 @@ import java.util.Optional;
  * AbstractQueryConnector Class
  * <p>
  * Abstract class that all database-related query launcher should extend
- *
+ * </p>
  * @author Jorge BELLON 24-02-2017
  */
 public abstract class AbstractQueryConnector extends ServiceConfig implements QueryConnector {

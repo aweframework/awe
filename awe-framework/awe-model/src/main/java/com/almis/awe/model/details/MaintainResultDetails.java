@@ -5,8 +5,8 @@ import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.*;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

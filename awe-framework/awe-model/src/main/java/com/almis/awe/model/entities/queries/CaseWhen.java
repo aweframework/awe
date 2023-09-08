@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * <p>
  * Used to parse the file Queries.xml with XStream
  * Generates a CASE WHEN condition in a query
- *
+ * </p>
  * @author Isaac Serna - 13/JUN/2018
  */
 @Data

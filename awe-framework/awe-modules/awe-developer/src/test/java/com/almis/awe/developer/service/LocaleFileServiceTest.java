@@ -5,6 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.locale.Locales;
+import jakarta.validation.constraints.Size;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.validation.constraints.Size;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -84,7 +84,7 @@ class LocaleFileServiceTest {
    *
    */
   @Test
-  void readLocalesFromFileNotFound() throws AWException {
+  void readLocalesFromFileNotFound() {
     // Launch
     when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
     when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");

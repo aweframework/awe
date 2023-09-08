@@ -4,12 +4,12 @@ import com.almis.awe.testing.model.types.BrowserType;
 import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.model.types.RecordingSaveType;
 import com.almis.awe.testing.model.types.VideoFormatType;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
 import java.time.Duration;
 
 /**

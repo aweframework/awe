@@ -16,7 +16,7 @@ import java.util.List;
  * <p>
  * Used to parse the file Maintain.xml with XStream
  * Contains a list of maintain targets
- *
+ * </p>
  * @author Ismael SERRANO - 28/JUN/2010
  */
 @Data

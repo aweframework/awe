@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * <p>
  * Used to parse the files in profile folder with XStream
  * This class is used to parse a restriction of an option
- *
+ * </p>
  * @author Pablo GARCIA - 25/JUN/2010
  */
 @Data

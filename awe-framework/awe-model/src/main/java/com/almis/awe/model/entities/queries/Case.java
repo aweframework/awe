@@ -18,7 +18,7 @@ import java.util.List;
  * <p>
  * Used to parse the file Queries.xml with XStream
  * Generates a CASE condition in a query
- *
+ * </p>
  * @author Isaac Serna - 13/JUN/2018
  */
 @Getter

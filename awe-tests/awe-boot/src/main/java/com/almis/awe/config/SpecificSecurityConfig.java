@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 /**
  * Custom Spring security configuration
@@ -28,9 +29,9 @@ public class SpecificSecurityConfig {
   @Bean(name = "customSecurityFilterChain")
   @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity.antMatcher(actuatorEndpoint + "/**").anonymous()
-      .and().csrf().disable();
-    return httpSecurity.build();
+    return httpSecurity.securityMatcher(actuatorEndpoint + "/**").anonymous()
+            .and().csrf().disable()
+            .build();
   }
 
   @Bean
@@ -39,5 +40,10 @@ public class SpecificSecurityConfig {
 
     listenerRegBean.setListener(new TestSessionListener());
     return listenerRegBean;
+  }
+
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
   }
 }

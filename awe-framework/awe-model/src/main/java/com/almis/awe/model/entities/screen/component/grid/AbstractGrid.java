@@ -33,8 +33,8 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
  * Grid Class
  * <p>
  * Used to parse a grid tag with XStream
- * Generates an screen data grid
- *
+ * Generates a screen data grid
+ * </p>
  * @author Pablo GARCIA - 28/JUN/2010
  */
 @Getter
@@ -317,9 +317,8 @@ public abstract class AbstractGrid extends AbstractCriteria {
 
     // Get elements (columns)
     for (Element element : getElementList()) {
-      if (element instanceof GroupHeader) {
+      if (element instanceof GroupHeader groupHeader) {
         // Get GROUP header
-        GroupHeader groupHeader = (GroupHeader) element;
         // Retrieve column model
         groupHeaderModel.add(groupHeader);
       }

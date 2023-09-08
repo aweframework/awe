@@ -28,7 +28,7 @@ import static com.almis.awe.model.constant.AweConstants.*;
  * DataList Builder
  * <p>
  * Builder class to generate DataLists
- *
+ * </p>
  * @author Pablo GARCIA - 20/MAR/2017
  */
 public class DataListBuilder extends ServiceConfig {

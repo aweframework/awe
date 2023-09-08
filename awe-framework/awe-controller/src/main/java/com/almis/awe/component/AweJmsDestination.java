@@ -14,9 +14,9 @@ import com.almis.awe.model.entities.queues.JmsDestination;
 import com.almis.awe.model.type.JmsConnectionType;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.QueryService;
+import jakarta.jms.Destination;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.jms.Destination;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import java.util.ArrayList;

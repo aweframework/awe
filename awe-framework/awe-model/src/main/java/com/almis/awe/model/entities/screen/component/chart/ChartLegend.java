@@ -19,10 +19,8 @@ import java.util.Map;
  * ChartLegend Class
  * <p>
  * Used to parse a chart legend tag with XStream
- * <p>
- * <p>
- * Generates an Chart widget
- *
+ * Generates a Chart widget
+ * </p>
  * @author Pablo VIDAL - 20/OCT/2014
  */
 @Getter
@@ -134,7 +132,7 @@ public class ChartLegend extends AbstractChart {
 
     // Add border width
     if (getBorderWidth() != null) {
-      model.put(ChartConstants.BORDER_WIDTH, Integer.valueOf(getBorderWidth()));
+      model.put(ChartConstants.BORDER_WIDTH, getBorderWidth());
     }
 
     // Update model with chart parameters

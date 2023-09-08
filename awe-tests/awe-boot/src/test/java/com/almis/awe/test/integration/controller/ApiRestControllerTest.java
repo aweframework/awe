@@ -82,7 +82,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
 
       ResponseEntity<LoginResponse> response = restTemplate.exchange(builder.toUriString(),
               HttpMethod.POST, loginRequestEntity, LoginResponse.class);
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertNotNull(Objects.requireNonNull(response.getBody()).getToken());
     }
 
@@ -96,7 +96,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
       HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
               HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals("Bad credentials", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
@@ -110,7 +110,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
       HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
               HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals("User not found or not active", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
@@ -124,7 +124,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/data/" + queryIdAuth),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals("Not authorized. Token is not valid or not found", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
@@ -139,7 +139,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
         createURLWithPort("/api/data/unknownQuery"),
         HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
       assertEquals("Query 'unknownQuery' has not been defined", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
@@ -154,7 +154,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/data/" + queryIdAuth),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals(2, Objects.requireNonNull(response.getBody()).getDataList().getRecords());
     }
 
@@ -175,7 +175,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/data/" + queryWithVariable),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals(4, Objects.requireNonNull(response.getBody()).getDataList().getRecords());
     }
 
@@ -188,7 +188,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/public/data/" + queryIdNoAuth),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals(2, Objects.requireNonNull(response.getBody()).getDataList().getRecords());
     }
 
@@ -201,7 +201,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/public/data/" + queryProtected),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals(AnswerType.ERROR, Objects.requireNonNull(response.getBody()).getType());
     }
 
@@ -214,7 +214,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/public/data/" + unknownQuery),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals(AnswerType.ERROR, Objects.requireNonNull(response.getBody()).getType());
     }
   }
@@ -239,7 +239,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/maintain/" + TEST_INSERT),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals("Not authorized. Token is not valid or not found", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
@@ -254,7 +254,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/maintain/" + TEST_INSERT),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals("Operation successful", Objects.requireNonNull(response.getBody()).getTitle());
     }
 
@@ -269,7 +269,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/maintain/" + TEST_UPDATE),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals("Operation successful", Objects.requireNonNull(response.getBody()).getTitle());
     }
 
@@ -292,7 +292,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/maintain/" + TEST_UPDATE_PARAMETERS),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals("Operation successful", Objects.requireNonNull(response.getBody()).getTitle());
     }
 
@@ -308,7 +308,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/maintain/" + TEST_DELETE),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals("Operation successful", Objects.requireNonNull(response.getBody()).getTitle());
     }
 
@@ -331,7 +331,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               createURLWithPort("/api/public/maintain/" + TEST_PUBLIC_MAINTAIN),
               HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.OK.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals("Operation successful", Objects.requireNonNull(response.getBody()).getTitle());
     }
 
@@ -345,7 +345,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
         createURLWithPort("/api/public/maintain/" + maintain),
         HttpMethod.POST, entity, AweRestResponse.class);
 
-      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCodeValue());
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals(AnswerType.ERROR, Objects.requireNonNull(response.getBody()).getType());
     }
   }

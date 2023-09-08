@@ -14,7 +14,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -62,8 +62,7 @@ public class AweElementsDao {
    */
   @Async("contextlessTaskExecutor")
   public <T extends XMLFile, N extends XMLNode> Future<String> readXmlFilesAsync(Class<T> rootClass, Map<String, N> storage, String filePath) {
-    readXmlFiles(rootClass, storage, filePath);
-    return new AsyncResult<>(null);
+    return CompletableFuture.supplyAsync(() -> readXmlFiles(rootClass, storage, filePath));
   }
 
   /**
@@ -73,11 +72,12 @@ public class AweElementsDao {
    * @param storage   Storage list
    * @param filePath  File path
    */
-  public <T extends XMLFile, N extends XMLNode> void readXmlFiles(Class<T> rootClass, Map<String, N> storage, String filePath) {
+  public <T extends XMLFile, N extends XMLNode> String readXmlFiles(Class<T> rootClass, Map<String, N> storage, String filePath) {
     // For each module read XML files
     Arrays.stream(baseConfigProperties.getModuleList())
       .map(module -> readModuleFile(rootClass, storage, baseConfigProperties.getPaths().getApplication() + module + filePath))
       .forEach(log::info);
+    return "OK";
   }
 
   /**
@@ -229,7 +229,7 @@ public class AweElementsDao {
     } catch (Exception exc) {
       log.error(ERROR_READING_XML, logPath, exc);
     }
-    return new AsyncResult<>(storage);
+    return CompletableFuture.completedFuture(storage);
   }
 
   /**
@@ -254,7 +254,6 @@ public class AweElementsDao {
    * @param clazz    Resource class
    * @param basePath Base path
    * @return Resource file read
-   * @throws IOException Error reading resource
    */
   private <T> Map<String, T> readXmlResourceFile(Resource resource, Class<T> clazz, String basePath) {
     long startTime = System.currentTimeMillis();
@@ -292,7 +291,7 @@ public class AweElementsDao {
     log.info(readModuleFile(Locales.class, localeLanguage, basePath));
 
     // Parse the read locales and store them on the final storage
-    return new AsyncResult<>(localeLanguage.values().stream()
+    return CompletableFuture.completedFuture(localeLanguage.values().stream()
       .collect(Collectors.toMap(Global::getName, StringUtil::parseLocale, (f, s) -> f, ConcurrentHashMap::new)));
   }
 

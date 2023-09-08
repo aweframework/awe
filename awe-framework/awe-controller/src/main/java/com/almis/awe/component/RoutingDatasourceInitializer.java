@@ -1,6 +1,7 @@
 package com.almis.awe.component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
+
 import javax.sql.DataSource;
 
 /**
@@ -21,8 +22,8 @@ public class RoutingDatasourceInitializer
 
     @PostConstruct
     public void loadDatasourceMap() {
-        if (dataSource instanceof AweRoutingDataSource) {
-            ((AweRoutingDataSource) dataSource).loadDataSources();
+        if (dataSource instanceof AweRoutingDataSource aweRoutingDataSource) {
+            aweRoutingDataSource.loadDataSources();
         }
     }
 }

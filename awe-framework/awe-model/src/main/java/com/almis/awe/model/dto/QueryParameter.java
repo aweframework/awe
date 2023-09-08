@@ -8,10 +8,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -154,14 +153,12 @@ public class QueryParameter implements Copyable {
     if (anotherObject == null) {
       return false;
     }
-    if (anotherObject instanceof QueryParameter) {
-      QueryParameter anotherParameter = (QueryParameter) anotherObject;
-      if (getType().equals(anotherParameter.getType())) {
-        if (anotherParameter.getValue() == null || this.getValue() == null) {
-          return this.getValue() == anotherParameter.getValue();
-        }
-        return getValue().equals(anotherParameter.getValue());
+    if (anotherObject instanceof QueryParameter anotherParameter 
+            && getType().equals(anotherParameter.getType())) {
+      if (anotherParameter.getValue() == null || this.getValue() == null) {
+        return this.getValue() == anotherParameter.getValue();
       }
+      return getValue().equals(anotherParameter.getValue());
     }
     return false;
   }

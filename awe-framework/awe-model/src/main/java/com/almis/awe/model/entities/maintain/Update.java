@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * <p>
  * Used to parse the file Maintain.xml with XStream
  * Target for update records. Generates a query which allows to update records from the table
- *
+ * </p>
  * @author Ismael SERRANO - 28/JUN/2010
  */
 @Getter

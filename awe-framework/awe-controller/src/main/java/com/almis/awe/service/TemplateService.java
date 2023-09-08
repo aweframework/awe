@@ -225,9 +225,8 @@ public class TemplateService extends ServiceConfig {
    * @param level       Option level
    * @param developers  Help for developers
    * @return Screen template
-   * @throws AWException Error generating breadcrumbs
    */
-  private List<Future<ST>> generateMenuHelp(List<Element> elementList, Integer level, boolean developers) throws AWException {
+  private List<Future<ST>> generateMenuHelp(List<Element> elementList, Integer level, boolean developers) {
     List<Future<ST>> templateList = new CopyOnWriteArrayList<>();
 
     // Call generate method on all elements
@@ -248,7 +247,7 @@ public class TemplateService extends ServiceConfig {
 
 
   /**
-   * Generates an taglist template from a screen and a taglist id
+   * Generates a taglist template from a screen and a taglist id
    *
    * @param tagListId Taglist identifier
    * @return Taglist template
@@ -259,7 +258,7 @@ public class TemplateService extends ServiceConfig {
   }
 
   /**
-   * Generates an taglist template from a screen and a taglist id
+   * Generates a taglist template from a screen and a taglist id
    *
    * @param optionId  Option identifier
    * @param tagListId Taglist identifier
@@ -280,9 +279,8 @@ public class TemplateService extends ServiceConfig {
    * @param screen    Screen
    * @param tagListId Taglist identifier
    * @return Taglist template
-   * @throws AWException error generating taglist template
    */
-  public TagList getTagList(Screen screen, String tagListId) throws AWException {
+  public TagList getTagList(Screen screen, String tagListId) {
     return (TagList) (screen.getElementsById(tagListId).get(0));
   }
 

@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * <p>
  * Used to parse the Email.xml file with XStream
  * This class is used to parse an email message (subject, body)
- *
+ * </p>
  * @author Pablo GARCIA - 25/JUN/2010
  */
 @Data

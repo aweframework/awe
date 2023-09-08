@@ -14,7 +14,7 @@ AWE is a light-weight Java web framework. Allows you build web applications in t
 - :white_check_mark: Modern UI responsive components
 - :white_check_mark: Themes and Multi-language support
 - :white_check_mark: Multiple data binding. Rest, SQL and noSql database, ...
-- :white_check_mark: Built-in Spring Boot support
+- :white_check_mark: Built-in Spring Boot 3 support
 - :white_check_mark: Easiest learning curve
 
 ## AWE Project main page
@@ -23,7 +23,7 @@ Please visit us at [https://www.aweframework.com](https://www.aweframework.com)
 
 
 ## Prerequisites
-You must have Maven 3.x installed on your computer and JDK 8 or higher
+You must have Maven 3.x installed on your computer and JDK 17 or higher
 
 ## Getting Started
 

@@ -21,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ChartService extends ServiceConfig {
@@ -149,7 +148,7 @@ public class ChartService extends ServiceConfig {
 
     // Handle response status
     if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-      throw new AWException(String.format("Error retrieving chart from server %d", responseEntity.getStatusCodeValue()));
+      throw new AWException(String.format("Error retrieving chart from server %d", responseEntity.getStatusCode().value()));
     }
 
     return responseEntity.getBody();
@@ -166,7 +165,7 @@ public class ChartService extends ServiceConfig {
     chart.setSerieList(chart.getSerieList()
       .stream()
       .map(serie -> serie.setData(getSerieData(serie, datasourceMap.get(Optional.ofNullable(serie.getParameterList()).orElse(Collections.emptyList()).stream().filter(parameter -> parameter.getName().equals("datasource")).findFirst().orElse(defaultParameter).getValue()))))
-      .collect(Collectors.toList()));
+      .toList());
   }
 
   /**
