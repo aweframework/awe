@@ -312,9 +312,19 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
+
     <plugins>
-      <!-- AWE static resources -->
-      <plugin>
+    <!-- AWE static resources -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-resources-plugin</artifactId>
+      <configuration>
+        <nonFilteredFileExtensions>
+          <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+        </nonFilteredFileExtensions>
+      </configuration>
+    </plugin>
+        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>

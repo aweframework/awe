@@ -51,21 +51,21 @@
 
     <!-- plugin versions -->
     <plugin-spring-boot.version>${spring-boot.version}</plugin-spring-boot.version>
-    <plugin-frontend.version>1.12.1</plugin-frontend.version>
-    <plugin-compiler.version>3.10.1</plugin-compiler.version>
-    <plugin-war.version>3.3.2</plugin-war.version>
+    <plugin-frontend.version>1.13.4</plugin-frontend.version>
+    <plugin-compiler.version>3.11.0</plugin-compiler.version>
+    <plugin-war.version>3.4.0</plugin-war.version>
     <plugin-sonar.version>3.5.0.1254</plugin-sonar.version>
-    <plugin-surefire.version>2.22.2</plugin-surefire.version>
-    <plugin-failsafe.version>2.22.2</plugin-failsafe.version>
-    <plugin-xml-maven.version>1.0.1</plugin-xml-maven.version>
-    <plugin-jar.version>3.1.0</plugin-jar.version>
+    <plugin-surefire.version>3.1.2</plugin-surefire.version>
+    <plugin-failsafe.version>3.1.2</plugin-failsafe.version>
+    <plugin-xml-maven.version>1.1.0</plugin-xml-maven.version>
+    <plugin-jar.version>3.3.0</plugin-jar.version>
     <plugin-ant.version>1.8</plugin-ant.version>
     <plugin-flatten-maven.version>1.1.0</plugin-flatten-maven.version>
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
-    <plugin-resources.version>3.1.0</plugin-resources.version>
+    <plugin-resources.version>3.3.1</plugin-resources.version>
     <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
-    <plugin-maven-archetype.version>3.2.0</plugin-maven-archetype.version>
-    <plugin-maven-install.version>3.0.0-M1</plugin-maven-install.version>
+    <plugin-maven-archetype.version>3.2.1</plugin-maven-archetype.version>
+    <plugin-maven-install.version>3.1.1</plugin-maven-install.version>
     <!-- Karma configuration -->
     <karma.launch.edge>true</karma.launch.edge>
     <karma.launch.gitlab>false</karma.launch.gitlab>
@@ -464,7 +464,7 @@
               </validationSet>
             </validationSets>
             <catalogs>
-              <catalog>${project.build.directory}/schemas/awe/catalog.xml</catalog>
+              <catalog>file:///${project.build.directory}/schemas/awe/catalog.xml</catalog>
             </catalogs>
           </configuration>
         </plugin>
