@@ -65,8 +65,8 @@
   &[href] {
     &:hover,
     &:focus {
-      background-color: darken(@color, 10%);
-      border-color: darken(@color, 10%);
+      background-color: @color;
+      border-color: @color;
     }
   }
 }
@@ -80,7 +80,7 @@
   &[href] {
     &:hover,
     &:focus {
-      background-color: darken(@color, 10%);
+      background-color: @color;
     }
   }
 
@@ -94,12 +94,12 @@
     &[href] {
       &:hover,
       &:focus {
-        border-color: darken(@color, 10%);
+        border-color: @color;
       }
 
       &:hover:before,
       &:focus:before {
-        border-color: transparent darken(@color, 10%) transparent transparent;
+        border-color: transparent @color transparent transparent;
       }
     }
 
@@ -112,7 +112,7 @@
 
     .right-to-left &[href]:hover:before,
     .right-to-left &[href]:focus:before {
-      border-color: transparent transparent transparent darken(@color, 10%);
+      border-color: transparent transparent transparent @color;
     }
 
     .ie8 .right-to-left &:before,
@@ -124,7 +124,7 @@
     .ie8 .right-to-left &[href]:focus:before,
     .ie9 .right-to-left &[href]:hover:before,
     .ie9 .right-to-left &[href]:focus:before {
-      border-color: transparent darken(@color, 10%) transparent transparent;
+      border-color: transparent @color transparent transparent;
     }
   }
 }
@@ -135,12 +135,13 @@
   color: @font-color;
 
   & {
-    border-color: darken(@color, 5% + @border);
-    border-bottom-color: darken(@color, 11% + @border);
+    border-color: color-mix(in srgb, @color, @text-color (5% + @border));
+    border-bottom-color: color-mix(in srgb, @color, @text-color (11% + @border));
+    background: @color;
     .pixel-gradient(
       @fallback: @color,
-      @start:    lighten(@color, floor(@gradient/2.0%) - @gradient-offset),
-      @end:      darken(@color, floor(@gradient/2.0%) + @gradient-offset)
+      @start:    color-mix(in srgb, @color, #FFF floor(@gradient /2.0%) - @gradient-offset),
+      @end:      color-mix(in srgb, @color, #000 floor(@gradient /2.0%) + @gradient-offset)
     );
   }
 
@@ -148,28 +149,26 @@
   &.focused,
   &:focus {
     color: @font-color;
-    border-color: darken(@color, 8% + @border);
-    border-bottom-color: darken(@color, 18% + @border);
+    border-color: color-mix(in srgb, @color, @text-color (8% + @border));
+    border-bottom-color: color-mix(in srgb, @color, @text-color (18% + @border));
+    background: color-mix(in srgb, @color, @text-color 10%);
     .pixel-gradient-forced(
-      @fallback: darken(@color, @hover + @gradient-offset),
-      @start:    darken(lighten(@color, floor(@gradient/2.0%) - @gradient-offset), @hover),
-      @end:      darken(darken(@color, floor(@gradient/2.0%) + @gradient-offset), @hover)
+      @fallback: color-mix(in srgb, @color, @text-color @hover + @gradient-offset),
+      @start:    color-mix(in srgb, @color, #FFF floor(@gradient /2.0%) - @gradient-offset + @hover),
+      @end:      color-mix(in srgb, @color, #000 floor(@gradient /2.0%) + @gradient-offset + @hover)
     );
   }
 
   &:active,
   &.active,
   .open &.dropdown-toggle {
-    background: none;
-    background: darken(@color, @gradient/2.0% + 1%) !important;
-    border-color: darken(@color, 14% + @border);
-    border-bottom-color: darken(@color, 14% + @border) !important;
-    color: @font-color;
     .box-shadow(0 0 12px rgba(0, 0, 0, .1) inset);
+    background: @color !important;
+    border-color: color-mix(in srgb, @color, @text-color  (20% + @border));
   }
 
   &.btn-flat {
-    background: darken(@color, 3%);
+    background: @color;
 
     &:hover,
     &:focus,
@@ -177,7 +176,7 @@
     &:active,
     &.active,
     .open &.dropdown-toggle {
-      background: darken(@color, 3%) !important;
+      background: @color !important;
       color: @font-color;
     }
   }
@@ -187,12 +186,11 @@
     &:hover,
     &:focus {
       color: @font-color;
-      border-color: darken(@color, 8% + @border);
-      border-bottom-color: darken(@color, 18% + @border);
+      border-color: @color;
     }
 
     &:active {
-      border-color: darken(@color, 14% + @border);
+      border-color: @color;
     }
   }
 
@@ -200,8 +198,8 @@
   //
   .btn-group &,
   .input-group-btn & {
-    border-left-color: darken(@color, 8% + @border);
-    border-right-color: darken(@color, 8% + @border);
+    //border-left-color: @color;
+    //border-right-color: @color;
   }
   .btn-group &:hover,
   .btn-group &:focus,
@@ -209,15 +207,14 @@
   .input-group-btn &:hover,
   .input-group-btn &:focus,
   .input-group-btn.open &.dropdown-toggle {
-    border-color: darken(@color, 8% + @border);
-    border-bottom-color: darken(@color, 18% + @border);
+    //border-color: @color;
   }
   .btn-group &:active,
   .btn-group &.active,
   .input-group-btn &:active,
   .input-group-btn &.active {
-    border-left-color: darken(@color, 14% + @border);
-    border-right-color: darken(@color, 14% + @border);
+    //border-left-color: @color;
+    //border-right-color: @color;
   }
 }
 
@@ -225,13 +222,13 @@
 //
 .pixel-progress-bar(@color) {
   background: @color;
-  border-color: darken(@color, 6%);
+  border-color: @color;
 }
 
 // Striped progress bar mixin
 //
 .pixel-progress-striped(@color) {
-  background-color: darken(@color,0%);
+  background-color: @color;
   background-image: linear-gradient(45deg, rgba(255,255,255,10%) 25%, transparent 25%, transparent 50%, rgba(255,255,255,10%) 50%, rgba(255,255,255,10%) 75%, transparent 75%, transparent);
   background-size: 10px 10px;
 }
@@ -250,7 +247,7 @@
 //
 .pixel-alert-dark(@color, @stripes-opacity: .06) {
   background: none;
-  border-color: darken(@color, 10%);
+  border-color: @color;
   background-color: @color;
   background-image: linear-gradient(45deg, rgba(255,255,255,@stripes-opacity) 25%, transparent 25%, transparent 50%, rgba(255,255,255,@stripes-opacity) 50%, rgba(255,255,255,@stripes-opacity) 75%, transparent 75%, transparent);
   background-size: 20px 20px;
@@ -265,11 +262,11 @@
     &:hover,
     &:focus {
       background: @color;
-      border-bottom: 2px solid darken(@color, 5%);
+      border-bottom: 2px solid @color;
     }
   }
   .nav-tabs.nav-justified > .active > a {
-    border-bottom-color: darken(@color, 5%);
+    border-bottom-color: @color;
   }
 }
 
@@ -301,32 +298,33 @@
 
 // Table color mixin
 //
-.table-color(@color, @text: #fff) {
+.table-color(@header-color, @background-color, @text-color) {
   table {
-    border-top-color: darken(desaturate(@color, 15%), 12%) !important;
+    border-top-color: @header-color !important;
+    background-color: @background-color;
   }
 
   thead,
   thead tr,
   thead th,
   .table-header {
-    border-color: darken(desaturate(@color, 15%), 12%) !important;
-    color: @text;
+    border-color: @header-color !important;
+    color: @text-color;
   }
 
   thead tr,
   thead th {
-    background: darken(desaturate(@color, 8%), 6%);
+    background: @header-color;
   }
 
   .table-header {
-    background: @color;
+    background: @header-color;
   }
 }
 
 // Form state mixin
 //
-.pixel-form-state-base(@color, @font-color, @border-color, @input-border-color: darken(@border-color, 17%)) {
+.pixel-form-state-base(@color, @font-color, @border-color, @input-border-color: @border-color) {
   /*.control-label {
     color: @font-color;
   }*/
@@ -338,11 +336,11 @@
     background-size: 20px 20px;
 
     &:before {
-      border-bottom-color: darken(@border-color, 10%);
+      border-bottom-color: @border-color;
     }
 
     &:after{
-      border-bottom-color: lighten(@color, 1%);
+      border-bottom-color: @color;
     }
   }
 
@@ -351,7 +349,7 @@
     .box-shadow(none);
     &:focus,
     &.focus {
-      border-color: darken(@input-border-color, 10%) !important;
+      border-color: @input-border-color !important;
       .box-shadow(none);
     }
   }
@@ -362,7 +360,7 @@
   }
 
   .form-control-feedback {
-    color: darken(@input-border-color, 10%);
+    color: @input-border-color;
   }
 }
 
@@ -382,7 +380,7 @@
 // Dark form state mixin
 //
 .pixel-form-state-dark(@color, @input-border-color, @stripes-opacity: .06) {
-  .pixel-form-state-base(@color, @font-color: #fff, @border-color: darken(@color, 10%), @input-border-color: @color);
+  .pixel-form-state-base(@color, @font-color: #fff, @border-color: @color, @input-border-color: @color);
   .help-block {
     background: @color;
     background-image: linear-gradient(45deg, rgba(255,255,255,@stripes-opacity) 25%, transparent 25%, transparent 50%, rgba(255,255,255,@stripes-opacity) 50%, rgba(255,255,255,@stripes-opacity) 75%, transparent 75%, transparent);
@@ -395,6 +393,8 @@
 //
 .pixel-panel(@color, @font-color, @border-color) {
   border-color: @border-color !important;
+  border-radius: @border-radius;
+  overflow: hidden;
   .panel-heading {
     background: @color;
     border-color: @border-color;
@@ -411,7 +411,7 @@
         text-decoration: underline;
 
         &:hover {
-          color: lighten(@font-color, 10%);
+          color: color-mix(in srgb, @color, @panel-background-color 10%);
         }
       }
     }
@@ -447,10 +447,8 @@
     }
 
     .panel-heading-text {
-      color: lighten(@color, 38%);
 
       a {
-        color: lighten(@color, 38%);
         text-decoration: underline;
 
         &:hover {
@@ -474,7 +472,6 @@
     table th,
     table td,
     .list-group-item {
-      border-color: lighten(@color, 8%);
     }
 
     &,
@@ -486,7 +483,6 @@
 
     .panel-footer {
       background: @color;
-      border-color: lighten(@color, 8%);
       color: #fff;
     }
   }
@@ -530,7 +526,6 @@
     color: #fff;
 
     .popover-title {
-      border-bottom-color: lighten(@color, 8%);
       border-bottom-width: 2px;
     }
 
@@ -578,9 +573,9 @@
 
 // Note states mixin
 //
-.pixel-note-mixin(@color, @bg-color) {
+.pixel-note-mixin(@color) {
   border-color: @color;
-  background: @bg-color;
+  background: color-mix(in srgb, @color, @primary-background-color 90%);
 
   h1,
   h2,
@@ -632,7 +627,7 @@
 
   a:hover,
   a:active {
-    color: darken(@color, 15%);
+    color: color-mix(in srgb, @color, @primary-background-color 85%);
   }
 }
 
@@ -644,21 +639,21 @@
   background: @color !important;
 
   &[href]:hover {
-    background: desaturate(darken(@color, 3%), 6%) !important;
+
   }
 
   &.darken {
-    background: desaturate(darken(@color, 3%), 6%) !important;
+
 
     &[href]:hover {
-      background: desaturate(darken(@color, 6%), 6%) !important;
+
     }
   }
   &.darker {
-    background: desaturate(darken(@color, 6%), 6%) !important;
+
 
     &[href]:hover {
-      background: desaturate(darken(@color, 9%), 6%) !important;
+
     }
   }
   .pixel-text-color(@text-color);
@@ -669,7 +664,7 @@
   }
 
   * {
-    border-color: lighten(@color, 7%);
+
   }
 }
 
@@ -710,7 +705,7 @@
 
     &:hover:before,
     &:focus:before {
-      border-color: transparent transparent transparent darken(@color, 10%);
+      border-color: transparent transparent transparent @color;
     }
   }
 
@@ -723,7 +718,7 @@
   .ie8 &.right-to-left .label.label-primary.label-tag:focus:before,
   .ie9 &.right-to-left .label.label-primary.label-tag:hover:before,
   .ie9 &.right-to-left .label.label-primary.label-tag:focus:before {
-    border-color: transparent darken(@color, 10%) transparent transparent;
+    border-color: transparent @color transparent transparent;
   }
 }
 
@@ -735,10 +730,9 @@
   }
 
   .open .btn.btn-primary.dropdown-toggle {
-    color: #fff;
-    border-bottom-color: darken(@color, 14%) !important;
-    background: none;
-    background: darken(@color, 4%) !important;
+    color: @text-color;
+    border-bottom-color: @color !important;
+    background: @color !important;
   }
 }
 
@@ -767,7 +761,7 @@
 //
 .tables-theme(@color) {
   .table-primary {
-    .table-color(@color);
+    .table-color(@color, @panel-background-color, @primary-text-color);
   }
 }
 
@@ -802,21 +796,21 @@
   .btn-group .btn-primary:focus,
   .input-group-btn .btn-primary,
   .input-group-btn .btn-primary:focus {
-    border-left-color: darken(@color, 8%);
-    border-right-color: darken(@color, 8%);
+    border-left-color: @color;
+    border-right-color: @color;
   }
   .btn-group .btn-primary:hover,
   .btn-group.open .btn-primary.dropdown-toggle,
   .input-group-btn .btn-primary:hover,
   .input-group-btn.open .btn-primary.dropdown-toggle {
-    border-color: darken(@color, 14%);
+    border-color: @color;
   }
   .btn-group .btn-primary:active,
   .btn-group .btn-primary.active,
   .input-group-btn .btn-primary:active,
   .input-group-btn .btn-primary.active {
-    border-left-color: darken(@color, 14%);
-    border-right-color: darken(@color, 14%);
+    border-left-color: @color;
+    border-right-color: @color;
   }
 }
 
@@ -854,7 +848,7 @@
     border-color: @color;
 
     .list-group-item-text {
-      color: lighten(@color, 40%);
+      color: @color;
     }
   }
 }
@@ -876,7 +870,7 @@
     border-color: @color;
   }
 
-  .gt-ie8 & input[type="checkbox"].px  + .lbl:after {
+  .gt-ie8 & input[type="checkboxcheckbox"].px  + .lbl:after {
     color: @color;
   }
 
@@ -952,7 +946,7 @@
 // Progress bars
 .ui-progressbar-color(@color) {
   background: @color;
-  border-color: darken(@color, 6%);
+  border-color: @color;
   .pixel-progress-striped(@color);
 }
 .ui-progressbar-theme(@color) {
@@ -969,7 +963,7 @@
     &:focus {
       color: #fff;
       background: @color;
-      border-bottom: 2px solid darken(@color, 5%);
+      border-bottom: 2px solid @color;
     }
   }
 }
@@ -985,7 +979,7 @@
   }
 
   .ui-datepicker th {
-    background: darken(desaturate(@color, 20%), 5%);
+    background: @color;
   }
 
   .ui-datepicker-buttonpane button.ui-priority-primary {
@@ -1005,7 +999,7 @@
     }
 
     .select2-search-choice-focus {
-      background: darken(@color, 10%);
+      background: @color;
     }
   }
 
@@ -1014,7 +1008,7 @@
   }
 
 }
-.select2-theme(@color) {
+.select2-theme(@color, @text-color) {
   .select2-drop-active,
   .select2-container-multi.select2-container-active .select2-choices,
   .select2-container-multi.select2-dropdown-open .select2-choices {
@@ -1042,6 +1036,7 @@
 
   .select2-results .select2-highlighted {
     background: @color;
+    color: @text-color;
   }
 
   .select2-primary {
@@ -1063,7 +1058,7 @@
 
 // Bootstrap Datepicker
 .bootstrap-datepicker-theme(@color) {
-  @bs-datepicker-border-color: darken(desaturate(@color, 30%), 12%);
+  @bs-datepicker-border-color: color-mix(in srgb, @color, @panel-background-color 12%);
 
   .datepicker {
     table tr td {
@@ -1091,7 +1086,7 @@
 
     thead {
       tr {
-        background: darken(desaturate(@color, 20%), 5%);
+        background: @color;
         &:first-child {
           background: @color !important;
           border-bottom-color: @bs-datepicker-border-color !important;
@@ -1131,8 +1126,8 @@
 .datepaginator-theme(@color) {
   .pagination a.dp-today,
   .pagination a.dp-today:hover {
-    background: lighten(@color, 10%);
-    border-color: lighten(@color, 5%);
+    background: @color;
+    border-color: @color;
   }
 
   .pagination a.dp-today:hover {
@@ -1155,7 +1150,7 @@
 // jQuery DataTables
 .DT-color(@color) {
   .dataTables_wrapper .DT-per-page {
-    border-color: darken(desaturate(@color, 15%), 12%) !important;
+    border-color: @color !important;
   }
 }
 .data-table-theme(@color) {

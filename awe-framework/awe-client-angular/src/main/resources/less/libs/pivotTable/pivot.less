@@ -66,8 +66,8 @@ table.pvtTable tr td {
 }
 
 .pvtAxisContainer, .pvtVals {
-  border: 1px solid gray;
-  background: #EEE;
+  border: 1px solid @border-color;
+  background: @panel-background-color;
   padding: 5px;
   min-width: 150px;
   min-height: 20px;
@@ -128,20 +128,20 @@ table.pvtTable tr td {
 
 .pvtColLabel.pvtSortable, .pvtRowLabel.pvtSortable, .pvtTotalLabel.pvtTotalColSortable, .pvtTotalLabel.pvtTotalRowSortable {
   cursor:pointer;
-  padding: 0px 16px;
+  padding: 0 16px;
 }
 
 .pvtColLabel.pvtSortable.pvtSortDesc, .pvtTotalRowSortable.pvtSortDesc,
 .pvtColLabel.pvtSortable.pvtSortAsc, .pvtTotalRowSortable.pvtSortAsc,
 .pvtRowLabel.pvtSortable.pvtSortDesc, .pvtTotalColSortable.pvtSortDesc,
 .pvtRowLabel.pvtSortable.pvtSortAsc, .pvtTotalColSortable.pvtSortAsc {
-  padding-right: 0px;
+  padding-right: 0;
 }
 .pvtColLabel.pvtSortable.pvtSortDesc::after, .pvtTotalRowSortable.pvtSortDesc::after  {
   //content:" ↓";
   content: @fa-var-long-arrow-down;
   .fa-icon();
-  margin: 0px 2px;
+  margin: 0 2px;
   width: 12px;
   text-align: center;
 }
@@ -149,7 +149,7 @@ table.pvtTable tr td {
   //content:" ↑";
   content: @fa-var-long-arrow-up;
   .fa-icon();
-  margin: 0px 2px;
+  margin: 0 2px;
   width: 12px;
   text-align: center;
 }
@@ -157,7 +157,7 @@ table.pvtTable tr td {
   //content:" →";
   content: @fa-var-long-arrow-right;
   .fa-icon();
-  margin: 0px 2px;
+  margin: 0 2px;
   width: 12px;
   text-align: center;
 }
@@ -165,7 +165,7 @@ table.pvtTable tr td {
   //content:" ←";
   content: @fa-var-long-arrow-left;
   .fa-icon();
-  margin: 0px 2px;
+  margin: 0 2px;
   width: 12px;
   text-align: center;
 }

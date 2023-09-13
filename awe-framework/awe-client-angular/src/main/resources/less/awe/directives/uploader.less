@@ -10,6 +10,11 @@
     left: -10000px;
   }
 
+  .pixel-file-input {
+    background-color: @panel-background-color;
+    color: @text-color;
+  }
+
   &.uploader {
     .progress-bar {
       .transition(width 100ms ease);
@@ -19,7 +24,7 @@
   // VALIDATION
   &.has-error {
     .pixel-file-input {
-      border:1px solid #a94442 !important;
+      border:1px solid @danger-color !important;
     }
   }
 
@@ -34,15 +39,15 @@
   // Uploading bar
   .uploading-sm {
     height: @input-height-small;
-    padding: 7px 0px;
+    padding: 7px 0;
   }
   .uploading-md {
     height: @input-height-base;
-    padding: 10px 0px;
+    padding: 10px 0;
   }
   .uploading-lg {
     height: @input-height-large;
-    padding: 13px 0px;
+    padding: 13px 0;
   }
 
   .pixel-file-input {

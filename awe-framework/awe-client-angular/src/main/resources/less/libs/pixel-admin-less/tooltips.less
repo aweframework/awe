@@ -48,17 +48,21 @@
 //
 
 .tooltip-warning + .tooltip {
-  .pixel-tooltip-state(darken(@warning-color, 10%));
+  .pixel-tooltip-state(@warning-color);
+  //filter: brightness(90%);
 }
 
 .tooltip-danger + .tooltip {
-  .pixel-tooltip-state(darken(@danger-color, 10%));
+  .pixel-tooltip-state(@danger-color);
+  //filter: brightness(90%);
 }
 
 .tooltip-success + .tooltip {
-  .pixel-tooltip-state(darken(@success-color, 10%));
+  .pixel-tooltip-state(@success-color);
+  //filter: brightness(90%);
 }
 
 .tooltip-info + .tooltip {
-  .pixel-tooltip-state(darken(@info-color, 10%));
+  .pixel-tooltip-state(@info-color);
+  //filter: brightness(90%);
 }

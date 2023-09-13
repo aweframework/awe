@@ -71,7 +71,7 @@
   border: 1px solid @table-border-color;
   line-height: 20px;
   padding: 10px 15px 10px 15px;
-  background: #fafafa;
+  background: @secondary-background-color;
   .border-bottom-radius(@border-radius-base);
 }
 
@@ -89,21 +89,21 @@
 }
 
 .table-light {
-  .table-color(#fafafa, @text-color);
+  .table-color(@secondary-background-color, @panel-background-color, @text-color);
 }
 
 .table-success {
-  .table-color(@success-color);
+  .table-color(@success-color, @panel-background-color, @success-color);
 }
 
 .table-danger {
-  .table-color(@danger-color);
+  .table-color(@danger-color, @panel-background-color, @danger-color);
 }
 
 .table-warning {
-  .table-color(@warning-color);
+  .table-color(@warning-color, @panel-background-color, @warning-color);
 }
 
 .table-info {
-  .table-color(@info-color);
+  .table-color(@info-color, @panel-background-color, @info-color);
 }

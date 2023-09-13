@@ -56,7 +56,7 @@
 
   @tableName: ~"table-@{name}";
   .@{tableName} {
-    .table-color(@color);
+    .table-color(@color, @panel-background-color, @primary-text-color);
   }
 
   @listGroupName: ~"list-group-@{name}";
@@ -76,7 +76,8 @@
 
   @tooltipName: ~"tooltip-@{name}";
   .@{tooltipName} + .tooltip {
-    .pixel-tooltip-state(darken(@color, 10%));
+    .pixel-tooltip-state(@color);
+    //filter: brightness(90%);
   }
 
   @panelGroupName: ~"panel-group-@{name}";

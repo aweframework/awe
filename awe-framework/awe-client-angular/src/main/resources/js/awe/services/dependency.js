@@ -1,4 +1,5 @@
 import {aweApplication} from "./../awe";
+import _ from "lodash";
 
 // Dependency object
 aweApplication.factory('Dependency',
@@ -415,7 +416,7 @@ aweApplication.factory('Dependency',
               this.finish();
               break;
             default:
-              this.applyTarget(value, condition.update);
+              this.applyTarget(value, condition.update, values);
           }
 
           // Return promise
@@ -531,8 +532,9 @@ aweApplication.factory('Dependency',
          * Apply target type
          * @param {String}  value Target value
          * @param {Boolean} update Condition updated
+         * @param {Object} values Dependency element values
          */
-        applyTarget: function (value, update) {
+        applyTarget: function (value, update, values) {
           let  target = this.target || "none";
           switch (target) {
             case "label":
@@ -624,7 +626,18 @@ aweApplication.factory('Dependency',
 
           // Launch action list if update
           if (this.actions.length > 0 && update) {
-            ActionController.addActionList(this.actions, true, {address: this.component.address, context: this.component.context});
+            // Replace wildcards in target action values
+            const mapped = this.actions.map(action => ({
+              ...action,
+              targetAction: Utilities.replaceWildcard(action.targetAction, values),
+              parameters: {
+                ...action.parameters || {},
+                targetAction: Utilities.replaceWildcard(action.targetAction, values)
+              }
+            }));
+
+            // Launch actions
+            ActionController.addActionList(mapped, true, {address: this.component.address, context: this.component.context});
           }
 
           // Finish dependency

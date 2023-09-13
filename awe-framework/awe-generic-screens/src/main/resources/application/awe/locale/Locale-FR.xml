@@ -23,6 +23,8 @@
   <locale name="BUTTON_CLOSE" value="Fermer"/>
   <locale name="BUTTON_CONFIRM" value="Enregister"/>
   <locale name="BUTTON_COPY" value="Copier"/>
+  <locale name="BUTTON_CUSTOMIZE" value="Personnaliser"/>
+  <locale name="BUTTON_DARK_MODE" value="Mode sombre"/>
   <locale name="BUTTON_DEACTIVATE" value="Désactiver"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactiver taches selectionnees"/>
   <locale name="BUTTON_DELETE" value="Supprimer"/>
@@ -31,6 +33,7 @@
   <locale name="BUTTON_EXPORT" value="Exporter"/>
   <locale name="BUTTON_FINISH" value="Finir"/>
   <locale name="BUTTON_HIDE_MENU" value="MASQUER LE MENU"/>
+  <locale name="BUTTON_LIGHT_MODE" value="Mode lumière"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
   <locale name="BUTTON_LOGOUT" value="Sortir"/>
   <locale name="BUTTON_MODIFY" value="Modifier"/>
@@ -134,6 +137,7 @@
   <locale name="CONNECTION_TYPE_HTTP" value="http"/>
   <locale name="CONNECTION_TYPE_HTTPS" value="https"/>
   <locale name="CONNECTION_TYPE_SSH" value="ssh"/>
+  <locale name="DARK_THEME" value="Thème foncé"/>
   <locale name="DAYS" value="{0}j"/>
   <locale name="ELEMENT_GENERIC_HELP" value="Element type --&gt;"/>
   <locale name="ELEMENT_HELP_LABEL" value="Label"/>
@@ -713,6 +717,7 @@
   <locale name="HELP_CREATE_NEW_LOCAL_BUTTON" value="Créer un nouveau locale et stocker le dans les fichiers xml des locaux"/>
   <locale name="HELP_CRITERION" value="Critère"/>
   <locale name="HELP_CRITERION_IDENTIFIER" value="Identificateur de critère"/>
+  <locale name="HELP_CUSTOM_BUTTON" value="Permet de définir des couleurs spécifiques à certaines parties du thème sélectionné pour le personnaliser"/>
   <locale name="HELP_DELETE_BUTTON" value="Retirer les données sélectionnées dans la grille"/>
   <locale name="HELP_DESCRIPTION" value="Description"/>
   <locale name="HELP_EDIT_BUTTON" value="Modifier l&apos;élément sélectionné"/>
@@ -797,6 +802,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="HELP_SCREEN_TITLE_SIT_VIW" value="View site"/>
   <locale name="HELP_SCREEN_TITLE_STL_CNF" value="Report style configuration"/>
   <locale name="HELP_SCREEN_TITLE_THM" value="Gestión de thèmes"/>
+  <locale name="HELP_SCREEN_TITLE_THM_CUSTOM" value="Dans cet écran, vous pouvez définir des propriétés visuelles spécifiques pour chaque partie de l&apos;écran définie dans le thème sélectionné"/>
   <locale name="HELP_SCREEN_TITLE_THM_NEW" value="Insertion de thème"/>
   <locale name="HELP_SCREEN_TITLE_THM_UPD" value="Modification de thème"/>
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Consultation de thème"/>
@@ -815,6 +821,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Le paramètre {0} ne peut pas être analysée comme nombre: &apos;&apos;{1}&apos;&apos; - Défini comme null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Informatión"/>
+  <locale name="LIGHT_THEME" value="Thème clair"/>
   <locale name="MENU_ACT_USR" value="Notifier les utilisateurs actives"/>
   <locale name="MENU_APP_INF" value="A porpos de"/>
   <locale name="MENU_AUDITS" value="Audits"/>
@@ -909,25 +916,32 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_AUD_TYPE" value="T. audit"/>
   <locale name="PARAMETER_AUTH" value="Authentification"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="Moyenne temps"/>
+  <locale name="PARAMETER_BACKGROUND" value="Arrière plan"/>
+  <locale name="PARAMETER_BACKGROUND_COLOR" value="Couleur arrière-plan"/>
   <locale name="PARAMETER_BALANCE" value="Balance"/>
   <locale name="PARAMETER_BATCH" value="Batch"/>
   <locale name="PARAMETER_BATDES" value="Source"/>
   <locale name="PARAMETER_BATNAM" value="Batch"/>
   <locale name="PARAMETER_BLOCKED" value="Bloqué"/>
   <locale name="PARAMETER_BLOCKING" value="Blocage"/>
+  <locale name="PARAMETER_BORDER_COLOR" value="Couleur de la bordure"/>
+  <locale name="PARAMETER_BORDER_RADIUS" value="Rayon bordures"/>
   <locale name="PARAMETER_BROKER" value="Serveur de queue"/>
   <locale name="PARAMETER_CALENDAR" value="Calendrier"/>
   <locale name="PARAMETER_CAPTURE_DATE_END" value="D. saisie finale"/>
   <locale name="PARAMETER_CAPTURE_DATE_INI" value="D. saisie initiale"/>
   <locale name="PARAMETER_CATEGORY" value="Catégorie"/>
   <locale name="PARAMETER_CHECK_EACH" value="Vérifier chaque"/>
+  <locale name="PARAMETER_COLORS" value="Couleurs"/>
   <locale name="PARAMETER_COMMAND" value="Commande"/>
   <locale name="PARAMETER_CONN_TYPE" value="Type de connexion"/>
   <locale name="PARAMETER_CONNECTION" value="Lien"/>
   <locale name="PARAMETER_COUNTERPARTY" value="Contratant"/>
   <locale name="PARAMETER_COUNTRY" value="Pays"/>
   <locale name="PARAMETER_CREDIT" value="Credit"/>
+  <locale name="PARAMETER_CRITERIA" value="Critères"/>
   <locale name="PARAMETER_CURRENCY" value="Devise"/>
+  <locale name="PARAMETER_DANGER_COLOR" value="Couleur pour Erreur"/>
   <locale name="PARAMETER_DATE" value="Date"/>
   <locale name="PARAMETER_DATE_INF" value="Date &lt;="/>
   <locale name="PARAMETER_DATE_SUP" value="Date &gt;="/>
@@ -941,8 +955,12 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_DESTINATION" value="Destination"/>
   <locale name="PARAMETER_DIALECT" value="Dialecte"/>
   <locale name="PARAMETER_DIS" value="Distribution auto."/>
+  <locale name="PARAMETER_DISABLED_BACKGROUND_COLOR" value="Couleur d&apos;arrière-plan désactivé"/>
+  <locale name="PARAMETER_DISABLED_BORDER_COLOR" value="Couleur de bordure désactivée"/>
+  <locale name="PARAMETER_DISABLED_TEXT_COLOR" value="Couleur du texte désactivé"/>
   <locale name="PARAMETER_DOUBLE" value="Double"/>
   <locale name="PARAMETER_DRIVER" value="Driver"/>
+  <locale name="PARAMETER_DROPDOWN_COLOR" value="Couleur du menu déroulant"/>
   <locale name="PARAMETER_DST" value="Destination"/>
   <locale name="PARAMETER_ELEMENT" value="Element"/>
   <locale name="PARAMETER_EMAIL" value="E-mail"/>
@@ -965,10 +983,14 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frequence"/>
   <locale name="PARAMETER_FROM" value="De"/>
+  <locale name="PARAMETER_GRID" value="Tableaux"/>
+  <locale name="PARAMETER_HEADER_COLOR" value="Couleur d’en-tête"/>
+  <locale name="PARAMETER_HEIGHT" value="Hauteur"/>
   <locale name="PARAMETER_HOUR_FIN" value="Echéance"/>
   <locale name="PARAMETER_HOUR_INI" value="L&apos;heure de début"/>
   <locale name="PARAMETER_HOURS" value="Heures"/>
   <locale name="PARAMETER_IDE" value="Identificateur"/>
+  <locale name="PARAMETER_INFO_COLOR" value="Couleur d’information"/>
   <locale name="PARAMETER_INT_PATH" value="Route en Int."/>
   <locale name="PARAMETER_INTEGER" value="Entier"/>
   <locale name="PARAMETER_ISLEAF" value="Est feuille"/>
@@ -979,10 +1001,12 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_ERROR" value="Lancer les dépendances en cas d&apos;erreur"/>
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_WARN" value="Lancer les dépendances en cas d&apos;avertissement"/>
   <locale name="PARAMETER_LAUNCH_TYPE" value="Type de lancement"/>
+  <locale name="PARAMETER_LOADING_BAR_COLOR" value="Couleur de la barre de chargement"/>
   <locale name="PARAMETER_LOG" value="Log"/>
   <locale name="PARAMETER_LONG" value="Long"/>
   <locale name="PARAMETER_MAIN" value="Principal"/>
   <locale name="PARAMETER_MAINTAIN" value="Maintain"/>
+  <locale name="PARAMETER_MENU" value="Menu"/>
   <locale name="PARAMETER_MESSAGE" value="Mensaje"/>
   <locale name="PARAMETER_MINUTES" value="Minutes"/>
   <locale name="PARAMETER_MODULE" value="Module"/>
@@ -1000,6 +1024,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="Septembre"/>
   <locale name="PARAMETER_MONTHS" value="Mois"/>
   <locale name="PARAMETER_NAME" value="Nom"/>
+  <locale name="PARAMETER_NAVBAR" value="Barre de navigation"/>
   <locale name="PARAMETER_NEW_PASSWD" value="Nouveau mot de passe"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Prochaine exécution"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Type de notification"/>
@@ -1009,6 +1034,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_OPERATOR" value="Operateur"/>
   <locale name="PARAMETER_OPTION" value="Option"/>
   <locale name="PARAMETER_ORDER" value="Ordre"/>
+  <locale name="PARAMETER_PANEL" value="Panel"/>
   <locale name="PARAMETER_PARAMETERS" value="Paramètres"/>
   <locale name="PARAMETER_PARENT" value="Parent"/>
   <locale name="PARAMETER_PASSWD" value="Mot de passe"/>
@@ -1017,6 +1043,10 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_PASSWD_MIN" value="Longueur du mot de passe"/>
   <locale name="PARAMETER_PASSWD_NEW" value="Nouveau mot de passe"/>
   <locale name="PARAMETER_PHRASEKEY" value="Phrase key"/>
+  <locale name="PARAMETER_PREVIEW_DARK" value="Prévisualisation du thème"/>
+  <locale name="PARAMETER_PREVIEW_LIGHT" value="Aperçu du thème léger"/>
+  <locale name="PARAMETER_PRIMARY_COLOR" value="Couleur primaire"/>
+  <locale name="PARAMETER_PRIMARY_FONT_SIZE" value="Taille principale de police"/>
   <locale name="PARAMETER_PRINT" value="Imprimante"/>
   <locale name="PARAMETER_PRINTER" value="Imprimante"/>
   <locale name="PARAMETER_PRN_ACTION" value="Actión"/>
@@ -1034,11 +1064,14 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_REPEAT_EACH" value="Répétez chaque"/>
   <locale name="PARAMETER_REPORT" value="Information"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
+  <locale name="PARAMETER_REQUIRED_COLOR" value="Couleur de paramètre requise"/>
   <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Repeter mot de passe"/>
   <locale name="PARAMETER_SCREEN" value="Écran"/>
   <locale name="PARAMETER_SCRIPT" value="Script"/>
   <locale name="PARAMETER_SEARCH_AT" value="Recherche à"/>
+  <locale name="PARAMETER_SECONDARY_COLOR" value="Couleur secondaire"/>
+  <locale name="PARAMETER_SECONDARY_FONT_SIZE" value="Taille secondaire de police"/>
   <locale name="PARAMETER_SECONDS" value="Secondes"/>
   <locale name="PARAMETER_SELECT_ALL" value="Tous"/>
   <locale name="PARAMETER_SEND_STATUS" value="Envoyer en cas de"/>
@@ -1056,8 +1089,11 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_STORE_EXECUTION" value="Exécutions stockées"/>
   <locale name="PARAMETER_STRING" value="Chaîne"/>
   <locale name="PARAMETER_STYLE" value="Style"/>
+  <locale name="PARAMETER_SUCCESS_COLOR" value="Couleur du succès"/>
   <locale name="PARAMETER_TEXT" value="Texte"/>
+  <locale name="PARAMETER_TEXT_COLOR" value="Couleur du texte"/>
   <locale name="PARAMETER_THEME" value="Thème"/>
+  <locale name="PARAMETER_THEME_COLOR" value="Couleur principal du thème"/>
   <locale name="PARAMETER_TIME" value="Heure"/>
   <locale name="PARAMETER_TIMEOUT" value="Délai d&apos;attente"/>
   <locale name="PARAMETER_TITLE" value="Titre"/>
@@ -1066,6 +1102,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_USER" value="Utilisateur"/>
   <locale name="PARAMETER_VALUE" value="Valeur"/>
   <locale name="PARAMETER_VARIABLE" value="Variable"/>
+  <locale name="PARAMETER_WARNING_COLOR" value="Couleur d&apos;avertissement : "/>
   <locale name="PARAMETER_WEB_PRINTER" value="Web printer"/>
   <locale name="PARAMETER_WEEKDAY_FRIDAY" value="Vendredi"/>
   <locale name="PARAMETER_WEEKDAY_MONDAY" value="Lundi"/>
@@ -1201,6 +1238,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_SIT_VIW" value="View site"/>
   <locale name="SCREEN_TITLE_STL_CNF" value="Report style configuration"/>
   <locale name="SCREEN_TITLE_THM" value="Gestión de thèmes"/>
+  <locale name="SCREEN_TITLE_THM_CUSTOM" value="Personnaliser le thème"/>
   <locale name="SCREEN_TITLE_THM_NEW" value="Insertion de thème"/>
   <locale name="SCREEN_TITLE_THM_UPD" value="Modification de thème"/>
   <locale name="SCREEN_TITLE_THM_VIW" value="Consultation de thème"/>
@@ -1215,6 +1253,10 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SECURITY" value="SÉCURITÉ"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Chercher un valeur"/>
   <locale name="SELECT2_SELECT_VALUE" value="Sélectionner un valeur"/>
+  <locale name="TEXT_MESSAGE" value="Message"/>
+  <locale name="TEXT_PREVIEW" value="Prévisualisation"/>
+  <locale name="TEXT_TEST" value="Test"/>
+  <locale name="TEXT_TITLE" value="Titre"/>
   <locale name="TIME_AGO" value="il y a {0}"/>
   <locale name="VALIDATOR_MESSAGE_CHECK_AT_LEAST" value="Veuillez cocher au moins {value2} réponses"/>
   <locale name="VALIDATOR_MESSAGE_DATE" value="Veuillez entrer une date valide"/>

@@ -358,12 +358,7 @@ aweApplication.factory('AweUtilities',
         formule: function (formule, values) {
           /* Get formule */
           let value = null;
-          let replacedFormule = formule;
-
-          /* Replace formule parameters */
-          _.each(values, function (parameter, parameterId) {
-            replacedFormule = replacedFormule.replace(new RegExp("\\[" + parameterId + "\\]", "ig"), parameter);
-          });
+          let replacedFormule= Utilities.replaceWildcard(formule, values);
           replacedFormule = replacedFormule.replace(new RegExp("#", "ig"), "\"");
 
           /* Eval formule */
@@ -374,6 +369,26 @@ aweApplication.factory('AweUtilities',
           }
 
           return value;
+        },
+        /**
+         * Evaluates a formule and retrieves the result
+         * @param {string} text string
+         * @param {Object} values
+         * @returns {String} expression evaluated
+         */
+        replaceWildcard: function (text, values) {
+          /* Get value */
+          let value = null;
+          let replaced = text || null;
+
+          /* Replace text parameters */
+          if (replaced !== null) {
+            _.each(values, function (parameter, parameterId) {
+              replaced = replaced.replace(new RegExp("\\[" + parameterId + "\\]", "ig"), parameter);
+            });
+          }
+
+          return replaced;
         },
         /**
          * Evaluates a json string without key quotes

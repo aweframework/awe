@@ -46,7 +46,7 @@
   //
 
   .navbar-collapse {
-    border-top: 1px solid lighten(@navbar-color, 6%);
+    border-top: 1px solid color-mix(in srgb, @navbar-color, @primary-background-color 6%);
     background: @navbar-color;
     .box-shadow(none);
   }
@@ -58,13 +58,13 @@
   .dropdown > a,
   .dropdown-menu > li > a,
   .navbar-nav.nav > li > a {
-    color: lighten(@navbar-color, 50%);
+    color: @navbar-text-color;
   }
 
   .navbar-nav li + .navbar-nav li,
   .navbar-nav.nav + .navbar-nav.nav,
   .navbar-nav.nav + .navbar-nav .right {
-    border-top: 1px solid lighten(@navbar-color, 6%);
+    border-top: 1px solid color-mix(in srgb, @navbar-color, @primary-background-color 6%);
   }
 
 
@@ -72,9 +72,9 @@
   //
 
   .dropdown.open > a {
-    background: lighten(@navbar-color, 6%);
-    border-bottom: 1px solid lighten(@navbar-color, 10%);
-    border-top: 1px solid lighten(@navbar-color, 15%);
+    background: color-mix(in srgb, @navbar-color, @primary-background-color 6%);
+    border-bottom: 1px solid color-mix(in srgb, @navbar-color, @primary-background-color 10%);
+    border-top: 1px solid color-mix(in srgb, @navbar-color, @primary-background-color 15%);
     margin-top: -1px;
     color: #fff;
   }
@@ -110,7 +110,7 @@
 
     // Navbar button
     #main-menu-toggle {
-      background: darken(@header-color, 5%);
+      background: color-mix(in srgb, @header-color, @text-color 5%);
     }
 
     // Navbar header
@@ -128,30 +128,36 @@
       border: none;
 
       > div > .navbar-nav {
-        border-left: 1px solid darken(@navbar-color, 4%);
+        border-left: 1px solid color-mix(in srgb, @navbar-color, @text-color 4%);
         .box-shadow(1px 0 0 rgba(255, 255, 255, .03) inset);
       }
     }
 
     .right > .navbar-nav > li {
-      border-left: 1px solid darken(@navbar-color, 4%);
+      border-left: 1px solid color-mix(in srgb, @navbar-color, @text-color 4%);
       border-right: none;
       .box-shadow(1px 0 0 rgba(255, 255, 255, .03) inset);
     }
 
     .navbar-nav > li {
-      border-right: 1px solid darken(@navbar-color, 4%);
+      border-right: 1px solid color-mix(in srgb, @navbar-color, @text-color 4%);
       .box-shadow(1px 0 0 rgba(255, 255, 255, .03));
 
       > a {
-        color: lighten(@navbar-color, 50%);
+        color: color-mix(in srgb, @navbar-color, @primary-background-color 50%);
       }
 
       > a:hover,
         &.active > a,
         &.dropdown.open > a {
         border-bottom: 3px solid @header-color;
-        color: #fff;
+        color: @primary-text-color;
+        background-color: transparent;
+      }
+
+      &.active > a,
+      &.dropdown.open > a{
+        background-color: color-mix(in srgb, @navbar-color, #fff 10%);
       }
     }
 
@@ -181,14 +187,14 @@
       padding: 5px 0;
 
       .divider {
-        background-color: darken(@navbar-color, 4%);
+        background-color: color-mix(in srgb, @navbar-color, @text-color 4%);
       }
 
       & > li > a {
         color: #fff;
 
         &:hover {
-          background: lighten(@navbar-color, 4%);
+          background: color-mix(in srgb, @navbar-color, @primary-background-color 4%);
         }
       }
     }
@@ -200,7 +206,7 @@
     .widget-notifications {
       .notification,
       .notifications-link {
-        border-color: darken(@navbar-color, 4%);
+        border-color: transparent;
         .box-shadow(0 1px 0 rgba(255, 255, 255, 0.05) inset);
         .border-bottom-radius(3px);
       }
@@ -214,8 +220,7 @@
       }
 
       .notifications-link:hover {
-        background: lighten(@navbar-color, 6%);
-        color: #fff;
+        background: @navbar-links-border;
       }
     }
 
@@ -230,7 +235,7 @@
 
       .message,
       .messages-link {
-        border-color: darken(@navbar-color, 4%);
+        border-color: color-mix(in srgb, @navbar-color, @text-color 4%);
         .box-shadow(0 1px 0 rgba(255, 255, 255, 0.05) inset);
         .border-bottom-radius(3px);
       }
@@ -248,7 +253,7 @@
       }
 
       .messages-link:hover {
-        background: lighten(@navbar-color, 6%);
+        background: color-mix(in srgb, @navbar-color, @primary-background-color 6%);
       }
     }
   }
@@ -260,7 +265,7 @@
   }
 
   &.main-menu-right #main-navbar .navbar-header {
-    border-right: 1px solid darken(@navbar-color, 4%);
+    border-right: 1px solid color-mix(in srgb, @navbar-color, @text-color 4%);
   }
 }
 
@@ -272,7 +277,7 @@
 @media (min-width: @screen-tablet) {
   &.right-to-left #main-navbar {
     .right > .navbar-nav > li {
-      border-right: 1px solid darken(@navbar-color, 4%);
+      border-right: 1px solid color-mix(in srgb, @navbar-color, @text-color 4%);
       border-left: none;
       .box-shadow(1px 0 0 rgba(255, 255, 255, .03));
     }

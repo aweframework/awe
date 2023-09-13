@@ -21,12 +21,18 @@
     /*[+background-image: url("[[${startupBackground}]]");+]*/
   }
 
-  .signin-with .form-actions {
-    margin-top: 0px;
+  .signin-with {
+    margin-top: 10px;
+    .form-actions {
+      margin-top: 0;
+    }
   }
 
   .awe-signin.signin-container {
     margin: 20px;
+    .signin-info {
+      background-color: color-mix(in srgb, @primary-color, transparent 20%);
+    }
   }
 
   .form-group {

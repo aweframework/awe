@@ -143,6 +143,21 @@ aweApplication.factory("Screen",
           // Finish screen action
           $actionController.acceptAction(action);
         },
+
+        /**
+         * Reload the theme variable css class
+         * @param {Action} action Action received
+         */
+        updateTheme: function (action) {
+          // Reload themeVariable css
+          let queryString = '?reload=' + new Date().getTime();
+          $('link[rel="stylesheet"]#themeVariables').each(function () {
+            this.href = this.href.replace(/\?.*|$/, queryString);
+          });
+
+          // Finish screen action
+          $actionController.acceptAction(action);
+        },
         /**
          * Load screen data
          * @param {Action} action Action received

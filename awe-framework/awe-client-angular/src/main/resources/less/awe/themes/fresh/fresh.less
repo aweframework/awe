@@ -3,31 +3,70 @@
 // --------------------------------------------------
 
 .theme-fresh {
-  @theme-color: #94c53e;
-  // Main menu background color
-  @menu-color: #43474b;
-  // Primary color
-  @primary-color: #64bed8;
-  // Navbar end color
-  @navbar-end-color: #94c53e;
-
-  // CSS variable colors
-  --theme-color: @theme-color;
-  --menu-color: @menu-color;
-  --primary-color: @primary-color;
-  --navbar-end-color: @navbar-end-color;
-
   #main-navbar .dropdown-menu a {
-    margin: 0px;
+    margin: 0;
   }
 
-  // Mixins
-  .awe-main-menu(@menu-color);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@navbar-end-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(darken(@primary-color, 10%));
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
+  --theme-color: #94c53e;
+  --text-color: #333333;
+  --primary-color: #64bed8;
+  --secondary-color: #e0eec7;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #f4f6f7;
+  --secondary-background-color: #fafafa;
+  --primary-menu-color: #43474b;
+  --secondary-menu-color: #78bdd1;
+  --menu-text-color: #a0a3b1;
+  --primary-navbar-color: #a1cc3d;
+  --secondary-navbar-color: #94c53e;
+  --navbar-text-color: #fff;
+  --panel-background-color: #fff;
+  --panel-header-color: #fafafa;
+  --panel-border-color: #ececec;
+  --panel-text-color: #333333;
+  --grid-header-color: #ebebeb;
+  --grid-border-color: #dbdbdb;
+  --disabled-border-color: #d6d6d6;
+  --disabled-color: #eee;
+  --required-color: #e5fbbe;
+  --loading-bar-color: #fff;
+
+  &.dark {
+    --theme-color: #94c53e;
+    --text-color: #eee;
+    --primary-color: #64bed8;
+    --secondary-color: #39373d;
+    --primary-text-color: #fff;
+    --secondary-text-color: #ccc;
+    --primary-background-color: #060606;
+    --secondary-background-color: #222222;
+    --primary-menu-color: #2a2d33;
+    --secondary-menu-color: #2a8eab;
+    --menu-text-color: #a0a3b1;
+    --primary-navbar-color: #83a531;
+    --secondary-navbar-color: #94c53e;
+    --navbar-text-color: #fff;
+    --navbar-dropdown-color: #222222;
+    --panel-background-color: #131313;
+    --panel-header-color: #1e1e1e;
+    --panel-border-color: #3f3f3f;
+    --panel-text-color: #d3d3d3;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #2e3d14;
+    --loading-bar-color: #fff;
+  }
+
+  // Define navbar specific backgrounds
+  #main-navbar,
+  #main-navbar .navbar-header,
+  #main-navbar .main-navbar-collapse {
+    background-image: linear-gradient(to bottom, @primary-navbar-color 0%, @secondary-navbar-color 100%) !important;
+    background-repeat: repeat-x !important;
+  }
 }

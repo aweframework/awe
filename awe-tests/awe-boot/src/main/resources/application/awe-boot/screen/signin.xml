@@ -37,7 +37,7 @@
                   icon="key signin-form-icon" style="no-label"/>
         <tag type="div" style="signin-with">
           <tag type="div" style="form-actions">
-            <button button-type="submit" label="BUTTON_LOGIN" style="no-class btn btn-primary signin-btn bg-primary"
+            <button button-type="submit" label="BUTTON_LOGIN" style="no-class btn btn-awe btn-primary signin-btn bg-primary"
                     icon="sign-in" id="ButLogIn">
               <button-action type="validate"/>
               <button-action type="server" server-action="login"/>

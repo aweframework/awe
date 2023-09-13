@@ -3,52 +3,50 @@
 // --------------------------------------------------
 
 .theme-sunny {
-  // Main menu background color
-  @menu-color: #A3A345;
-  // Theme color
-  @theme-color: lighten(@menu-color, 10%);
-  // Primary color
-  @primary-color: lighten(@menu-color, 40%);
+  --theme-color: #ffff00;
+  --text-color: #333333;
+  --primary-color: #6b6b2a;
+  --secondary-color: #f1f1dd;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #f6f6f6;
+  --secondary-background-color: #fafafa;
+  --primary-menu-color: #A3A345;
+  --secondary-menu-color: #1d89cf;
+  --menu-text-color: #e1e1b9;
+  --primary-navbar-color: #ffffff;
+  --secondary-navbar-color: #f8f8f8;
+  --panel-background-color: #fff;
+  --panel-header-color: #c3c371;
+  --panel-border-color: #b4b44e;
+  --loading-bar-color: #1d89cf;
 
-  @awe-color: lighten(@menu-color, 15%);
-  @awe-text-color: #fff;
-  @awe-border-color: darken(@awe-color, 10%);
-  @button-color: #ddd;
-
-  // CSS variable colors
-  --theme-color: @theme-color;
-  --menu-color: @menu-color;
-  --primary-color: @primary-color;
-  --awe-color: @awe-color;
-  --awe-text-color: @awe-text-color;
-  --awe-border-color: @awe-border-color;
-  --button-color: @button-color;
-
-  // Copy fresh theme
-  .theme-default;
-
-  // Define panel and button default
-  .panel-awe {
-    .pixel-panel(@awe-color, @awe-text-color, @awe-border-color);
+  &.dark {
+    --theme-color: #ffff00;
+    --text-color: #eee;
+    --primary-color: #7c8123;
+    --secondary-color: #41413b;
+    --primary-text-color: #fff;
+    --secondary-text-color: #e9f5d5;
+    --primary-background-color: #060606;
+    --secondary-background-color: #222222;
+    --primary-menu-color: #A3A345;
+    --secondary-menu-color: #1d89cf;
+    --menu-text-color: #e1e1b9;
+    --primary-navbar-color: #000;
+    --secondary-navbar-color: #000;
+    --navbar-text-color: #ffffff;
+    --navbar-dropdown-color: #000;
+    --panel-background-color: #131313;
+    --panel-header-color: #80804a;
+    --panel-border-color: #6a6a2c;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #665d00;
+    --loading-bar-color: #1d89cf;
   }
-  .btn-default {
-    .pixel-button(@color: @button-color, @font-color: @btn-default-color);
-  }
-
-  #main-menu ul li,
-  #main-menu.horizontal ul.navigation,
-  #main-menu.horizontal ul ul li {
-    border-top: 0px solid lighten(@menu-color, 10%);
-    border-bottom: 0px solid darken(@menu-color, 10%);
-  }
-
-  // Mixins
-  .awe-main-menu(@menu-color);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(darken(@primary-color, 20%));
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
 }

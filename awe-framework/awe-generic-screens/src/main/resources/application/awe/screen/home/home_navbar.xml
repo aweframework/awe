@@ -30,6 +30,7 @@
             <include target-screen="info-buttons" target-source="favourites"/>
             <include target-screen="info-buttons" target-source="siteModuleDatabase"/>
             <info id="ButUsrAct" icon="user" initial-load="query" target-action="connectedUser">
+              <include target-screen="info-buttons" target-source="themeModeSelector"/>
               <include target-screen="info-buttons" target-source="themeSelector"/>
               <include target-screen="info-buttons" target-source="languageSelector"/>
             </info>
