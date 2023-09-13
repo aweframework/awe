@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,7 +41,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.*;
@@ -117,13 +116,13 @@ public class WebSecurityConfig {
   /**
    * Web security config constructor.
    *
-   * @param context                   Application context
-   * @param baseConfigProperties      Base config properties
-   * @param securityConfigProperties  Security config properties
-   * @param sessionDetails            Session details
-   * @param elements                  Awe elements
-   * @param actionService             Action service
-   * @param objectMapper              Object mapper
+   * @param context                          Application context
+   * @param baseConfigProperties             Base config properties
+   * @param securityConfigProperties         Security config properties
+   * @param sessionDetails                   Session details
+   * @param elements                         Awe elements
+   * @param actionService                    Action service
+   * @param objectMapper                     Object mapper
    */
   @Autowired
   public WebSecurityConfig(ApplicationContext context, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, AweSessionDetails sessionDetails, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
@@ -151,7 +150,7 @@ public class WebSecurityConfig {
                     // Web
                     .requestMatchers(ALLOW_LIST).permitAll()
                     // Public queries and maintains
-                    .requestMatchers(PUBLIC_QUERY_MAINTAIN_LIST).access(publicQueryMaintainFilter())
+                    .requestMatchers(PUBLIC_QUERY_MAINTAIN_LIST).access(publicQueryMaintainAuthorization(elements))
                     // 2FA endpoint
                     .requestMatchers("/access/**").authenticated()
                     // Any other request
@@ -182,6 +181,18 @@ public class WebSecurityConfig {
     }
 
     return httpSecurity.build();
+  }
+
+  /**
+   * Query and Maintain public filter.
+   * Filter /action/maintain or /action/data to verify if target is public
+   *
+   * @return PublicQueryMaintainFilter
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PublicQueryMaintainAuthorization publicQueryMaintainAuthorization(AweElements elements) {
+    return new PublicQueryMaintainAuthorization(elements);
   }
 
   @Bean
@@ -221,17 +232,6 @@ public class WebSecurityConfig {
   @Bean
   public AweLogoutHandler logoutHandler(AweSessionDetails sessionDetails) {
     return new AweLogoutHandler(sessionDetails);
-  }
-
-  /**
-   * Query and Maintain public filter.
-   * Filter /action/maintain or /action/data to verify if target is public
-   *
-   * @return PublicQueryMaintainFilter
-   */
-  @Bean
-  public AuthorizationManager<RequestAuthorizationContext> publicQueryMaintainFilter() {
-    return new PublicQueryMaintainAuthorization(elements);
   }
 
   @Bean
