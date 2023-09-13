@@ -58,8 +58,8 @@
   // Navbar collapse
   //
 
-  #main-navbar-collapse {
-    border-top-color: darken(@navbar-end-color, 6%);
+  .main-navbar-collapse {
+    border-top-color: color-mix(in srgb, @navbar-end-color, @text-color 6%);
     background: @navbar-end-color;
   }
 
@@ -70,14 +70,14 @@
   .navbar-nav li + .navbar-nav li,
   .navbar-nav.nav + .navbar-nav.nav,
   .navbar-nav.nav + .navbar-nav .right {
-    border-top: 1px solid darken(@navbar-end-color, 6%);
+    border-top: 1px solid color-mix(in srgb, @navbar-end-color, @text-color 6%);
   }
 
   .dropdown.open > a {
-    border-top: 1px solid darken(@navbar-end-color, 12%);
-    border-bottom: 1px solid darken(@navbar-end-color, 9%);
+    border-top: 1px solid color-mix(in srgb, @navbar-end-color, @text-color 12%);
+    border-bottom: 1px solid color-mix(in srgb, @navbar-end-color, @text-color 9%);
     margin-top: -1px;
-    background: darken(@navbar-end-color, 6%);
+    background: color-mix(in srgb, @navbar-end-color, @text-color 6%);
   }
 
   // Navbar forms
@@ -104,7 +104,7 @@
     // Navbar collapse
     //
 
-    #main-navbar-collapse {
+    .main-navbar-collapse {
       background: none;
     }
 
@@ -125,7 +125,7 @@
 
       &:hover {
         background: rgba(0,0,0,.08);
-        border-color: darken(@navbar-end-color, 10%);
+        border-color: color-mix(in srgb, @navbar-end-color, @text-color 10%);
       }
     }
 
@@ -138,7 +138,7 @@
       border-bottom: none;
       margin-top: 0;
       background: rgba(0,0,0,.08);
-      border-color: darken(@navbar-end-color, 10%);
+      border-color: color-mix(in srgb, @navbar-end-color, @text-color 10%);
     }
 
     .dropdown-menu {
@@ -162,7 +162,7 @@
       }
 
       .divider {
-        background-color: lighten(@menu-color, 4%);
+        background-color: color-mix(in srgb, @menu-color, @primary-background-color 4%);
         margin-left: -2px;
         margin-right: -2px;
       }
@@ -174,23 +174,22 @@
 
     .widget-notifications {
       .notifications-link:hover {
-        color: #fff;
-        background-color: darken(@menu-color, 4%);
+        background-color: @navbar-links-border;
       }
 
       .notification,
       .notifications-link {
-        border-color: lighten(@menu-color, 4%);
+        border-color: transparent;
         margin: 0 -2px;
         .border-bottom-radius(@border-radius-base);
       }
 
       .notification-description {
-        color: lighten(@menu-color, 35%);
+        color: color-mix(in srgb, @menu-color, @primary-background-color 35%);
       }
 
       .notification-ago {
-        color: lighten(@menu-color, 25%);
+        color: color-mix(in srgb, @menu-color, @primary-background-color 25%);
       }
     }
 
@@ -205,7 +204,7 @@
 
       .message,
       .messages-link {
-        border-color: lighten(@menu-color, 4%);
+        border-color: color-mix(in srgb, @menu-color, @primary-background-color 4%);
         .border-bottom-radius(3px);
 
         a:hover {
@@ -218,10 +217,10 @@
       }
 
       .message-description {
-        color: lighten(@menu-color, 25%);
+        color: color-mix(in srgb, @menu-color, @primary-background-color 25%);
 
         a {
-          color: lighten(@menu-color, 35%);
+          color: color-mix(in srgb, @menu-color, @primary-background-color 35%);
         }
       }
     }
@@ -231,11 +230,11 @@
 #main-navbar #main-menu-toggle,
 &.right-to-left.main-menu-right #main-navbar #main-menu-toggle {
   border-left: none;
-  border-right: 1px solid darken(@navbar-end-color, 8%);
+  border-right: 1px solid color-mix(in srgb, @navbar-end-color, @text-color 8%);
 }
 
 &.right-to-left #main-navbar #main-menu-toggle,
 &.main-menu-right #main-navbar #main-menu-toggle {
-  border-left: 1px solid darken(@navbar-end-color, 8%);
+  border-left: 1px solid color-mix(in srgb, @navbar-end-color, @text-color 8%);
   border-right: none;
 }

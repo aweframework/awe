@@ -35,28 +35,31 @@
 
 // Mixin for generating new styles
 .btn-styles(@btn-color: #555) {
-  #gradient > .vertical(@start-color: @btn-color; @end-color: darken(@btn-color, 12%));
+  #gradient > .vertical(@start-color: @btn-color; @end-color: @btn-color);
   .reset-filter(); // Disable gradients for IE9 because filter bleeds through rounded corners; see https://github.com/twbs/bootstrap/issues/10620
   background-repeat: repeat-x;
-  border-color: darken(@btn-color, 14%);
+  border-color: @btn-color;
 
   &:hover,
   &:focus  {
-    background-color: darken(@btn-color, 12%);
+    background-color: @btn-color;
     background-position: 0 -15px;
+    //filter: brightness(88%);
   }
 
   &:active,
   &.active {
-    background-color: darken(@btn-color, 12%);
-    border-color: darken(@btn-color, 14%);
+    background-color: @btn-color;
+    border-color: @btn-color;
+    //filter: brightness(88%);
   }
 
   &.disabled,
   &:disabled,
   &[disabled] {
-    background-color: darken(@btn-color, 12%);
+    background-color: @btn-color;
     background-image: none;
+    //filter: brightness(88%);
   }
 }
 
@@ -94,14 +97,14 @@
 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
-  #gradient > .vertical(@start-color: @dropdown-link-hover-bg; @end-color: darken(@dropdown-link-hover-bg, 5%));
-  background-color: darken(@dropdown-link-hover-bg, 5%);
+  #gradient > .vertical(@start-color: @dropdown-link-hover-bg; @end-color: color-mix(in srgb, @dropdown-link-hover-bg, @text-color 5%));
+  background-color: color-mix(in srgb, @dropdown-link-hover-bg, @text-color 5%);
 }
 .dropdown-menu > .active > a,
 .dropdown-menu > .active > a:hover,
 .dropdown-menu > .active > a:focus {
-  #gradient > .vertical(@start-color: @dropdown-link-active-bg; @end-color: darken(@dropdown-link-active-bg, 5%));
-  background-color: darken(@dropdown-link-active-bg, 5%);
+  #gradient > .vertical(@start-color: @dropdown-link-active-bg; @end-color: color-mix(in srgb, @dropdown-link-active-bg, @text-color 5%));
+  background-color: color-mix(in srgb, @dropdown-link-active-bg, @text-color 5%);
 }
 
 
@@ -111,7 +114,7 @@
 
 // Default navbar
 .navbar-default {
-  #gradient > .vertical(@start-color: lighten(@navbar-default-bg, 10%); @end-color: @navbar-default-bg);
+  #gradient > .vertical(@start-color: @navbar-default-bg; @end-color: @navbar-default-bg);
   .reset-filter(); // Remove gradient in IE<10 to fix bug where dropdowns don't get triggered
   border-radius: @navbar-border-radius;
   @shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 1px 5px rgba(0,0,0,.075);
@@ -119,7 +122,7 @@
 
   .navbar-nav > .open > a,
   .navbar-nav > .active > a {
-    #gradient > .vertical(@start-color: darken(@navbar-default-link-active-bg, 5%); @end-color: darken(@navbar-default-link-active-bg, 2%));
+    #gradient > .vertical(@start-color: @navbar-default-link-active-bg; @end-color: @navbar-default-link-active-bg);
     .box-shadow(inset 0 3px 9px rgba(0,0,0,.075));
   }
 }
@@ -130,12 +133,12 @@
 
 // Inverted navbar
 .navbar-inverse {
-  #gradient > .vertical(@start-color: lighten(@navbar-inverse-bg, 10%); @end-color: @navbar-inverse-bg);
+  #gradient > .vertical(@start-color: @navbar-inverse-bg; @end-color: @navbar-inverse-bg);
   .reset-filter(); // Remove gradient in IE<10 to fix bug where dropdowns don't get triggered; see https://github.com/twbs/bootstrap/issues/10257
 
   .navbar-nav > .open > a,
   .navbar-nav > .active > a {
-    #gradient > .vertical(@start-color: @navbar-inverse-link-active-bg; @end-color: lighten(@navbar-inverse-link-active-bg, 2.5%));
+    #gradient > .vertical(@start-color: @navbar-inverse-link-active-bg; @end-color: @navbar-inverse-link-active-bg);
     .box-shadow(inset 0 3px 9px rgba(0,0,0,.25));
   }
 
@@ -159,7 +162,7 @@
     &:hover,
     &:focus {
       color: #fff;
-      #gradient > .vertical(@start-color: @dropdown-link-active-bg; @end-color: darken(@dropdown-link-active-bg, 5%));
+      #gradient > .vertical(@start-color: @dropdown-link-active-bg; @end-color: @dropdown-link-active-bg);
     }
   }
 }
@@ -178,8 +181,8 @@
 
 // Mixin for generating new styles
 .alert-styles(@color) {
-  #gradient > .vertical(@start-color: @color; @end-color: darken(@color, 7.5%));
-  border-color: darken(@color, 15%);
+  #gradient > .vertical(@start-color: @color; @end-color: color-mix(in srgb, @color, @text-color 7.5%));
+  border-color: color-mix(in srgb, @color, @text-color 15%);
 }
 
 // Apply the mixin to the alerts
@@ -195,12 +198,12 @@
 
 // Give the progress background some depth
 .progress {
-  #gradient > .vertical(@start-color: darken(@progress-bg, 4%); @end-color: @progress-bg)
+  #gradient > .vertical(@start-color: color-mix(in srgb, @progress-bg, @text-color 4%); @end-color: @progress-bg)
 }
 
 // Mixin for generating new styles
 .progress-bar-styles(@color) {
-  #gradient > .vertical(@start-color: @color; @end-color: darken(@color, 10%));
+  #gradient > .vertical(@start-color: @color; @end-color: color-mix(in srgb, @color, @text-color 10%));
 }
 
 // Apply the mixin to the progress bars
@@ -228,9 +231,9 @@
 .list-group-item.active,
 .list-group-item.active:hover,
 .list-group-item.active:focus {
-  text-shadow: 0 -1px 0 darken(@list-group-active-bg, 10%);
-  #gradient > .vertical(@start-color: @list-group-active-bg; @end-color: darken(@list-group-active-bg, 7.5%));
-  border-color: darken(@list-group-active-border, 7.5%);
+  text-shadow: 0 -1px 0 color-mix(in srgb, @list-group-active-bg, @text-color 10%);
+  #gradient > .vertical(@start-color: @list-group-active-bg; @end-color: color-mix(in srgb, @list-group-active-bg, @text-color 7.5%));
+  border-color: color-mix(in srgb, @list-group-active-border, @text-color 7.5%);
 
   .badge {
     text-shadow: none;
@@ -249,7 +252,7 @@
 
 // Mixin for generating new styles
 .panel-heading-styles(@color) {
-  #gradient > .vertical(@start-color: @color; @end-color: darken(@color, 5%));
+  #gradient > .vertical(@start-color: @color; @end-color: color-mix(in srgb, @color, @text-color 5%));
 }
 
 // Apply the mixin to the panel headings only
@@ -266,8 +269,8 @@
 // --------------------------------------------------
 
 .well {
-  #gradient > .vertical(@start-color: darken(@well-bg, 5%); @end-color: @well-bg);
-  border-color: darken(@well-bg, 10%);
+  #gradient > .vertical(@start-color: color-mix(in srgb, @well-bg, @text-color 5%); @end-color: @well-bg);
+  border-color: color-mix(in srgb, @well-bg, @text-color 10%);
   @shadow: inset 0 1px 3px rgba(0,0,0,.05), 0 1px 0 rgba(255,255,255,.1);
   .box-shadow(@shadow);
 }

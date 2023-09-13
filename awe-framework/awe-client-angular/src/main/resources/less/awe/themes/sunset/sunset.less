@@ -3,45 +3,70 @@
 // --------------------------------------------------
 
 .theme-sunset {
-  // Primary color
-  @primary-color: #7a6f6f;
-  @theme-color: lighten(@primary-color, 10%);
-  // Main menu background color
-  @menu-color: #9D4444; //#433d3c;
-  @awe-color: #C75858;
-  @awe-text-color: #fff;
-  @awe-border-color: darken(@awe-color, 10%);
-  @button-color: #ddd;
+  --theme-color: #d05a5a;
+  --text-color: #333333;
+  --primary-color: #7a6f6f;
+  --secondary-color: #e8e6e6;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #f6f6f6;
+  --secondary-background-color: #fafafa;
+  --primary-menu-color: #9D4444;
+  --secondary-menu-color: #fff;
+  --menu-text-color: #dfb5b5;
+  --primary-navbar-color: #ffffff;
+  --secondary-navbar-color: #823939;
+  --navbar-dropdown-color: #fff;
+  --panel-background-color: #fff;
+  --panel-header-color: #C75858;
+  --panel-border-color: #b13b3b;
+  --grid-header-color: #ebebeb;
+  --grid-border-color: #dbdbdb;
+  --disabled-border-color: #d6d6d6;
+  --disabled-color: #eee;
+  --required-color: #dfd;
+  --loading-bar-color: #7a6f6f;
 
-  // Copy dust theme
-  .theme-dust;
-
-  // Define panel and button default
-  .panel-awe {
-    .pixel-panel(@awe-color, @awe-text-color, @awe-border-color);
-  }
-  .btn-default {
-    .pixel-button(@color: @button-color, @font-color: @btn-default-color);
+  &.dark {
+    --theme-color: #721717;
+    --text-color: #eee;
+    --primary-color: #7a6f6f;
+    --secondary-color: #721717;
+    --primary-text-color: #fff;
+    --secondary-text-color: #ccc;
+    --primary-background-color: #060606;
+    --secondary-background-color: #222222;
+    --primary-menu-color: #9D4444;
+    --secondary-menu-color: #fff;
+    --menu-text-color: #dfb5b5;
+    --primary-navbar-color: #000;
+    --secondary-navbar-color: #823939;
+    --navbar-text-color: #ccc;
+    --navbar-dropdown-color: #000;
+    --panel-background-color: #131313;
+    --panel-header-color: #C75858;
+    --panel-border-color: #b13b3b;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #040;
+    --loading-bar-color: #7a6f6f;
   }
 
   // Define navbar specific backgrounds
   #main-navbar,
   &.mmc #main-navbar {
     .navbar-header {
-      background: linear-gradient(to right, #823939 75%, white);
+      background: linear-gradient(to right, @secondary-navbar-color 75%, @primary-navbar-color);
     }
     #main-menu-toggle {
-      background: #823939;
+      background: @secondary-navbar-color;
+    }
+    .main-navbar-collapse {
+      background: @primary-navbar-color;
     }
   }
-
-  // Mixins
-  .awe-main-menu(@menu-color);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(@primary-color);
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
 }

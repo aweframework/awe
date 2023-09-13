@@ -29,7 +29,7 @@
 
       &.ng-hide-add.ng-hide-add-active,
       &.ng-hide-remove {
-        max-height: 0px;
+        max-height: 0;
         left: -20px;
         .opacity(0);
       }
@@ -37,7 +37,7 @@
       &.ng-hide-add,
       &.ng-hide-remove.ng-hide-remove-active {
         max-height: 100vh;
-        left: 0px;
+        left: 0;
         .opacity(1);
       }
     }
@@ -54,13 +54,13 @@
       &.opened-add.opened-add-active,
       &.opened-remove {
         max-height: 100vh;
-        left: 0px;
+        left: 0;
         .opacity(1);
       }
 
       &.opened-add,
       &.opened-remove.opened-remove-active {
-        max-height: 0px;
+        max-height: 0;
         left: -20px;
         .opacity(0);
       }
@@ -85,7 +85,7 @@
         .transition(opacity, ease, 250ms);
         position: absolute !important;
         display: block !important;
-        top: 0px;
+        top: 0;
       }
 
       &,

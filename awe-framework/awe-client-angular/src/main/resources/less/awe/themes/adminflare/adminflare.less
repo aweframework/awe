@@ -3,21 +3,58 @@
 // --------------------------------------------------
 
 .theme-adminflare {
-  @theme-color: #418ce4;
-  @menu-color: #2b2b2b;
-  // Primary color
-  @primary-color: #3690e6;
+  --theme-color: #418ce4;
+  --text-color: #333333;
+  --primary-color: #3690e6;
+  --secondary-color: #ddebfa;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #f4f6f7;
+  --secondary-background-color: #666;
+  --primary-menu-color: #2b2b2b;
+  --secondary-menu-color: #fff;
+  --menu-text-color: #848484;
+  --primary-navbar-color: #52aded;
+  --secondary-navbar-color: #418ce4;
+  --navbar-text-color: #fff;
+  --panel-background-color: #fff;
+  --panel-header-color: #fafafa;
+  --panel-border-color: #ececec;
+  --panel-text-color: #333333;
+  --grid-header-color: #ebebeb;
+  --grid-border-color: #dbdbdb;
+  --disabled-border-color: #d6d6d6;
+  --disabled-color: #eee;
+  --required-color: #dde7f9;
+  --loading-bar-color: #fff;
 
-  // Mixins
-  .awe-main-menu(@menu-color);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(#fff);
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
-
-  // Imports
-  @import "./main-menu-horizontal.less";
+  &.dark {
+    --theme-color: #418ce4;
+    --text-color: #eee;
+    --primary-color: #3690e6;
+    --secondary-color: #323538;
+    --primary-text-color: #fff;
+    --secondary-text-color: #ccc;
+    --primary-background-color: #060606;
+    --secondary-background-color: #222222;
+    --primary-menu-color: #2b2b2b;
+    --secondary-menu-color: #fff;
+    --menu-text-color: #848484;
+    --primary-navbar-color: #1c1a1a;
+    --secondary-navbar-color: #1c1a1a;
+    --navbar-text-color: #fff;
+    --navbar-dropdown-color: #222222;
+    --panel-background-color: #131313;
+    --panel-header-color: #1e1e1e;
+    --panel-border-color: #3f3f3f;
+    --panel-text-color: #d3d3d3;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #173d47;
+    --loading-bar-color: #fff;
+  }
 }

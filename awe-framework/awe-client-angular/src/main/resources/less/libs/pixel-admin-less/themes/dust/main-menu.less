@@ -21,7 +21,7 @@
 
     li {
       a {
-        color: lighten(@menu-color, 36%);
+        color: @menu-text-color;
         .transition(all .1s);
 
         &:hover {
@@ -31,7 +31,8 @@
 
       &.active > a {
         color: #fff;
-        background: darken(@menu-color, 5%);
+        background: @primary-menu-color;
+        //filter: brightness(85%);
       }
     }
   }
@@ -42,10 +43,10 @@
 
   .mm-dropdown > ul,
   .mmc-dropdown-open-ul {
-    background: darken(@menu-color, 5%);
+    background: @primary-menu-color;
 
     li.active > a {
-      background: darken(@menu-color, 8%);
+      background: @primary-menu-color;
     }
   }
 
@@ -64,16 +65,16 @@
 
   .mmc-title {
     color: #fff;
-    background: @menu-color;
+    background: @primary-menu-color;
   }
 
   // Main menu content blocks
   .menu-content {
-    border-color: lighten(@menu-color, 5%);
+    border-color: @primary-menu-color;
 
     .btn-outline {
-      border-color: lighten(@menu-color, 5%);
-      color: lighten(@menu-color, 36%);
+      border-color: @primary-menu-color;
+      color: @menu-text-color;
 
       &:hover {
         color: #fff;
@@ -100,6 +101,6 @@
 
   // Unhighlight expanded submenus in collapsed mode
   &.mmc #main-menu .navigation > .mm-dropdown.open > a {
-    color: lighten(@menu-color, 35%);
+    //filter: brightness(135%);
   }
 }

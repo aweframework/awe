@@ -354,6 +354,9 @@ aweApplication.factory('Criterion',
               if (controller.invisible) {
                 criterionClass.push("invisible");
               }
+              if (controller.leftLabel) {
+                criterionClass.push("label-left");
+              }
             }
             return criterionClass.join(" ");
           }
@@ -386,7 +389,6 @@ aweApplication.factory('Criterion',
               let charLength = parseInt(controller.leftLabel, 10);
               component.scope.labelStyle = {width: (charLength * component.scope.charSize) + "px"};
               component.scope.leftLabelInput = " expand";
-              label += " label-left";
             } else {
               component.scope.leftLabelInput = '';
             }

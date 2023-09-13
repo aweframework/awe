@@ -6,11 +6,11 @@
   // Primary color
   @primary-color: #00965e;
   @secondary-color: #dfdddc;
-  @theme-color: darken(@primary-color, 20%);
+  @theme-color: color-mix(in srgb, @primary-color, @secondary-text-color 20%);
   // Main menu background color
   @awe-text-color: #fff;
-  @awe-border-color: darken(@primary-color, 10%);
-  @button-color: darken(@secondary-color, 30%);
+  @awe-border-color: color-mix(in srgb, @primary-color, @secondary-text-color 10%);
+  @button-color: color-mix(in srgb, @secondary-color, @secondary-text-color 30%);
 
   // Copy dust theme
   .theme-dust;
@@ -30,7 +30,7 @@
   #main-navbar,
   &.mmc #main-navbar {
     .navbar-header {
-      background: #fff;
+      background: @primary-navbar-color;
     }
     #main-menu-toggle {
       background: #00965e;
@@ -38,12 +38,12 @@
   }
 
   // Mixins
-  .awe-main-menu(@primary-color);
-  .awe-grid(#666, lighten(@primary-color, 10%));
+  .awe-main-menu(@primary-color, @awe-text-color);
+  .awe-grid(#666, @primary-color);
   .awe-change-password-page(@primary-color);
   .awe-breadcrumbs(light);
   .awe-buttons(@button-color, @primary-color);
-  .awe-loading-bar(@primary-color);
+  .awe-loading-bar(@loading-bar-color);
   .awe-theme-color(@theme-color);
   .awe-menu-color(@primary-color);
   

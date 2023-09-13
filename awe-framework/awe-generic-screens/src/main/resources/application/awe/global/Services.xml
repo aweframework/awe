@@ -265,4 +265,11 @@
       <service-parameter type="STRING" name="option" />
     </java>
   </service>
+  <!-- Themes -->
+  <service id="changeUserMode">
+    <java classname="com.almis.awe.service.UserService" method="changeUserMode">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="mode" />
+    </java>
+  </service>
 </services>

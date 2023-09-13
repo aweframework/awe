@@ -5,16 +5,16 @@
 
 @media (max-width: @screen-xs-max) {
   .breadcrumb {
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
   .window-center {
     padding-top: 10px;
   }
 
   .window-buttons {
-    margin-bottom: 0px;
-    margin-right: 0px;
-    padding-top: 0px;
+    margin-bottom: 0;
+    margin-right: 0;
+    padding-top: 0;
   }
 
   .window-buttons,
@@ -25,7 +25,7 @@
     .btn-group-justified;
     .btn {
       .btn-lg;
-      border-radius: 0px !important;
+      border-radius: 0 !important;
       overflow: hidden;
       i {
         position: relative;
@@ -34,7 +34,7 @@
       .button-text {
         display: block;
         font-size: 10px;
-        line-height: 0px;
+        line-height: 0;
         text-align: center;
         margin-left: -16px;
         margin-right: -16px;
@@ -64,9 +64,13 @@
     .flex(none);
   }
 
-  .expandible-horizontal {
+  .panel-body .expandible-horizontal,
+  .panel-body .expandible-vertical {
     .flex-direction(column);
     &.expand {
+      .flex(none);
+    }
+    > .expand {
       .flex(none);
     }
   }

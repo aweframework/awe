@@ -22,7 +22,7 @@
   }
 
   .navbar-collapse {
-    border-top: 1px solid darken(@navbar-color, 5%);
+    border-top: 1px solid color-mix(in srgb, @navbar-color, @text-color 5%);
   }
 
   .dropdown > a,
@@ -54,14 +54,14 @@
   .navbar-nav li + .navbar-nav li,
   .navbar-nav.nav + .navbar-nav.nav,
   .navbar-nav.nav + .navbar-nav .right {
-    border-top: 1px solid darken(@navbar-color, 5%);
+    border-top: 1px solid color-mix(in srgb, @navbar-color, @text-color 5%);
   }
 
   .dropdown.open > a {
-    border-top: 1px solid darken(@navbar-color, 12%);
-    border-bottom: 1px solid darken(@navbar-color, 8%);
+    border-top: 1px solid color-mix(in srgb, @navbar-color, @text-color 12%);
+    border-bottom: 1px solid color-mix(in srgb, @navbar-color, @text-color 8%);
     margin-top: -1px;
-    background: darken(@navbar-color, 5%);
+    background: color-mix(in srgb, @navbar-color, @text-color 5%);
   }
 
 
@@ -109,7 +109,7 @@
 
     .navbar-nav.nav > li > a {
       &:hover {
-        background: darken(@navbar-color, 3%);
+        background: color-mix(in srgb, @navbar-color, @text-color 3%);
       }
     }
 
@@ -117,7 +117,7 @@
       border-top: none;
       border-bottom: none;
       margin-top: 0;
-      background: darken(@navbar-color, 3%);
+      background: color-mix(in srgb, @navbar-color, @text-color 3%);
     }
 
     .dropdown-menu {

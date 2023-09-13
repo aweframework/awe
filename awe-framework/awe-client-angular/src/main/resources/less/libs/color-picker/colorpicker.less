@@ -39,7 +39,7 @@ colorpicker-alpha {
   float: left;
   cursor: row-resize;
   margin-left: 4px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   i {
     display: block;
     height: 2px;
@@ -73,12 +73,12 @@ colorpicker-color {
   height: 16px;
   vertical-align: text-top;
   cursor: pointer;
-  border: 1px solid #555;
+  border: 1px solid @text-color;
 }
 
 .colorpicker-element .input-group-addon i.transparent,
 .colorpicker-element .add-on i.transparent {
-  background-image: url("@{images-path}/bootstrap-colorpicker/transparent.png");
+  background-image: url("@{images-path}/bootstrap-colorpicker/transparent2.png");
 }
 
 .colorpicker-element .input-group-addon.disabled,
@@ -140,13 +140,14 @@ colorpicker-color {
     min-width: 129px;
     padding: 4px;
     margin-top: 0;
+    background-color: @panel-background-color;
   }
 }
 
 .colorpicker-position-top {
   .dropdown-menu {
     &::after {
-      border-top: 6px solid #fff;
+      border-top: 6px solid @panel-background-color;
       border-bottom: 0;
       top: auto;
       bottom: -5px;
@@ -163,7 +164,7 @@ colorpicker-color {
 .colorpicker-position-right {
   .dropdown-menu {
     &::after {
-      border-right: 6px solid #fff;
+      border-right: 6px solid @panel-background-color;
       border-left: 0;
       top: 11px;
       left: -5px;
@@ -180,7 +181,7 @@ colorpicker-color {
 .colorpicker-position-bottom {
   .dropdown-menu {
     &::after {
-      border-bottom: 6px solid #fff;
+      border-bottom: 6px solid @panel-background-color;
       border-top: 0;
     }
     &::before {
@@ -193,7 +194,7 @@ colorpicker-color {
 .colorpicker-position-left {
   .dropdown-menu {
     &::after {
-      border-left: 6px solid #fff;
+      border-left: 6px solid @panel-background-color;
       border-right: 0;
       top: 11px;
       left: auto;
@@ -228,6 +229,6 @@ colorpicker-preview {
 }
 
 .colorpicker-element-visible.transparent {
-  background-image: url("@{images-path}/bootstrap-colorpicker/transparent.png");
+  background-image: url("@{images-path}/bootstrap-colorpicker/transparent2.png");
   background-repeat: repeat;
 }

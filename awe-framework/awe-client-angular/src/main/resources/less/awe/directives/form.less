@@ -9,7 +9,7 @@
     color: #888;
     display: block;
     font-size: 14px;
-    left: 0px;
+    left: 0;
     line-height: 26px;
     position: absolute;
     text-align: center;
@@ -59,10 +59,20 @@
   }
 }
 
+.gt-ie8 input.px+.lbl {
+  border-color: @border-color;
+  border-radius: @border-radius;
+  background: @panel-background-color;
+}
+
 .gt-ie8 input.px+.lbl:before,
 .gt-ie8 input.px+.lbl:after {
   margin-top: 1px !important;
   cursor: pointer;
+}
+
+.gt-ie8 input[type="radio"].px+.lbl:after {
+  background-color: @text-color;
 }
 
 .error-container {
@@ -87,13 +97,13 @@
 }
 
 .required {
-  background-color:#dfd;
+  background-color: @required-color;
 }
 
 .select2-container.required {
   .select2-choice,
   .select2-choices {
-    background-color:transparent;
+    background-color: transparent;
   }
 }
 
@@ -104,8 +114,8 @@
   }
   .checkbox, .radio {
     .lbl:before {
-      border:1px solid #a94442 !important;
-      background-color:#fee !important;
+      border:1px solid @danger-color !important;
+      background-color: color-mix(in srgb, @danger-color, @primary-background-color 80%) !important;
     }
   }
 }
