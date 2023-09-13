@@ -1212,6 +1212,12 @@
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_CUSTOMIZE"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_CUSTOM_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_UPDATE"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
     </h6><p class=" no-margin text-justify" translate-multiple="HELP_UPDATE_BUTTON"></p>

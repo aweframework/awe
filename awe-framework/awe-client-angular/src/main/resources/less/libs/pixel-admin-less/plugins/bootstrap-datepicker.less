@@ -93,7 +93,7 @@
 
   // Embedded / Inline datepickers
   &.datepicker-inline {
-    border: 1px solid #eee;
+    border: 1px solid @border-color;
     display: inline-block;
     position: relative;
   }
@@ -138,15 +138,15 @@
 
   // Days
   table tr td {
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #eee;
+    border-bottom: 1px solid @border-color;
+    border-right: 1px solid @border-color;
 
     &:last-child {
       border-right: none;
     }
 
     &.day:hover {
-      background: #f3f3f3;
+      background: @secondary-background-color;
       cursor: pointer;
       position: relative;
     }

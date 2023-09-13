@@ -5,8 +5,17 @@
 .criterion {
   position: relative;
 
+  input:disabled,
+  textarea:disabled {
+    border-color: @disabled-border-color;
+    color: @disabled-text-color;
+    background-color: @disabled-color;
+  }
+
   .select2-container {
     .select2-choice {
+      border-color: @border-color;
+      background-color: @panel-background-color;
       .select2-chosen {
         line-height: 18px;
       }
@@ -20,6 +29,8 @@
   .select2-container-disabled>a,
   .select2-container-disabled>ul {
     cursor:not-allowed !important;
+    border-color: @border-color;
+    background-color: @panel-background-color;
   }
 
   .control-label:after {
@@ -37,35 +48,48 @@
 
   /* Labels */
   @media (min-width: @screen-sm-min) {
-    .label-left {
-      text-align: right;
-      padding: 0px 10px;
-      display: table-cell;
-      vertical-align: top;
-      table-layout: fixed;
-      &.control-label:after {
-        content: "";
+    &.label-left {
+      label {
+        text-align: right;
+        padding: 0 10px;
+        display: table-cell;
+        vertical-align: top;
+        table-layout: fixed;
+
+        &.control-label:after {
+          content: "";
+        }
       }
-    }
-    .label-sm.label-left {
-      line-height: @input-height-small;
-      margin-bottom: 0px;
-    }
-    .label-md.label-left {
-      line-height: @input-height-base;
-      margin-bottom: 0px;
-    }
-    .label-lg.label-left {
-      line-height: @input-height-large;
-      margin-bottom: 0px;
+      .label-sm {
+        line-height: @input-height-small;
+        margin-bottom: 0;
+      }
+      .label-md {
+        line-height: @input-height-base;
+        margin-bottom: 0;
+      }
+      .label-lg {
+        line-height: @input-height-large;
+        margin-bottom: 0;
+      }
+
+      .form-group, .form-control {
+        display: table;
+        width: 100%;
+      }
     }
     .input-group-addon {
       display: table-cell;
       width: 1px;
     }
     .form-group, .form-control {
-      display: table;
+      display: inline-block;
       width: 100%;
+      label {
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
     }
     textarea.form-control {
       display: block;
@@ -125,8 +149,8 @@
           height: @input-height-small;
           b {
             line-height: @input-height-small;
-            margin-top: 0px;
-            padding: 0px;
+            margin-top: 0;
+            padding: 0;
           }
         }
       }
@@ -174,8 +198,8 @@
           height: @input-height-base;
           b {
             line-height: @input-height-base;
-            margin-top: 0px;
-            padding: 0px;
+            margin-top: 0;
+            padding: 0;
           }
         }
       }
@@ -212,8 +236,8 @@
           height: @input-height-large;
           b {
             line-height: @input-height-large;
-            margin-top: 0px;
-            padding: 0px;
+            margin-top: 0;
+            padding: 0;
           }
         }
       }
@@ -293,10 +317,49 @@
 }
 
 .criterion.no-margin .form-group {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 // fix .input-group width issue
 /*.select2-container-default .select2-search-inline .select2-search-field {
     width: auto !important;
 }*/
+.slider {
+  &.slider-disabled {
+    .slider-track {
+      #gradient > .vertical(color-mix(in srgb, @disabled-color, #000 20%), @disabled-color);
+    }
+
+    .slider-handle {
+      #gradient > .vertical(@disabled-color, color-mix(in srgb, @disabled-color, #000 20%));
+    }
+
+    .slider-selection {
+      #gradient > .vertical(@disabled-color, color-mix(in srgb, @disabled-color, #000 20%));
+    }
+
+    .slider-tick {
+      #gradient > .vertical(color-mix(in srgb, @disabled-color, #000 20%), @disabled-color);
+
+      &.in-selection {
+        #gradient > .vertical(@disabled-color, color-mix(in srgb, @disabled-color, #000 20%));
+      }
+    }
+  }
+  .slider-track {
+    #gradient > .vertical(color-mix(in srgb, @border-color, #000 20%), @border-color);
+  }
+  .slider-selection {
+    #gradient > .vertical(@theme-color, color-mix(in srgb,@theme-color, #000 20%));
+  }
+  .slider-handle {
+    #gradient > .vertical(@theme-color, color-mix(in srgb, @theme-color, #000 20%));
+  }
+  .slider-tick {
+    #gradient > .vertical(color-mix(in srgb, @border-color, #000 20%), @border-color);
+
+    &.in-selection {
+      #gradient > .vertical(@theme-color, color-mix(in srgb, @theme-color, #000 20%));
+    }
+  }
+}

@@ -25,22 +25,24 @@
     li {
       a {
         color: @menu-text-color;
-        border-bottom: 0px solid darken(@menu-color, 5%);
+        border-bottom: 0 solid @menu-color;
         .transition(all .2s);
 
         &:hover {
-          color: darken(@menu-text-color, 30%);
+          color: @menu-text-color;
+          //filter: brightness(70%);
         }
       }
 
       &.active > a {
-        color: darken(@menu-text-color, 30%);
+        color: @menu-text-color;
         background: @body-color;
+        //filter: brightness(70%);
       }
     }
 
     > li:first-child {
-      border-top: 1px solid darken(@menu-color, 5%);
+      border-top: 1px solid @menu-color;
     }
   }
 
@@ -53,13 +55,14 @@
   //
 
   .mmc-dropdown-open > a {
-    color: darken(@menu-text-color, 30%) !important;
+    color: @menu-text-color !important;
+    //filter: brightness(70%);
   }
 
   .mmc-title {
-    color: darken(@menu-text-color, 30%);
+    color: color-mix(in srgb, @menu-text-color, @text-color 30%);
     background: @menu-color;
-    border-bottom: 1px solid darken(@menu-color, 5%);
+    border-bottom: 1px solid color-mix(in srgb, @menu-color, @text-color 5%);
   }
 
   .mmc-dropdown-open-ul {
@@ -77,7 +80,7 @@
     margin-top: -10px;
 
     .btn-outline {
-      border-color: darken(@menu-color, 5%);
+      border-color: color-mix(in srgb, @menu-color, @text-color 5%);
       color: @menu-text-color;
 
       &:hover,
@@ -96,13 +99,13 @@
 // Highlight opened dropdown
 .mmc-dropdown-open .mm-dropdown.open > a,
 &.mme #main-menu .mm-dropdown.open > a {
-  color: darken(@menu-text-color, 30%) !important;
+  color: color-mix(in srgb, @menu-text-color, @text-color 30%) !important;
 }
 
 @media (min-width: @screen-tablet) {
   // Highlight expanded submenus
   #main-menu .mm-dropdown.open > a {
-    color: darken(@menu-text-color, 30%);
+    color: color-mix(in srgb, @menu-text-color, @text-color 30%);
   }
 
   // Unhighlight expanded submenus in collapsed mode
@@ -118,7 +121,7 @@
 #main-menu-bg,
 &.right-to-left.main-menu-right #main-menu-bg {
   border-left: none;
-  border-right: 1px solid darken(@menu-color, 5%);
+  border-right: 1px solid color-mix(in srgb, @menu-color, @text-color 5%);
 }
 
 #main-menu .mmc-dropdown-open > ul,
@@ -129,7 +132,7 @@
 
 &.right-to-left #main-menu-bg,
 &.main-menu-right #main-menu-bg {
-  border-left: 1px solid darken(@menu-color, 5%);
+  border-left: 1px solid color-mix(in srgb, @menu-color, @text-color 5%);
   border-right: none;
 }
 

@@ -86,7 +86,7 @@
     // Icon
     .navbar-icon {
       left: 20px;
-      margin: (-1 * (@main-navbar-height / 2)) 0 0 0;
+      margin: calc(-1 * (@main-navbar-height / 2)) 0 0 0;
       padding: 0;
       position: absolute;
       z-index: @zindex-navbar-fixed + 5;
@@ -113,7 +113,7 @@
     .hide-menu-text {
       left: @main-menu-collapsed-width - 5px;
       line-height: @main-navbar-height;
-      margin-top: -1 * (@main-navbar-height / 2);
+      margin-top: calc(-1 * (@main-navbar-height / 2));
       opacity: 0;
       position: absolute;
       z-index: @zindex-navbar-fixed + 5;
@@ -158,12 +158,12 @@
       padding-bottom: 0;
 
       &:hover {
-        background: none;
+        //background: none;
       }
 
       &:active,
         &:focus {
-        background: none;
+        //background: none;
       }
     }
   }
@@ -438,7 +438,7 @@
 
         height: @navbar-text-input-height;
         line-height: @navbar-text-input-line-height;
-        margin-top: (@main-navbar-height - @navbar-text-input-height) / 2;
+        margin-top: calc((@main-navbar-height - @navbar-text-input-height) / 2);
         padding-bottom: @padding-top-bottom;
         padding-top: @padding-top-bottom;
         width: 150px;
@@ -508,7 +508,7 @@
 // Navbar scrollbar
 //
 
-#main-navbar-collapse .iScrollVerticalScrollbar {
+.main-navbar-collapse .iScrollVerticalScrollbar {
   margin-right: 2px !important;
   width: 4px !important;
 

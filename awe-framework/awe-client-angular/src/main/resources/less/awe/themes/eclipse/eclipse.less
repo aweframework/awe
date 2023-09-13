@@ -3,36 +3,51 @@
 // --------------------------------------------------
 
 .theme-eclipse {
-  // Theme color
-  @theme-color: lighten(#23272d, 38%);
-  // Main menu background color
-  @menu-color: #666;
-  // Primary color
-  @primary-color: #1d89cf;
+  --theme-color: #666;
+  --text-color: #333333;
+  --primary-color: #1d89cf;
+  --secondary-color: #dfe1e6;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333;
+  --primary-background-color: #fff;
+  --secondary-background-color: #fafafa;
+  --primary-menu-color: #666;
+  --secondary-menu-color: #80a3bb;
+  --menu-text-color: #dfb5b5;
+  --primary-navbar-color: #f6f6f6;
+  --secondary-navbar-color: #f8f8f8;
+  --panel-background-color: #fff;
+  --panel-header-color: #999999;
+  --panel-border-color: #808080;
+  --loading-bar-color: #1d89cf;
+  --required-color: #b5c7d3;
 
-  @awe-color: lighten(@menu-color, 20%);
-  @awe-text-color: #fff;
-  @awe-border-color: darken(@awe-color, 10%);
-  @button-color: #ddd;
-
-  // Copy fresh theme
-  .theme-default;
-
-  // Define panel and button default
-  .panel-awe {
-    .pixel-panel(@awe-color, @awe-text-color, @awe-border-color);
+  &.dark {
+    --theme-color: #666;
+    --text-color: #eee;
+    --primary-color: #666;
+    --secondary-color: #333;
+    --primary-text-color: #fff;
+    --secondary-text-color: #eee;
+    --primary-background-color: #060606;
+    --secondary-background-color: #222222;
+    --primary-menu-color: #666;
+    --secondary-menu-color: #80a3bb;
+    --menu-text-color: #dfb5b5;
+    --primary-navbar-color: #252525;
+    --secondary-navbar-color: #f8f8f8;
+    --navbar-text-color: #ccc;
+    --navbar-dropdown-color: #222222;
+    --panel-background-color: #131313;
+    --panel-header-color: #1a7ab9;
+    --panel-border-color: #1a7ab9;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #0e3d5d;
+    --loading-bar-color: #6596be;
   }
-  .btn-default {
-    .pixel-button(@color: @button-color, @font-color: @btn-default-color);
-  }
-
-  // Mixins
-  .awe-main-menu(@menu-color);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(@primary-color);
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
 }

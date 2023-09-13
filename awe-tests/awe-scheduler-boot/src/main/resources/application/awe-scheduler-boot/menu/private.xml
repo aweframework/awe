@@ -39,6 +39,7 @@
       <option name="new-theme" screen="ThmNew" invisible="true"/>
       <option name="update-theme" screen="ThmUpd" invisible="true"/>
       <option name="view-theme" screen="ThmViw" invisible="true"/>
+      <option name="customize-theme" screen="customize-themes" invisible="true"/>
     </option>
     <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="EmlSrv" icon="envelope">
       <option name="new-email-server" screen="EmlSrvNew" invisible="true"/>

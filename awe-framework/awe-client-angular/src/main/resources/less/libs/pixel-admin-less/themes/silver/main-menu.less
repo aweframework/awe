@@ -20,16 +20,16 @@
   .mmc-dropdown-open-ul {
 
     li {
-      border-bottom: 1px solid lighten(@menu-color, 4%);
+      border-bottom: 1px solid color-mix(in srgb, @menu-color, @primary-background-color 4%);
     }
 
     li a {
-      color: lighten(@menu-color, 40%);
+      color: color-mix(in srgb, @menu-color, @primary-background-color 40%);
       .transition(all .2s);
       transition-property: color,background;
 
       &:hover {
-        background: lighten(@menu-color, 4%);
+        background: color-mix(in srgb, @menu-color, @primary-background-color 4%);
         color: #fff;
       }
     }
@@ -50,7 +50,7 @@
 
   .mm-dropdown ul,
   .mmc-dropdown-open-ul {
-    background: darken(@menu-color, 4%);
+    background: color-mix(in srgb, @menu-color, @text-color 4%);
 
     li {
       border: none;
@@ -74,15 +74,15 @@
   }
 
   li.mm-dropdown.active {
-    border-bottom-color: lighten(@menu-color, 4%);
+    border-bottom-color: color-mix(in srgb, @menu-color, @primary-background-color 4%);
 
     > a {
       color: #fff !important;
       background: none;
-      border-bottom-color: lighten(@menu-color, 4%);
+      border-bottom-color: color-mix(in srgb, @menu-color, @primary-background-color 4%);
 
       &:hover {
-        background: lighten(@menu-color, 4%);
+        background: color-mix(in srgb, @menu-color, @primary-background-color 4%);
       }
     }
   }
@@ -116,7 +116,7 @@
   .mmc-title {
     color: #fff;
     background: @menu-color;
-    border-bottom: 1px solid lighten(@menu-color, 4%);
+    border-bottom: 1px solid color-mix(in srgb, @menu-color, @primary-background-color 4%);
     padding-top: 1px;
   }
 
@@ -124,7 +124,7 @@
     padding-top: 0;
     padding-bottom: 1px;
     border-bottom: 0;
-    border-top: 1px solid lighten(@menu-color, 4%);
+    border-top: 1px solid color-mix(in srgb, @menu-color, @primary-background-color 4%);
     margin-top: -1px;
   }
 
@@ -138,8 +138,8 @@
     margin-top: -10px;
 
     .btn-outline {
-      border-color: lighten(@menu-color, 4%);
-      color: lighten(@menu-color, 40%);
+      border-color: color-mix(in srgb, @menu-color, @primary-background-color 4%);
+      color: color-mix(in srgb, @menu-color, @primary-background-color 40%);
 
       &:hover {
         color: #fff;
@@ -147,7 +147,7 @@
     }
 
     &.top {
-      border-bottom: 1px solid lighten(@menu-color, 4%);
+      border-bottom: 1px solid color-mix(in srgb, @menu-color, @primary-background-color 4%);
       margin-top: 0;
     }
   }
@@ -164,19 +164,19 @@
 }
 
 &.mme #main-menu .mm-dropdown.open > a {
-  border-bottom: 1px solid lighten(@menu-color, 4%);
+  border-bottom: 1px solid color-mix(in srgb, @menu-color, @primary-background-color 4%);
 }
 
 @media (min-width: @screen-tablet) {
   // Highlight expanded submenus
   #main-menu .mm-dropdown.open > a {
     color: #fff;
-    border-bottom: 1px solid lighten(@menu-color, 4%);
+    border-bottom: 1px solid color-mix(in srgb, @menu-color, @primary-background-color 4%);
   }
 
   // Unhighlight expanded submenus in collapsed mode
   &.mmc #main-menu .navigation > .mm-dropdown.open > a {
-    color: lighten(@menu-color, 40%);
+    color: color-mix(in srgb, @menu-color, @primary-background-color 40%);
     border-bottom: none;
   }
 }

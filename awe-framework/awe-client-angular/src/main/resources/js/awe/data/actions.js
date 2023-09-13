@@ -13,6 +13,7 @@ export const ClientActions = {
     "end-load": {method: "endLoad"},
     "change-language": {method: "changeLanguage"},
     "change-theme": {method: "changeTheme"},
+    "update-theme": {method: "updateTheme"},
     "get-file": {method: "getFile"},
     "disable-dependencies": {method: "disableDependencies"},
     "enable-dependencies": {method: "enableDependencies"},

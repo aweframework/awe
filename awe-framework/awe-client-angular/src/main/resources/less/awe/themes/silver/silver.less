@@ -3,24 +3,66 @@
 // --------------------------------------------------
 
 .theme-silver {
-  @theme-color: darken(#64bed8, 5%);
-  // Main menu background color
-  @menu-color: #333;
-  // Primary color
-  @primary-color: #64bed8;
+  --theme-color: #5dafc7;
+  --text-color: #333333;
+  --primary-color: #64bed8;
+  --secondary-color: #def1f7;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #f4f6f7;
+  --secondary-background-color: #fafafa;
+  --primary-menu-color: #333;
+  --secondary-menu-color: #EDEBEB;
+  --menu-text-color: #8c8c8c;
+  --primary-navbar-color: #f6f6f6;
+  --secondary-navbar-color: #EDEBEB;
+  --navbar-text-color: #666;
+  --panel-background-color: #fff;
+  --panel-header-color: #fafafa;
+  --panel-border-color: #ececec;
+  --panel-text-color: #333333;
+  --grid-header-color: #ebebeb;
+  --grid-border-color: #dbdbdb;
+  --disabled-border-color: #d6d6d6;
+  --disabled-color: #eee;
+  --required-color: #d2f1fb;
+  --loading-bar-color: #fff;
 
-  // CSS variable colors
-  --theme-color: @theme-color;
-  --menu-color: @menu-color;
-  --primary-color: @primary-color;
+  &.dark {
+    --theme-color: #5dafc7;
+    --text-color: #eee;
+    --primary-color: #64bed8;
+    --secondary-color: #2a2c2f;
+    --primary-text-color: #fff;
+    --secondary-text-color: #ccc;
+    --primary-background-color: #060606;
+    --secondary-background-color: #222222;
+    --primary-menu-color: #2a2d33;
+    --secondary-menu-color: #2d819a;
+    --menu-text-color: #a0a3b1;
+    --primary-navbar-color: #184654;
+    --secondary-navbar-color: #2d819a;
+    --navbar-text-color: #ddd;
+    --navbar-dropdown-color: #000;
+    --panel-background-color: #131313;
+    --panel-header-color: #1e1e1e;
+    --panel-border-color: #3f3f3f;
+    --panel-text-color: #d3d3d3;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #173d47;
+    --loading-bar-color: #fff;
+  }
 
-  // Mixins
-  .awe-main-menu(@menu-color);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(@primary-color);
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
+  // Define navbar specific backgrounds
+  #main-navbar,
+  #main-navbar .navbar-header,
+  #main-navbar .main-navbar-collapse {
+    background-image: linear-gradient(to bottom, @primary-navbar-color 0%, @secondary-navbar-color 100%) !important;
+    background-repeat: repeat-x !important;
+  }
 }

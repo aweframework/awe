@@ -25,6 +25,13 @@
         <dependency-element id="GrdThmLst" condition="ne" value="1" />
       </dependency>
     </button>
+    <button label="BUTTON_CUSTOMIZE" icon="paint-brush" id="ButCus" help="HELP_CUSTOM_BUTTON">
+      <button-action type="check-one-selected" target="GrdThmLst" />
+      <button-action type="screen" target="customize-theme" />
+      <dependency target-type="disable" initial="true">
+        <dependency-element id="GrdThmLst" condition="ne" value="1" />
+      </dependency>
+    </button>
     <button label="BUTTON_UPDATE" icon="edit" id="ButUpd" help="HELP_UPDATE_BUTTON">
       <button-action type="check-one-selected" target="GrdThmLst" />
       <button-action type="screen" target="update-theme" />

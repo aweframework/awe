@@ -3,108 +3,20 @@
   min-height: 120px;
   position: relative;
   overflow: hidden !important;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   &.grid-bordered {
-    border: 1px solid @table-border-color;
+    border: 1px solid @grid-border-color;
+    border-radius: 0 0 calc(@border-radius + 1px) calc(@border-radius + 1px);
   }
 
-  /** jqGrid configuration */
-  .ui-jqgrid {
-    width: auto !important;
-    .flex(1);
-    .flex-direction(column);
-    .display-flex;
-    position: relative;
-    > * {
-      .flex(none);
-    }
-    > .ui-jqgrid-view {
-      width: auto !important;
-      .flex(1);
-      .flex-direction(column);
-      .display-flex;
-      // WORKAROUND FOR BUG IN FLEXBOX
-      position:absolute;left:0;top:0;right:0;bottom:0;
-      > * {
-        .flex(none);
-      }
-      > .ui-jqgrid-bdiv {
-        .flex(1);
-        width: auto !important;
-      }
-    }
-    .ui-pg-table .ui-pg-div>span.fa, #jqContextMenu .ui-menu-item>a>span.fa {
-      text-indent:0;
-      height: auto;
-      width: auto;
-      background-image: none;
-      overflow: visible;
-      padding-top: 1px;
-    }
-    .ui-pg-table .ui-pg-div {
-      text-indent:0;
-      height: auto;
-      width: auto;
-      background-image: none;
-      overflow: visible;
-      padding-top: 1px;
-    }
-    .ui-jqgrid-titlebar-close.fa-title span { font-size: 18px; display: inline-block; }
-    .ui-jqgrid-titlebar-close.fa-title { margin-top: 0; top: 0; padding-left: 2px; padding-bottom: 2px;}
-    .ui-icon-asc.fa,
-    .ui-icon-desc.fa {
-      height: auto;
-      margin-top: 3px;
-      margin-left: 4px;
-    }
-    .s-ico>.ui-state-disabled.fa, .s-ico>.ui-state-disabled.fa { padding: 0; }
-    .ui-jqdialog {
-      .ui-jqdialog-titlebar-close { text-decoration: none; right: 0.2em !important}
-      .ui-jqdialog-titlebar-close>span { margin-top: 3px; margin-left: 5px;}
-      .EditTable .fm-button-icon-right { padding-left: 0; padding-right: 0.5em; float:right;}
-      .EditTable .fm-button-icon-left { padding-left: 0; float:left; }
-      .EditButton>.fm-button { display: block; width: auto; }
-      .EditButton>.fm-button>span { float: left; margin-left: 0.5em; margin-right: 0;}
-      .fm-button>span { margin-left: 0.5em; margin-right: 0; }
-      &>.ui-resizable-se { bottom: -3px; right: -3px}
-    }
-    .ui-state-disabled {
-      .opacity(0.35);
-    }
-    .ui-jqgrid-resize-ltr {
-      margin: -2px -4px -2px 0;
-    }
-
-    tr.jqgrow td {
-      white-space: nowrap;
-    }
+  .ui-grid {
+    border-color: @grid-border-color;
   }
 
-  .ui-jqgrid-htable.table.table-bordered,
-  .ui-jqgrid-btable.table.table-bordered {
-    border-top: 0px;
-    border-left: 0px;
-    border-bottom: 0px;
-  }
-  .ui-jqgrid-bdiv, .ui-jqgrid-sdiv {
-    background-color: @panel-bg;
-  }
-  .ui-jqgrid-sdiv {
-    .table.table-bordered {
-      border-bottom: 0px;
-      border-left: 0px;
-      td {
-        border-bottom: 0px;
-        .loader {
-          display: none !important;
-        }
-      }
-    }
-  }
   .table.table-bordered {
     th, td {
-      border-left: 0px;
-      border-top: 0px;
+      border-left: 0;
+      border-top: 0;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -112,11 +24,6 @@
     th {
       text-align:center;
       vertical-align: middle;
-    }
-    tr.jqgfirstrow>td,
-    tr.jqg-first-row-header>th {
-      padding: 0px;
-      border: 0px !important;
     }
   }
 
@@ -128,51 +35,45 @@
     border-top-width: 1px;
     margin-top: 0;
     min-height: 30px;
+    border-color: @grid-border-color;
   }
 
   .frozen-div {
     .table.table-bordered th {
-      padding-left: 0px !important;
-      padding-right: 0px !important;
-      .ui-jqgrid-resize-ltr {
-        margin: -2px 0px -2px 0;
-      }
+      padding-left: 0 !important;
+      padding-right: 0 !important;
     }
   }
 
   .frozen-bdiv {
     .table.table-bordered {
-      tr.jqgfirstrow td {
-        padding-right: 1px;
-        border-right-width: 0px !important;
-      }
     }
   }
 
   td.merged {
-    border-right: 0px solid transparent;
+    border-right: 0 solid transparent;
     margin-right: 1px;
   }
 
   // Remove padding top from canvas
   .ui-grid-canvas {
-    padding-top: 0px;
+    padding-top: 0;
     overflow: auto;
   }
 
   .ui-grid-top-panel {
     font-weight: 600;
-    border-color: #dbdbdb;
-    background: #ebebeb;
+    border-color: @grid-border-color;
+    background: @grid-header-color;
   }
 
   .ui-grid-cell {
     cursor: pointer;
-    border-right: 1px solid #dbdbdb;
+    border-right: 1px solid @grid-border-color;
     .ui-grid-cell-contents {
-      padding: 0px 4px;
+      padding: 0 4px;
       &.component {
-        padding: 0px;
+        padding: 0;
         .column-input {
           .loader {
             width: 100%;
@@ -188,22 +89,35 @@
     }
   }
 
+  .ui-grid-row:last-child .ui-grid-cell {
+    border-color: @grid-border-color;
+  }
+
   .ui-grid-header-cell-primary-focus {
     outline: 0;
   }
 
   .ui-grid-row {
-    border-bottom: 1px solid #dbdbdb;
+    border-bottom: 1px solid @grid-border-color;
     overflow: hidden;
   }
 
   .ui-grid-contents-wrapper {
-    background-color: #fff;
+    background-color: @panel-background-color;
+  }
+
+  .ui-grid-header {
+    border-color: @grid-border-color;
   }
 
   .ui-grid-header-cell {
     height: 100%;
     vertical-align:middle;
+    border-color: @grid-border-color;
+  }
+
+  .ui-grid-header-cell:last-child .ui-grid-column-resizer.right {
+    border-color: @grid-border-color;
   }
 
   .ui-grid-checkbox,
@@ -221,16 +135,16 @@
       display: inline-block;
       .flex(1);
       .flex-align-self(center);
-      margin: 0px;
+      margin: 0;
       input {
         display: none;
       }
       .lbl {
         width: 15px;
         height: 15px;
-        margin-left: 0px;
+        margin-left: 0;
         &:after, &:before {
-          margin: 0px !important;
+          margin: 0 !important;
         }
       }
     }
@@ -238,11 +152,18 @@
 
   .pagination {
     overflow: hidden;
+    > li > a {
+      border-color: @grid-border-color;
+    }
+  }
+
+  .ui-grid-pinned-container.ui-grid-pinned-container-left .ui-grid-cell:last-child {
+    border-color: @grid-border-color;
   }
 
   .pagination-content {
     overflow:hidden;
-    padding: 0px !important;
+    padding: 0 !important;
   }
 
   .pagination-number {
@@ -254,7 +175,7 @@
     height: 23px;
     width: 28px;
     padding-left: 2px;
-    border: 1px solid #ddd;
+    border: 1px solid @grid-border-color;
   }
 
   input[type="number"][class~="pagination-goto"]::-webkit-outer-spin-button, input[type="number"][class~="pagination-goto"]::-webkit-inner-spin-button {
@@ -267,9 +188,9 @@
     overflow:hidden;
     display: inline-block;
     background-color: transparent;
-    padding: 0px 7px;
+    padding: 0 7px;
     font-size: 12px;
-    border-radius: 2px;
+    border-radius: @border-radius;
     width: auto;
     margin-left:15px;
   }
@@ -283,12 +204,12 @@
           height: @input-height-small;
         }
         label.checkbox {
-          margin: 0px 0px 0px 6px;
+          margin: 0 0 0 6px;
           top: -12px;
           position: relative;
         }
         .visible-value {
-          padding: 0px 4px;
+          padding: 0 4px;
           line-height: @input-height-small;
         }
       }
@@ -308,7 +229,7 @@
       }
       td {
         line-height: @input-height-small;
-        padding: 0px 4px;
+        padding: 0 4px;
         height: @input-height-small;
         overflow: hidden;
         cursor: pointer;
@@ -347,13 +268,13 @@
           height: @input-height-base;
         }
         label.checkbox {
-          margin: 0px 0px 0px 6px;
+          margin: 0 0 0 6px;
           position: relative;
           top: -14px;
           height: 32px;
         }
         .visible-value {
-          padding: 0px 4px;
+          padding: 0 4px;
           line-height: @input-height-base;
         }
       }
@@ -372,7 +293,7 @@
         }
       }
       td {
-        padding: 0px 4px;
+        padding: 0 4px;
         line-height: @input-height-base;
         height: @input-height-base;
         overflow: hidden;
@@ -414,13 +335,13 @@
           height: @input-height-large;
         }
         label.checkbox {
-          margin: 8px 0px 0px 6px;
+          margin: 8px 0 0 6px;
           position: relative;
           top: -23px;
           height: 36px;
         }
         .visible-value {
-          padding: 0px 4px;
+          padding: 0 4px;
           line-height: @input-height-large;
         }
       }
@@ -440,7 +361,7 @@
       }
       td {
         cursor: pointer;
-        padding: 0px 4px;
+        padding: 0 4px;
         height: @input-height-large;
         overflow: hidden;
         line-height: @input-height-large;
@@ -482,9 +403,9 @@
 
   /*input.cbox {
     position: relative;
-    margin-top: 0px;
+    margin-top: 0;
     font-weight: bold;
-    top: 0px;
+    top: 0;
     left: 1px;
     vertical-align: middle;
     width: 13px;
@@ -529,8 +450,8 @@
     top: -10000px;
     left: -10000px;
     padding: 4px;
-    border: 1px solid @table-border-color;
-    border-top: 0px;
+    border: 1px solid @grid-border-color;
+    border-top: 0;
     white-space: nowrap;
     z-index: 1;
   }

@@ -3,35 +3,35 @@
 // --------------------------------------------------
 
 .theme-fresh {
-  @primary-color: #64bed8;
+  //@primary-color: #64bed8;
 
   // Panel border color
-  @theme-border-color: #ddd;
+  //@theme-border-color: #ddd;
 
   // Main navbar gradient
-  @navbar-start-color: #a1cc3d;
-  @navbar-end-color: #94c53e;
+  //@navbar-start-color: #a1cc3d;
+  //@navbar-end-color: #94c53e;
 
   // Main navbar text color
-  @navbar-text-color: #fff;
+  //@navbar-text-color: #fff;
 
   // Main navbar text shadow
   @navbar-text-shadow: 0 -1px 0 rgba(0,0,0,.2);
 
   // Main menu background color
-  @menu-color: #43474b;
+  //@menu-color: #43474b;
 
   // Main menu active item background color
-  @menu-active-color: #78bdd1;
+  @menu-active-color: @secondary-menu-color;
 
   // Body background color
-  @body-color: #f4f6f7;
+  //@body-color: #f4f6f7;
 
   // Page header background color
-  @page-header-color: #fff;
+  //@page-header-color: #fff;
 
   // Page header border color
-  @page-header-border-color: @theme-border-color;
+  //@page-header-border-color: @theme-border-color;
 
 
   // Imports
@@ -110,7 +110,7 @@
   .ui-datepicker-theme(@primary-color);
 
   // Plugins
-  .select2-theme(@primary-color);
+  .select2-theme(@primary-color, @primary-text-color);
   .switcher-theme(@primary-color);
   .pixel-file-input-theme(@primary-color);
   .bootstrap-datepicker-theme(@primary-color);

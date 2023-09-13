@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : customize-themes.xml
+    Created on : 9 de agosto de 2023
+    Author     : Pablo GARCIA
+    Description: Configuración de temas
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window"
+        label="SCREEN_TITLE_THM_CUSTOM" help="HELP_SCREEN_TITLE_THM_CUSTOM" target="themeConfiguration">
+  <tag source="buttons">
+    <button button-type="button" label="BUTTON_BACK" icon="arrow-circle-left" id="ButBck" help="HELP_BACK_BUTTON">
+      <button-action type="back"/>
+    </button>
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
+      <button-action type="dialog" target="HlpOpt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" expandible="vertical" label="SCREEN_TEXT_DATA" icon="plus-circle">
+      <tag type="div" style="panel-body expand scrollable" expandible="vertical">
+        <tag type="div" style="col-xs-12">
+          <criteria label="PARAMETER_THEME" id="Nam" component="text" variable="Nam" readonly="true"
+                    style="col-xs-6 col-sm-3 col-lg-2">
+            <dependency initial="true">
+              <dependency-element id="Nam" alias="theme" condition="is empty"/>
+              <dependency-action type="screen" target="themes"/>
+            </dependency>
+            <dependency initial="true">
+              <dependency-element id="Nam" alias="theme"/>
+              <dependency-action type="add-class" target=".demo-theme" target-action="theme-[theme]"/>
+            </dependency>
+          </criteria>
+        </tag>
+        <tag type="div" style="expand" expandible="horizontal">
+          <tag type="div" style="expand" expandible="vertical">
+            <tag type="h3" label="LIGHT_THEME"/>
+            <tag type="div" style="expand" expandible="horizontal">
+              <tag type="div" style="expand">
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_COLORS" style="update-colors col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-colors btn-update hidden">
+                    <button id="update-colors" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-colors"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-colors"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="themeColor" condition="ne" value="_any_"/>
+                        <dependency-element id="textColor" condition="ne" value="_any_"/>
+                        <dependency-element id="primaryColor" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryColor" condition="ne" value="_any_"/>
+                        <dependency-element id="borderColor" condition="ne" value="_any_"/>
+                        <dependency-element id="borderRadius" condition="ne" value="_any_"/>
+                        <dependency-element id="dangerColor" condition="ne" value="_any_"/>
+                        <dependency-element id="warningColor" condition="ne" value="_any_"/>
+                        <dependency-element id="successColor" condition="ne" value="_any_"/>
+                        <dependency-element id="infoColor" condition="ne" value="_any_"/>
+                        <dependency-element id="loadingBarColor" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-colors.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-colors"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-colors"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_THEME_COLOR" id="themeColor" component="color"
+                            variable="themeColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="textColor" component="color"
+                            variable="textColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryColor" component="color"
+                            variable="primaryColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryColor" component="color"
+                            variable="secondaryColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_COLOR" id="borderColor" component="color"
+                            variable="borderColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_RADIUS" id="borderRadius" component="numeric"
+                            unit="px"
+                            variable="borderRadius" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DANGER_COLOR" id="dangerColor" component="color"
+                            variable="dangerColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_WARNING_COLOR" id="warningColor" component="color"
+                            variable="warningColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SUCCESS_COLOR" id="successColor" component="color"
+                            variable="successColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_INFO_COLOR" id="infoColor" component="color"
+                            variable="infoColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_LOADING_BAR_COLOR" id="loadingBarColor" component="color"
+                            variable="loadingBarColor" style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_TEXT" style="update-text col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-text btn-update hidden">
+                    <button id="update-text" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-text"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-text"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryTextColor" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryTextColor" condition="ne" value="_any_"/>
+                        <dependency-element id="primaryFontSize" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryFontSize" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-text.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-text"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-text"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryTextColor"
+                            component="color" variable="primaryTextColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryTextColor"
+                            component="color" variable="secondaryTextColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_PRIMARY_FONT_SIZE" id="primaryFontSize"
+                            component="numeric" variable="primaryFontSize" style="col-xs-6 col-sm-4"
+                            unit="px"/>
+                  <criteria label="PARAMETER_SECONDARY_FONT_SIZE" id="secondaryFontSize"
+                            component="numeric" variable="secondaryFontSize" unit="px"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_BACKGROUND" style="update-background col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-background btn-update hidden">
+                    <button id="update-background" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-background"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-background"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryBackgroundColor" condition="ne"
+                                            value="_any_"/>
+                        <dependency-element id="secondaryBackgroundColor" condition="ne"
+                                            value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-background.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-background"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-background"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryBackgroundColor"
+                            component="color" variable="primaryBackgroundColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryBackgroundColor"
+                            component="color" variable="secondaryBackgroundColor"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_MENU" style="update-menu col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-menu btn-update hidden">
+                    <button id="update-menu" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-menu"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-menu"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryMenuColor" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryMenuColor" condition="ne" value="_any_"/>
+                        <dependency-element id="menuTextColor" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-menu.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-menu"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-menu"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryMenuColor"
+                            component="color" variable="primaryMenuColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryMenuColor"
+                            component="color" variable="secondaryMenuColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="menuTextColor"
+                            component="color" variable="menuTextColor"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_NAVBAR" style="update-navbar col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-navbar btn-update hidden">
+                    <button id="update-navbar" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-navbar"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-navbar"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryNavbarColor" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryNavbarColor" condition="ne" value="_any_"/>
+                        <dependency-element id="navbarTextColor" condition="ne" value="_any_"/>
+                        <dependency-element id="navbarDropdownColor" condition="ne" value="_any_"/>
+                        <dependency-element id="headerHeight" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-navbar.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-navbar"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-navbar"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryNavbarColor"
+                            component="color" variable="primaryNavbarColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryNavbarColor"
+                            component="color" variable="secondaryNavbarColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="navbarTextColor"
+                            component="color" variable="navbarTextColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DROPDOWN_COLOR" id="navbarDropdownColor"
+                            component="color" variable="navbarDropdownColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_HEIGHT" id="headerHeight"
+                            component="numeric" unit="px" variable="headerHeight"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_PANEL" style="update-panel col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-panel btn-update hidden">
+                    <button id="update-panel" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-panel"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-panel"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="panelBackgroundColor" condition="ne" value="_any_"/>
+                        <dependency-element id="panelHeaderColor" condition="ne" value="_any_"/>
+                        <dependency-element id="panelBorderColor" condition="ne" value="_any_"/>
+                        <dependency-element id="panelTextColor" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-panel.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-panel"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-panel"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_BACKGROUND_COLOR" id="panelBackgroundColor"
+                            component="color" variable="panelBackgroundColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_HEADER_COLOR" id="panelHeaderColor"
+                            component="color" variable="panelHeaderColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_COLOR" id="panelBorderColor"
+                            component="color" variable="panelBorderColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="panelTextColor"
+                            component="color" variable="panelTextColor"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_GRID" style="update-grid col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-grid btn-update hidden">
+                    <button id="update-grid" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-grid"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-grid"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="gridHeaderColor" condition="ne" value="_any_"/>
+                        <dependency-element id="gridBorderColor" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-grid.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-grid"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-grid"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_HEADER_COLOR" id="gridHeaderColor"
+                            component="color" variable="gridHeaderColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_COLOR" id="gridBorderColor"
+                            component="color" variable="gridBorderColor"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_CRITERIA" style="update-criteria col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-criteria btn-update hidden">
+                    <button id="update-criteria" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-criteria"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-criteria"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="requiredColor" condition="ne" value="_any_"/>
+                        <dependency-element id="disabledColor" condition="ne" value="_any_"/>
+                        <dependency-element id="disabledBorderColor" condition="ne" value="_any_"/>
+                        <dependency-element id="disabledTextColor" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-criteria.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-criteria"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-criteria"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_REQUIRED_COLOR" id="requiredColor"
+                            component="color" variable="requiredColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DISABLED_BACKGROUND_COLOR" id="disabledColor"
+                            component="color" variable="disabledColor" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DISABLED_BORDER_COLOR" id="disabledBorderColor"
+                            component="color" variable="disabledBorderColor"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DISABLED_TEXT_COLOR" id="disabledTextColor"
+                            component="color" variable="disabledTextColor"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+              </tag>
+              <tag type="div" style="expand">
+                <tag type="fieldset" style="col-xs-12 panel-padding no-padding-t">
+                  <tag type="legend" label="PARAMETER_PREVIEW_LIGHT"/>
+                  <tag type="div" style="demo-theme grid grid-bordered">
+                    <include target-screen="test-code" target-source="test-code"/>
+                  </tag>
+                </tag>
+              </tag>
+            </tag>
+          </tag>
+          <tag type="div" style="expand" expandible="vertical">
+            <tag type="h3" label="DARK_THEME"/>
+            <tag type="div" style="expand" expandible="horizontal">
+              <tag type="div" style="expand">
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_COLORS" style="update-colors-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-colors-dark btn-update hidden">
+                    <button id="update-colors-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-colors-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-colors-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="themeColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="textColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="primaryColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="borderColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="borderRadiusDark" condition="ne" value="_any_"/>
+                        <dependency-element id="dangerColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="warningColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="successColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="infoColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="loadingBarColorDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-colors-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-colors-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-colors-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_THEME_COLOR" id="themeColorDark" component="color"
+                            variable="themeColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="textColorDark" component="color"
+                            variable="textColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryColorDark" component="color"
+                            variable="primaryColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryColorDark" component="color"
+                            variable="secondaryColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_COLOR" id="borderColorDark" component="color"
+                            variable="borderColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_RADIUS" id="borderRadiusDark" component="numeric"
+                            unit="px"
+                            variable="borderRadiusDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DANGER_COLOR" id="dangerColorDark" component="color"
+                            variable="dangerColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_WARNING_COLOR" id="warningColorDark" component="color"
+                            variable="warningColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SUCCESS_COLOR" id="successColorDark" component="color"
+                            variable="successColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_INFO_COLOR" id="infoColorDark" component="color"
+                            variable="infoColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_LOADING_BAR_COLOR" id="loadingBarColorDark" component="color"
+                            variable="loadingBarColorDark" style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_TEXT" style="update-text-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-text-dark btn-update hidden">
+                    <button id="update-text-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-text-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-text-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryTextColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryTextColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="primaryFontSizeDark" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryFontSizeDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-text-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-text-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-text-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryTextColorDark"
+                            component="color" variable="primaryTextColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryTextColorDark"
+                            component="color" variable="secondaryTextColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_PRIMARY_FONT_SIZE" id="primaryFontSizeDark"
+                            component="numeric" variable="primaryFontSizeDark" style="col-xs-6 col-sm-4"
+                            unit="px"/>
+                  <criteria label="PARAMETER_SECONDARY_FONT_SIZE" id="secondaryFontSizeDark"
+                            component="numeric" variable="secondaryFontSizeDark" unit="px"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_BACKGROUND" style="update-background-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-background-dark btn-update hidden">
+                    <button id="update-background-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-background-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-background-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryBackgroundColorDark" condition="ne"
+                                            value="_any_"/>
+                        <dependency-element id="secondaryBackgroundColorDark" condition="ne"
+                                            value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-background-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-background-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-background-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryBackgroundColorDark"
+                            component="color" variable="primaryBackgroundColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryBackgroundColorDark"
+                            component="color" variable="secondaryBackgroundColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_MENU" style="update-menu-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-menu-dark btn-update hidden">
+                    <button id="update-menu-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-menu-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-menu-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryMenuColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryMenuColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="menuTextColorDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-menu-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-menu-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-menu-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryMenuColorDark"
+                            component="color" variable="primaryMenuColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryMenuColorDark"
+                            component="color" variable="secondaryMenuColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="menuTextColorDark"
+                            component="color" variable="menuTextColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_NAVBAR" style="update-navbar-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-navbar-dark btn-update hidden">
+                    <button id="update-navbar-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-navbar-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-navbar-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="primaryNavbarColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="secondaryNavbarColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="navbarTextColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="navbarDropdownColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="headerHeightDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-navbar-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-navbar-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-navbar-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_PRIMARY_COLOR" id="primaryNavbarColorDark"
+                            component="color" variable="primaryNavbarColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_SECONDARY_COLOR" id="secondaryNavbarColorDark"
+                            component="color" variable="secondaryNavbarColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="navbarTextColorDark"
+                            component="color" variable="navbarTextColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DROPDOWN_COLOR" id="navbarDropdownColorDark"
+                            component="color" variable="navbarDropdownColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_HEIGHT" id="headerHeightDark"
+                            component="numeric" unit="px" variable="headerHeightDark"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_PANEL" style="update-panel-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-panel-dark btn-update hidden">
+                    <button id="update-panel-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-panel-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-panel-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="panelBackgroundColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="panelHeaderColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="panelBorderColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="panelTextColorDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-panel-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-panel-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-panel-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_BACKGROUND_COLOR" id="panelBackgroundColorDark"
+                            component="color" variable="panelBackgroundColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_HEADER_COLOR" id="panelHeaderColorDark"
+                            component="color" variable="panelHeaderColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_COLOR" id="panelBorderColorDark"
+                            component="color" variable="panelBorderColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_TEXT_COLOR" id="panelTextColorDark"
+                            component="color" variable="panelTextColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_GRID" style="update-grid-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-grid-dark btn-update hidden">
+                    <button id="update-grid-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-grid-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-grid-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="gridHeaderColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="gridBorderColorDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-grid-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-grid-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-grid-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_HEADER_COLOR" id="gridHeaderColorDark"
+                            component="color" variable="gridHeaderColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_BORDER_COLOR" id="gridBorderColorDark"
+                            component="color" variable="gridBorderColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+                <tag type="fieldset" style="col-xs-12">
+                  <tag type="legend" label="PARAMETER_CRITERIA" style="update-criteria-dark col-xs-12"/>
+                  <tag type="div" style="col-xs-2 text-right update-criteria-dark btn-update hidden">
+                    <button id="update-criteria-dark" icon="save" style="btn-primary">
+                      <button-action type="server" server-action="maintain-silent"
+                                     target-action="customizeTheme" silent="true"/>
+                      <button-action type="update-theme" silent="true"/>
+                      <button-action type="add-class" target=".btn-update" target-action="hidden"
+                                     async="true" silent="true"/>
+                      <button-action type="add-class" target="legend.update-criteria-dark"
+                                     target-action="col-xs-12" async="true" silent="true"/>
+                      <button-action type="remove-class" target="legend.update-criteria-dark"
+                                     target-action="col-xs-10" async="true" silent="true"/>
+                      <dependency type="or">
+                        <dependency-element id="requiredColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="disabledColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="disabledBorderColorDark" condition="ne" value="_any_"/>
+                        <dependency-element id="disabledTextColorDark" condition="ne" value="_any_"/>
+                        <dependency-action type="remove-class" target=".update-criteria-dark.hidden"
+                                           target-action="hidden" async="true" silent="true"/>
+                        <dependency-action type="remove-class" target="legend.update-criteria-dark"
+                                           target-action="col-xs-12" async="true" silent="true"/>
+                        <dependency-action type="add-class" target="legend.update-criteria-dark"
+                                           target-action="col-xs-10" async="true" silent="true"/>
+                      </dependency>
+                    </button>
+                  </tag>
+                  <criteria label="PARAMETER_REQUIRED_COLOR" id="requiredColorDark"
+                            component="color" variable="requiredColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DISABLED_BACKGROUND_COLOR" id="disabledColorDark"
+                            component="color" variable="disabledColorDark" style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DISABLED_BORDER_COLOR" id="disabledBorderColorDark"
+                            component="color" variable="disabledBorderColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                  <criteria label="PARAMETER_DISABLED_TEXT_COLOR" id="disabledTextColorDark"
+                            component="color" variable="disabledTextColorDark"
+                            style="col-xs-6 col-sm-4"/>
+                </tag>
+              </tag>
+              <tag type="div" style="expand">
+                <tag type="fieldset" style="col-xs-12 panel-padding no-padding-t">
+                  <tag type="legend" label="PARAMETER_PREVIEW_DARK"/>
+                  <tag type="div" style="demo-theme dark grid grid-bordered">
+                    <include target-screen="test-code" target-source="test-code"/>
+                  </tag>
+                </tag>
+              </tag>
+            </tag>
+          </tag>
+        </tag>
+      </tag>
+    </window>
+  </tag>
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center"/>
+  </tag>
+</screen>

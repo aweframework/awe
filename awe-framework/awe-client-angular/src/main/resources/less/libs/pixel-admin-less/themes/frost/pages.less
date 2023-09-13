@@ -6,7 +6,6 @@
 &.page-signin .signin-info,
 &.page-signup .signup-header {
   background: @navbar-color;
-  background: fadeout(@navbar-color, 20%);
 }
 
 
@@ -17,7 +16,7 @@
 .timeline:after,
 .tl-header,
 .tl-icon {
-  background: darken(@body-color, 5%);
+  background: color-mix(in srgb, @body-color, @text-color 5%);
 }
 
 .tl-header,
@@ -73,7 +72,8 @@
   }
 
   .mail-nav .navigation.open .sections li.active {
-    background: desaturate(darken(@body-color, 3%), 10%);
+    background: @body-color;
+    //filter: brightness(97%);
   }
 
   .mail-nav li.divider {
@@ -83,34 +83,41 @@
   .mail-nav .sections {
     li.active {
       a {
-        color: desaturate(darken(@body-color, 70%), 70%);
+        color: @body-color;
+        //filter: brightness(30%);
       }
 
       &:after {
-        color: desaturate(darken(@body-color, 30%), 70%);
+        color: @body-color;
+        //filter: brightness(70%);
       }
     }
 
     a {
-      color: desaturate(darken(@body-color, 55%), 70%);
+      color: @body-color;
+      //filter: brightness(45%);
     }
   }
 
   .mail-nav-header {
-    color: desaturate(darken(@body-color, 30%), 70%);
+    color: @body-color;
+    //filter: brightness(70%);
   }
 
   .mail-nav .add-more a {
-    color: desaturate(darken(@body-color, 30%), 70%);
+    color: @body-color;
+    //filter: brightness(70%);
   }
 }
 
 @media (min-width: @screen-md) {
   &.page-mail .mail-nav .navigation .sections li.active {
-    background: desaturate(darken(@body-color, 3%), 10%);
+    background: @body-color;
+    //filter: brightness(97%);
   }
 
   &.page-mail .mail-nav .sections a:hover {
-    color: desaturate(darken(@body-color, 70%), 70%);
+    color: @body-color;
+    //filter: brightness(30%);
   }
 }

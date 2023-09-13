@@ -6,7 +6,6 @@
 &.page-signin .signin-info,
 &.page-signup .signup-header {
   background: @primary-color;
-  background: fadeout(@primary-color, 20%);
 }
 
 
@@ -17,7 +16,7 @@
 .timeline:after,
 .tl-header,
 .tl-icon {
-  background: darken(@body-color, 8%);
+  background: color-mix(in srgb, @body-color, @text-color 8%);
 }
 
 .tl-header,
@@ -73,7 +72,7 @@
   }
 
   .mail-nav .navigation.open .sections li.active {
-    background: darken(@body-color, 4%);
+    background: color-mix(in srgb, @body-color, @text-color 4%);
   }
 
   .mail-nav li.divider {
@@ -83,34 +82,34 @@
   .mail-nav .sections {
     li.active {
       a {
-        color: darken(@body-color, 70%);
+        color: color-mix(in srgb, @body-color, @text-color 70%);
       }
 
       &:after {
-        color: darken(@body-color, 30%);
+        color: color-mix(in srgb, @body-color, @text-color 30%);
       }
     }
 
     a {
-      color: darken(@body-color, 55%);
+      color: color-mix(in srgb, @body-color, @text-color 55%);
     }
   }
 
   .mail-nav-header {
-    color: darken(@body-color, 30%);
+    color: color-mix(in srgb, @body-color, @text-color 30%);
   }
 
   .mail-nav .add-more a {
-    color: darken(@body-color, 30%);
+    color: color-mix(in srgb, @body-color, @text-color 30%);
   }
 }
 
 @media (min-width: @screen-md) {
   &.page-mail .mail-nav .navigation .sections li.active {
-    background: darken(@body-color, 4%);
+    background: color-mix(in srgb, @body-color, @text-color 4%);
   }
 
   &.page-mail .mail-nav .sections a:hover {
-    color: darken(@body-color, 70%);
+    color: color-mix(in srgb, @body-color, @text-color 70%);
   }
 }

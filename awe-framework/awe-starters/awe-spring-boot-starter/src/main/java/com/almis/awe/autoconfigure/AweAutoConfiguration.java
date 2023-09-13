@@ -303,7 +303,22 @@ public class AweAutoConfiguration {
    *
    * @param queryService    Query service
    * @param queryUtil       Query utilities
-   * @param dataListService  DataList service
+   * @param maintainService Maintain service
+   * @return Menu service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public UserService userService(QueryService queryService, QueryUtil queryUtil,
+                                 MaintainService maintainService) {
+    return new UserService(queryService, queryUtil, maintainService);
+  }
+
+  /**
+   * Favourite service
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param dataListService DataList service
    * @param maintainService Maintain service
    * @return Menu service bean
    */

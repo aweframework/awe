@@ -7,7 +7,7 @@
 
 // Styles
 #main-wrapper.horizontal {
-  padding-left: 0px !important;
+  padding-left: 0 !important;
 }
 
 #main-navbar.horizontal #main-menu-toggle {
@@ -48,9 +48,9 @@
 
   ul.navigation {
     & {
-      padding: 0px;
+      padding: 0;
       //height: @main-menu-height;
-      margin: 0px;
+      margin: 0;
     }
 
     &.ng-hide-add,
@@ -85,7 +85,7 @@
         border-left-width: 1px;
         border-left-style: solid;
         .opacity(0.4);
-        margin: 0px 2px 2px 2px;
+        margin: 0 2px 2px 2px;
         vertical-align: middle;
       }
 
@@ -108,12 +108,11 @@
         width: auto;
         position: fixed;
         z-index: 1900;
-        //max-height: 100%;
         max-height: calc(100% - 110px);
         overflow-y: auto;
-        //padding-top: 76px;
-        //top: 0;
-        //clip: rect(76px,1000px,1000px,0px);
+         li {
+          min-width: 150px;
+        }
       }
     }
 
@@ -145,7 +144,7 @@
 
       &.opened-add.opened-add-active,
       &.opened-remove {
-        margin-left: 0px;
+        margin-left: 0;
         left: auto;
         .opacity(1);
       }
@@ -169,7 +168,7 @@
 
       &.ng-hide-add.ng-hide-add-active,
       &.ng-hide-remove {
-        max-height: 0px;
+        max-height: 0;
         left: -20px;
         .opacity(0);
       }
@@ -177,7 +176,7 @@
       &.ng-hide-add,
       &.ng-hide-remove.ng-hide-remove-active {
         max-height: 100vh;
-        left: 0px;
+        left: 0;
         .opacity(1);
       }
     }
@@ -213,7 +212,7 @@
     #main-menu-bg {
       width: auto;
       height: auto !important;
-      left: 0px;
+      left: 0;
       position: relative;
       overflow: visible;
     }

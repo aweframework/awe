@@ -514,4 +514,20 @@ public final class StringUtil {
   public static String parseLocale(Global locale) {
     return StringUtils.isBlank(locale.getMarkdown()) ? locale.getValue() : evalMarkdown(locale.getMarkdown());
   }
+
+  public static String camelToSnake(String camelCase) {
+    // Regular Expression
+    String regex = "([a-z])([A-Z]+)";
+
+    // Replacement string
+    String replacement = "$1-$2";
+
+    // Replace the given regex
+    // with replacement string
+    // and convert it to lower case.
+    return camelCase
+      .replaceAll(
+        regex, replacement)
+      .toLowerCase();
+  }
 }

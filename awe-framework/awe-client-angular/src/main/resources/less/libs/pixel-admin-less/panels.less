@@ -43,7 +43,7 @@
 
 // Body
 .panel-body {
-  background: #fff;
+  background: @panel-background-color;
   margin: 0;
   padding: @panel-content-padding;
 
@@ -269,19 +269,19 @@
 // --------------------------------------------------
 
 .panel-warning {
-  .pixel-panel(#f9f1c7, #af8640, #f6deac);
+  .pixel-panel(@panel-warning-border, @panel-warning-text, @panel-warning-heading-bg);
 }
 
 .panel-danger {
-  .pixel-panel(#f2dede, #b94a48, #ebccd1);
+  .pixel-panel(@panel-danger-border, @panel-danger-text, @panel-danger-heading-bg);
 }
 
 .panel-success {
-  .pixel-panel(#dff0d8, #468847, #d0e6be);
+  .pixel-panel(@panel-success-border, @panel-success-text, @panel-success-heading-bg);
 }
 
 .panel-info {
-  .pixel-panel(#d9edf7, #3a87ad, #bce8f1);
+  .pixel-panel(@panel-info-border, @panel-info-text, @panel-info-heading-bg);
 }
 
 // Dark panels

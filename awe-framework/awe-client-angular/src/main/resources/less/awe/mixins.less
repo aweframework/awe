@@ -1,6 +1,55 @@
 //
 // Mixins
 // --------------------------------------------------
+.awe-theme {
+
+  // Define panel and button default
+  .panel-awe {
+    .pixel-panel(@panel-header-color, @panel-text-color, @panel-border-color);
+  }
+  .btn-default {
+    .pixel-button(@color: @secondary-color, @font-color: @secondary-text-color);
+  }
+
+  // Mixins
+  .awe-main-menu(@primary-menu-color, @menu-text-color);
+  .awe-grid(@secondary-color, @primary-color);
+  .awe-change-password-page(@primary-color);
+  .awe-breadcrumbs(light);
+  .awe-buttons(@secondary-color, @primary-color, @font-color: @secondary-text-color);
+  .awe-loading-bar(@loading-bar-color);
+  .awe-theme-color(@primary-color);
+  .awe-menu-color(@primary-menu-color);
+  .table-color(@primary-color, @panel-background-color, @primary-text-color);
+
+  .modal-content {
+    background: @panel-background-color;
+  }
+  .panel-footer {
+    background: @secondary-background-color;
+  }
+
+  // jQuery UI
+  .ui-slider-theme(@primary-color);
+  .ui-autocomplete-theme(@primary-color, @primary-text-color);
+  .ui-menu-theme(@primary-color);
+  .ui-progressbar-theme(@primary-color);
+  .ui-tabs-theme(@primary-color);
+  .ui-datepicker-theme(@primary-color);
+
+  // Plugins
+  .select2-theme(@primary-color, @primary-text-color);
+  .switcher-theme(@primary-color);
+  .pixel-file-input-theme(@primary-color);
+  .bootstrap-datepicker-theme(@primary-color);
+  .bootstrap-timepicker-theme(@primary-color);
+  .datepaginator-theme(@primary-color);
+  .editable-typeahead-theme(@primary-color);
+  .data-table-theme(@primary-color);
+  .dropzone-theme(@primary-color);
+  .md-editor-theme(@primary-color);
+}
+
 .awe-theme-color(@theme-color) {
   .background {
     background-color: @theme-color;
@@ -79,165 +128,122 @@
   }
 }
 
-// Dark themes navigation colors
-.navigation-submenus(@menu-color, @type) when (@type=dark) {
-  .mm-dropdown > ul {
-    background-color: @menu-color;
-    .mm-dropdown > ul {
-      background-color: lighten(@menu-color, 5%);
-      .navigation-colors(lighten(@menu-color, 5%), @type);
-      .mm-dropdown > ul {
-        background-color: lighten(@menu-color, 10%);
-        .navigation-colors(lighten(@menu-color, 10%), @type);
-        .mm-dropdown > ul {
-          background-color: lighten(@menu-color, 15%);
-          .navigation-colors(lighten(@menu-color, 15%), @type);
-        }
-      }
-    }
-  }
-}
-
-.navigation-divider(@menu-color, @type) when (@type=dark) {
-  ul.navigation {
-    & > li.divider {
-      border-color: lighten(@menu-color, 40%);
-    }
-  }
-}
-
-.navigation-colors(@menu-color, @type) when (@type=dark) {
+.navigation-colors(@menu-color, @menu-text-color, @percentage) {
+  @background-color: color-mix(in srgb, @menu-color, @panel-background-color @percentage);
+  @text-color: color-mix(in srgb, @menu-text-color, @primary-text-color @percentage);
   li {
+    background-color: @background-color;
     & > a {
-      color: lighten(@menu-color, 35%) !important;
+      //background-color: @background-color;
+      color: @text-color !important;
       &:hover {
-        color: lighten(@menu-color, 60%) !important;
-        background-color: lighten(@menu-color, 8%) !important;
+        color: color-mix(in srgb, @text-color, @secondary-menu-color 80%) !important;
+        background-color: color-mix(in srgb, @secondary-menu-color, transparent 90%);
       }
     }
     &.active > a {
-      background-color: fadeout(darken(@menu-color, 10%), 20%) !important;
-      color: lighten(@menu-color, 45%) !important;
+      background-color: rgba(0, 0, 0, 0.1);
+      color: color-mix(in srgb, @text-color, @secondary-menu-color 80%) !important;
       &:hover {
-        background-color: darken(@menu-color, 15%) !important;
-        color: lighten(@menu-color, 70%) !important;
+        background-color: rgba(0, 0, 0, 0.15);
       }
     }
   }
   li.divider {
     border-top: 1px solid !important;
-    border-color: lighten(@menu-color, 40%) !important;
+    border-color: @text-color !important;
     margin-right: 15px;
     margin-left: 15px;
   }
 }
 
 // Light themes navigation colors
-.navigation-submenus(@menu-color, @type) when (@type=light) {
+.navigation-submenus(@menu-color, @menu-text-color) {
   .mm-dropdown > ul {
     background-color: @menu-color;
     .mm-dropdown > ul {
-      background-color: darken(@menu-color, 5%);
-      .navigation-colors(darken(@menu-color, 5%), @type);
+      background-color: @menu-color;
+      .navigation-colors(@menu-color, @menu-text-color, 15%);
       .mm-dropdown > ul {
-        background-color: darken(@menu-color, 10%);
-        .navigation-colors(darken(@menu-color, 10%), @type);
+        background-color: @menu-color;
+        .navigation-colors(@menu-color, @menu-text-color, 30%);
         .mm-dropdown > ul {
-          background-color: darken(@menu-color, 15%);
-          .navigation-colors(darken(@menu-color, 15%), @type);
+          background-color: @menu-color;
+          .navigation-colors(@menu-color, @menu-text-color, 45%);
         }
       }
     }
   }
 }
 
-.navigation-divider(@menu-color, @type) when (@type=light) {
+.navigation-divider(@menu-color, @menu-text-color) {
   ul.navigation {
     & > li.divider {
-      border-color: darken(@menu-color, 40%);
+      border-color: @menu-text-color;
     }
   }
 }
 
-.navigation-colors(@menu-color, @type) when (@type=light) {
+/*.navigation-colors(@menu-color, @menu-text-color, @lighten) {
+  @menu-color =
   li {
     a {
-      color: darken(@menu-color, 35%) !important;
+      color: @menu-text-color !important;
       &:hover {
-        color: darken(@menu-color, 60%) !important;
-        background-color: darken(@menu-color, 8%) !important;
+        color: @menu-text-color !important;
+        background-color: @menu-color !important;
+        //filter: brightness(85%);
       }
     }
     &.active > a {
-      background-color: fadeout(darken(@menu-color, 10%), 20%) !important;
-      color: darken(@menu-color, 45%) !important;
+      background-color: @menu-color !important;
+      color: @menu-text-color !important;
+      //filter: brightness(70%);
       &:hover {
-        background-color: lighten(@menu-color, 15%) !important;
-        color: darken(@menu-color, 70%) !important;
+        background-color: @menu-color !important;
+        color: @menu-text-color !important;
+        //filter: brightness(85%);
       }
     }
   }
   li.divider {
     border-top: 1px solid !important;
-    border-color: darken(@menu-color, 40%) !important;
+    border-color: @menu-color !important;
     margin-right: 15px;
     margin-left: 15px;
   }
-}
+}*/
 
 // Main menu theme
-.awe-main-menu(@menu-color,@type: dark) {
+.awe-main-menu(@menu-color, @menu-text-color, @secondary-menu-color: @secondary-menu-color, @type: dark) {
   #main-menu {
-    ul {
+    ul.navigation {
       background-color: @menu-color;
+      > li > a:hover:after {
+        background-color: @secondary-menu-color;
+      }
     }
-    .navigation-submenus(@menu-color, @type);
+    .navigation-submenus(@menu-color, @menu-text-color);
     &.horizontal .awe-menu > ul > li > ul {
       .box-shadow(2px 2px 5px rgba(100, 100, 100, 0.5));
     }
-    .navigation-divider(@menu-color, @type);
-    .navigation-colors(@menu-color, @type);
+    .navigation-divider(@menu-color, @menu-text-color);
+    .navigation-colors(@menu-color, @menu-text-color, 0%);
   }
 }
 
 // Awe grid theme
 .awe-grid(@theme-color, @primary-color) {
   .grid, .treegrid {
-    .ui-jqgrid, .tree-grid {
-      .table {
-        border-top-color: darken(desaturate(@theme-color, 15%), 12%) !important;
-        tbody {
-          tr.ui-state-hover td,
-          tr:hover td {
-            background-color: lighten(@theme-color, 30%);
-          }
-          tr.ui-state-highlight td,
-          tr.active td {
-            background-color: lighten(@theme-color, 35%);
-          }
-        }
-      }
-      .ui-sortable-placeholder {
-        background-color: lighten(@theme-color, 25%);
-      }
-
-      // Form colors
-      .awe-forms-theme(@primary-color);
-    }
-
-    .row-number {
-      background-color: lighten(desaturate(@theme-color, 8%), 40%);
-    }
     .multioperation-icon, .ui-grid-rownumber {
-      background-color: lighten(desaturate(@theme-color, 8%), 40%);
-      color: darken(desaturate(@theme-color, 8%), 20%);
+      background-color: color-mix(in srgb, @theme-color, @panel-background-color 50%);
     }
     .ui-grid-row-selected .ui-grid-cell-contents,
     .save-button {
-      background-color: lighten(@theme-color, 40%);
+      background-color: color-mix(in srgb, @theme-color, @panel-background-color 50%);
     }
-    .ui-grid-row-hover .ui-grid-cell-contents {
-      background-color: lighten(@theme-color, 35%);
+    .ui-grid-row-hover .ui-grid-cell-contents{
+      background-color: @theme-color;
     }
   }
 }
@@ -246,7 +252,6 @@
 .awe-change-password-page(@primary-color) {
   &.page-change_password .change_password-header {
     background: @primary-color;
-    background: fadeout(@primary-color, 20%);
   }
 }
 
@@ -271,25 +276,31 @@
   .breadcrumb.breadcrumb-page {
     background-color: rgba(255, 255, 255, 0.5);
     border-bottom: 1px solid rgba(0, 0, 0, .1);
-    .box-shadow(0 1px 0 rgba(255, 255, 255, 0.5));
+    .box-shadow(0 1px 2px rgba(255, 255, 255, 0.2));
     .breadcrumb-label {
-      color: rgba(0, 0, 0, 0.5);
+      //color: rgba(0, 0, 0, 0.5);
+      color: color-mix(in srgb, @text-color, @primary-background-color 50%);
     }
 
     > li {
-      color: rgba(0, 0, 0, 0.5);
+      //color: rgba(0, 0, 0, 0.5);
+      color: color-mix(in srgb, @text-color, @primary-background-color 50%);
       + li:before {
-        color: rgba(0, 0, 0, 0.5);
+        //color: rgba(0, 0, 0, 0.5);
+        color: color-mix(in srgb, @text-color, @primary-background-color 50%);
       }
     }
     > li.active {
-      color: rgba(0, 0, 0, 0.8);
+      //color: rgba(0, 0, 0, 0.8);
+      color: color-mix(in srgb, @text-color, @primary-background-color 20%);
     }
     > li:hover {
-      color: rgba(0, 0, 0, 0.8);
+      //color: rgba(0, 0, 0, 0.8);
+      color: color-mix(in srgb, @text-color, @primary-background-color 20%);
     }
     > li.active:hover {
-      color: rgba(0, 0, 0, 1);
+      //color: rgba(0, 0, 0, 1);
+      color: @text-color;
     }
   }
 }
@@ -298,25 +309,31 @@
   .breadcrumb.breadcrumb-page {
     background-color: rgba(0, 0, 0, 0.03);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    .box-shadow(0 1px 0 rgba(255, 255, 255, .5));
+    .box-shadow(0 1px 2px rgba(255, 255, 255, 0.2));
     .breadcrumb-label {
-      color: rgba(0, 0, 0, 0.5);
+      //color: rgba(0, 0, 0, 0.5);
+      color: color-mix(in srgb, @text-color, @primary-background-color 50%);
     }
 
     > li {
-      color: rgba(0, 0, 0, 0.5);
+      //color: rgba(0, 0, 0, 0.5);
+      color: color-mix(in srgb, @text-color, @primary-background-color 50%);
       + li:before {
-        color: rgba(0, 0, 0, 0.5);
+        //color: rgba(0, 0, 0, 0.5);
+        color: color-mix(in srgb, @text-color, @primary-background-color 50%);
       }
     }
     > li.active {
-      color: rgba(0, 0, 0, 0.8);
+      //color: rgba(0, 0, 0, 0.8);
+      color: color-mix(in srgb, @text-color, @primary-background-color 20%);
     }
     > li:hover {
-      color: rgba(0, 0, 0, 0.8);
+      //color: rgba(0, 0, 0, 0.8);
+      color: color-mix(in srgb, @text-color, @primary-background-color 20%);
     }
     > li.active:hover {
-      color: rgba(0, 0, 0, 1);
+      //color: rgba(0, 0, 0, 1);
+      color: @text-color;
     }
   }
 }
@@ -325,7 +342,7 @@
 //
 .awe-buttons(@default, @primary, @font-color: @text-color) {
   .btn-awe {
-    .pixel-button(@color: lighten(@default, 35%), @gradient: 5%, @hover: 2%, @border: 4%, @font-color: @font-color);
+    .pixel-button(@color: @default, @gradient: 5%, @hover: 2%, @border: 4%, @font-color: @font-color);
   }
   .btn-awe.btn-primary {
     .pixel-button(@primary);
@@ -376,7 +393,7 @@
       text-shadow: @navbar-text-shadow;
     }
 
-    // Navbar buttona
+    // Navbar buttons
     //
 
     .navbar-toggle,
@@ -391,8 +408,8 @@
     // Navbar collapse
     //
 
-    #main-navbar-collapse {
-      border-top-color: darken(@navbar-end-color, 6%);
+    .main-navbar-collapse {
+      border-top-color: @navbar-end-color;
       background: @navbar-end-color;
     }
 
@@ -402,14 +419,14 @@
     .navbar-nav li + .navbar-nav li,
     .navbar-nav.nav + .navbar-nav.nav,
     .navbar-nav.nav + .navbar-nav .right {
-      border-top: 1px solid lighten(@navbar-end-color, 8%);
+      border-top: 1px solid @navbar-end-color;
     }
 
     .dropdown.open > a {
-      border-top: 1px solid darken(@navbar-end-color, 12%);
-      border-bottom: 1px solid darken(@navbar-end-color, 9%);
+      border-top: 1px solid @navbar-end-color;
+      border-bottom: 1px solid @navbar-end-color;
       margin-top: -1px;
-      background: darken(@navbar-end-color, 6%);
+      background: @navbar-end-color;
     }
 
     // Navbar forms
@@ -421,7 +438,7 @@
       .form-control {
         background: #fff;
         border-color: #fff;
-        border-radius: 3px;
+        border-radius: @border-radius;
       }
     }
   }
@@ -435,7 +452,7 @@
       // Navbar collapse
       //
 
-      #main-navbar-collapse {
+      .main-navbar-collapse {
         background: none;
       }
 
@@ -450,12 +467,13 @@
       }
 
       .navbar-nav.nav > li > a {
-        border-left: 0px solid transparent;
-        border-right: 0px solid transparent;
+        border-left: 0 solid transparent;
+        border-right: 0 solid transparent;
 
         &:hover {
           background: rgba(0, 0, 0, .08);
-          border-color: darken(@navbar-end-color, 10%);
+          border-color: @navbar-end-color;
+          //filter: brightness(90%);
         }
       }
 
@@ -467,7 +485,8 @@
         border-bottom: none;
         margin-top: 0;
         background: rgba(0, 0, 0, .08);
-        border-color: darken(@navbar-end-color, 10%);
+        border-color: @navbar-end-color;
+        //filter: brightness(90%);
       }
 
       .dropdown-menu {
@@ -487,9 +506,10 @@
         }
 
         .divider {
-          background-color: lighten(@menu-color, 4%);
+          background-color: @menu-color;
           margin-left: -2px;
           margin-right: -2px;
+          //filter: brightness(104%);
         }
       }
 
@@ -499,22 +519,23 @@
       .widget-notifications {
         .notification,
         .notifications-link {
-          border-color: lighten(@menu-color, 4%);
+          border-color: transparent;
           color: @menu-active-color;
           margin: 0 -2px;
+          //filter: brightness(104%);
         }
 
         .notifications-link:hover {
-          background-color: darken(@menu-color, 4%);
-          color: #fff;
+          background-color: @menu-color;
+          color: @navbar-links-border;
         }
 
         .notification-description {
-          color: lighten(@menu-color, 35%);
+          color: @menu-color;
         }
 
         .notification-ago {
-          color: lighten(@menu-color, 25%);
+          color: @menu-color;
         }
       }
 
@@ -528,7 +549,8 @@
 
         .message,
         .messages-link {
-          border-color: lighten(@menu-color, 4%);
+          border-color: @menu-color;
+          //filter: brightness(104%);
           .border-bottom-radius(3px);
 
           a:hover {
@@ -541,10 +563,12 @@
         }
 
         .message-description {
-          color: lighten(@menu-color, 25%);
+          color: @menu-color;
+          //filter: brightness(125%);
 
           a {
-            color: lighten(@menu-color, 35%);
+            color: @menu-color;
+            //filter: brightness(135%);
           }
         }
       }
@@ -554,12 +578,14 @@
   #main-navbar #main-menu-toggle,
   &.right-to-left.main-menu-right #main-navbar #main-menu-toggle {
     border-left: none;
-    border-right: 1px solid darken(@navbar-end-color, 8%);
+    border-right: 1px solid @navbar-end-color;
+    filter: brightness(92%);
   }
 
   &.right-to-left #main-navbar #main-menu-toggle,
   &.main-menu-right #main-navbar #main-menu-toggle {
-    border-left: 1px solid darken(@navbar-end-color, 8%);
+    border-left: 1px solid @navbar-end-color;
     border-right: none;
+    filter: brightness(92%);
   }
 }
