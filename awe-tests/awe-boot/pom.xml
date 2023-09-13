@@ -679,6 +679,7 @@
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>
+                  <jvmArguments>${failsafe.argLine}</jvmArguments>
                 </configuration>
                 <goals>
                   <goal>start</goal>
