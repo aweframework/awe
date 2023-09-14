@@ -32,6 +32,8 @@ CREATE TABLE AweThmCol (
     disabledTextColor VARCHAR(20) NULL,
     headerHeight VARCHAR(20) NULL,
     panelBackgroundColor VARCHAR(20) NULL,
+    panelBorderColor VARCHAR(20) NULL,
+    panelTextColor VARCHAR(20) NULL,
     panelHeaderColor VARCHAR(20) NULL,
     gridBorderColor VARCHAR(20) NULL,
     gridHeaderColor VARCHAR(20) NULL,
