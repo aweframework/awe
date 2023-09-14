@@ -3,7 +3,7 @@
 --  Themes table: List of available themes
 --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweThmCol (
-    IdeThmCol NOT NULL PRIMARY KEY, -- Theme colorset key
+    IdeThmCol INT NOT NULL PRIMARY KEY, -- Theme colorset key
     theme varchar(100) not NULL,                                -- Theme name
     dark   INT DEFAULT 0 NOT NULL,                              -- Is dark theme
     themeColor VARCHAR(20) NULL,
@@ -45,6 +45,6 @@ CREATE TABLE IF NOT EXISTS AweThmCol (
 CREATE UNIQUE INDEX AweThmColI1 ON AweThmCol (theme, dark);
 
 CREATE TABLE IF NOT EXISTS AweUsrSet (
-    userName  varchar(20) CONSTRAINT pk_AweUsrSet PRIMARY KEY NOT NULL, -- User name
-    themeMode varchar(20) NULL                                          -- User mode
+    userName  varchar(20) PRIMARY KEY NOT NULL, -- User name
+    themeMode varchar(20) NULL                  -- User mode
 );
