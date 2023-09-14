@@ -1,4 +1,15 @@
 
+# Changelog for AWE 4.7.1
+*14/09/2023*
+
+- Update maven plugins. [MR #459](https://gitlab.com/aweframework/awe/-/merge_requests/459) (Pablo Vidal Otero)
+- Remove deprecated gitlab license scanning. [MR #458](https://gitlab.com/aweframework/awe/-/merge_requests/458) (Pablo Vidal Otero)
+- Error in awe-testing with chromedriver and chrome. [MR #457](https://gitlab.com/aweframework/awe/-/merge_requests/457) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Move AWE framework to Spring Boot 3. [MR #456](https://gitlab.com/aweframework/awe/-/merge_requests/456) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Improve themes screen to define application colors and preferences and generate a css screen with css variables based on this. [MR #455](https://gitlab.com/aweframework/awe/-/merge_requests/455) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Allow the user to mark as 'favourite' some screens. [MR #454](https://gitlab.com/aweframework/awe/-/merge_requests/454) (Pablo Javier García Mora)
+- Mejora de los totalize en una query. [MR #453](https://gitlab.com/aweframework/awe/-/merge_requests/453) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.0
 *14/07/2023*
 
