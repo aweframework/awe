@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.7.2
+*14/09/2023*
+
+- Fix sqlserver fields for theme colors. [MR #460](https://gitlab.com/aweframework/awe/-/merge_requests/460) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.1
 *14/09/2023*
 
