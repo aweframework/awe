@@ -1,5 +1,5 @@
-﻿# Use an official Open jdk runtime as a parent image
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+﻿# Use an official eclipse-temurin runtime as a parent image
+FROM eclipse-temurin:17-jre-alpine
 
 # Add fonts package
 RUN apk add --no-cache fontconfig ttf-dejavu && fc-cache -f
@@ -8,7 +8,7 @@ RUN apk add --no-cache fontconfig ttf-dejavu && fc-cache -f
 LABEL maintainer="awe@almis.com"
 
 # Copy the current directory contents into the container at /app
-ADD target/awe-boot.war awe-boot.war
+ADD target/awe-boot.jar awe-boot.jar
 
 # Volume of app logs
 VOLUME /logs
@@ -17,6 +17,6 @@ VOLUME /logs
 VOLUME /tmp
 
 # Execute jar
-ENTRYPOINT ["java", "-Xms256m", "-Xmx1g", "-XshowSettings:vm", "-Dspring.devtools.restart.enabled=false", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/awe-boot.war"]
+ENTRYPOINT ["java", "-Xms256m", "-Xmx1g", "-XshowSettings:vm", "-Dspring.devtools.restart.enabled=false", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/awe-boot.jar"]
 
 

@@ -6,7 +6,6 @@ include:
   # Security Products features
   - template: DAST.gitlab-ci.yml
   - template: Dependency-Scanning.gitlab-ci.yml
-  - template: License-Scanning.gitlab-ci.yml
 
 image: maven:3.8-openjdk-17-slim
 
@@ -16,7 +15,7 @@ variables:
   MAVEN_REPO_PATH: ".m2/repository"
   SAST_PULL_ANALYZER_IMAGES: "0"
   SAST_RUN_ANALYZER_TIMEOUT: 30m
-  SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
+  SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
   IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
@@ -109,7 +108,7 @@ Build project:
     reports:
       dotenv: build.env
     paths:
-      - awe-tests/awe-boot/target/awe-boot.war
+      - awe-tests/awe-boot/target/awe-boot.jar
     expire_in: 1 day
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
@@ -392,13 +391,6 @@ gemnasium-maven-dependency_scanning:
   dependencies: ["Build project"]
   variables:
     MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
-
-
-license_scanning:
-  stage: analysis
-  needs: [ ]
-  rules:
-    - <<: *if-default
 
 ##############################
 # Site stage

@@ -15,8 +15,8 @@
   &.active,
   .open > .dropdown-toggle& {
     color: @color;
-    background-color: darken(@background, 10%);
-        border-color: darken(@border, 12%);
+    background-color: color-mix(in srgb, @background, @secondary-text-color 10%);
+        border-color: color-mix(in srgb, @border, @secondary-text-color 12%);
   }
   &:active,
   &.active,

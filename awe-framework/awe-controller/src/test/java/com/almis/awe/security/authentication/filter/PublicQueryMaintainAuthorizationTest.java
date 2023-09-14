@@ -4,6 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.queries.Query;
+import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,10 +18,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PublicQueryMaintainFilterTest {
+class PublicQueryMaintainAuthorizationTest {
 
   @InjectMocks
-  PublicQueryMaintainFilter publicQueryMaintainFilter;
+  PublicQueryMaintainAuthorization publicQueryMaintainAuthorization;
   @Mock
   AweElements elements;
 
@@ -29,7 +30,7 @@ class PublicQueryMaintainFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/action/data/foo");
     when(elements.getQuery(anyString())).thenReturn(new Query().setIsPublic(true));
-    assertTrue(publicQueryMaintainFilter.isPublicQuery(request));
+    assertTrue(publicQueryMaintainAuthorization.isPublicQuery(request));
   }
 
   @Test
@@ -37,7 +38,7 @@ class PublicQueryMaintainFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/action/data/foo");
     when(elements.getQuery(anyString())).thenReturn(new Query());
-    assertFalse(publicQueryMaintainFilter.isPublicQuery(request));
+    assertFalse(publicQueryMaintainAuthorization.isPublicQuery(request));
   }
 
   @Test
@@ -45,15 +46,7 @@ class PublicQueryMaintainFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/action/data/foo");
     when(elements.getQuery(anyString())).thenReturn(null);
-    assertThrows(AuthorizationServiceException.class, () -> publicQueryMaintainFilter.isPublicQuery(request));
-  }
-
-  @Test
-  void givenNullAweElement_checkIsPublicQuery_shouldThrowAWException() throws AWException {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/action/data/foo");
-    when(elements.getQuery(anyString())).thenThrow(AWException.class);
-    assertThrows(AWException.class, () -> publicQueryMaintainFilter.isPublicQuery(request));
+    assertThrows(AuthorizationServiceException.class, () -> publicQueryMaintainAuthorization.isPublicQuery(request));
   }
 
   @Test
@@ -61,7 +54,7 @@ class PublicQueryMaintainFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/action/maintain/foo");
     when(elements.getMaintain(anyString())).thenReturn(new Target().setIsPublic(true));
-    assertTrue(publicQueryMaintainFilter.isPublicMaintain(request));
+    assertTrue(publicQueryMaintainAuthorization.isPublicMaintain(request));
   }
 
   @Test
@@ -69,7 +62,7 @@ class PublicQueryMaintainFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/action/maintain/foo");
     when(elements.getMaintain(anyString())).thenReturn(new Target());
-    assertFalse(publicQueryMaintainFilter.isPublicMaintain(request));
+    assertFalse(publicQueryMaintainAuthorization.isPublicMaintain(request));
   }
 
   @Test
@@ -77,14 +70,6 @@ class PublicQueryMaintainFilterTest {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setRequestURI("/action/maintain/foo");
     when(elements.getMaintain(anyString())).thenReturn(null);
-    assertThrows(AuthorizationServiceException.class, () -> publicQueryMaintainFilter.isPublicMaintain(request));
-  }
-
-  @Test
-  void givenNullAweElement_checkIsPublicMaintain_shouldThrowAWException() throws AWException {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/action/maintain/foo");
-    when(elements.getMaintain(anyString())).thenThrow(AWException.class);
-    assertThrows(AWException.class, () -> publicQueryMaintainFilter.isPublicMaintain(request));
+    assertThrows(AuthorizationServiceException.class, () -> publicQueryMaintainAuthorization.isPublicMaintain(request));
   }
 }

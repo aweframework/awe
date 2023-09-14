@@ -29,6 +29,11 @@ public class TotalizeField implements Copyable {
   @XStreamAsAttribute
   private String field;
 
+  // Specific totalize function to apply
+  @XStreamAlias("function")
+  @XStreamAsAttribute
+  private String function;
+
   @Override
   public TotalizeField copy() {
     return this.toBuilder().build();

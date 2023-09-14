@@ -3,15 +3,15 @@
   min-height: 150px;
   position: relative;
   overflow: hidden !important;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   &.grid-bordered {
     border: 1px solid @table-border-color;
   }
 
   .table.table-bordered {
     th, td {
-      border-left: 0px;
-      border-top: 0px;
+      border-left: 0;
+      border-top: 0;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -53,7 +53,7 @@
   }
 
   td.merged {
-    border-right: 0px solid transparent;
+    border-right: 0 solid transparent;
     margin-right: 1px;
   }
 
@@ -70,14 +70,14 @@
       }
       td {
         line-height: @input-height-small + 1px;
-        padding: 0px 4px;
+        padding: 0 4px;
         height: @input-height-small + 1px;
         overflow: hidden;
         cursor: pointer;
         vertical-align: middle;
       }
       td.component {
-        padding: 0px;
+        padding: 0;
         .column-input {
           width: 100%;
           height: @input-height-small;
@@ -85,12 +85,12 @@
             height: @input-height-small;
           }
           label.checkbox {
-            margin: 0px 0px 0px 6px;
+            margin: 0 0 0 6px;
             top: -12px;
             position: relative;
           }
           .visible-value {
-            padding: 0px 4px;
+            padding: 0 4px;
             line-height: @input-height-small + 1px;
           }
         }
@@ -123,27 +123,27 @@
         }
       }
       td {
-        padding: 0px 4px;
+        padding: 0 4px;
         line-height: @input-height-base + 1px;
         height: @input-height-base + 1px;
         overflow: hidden;
         cursor: pointer;
       }
       td.component {
-        padding: 0px;
+        padding: 0;
         .column-input {
           width: 100%;
           textarea {
             height: @input-height-base;
           }
           label.checkbox {
-            margin: 0px 0px 0px 6px;
+            margin: 0 0 0 6px;
             position: relative;
             top: -14px;
             height: 32px;
           }
           .visible-value {
-            padding: 0px 4px;
+            padding: 0 4px;
             line-height: @input-height-base + 1px;
           }
         }
@@ -182,26 +182,26 @@
       }
       td {
         cursor: pointer;
-        padding: 0px 4px;
+        padding: 0 4px;
         height: @input-height-large + 1px;
         overflow: hidden;
         line-height: @input-height-large + 1px;
       }
       td.component {
-        padding: 0px;
+        padding: 0;
         .column-input {
           width: 100%;
           textarea {
             height: @input-height-large;
           }
           label.checkbox {
-            margin: 8px 0px 0px 6px;
+            margin: 8px 0 0 6px;
             position: relative;
             top: -23px;
             height: 36px;
           }
           .visible-value {
-            padding: 0px 4px;
+            padding: 0 4px;
             line-height: @input-height-large + 1px;
           }
         }
@@ -234,7 +234,7 @@
 
   .pagination-content {
     overflow:hidden;
-    padding: 0px !important;
+    padding: 0 !important;
   }
 
   .pagination-number {
@@ -254,7 +254,7 @@
     left: -10000px;
     padding: 4px;
     border: 1px solid @table-border-color;
-    border-top: 0px;
+    border-top: 0;
     white-space: nowrap;
     z-index: 1;
   }
@@ -294,7 +294,7 @@
   }
 
   .treeFirstRow, .treeFirstRow > td {
-    height: 0px !important;
+    height: 0 !important;
   }
 
   .table-header > .table {

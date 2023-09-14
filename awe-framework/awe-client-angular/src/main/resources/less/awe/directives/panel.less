@@ -71,7 +71,7 @@
 
   &.panel-sm {
     margin: @panel-margin-sm;
-    margin-top: 0px;
+    margin-top: 0;
     &>.panel-heading {
       padding: 4px 8px 2px 8px;
       font-size: @font-size-small;
@@ -81,14 +81,15 @@
       padding: @panel-margin-sm;
     }
     .panel-footer {
-      padding: 0px 10px 2px 10px;
+      padding: 0 10px 2px 10px;
       line-height: 31px;
+      border-color: @border-color;
     }
   }
 
   &.panel-md {
     margin: @panel-margin-md;
-    margin-top: 0px;
+    margin-top: 0;
     &>.panel-heading {
       padding: 7px 10px 5px 10px;
       font-size: @font-size-base;
@@ -98,14 +99,14 @@
       padding: @panel-margin-md;
     }
     .panel-footer {
-      padding: 0px 10px 2px 10px;
+      padding: 0 10px 2px 10px;
       line-height: 35px;
     }
   }
 
   &.panel-lg {
     margin: @panel-margin-lg;
-    margin-top: 0px;
+    margin-top: 0;
     &>.panel-heading {
       padding: 10px 12px 8px 12px;
       font-size: @font-size-large;
@@ -137,7 +138,7 @@
     &.maximized {
       z-index: 1049;
     }
-    margin: 0px;
+    margin: 0;
     //.opacity(0.8);
 
     >.maximize-content {

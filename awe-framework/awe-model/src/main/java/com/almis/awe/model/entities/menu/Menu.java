@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -95,6 +96,25 @@ public class Menu extends Element {
     }
 
     return found;
+  }
+
+  /**
+   * Search an initial option by name
+   *
+   * @param optionName Option name
+   * @return Option found
+   */
+  @JsonIgnore
+  public List<Option> getOptionsByName(String optionName) {
+    List<Option> options = new ArrayList<>();
+    // Search in child options
+    List<Option> optionList = getElementList();
+    for (Option child : optionList) {
+      // Add all options found
+      options.addAll(child.getOptionsByName(optionName));
+    }
+
+    return options;
   }
 
   /**

@@ -29,8 +29,8 @@
 .form-horizontal {
   .checkbox,
   .radio {
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .control-label {
@@ -58,6 +58,7 @@ legend {
 
 label {
   font-weight: 600;
+  text-wrap: nowrap;
 }
 
 optgroup {
@@ -65,7 +66,7 @@ optgroup {
 }
 
 .form-control {
-  border-top-color: darken(@input-border, 8%);
+  border-top-color: @input-border;
   .box-shadow(none);
 }
 
@@ -213,15 +214,15 @@ optgroup {
 
 // Warning
 .has-warning.simple {
-  .pixel-form-state-simple(darken(@warning-color, 8%));
+  .pixel-form-state-simple(@warning-color);
 }
 // Error
 .has-error.simple {
-  .pixel-form-state-simple(darken(@danger-color, 8%));
+  .pixel-form-state-simple(@danger-color);
 }
 // Success
 .has-success.simple {
-  .pixel-form-state-simple(darken(@success-color, 8%));
+  .pixel-form-state-simple(@success-color);
 }
 
 
@@ -244,8 +245,8 @@ optgroup {
       &:before {
         content: "";
         opacity: 1;
-        border: 1px solid #bbb;
-        background: #fff;
+        border: 1px solid @border-color;
+        background: @panel-background-color;
         display: block;
         position: absolute;
         left: 0;
@@ -314,12 +315,13 @@ optgroup {
     }
 
     & + .lbl:before {
-      background: #eee !important;
-      border-color: #d6d6d6 !important;
+      background: @disabled-color !important;
+      border-color: @disabled-border-color !important;
     }
 
     & + .lbl:after {
       opacity: .5 !important;
+      background-color: @disabled-text-color !important;
     }
   }
 }

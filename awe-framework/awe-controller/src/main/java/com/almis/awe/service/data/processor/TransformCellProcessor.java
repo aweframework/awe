@@ -10,8 +10,8 @@ import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
+import jakarta.validation.constraints.NotNull;
 
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -373,11 +373,7 @@ public class TransformCellProcessor implements CellProcessor {
       case STRING:
         cell.setValue(Boolean.parseBoolean(cell.getStringValue()));
         break;
-      case LONG:
-      case DECIMAL:
-      case FLOAT:
-      case DOUBLE:
-      case INTEGER:
+      case LONG, DECIMAL, FLOAT, DOUBLE, INTEGER:
         cell.setValue(cell.getIntegerValue() != 0);
         break;
       case BOOLEAN:

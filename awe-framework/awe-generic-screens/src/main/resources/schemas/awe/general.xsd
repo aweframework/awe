@@ -134,6 +134,7 @@
       <xs:enumeration value="toggle-navbar" />
       <xs:enumeration value="logout" />
       <xs:enumeration value="change-theme" />
+      <xs:enumeration value="update-theme" />
       <xs:enumeration value="change-language" />
       <xs:enumeration value="next-step" />
       <xs:enumeration value="prev-step" />

@@ -26,7 +26,7 @@ import java.util.Optional;
  * AbstractQueryConnector Class
  * <p>
  * Abstract class that all database-related query launcher should extend
- *
+ * </p>
  * @author Jorge BELLON 24-02-2017
  */
 public abstract class AbstractQueryConnector extends ServiceConfig implements QueryConnector {
@@ -213,7 +213,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     // Add totalizators
     if (query.getTotalizeList() != null) {
       for (Totalize totalize : query.getTotalizeList()) {
-        TotalizeColumnProcessor totalizeProcessor = new TotalizeColumnProcessor(elements, numericService, encodeService);
+        TotalizeColumnProcessor totalizeProcessor = new TotalizeColumnProcessor(elements, numericService);
         totalizeProcessor.setFieldList(query.getSqlFieldList()).setTotalize(totalize);
         builder.addTotalize(totalizeProcessor);
       }

@@ -824,6 +824,9 @@
     <field id="Ord" table="TotLst" alias="Ord3" transform="NUMBER" pattern="###,##0.00"/>
     <totalize function="SUM" label="Total" field="Als3" style="TOTAL">
       <totalize-field field="Ord3"/>
+      <totalize-field field="IdeMod" function="CNT_DISTINCT"/>
+      <totalize-field field="NamSit" function="FIRST_VALUE"/>
+      <totalize-field field="NamMod" function="LAST_VALUE"/>
     </totalize>
     <order-by field="IdeSitModDbs" type="ASC"/>
   </query>

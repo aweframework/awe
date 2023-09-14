@@ -71,3 +71,16 @@ services:
       # Volume of promtail configuration
       - ../target/logs:/app/log/
     command: -config.file=/etc/promtail/promtail.yaml
+
+  redis:
+    image: redis:7.0.10
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "8001:8001"

@@ -13,6 +13,7 @@
   <locale name="BUTTON_ACTIVATE" value="Activate"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activate selected tasks"/>
   <locale name="BUTTON_ADD" value="Add"/>
+  <locale name="BUTTON_ADD_FAVOURITE" value="Add screen to favourites"/>
   <locale name="BUTTON_ALLOW" value="Grant access"/>
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Back"/>
@@ -22,6 +23,8 @@
   <locale name="BUTTON_CLOSE" value="Close"/>
   <locale name="BUTTON_CONFIRM" value="Confirm"/>
   <locale name="BUTTON_COPY" value="Copy"/>
+  <locale name="BUTTON_CUSTOMIZE" value="Customize"/>
+  <locale name="BUTTON_DARK_MODE" value="Dark mode"/>
   <locale name="BUTTON_DEACTIVATE" value="Deactivate"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Deactivate selected tasks"/>
   <locale name="BUTTON_DELETE" value="Delete"/>
@@ -30,6 +33,7 @@
   <locale name="BUTTON_EXPORT" value="Export"/>
   <locale name="BUTTON_FINISH" value="Finish"/>
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
+  <locale name="BUTTON_LIGHT_MODE" value="Light mode"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
   <locale name="BUTTON_LOGOUT" value="Logout"/>
   <locale name="BUTTON_MODIFY" value="Modify"/>
@@ -41,6 +45,7 @@
   <locale name="BUTTON_PRINT" value="Print"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Print selection"/>
   <locale name="BUTTON_REMOVE" value="Unrestrict"/>
+  <locale name="BUTTON_REMOVE_FAVOURITE" value="Remove screen from favourites"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
   <locale name="BUTTON_RESTRICT" value="Restrict access"/>
@@ -132,6 +137,7 @@
   <locale name="CONNECTION_TYPE_HTTP" value="http"/>
   <locale name="CONNECTION_TYPE_HTTPS" value="https"/>
   <locale name="CONNECTION_TYPE_SSH" value="ssh"/>
+  <locale name="DARK_THEME" value="Dark theme"/>
   <locale name="DAYS" value="{0}d"/>
   <locale name="ELEMENT_GENERIC_HELP" value="Element type --&gt;"/>
   <locale name="ELEMENT_HELP_LABEL" value="Label"/>
@@ -711,6 +717,7 @@
   <locale name="HELP_CREATE_NEW_LOCAL_BUTTON" value="Create a new locale and store it in the locales xml files"/>
   <locale name="HELP_CRITERION" value="Criterion"/>
   <locale name="HELP_CRITERION_IDENTIFIER" value="Criterion identifier"/>
+  <locale name="HELP_CUSTOM_BUTTON" value="Allows to define specific colors to some parts of the selected theme to customize it"/>
   <locale name="HELP_DELETE_BUTTON" value="Remove the selected items in the grid"/>
   <locale name="HELP_DESCRIPTION" value="Description"/>
   <locale name="HELP_EDIT_BUTTON" value="Edit selected item"/>
@@ -795,6 +802,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HELP_SCREEN_TITLE_SIT_VIW" value="Displays detailed site information"/>
   <locale name="HELP_SCREEN_TITLE_STL_CNF" value="Report style configuration screen. Here you can configure the reports aspects, like font color or grid background"/>
   <locale name="HELP_SCREEN_TITLE_THM" value="Manage application themes. Here you can view, add, delete and modify all available application themes"/>
+  <locale name="HELP_SCREEN_TITLE_THM_CUSTOM" value="In this screen you can define specific visual properties for each part of the screen defined in the selected theme"/>
   <locale name="HELP_SCREEN_TITLE_THM_NEW" value="Register new theme"/>
   <locale name="HELP_SCREEN_TITLE_THM_UPD" value="Update theme name"/>
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Displays detailed theme information"/>
@@ -813,6 +821,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Parameter {0} can&apos;&apos;t be parsed as number: &apos;&apos;{1}&apos;&apos; - Set as null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Information"/>
+  <locale name="LIGHT_THEME" value="Light theme"/>
   <locale name="MENU_ACT_USR" value="Notify active users"/>
   <locale name="MENU_APP_INF" value="About"/>
   <locale name="MENU_AUDITS" value="Audits"/>
@@ -822,6 +831,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_BROADCAST" value="Broadcasting"/>
   <locale name="MENU_CONFIG" value="Configuration"/>
   <locale name="MENU_DEVELOPER" value="Developer"/>
+  <locale name="MENU_FAVOURITES" value="Favourites"/>
   <locale name="MENU_HELP" value="Help"/>
   <locale name="MENU_HELP_APPLICATION" value="Application help"/>
   <locale name="MENU_LANGUAGES" value="Translations"/>
@@ -906,25 +916,32 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_AUD_TYPE" value="Audit type"/>
   <locale name="PARAMETER_AUTH" value="Authentication"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="Average time"/>
+  <locale name="PARAMETER_BACKGROUND" value="Background"/>
+  <locale name="PARAMETER_BACKGROUND_COLOR" value="Background color"/>
   <locale name="PARAMETER_BALANCE" value="Balance"/>
   <locale name="PARAMETER_BATCH" value="Batch"/>
   <locale name="PARAMETER_BATDES" value="Source"/>
   <locale name="PARAMETER_BATNAM" value="Batch"/>
   <locale name="PARAMETER_BLOCKED" value="Blocked"/>
   <locale name="PARAMETER_BLOCKING" value="Blocking"/>
+  <locale name="PARAMETER_BORDER_COLOR" value="Border color"/>
+  <locale name="PARAMETER_BORDER_RADIUS" value="Border radius"/>
   <locale name="PARAMETER_BROKER" value="Broker"/>
   <locale name="PARAMETER_CALENDAR" value="Calendar"/>
   <locale name="PARAMETER_CAPTURE_DATE_END" value="Final capture date"/>
   <locale name="PARAMETER_CAPTURE_DATE_INI" value="Initial capture date"/>
   <locale name="PARAMETER_CATEGORY" value="Category"/>
   <locale name="PARAMETER_CHECK_EACH" value="Check each"/>
+  <locale name="PARAMETER_COLORS" value="Colors"/>
   <locale name="PARAMETER_COMMAND" value="Command"/>
   <locale name="PARAMETER_CONN_TYPE" value="Type of connection"/>
   <locale name="PARAMETER_CONNECTION" value="Connection"/>
   <locale name="PARAMETER_COUNTERPARTY" value="Counterparty"/>
   <locale name="PARAMETER_COUNTRY" value="Country"/>
   <locale name="PARAMETER_CREDIT" value="Credit"/>
+  <locale name="PARAMETER_CRITERIA" value="Criteria"/>
   <locale name="PARAMETER_CURRENCY" value="Currency"/>
+  <locale name="PARAMETER_DANGER_COLOR" value="Error color"/>
   <locale name="PARAMETER_DATE" value="Date"/>
   <locale name="PARAMETER_DATE_INF" value="Date &lt;="/>
   <locale name="PARAMETER_DATE_SUP" value="Date &gt;="/>
@@ -938,8 +955,12 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_DESTINATION" value="Destination"/>
   <locale name="PARAMETER_DIALECT" value="Dialect"/>
   <locale name="PARAMETER_DIS" value="Automatically distribution"/>
+  <locale name="PARAMETER_DISABLED_BACKGROUND_COLOR" value="Disabled background color"/>
+  <locale name="PARAMETER_DISABLED_BORDER_COLOR" value="Disabled border color"/>
+  <locale name="PARAMETER_DISABLED_TEXT_COLOR" value="Disabled text color"/>
   <locale name="PARAMETER_DOUBLE" value="Double"/>
   <locale name="PARAMETER_DRIVER" value="Driver"/>
+  <locale name="PARAMETER_DROPDOWN_COLOR" value="Dropdown color"/>
   <locale name="PARAMETER_DST" value="Target"/>
   <locale name="PARAMETER_ELEMENT" value="Element"/>
   <locale name="PARAMETER_EMAIL" value="E-mail"/>
@@ -962,10 +983,14 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frequency"/>
   <locale name="PARAMETER_FROM" value="From"/>
+  <locale name="PARAMETER_GRID" value="Grid"/>
+  <locale name="PARAMETER_HEADER_COLOR" value="Header color"/>
+  <locale name="PARAMETER_HEIGHT" value="Height"/>
   <locale name="PARAMETER_HOUR_FIN" value="End time"/>
   <locale name="PARAMETER_HOUR_INI" value="Start time"/>
   <locale name="PARAMETER_HOURS" value="Hours"/>
   <locale name="PARAMETER_IDE" value="Identifier"/>
+  <locale name="PARAMETER_INFO_COLOR" value="Information color"/>
   <locale name="PARAMETER_INT_PATH" value="Integration path"/>
   <locale name="PARAMETER_INTEGER" value="Integer"/>
   <locale name="PARAMETER_ISLEAF" value="Is leaf"/>
@@ -976,10 +1001,12 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_ERROR" value="Launch dependencies in case of error"/>
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_WARN" value="Launch dependencies in case of warning"/>
   <locale name="PARAMETER_LAUNCH_TYPE" value="Launch type"/>
+  <locale name="PARAMETER_LOADING_BAR_COLOR" value="Loading bar color"/>
   <locale name="PARAMETER_LOG" value="Log"/>
   <locale name="PARAMETER_LONG" value="Long"/>
   <locale name="PARAMETER_MAIN" value="Main"/>
   <locale name="PARAMETER_MAINTAIN" value="Maintain"/>
+  <locale name="PARAMETER_MENU" value="Menu"/>
   <locale name="PARAMETER_MESSAGE" value="Message"/>
   <locale name="PARAMETER_MINUTES" value="Minutes"/>
   <locale name="PARAMETER_MODULE" value="Module"/>
@@ -997,6 +1024,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="September"/>
   <locale name="PARAMETER_MONTHS" value="Months"/>
   <locale name="PARAMETER_NAME" value="Name"/>
+  <locale name="PARAMETER_NAVBAR" value="Navigation bar"/>
   <locale name="PARAMETER_NEW_PASSWD" value="New password"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Next execution"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Type of notification"/>
@@ -1006,6 +1034,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_OPERATOR" value="Operator"/>
   <locale name="PARAMETER_OPTION" value="Option"/>
   <locale name="PARAMETER_ORDER" value="Order"/>
+  <locale name="PARAMETER_PANEL" value="Panel"/>
   <locale name="PARAMETER_PARAMETERS" value="Parameters"/>
   <locale name="PARAMETER_PARENT" value="Parent"/>
   <locale name="PARAMETER_PASSWD" value="Password"/>
@@ -1014,6 +1043,10 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_PASSWD_MIN" value="Password lenght"/>
   <locale name="PARAMETER_PASSWD_NEW" value="New password"/>
   <locale name="PARAMETER_PHRASEKEY" value="Phrase key"/>
+  <locale name="PARAMETER_PREVIEW_DARK" value="Dark theme preview"/>
+  <locale name="PARAMETER_PREVIEW_LIGHT" value="Light theme preview"/>
+  <locale name="PARAMETER_PRIMARY_COLOR" value="Primary color"/>
+  <locale name="PARAMETER_PRIMARY_FONT_SIZE" value="Primary font size"/>
   <locale name="PARAMETER_PRINT" value="Print"/>
   <locale name="PARAMETER_PRINTER" value="Printer"/>
   <locale name="PARAMETER_PRN_ACTION" value="Action"/>
@@ -1031,11 +1064,14 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_REPEAT_EACH" value="Repeat each"/>
   <locale name="PARAMETER_REPORT" value="Report"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
+  <locale name="PARAMETER_REQUIRED_COLOR" value="Required parameter color"/>
   <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Retype password"/>
   <locale name="PARAMETER_SCREEN" value="Screen"/>
   <locale name="PARAMETER_SCRIPT" value="Script"/>
   <locale name="PARAMETER_SEARCH_AT" value="Search at"/>
+  <locale name="PARAMETER_SECONDARY_COLOR" value="Secondary color"/>
+  <locale name="PARAMETER_SECONDARY_FONT_SIZE" value="Secondary font size"/>
   <locale name="PARAMETER_SECONDS" value="Seconds"/>
   <locale name="PARAMETER_SELECT_ALL" value="All"/>
   <locale name="PARAMETER_SEND_STATUS" value="Send in case of"/>
@@ -1053,8 +1089,11 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_STORE_EXECUTION" value="Max. stored executions"/>
   <locale name="PARAMETER_STRING" value="String"/>
   <locale name="PARAMETER_STYLE" value="Style"/>
+  <locale name="PARAMETER_SUCCESS_COLOR" value="Success color"/>
   <locale name="PARAMETER_TEXT" value="Text"/>
+  <locale name="PARAMETER_TEXT_COLOR" value="Text color"/>
   <locale name="PARAMETER_THEME" value="Theme"/>
+  <locale name="PARAMETER_THEME_COLOR" value="Main theme color"/>
   <locale name="PARAMETER_TIME" value="Time"/>
   <locale name="PARAMETER_TIMEOUT" value="Timeout"/>
   <locale name="PARAMETER_TITLE" value="Title"/>
@@ -1063,6 +1102,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_USER" value="User"/>
   <locale name="PARAMETER_VALUE" value="Value"/>
   <locale name="PARAMETER_VARIABLE" value="Variable"/>
+  <locale name="PARAMETER_WARNING_COLOR" value="Warning color"/>
   <locale name="PARAMETER_WEB_PRINTER" value="Web printer"/>
   <locale name="PARAMETER_WEEKDAY_FRIDAY" value="Friday"/>
   <locale name="PARAMETER_WEEKDAY_MONDAY" value="Monday"/>
@@ -1198,6 +1238,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_SIT_VIW" value="View site"/>
   <locale name="SCREEN_TITLE_STL_CNF" value="Report style configuration"/>
   <locale name="SCREEN_TITLE_THM" value="Theme management"/>
+  <locale name="SCREEN_TITLE_THM_CUSTOM" value="Customize theme"/>
   <locale name="SCREEN_TITLE_THM_NEW" value="New theme"/>
   <locale name="SCREEN_TITLE_THM_UPD" value="Update theme"/>
   <locale name="SCREEN_TITLE_THM_VIW" value="View theme"/>
@@ -1212,6 +1253,10 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SECURITY" value="SECURITY"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Search value"/>
   <locale name="SELECT2_SELECT_VALUE" value="Select a value"/>
+  <locale name="TEXT_MESSAGE" value="Message"/>
+  <locale name="TEXT_PREVIEW" value="Preview"/>
+  <locale name="TEXT_TEST" value="Test"/>
+  <locale name="TEXT_TITLE" value="Title"/>
   <locale name="TIME_AGO" value="{0} ago"/>
   <locale name="VALIDATOR_MESSAGE_CHECK_AT_LEAST" value="Please check at least {value2} answers"/>
   <locale name="VALIDATOR_MESSAGE_DATE" value="Please enter a valid date"/>

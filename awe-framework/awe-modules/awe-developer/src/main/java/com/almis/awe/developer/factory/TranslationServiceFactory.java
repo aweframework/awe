@@ -2,8 +2,8 @@ package com.almis.awe.developer.factory;
 
 import com.almis.awe.developer.translators.ITranslator;
 import com.almis.awe.developer.translators.TranslationServiceEnum;
+import jakarta.annotation.PostConstruct;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 public class TranslationServiceFactory {

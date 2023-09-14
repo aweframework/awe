@@ -62,7 +62,7 @@ sidebar_label: v4.0 Migration Guide
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
   </properties>
 
   <dependencies>

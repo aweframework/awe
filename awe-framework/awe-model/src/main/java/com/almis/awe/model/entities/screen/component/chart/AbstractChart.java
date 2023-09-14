@@ -21,8 +21,8 @@ import java.util.Map;
  * ChartAxis Class
  * <p>
  * Used to parse a chart Axis tag with XStream
- * Generates an Chart widget
- *
+ * Generates a Chart widget
+ * </p>
  * @author Pablo VIDAL - 21/OCT/2014
  */
 @Getter

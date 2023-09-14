@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : info-buttons.xml
+    Created on : 28 de Julio de 2023
+    Author     : Pablo GARCIA
+    Description: Info buttons for navigation bar
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full">
+  <tag source="favourites">
+    <info-criteria component="hidden" id="currentOption" info-style="hidden"/>
+    <info-button id="favourite" icon="star-o" style="nav-icon-btn-success" title="BUTTON_ADD_FAVOURITE">
+      <button-action type="server" server-action="maintain-silent" target-action="clickFavourite" silent="true"/>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="currentOption"/>
+      </dependency>
+      <dependency>
+        <dependency-element id="currentOption"/>
+        <dependency-action type="server" server-action="maintain-silent" target-action="checkFavourites"
+                           silent="true"/>
+      </dependency>
+    </info-button>
+  </tag>
+  <tag source="siteModuleDatabase">
+    <info id="ButSetTog" icon="cog" title="SCREEN_TEXT_SETTINGS" dropdown-style="dropdown-lg">
+      <info-criteria icon="puzzle-piece" title="SCREEN_TEXT_MODULE" component="select" id="module"
+                     initial-load="query" target-action="ModNamByOpeSel" session="module"
+                     style="col-xs-12 no-label" info-style="form-group">
+        <dependency>
+          <dependency-element id="module"/>
+          <dependency-action type="server" server-action="maintain-silent" target-action="SesVarMod"
+                             silent="true"/>
+        </dependency>
+      </info-criteria>
+      <info-criteria icon="sitemap" title="SCREEN_TEXT_SITE" component="select" id="site" initial-load="query"
+                     target-action="SitNamByOpeSel" session="site" style="col-xs-12 no-label"
+                     info-style="form-group">
+        <dependency>
+          <dependency-element id="site"/>
+          <dependency-action type="server" server-action="maintain-silent" target-action="SesVarSit"/>
+          <dependency-action type="server" server-action="data" target-action="DbsAlsBySitModSel"
+                             target="_database_"/>
+        </dependency>
+      </info-criteria>
+      <info-criteria icon="database" title="SCREEN_TEXT_DBS" component="select" id="_database_"
+                     initial-load="query" target-action="DbsAlsBySitModSel" session="database"
+                     style="col-xs-12 no-label"
+                     info-style="form-group">
+        <dependency>
+          <dependency-element id="_database_"/>
+          <dependency-action type="server" server-action="maintain-silent" target-action="SesVarDbs"
+                             silent="true"/>
+        </dependency>
+      </info-criteria>
+    </info>
+  </tag>
+  <tag source="themeModeSelector">
+    <criteria component="hidden" id="currentMode" session="themeMode">
+      <dependency initial="true">
+        <dependency-element id="currentMode" condition="ne" value="dark"/>
+        <dependency-action type="remove-class" target="body.base-theme" target-action="dark" silent="true" async="true"/>
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="currentMode" condition="eq" value="dark"/>
+        <dependency-action type="add-class" target="body.base-theme" target-action="dark" silent="true" async="true"/>
+      </dependency>
+    </criteria>
+    <info-button label="BUTTON_DARK_MODE" id="dark-mode" icon="mdi:dark_mode">
+      <button-action type="server" server-action="maintain-silent" target-action="selectDarkMode" silent="true" async="true"/>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="currentMode" condition="ne" value="dark"/>
+      </dependency>
+    </info-button>
+    <info-button label="BUTTON_LIGHT_MODE" id="light-mode" icon="mdi:light_mode">
+      <button-action type="server" server-action="maintain-silent" target-action="selectLightMode" silent="true" async="true"/>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="currentMode" condition="eq" value="dark"/>
+      </dependency>
+    </info-button>
+  </tag>
+  <tag source="themeSelector">
+    <info-criteria icon="image" title="PARAMETER_THEME" component="select" id="theme" initial-load="query"
+                   target-action="ThmSelVal" session="theme" style="col-xs-12 no-label"
+                   info-style="form-group">
+      <dependency>
+        <dependency-element id="theme"/>
+        <dependency-action type="server" server-action="maintain-silent" target-action="SesVarThm"
+                           silent="true"/>
+        <dependency-action type="change-theme" target="theme"/>
+      </dependency>
+    </info-criteria>
+  </tag>
+  <tag source="languageSelector">
+    <info-criteria icon="language" title="PARAMETER_LANGUAGE" component="select" id="language"
+                   initial-load="enum" target-action="Lan" session="language" style="col-xs-12 no-label"
+                   info-style="form-group">
+      <dependency>
+        <dependency-element id="language"/>
+        <dependency-action type="server" server-action="maintain-silent" target-action="SesVarLan"
+                           silent="true"/>
+        <dependency-action type="change-language" target="language"/>
+      </dependency>
+    </info-criteria>
+  </tag>
+  <tag source="logout">
+    <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT">
+      <button-action type="logout"/>
+    </info-button>
+  </tag>
+</screen>

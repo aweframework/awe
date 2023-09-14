@@ -13,7 +13,7 @@
   //
 
   .navbar-header {
-    background: #fff;
+    background: @navbar-color;
 
     a {
       color: @navbar-links-color;
@@ -26,14 +26,14 @@
 
   .navbar-collapse {
     border-top: 1px solid @navbar-links-border;
-    background: #fff;
+    background: @secondary-navbar-color;
     .box-shadow(none);
   }
 
   .dropdown > a,
   .dropdown-menu > li > a,
   .nav > li > a {
-    color: @navbar-links-color;
+    color: @navbar-text-color;
   }
 
 
@@ -64,8 +64,8 @@
   }
 
   .dropdown.open > a {
-    border-bottom: 1px solid darken(@navbar-links-border, 5%);
-    border-top: 1px solid darken(@navbar-links-border, 7%);
+    border-bottom: 1px solid color-mix(in srgb, @navbar-links-border, @text-color 5%);
+    border-top: 1px solid color-mix(in srgb, @navbar-links-border, @text-color 7%);
     margin-top: -1px;
     background: #f6f6f6;
   }
@@ -113,13 +113,13 @@
     //
 
     .navbar-collapse {
-      background: #fff;
+      background: @secondary-navbar-color;
       border: none;
     }
 
     // Navbar button
     #main-menu-toggle {
-      background: lighten(@navbar-color, 5%);
+      background: color-mix(in srgb, @navbar-color, @primary-background-color 5%);
     }
 
 
@@ -138,14 +138,14 @@
 
     .navbar-nav.nav > li > a:hover {
       color: @text-color;
-      background: #f8f8f8;
+      background: color-mix(in srgb, @navbar-text-color, @primary-background-color 80%);
     }
 
     .dropdown.open > a {
       border-top: none;
       border-bottom: none;
       margin: 0;
-      background: #f8f8f8;
+      background: color-mix(in srgb, @navbar-text-color, @primary-background-color 80%);
       color: @text-color;
     }
 
@@ -173,7 +173,7 @@
     .widget-notifications {
       .notification,
       .notifications-link {
-        border-color: @navbar-links-border;
+        border-color: transparent;
         .box-shadow(0 1px 0 rgba(255, 255, 255, 0.05) inset);
         .border-bottom-radius(3px);
       }
@@ -227,7 +227,7 @@
     }
 
     .navbar-header {
-      background: #fff;
+      background: @navbar-color;
 
       a {
         color: @navbar-links-color;
@@ -243,7 +243,7 @@
 &.main-menu-right #main-navbar .navbar-header,
 &.no-main-menu #main-navbar .navbar-header,
 &.no-main-menu #main-navbar .navbar-header {
-  background: #fff;
+  background: @navbar-color;
 
   a {
     color: @navbar-links-color;

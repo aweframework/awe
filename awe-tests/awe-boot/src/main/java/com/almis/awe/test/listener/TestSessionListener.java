@@ -1,13 +1,14 @@
 package com.almis.awe.test.listener;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TestSessionListener implements HttpSessionListener {
-  private static Map<String, HttpSession> sessionMap = new ConcurrentHashMap<>();
+  private static final Map<String, HttpSession> sessionMap = new ConcurrentHashMap<>();
 
   public TestSessionListener() {
     super();

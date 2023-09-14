@@ -3,47 +3,64 @@
 // --------------------------------------------------
 
 .theme-ferrari {
-  // Primary color
-  @primary-color: #ef3340;
-  @secondary-color: #5b595a;
-  @theme-color: lighten(@primary-color, 10%);
-  // Main menu background color
-  @awe-text-color: #fff;
-  @awe-border-color: darken(@secondary-color, 10%);
-  @button-color: lighten(@secondary-color, 10%);
+  --theme-color: #CF010B;
+  --text-color: #200;
+  --primary-color: #ef3340;
+  --secondary-color: #cdcccd;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333;
+  --primary-background-color: #f3f3f3;
+  --secondary-background-color: #fff;
+  --primary-menu-color: #ef3340;
+  --secondary-menu-color: #fff;
+  --menu-text-color: #fcd9db;
+  --primary-navbar-color: #fff;
+  --secondary-navbar-color: #fff;
+  --navbar-text-color: #555;
+  --navbar-dropdown-color: #fff;
+  --panel-background-color: #fff;
+  --panel-header-color: #5b595a;
+  --panel-border-color: #414041;
+  --panel-text-color: #fff;
+  --grid-header-color: #ebebeb;
+  --grid-border-color: #dbdbdb;
+  --disabled-border-color: #d6d6d6;
+  --disabled-color: #eee;
+  --required-color: #d2f1fb;
+  --loading-bar-color: #fff;
+  --border-color: #d6d6d6;
 
-  // Copy dust theme
-  .theme-dust;
-
-  // Set background color
-  background-color: #e6e6e6;
-
-  // Define panel and button default
-  .panel-awe {
-    .pixel-panel(@secondary-color, @awe-text-color, @awe-border-color);
+  &.dark {
+    --theme-color: #CF010B;
+    --text-color: #eff;
+    --primary-color: #ef3340;
+    --secondary-color: #313131;
+    --primary-text-color: #fff;
+    --secondary-text-color: #ccc;
+    --primary-background-color: #000;
+    --secondary-background-color: #000;
+    --primary-menu-color: #ef3340;
+    --secondary-menu-color: #fff;
+    --menu-text-color: #fcd9db;
+    --primary-navbar-color: #000;
+    --secondary-navbar-color: #000;
+    --navbar-text-color: #b3b3b3;
+    --navbar-dropdown-color: #333;
+    --panel-background-color: #131313;
+    --panel-header-color: #5b595a;
+    --panel-border-color: #3f3f3f;
+    --panel-text-color: #d3d3d3;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #173d47;
+    --loading-bar-color: #fff;
   }
-  .btn-default {
-    .pixel-button(@color: @button-color, @font-color: @btn-default-color);
-  }
 
-  // Define navbar specific backgrounds
-  #main-navbar,
-  &.mmc #main-navbar {
-    .navbar-header {
-      background: #fff;
-    }
-    #main-menu-toggle {
-      background: #CF010B;
-    }
+  #main-navbar #main-menu-toggle {
+    background-color: var(--theme-color);
   }
-
-  // Mixins
-  .awe-main-menu(@primary-color);
-  .awe-grid(lighten(@secondary-color, 10%), @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@button-color, @primary-color);
-  .awe-loading-bar(@primary-color);
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@primary-color)
 }

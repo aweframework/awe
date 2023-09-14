@@ -11,10 +11,10 @@ import com.almis.awe.model.entities.queues.ResponseMessage;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.processor.QueueProcessor;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.jms.Message;
-import javax.jms.MessageListener;
 import java.util.Map;
 
 /**

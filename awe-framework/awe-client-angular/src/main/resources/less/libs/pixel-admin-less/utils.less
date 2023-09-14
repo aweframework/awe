@@ -316,19 +316,24 @@ body:not(.right-to-left) .no-border-l {
 //**   Text colors    ****************************************************************************//
 
 .text-default {
-  .pixel-text-color(darken(#98a3a4, 8%));
+  .pixel-text-color(#98a3a4);
+  //filter: brightness(92%);
 }
 .text-success {
-  .pixel-text-color(darken(@success-color, 8%));
+  .pixel-text-color(@success-color);
+  //filter: brightness(92%);
 }
 .text-danger {
-  .pixel-text-color(darken(@danger-color, 8%));
+  .pixel-text-color(@danger-color);
+  //filter: brightness(92%);
 }
 .text-warning {
-  .pixel-text-color(darken(@warning-color, 8%));
+  .pixel-text-color(@warning-color);
+  //filter: brightness(92%);
 }
 .text-info {
-  .pixel-text-color(darken(@info-color, 8%));
+  .pixel-text-color(@info-color);
+  //filter: brightness(92%);
 }
 .text-light-gray {
   .pixel-text-color(#bbb);

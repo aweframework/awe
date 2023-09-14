@@ -2,9 +2,231 @@
 // awe base definition
 // --------------------------------------------------
 
+// Default variables
+:root {
+  --text-color: #333333;
+  --primary-color: #7a6f6f;
+  --secondary-color: #e8e6e6;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #C75858;
+  --secondary-background-color: #9D4444;
+  --primary-menu-color: #9D4444;
+  --secondary-menu-color: #823939;
+  --menu-text-color: #dfb5b5;
+  --primary-navbar-color: #ffffff;
+  --secondary-navbar-color: #9D4444;
+  --navbar-text-color: #555;
+  --navbar-dropdown-color: #fff;
+  --primary-font-size: 13px;
+  --secondary-font-size: 10px;
+  --disabled-color: #ccc;
+  --disabled-border-color: #aaa;
+  --disabled-text-color: #aaa;
+  --header-height: 46px;
+  --panel-background-color: #fff;
+  --panel-header-color: #7a6f6f;
+  --panel-border-color: #b13b3b;
+  --danger-color: #e66454;
+  --warning-color: #f4b04f;
+  --success-color: #5ebd5e;
+  --info-color: #5bc0de;
+  --border-color: #d3cece;
+  --border-radius: 3px;
+  --loading-bar-color: #7a6f6f;
+}
+
+// Default less variables
+@theme-color: var(--theme-color, #9D4444);
+@text-color: var(--text-color, #000000);
+@primary-color: var(--primary-color, #7a6f6f);
+@secondary-color: var(--secondary-color, #e8e6e6);
+@primary-text-color: var(--primary-text-color, #fff);
+@secondary-text-color: var(--secondary-text-color, #333333);
+@primary-background-color: var(--primary-background-color, #C75858);
+@secondary-background-color: var(--secondary-background-color, #9D4444);
+@primary-menu-color: var(--primary-menu-color, #9D4444);
+@secondary-menu-color: var(--secondary-menu-color, #9D4444);
+@menu-text-color: var(--menu-text-color, #9D4444);
+@primary-navbar-color: var(--primary-navbar-color, #9D4444);
+@secondary-navbar-color: var(--secondary-navbar-color, #9D4444);
+@navbar-text-color: var(--navbar-text-color, #9D4444);
+@navbar-dropdown-color: var(--navbar-dropdown-color, #FFF);
+@primary-font-size: var(--primary-font-size, 13px);
+@secondary-font-size: var(--secondary-font-size, 10px);
+@disabled-color: var(--disabled-color, #ccc);
+@disabled-border-color: var(--disabled-border-color, #aaa);
+@disabled-text-color: var(--disabled-text-color, #aaa);
+@main-navbar-height: var(--header-height, 46px);
+@panel-background-color: var(--panel-background-color, #fff);
+@panel-header-color: var(--panel-header-color, #7a6f6f);
+@panel-border-color: var(--panel-border-color, #666);
+@panel-text-color: var(--panel-text-color, #fff);
+@grid-header-color: var(--grid-header-color, #ebebeb);
+@grid-border-color: var(--grid-border-color, #dbdbdb);
+@danger-color: var(--danger-color, #ff4444);
+@warning-color: var(--warning-color, #dddd00);
+@success-color: var(--success-color, #00dd00);
+@info-color: var(--info-color, #9999ff);
+@border-color: var(--border-color, #666);
+@border-radius: var(--border-radius, 6px);
+@loading-bar-color: var(--loading-bar-color, #7a6f6f);
+@required-color: var(--required-color, #dfd);
+@input-bg: @panel-background-color;
+@input-bg-disabled: @disabled-color;
+@input-border: @border-color;
+@input-group-addon-bg: @disabled-color;
+@input-group-addon-border-color: @border-color;
+@input-color: @text-color;
+@dropdown-bg: @navbar-dropdown-color;
+@dropdown-border: @border-color;
+@navbar-links-border: @border-color;
+@body-bg: @primary-background-color;
+
+@table-border-color: @grid-border-color;
+@table-bg-accent: @primary-background-color;
+@table-bg-hover:@primary-background-color;
+
+@panel-bg: @panel-background-color;
+@panel-default-border: @border-color;
+@panel-default-text: @text-color;
+@panel-default-heading-bg: @panel-header-color;
+@panel-success-border: @success-color;
+@panel-success-text: @primary-text-color;
+@panel-success-heading-bg: @success-color;
+@panel-info-border: @info-color;
+@panel-info-text: @primary-text-color;
+@panel-info-heading-bg: @info-color;
+@panel-warning-border: @warning-color;
+@panel-warning-text: @primary-text-color;
+@panel-warning-heading-bg: @warning-color;
+@panel-danger-border: @danger-color;
+@panel-danger-text: @primary-text-color;
+@panel-danger-heading-bg: @danger-color;
+@border-radius-base: @border-radius;
+
+@body-color: @primary-background-color;
+@menu-color: @primary-menu-color;
+@theme-border-color: @border-color;
+
+@page-header-color: @primary-navbar-color;
+@page-header-border-color: @secondary-navbar-color;
+
+@header-color: @primary-navbar-color;
+@navbar-color: @primary-color;
+@navbar-start-color: @primary-navbar-color;
+@navbar-end-color: @secondary-navbar-color;
+@navbar-links-border: color-mix(in srgb, @primary-navbar-color, @navbar-text-color 7%);
+@navbar-links-color: @navbar-text-color;
+
+// Navbar links
+@navbar-default-link-color:                @navbar-text-color;
+@navbar-default-link-hover-color:          color-mix(in srgb, @navbar-text-color, @primary-navbar-color 20%);
+@navbar-default-link-hover-bg:             transparent;
+@navbar-default-link-active-color:         @navbar-text-color;
+@navbar-default-link-active-bg:            color-mix(in srgb, @primary-navbar-color, @navbar-text-color 10%);
+@navbar-default-link-disabled-color:       @disabled-text-color;
+@navbar-default-link-disabled-bg:          @disabled-color;
+
+// Inverted navbar links
+@navbar-inverse-bg:                         @primary-navbar-color;
+@navbar-inverse-link-color:                 @navbar-text-color;
+@navbar-inverse-link-hover-color:           color-mix(in srgb, @navbar-text-color, @primary-navbar-color 20%);
+@navbar-inverse-link-hover-bg:              transparent;
+@navbar-inverse-link-active-color:          @navbar-text-color;
+@navbar-inverse-link-active-bg:             color-mix(in srgb, @primary-navbar-color, @navbar-text-color 10%);
+@navbar-inverse-link-disabled-color:        @disabled-text-color;
+@navbar-inverse-link-disabled-bg:           @disabled-color;
+
+@nav-tabs-active-link-hover-bg:             @primary-color;
+@nav-tabs-active-link-hover-color:          @primary-color;
+@nav-tabs-active-link-hover-border-color:   @primary-color;
+
+@popover-bg: @secondary-background-color;
+@popover-border-color: @border-color;
+
+
+// Navbar buttons
+//
+
+#main-menu-toggle,
+#main-menu-toggle .fa:before {
+  color: @primary-text-color;
+}
+
+// Navbar icon buttons
+/*.nav-icon-btn-theme(@primary-color);
+
+// Progress bars
+.progress-bars-theme(@primary-color);
+
+// Labels
+.labels-theme(@primary-color);
+
+// Badges
+.badges-theme(@primary-color);
+
+// Tables
+.tables-theme(@primary-color);
+
+// Tabs
+.tabs-theme(@primary-color);
+
+// Pills
+.pills-theme(@primary-color);
+
+// Dropdowns
+.dropdowns-theme(@primary-menu-color, #fff);
+
+// Button groups
+.button-groups-theme(@primary-color);
+
+// Pagination
+.pagination-theme(@primary-color);
+
+// List groups
+.list-groups-theme(@primary-color);
+
+// Forms theme
+.forms-theme(@primary-color);
+
+// Text color
+.text-primary {
+  .pixel-text-color(@primary-text-color);
+}*/
+
+// Plugins
+//
+
+// jQuery UI
+/*.ui-slider-theme(@primary-color);
+.ui-autocomplete-theme(@primary-color, #fff);
+.ui-menu-theme(@primary-color);
+.ui-progressbar-theme(@primary-color);
+.ui-tabs-theme(@primary-color);
+.ui-datepicker-theme(@primary-color);*/
+
+// Define panel and button default
+.panel-awe {
+  .pixel-panel(@panel-header-color, @panel-text-color, @panel-border-color);
+}
+.btn-default {
+  .pixel-button(@color: @secondary-color, @font-color: @secondary-text-color);
+}
+
+// Mixins
+/*.awe-main-menu(@primary-menu-color, @menu-text-color);
+.awe-grid(@secondary-color, @primary-color);
+.awe-change-password-page(@primary-color);
+.awe-breadcrumbs(light);
+.awe-buttons(@secondary-color, @primary-color, @font-color: @secondary-text-color);
+.awe-loading-bar(@loading-bar-color);
+.awe-theme-color(@primary-color);
+.awe-menu-color(@primary-menu-color);*/
+
 html, body {
-  margin:0px;
-  padding:0px;
+  margin:0;
+  padding:0;
   width:100% !important;
   height:100% !important;
   overflow-x: hidden;
@@ -20,14 +242,14 @@ html, body {
   float: left;
   position: absolute;
   left: 2px;
-  bottom: 0px;
+  bottom: 0;
 }
 
 .sync-zone {
   float:right;
   position: absolute;
   right: 2px;
-  bottom: 0px;
+  bottom: 0;
 }
 
 .download-zone {
@@ -91,8 +313,8 @@ html, body {
  ANGULARJS structures
 *******************************************************************************/
 .row {
-  margin-left: 0px !important;
-  margin-right: 0px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .fullScreen {
@@ -200,4 +422,39 @@ html, body {
 .material-icons {
   font-size: 13px;
   vertical-align: text-bottom;
+}
+
+.demo-theme {
+  background-color: @primary-background-color;
+  color: @text-color;
+  #main-navbar {
+    left: auto;
+    right: auto;
+    position: relative !important;
+  }
+
+  .alert {
+    strong {
+      padding-right: 5px;
+    }
+  }
+
+  .ui-grid-header-canvas {
+    width: 240px;
+    .ui-grid-header-cell {
+      width: 80px;
+    }
+  }
+  .ui-grid-canvas {
+    width: 240px;
+    .ui-grid-cell {
+      width: 80px;
+    }
+  }
+
+  .disabled {
+    border-color: @disabled-border-color;
+    color: @disabled-text-color;
+    background-color: @disabled-color;
+  }
 }

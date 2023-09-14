@@ -4,7 +4,10 @@ import com.almis.awe.model.entities.Copyable;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -90,11 +93,7 @@ public abstract class OutputField implements Copyable {
    * @return Identifier
    */
   public String getIdentifier() {
-    String identifier = null;
-    if (alias != null) {
-      identifier = alias;
-    }
-    return identifier;
+    return alias;
   }
 
   @Override

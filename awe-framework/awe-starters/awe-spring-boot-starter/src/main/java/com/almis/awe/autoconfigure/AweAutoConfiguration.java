@@ -32,6 +32,8 @@ import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,9 +48,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * AWE Autoconfiguration
@@ -269,15 +268,14 @@ public class AweAutoConfiguration {
    * Maintain service
    *
    * @param maintainLauncher         Maintain launcher
-   * @param accessService            Access service
    * @param queryUtil                Query utilities
    * @param databaseConfigProperties Database configuration properties
    * @return Maintain service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MaintainService maintainService(MaintainLauncher maintainLauncher, AccessService accessService, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
-    return new MaintainService(maintainLauncher, accessService, queryUtil, databaseConfigProperties);
+  public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
+    return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
   }
 
   /**
@@ -295,9 +293,40 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public MenuService menuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
                                  ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                 SecurityConfigProperties securityConfigProperties) {
+                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService) {
     return new MenuService(queryService, screenRestrictionGenerator, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties);
+      baseConfigProperties, securityConfigProperties, favouriteService);
+  }
+
+  /**
+   * Favourite service
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @return Menu service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public UserService userService(QueryService queryService, QueryUtil queryUtil,
+                                 MaintainService maintainService) {
+    return new UserService(queryService, queryUtil, maintainService);
+  }
+
+  /**
+   * Favourite service
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param dataListService DataList service
+   * @param maintainService Maintain service
+   * @return Menu service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public FavouriteService favouriteService(QueryService queryService, QueryUtil queryUtil,
+                                           DataListService dataListService, MaintainService maintainService) {
+    return new FavouriteService(queryService, queryUtil, dataListService, maintainService);
   }
 
   /**

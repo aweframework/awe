@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -341,13 +341,7 @@ public class CellData implements Comparable<CellData>, Copyable {
     } else {
       switch (getType()) {
         // Get object value
-        case DOUBLE:
-        case FLOAT:
-        case INTEGER:
-        case LONG:
-        case DECIMAL:
-        case JSON:
-        case OBJECT:
+        case DOUBLE, FLOAT, INTEGER, LONG, DECIMAL, JSON, OBJECT:
           return getObjectValue();
         // Get json value as null
         case NULL:
@@ -372,9 +366,9 @@ public class CellData implements Comparable<CellData>, Copyable {
   public CellData setValue(Object value) {
     if (value == null) {
       setNull();
-    } else if (value instanceof String) {
-      if (DateUtil.isJsonDate((String) value)) {
-        Date date = stringToDate((String) value);
+    } else if (value instanceof String strValue) {
+      if (DateUtil.isJsonDate(strValue)) {
+        Date date = stringToDate(strValue);
         setValue(date);
       } else {
         setValue(value, STRING);
@@ -391,13 +385,12 @@ public class CellData implements Comparable<CellData>, Copyable {
       setValue(value, DOUBLE);
     } else if (value instanceof Boolean) {
       setValue(value, BOOLEAN);
-    } else if (value instanceof Date) {
-      String dateString = DateUtil.dat2WebTimestamp((Date) value);
-      setValue(dateString, value, DATE);
+    } else if (value instanceof Date date) {
+      String dateString = DateUtil.dat2WebTimestamp(date);
+      setValue(dateString, date, DATE);
     } else if (value instanceof JsonNode) {
       setValue(value, JSON);
-    } else if (value instanceof CellData) {
-      CellData cell = (CellData) value;
+    } else if (value instanceof CellData cell) {
       setValue(cell.getStringValue(), cell.getObjectValue(), cell.getType());
       setSendStringValue(cell.isSendStringValue());
       setPrintable(cell.isPrintable());

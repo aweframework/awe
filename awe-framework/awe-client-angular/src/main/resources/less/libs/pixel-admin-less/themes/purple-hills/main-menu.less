@@ -10,7 +10,7 @@
 #main-menu {
   .navigation a,
   .mmc-dropdown-open-ul a {
-    color: lighten(@menu-color, 40%);
+    color: color-mix(in srgb, @menu-color, @text-color 40%);
     position: relative;
     .transition(all .2s);
 
@@ -21,7 +21,7 @@
       width: 4px;
       position: absolute;
       right: auto;
-      background: darken(@header-color, 5%);
+      background: color-mix(in srgb, @header-color, @text-color 5%);
       display: none;
       left: 0;
     }
@@ -36,7 +36,7 @@
   }
 
   li.active > a {
-    background: darken(@menu-color, 5%);
+    background: color-mix(in srgb, @menu-color, @text-color 5%);
     color: #fff;
 
     & .menu-icon {
@@ -60,17 +60,17 @@
 
   .mm-dropdown > ul,
   .mmc-dropdown-open-ul {
-    background: lighten(@menu-color, 3%);
+    background: color-mix(in srgb, @menu-color, @text-color 3%);
   }
 
   .mmc-dropdown-open-ul .mmc-title {
-    background: darken(@header-color, 5%);
+    background: color-mix(in srgb, @header-color, @text-color 5%);
     color: #fff;
   }
 
   .mmc-dropdown-open {
     > a {
-      background: darken(@header-color, 5%) !important;
+      background: color-mix(in srgb, @header-color, @text-color 5%) !important;
       
       &,
       .menu-icon {
@@ -85,11 +85,11 @@
 
   // Main menu content blocks
   .menu-content {
-    border-color: lighten(@menu-color, 5%);
+    border-color: color-mix(in srgb, @menu-color, @text-color 5%);
 
     .btn-outline {
-      border-color: lighten(@menu-color, 5%);
-      color: lighten(@menu-color, 40%);
+      border-color: color-mix(in srgb, @menu-color, @text-color 5%);
+      color: color-mix(in srgb, @menu-color, @text-color 40%);
 
       &:hover {
         color: #fff;
@@ -115,7 +115,7 @@
 
   // Unhighlight expanded submenus in collapsed mode
   &.mmc #main-menu .navigation > .mm-dropdown.open > a {
-    color: lighten(@menu-color, 40%);
+    color: color-mix(in srgb, @menu-color, @text-color 40%);
   }
 }
 

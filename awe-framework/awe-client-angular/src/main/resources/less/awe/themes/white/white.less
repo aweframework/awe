@@ -3,25 +3,59 @@
 // --------------------------------------------------
 
 .theme-white {
-  @theme-color: #4ab6d5;
-  // Main menu background color
-  @menu-color: #fff;
-  // Primary color
-  @primary-color: #4ab6d5;
-  // Grid colors
+  --theme-color: #4ab6d5;
+  --text-color: #333333;
+  --primary-color: #4ab6d5;
+  --secondary-color: #dbf0f7;
+  --primary-text-color: #fff;
+  --secondary-text-color: #333333;
+  --primary-background-color: #fff;
+  --secondary-background-color: #fff;
+  --primary-menu-color: #fff;
+  --secondary-menu-color: #666;
+  --menu-text-color: #a6a6a6;
+  --primary-navbar-color: #eee;
+  --secondary-navbar-color: #eee;
+  --navbar-text-color: #777;
+  --panel-background-color: #fff;
+  --panel-header-color: #fafafa;
+  --panel-border-color: #d6d6d6;
+  --panel-text-color: #333333;
+  --grid-header-color: #ebebeb;
+  --grid-border-color: #dbdbdb;
+  --disabled-border-color: #d6d6d6;
+  --disabled-color: #eee;
+  --required-color: #d2f1fb;
+  --loading-bar-color: #fff;
+  --border-color: #d6d6d6;
 
-  // CSS variable colors
-  --theme-color: @theme-color;
-  --menu-color: @menu-color;
-  --primary-color: @primary-color;
-
-  // Mixins
-  .awe-main-menu(@menu-color,light);
-  .awe-grid(@theme-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@theme-color, @primary-color);
-  .awe-loading-bar(@primary-color);
-  .awe-theme-color(@theme-color);
-  .awe-menu-color(@menu-color);
+  &.dark {
+    --theme-color: #4ab6d5;
+    --text-color: #eee;
+    --primary-color: #4ab6d5;
+    --secondary-color: #33373d;
+    --primary-text-color: #fff;
+    --secondary-text-color: #ccc;
+    --primary-background-color: #000;
+    --secondary-background-color: #000;
+    --primary-menu-color: #666;
+    --secondary-menu-color: #aaa;
+    --menu-text-color: #aaa;
+    --primary-navbar-color: #111;
+    --secondary-navbar-color: #111;
+    --navbar-text-color: #eee;
+    --navbar-dropdown-color: #222222;
+    --panel-background-color: #131313;
+    --panel-header-color: #1e1e1e;
+    --panel-border-color: #3f3f3f;
+    --panel-text-color: #d3d3d3;
+    --grid-header-color: #333;
+    --grid-border-color: #444;
+    --border-color: #444;
+    --disabled-border-color: #565656;
+    --disabled-color: #333;
+    --disabled-text-color: #666;
+    --required-color: #173d47;
+    --loading-bar-color: #fff;
+  }
 }

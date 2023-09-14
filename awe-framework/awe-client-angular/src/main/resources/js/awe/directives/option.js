@@ -9,7 +9,7 @@ const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class
   </a>
   <ul ng-if="::hasVisibleChildren()" class="{{::getStaticSubmenuClasses()}}" ng-class="getSubmenuClasses()">
     <div ng-if="::optionText" class="mmc-title" translate-multiple="{{::optionText}}"></div>
-    <awe-option ng-repeat="option in controller.options| allowedOption track by option.name" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}" close-first-level="closeFirstLevel()" first-level="false" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}" option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
+    <awe-option ng-repeat="option in controller.options| allowedOption track by option.id" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}" close-first-level="closeFirstLevel()" first-level="false" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}" option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
   </ul>
 </li>`;
 

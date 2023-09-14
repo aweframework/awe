@@ -6,6 +6,7 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.Favourite;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
@@ -15,6 +16,7 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +25,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,6 +39,7 @@ import static org.mockito.Mockito.*;
  *
  * @author pgarcia
  */
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class MenuServiceTest {
 
@@ -54,6 +59,8 @@ class MenuServiceTest {
   private BaseConfigProperties baseConfigProperties;
   @Mock
   private ScreenRestrictionGenerator screenRestrictionGenerator;
+  @Mock
+  private FavouriteService favouriteService;
 
   @Mock
   private BaseConfigProperties.Files files;
@@ -347,5 +354,30 @@ class MenuServiceTest {
     // Arrange
     when(context.getBean(MaintainService.class)).thenReturn(maintainService);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
+  }
+
+  @Test
+  void testGetMenuWithFavourites() throws AWException {
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweSession.isAuthenticated()).thenReturn(true);
+    when(aweSession.getUser()).thenReturn("user");
+    when(baseConfigProperties.getFiles()).thenReturn(files);
+    when(files.getMenuPrivate()).thenReturn("private");
+    when(aweElements.getMenu(anyString())).thenReturn(new Menu()
+      .addElement(new Option().setName("test"))
+      .addElement(new Option().setName("test2"))
+      .addElement(new Option().setName("test3"))
+      .addElement(new Option().setName("test4"))
+    );
+    when(favouriteService.getFavourites(anyString())).thenReturn(Arrays.asList(
+      new Favourite().setOption("test"),
+      new Favourite().setOption("test4")
+    ));
+    Menu menu = menuService.getMenu();
+    assertNotNull(menu);
+    assertEquals(8, menu.getElementsByType(Option.class).size());
+    assertEquals("favourites - favourite-test - favourite-test4 - favourites-separator - test - test2 - test3 - test4",
+      menu.getElementsByType(Option.class).stream().map(Option::getId).collect(Collectors.joining(" - ")));
   }
 }

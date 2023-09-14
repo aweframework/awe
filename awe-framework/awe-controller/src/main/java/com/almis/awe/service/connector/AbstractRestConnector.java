@@ -128,7 +128,7 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
 
     // Handle response status
     if (!response.getStatusCode().is2xxSuccessful()) {
-      throw new AWException(String.format("Operation unsuccessful %d", response.getStatusCodeValue()));
+      throw new AWException(String.format("Operation unsuccessful %d", response.getStatusCode().value()));
     }
 
     return Optional.ofNullable((ResponseWrapper) response.getBody()).orElse((ResponseWrapper) new ServiceDataWrapper().setDataList(new DataList())).toServiceData();

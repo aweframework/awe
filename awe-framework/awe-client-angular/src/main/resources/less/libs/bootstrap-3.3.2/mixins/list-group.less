@@ -15,12 +15,12 @@
       &:hover,
       &:focus {
         color: @color;
-        background-color: darken(@background, 5%);
+        background-color: color-mix(in srgb, @background, @text-color 5%);
       }
       &.active,
       &.active:hover,
       &.active:focus {
-        color: #fff;
+        color: @primary-text-color;
         background-color: @color;
         border-color: @color;
       }

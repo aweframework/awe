@@ -20,10 +20,8 @@ import java.util.Map;
  * ChartTooltip Class
  * <p>
  * Used to parse a chart tooltip tag with XStream
- * <p>
- * <p>
- * Generates an Chart widget
- *
+ * Generates a Chart widget
+ * </p>
  * @author Pablo VIDAL - 21/OCT/2014
  */
 @Getter

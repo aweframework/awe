@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.7.0</version>
+    <version>4.7.1</version>
     <relativePath>../awe-dependencies/pom.xml</relativePath>
   </parent>
 
@@ -17,9 +17,8 @@
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>1.8</java.version>
+    <java.version>17</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
-    <webdrivermanager.version>5.2.1</webdrivermanager.version>
     <video-recorder-junit5.version>2.0</video-recorder-junit5.version>
     <log4j-over-slf4j.version>1.7.36</log4j-over-slf4j.version>
     <sonar.exclusions>src/**</sonar.exclusions>
@@ -54,7 +53,6 @@
     <dependency>
       <groupId>io.github.bonigarcia</groupId>
       <artifactId>webdrivermanager</artifactId>
-      <version>${webdrivermanager.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -80,7 +78,6 @@
       <version>${log4j-over-slf4j.version}</version>
     </dependency>
   </dependencies>
-
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>

@@ -10,11 +10,12 @@ import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.session.AweSessionDetails;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.SessionRepository;
 import org.springframework.web.context.annotation.SessionScope;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,9 +73,9 @@ public class SessionConfig {
    * @return Map session repository
    */
   @Bean
-  @ConditionalOnProperty(name = "spring.session.store-type", havingValue = "none")
   @ConditionalOnMissingBean
-  public MapSessionRepository sessionRepository() {
+  public SessionRepository<MapSession> sessionRepository() {
     return new MapSessionRepository(new ConcurrentHashMap<>());
   }
+
 }

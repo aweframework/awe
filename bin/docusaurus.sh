@@ -14,8 +14,9 @@ then
 else
     # Generate documentation tag on the new version
     echo "Generating documentation tag for version ${NEW_VERSION}..."
-    cd website
-    yarn docusaurus docs:version ${NEW_VERSION}
+    cd website || { echo "Error accessing website directory"; exit 1; }
+    yarn install || { echo "Error updating yarn"; exit 1; }
+    yarn docusaurus docs:version "${NEW_VERSION}" || { echo "Error generating documentation"; exit 1; }
     git add .
     git commit -m "Generated documentation tag for version ${NEW_VERSION}"
     cd ..

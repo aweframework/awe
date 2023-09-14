@@ -11,18 +11,21 @@ import dev.samstevens.totp.code.CodeVerifier;
 import dev.samstevens.totp.qr.QrDataFactory;
 import dev.samstevens.totp.qr.QrGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
+import dev.samstevens.totp.spring.autoconfigure.TotpAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 
 @Configuration
 @Slf4j
 @EnableConfigurationProperties({SecurityConfigProperties.class, TotpConfigProperties.class})
+@Import(TotpAutoConfiguration.class) // Work around for https://github.com/samdjstevens/java-totp/issues/53
 public class SecurityConfig extends ServiceConfig {
 
   // Autowired services
@@ -55,8 +58,8 @@ public class SecurityConfig extends ServiceConfig {
         for (String provider : securityConfigProperties.getAuthCustomProviders()) {
           try {
             Object beanObj = getBean(provider);
-            if (beanObj instanceof AuthenticationProvider) {
-              auth.authenticationProvider((AuthenticationProvider) beanObj);
+            if (beanObj instanceof AuthenticationProvider authProvider) {
+              auth.authenticationProvider(authProvider);
             }
           } catch (Exception exc) {
             log.error("Couldn't load authentication provider bean with name [{}]", provider, exc);
@@ -64,8 +67,7 @@ public class SecurityConfig extends ServiceConfig {
         }
         break;
 
-      case LDAP:
-      case BBDD:
+      case LDAP, BBDD:
       default:
         auth.authenticationProvider(getBean(AuthenticationProvider.class));
         break;

@@ -2334,4 +2334,211 @@
     <variable id="generate" type="BOOLEAN" value="true"/>
   </query>
 
+  <!--
+  Favourites
+  -->
+
+  <query id="getFavourites" cacheable="true">
+    <table id="AweUsrFav"/>
+    <field id="Opt" alias="option"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user"/>
+    </where>
+    <order-by field="Ord" type="ASC"/>
+    <variable id="user" type="STRING" name="user"/>
+  </query>
+
+  <query id="nextIdForFavourites">
+    <table id="AweUsrFav"/>
+    <operation operator="ADD">
+      <operation operator="COALESCE">
+        <field id="IdeFav" function="MAX"/>
+        <constant value="0" type="INTEGER"/>
+      </operation>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+  </query>
+
+  <query id="nextOrderForUser">
+    <table id="AweUsrFav"/>
+    <operation operator="ADD">
+      <operation operator="COALESCE">
+        <field id="Ord" function="MAX"/>
+        <constant value="0" type="INTEGER"/>
+      </operation>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+    </where>
+    <variable id="user" type="STRING" name="user"/>
+  </query>
+
+  <!--
+  Theme management
+  -->
+
+  <query id="nextIdForThemeColors">
+    <table id="AweThmCol"/>
+    <operation operator="ADD">
+      <operation operator="COALESCE">
+        <field id="IdeThmCol" function="MAX"/>
+        <constant value="0" type="INTEGER"/>
+      </operation>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+  </query>
+
+  <query id="themeVariables">
+    <table id="AweThm" alias="themes"/>
+    <table id="AweThmCol" alias="colors"/>
+    <field id="Nam" table="themes" alias="name"/>
+    <field id="dark" table="colors" alias="dark" transform="BOOLEAN"/>
+    <field id="themeColor" table="colors" alias="themeColor"/>
+    <field id="textColor" table="colors" alias="textColor"/>
+    <field id="primaryColor" table="colors" alias="primaryColor"/>
+    <field id="secondaryColor" table="colors" alias="secondaryColor"/>
+    <field id="primaryTextColor" table="colors" alias="primaryTextColor"/>
+    <field id="secondaryTextColor" table="colors" alias="secondaryTextColor"/>
+    <field id="primaryBackgroundColor" table="colors" alias="primaryBackgroundColor"/>
+    <field id="secondaryBackgroundColor" table="colors" alias="secondaryBackgroundColor"/>
+    <field id="primaryMenuColor" table="colors" alias="primaryMenuColor"/>
+    <field id="secondaryMenuColor" table="colors" alias="secondaryMenuColor"/>
+    <field id="menuTextColor" table="colors" alias="menuTextColor"/>
+    <field id="primaryNavbarColor" table="colors" alias="primaryNavbarColor"/>
+    <field id="secondaryNavbarColor" table="colors" alias="secondaryNavbarColor"/>
+    <field id="navbarTextColor" table="colors" alias="navbarTextColor"/>
+    <field id="navbarDropdownColor" table="colors" alias="navbarDropdownColor"/>
+    <operation operator="CONCAT" alias="primaryFontSize">
+      <field id="primaryFontSize"/>
+      <constant value="px"/>
+    </operation>
+    <operation operator="CONCAT" alias="secondaryFontSize">
+      <field id="secondaryFontSize"/>
+      <constant value="px"/>
+    </operation>
+    <field id="disabledColor" table="colors" alias="disabledColor"/>
+    <field id="disabledBorderColor" table="colors" alias="disabledBorderColor"/>
+    <field id="disabledTextColor" table="colors" alias="disabledTextColor"/>
+    <operation operator="CONCAT" alias="headerHeight">
+      <field id="headerHeight"/>
+      <constant value="px"/>
+    </operation>
+    <field id="panelBackgroundColor" table="colors" alias="panelBackgroundColor"/>
+    <field id="panelBorderColor" table="colors" alias="panelBorderColor"/>
+    <field id="panelTextColor" table="colors" alias="panelTextColor"/>
+    <field id="panelHeaderColor" table="colors" alias="panelHeaderColor"/>
+    <field id="gridBorderColor" table="colors" alias="gridBorderColor"/>
+    <field id="gridHeaderColor" table="colors" alias="gridHeaderColor"/>
+    <field id="dangerColor" table="colors" alias="dangerColor"/>
+    <field id="warningColor" table="colors" alias="warningColor"/>
+    <field id="successColor" table="colors" alias="successColor"/>
+    <field id="infoColor" table="colors" alias="infoColor"/>
+    <field id="borderColor" table="colors" alias="borderColor"/>
+    <operation operator="CONCAT" alias="borderRadius">
+      <field id="borderRadius"/>
+      <constant value="px"/>
+    </operation>
+    <field id="loadingBarColor" table="colors" alias="loadingBarColor"/>
+    <field id="requiredColor" table="colors" alias="requiredColor"/>
+    <where>
+      <filter left-field="Act" left-table="themes" condition="eq" right-variable="active"/>
+      <filter left-field="theme" left-table="colors" condition="eq" right-field="Nam" right-table="themes"/>
+    </where>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+
+  <query id="themeConfiguration">
+    <table id="AweThmCol" alias="light"/>
+    <table id="AweThmCol" alias="dark"/>
+    <field id="themeColor" table="light" alias="themeColor"/>
+    <field id="textColor" table="light" alias="textColor"/>
+    <field id="primaryColor" table="light" alias="primaryColor"/>
+    <field id="secondaryColor" table="light" alias="secondaryColor"/>
+    <field id="primaryTextColor" table="light" alias="primaryTextColor"/>
+    <field id="secondaryTextColor" table="light" alias="secondaryTextColor"/>
+    <field id="primaryBackgroundColor" table="light" alias="primaryBackgroundColor"/>
+    <field id="secondaryBackgroundColor" table="light" alias="secondaryBackgroundColor"/>
+    <field id="primaryMenuColor" table="light" alias="primaryMenuColor"/>
+    <field id="secondaryMenuColor" table="light" alias="secondaryMenuColor"/>
+    <field id="menuTextColor" table="light" alias="menuTextColor"/>
+    <field id="primaryNavbarColor" table="light" alias="primaryNavbarColor"/>
+    <field id="secondaryNavbarColor" table="light" alias="secondaryNavbarColor"/>
+    <field id="navbarTextColor" table="light" alias="navbarTextColor"/>
+    <field id="navbarDropdownColor" table="light" alias="navbarDropdownColor"/>
+    <field id="primaryFontSize" table="light" alias="primaryFontSize"/>
+    <field id="secondaryFontSize" table="light" alias="secondaryFontSize"/>
+    <field id="disabledColor" table="light" alias="disabledColor"/>
+    <field id="disabledBorderColor" table="light" alias="disabledBorderColor"/>
+    <field id="disabledTextColor" table="light" alias="disabledTextColor"/>
+    <field id="headerHeight" table="light" alias="headerHeight"/>
+    <field id="panelBackgroundColor" table="light" alias="panelBackgroundColor"/>
+    <field id="panelBorderColor" table="light" alias="panelBorderColor"/>
+    <field id="panelTextColor" table="light" alias="panelTextColor"/>
+    <field id="panelHeaderColor" table="light" alias="panelHeaderColor"/>
+    <field id="gridBorderColor" table="light" alias="gridBorderColor"/>
+    <field id="gridHeaderColor" table="light" alias="gridHeaderColor"/>
+    <field id="dangerColor" table="light" alias="dangerColor"/>
+    <field id="warningColor" table="light" alias="warningColor"/>
+    <field id="successColor" table="light" alias="successColor"/>
+    <field id="infoColor" table="light" alias="infoColor"/>
+    <field id="borderColor" table="light" alias="borderColor"/>
+    <field id="borderRadius" table="light" alias="borderRadius"/>
+    <field id="loadingBarColor" table="light" alias="loadingBarColor"/>
+    <field id="requiredColor" table="light" alias="requiredColor"/>
+    <field id="themeColor" table="dark" alias="themeColorDark"/>
+    <field id="textColor" table="dark" alias="textColorDark"/>
+    <field id="primaryColor" table="dark" alias="primaryColorDark"/>
+    <field id="secondaryColor" table="dark" alias="secondaryColorDark"/>
+    <field id="primaryTextColor" table="dark" alias="primaryTextColorDark"/>
+    <field id="secondaryTextColor" table="dark" alias="secondaryTextColorDark"/>
+    <field id="primaryBackgroundColor" table="dark" alias="primaryBackgroundColorDark"/>
+    <field id="secondaryBackgroundColor" table="dark" alias="secondaryBackgroundColorDark"/>
+    <field id="primaryMenuColor" table="dark" alias="primaryMenuColorDark"/>
+    <field id="secondaryMenuColor" table="dark" alias="secondaryMenuColorDark"/>
+    <field id="menuTextColor" table="dark" alias="menuTextColorDark"/>
+    <field id="primaryNavbarColor" table="dark" alias="primaryNavbarColorDark"/>
+    <field id="secondaryNavbarColor" table="dark" alias="secondaryNavbarColorDark"/>
+    <field id="navbarTextColor" table="dark" alias="navbarTextColorDark"/>
+    <field id="navbarDropdownColor" table="dark" alias="navbarDropdownColorDark"/>
+    <field id="primaryFontSize" table="dark" alias="primaryFontSizeDark"/>
+    <field id="secondaryFontSize" table="dark" alias="secondaryFontSizeDark"/>
+    <field id="disabledColor" table="dark" alias="disabledColorDark"/>
+    <field id="disabledBorderColor" table="dark" alias="disabledBorderColorDark"/>
+    <field id="disabledTextColor" table="dark" alias="disabledTextColorDark"/>
+    <field id="headerHeight" table="dark" alias="headerHeightDark"/>
+    <field id="panelBackgroundColor" table="dark" alias="panelBackgroundColorDark"/>
+    <field id="panelBorderColor" table="dark" alias="panelBorderColorDark"/>
+    <field id="panelTextColor" table="dark" alias="panelTextColorDark"/>
+    <field id="panelHeaderColor" table="dark" alias="panelHeaderColorDark"/>
+    <field id="gridBorderColor" table="dark" alias="gridBorderColorDark"/>
+    <field id="gridHeaderColor" table="dark" alias="gridHeaderColorDark"/>
+    <field id="dangerColor" table="dark" alias="dangerColorDark"/>
+    <field id="warningColor" table="dark" alias="warningColorDark"/>
+    <field id="successColor" table="dark" alias="successColorDark"/>
+    <field id="infoColor" table="dark" alias="infoColorDark"/>
+    <field id="borderColor" table="dark" alias="borderColorDark"/>
+    <field id="borderRadius" table="dark" alias="borderRadiusDark"/>
+    <field id="loadingBarColor" table="dark" alias="loadingBarColorDark"/>
+    <field id="requiredColor" table="dark" alias="requiredColorDark"/>
+    <where>
+      <filter left-field="theme" left-table="light" condition="eq" right-variable="theme"/>
+      <filter left-field="dark" left-table="light" condition="eq" right-variable="light"/>
+      <filter left-field="theme" left-table="dark" condition="eq" right-variable="theme"/>
+      <filter left-field="dark" left-table="dark" condition="eq" right-variable="dark"/>
+    </where>
+    <variable id="theme" type="STRING" name="Nam"/>
+    <variable id="dark" type="INTEGER" value="1"/>
+    <variable id="light" type="INTEGER" value="0"/>
+  </query>
+
+  <query id="getUserThemeMode">
+    <table id="AweUsrSet"/>
+    <field id="themeMode" alias="value"/>
+    <where>
+      <filter left-field="userName" condition="eq" right-variable="user" ignorecase="true"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
+  </query>
+
 </queries>

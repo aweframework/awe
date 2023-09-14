@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 
 /**
  * AWE user detail service
- * <p>
  * Retrieve user info to authenticate
  *
  * @author pvidal

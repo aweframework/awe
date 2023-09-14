@@ -20,8 +20,8 @@ import java.util.Map;
  * ChartSerie Class
  * <p>
  * Used to parse a chart Serie tag with XStream
- * Generates an Chart widget
- *
+ * Generates a Chart widget
+ * </p>
  * @author Pablo VIDAL - 21/OCT/2014
  */
 @Getter

@@ -106,19 +106,22 @@
 
     // Actual tabs (as links)
     > a {
-      background-color: #f3f3f3; // IE fallback
-      background-color: rgba(0, 0, 0, .05);
+      background-color: color-mix(in srgb, @secondary-color, @panel-background-color 50%);
       border: 0;
       border-bottom: 2px solid @tabs-border-color;
-      color: #777;
+      color: @text-color;
       margin: 0 6px -1px 0;
       padding: 8px 20px;
 
-      &:hover,
+      &:hover {
+        background-color: @secondary-color;
+        border-bottom-color: @primary-color;
+      }
+
       &:active {
-        background-color: rgba(0, 0, 0, .06);
-        border-bottom-color: darken(@tabs-border-color, 5%);
-        color: @text-color;
+        background-color: @primary-color;
+        color: @primary-text-color;
+        border-bottom-color: @primary-color;
       }
 
       > .fa-caret-down {
@@ -207,7 +210,7 @@
   padding: 15px 0;
 
   &.tab-content-bordered {
-    border: 1px solid darken(@tabs-border-color, 5%);
+    border: 1px solid @tabs-border-color;
     border-top: none;
     padding-left: 15px;
     padding-right: 15px;

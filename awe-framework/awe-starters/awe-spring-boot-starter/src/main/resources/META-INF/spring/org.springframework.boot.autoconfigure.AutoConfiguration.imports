@@ -1,4 +1,4 @@
-# Awe spring boot auto-configuration imports
+# Awe spring boot autoconfiguration imports
 com.almis.awe.autoconfigure.PropertyConfig
 com.almis.awe.autoconfigure.AweAutoConfiguration
 com.almis.awe.autoconfigure.FlywayMigrationConfig

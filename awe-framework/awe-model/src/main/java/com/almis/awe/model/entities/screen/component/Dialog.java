@@ -24,7 +24,7 @@ import java.util.List;
  * <p>
  * Used to parse a dialog tag with XStream
  * Generates a dialog structure with header, center and footing
- *
+ * </p>
  * @author Pablo GARCIA - 28/JUN/2010
  */
 @Getter

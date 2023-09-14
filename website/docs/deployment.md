@@ -44,27 +44,28 @@ If you are running your application in an Application server like Apache Tomcat,
 ```
 
 3. Modify your main class `AppBootApplication.java` to start the application in a stand-alone servlet container.
+
 ```java
 
 @SpringBootApplication
 public class AppBootApplication extends SpringBootServletInitializer {
 
-  private static Class<AppBootApplication> applicationClass = AppBootApplication.class;
+    private static final Class<AppBootApplication> applicationClass = AppBootApplication.class;
 
-  @Override
-  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-    return application.sources(applicationClass);
-  }
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(applicationClass);
+    }
 
-  /**
-   * The goal of this method is only for running the application as a standalone
-   * application, setting up an embedded Tomcat server.
-   *
-   * @param args Application arguments
-   */
-  public static void main(String[] args) {
-    SpringApplication.run(AppBootApplication.class, args);
-  }
+    /**
+     * The goal of this method is only for running the application as a standalone
+     * application, setting up an embedded Tomcat server.
+     *
+     * @param args Application arguments
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(AppBootApplication.class, args);
+    }
 }
 ```
 
@@ -77,7 +78,7 @@ For example:
 
 ```shell script
 # Use an official Open jdk runtime as a parent image
-FROM openjdk:8-jdk-alpine
+FROM eclipse-temurin:17-jre-alpine
 # Copy the current directory contents into the container at /app
 ADD target/awe-demo.jar awe-demo.jar
 # Volume of app logs

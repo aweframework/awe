@@ -150,3 +150,35 @@ xsi:noNamespaceSchemaLocation = "../../sch/menu.xsd" context="screen/home" defau
   </option>
 </menu>
 ```
+## Favourites **(NEW)**
+
+Favourites is a brand new functionality added since 4.7.1 version of AWE. 
+This functionality allows the user to mark any subpage (on report view) as favourite.
+
+<img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites1.png')}/>
+
+To use this functionality, simply add this piece of code into your navbar:
+
+```xml
+<include target-screen="info-buttons" target-source="favourites"/>
+```
+
+This will add a **star** button on the top navbar which will appear while the user 
+navigates through the screens. 
+
+<img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites2.png')}/>
+
+This button will be filled up when the current screen is marked as favourite. 
+To mark/unmark a screen as favourite simply click on this button.
+
+<img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites3.png')}/>
+
+When a screen is marked as favourite, it will appear on a new menu option called `Favourites` on
+the first position on the menu:
+
+<img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/favourites/favourites4.png')}/>
+
+To remove it from the `Favourites` option, simply navigate to the screen and unmark it 
+on the **star** button.
+
+

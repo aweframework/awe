@@ -48,7 +48,7 @@
     background-color: @input-bg;
     background-image: none;
     border: 1px solid @input-border;
-    border-top-color: darken(@input-border, 8%);
+    border-top-color: color-mix(in srgb, @input-border, @primary-background-color 8%);
     border-radius: @input-border-radius;
     color: @input-color;
     display: block;
@@ -206,7 +206,7 @@
     background-color: @input-bg;
     background-image: none;
     border: 1px solid @input-border;
-    border-top-color: darken(@input-border, 8%);
+    border-top-color: color-mix(in srgb, @input-border, @primary-background-color 8%);
     border-radius: @input-border-radius;
     color: @input-color;
     font-size: 12px;
@@ -359,7 +359,7 @@
   .select2-choices {
     background: @input-bg;
     border: 1px solid @input-border;
-    border-top-color: darken(@input-border, 8%);
+    border-top-color: color-mix(in srgb, @input-border, @primary-background-color 8%);
     border-radius: @input-border-radius;
     cursor: text;
     height: auto !important;
@@ -520,8 +520,8 @@
   overflow: hidden !important;
   position: absolute !important;
   outline: 0 !important;
-  left: 0px !important;
-  top: 0px !important;
+  left: 0 !important;
+  top: 0 !important;
 }
 
 .select2-display-none {

@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
  * Info Class
  * <p>
  * Used to add an info element with XStream
- *
+ * </p>
  * @author Pablo GARCIA - 04/JUN/2012
  */
 @Getter

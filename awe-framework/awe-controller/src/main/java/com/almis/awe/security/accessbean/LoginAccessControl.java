@@ -1,8 +1,7 @@
 package com.almis.awe.security.accessbean;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Login access control bean

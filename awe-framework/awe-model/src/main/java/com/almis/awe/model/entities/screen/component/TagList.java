@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * TagList Class
  * <p>
  * Used to generate a tag list with XStream
- *
+ * </p>
  * @author Pablo GARCIA - 10/MAR/2014
  */
 @Getter

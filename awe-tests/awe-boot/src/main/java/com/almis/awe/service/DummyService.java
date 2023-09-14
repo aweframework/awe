@@ -13,13 +13,13 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -60,7 +60,7 @@ public class DummyService extends ServiceConfig {
     ServiceData out = new ServiceData();
     String[] data = new String[65];
     for (int i = 0; i < data.length; i++) {
-      data[i] = i + "";
+      data[i] = String.valueOf(i);
     }
 
     DataListBuilder builder = context.getBean(DataListBuilder.class);
@@ -79,7 +79,7 @@ public class DummyService extends ServiceConfig {
     ServiceData out = new ServiceData();
     String[] data = new String[65];
     for (int i = 0; i < data.length; i++) {
-      data[i] = i + "";
+      data[i] = String.valueOf(i);
     }
 
     int offset = (int) ((page - 1) * max);
@@ -124,7 +124,7 @@ public class DummyService extends ServiceConfig {
     ServiceData out = new ServiceData();
     String[] data = new String[3];
     for (int i = 0; i < data.length; i++) {
-      data[i] = i + "";
+      data[i] = String.valueOf(i);
     }
 
     DataListBuilder builder = context.getBean(DataListBuilder.class);
@@ -266,10 +266,10 @@ public class DummyService extends ServiceConfig {
     try {
       ParsedEmail email = new ParsedEmail()
               .setFrom(new InternetAddress("david.fuentes@almis.com"))
-              .setTo(Arrays.asList(new InternetAddress("dfuentes.almis@gmail.com")))
-              .setReplyTo(Arrays.asList(new InternetAddress("david.fuentes.other@almis.com")))
-              .setCc(Arrays.asList(new InternetAddress("dovixman@gmail.com")))
-              .setCco(Arrays.asList(new InternetAddress("dovixmancosas@gmail.com")))
+              .setTo(List.of(new InternetAddress("dfuentes.almis@gmail.com")))
+              .setReplyTo(List.of(new InternetAddress("david.fuentes.other@almis.com")))
+              .setCc(List.of(new InternetAddress("dovixman@gmail.com")))
+              .setCco(List.of(new InternetAddress("dovixmancosas@gmail.com")))
               .setSubject("Test message")
               .setBody("<div style='background-color:red;'>Test div message</div>")
               .addAttachment("FileName.test", new File("tst.jpg"));

@@ -15,13 +15,13 @@ import com.almis.awe.model.type.QueueMessageWrapperType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.data.builder.EnumBuilder;
+import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
+import jakarta.jms.Message;
+import jakarta.jms.TextMessage;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.TextMessage;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -266,9 +266,9 @@ public class QueueProcessor extends ServiceConfig {
     if (value instanceof List) {
       // Parse list as arraylist
       list = (List<Object>) value;
-    } else if (value instanceof Object[]) {
+    } else if (value instanceof Object[] values) {
       // Read list values
-      list = Arrays.asList((Object[]) value);
+      list = Arrays.asList(values);
     } else if (value == null) {
       // Read value list size
       Integer size = message.getInt(parameter.getName());

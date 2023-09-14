@@ -14,10 +14,8 @@ import lombok.experimental.SuperBuilder;
  * Serve Class
  * <p>
  * Used to parse the file Maintain.xml with XStream
- * <p>
- * <p>
  * Target for calling services
- *
+ * </p>
  * @author Pablo GARCIA - 09/NOV/2010
  */
 @Getter

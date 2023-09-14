@@ -10,8 +10,7 @@ import com.almis.awe.model.entities.maintain.Serve;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.cache.annotation.CacheRemoveAll;
+import org.springframework.cache.annotation.CacheEvict;
 
 /**
  * MaintainLauncher Class
@@ -23,14 +22,14 @@ import javax.cache.annotation.CacheRemoveAll;
 public class MaintainLauncher extends ServiceConfig {
 
   /**
-   * Launches a maintain with a connection
+   * Launches maintain with a connection
    *
    * @param maintain   Maintain query
    * @param connection Connection
    * @return serviceData Maintain output
    * @throws AWException Error launching maintain
    */
-  @CacheRemoveAll(cacheName = "queryData")
+  @CacheEvict(cacheNames = "queryData", allEntries = true)
   public ServiceData launchMaintain(MaintainQuery maintain, DatabaseConnection connection, ObjectNode parameters) throws AWException {
     MaintainConnector maintainLauncher;
     try {

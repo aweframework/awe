@@ -28,7 +28,6 @@ import java.util.concurrent.Future;
  * <p>
  * Used to launch a maintain process as a scheduled batch
  * </p>
- *
  * @author pvidal
  */
 @Slf4j

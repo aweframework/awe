@@ -7,12 +7,11 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.settings.WebSettings;
 import com.almis.awe.service.InitService;
 import com.almis.awe.service.MenuService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Manage settings request

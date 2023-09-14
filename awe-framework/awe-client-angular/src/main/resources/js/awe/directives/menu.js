@@ -1,5 +1,5 @@
-import { aweApplication } from "./../awe";
-import { ClientActions } from "../data/actions";
+import {aweApplication} from "./../awe";
+import {ClientActions} from "../data/actions";
 
 // Menu directive
 aweApplication.directive('aweMenu',
@@ -10,7 +10,7 @@ aweApplication.directive('aweMenu',
         replace: false,
         template:
           `<ul class="awe-menu {{::controller.style}}" ng-class="{'menu-minimized': status.minimized, 'ng-hide': !isVisible()}" ng-cloak>
-            <awe-option ng-repeat="option in options| allowedOption track by option.name" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}"
+            <awe-option ng-repeat="option in options| allowedOption track by option.id" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}"
                         close-first-level="closeFirstLevel()" first-level="true" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}"
                         option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
           </ul>`,

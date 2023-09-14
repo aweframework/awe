@@ -14,10 +14,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
     <link rel="stylesheet" th:href="@{/css/specific.css}"/>
+    <link rel="stylesheet" id="themeVariables" th:href="@{/css/themeVariables.css}"/>
     <link rel="shortcut icon" th:href="${faviconIcon}"/>
     <link rel="apple-touch-icon" th:href="${tabletIcon}"/>
   </head>
-  <body class="theme-{{settings.theme}} page-{{screen.name}} size-{{settings.defaultComponentSize}}" ng-init="loading = false" ng-controller="ScreenController as $screen" ng-keydown="$app.onKeydown($event)" ng-keyup="$app.onKeyup($event)">
+  <body class="base-theme theme-{{settings.theme}} page-{{screen.name}} size-{{settings.defaultComponentSize}}" ng-init="loading = false" ng-controller="ScreenController as $screen" ng-keydown="$app.onKeydown($event)" ng-keyup="$app.onKeyup($event)">
     <h1 class="hidden" ng-cloak></h1>
     <p class="hidden" ng-cloak></p>
     <div class="alert-zone" ng-controller="MessageController as $message" ng-cloak>

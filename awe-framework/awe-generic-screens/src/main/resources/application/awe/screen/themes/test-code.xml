@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : test-code.xml
+    Created on : 9 de agosto de 2023
+    Author     : Pablo GARCIA
+    Description: Elementos de prueba para los cambios de tests
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full">
+  <tag source="test-code">
+    <tag type="div" style="horizontal-header">
+      <tag type="div" id="main-navbar" style="navbar navbar-inverse horizontal">
+        <tag type="div" style="navbar-inner">
+          <tag type="div" style="navbar-header">
+            <tag type="h1"/>
+          </tag>
+          <tag type="div" id="main-navbar-collapse" style="collapse navbar-collapse main-navbar-collapse">
+            <tag type="div" style="right cleafix">
+              <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
+                <tag type="li" style="info nav-icon-btn nav-icon-btn-success dropdown">
+                  <tag type="a" style="dropdown-toggle">
+                    <tag type="span" style="nav-icon fa fa-bell"/>
+                  </tag>
+                </tag>
+                <tag type="li" style="info nav-icon-btn nav-icon-btn-success dropdown">
+                  <tag type="a" style="dropdown-toggle">
+                    <tag type="span" style="nav-icon fa fa-sign-out"/>
+                  </tag>
+                </tag>
+              </tag>
+            </tag>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+    <tag type="div" id="main-menu" style="horizontal menu-shadow">
+      <tag type="div" id="main-menu-bg" style="main-menu-inner">
+        <tag type="ul" style="awe-menu horizontal navigation">
+          <tag type="li" style="awe-option mm-dropdown mm-dropdown-root">
+            <tag type="a">
+              <tag type="span" style="menu-icon fa fa-home"/>
+              <tag type="span" style="mm-text" label="TEXT_TEST"/>
+            </tag>
+          </tag>
+          <tag type="li" style="awe-option mm-dropdown mm-dropdown-root">
+            <tag type="a">
+              <tag type="span" style="menu-icon fa fa-home"/>
+              <tag type="span" style="mm-text" label="TEXT_TEST"/>
+            </tag>
+          </tag>
+          <tag type="li" style="awe-option mm-dropdown mm-dropdown-root">
+            <tag type="a">
+              <tag type="span" style="menu-icon fa fa-home"/>
+              <tag type="span" style="mm-text" label="TEXT_TEST"/>
+            </tag>
+            <tag type="ul" style="mm-dropdown-first menu-shadow"/>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+    <tag type="div" style="report-container">
+      <tag type="div" style="window-header">
+        <tag type="ul" style="breadcrumb breadcrumb-page">
+          <tag type="div" style="breadcrumb-label">
+            <tag type="i" style="fa fa-home"/>
+          </tag>
+          <tag type="li" label="TEXT_PREVIEW"/>
+          <tag type="li" style="active" label="TEXT_TEST"/>
+        </tag>
+      </tag>
+      <tag type="div" style="window-center">
+        <tag type="div" style="panel panel-awe panel-sm">
+          <tag type="div" style="awe-panel-heading panel-heading">
+            <tag type="span" style="panel-title-icon fa fa-plus-circle"/>
+            <tag type="span" label="TEXT_TEST"/>
+          </tag>
+          <tag type="div" style="awe-panel-content panel-content">
+            <tag type="div" style="panel-body">
+              <tag type="div" style="criterion col-xs-4">
+                <tag type="div" style="form-group group-sm">
+                  <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                  <tag type="div" style="input input-group-sm">
+                    <tag type="input" style="form-control input-sm"/>
+                  </tag>
+                </tag>
+              </tag>
+              <tag type="div" style="criterion col-xs-4">
+                <tag type="div" style="form-group group-sm">
+                  <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                  <tag type="div" style="input input-group-sm">
+                    <tag type="input" style="form-control input-sm required"/>
+                  </tag>
+                </tag>
+              </tag>
+              <tag type="div" style="criterion col-xs-4">
+                <tag type="div" style="form-group group-sm">
+                  <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                  <tag type="div" style="input input-group-sm">
+                    <tag type="input" style="form-control input-sm disabled"/>
+                  </tag>
+                </tag>
+              </tag>
+            </tag>
+            <tag type="div" style="panel-footer">
+              <tag type="div" style="pull-right">
+                <tag type="div" style="btn-group">
+                  <tag type="button" style="btn btn-awe btn-sm">
+                    <tag type="i" style="button-icon fa fa-eraser fa-fw"/>
+                    <tag type="span" style="button-text" label="TEXT_TEST"/>
+                  </tag>
+                </tag>
+                <tag type="div" style="btn-group">
+                  <tag type="button" style="btn btn-awe btn-sm btn-primary">
+                    <tag type="i" style="button-icon fa fa-search fa-fw"/>
+                    <tag type="span" style="button-text" label="TEXT_TEST"/>
+                  </tag>
+                </tag>
+              </tag>
+            </tag>
+          </tag>
+        </tag>
+
+        <tag type="div" style="tab-container tab-container-sm">
+          <tag type="ul" style="nav nav-tabs">
+            <tag type="li">
+              <tag type="a">
+                <tag type="span" label="TEXT_TEST"/>
+              </tag>
+            </tag>
+            <tag type="li" style="active">
+              <tag type="a">
+                <tag type="span" label="TEXT_TEST"/>
+              </tag>
+            </tag>
+          </tag>
+          <tag type="div" style="tab-content expand height-md" expandible="vertical">
+            <tag type="div" style="grid table-light grid-sm grid-bordered expand" expandible="vertical">
+              <tag type="div" style="grid-container expand">
+                <tag type="div" style="grid-node no-border-hr ui-grid">
+                  <tag type="div" style="ui-grid-contents-wrapper">
+                    <tag type="div" style="ui-grid-contents-wrapper">
+                      <tag type="div" style="ui-grid-render-container-body">
+                        <tag type="div" style="ui-grid-render-container">
+                          <tag type="div" style="ui-grid-header">
+                            <tag type="div" style="ui-grid-top-panel">
+                              <tag type="div" style="ui-grid-header-viewport">
+                                <tag type="div" style="ui-grid-header-canvas">
+                                  <tag type="div" style="ui-grid-header-cell-wrapper">
+                                    <tag type="div" style="ui-grid-header-cell-row">
+                                      <tag type="div" style="ui-grid-header-cell ui-grid-clearfix">
+                                        <tag type="div" style="text-center">
+                                          <tag type="div"
+                                               style="ui-grid-cell-contents ui-grid-header-cell-primary-focus">
+                                            <tag type="span" style="ui-grid-header-cell-label" label="TEXT_TEST"/>
+                                          </tag>
+                                        </tag>
+                                      </tag>
+                                      <tag type="div" style="ui-grid-header-cell ui-grid-clearfix">
+                                        <tag type="div" style="text-center">
+                                          <tag type="div"
+                                               style="ui-grid-cell-contents ui-grid-header-cell-primary-focus">
+                                            <tag type="span" style="ui-grid-header-cell-label" label="TEXT_TEST"/>
+                                          </tag>
+                                        </tag>
+                                      </tag>
+                                      <tag type="div" style="ui-grid-header-cell ui-grid-clearfix">
+                                        <tag type="div" style="text-center">
+                                          <tag type="div"
+                                               style="ui-grid-cell-contents ui-grid-header-cell-primary-focus">
+                                            <tag type="span" style="ui-grid-header-cell-label" label="TEXT_TEST"/>
+                                          </tag>
+                                        </tag>
+                                      </tag>
+                                    </tag>
+                                  </tag>
+                                </tag>
+                              </tag>
+                            </tag>
+                          </tag>
+                          <tag type="div" style="ui-grid-viewport">
+                            <tag type="div" style="ui-grid-canvas">
+                              <tag type="div" style="ui-grid-row">
+                                <tag type="div">
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                </tag>
+                              </tag>
+                              <tag type="div" style="ui-grid-row">
+                                <tag type="div">
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                </tag>
+                              </tag>
+                              <tag type="div" style="ui-grid-row">
+                                <tag type="div">
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                </tag>
+                              </tag>
+                              <tag type="div" style="ui-grid-row">
+                                <tag type="div">
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                  <tag type="div" style="ui-grid-cell">
+                                    <tag type="div" style="ui-grid-cell-contents text-center" label="TEXT_TEST"/>
+                                  </tag>
+                                </tag>
+                              </tag>
+                            </tag>
+                          </tag>
+                        </tag>
+                      </tag>
+                    </tag>
+                  </tag>
+                </tag>
+              </tag>
+              <tag type="div" style="table-footer">
+              </tag>
+            </tag>
+          </tag>
+        </tag>
+        <tag type="div" style="panel-body">
+          <tag type="div" style="modal-dialog">
+            <tag type="div" style="modal-content">
+              <tag type="div" style="modal-header">
+                <tag type="button" style="close"/>
+                <tag type="h4" style="modal-title">
+                  <tag type="span" style="panel-title-icon fa fa-print"/>
+                  <tag type="span" label="TEXT_TEST"/>
+                </tag>
+              </tag>
+              <tag type="div">
+                <tag type="div" style="modal-body">
+                  <tag type="div" style="panel-body no-padding">
+                    <tag type="div" style="col-xs-6">
+                      <tag type="div" style="criterion">
+                        <tag type="div" style="form-group group-sm">
+                          <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                          <tag type="div" style="input input-group-sm">
+                            <tag type="input" style="form-control input-sm"/>
+                          </tag>
+                        </tag>
+                      </tag>
+                    </tag>
+                    <tag type="div" style="col-xs-6">
+                      <tag type="div" style="criterion">
+                        <tag type="div" style="form-group group-sm">
+                          <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                          <tag type="div" style="input input-group-sm">
+                            <tag type="input" style="form-control input-sm"/>
+                          </tag>
+                        </tag>
+                      </tag>
+                    </tag>
+                    <tag type="div" style="col-xs-6">
+                      <tag type="div" style="criterion">
+                        <tag type="div" style="form-group group-sm">
+                          <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                          <tag type="div" style="input input-group-sm">
+                            <tag type="input" style="form-control input-sm"/>
+                          </tag>
+                        </tag>
+                      </tag>
+                    </tag>
+                    <tag type="div" style="col-xs-6">
+                      <tag type="div" style="criterion">
+                        <tag type="div" style="form-group group-sm">
+                          <tag type="label" style="control-label label-sm" label="TEXT_TEST"/>
+                          <tag type="div" style="input input-group-sm">
+                            <tag type="input" style="form-control input-sm"/>
+                          </tag>
+                        </tag>
+                      </tag>
+                    </tag>
+                  </tag>
+                </tag>
+                <tag type="div" style="modal-footer">
+                  <tag type="div" style="pull-right">
+                    <tag type="div" style="btn-group">
+                      <tag type="button" style="btn btn-awe btn-sm help-target">
+                        <tag type="i" style="button-icon fa fa-arrow-circle-left fa-fw"/>
+                        <tag type="span" style="button-text" label="TEXT_TEST"/>
+                      </tag>
+                    </tag>
+                    <tag type="div" style="btn-group">
+                      <tag type="button" style="btn btn-awe btn-sm help-target btn-primary">
+                        <tag type="i" style="button-icon fa fa-home fa-fw"/>
+                        <tag type="span" style="button-text" label="TEXT_TEST"/>
+                      </tag>
+                    </tag>
+                  </tag>
+                </tag>
+              </tag>
+            </tag>
+          </tag>
+        </tag>
+        <tag type="div" style="panel-body">
+          <tag type="div" style="alert alert-dark alert-awe alert-warning">
+            <tag type="button" style="close">
+              <tag type="span" label="×"/>
+            </tag>
+            <tag type="div">
+              <tag type="strong" label="TEXT_TITLE"/>
+              <tag type="span" style="description" label="TEXT_MESSAGE"/>
+            </tag>
+          </tag>
+        </tag>
+        <tag type="div" style="panel-body">
+          <tag type="div" style="alert alert-dark alert-awe alert-danger">
+            <tag type="button" style="close">
+              <tag type="span" label="×"/>
+            </tag>
+            <tag type="div">
+              <tag type="strong" label="TEXT_TITLE"/>
+              <tag type="span" style="description" label="TEXT_MESSAGE"/>
+            </tag>
+          </tag>
+        </tag>
+        <tag type="div" style="panel-body">
+          <tag type="div" style="alert alert-dark alert-awe alert-success">
+            <tag type="button" style="close">
+              <tag type="span" label="×"/>
+            </tag>
+            <tag type="div">
+              <tag type="strong" label="TEXT_TITLE"/>
+              <tag type="span" style="description" label="TEXT_MESSAGE"/>
+            </tag>
+          </tag>
+        </tag>
+        <tag type="div" style="panel-body">
+          <tag type="div" style="alert alert-dark alert-awe alert-info">
+            <tag type="button" style="close">
+              <tag type="span" label="×"/>
+            </tag>
+            <tag type="div">
+              <tag type="strong" label="TEXT_TITLE"/>
+              <tag type="span" style="description" label="TEXT_MESSAGE"/>
+            </tag>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="div" style="window-buttons">
+        <tag type="div" style="btn-group">
+          <tag type="button" style="btn btn-awe btn-sm help-target">
+            <tag type="i" style="button-icon fa fa-arrow-circle-left fa-fw"/>
+            <tag type="span" style="button-text" label="TEXT_TEST"/>
+          </tag>
+        </tag>
+        <tag type="div" style="btn-group">
+          <tag type="button" style="btn btn-awe btn-sm help-target btn-primary">
+            <tag type="i" style="button-icon fa fa-home fa-fw"/>
+            <tag type="span" style="button-text" label="TEXT_TEST"/>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -94,8 +94,8 @@ public class AweRequest {
    */
   private JsonNode getParameterValue(Object value) {
     JsonNodeFactory factory = JsonNodeFactory.instance;
-    if (value instanceof Date) {
-      return factory.textNode(DateUtil.dat2WebTimestamp((Date) value));
+    if (value instanceof Date date) {
+      return factory.textNode(DateUtil.dat2WebTimestamp(date));
     } else {
       return mapper.convertValue(value, JsonNode.class);
     }

@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
  * <p>
  * Used to parse the tag 'response' in file Actions.xml with XStream
  * This file contains the list of system actions
- *
+ * </p>
  * @author Pablo GARCIA - 25/JUN/2010
  */
 @Getter
