@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.7.3
+*15/09/2023*
+
+- Problem reading global files in a final app. [MR #461](https://gitlab.com/aweframework/awe/-/merge_requests/461) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.7.2
 *14/09/2023*
 

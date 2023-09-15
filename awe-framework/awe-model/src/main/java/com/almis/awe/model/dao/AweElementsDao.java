@@ -62,7 +62,7 @@ public class AweElementsDao {
    */
   @Async("contextlessTaskExecutor")
   public <T extends XMLFile, N extends XMLNode> Future<String> readXmlFilesAsync(Class<T> rootClass, Map<String, N> storage, String filePath) {
-    return CompletableFuture.supplyAsync(() -> readXmlFiles(rootClass, storage, filePath));
+    return CompletableFuture.completedFuture(readXmlFiles(rootClass, storage, filePath));
   }
 
   /**
