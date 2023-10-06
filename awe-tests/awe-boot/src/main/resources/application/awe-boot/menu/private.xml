@@ -6,7 +6,7 @@
     Author     : Pablo GARCIA
     Description: Private profile options
 -->
-<menu screen="home_horizontal" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen/private/home" default-action="screen">
   <option name="information" screen="info" invisible="true"/>
   <option module="Inf" name="information-restricted" screen="info" invisible="true"/>

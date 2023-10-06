@@ -1,5 +1,6 @@
 package com.almis.awe.config;
 
+import com.almis.awe.model.type.MenuType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -68,6 +69,11 @@ public class BaseConfigProperties {
   private String[] moduleList;
 
   /**
+   * Menu position layout type
+   */
+  private MenuType menuType = MenuType.HORIZONTAL;
+
+  /**
    * Application address parameter name.
    * Default value address
    */
@@ -118,7 +124,7 @@ public class BaseConfigProperties {
 
   /**
    * Highcharts export server url
-   * Default value https://export.highcharts.com
+   * Default value <a href="https://export.highcharts.com">...</a>
    */
   private String highchartsServerUrl = "https://export.highcharts.com";
 

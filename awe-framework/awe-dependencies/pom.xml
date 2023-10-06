@@ -30,7 +30,7 @@
     <mail.version>1.4.7</mail.version>
     <jasypt.version>3.0.5</jasypt.version>
     <commons-io.version>2.11.0</commons-io.version>
-    <commons-text.version>1.9</commons-text.version>
+    <commons-text.version>1.10.0</commons-text.version>
     <commons-fileupload.version>2.0.0-M1</commons-fileupload.version>
     <annotation-api.version>1.3.2</annotation-api.version>
     <aspectjweaver.version>1.9.2</aspectjweaver.version>
