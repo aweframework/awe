@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
@@ -59,12 +60,14 @@ public class AuthenticationConfig {
   /**
    * Configure User detail service
    *
+   * @param baseConfigProperties Base config properties
+   * @param securityConfigProperties Security config properties
    * @param userDAO User DAO
    * @return User detail service
    */
   @Bean
-  public UserDetailsService aweUserDetailsService(UserDAO userDAO) {
-    return new AweUserDetailService(userDAO);
+  public UserDetailsService aweUserDetailsService(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, UserDAO userDAO) {
+    return new AweUserDetailService(baseConfigProperties, securityConfigProperties, userDAO);
   }
 
   /**

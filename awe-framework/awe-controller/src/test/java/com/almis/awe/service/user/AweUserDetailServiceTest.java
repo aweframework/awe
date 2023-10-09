@@ -1,8 +1,9 @@
 package com.almis.awe.service.user;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -31,9 +31,11 @@ class AweUserDetailServiceTest {
   @InjectMocks
   AweUserDetailService userDetailsService;
   @Mock
-  ApplicationContext context;
+  BaseConfigProperties baseConfigProperties;
   @Mock
-  AweSession aweSession;
+  SecurityConfigProperties securityConfigProperties;
+  @Mock
+  ApplicationContext context;
   @Mock
   AweElements aweElements;
   @Mock
@@ -42,13 +44,11 @@ class AweUserDetailServiceTest {
   @BeforeEach
   void setUp() {
     userDetailsService.setApplicationContext(context);
-    ReflectionTestUtils.setField(userDetailsService, "defaultLanguage", "ES");
-    ReflectionTestUtils.setField(userDetailsService, "defaultTheme", "sunset");
-    ReflectionTestUtils.setField(userDetailsService, "defaultRestriction", "restriction");
   }
 
   @Test
   void giveSomeUser_willReturnUserDetails() {
+    mockProperties();
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProperty("PwdExp")).thenReturn("1");
     given(userDAO.findByUserName(anyString())).willReturn(new User()
@@ -66,8 +66,16 @@ class AweUserDetailServiceTest {
     );
   }
 
+  private void mockProperties() {
+    when(baseConfigProperties.getTheme()).thenReturn("sky");
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("ES");
+    when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
+    when(securityConfigProperties.getDefaultRestriction()).thenReturn("manager");
+  }
+
   @Test
   void giveSomeUserWithCredentialExpired_willReturnUserDetails() {
+    mockProperties();
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProperty("PwdExp")).thenReturn("1");
     given(userDAO.findByUserName(anyString())).willReturn(new User()
