@@ -5,6 +5,7 @@
 ## Related issues
 
 !-- Mention the issue(s) this MR closes or is related to (Ex.: Closes #5) --
+Closes %{issues}
 
 ### Your checklist for this pull request
 🚨 Please review the [guidelines for contributing](../../CONTRIBUTING.md) to this repository.

@@ -171,7 +171,7 @@
           <criteria left-label="18" label="PARAMETER_RADIO_2" id="RadBox2" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio2" style="col-xs-6 col-sm-4 col-lg-2 no-label" readonly="true" />
           <criteria left-label="18" label="PARAMETER_RADIO_3" id="RadBox3" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio3" style="col-xs-6 col-sm-4 col-lg-2 no-label"/>
           <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox4" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio4" style="col-xs-6 col-sm-4 col-lg-2 no-label" />
-          <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox5" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio5" style="col-xs-6 col-sm-4 col-lg-2 no-label" checked="true" />
+          <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox5" group="RadBoxGrp1" variable="RadBoxGrp1" component="radio" value="Radio5" style="col-xs-6 col-sm-4 col-lg-2 no-label"/>
         </tag>
         <tag type="div" style="btn-group col-xs-12 col-sm-6 form-group">
           <criteria left-label="18" label="PARAMETER_CHECKBOX_1" id="ChkBoxVa21" group="ChkBoxVa2" variable="ChkBoxVa21" component="button-checkbox" style="col-xs-2" validation="{checkAtLeast:2}" />
@@ -184,8 +184,8 @@
           <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox21" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio1" style="col-xs-2" validation="required" />
           <criteria left-label="18" label="PARAMETER_RADIO_2" id="RadBox22" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio2" style="col-xs-2" readonly="true"/>
           <criteria left-label="18" label="PARAMETER_RADIO_3" id="RadBox23" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio3" style="col-xs-2" />
-          <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox24" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio4" style="col-xs-2" />
-          <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox25" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio5" style="col-xs-2" checked="true" />
+          <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox24" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio4" style="col-xs-2" checked="true" />
+          <criteria left-label="18" label="PARAMETER_RADIO_1" id="RadBox25" group="RadBoxGrp2" variable="RadBoxGrp2" component="button-radio" value="Radio5" style="col-xs-2" />
         </tag>
         <criteria left-label="18" label="PARAMETER_NUMERIC" icon="dollar" id="Unt" variable="Unt" component="numeric" value="-123456.1" style="col-xs-12 col-sm-6 col-lg-4" number-format="{vMin: '-999999', mDec: 2, aPad:true}">
           <dependency source-type="launcher" target-type="unit" target-action="Sel">
