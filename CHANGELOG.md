@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.7.4
+*19/10/2023*
+
+- Radio button groups are picking the last radio value even if they are not initialized. [MR #465](https://gitlab.com/aweframework/awe/-/merge_requests/465) (Pablo Javier García Mora)
+- Error loading default theme and language. [MR #464](https://gitlab.com/aweframework/awe/-/merge_requests/464) (Pablo Vidal Otero)
+- Add a new default font: Montserrat. [MR #463](https://gitlab.com/aweframework/awe/-/merge_requests/463) (Pablo Javier García Mora)
+- Make menu layout configurable by property. [MR #462](https://gitlab.com/aweframework/awe/-/merge_requests/462) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.7.3
 *15/09/2023*
 
