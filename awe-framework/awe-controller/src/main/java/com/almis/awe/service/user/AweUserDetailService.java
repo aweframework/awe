@@ -1,11 +1,12 @@
 package com.almis.awe.service.user;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.User;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,25 +24,19 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
 
   // Autowired services
   private final UserDAO userRepository;
-
-  @Value("${language.default:en}")
-  private String defaultLanguage;
-
-  @Value("${application.theme:sky}")
-  private String defaultTheme;
-
-  @Value("${screen.configuration.information:information}")
-  private String defaultInitialScreen;
-
-  @Value("${security.default.restriction:general}")
-  private String defaultRestriction;
+  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
 
   /**
    * Autowired constructor
    *
+   * @param baseConfigProperties Base configuration properties
+   * @param securityConfigProperties Security configuration properties
    * @param userDAO User DAO
    */
-  public AweUserDetailService(UserDAO userDAO) {
+  public AweUserDetailService(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, UserDAO userDAO) {
+    this.baseConfigProperties = baseConfigProperties;
+    this.securityConfigProperties = securityConfigProperties;
     this.userRepository = userDAO;
   }
 
@@ -70,17 +65,17 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
       .setProfile(user.getProfile())
       .setRestrictions(Stream.of(user.getUserRestriction(), user.getProfileRestriction())
         .filter(StringUtils::isNotBlank)
-        .findFirst().orElse(defaultRestriction))
+        .findFirst().orElse(securityConfigProperties.getDefaultRestriction()))
       .setLanguage(Optional.ofNullable(user.getLanguage())
         .filter(StringUtils::isNotBlank)
-        .orElse(defaultLanguage)
+        .orElse(baseConfigProperties.getLanguageDefault())
         .substring(0, 2).toLowerCase())
       .setTheme(Stream.of(user.getUserTheme(), user.getProfileTheme())
         .filter(StringUtils::isNotBlank)
-        .findFirst().orElse(defaultTheme))
+        .findFirst().orElse(baseConfigProperties.getTheme()))
       .setInitialScreen(Stream.of(user.getUserInitialScreen(), user.getProfileInitialScreen())
         .filter(StringUtils::isNotBlank)
-        .findFirst().orElse(defaultInitialScreen));
+        .findFirst().orElse(baseConfigProperties.getScreen().getInitial()));
   }
 
   /**

@@ -29,7 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
+
+import static com.almis.awe.model.type.InputType.*;
 
 /**
  * Generate the component model of the screen
@@ -335,12 +336,13 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   private void applyRestrictedValueList(ScreenComponent component, DataList componentData) {
     // Retrieve restricted values from configuration
-    AbstractCriteria criteriaComponent = component.getController() instanceof AbstractCriteria ? (AbstractCriteria) component.getController() : null;
-    if (criteriaComponent != null && criteriaComponent.getRestrictedValueList() != null) {
-      String[] restrictedValueList = criteriaComponent.getRestrictedValueList().trim().split(AweConstants.COMMA_SEPARATOR);
+    if (component.getController() instanceof AbstractCriteria abstractCriteria && abstractCriteria.getRestrictedValueList() != null) {
+      String[] restrictedValueList = abstractCriteria.getRestrictedValueList().trim().split(AweConstants.COMMA_SEPARATOR);
       for (String restrictedValue : restrictedValueList) {
         // Update componentData
-        componentData.setRows(componentData.getRows().stream().filter(n -> (!n.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue().equalsIgnoreCase(restrictedValue))).collect(Collectors.toList()));
+        componentData.setRows(componentData.getRows().stream()
+          .filter(n -> (!n.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue().equalsIgnoreCase(restrictedValue)))
+          .toList());
         componentData.setRecords(componentData.getRows().size());
       }
     }
@@ -369,7 +371,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       componentMap
         .values()
         .stream()
-        .filter(screenComponent -> Optional.ofNullable(screenComponent.getController().getComponentType()).orElse("").toUpperCase().contains("RADIO"))
+        .filter(screenComponent -> isRadioButton(screenComponent.getController().getComponentType()))
         .filter(screenComponent -> Optional.ofNullable(((Criteria) screenComponent.getController()).getGroup()).orElse(screenComponent.getId()).equalsIgnoreCase(componentId))
         .forEach(screenComponent -> {
           // Set checked
@@ -443,43 +445,31 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   private void initializeCheckboxRadioModel(AbstractCriteria criterion, ScreenComponent screenComponent) {
     ComponentModel model = screenComponent.getModel();
-    // Not Query or Enum
-    String component = criterion.getComponentType();
-    if (component != null) {
-      component = component.replace('-', '_').toUpperCase();
-      switch (InputType.valueOf(component)) {
-        case CHECKBOX:
-        case BUTTON_CHECKBOX:
-          Map<String, CellData> checkboxValues = new HashMap<>();
-          CellData checkboxValue = criterion.getValue() != null ? new CellData(criterion.getValue()) : new CellData(AweConstants.CHECKBOX_DEFAULT_VALUE);
-          checkboxValues.put(AweConstants.JSON_VALUE_PARAMETER, checkboxValue);
-          checkboxValues.put(AweConstants.JSON_LABEL_PARAMETER, checkboxValue);
-          model.getValues().add(checkboxValues);
 
-          // Check VARIABLE VALUE
-          if (model.getSelected().isEmpty() && criterion.isChecked()) {
-            // Check attribute CHECKED to add selected VALUE
-            model.getSelected().add(checkboxValue);
-            model.getDefaultValues().add(checkboxValue);
-          }
-          break;
+    if (isCheckbox(criterion.getComponentType())) {
+      Map<String, CellData> checkboxValues = new HashMap<>();
+      CellData checkboxValue = criterion.getValue() != null ? new CellData(criterion.getValue()) : new CellData(AweConstants.CHECKBOX_DEFAULT_VALUE);
+      checkboxValues.put(AweConstants.JSON_VALUE_PARAMETER, checkboxValue);
+      checkboxValues.put(AweConstants.JSON_LABEL_PARAMETER, checkboxValue);
+      model.getValues().add(checkboxValues);
 
-        case RADIO:
-        case BUTTON_RADIO:
-          Map<String, CellData> radioValues = new HashMap<>();
-          CellData radioValue = new CellData(criterion.getValue());
-          radioValues.put(AweConstants.JSON_LABEL_PARAMETER, new CellData(criterion.getId()));
-          radioValues.put(AweConstants.JSON_VALUE_PARAMETER, radioValue);
-          model.getValues().add(radioValues);
-          // Radio VARIABLE VALUE
-          if (criterion.isChecked()) {
-            // Check attribute CHECKED to add selected VALUE
-            model.getSelected().clear();
-            model.getSelected().add(radioValue);
-          }
-          break;
-        default:
-          break;
+      // Check VARIABLE VALUE
+      if (model.getSelected().isEmpty() && criterion.isChecked()) {
+        // Check attribute CHECKED to add selected VALUE
+        model.getSelected().add(checkboxValue);
+        model.getDefaultValues().add(checkboxValue);
+      }
+    } else if (isRadioButton(criterion.getComponentType())) {
+      Map<String, CellData> radioValues = new HashMap<>();
+      CellData radioValue = new CellData(criterion.getValue());
+      radioValues.put(AweConstants.JSON_LABEL_PARAMETER, new CellData(criterion.getId()));
+      radioValues.put(AweConstants.JSON_VALUE_PARAMETER, radioValue);
+      model.getValues().add(radioValues);
+      // Radio VARIABLE VALUE
+      if (criterion.isChecked()) {
+        // Check attribute CHECKED to add selected VALUE
+        model.getSelected().clear();
+        model.getSelected().add(radioValue);
       }
     }
   }
@@ -548,8 +538,8 @@ public class ScreenModelGenerator extends ServiceConfig {
       // ----------------------------------------------------------------------
       // 5º) Check attribute VALUE or VALUE list
       // ----------------------------------------------------------------------
-      // Generic criteria
-    } else if (criterion.getValue() != null) {
+      // Generic criteria (not RADIO BUTTON!)
+    } else if (criterion.getValue() != null && !isRadioButton(criterion.getComponentType())) {
       defaultValues = getDefaultValuesAsString(criterion.getValue());
     }
     return defaultValues;
@@ -574,5 +564,35 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     // Retrieve default values
     return defaultValues;
+  }
+
+  /**
+   * Check if a criterion belongs to a specific component
+   * @param typeList Component type list
+   * @param componentType Component type to check
+   * @return Component type belongs to type list
+   */
+  private boolean isSpecificComponent(List<InputType> typeList, String componentType) {
+    return typeList.contains(Optional.ofNullable(componentType)
+      .map(c -> c.replace('-', '_').toUpperCase())
+      .map(InputType::valueOf).orElse(InputType.OTHER));
+  }
+
+  /**
+   * Check if component type is RADIO BUTTON
+   * @param componentType Component type to check
+   * @return Component type is radio button
+   */
+  private boolean isRadioButton(String componentType) {
+    return isSpecificComponent(Arrays.asList(RADIO, BUTTON_RADIO), componentType);
+  }
+
+  /**
+   * Check if component type is CHECKBOX
+   * @param componentType Component type to check
+   * @return Component type is checkbox
+   */
+  private boolean isCheckbox(String componentType) {
+    return isSpecificComponent(Arrays.asList(CHECKBOX, BUTTON_CHECKBOX), componentType);
   }
 }

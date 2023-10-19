@@ -10,15 +10,17 @@ AWE has a generic printing engine in order to print the content of a screen. Thi
 
 For printing a screen we need to include the generic AWE printing dialog in the screen we want to print: 
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+```xml
+<include target-screen="PrnOpt" target-source="center" />
+```
 
 The second step is to add a print button, that opens the dialog we have included: 
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/Boton.png')} />
 
 Once we have followed these two steps we are ready to print the screen. If we click in "Print" button the following dialog will be shown and we'll be able to select the printing options and generate the document we want:
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/DialogImagePrint.png')} />
 
 ## Configure title
 

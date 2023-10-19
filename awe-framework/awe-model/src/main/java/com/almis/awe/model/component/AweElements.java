@@ -30,6 +30,7 @@ import com.almis.awe.model.type.LaunchPhaseType;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
@@ -255,7 +256,9 @@ public class AweElements {
     // Init menus in cache
     try {
       menuList = new ConcurrentHashMap<>();
+      // Public menu
       menuList.put(baseConfigProperties.getFiles().getMenuPublic(), readMenuFile(baseConfigProperties.getFiles().getMenuPublic()));
+      // Private menu
       menuList.put(baseConfigProperties.getFiles().getMenuPrivate(), readMenuFile(baseConfigProperties.getFiles().getMenuPrivate()));
     } catch (AWException exc) {
       log.error("Error initializing menus", exc);
@@ -565,6 +568,10 @@ public class AweElements {
       if (menu != null) {
         // Set menu identifier
         menu = (Menu) menu.copy().setId(menuId);
+        // Set menu layout type
+        if (StringUtils.isEmpty(menu.getScreen())) {
+          menu.setScreen(baseConfigProperties.getMenuType().getScreen());
+        }
       }
     } catch (Exception exc) {
       throw new AWException("Menu" + NOT_FOUND + menuId, exc);

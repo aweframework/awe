@@ -49,7 +49,7 @@
   <xs:attributeGroup name="menuAttr">
     <xs:attribute name="context" type="xs:string"/>
     <xs:attribute name="default-action" type="serverActionEnum"/>
-    <xs:attribute name="screen" use="required" type="xs:string"/>
+    <xs:attribute name="screen" type="xs:string"/>
   </xs:attributeGroup>
 
   <!-- Option Default Attributes -->
