@@ -772,7 +772,7 @@ public class MenuService extends ServiceConfig {
   public void generateMenuScreens(Menu menu) {
     // Generate menu screens
     List<Screen> screenList = menu.getMenuScreenOptions().stream()
-      .map(this::generateMenuScreen)
+      .map(option -> generateMenuScreen(option, menu))
       .collect(Collectors.toList());
 
     // Store menu screens
@@ -1078,53 +1078,45 @@ public class MenuService extends ServiceConfig {
     listOptions.addAll(options.stream()
       .filter(option -> !option.getOptions().isEmpty())
       .flatMap(option -> getMenuOptionsAsTreeWithIcons(option.getOptions(), restrictions, previousRestrictions, option.getName()).stream())
-      .collect(Collectors.toList())
+      .toList()
     );
 
     return listOptions;
   }
 
   private String getRestrictionLabel(String restriction) {
-    switch (Optional.ofNullable(restriction).orElse("")) {
-      case "R":
-        return "ENUM_REST_MODE_RESTRICTED";
-      case "A":
-        return "ENUM_REST_MODE_ALLOW";
-      default:
-        return "";
-    }
+    return switch (Optional.ofNullable(restriction).orElse("")) {
+      case "R" -> "ENUM_REST_MODE_RESTRICTED";
+      case "A" -> "ENUM_REST_MODE_ALLOW";
+      default -> "";
+    };
   }
 
   private String getRestrictionIcon(String restriction) {
-    switch (Optional.ofNullable(restriction).orElse("")) {
-      case "R":
-        return "fa-minus-circle";
-      case "A":
-        return "fa-check-circle-o";
-      default:
-        return "";
-    }
+    return switch (Optional.ofNullable(restriction).orElse("")) {
+      case "R" -> "fa-minus-circle";
+      case "A" -> "fa-check-circle-o";
+      default -> "";
+    };
   }
 
   private String getRestrictionStyle(String restriction) {
-    switch (Optional.ofNullable(restriction).orElse("")) {
-      case "R":
-        return "text-danger";
-      case "A":
-        return TEXT_SUCCESS;
-      default:
-        return "";
-    }
+    return switch (Optional.ofNullable(restriction).orElse("")) {
+      case "R" -> "text-danger";
+      case "A" -> TEXT_SUCCESS;
+      default -> "";
+    };
   }
 
   /**
    * Generate a new screen based on options
    *
    * @param option Menu screen option
+   * @param menu Menu
    * @return Generated menu screen
    */
-  private Screen generateMenuScreen(Option option) {
-    return new MenuScreenBuilder(option).build();
+  private Screen generateMenuScreen(Option option, Menu menu) {
+    return new MenuScreenBuilder(option, menu).build();
   }
 
   /**

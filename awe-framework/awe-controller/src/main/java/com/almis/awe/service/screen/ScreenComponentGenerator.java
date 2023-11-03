@@ -203,6 +203,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
         String context = option.getScreenContext() != null ? option.getScreenContext() : menu.getScreenContext();
         AbstractAction action = ButtonAction.builder()
           .serverAction(serverAction)
+          .targetAction(option.getTargetAction())
           .screenContext(context)
           .reload(option.isMenuScreen())
           .target(option.getName())
