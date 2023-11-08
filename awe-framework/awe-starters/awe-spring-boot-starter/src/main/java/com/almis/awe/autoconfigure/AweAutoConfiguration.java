@@ -209,7 +209,7 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public LauncherService launcherService() {
-    return new LauncherService(context);
+    return new LauncherService();
   }
 
   /**
@@ -293,9 +293,9 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public MenuService menuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
                                  ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService) {
+                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService, LauncherService launcherService) {
     return new MenuService(queryService, screenRestrictionGenerator, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties, favouriteService);
+      baseConfigProperties, securityConfigProperties, favouriteService, launcherService);
   }
 
   /**

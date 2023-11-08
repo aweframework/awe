@@ -850,6 +850,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_1" value="Groupe 1"/>
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_2" value="Groupe 2"/>
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_3" value="Groupe 3"/>
+  <locale name="MENU_TEST_DYNAMIC_SCREEN" value="Fenêtre dynamique"/>
   <locale name="MENU_TEST_MATRIX_TREE" value="Test de la matrice d&apos;arbre"/>
   <locale name="MENU_TOOLS" value="Outils"/>
   <locale name="MENU_TOOLS_AWE_APPPAR" value="Paramètres d&apos;application"/>
