@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import static com.almis.awe.model.constant.AweConstants.NO_TAG;
 
@@ -205,7 +204,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
           .serverAction(serverAction)
           .targetAction(option.getTargetAction())
           .screenContext(context)
-          .reload(option.isMenuScreen())
+          .reload(option.isDynamic())
           .target(option.getName())
           .build();
 
@@ -289,7 +288,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
    */
   public List<Element> generateTagListElements(List<String> templateList) {
     // Render template into taglist
-    return templateList.stream().map(s -> aweElementsDao.parseTemplate(Element.class, s)).collect(Collectors.toList());
+    return templateList.stream().map(s -> aweElementsDao.parseTemplate(Element.class, s)).toList();
   }
 
   /**

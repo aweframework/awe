@@ -3149,4 +3149,12 @@
 
   <query id="testSuggestMultiple" service="testSuggestMultiple"/>
 
+  <query id="dynamicScreen" service="dynamicScreen"/>
+
+  <query id="getProfiles" cacheable="true">
+    <table id="AwePro"/>
+    <field id="Nam" alias="name"/>
+    <field id="IdePro" alias="value"/>
+  </query>
+
 </queries>

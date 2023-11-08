@@ -436,4 +436,8 @@
     <java classname="com.almis.awe.service.DummyService" method="testGetServiceDataForComputed"/>
   </service>
 
+  <service id="dynamicScreen">
+    <java classname="com.almis.awe.service.DummyService" method="dynamicScreen"/>
+  </service>
+
 </services>

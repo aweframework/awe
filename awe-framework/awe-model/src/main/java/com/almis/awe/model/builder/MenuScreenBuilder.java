@@ -14,7 +14,6 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
@@ -55,7 +54,7 @@ public class MenuScreenBuilder {
     container.setElementList(menuOption.getOptions().stream()
       .filter(option -> !option.isRestricted())
       .map(this::generateOptionElement)
-      .collect(Collectors.toList()));
+      .toList());
 
     // Retrieve screen with menuOption screen name
     return (Screen) screen.setId(menuOption.getScreen());

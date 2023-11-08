@@ -14848,7 +14848,12 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-magic fa-2x fa-fw"></i>
+  </div><i role="icon" class="help-icon text-primary material-icons">developer_board</i>
+  <h2 id="MENU_TEST_DYNAMIC_SCREEN" class="help-snippet help-header text-primary">
+    {{'MENU_TEST_DYNAMIC_SCREEN'| translateMultiple}}
+  </h2>
+  <hr class="help-header-separator"/>
+  <i role="icon" class="help-icon text-primary fa fa-magic fa-2x fa-fw"></i>
   <h2 id="SCREEN_TITLE_WIZARD" class="help-snippet help-header text-primary">
     {{'SCREEN_TITLE_WIZARD'| translateMultiple}}
   </h2>
