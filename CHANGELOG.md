@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.7.5
+*09/11/2023*
+
+- **[HAS IMPACTS]** Menu screens doesn't work when working on a cluster. [MR #467](https://gitlab.com/aweframework/awe/-/merge_requests/467) (Pablo Javier García Mora)
+- Use target-action in option if defined assembled with server-action. [MR #466](https://gitlab.com/aweframework/awe/-/merge_requests/466) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.4
 *19/10/2023*
 
