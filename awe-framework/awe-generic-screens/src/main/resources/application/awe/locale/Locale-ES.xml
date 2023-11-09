@@ -853,6 +853,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_1" value="Grupo 1"/>
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_2" value="Grupo 2"/>
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_3" value="Grupo 3"/>
+  <locale name="MENU_TEST_DYNAMIC_SCREEN" value="Ventana dinámica"/>
   <locale name="MENU_TEST_MATRIX_TREE" value="Prueba de matriz de árbol"/>
   <locale name="MENU_TOOLS" value="Herramientas"/>
   <locale name="MENU_TOOLS_AWE_APPPAR" value="Parámetros de la aplicación"/>

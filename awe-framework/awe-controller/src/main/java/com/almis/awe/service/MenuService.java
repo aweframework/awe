@@ -60,6 +60,7 @@ public class MenuService extends ServiceConfig {
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
   private final FavouriteService favouriteService;
+  private final LauncherService launcherService;
 
   /**
    * Autowired constructor
@@ -71,10 +72,11 @@ public class MenuService extends ServiceConfig {
    * @param baseConfigProperties       Base configuration properties
    * @param securityConfigProperties   Security configuration properties
    * @param favouriteService           Favourites service
+   * @param launcherService            Service launcher service
    */
   public MenuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
                      ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                     SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService) {
+                     SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService, LauncherService launcherService) {
     this.queryService = queryService;
     this.screenRestrictionGenerator = screenRestrictionGenerator;
     this.screenComponentGenerator = screenComponentGenerator;
@@ -82,6 +84,7 @@ public class MenuService extends ServiceConfig {
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
     this.favouriteService = favouriteService;
+    this.launcherService = launcherService;
   }
 
   /**
@@ -253,29 +256,19 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Screen has not been found
    */
   public Screen getOptionScreen(String optionId) throws AWException {
-    String screenId;
+    // Get current menu
+    Menu menu = getMenu();
 
     if (optionId.equalsIgnoreCase(baseConfigProperties.getScreen().getHome())) {
-      // Get current menu
-      Menu menu = getMenu();
-
       // Get home screen from menu
-      screenId = menu.getScreen();
+      return getScreen(menu.getScreen(), optionId);
     } else {
       // Find option
       Option option = getOptionByName(optionId);
 
       // Get screen identifier
-      screenId = option.getScreen();
+      return getScreenByOption(option, menu);
     }
-
-    // Check if option has a screen
-    if (screenId == null) {
-      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_SCREEN", optionId));
-    }
-
-    // Retrieve screen
-    return getScreen(screenId);
   }
 
   /**
@@ -286,29 +279,39 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Screen has not been found
    */
   public Screen getAvailableOptionScreen(String optionId) throws AWException {
-    String screenId;
+    // Get current menu
+    Menu menu = getMenu();
 
     if (optionId.equalsIgnoreCase(baseConfigProperties.getScreen().getHome())) {
-      // Get current menu
-      Menu menu = getMenu();
-
       // Get home screen from menu
-      screenId = menu.getScreen();
+      return getScreen(menu.getScreen(), optionId);
     } else {
       // Find option
       Option option = getAvailableOptionByName(optionId);
 
       // Get screen identifier
-      screenId = option.getScreen();
+      return getScreenByOption(option, menu);
     }
+  }
 
-    // Check if option has a screen
-    if (screenId == null) {
-      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_SCREEN", optionId));
+  /**
+   * Retrieve screen by option
+   * @param option Option
+   * @param menu Menu
+   * @return Screen retrieved (or generated)
+   * @throws AWException
+   */
+  private Screen getScreenByOption(Option option, Menu menu) throws AWException {
+    if (option.isMenuScreen()) {
+      // Menu screen
+      return generateMenuScreen(option, menu);
+    } else if (option.isDynamic()) {
+      // Dynamic screen
+      return (Screen) launcherService.callService(option.getDynamicScreenService(), null).getData();
+    } else {
+      // Static screen
+      return getScreen(option.getScreen(), option.getId());
     }
-
-    // Retrieve screen
-    return getScreen(screenId);
   }
 
   /**
@@ -319,9 +322,21 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Screen has not been found
    */
   public Screen getScreen(String screenId) throws AWException {
+    return getScreen(screenId, null);
+  }
+
+  /**
+   * Retrieve an screen
+   *
+   * @param screenId Screen identifier
+   * @param optionId Option identifier
+   * @return Screen retrieved
+   * @throws AWException Screen has not been found
+   */
+  public Screen getScreen(String screenId, String optionId) throws AWException {
     // Check if option has a screen
     if (screenId == null) {
-      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", (String) null));
+      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", optionId));
     }
 
     // Get screen
@@ -749,34 +764,8 @@ public class MenuService extends ServiceConfig {
     // Store json data as javascript
     serviceData.addVariable(AweConstants.ACTION_MENU_OPTIONS, new CellData(favouritesMenu.getElementList()));
 
-    // Regenerate menu screen list
-    regenerateMenuScreens();
-
     // Return service data
     return serviceData;
-  }
-
-  public void regenerateMenuScreens() {
-    try {
-      generateMenuScreens(getMenuWithRestrictions());
-    } catch (AWException exc) {
-      log.error("Error regenerating menu screens", exc);
-    }
-  }
-
-  /**
-   * Read and generate menu screens
-   *
-   * @param menu Menu to generate screens for
-   */
-  public void generateMenuScreens(Menu menu) {
-    // Generate menu screens
-    List<Screen> screenList = menu.getMenuScreenOptions().stream()
-      .map(this::generateMenuScreen)
-      .collect(Collectors.toList());
-
-    // Store menu screens
-    screenList.forEach(getElements()::setScreen);
   }
 
   /**
@@ -940,12 +929,12 @@ public class MenuService extends ServiceConfig {
           .setParent(favourite)
           .setElementList(Collections.emptyList())
           .setId("favourite-" + option.getName()))
-        .collect(Collectors.toList()));
+        .toList());
 
       // Update menu
       newMenu.setElementList(Stream.concat(Stream.of(favourite, separator), newMenu.getElementList().stream()
         .filter(o -> !(o instanceof Option) || !Arrays.asList("favourites", "favourites-separator").contains(((Option) o).getName())))
-        .collect(Collectors.toList()));
+        .toList());
     }
 
     return newMenu;
@@ -1024,7 +1013,7 @@ public class MenuService extends ServiceConfig {
     listOptions.addAll(options.stream()
       .filter(option -> !option.getOptions().isEmpty())
       .flatMap(option -> getMenuOptionsAsTree(option.getOptions(), numberOfRestrictions, option.getName()).stream())
-      .collect(Collectors.toList())
+      .toList()
     );
 
     return listOptions;
@@ -1078,53 +1067,45 @@ public class MenuService extends ServiceConfig {
     listOptions.addAll(options.stream()
       .filter(option -> !option.getOptions().isEmpty())
       .flatMap(option -> getMenuOptionsAsTreeWithIcons(option.getOptions(), restrictions, previousRestrictions, option.getName()).stream())
-      .collect(Collectors.toList())
+      .toList()
     );
 
     return listOptions;
   }
 
   private String getRestrictionLabel(String restriction) {
-    switch (Optional.ofNullable(restriction).orElse("")) {
-      case "R":
-        return "ENUM_REST_MODE_RESTRICTED";
-      case "A":
-        return "ENUM_REST_MODE_ALLOW";
-      default:
-        return "";
-    }
+    return switch (Optional.ofNullable(restriction).orElse("")) {
+      case "R" -> "ENUM_REST_MODE_RESTRICTED";
+      case "A" -> "ENUM_REST_MODE_ALLOW";
+      default -> "";
+    };
   }
 
   private String getRestrictionIcon(String restriction) {
-    switch (Optional.ofNullable(restriction).orElse("")) {
-      case "R":
-        return "fa-minus-circle";
-      case "A":
-        return "fa-check-circle-o";
-      default:
-        return "";
-    }
+    return switch (Optional.ofNullable(restriction).orElse("")) {
+      case "R" -> "fa-minus-circle";
+      case "A" -> "fa-check-circle-o";
+      default -> "";
+    };
   }
 
   private String getRestrictionStyle(String restriction) {
-    switch (Optional.ofNullable(restriction).orElse("")) {
-      case "R":
-        return "text-danger";
-      case "A":
-        return TEXT_SUCCESS;
-      default:
-        return "";
-    }
+    return switch (Optional.ofNullable(restriction).orElse("")) {
+      case "R" -> "text-danger";
+      case "A" -> TEXT_SUCCESS;
+      default -> "";
+    };
   }
 
   /**
    * Generate a new screen based on options
    *
    * @param option Menu screen option
+   * @param menu Menu
    * @return Generated menu screen
    */
-  private Screen generateMenuScreen(Option option) {
-    return new MenuScreenBuilder(option).build();
+  private Screen generateMenuScreen(Option option, Menu menu) {
+    return new MenuScreenBuilder(option, menu).build();
   }
 
   /**

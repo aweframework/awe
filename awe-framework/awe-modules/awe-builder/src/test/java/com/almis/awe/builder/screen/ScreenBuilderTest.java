@@ -30,8 +30,6 @@ import com.almis.awe.builder.screen.wizard.WizardBuilder;
 import com.almis.awe.builder.screen.wizard.WizardPanelBuilder;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.screen.View;
 import com.almis.awe.model.entities.screen.*;
 import com.almis.awe.model.entities.screen.component.*;
@@ -67,7 +65,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,20 +76,6 @@ class ScreenBuilderTest {
   @BeforeEach
   public void setup() throws Exception {
     aweElements = mock(AweElements.class);
-  }
-
-  /**
-   * Build a single screen without elements
-   *
-   * @throws Exception exception
-   */
-  @Test
-  void buildClientAction() throws Exception {
-    when(aweElements.getMenu(anyString())).thenReturn(new Menu());
-    ServiceData serviceData = new ScreenBuilder()
-            .setMenuType("public")
-            .buildClientAction(aweElements);
-    assertEquals("screen", serviceData.getClientActionList().get(0).getType());
   }
 
   /**

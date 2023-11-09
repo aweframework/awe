@@ -120,6 +120,8 @@
         <option name="button-option-14" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
       </option>
     </option>
+    <option name="dynamic-screen" label="MENU_TEST_DYNAMIC_SCREEN" icon="mdi:developer_board"
+            dynamic-screen="true" dynamic-screen-service="dynamicScreen"/>
     <option name="wizard-test" label="MENU_TEST_WIZARD" screen="wizard" icon="magic"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>

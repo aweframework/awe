@@ -1,6 +1,7 @@
 package com.almis.awe.model.builder;
 
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Data
 @Accessors(chain = true)
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MenuScreenBuilder {
   Option menuOption;
+  Menu menu;
 
   /**
    * Build a menu option screen based on options
@@ -52,7 +54,7 @@ public class MenuScreenBuilder {
     container.setElementList(menuOption.getOptions().stream()
       .filter(option -> !option.isRestricted())
       .map(this::generateOptionElement)
-      .collect(Collectors.toList()));
+      .toList());
 
     // Retrieve screen with menuOption screen name
     return (Screen) screen.setId(menuOption.getScreen());
@@ -78,9 +80,13 @@ public class MenuScreenBuilder {
     // Retrieve filled button
     return new Button()
       .setIcon(option.getIcon())
-      .addElement(new ButtonAction()
-        .setTarget(option.getName())
-        .setType("screen"))
+      .addElement(ButtonAction.builder()
+        .type(Optional.ofNullable(option.getServerAction()).map(action -> "server").orElse("screen"))
+        .serverAction(Optional.ofNullable(option.getServerAction()).orElse(menu.getDefaultAction()))
+        .targetAction(option.getTargetAction())
+        .target(option.getName())
+        .screenContext(Optional.ofNullable(option.getScreenContext()).orElse(menu.getScreenContext()))
+        .build())
       .setLabel(option.getLabel())
       .setStyle("menu-screen-button")
       .setId(option.getName());

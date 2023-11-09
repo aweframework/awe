@@ -5,7 +5,6 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.services.ServiceType;
 import com.almis.awe.service.connector.ServiceConnector;
-import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 
@@ -17,18 +16,6 @@ import java.util.Map;
  * @author Jorge BELLON - 30/ENE/2017
  */
 public class LauncherService extends ServiceConfig {
-
-  // Application context
-  private final ApplicationContext context;
-
-  /**
-   * Initialize service with aweElements and application context
-   *
-   * @param context Application context
-   */
-  public LauncherService(ApplicationContext context) {
-    this.context = context;
-  }
 
   /**
    * Launches a service (must be defined in APP or AWE Services.xml file) and returns the service data
@@ -49,7 +36,7 @@ public class LauncherService extends ServiceConfig {
     }
 
     // Get connector
-    ServiceConnector connector = (ServiceConnector) context.getBean(service.getLauncherClass());
+    ServiceConnector connector = (ServiceConnector) getBean(service.getLauncherClass());
 
     // Launch service
     serviceData = connector.launch(service, serviceArgs);

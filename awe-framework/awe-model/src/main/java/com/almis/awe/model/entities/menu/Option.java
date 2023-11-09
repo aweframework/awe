@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Option Class
@@ -70,6 +69,16 @@ public class Option extends AbstractAction {
   @XStreamAlias("menu-screen")
   @XStreamAsAttribute
   private Boolean menuScreen;
+
+  // Dynamic screen (generated automatically each time it is launched)
+  @XStreamAlias("dynamic-screen")
+  @XStreamAsAttribute
+  private Boolean dynamicScreen;
+
+  // Dynamic screen query ID
+  @XStreamAlias("dynamic-screen-service")
+  @XStreamAsAttribute
+  private String dynamicScreenService;
 
   // Option is restricted
   @XStreamOmitField
@@ -152,13 +161,23 @@ public class Option extends AbstractAction {
   }
 
   /**
+   * Returns if option is visible or not
+   *
+   * @return Option is visible
+   */
+  @JsonGetter("dynamic")
+  public boolean isDynamic() {
+    return Optional.ofNullable(getDynamicScreen()).orElse(false) || isMenuScreen();
+  }
+
+  /**
    * Returns if option is menu screen or not
    *
    * @return Option is visible
    */
   @JsonGetter("menuScreen")
   public boolean isMenuScreen() {
-    return getMenuScreen() != null && getMenuScreen();
+    return Optional.ofNullable(getMenuScreen()).orElse(false);
   }
 
   /**
@@ -247,7 +266,7 @@ public class Option extends AbstractAction {
     // Search in child options
     options.addAll(getOptions().stream()
       .flatMap(option -> option.getOptionsByName(optionName).stream())
-      .collect(Collectors.toList()));
+      .toList());
 
     return options;
   }
@@ -274,7 +293,7 @@ public class Option extends AbstractAction {
     } else {
       return getOptions().stream()
         .flatMap(option -> option.getMenuScreenOptions().stream())
-        .collect(Collectors.toList());
+        .toList();
     }
   }
 }

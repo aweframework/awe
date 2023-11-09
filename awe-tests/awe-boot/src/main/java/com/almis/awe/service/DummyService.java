@@ -1,14 +1,18 @@
 package com.almis.awe.service;
 
 import com.almis.awe.builder.client.SelectActionBuilder;
+import com.almis.awe.builder.screen.ScreenBuilder;
+import com.almis.awe.builder.screen.TagBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.Planet;
 import com.almis.awe.model.Planets;
+import com.almis.awe.model.ProfileModel;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.email.ParsedEmail;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
@@ -16,9 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -37,17 +39,20 @@ import static java.lang.Thread.sleep;
 public class DummyService extends ServiceConfig {
 
   // Autowired services
-  private final WebApplicationContext context;
+  private final QueryService queryService;
+  private final DataListService dataListService;
   private final Random random = new Random();
 
   /**
    * Autowired constructor
    *
-   * @param context Context
+   * @param queryService    Query Service
+   * @param dataListService DataList service
    */
-  @Autowired
-  public DummyService(WebApplicationContext context) {
-    this.context = context;
+  public DummyService(QueryService queryService, DataListService dataListService) {
+
+    this.queryService = queryService;
+    this.dataListService = dataListService;
   }
 
   /**
@@ -63,7 +68,7 @@ public class DummyService extends ServiceConfig {
       data[i] = String.valueOf(i);
     }
 
-    DataListBuilder builder = context.getBean(DataListBuilder.class);
+    DataListBuilder builder = getBean(DataListBuilder.class);
     out.setDataList(builder.setServiceQueryResult(data).build());
 
     return out;
@@ -85,7 +90,7 @@ public class DummyService extends ServiceConfig {
     int offset = (int) ((page - 1) * max);
     List<String> subset = new ArrayList<>(Arrays.asList(data).subList(offset, (int) (offset + max)));
 
-    DataListBuilder builder = context.getBean(DataListBuilder.class);
+    DataListBuilder builder = getBean(DataListBuilder.class);
     out.setDataList(
             builder.setServiceQueryResult(subset.toArray(new String[0]))
                     .setRecords((long) data.length)
@@ -106,7 +111,7 @@ public class DummyService extends ServiceConfig {
     ServiceData out = new ServiceData();
     String[] data = new String[]{"Toyota", null, "Mercedes", null, "BMW", "Volkswagen", "Skoda"};
 
-    DataListBuilder builder = context.getBean(DataListBuilder.class);
+    DataListBuilder builder = getBean(DataListBuilder.class);
     DataList dataList = builder.setServiceQueryResult(data).build();
     DataListUtil.sort(dataList, Collections.singletonList(new SortColumn("value", "asc")), true);
     out.setDataList(dataList);
@@ -127,7 +132,7 @@ public class DummyService extends ServiceConfig {
       data[i] = String.valueOf(i);
     }
 
-    DataListBuilder builder = context.getBean(DataListBuilder.class);
+    DataListBuilder builder = getBean(DataListBuilder.class);
     out.setDataList(builder.setServiceQueryResult(data).build());
 
     return out;
@@ -461,5 +466,55 @@ public class DummyService extends ServiceConfig {
     DataListUtil.addColumnWithOneRow(dataList, "zero", 0);
 
     return new ServiceData().setDataList(dataList);
+  }
+
+  /**
+   * Dynamic screen generation
+   * @return Service data with dynamic screen
+   */
+  public ServiceData dynamicScreen() throws AWException {
+    // Get profile list
+    ServiceData serviceData = queryService.launchPrivateQuery("getProfiles");
+    List<ProfileModel> profileModels = dataListService.asBeanList(serviceData.getDataList(), ProfileModel.class);
+
+    // Generate screen with profile list
+    return new ServiceData().setData(new ScreenBuilder()
+      .setTemplate("window")
+      .setLabel("MENU_TEST_DYNAMIC_SCREEN")
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .addTag(new TagBuilder()
+          .setType("div")
+          .setStyle("row")
+          .addTag(profileModels.stream()
+            .map(profileModel -> new TagBuilder()
+              .setType("div")
+              .setStyle("col-xs-3")
+              .addTag(new TagBuilder()
+                .setType("div")
+                .setStyle("stat-panel text-center")
+                .addTag(new TagBuilder()
+                  .setType("div")
+                  .setStyle("stat-row")
+                  .addTag(new TagBuilder()
+                    .setType("div")
+                    .setStyle("stat-cell bg-success padding-sm text-xs text-semibold")
+                    .setText(profileModel.getName())
+                  )
+                )
+                .addTag(new TagBuilder()
+                  .setType("div")
+                  .setStyle("stat-row")
+                  .addTag(new TagBuilder()
+                    .setType("div")
+                    .setStyle("stat-cell bordered no-border-t no-padding-hr")
+                    .setText(profileModel.getValue().toString())
+                  )
+                )
+              )
+            )
+            .toArray(TagBuilder[]::new))
+        ))
+      .build());
   }
 }

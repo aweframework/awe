@@ -507,7 +507,7 @@ This set of builders is designed to generate java-defined screens instead of def
 
 ### **Screen builder**
 
-The screen builder is the main builder in this set. It allows the developer to generate dinamically an 
+The screen builder is the main builder in this set. It allows the developer to generate dynamically an 
 XML Screen structure:
 
 ```java
@@ -610,17 +610,30 @@ ScreenBuilder builder = new ScreenBuilder()
 Screen screen = builder.build();
 ```
 
-This builder has also a method that generates a client action ready to store the newly generated screen
-in the system and access into it:
+To use the dynamic screens, you can now add an option in any of the menus (public or private) 
+with the following structure:
 
-```java
-ServiceData serviceData = builder
-  .setMenuType("public")
-  .buildClientAction(getElements());
+```xml
+<option name="dynamic-window-test" dynamic-window="true" dynamic-window-service="serviceWhichReturnsAnScreen"
+        label="DYNAMIC_WINDOW_TEST" .../>
 ```
 
-This method generates a [screen client action](#screen-action-builder) in the `public` menu 
-pointing to the screen generated within the builder.
+This will call directly to the service...
+
+```xml
+<service id="serviceWhichReturnsAnScreen">
+  <java classname="com.almis.awe.service.DummyService" method="serviceWhichReturnsAnScreen"/>
+</service>
+```
+
+And the service which returns the screen should be like:
+
+```java
+public ServiceData serviceWhichReturnsAnScreen() throws AWException {
+    return new ServiceData().setData(new ScreenBuilder().setId("...")...
+  .build())
+}
+```
 
 ### **Component builders**
 
