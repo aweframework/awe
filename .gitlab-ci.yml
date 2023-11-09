@@ -205,7 +205,7 @@ SQL Server Tests:
 
 Frontend UT:
   stage: test
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk11-node-maven:latest
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk17-node-maven:latest
   needs: [ ]
   cache: { }
   script:
