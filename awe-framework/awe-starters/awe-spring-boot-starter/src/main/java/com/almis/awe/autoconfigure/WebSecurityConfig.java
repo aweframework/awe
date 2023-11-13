@@ -87,6 +87,7 @@ public class WebSecurityConfig {
     "/action/file-info",
     "/action/delete-file",
     "/screen/public/**",
+    "/screen-data/**",
     // File and upload controllers
     "/file/text",
     "/file/stream",

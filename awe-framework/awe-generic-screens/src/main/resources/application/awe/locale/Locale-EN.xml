@@ -851,6 +851,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_2" value="Group 2"/>
   <locale name="MENU_TEST_BUTTON_MENU_GROUP_3" value="Group 3"/>
   <locale name="MENU_TEST_DYNAMIC_SCREEN" value="Dynamic window"/>
+  <locale name="MENU_TEST_DYNAMIC_SUB_SCREEN" value="Sub dynamic window"/>
   <locale name="MENU_TEST_MATRIX_TREE" value="Tree matrix test"/>
   <locale name="MENU_TOOLS" value="Tools"/>
   <locale name="MENU_TOOLS_AWE_APPPAR" value="Application parameters"/>

@@ -1,8 +1,12 @@
 package com.almis.awe.service;
 
 import com.almis.awe.builder.client.SelectActionBuilder;
+import com.almis.awe.builder.enumerates.Action;
 import com.almis.awe.builder.screen.ScreenBuilder;
 import com.almis.awe.builder.screen.TagBuilder;
+import com.almis.awe.builder.screen.button.ButtonActionBuilder;
+import com.almis.awe.builder.screen.button.ButtonBuilder;
+import com.almis.awe.builder.screen.criteria.HiddenCriteriaBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.Planet;
@@ -38,6 +42,9 @@ import static java.lang.Thread.sleep;
 @Slf4j
 public class DummyService extends ServiceConfig {
 
+  public static final String PROFILE_VALUE = "profileValue";
+  public static final String PROFILE_NAME = "profileName";
+  public static final String STAT_ROW = "stat-row";
   // Autowired services
   private final QueryService queryService;
   private final DataListService dataListService;
@@ -92,11 +99,11 @@ public class DummyService extends ServiceConfig {
 
     DataListBuilder builder = getBean(DataListBuilder.class);
     out.setDataList(
-            builder.setServiceQueryResult(subset.toArray(new String[0]))
-                    .setRecords((long) data.length)
-                    .setPage(page)
-                    .setMax(max)
-                    .build());
+      builder.setServiceQueryResult(subset.toArray(new String[0]))
+        .setRecords((long) data.length)
+        .setPage(page)
+        .setMax(max)
+        .build());
 
     return out;
   }
@@ -270,14 +277,14 @@ public class DummyService extends ServiceConfig {
     ServiceData out = new ServiceData();
     try {
       ParsedEmail email = new ParsedEmail()
-              .setFrom(new InternetAddress("david.fuentes@almis.com"))
-              .setTo(List.of(new InternetAddress("dfuentes.almis@gmail.com")))
-              .setReplyTo(List.of(new InternetAddress("david.fuentes.other@almis.com")))
-              .setCc(List.of(new InternetAddress("dovixman@gmail.com")))
-              .setCco(List.of(new InternetAddress("dovixmancosas@gmail.com")))
-              .setSubject("Test message")
-              .setBody("<div style='background-color:red;'>Test div message</div>")
-              .addAttachment("FileName.test", new File("tst.jpg"));
+        .setFrom(new InternetAddress("david.fuentes@almis.com"))
+        .setTo(List.of(new InternetAddress("dfuentes.almis@gmail.com")))
+        .setReplyTo(List.of(new InternetAddress("david.fuentes.other@almis.com")))
+        .setCc(List.of(new InternetAddress("dovixman@gmail.com")))
+        .setCco(List.of(new InternetAddress("dovixmancosas@gmail.com")))
+        .setSubject("Test message")
+        .setBody("<div style='background-color:red;'>Test div message</div>")
+        .addAttachment("FileName.test", new File("tst.jpg"));
       getBean(EmailService.class).sendEmail(email);
     } catch (AddressException e) {
       e.printStackTrace();
@@ -453,6 +460,7 @@ public class DummyService extends ServiceConfig {
 
   /**
    * Retrieve service data for computed
+   *
    * @return Service Data
    */
   public ServiceData testGetServiceDataForComputed() {
@@ -470,12 +478,44 @@ public class DummyService extends ServiceConfig {
 
   /**
    * Dynamic screen generation
+   *
    * @return Service data with dynamic screen
    */
   public ServiceData dynamicScreen() throws AWException {
     // Get profile list
     ServiceData serviceData = queryService.launchPrivateQuery("getProfiles");
     List<ProfileModel> profileModels = dataListService.asBeanList(serviceData.getDataList(), ProfileModel.class);
+    TagBuilder profileModelCards = new TagBuilder()
+      .setType("div")
+      .setStyle("row");
+    for (ProfileModel profileModel : profileModels) {
+      TagBuilder statPanel = generateStatPanel(profileModel.getName(), profileModel.getValue().toString(), true);
+      ((TagBuilder) statPanel.getElementList().get(0))
+        .addTag(new TagBuilder()
+          .setType("div")
+          .setStyle(STAT_ROW)
+          .addTag(new TagBuilder()
+            .setType("div")
+            .setStyle("stat-cell bordered no-border-t no-padding-hr")
+            .addButton(new ButtonBuilder()
+              .setId("Button" + profileModel.getValue().toString())
+              .setLabel("BUTTON_VIEW")
+              .addButtonAction(new ButtonActionBuilder()
+                .setType(Action.VALUE)
+                .setTarget(PROFILE_NAME)
+                .setValue(profileModel.getName()))
+              .addButtonAction(new ButtonActionBuilder()
+                .setType(Action.VALUE)
+                .setTarget(PROFILE_VALUE)
+                .setValue(profileModel.getValue().toString()))
+              .addButtonAction(new ButtonActionBuilder()
+                .setType(Action.SCREEN)
+                .setTarget("dynamic-subscreen"))
+            )
+          )
+        );
+      profileModelCards.addTag(statPanel);
+    }
 
     // Generate screen with profile list
     return new ServiceData().setData(new ScreenBuilder()
@@ -483,38 +523,71 @@ public class DummyService extends ServiceConfig {
       .setLabel("MENU_TEST_DYNAMIC_SCREEN")
       .addTag(new TagBuilder()
         .setSource("center")
+        .addCriteria(new HiddenCriteriaBuilder().setId(PROFILE_NAME))
+        .addCriteria(new HiddenCriteriaBuilder().setId(PROFILE_VALUE))
+        .addTag(profileModelCards)
+      )
+      .build());
+  }
+
+  /**
+   * Dynamic screen generation
+   *
+   * @return Service data with dynamic screen
+   */
+  public ServiceData dynamicSubScreen() throws AWException {
+    // Get profile list
+    ProfileModel profileModel = new ProfileModel()
+      .setName(getRequest().getParameterAsString(PROFILE_NAME))
+      .setValue(Integer.parseInt(getRequest().getParameterAsString(PROFILE_VALUE)));
+
+    // Generate screen with profile list
+    return new ServiceData().setData(new ScreenBuilder()
+      .setTemplate("window")
+      .setLabel("MENU_TEST_DYNAMIC_SUB_SCREEN")
+      .addTag(new TagBuilder()
+        .setSource("buttons")
+        .addButton(new ButtonBuilder()
+          .setId("ButtonBack")
+          .setLabel("BUTTON_BACK")
+          .addButtonAction(new ButtonActionBuilder()
+            .setType(Action.BACK))
+        )
+      )
+      .addTag(new TagBuilder()
+        .setSource("center")
         .addTag(new TagBuilder()
           .setType("div")
           .setStyle("row")
-          .addTag(profileModels.stream()
-            .map(profileModel -> new TagBuilder()
-              .setType("div")
-              .setStyle("col-xs-3")
-              .addTag(new TagBuilder()
-                .setType("div")
-                .setStyle("stat-panel text-center")
-                .addTag(new TagBuilder()
-                  .setType("div")
-                  .setStyle("stat-row")
-                  .addTag(new TagBuilder()
-                    .setType("div")
-                    .setStyle("stat-cell bg-success padding-sm text-xs text-semibold")
-                    .setText(profileModel.getName())
-                  )
-                )
-                .addTag(new TagBuilder()
-                  .setType("div")
-                  .setStyle("stat-row")
-                  .addTag(new TagBuilder()
-                    .setType("div")
-                    .setStyle("stat-cell bordered no-border-t no-padding-hr")
-                    .setText(profileModel.getValue().toString())
-                  )
-                )
-              )
-            )
-            .toArray(TagBuilder[]::new))
-        ))
-      .build());
+          .addTag(generateStatPanel(profileModel.getName(), profileModel.getValue().toString(), false))
+        )
+      ).build());
+  }
+
+  private TagBuilder generateStatPanel(String title, String value, boolean more) {
+    return new TagBuilder()
+      .setType("div")
+      .setStyle("col-xs-2")
+      .addTag(new TagBuilder()
+        .setType("div")
+        .setStyle("stat-panel text-center")
+        .addTag(new TagBuilder()
+          .setType("div")
+          .setStyle(STAT_ROW)
+          .addTag(new TagBuilder()
+            .setType("div")
+            .setStyle("stat-cell bg-success padding-sm text-xs text-semibold")
+            .setText(title)
+          )
+        )
+        .addTag(new TagBuilder()
+          .setType("div")
+          .setStyle(STAT_ROW)
+          .addTag(new TagBuilder()
+            .setType("div")
+            .setStyle("stat-cell bordered no-border-t no-padding-hr" + (more ? " no-border-b" : ""))
+            .setText(value)
+          ))
+      );
   }
 }

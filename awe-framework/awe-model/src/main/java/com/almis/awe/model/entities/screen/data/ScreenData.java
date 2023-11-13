@@ -41,8 +41,11 @@ public class ScreenData {
   // Screen properties
   private Map<String, String> screenProperties;
 
-  // Screen structure
+  // Screen structure (AWE React)
   private Screen structure;
+
+  // Screen template (AWE Angular)
+  private String template;
 
   // Screen actions
   private final List<ClientAction> actions = new ArrayList<>();
