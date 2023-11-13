@@ -28,17 +28,15 @@ aweApplication.factory('ServerData',
             ...ServerData.getFormValues(),
             view
           };
-          let option = screen || "";
           let screenToRetrieve = "initial screen";
           if (screen !== null) {
             parameters[$settings.get("optionKey")] = screen;
-            option = `/${option}`;
             screenToRetrieve = screen;
           }
           $log.info(`Retrieving screen data for ${screenToRetrieve}`);
 
           // Send ajax post
-          return Connection.post("/screen-data" + option, parameters, "application/json").then(screenData => {
+          return Connection.post(ServerData.getScreenDataUrl(screen), parameters, "application/json").then(screenData => {
             ServerData.storeScreenData(screenData.data, view);
             return screenData.data.template;
           });
@@ -119,6 +117,17 @@ aweApplication.factory('ServerData',
 
           // Pregenerate api for the component
           api[component.id] = {};
+        },
+        /**
+         * Retrieve a screen data url
+         * @param {String} screen Screen name
+         * @returns {String} Screen template
+         */
+        getScreenDataUrl: function (screen) {
+          let option = screen ? `/${screen}` : "";
+
+          // Retrieve url
+          return Connection.getRawUrl() + "/screen-data" + option;
         },
         /**
          * Retrieve a screen template code
