@@ -4,18 +4,17 @@ export const routeMethods = {
   "base": () => "",
   "public": ["$stateParams", (p) => "screen/public/" + p.screenId],
   "private": ["$stateParams", (p) => "screen/private/" + p.screenId],
-  "screenData": ["$stateParams", "ServerData", (p, $serverData) => {
-      fixParameters(p);
-      let view = routeMethods.view(p);
-      return $serverData.getScreenData(routeMethods.screen(p), view).then(() => view);
-    }],
-  "template": (p) => angular.element(document).injector().get('ServerData').getTemplateUrl(routeMethods.screen(p), routeMethods.view(p), p.r),
+  "screenData": ["$stateParams", (p) => routeMethods.view(p)],
+  "template": (p) => {
+    fixParameters(p);
+    return angular.element('body').injector().get('ServerData').getScreenData(routeMethods.screen(p), routeMethods.view(p));
+  },
   "view": (p) => "subScreenId" in p ? "report" : "base",
   "screen": (p) => "subScreenId" in p ? p.subScreenId.split("?")[0] : "screenId" in p ? p.screenId.split("?")[0] : null
 };
 
 // Routing data for view controller
-const viewControllerData = {"controller": "ViewController", "templateUrl": routeMethods.template, "resolve": {"screenData": routeMethods.screenData, "context": routeMethods.base}};
+const viewControllerData = {"controller": "ViewController", "template": routeMethods.template, "resolve": {"screenData": routeMethods.screenData, "context": routeMethods.base}};
 
 // Set up states
 export const states = [

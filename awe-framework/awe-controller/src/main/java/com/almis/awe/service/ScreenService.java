@@ -214,6 +214,9 @@ public class ScreenService extends ServiceConfig {
     // Add components to screen data
     addComponentsToScreenData(data, componentMap);
 
+    // Add template to screen data
+    addTemplateToScreenData(screen, data, getRequest().getParameterAsString("view"), optionId);
+
     return data;
   }
 
@@ -288,6 +291,16 @@ public class ScreenService extends ServiceConfig {
         data.addScreenProperty("onunload", screen.getOnUnload());
       }
     }
+  }
+
+  /**
+   * Add template to screen data
+   *
+   * @param screen   Screen object
+   * @param data     Screen data
+   */
+  private void addTemplateToScreenData(Screen screen, ScreenData data, String view, String optionId) throws AWException {
+    data.setTemplate(templateService.generateScreenTemplate(screen, view, optionId));
   }
 
   /**

@@ -122,6 +122,8 @@
     </option>
     <option name="dynamic-screen" label="MENU_TEST_DYNAMIC_SCREEN" icon="mdi:developer_board"
             dynamic-screen="true" dynamic-screen-service="dynamicScreen"/>
+    <option name="dynamic-subscreen" label="MENU_TEST_DYNAMIC_SUB_SCREEN" invisible="true"
+            dynamic-screen="true" dynamic-screen-service="dynamicSubScreen"/>
     <option name="wizard-test" label="MENU_TEST_WIZARD" screen="wizard" icon="magic"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>

@@ -440,4 +440,8 @@
     <java classname="com.almis.awe.service.DummyService" method="dynamicScreen"/>
   </service>
 
+  <service id="dynamicSubScreen">
+    <java classname="com.almis.awe.service.DummyService" method="dynamicSubScreen"/>
+  </service>
+
 </services>

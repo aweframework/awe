@@ -151,7 +151,6 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
 
       // Assert
       expect($control.changeControllerAttribute.calls.allArgs()).toEqual([
-        [undefined, {"loading": true}],
         [{view: "base", component:"tutu"}, {"lala": "tutu"}],
         [{view: "base", component:"tutu"}, {"lele": "lolo"}]
       ]);

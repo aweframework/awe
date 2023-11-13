@@ -614,7 +614,7 @@ To use the dynamic screens, you can now add an option in any of the menus (publi
 with the following structure:
 
 ```xml
-<option name="dynamic-window-test" dynamic-window="true" dynamic-window-service="serviceWhichReturnsAnScreen"
+<option name="dynamic-screen-test" dynamic-screen="true" dynamic-screen-service="serviceWhichReturnsAnScreen"
         label="DYNAMIC_WINDOW_TEST" .../>
 ```
 
