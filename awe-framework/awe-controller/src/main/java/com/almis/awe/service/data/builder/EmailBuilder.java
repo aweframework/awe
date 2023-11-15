@@ -1,6 +1,5 @@
 package com.almis.awe.service.data.builder;
 
-import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
 import jakarta.mail.internet.InternetAddress;
@@ -16,7 +15,7 @@ import java.io.File;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class EmailBuilder extends ServiceConfig {
+public class EmailBuilder {
   private ParsedEmail parsedEmail;
 
   /**

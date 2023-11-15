@@ -1,6 +1,7 @@
 package com.almis.awe.service.data.builder;
 
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.email.Email;
@@ -21,10 +22,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
@@ -34,6 +32,7 @@ import java.util.regex.Matcher;
 public class XMLEmailBuilder extends EmailBuilder {
   private final QueryService queryService;
   private final QueryUtil queryUtil;
+  private final AweElements aweElements;
   private Email email;
   private Map<String, Variable> variables;
   private ObjectNode parameters;
@@ -46,11 +45,13 @@ public class XMLEmailBuilder extends EmailBuilder {
    *
    * @param queryService Query service
    * @param queryUtil    Query utilities
+   * @param aweElements  AWE Elements
    */
-  public XMLEmailBuilder(QueryService queryService, QueryUtil queryUtil) {
+  public XMLEmailBuilder(QueryService queryService, QueryUtil queryUtil, AweElements aweElements) {
     super();
     this.queryService = queryService;
     this.queryUtil = queryUtil;
+    this.aweElements = aweElements;
     this.variables = new HashMap<>();
   }
 
@@ -186,7 +187,7 @@ public class XMLEmailBuilder extends EmailBuilder {
 
       return address;
     } catch (UnsupportedEncodingException e) {
-      throw new AWException(getLocale("ERROR_TITLE_DURING_EMAIL_SEND"), getLocale("ERROR_MESSAGE_EMAIL_GENERATE_DESTINATION"), e);
+      throw new AWException(aweElements.getLocale("ERROR_TITLE_DURING_EMAIL_SEND"), aweElements.getLocale("ERROR_MESSAGE_EMAIL_GENERATE_DESTINATION"), e);
     }
   }
 
@@ -210,7 +211,7 @@ public class XMLEmailBuilder extends EmailBuilder {
         }
       }
     } catch (UnsupportedEncodingException e) {
-      throw new AWException(getLocale("ERROR_TITLE_DURING_EMAIL_SEND"), getLocale("ERROR_MESSAGE_EMAIL_GENERATE_DESTINATION"), e);
+      throw new AWException(aweElements.getLocale("ERROR_TITLE_DURING_EMAIL_SEND"), aweElements.getLocale("ERROR_MESSAGE_EMAIL_GENERATE_DESTINATION"), e);
     }
   }
 
@@ -221,24 +222,19 @@ public class XMLEmailBuilder extends EmailBuilder {
    * @throws AWException AWE exception
    */
   private void parseBody(List<EmailMessage> bodyList) throws AWException {
-    switch (getParsedEmail().getMessageType()) {
-      case TEXT:
-        parseBody(EmailMessageType.TEXT, bodyList);
+    if (Objects.requireNonNull(getParsedEmail().getMessageType()) == EmailMessageType.TEXT) {
+      parseBody(EmailMessageType.TEXT, bodyList);
 
-        // remove HTML characters
-        String bodyMessage = getParsedEmail().getBody();
-        bodyMessage = StringEscapeUtils.unescapeHtml(bodyMessage);
+      // remove HTML characters
+      String bodyMessage = getParsedEmail().getBody();
+      bodyMessage = StringEscapeUtils.unescapeHtml(bodyMessage);
 
-        // Change <br/> to new lines
-        bodyMessage = bodyMessage.replace(BREAK_LINE, "\n");
-        bodyMessage = bodyMessage.replace(BREAK_LINE_START, "\n");
-
-        getParsedEmail().setBody(bodyMessage);
-        break;
-      case HTML:
-      default:
-        parseBody(EmailMessageType.HTML, bodyList);
-        break;
+      // Change <br/> to new lines
+      bodyMessage = bodyMessage.replace(BREAK_LINE, "\n");
+      bodyMessage = bodyMessage.replace(BREAK_LINE_START, "\n");
+      getParsedEmail().setBody(bodyMessage);
+    } else {
+      parseBody(EmailMessageType.HTML, bodyList);
     }
   }
 
@@ -255,7 +251,7 @@ public class XMLEmailBuilder extends EmailBuilder {
       String currentTextBody = "";
 
       if (body.getType().equalsIgnoreCase(type.toString())) {
-        currentTextBody = getLocale(body.getLabel());
+        currentTextBody = aweElements.getLocale(body.getLabel());
         String value = body.getValue();
 
         Variable variable = variables.get(value);
@@ -280,7 +276,7 @@ public class XMLEmailBuilder extends EmailBuilder {
 
     for (EmailMessage subject : subjectList) {
       // Initialize
-      String currentSubjectMessage = getLocale(subject.getLabel());
+      String currentSubjectMessage = aweElements.getLocale(subject.getLabel());
 
       Variable value = getVariables().get(subject.getValue());
       if (value != null) {

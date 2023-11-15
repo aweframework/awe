@@ -16,9 +16,10 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -36,13 +37,11 @@ import static org.mockito.Mockito.*;
  *
  * @author pgarcia
  */
+@ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
   @InjectMocks
   private EmailService emailService;
-
-  @InjectMocks
-  private XMLEmailBuilder emailBuilder;
 
   @Mock
   private JavaMailSender mailSender;
@@ -60,18 +59,14 @@ class EmailServiceTest {
   private MimeMessage mimeMessage;
 
   @Mock
+  private QueryService queryService;
+
+  @Mock
   private QueryUtil queryUtil;
 
-  /**
-   * Initializes json mapper for tests
-   */
   @BeforeEach
-  public void initBeans() throws Exception {
-    MockitoAnnotations.openMocks(this);
-    doReturn(aweElements).when(context).getBean(AweElements.class);
+  public void setUp() {
     emailService.setApplicationContext(context);
-    emailBuilder.setApplicationContext(context);
-    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("");
   }
 
   /**
@@ -107,11 +102,14 @@ class EmailServiceTest {
    */
   @Test
   void sendXMLMail() throws Exception {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+
     // Generate XML email
     Variable valueVariable = new Variable().setId("value").setName("value").setType("STRING");
     Variable valuesVariable = new Variable().setId("value2").setName("value2").setType("STRING");
     Variable labelVariable = new Variable().setId("label").setName("label").setType("STRING");
-    Variable testVariable = new Variable().setId("test").setName("test").setType("STRING");
     Email email = new Email();
     email
       .setId("TestEmail")
@@ -132,18 +130,89 @@ class EmailServiceTest {
     parameters.set("value", values);
     parameters.set("label", values);
 
-    given(aweElements.getEmail(anyString())).willReturn(email);
     given(queryUtil.getParameter(eq(valueVariable), any(ObjectNode.class))).willReturn(JsonNodeFactory.instance.textNode("tutu@test.com"));
     given(queryUtil.getParameter(eq(valuesVariable), any(ObjectNode.class))).willReturn(values);
     given(queryUtil.getParameter(eq(labelVariable), any(ObjectNode.class))).willReturn(JsonNodeFactory.instance.textNode("tutu@test.com"));
-    given(queryUtil.getParameter(eq(testVariable), any(ObjectNode.class))).willReturn(JsonNodeFactory.instance.textNode("test of subject and body"));
 
     // Build message
-    ParsedEmail parsedEmail = emailBuilder
+    ParsedEmail parsedEmail = new XMLEmailBuilder(queryService, queryUtil, aweElements)
       .setEmail(email)
       .setParameters(parameters)
       .parseEmail()
       .build();
+
+    // Build message
+    emailService.sendEmail(parsedEmail);
+
+    assertEquals(2, parsedEmail.getTo().size());
+    assertEquals(2, parsedEmail.getCc().size());
+    assertEquals(1, parsedEmail.getCco().size());
+  }
+
+  @Test
+  void sendXMLMailTwice() throws Exception {
+    when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+
+    // Generate XML email
+    Variable valueVariable = new Variable().setId("value").setName("value").setType("STRING");
+    Variable valuesVariable = new Variable().setId("value2").setName("value2").setType("STRING");
+    Variable labelVariable = new Variable().setId("label").setName("label").setType("STRING");
+    Email email = new Email();
+    email
+      .setId("TestEmail")
+      .setFrom((EmailItem) new EmailItem().setValue("value").setLabel("label"))
+      .setToList(Arrays.asList((EmailItem) new EmailItem().setValue("value").setLabel("label"), (EmailItem) new EmailItem().setValue("value").setLabel("label")))
+      .setCcList(singletonList((EmailItem) new EmailItem().setValue("value2").setLabel("value2")))
+      .setCcoList(singletonList((EmailItem) new EmailItem().setValue("value").setLabel("label")))
+      .setSubjectList(singletonList(new EmailMessage().setValue("test")))
+      .setBodyList(Arrays.asList(new EmailMessage().setType("HTML").setValue("test"),
+        new EmailMessage().setType("Text").setValue("test")))
+      .setVariableList(Arrays.asList(valueVariable, valuesVariable, labelVariable));
+
+    ArrayNode values = JsonNodeFactory.instance.arrayNode();
+    values.add("tutu@test.com");
+    values.add("lala@test.com");
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("value", values);
+    parameters.set("label", values);
+
+    given(queryUtil.getParameter(eq(valueVariable), any(ObjectNode.class))).willReturn(JsonNodeFactory.instance.textNode("tutu@test.com"));
+    given(queryUtil.getParameter(eq(valuesVariable), any(ObjectNode.class))).willReturn(values);
+    given(queryUtil.getParameter(eq(labelVariable), any(ObjectNode.class))).willReturn(JsonNodeFactory.instance.textNode("tutu@test.com"));
+
+    // Build message
+    ParsedEmail parsedEmail = new XMLEmailBuilder(queryService, queryUtil, aweElements)
+      .setEmail(email)
+      .setParameters(parameters)
+      .parseEmail()
+      .build();
+
+    // Build message
+    emailService.sendEmail(parsedEmail);
+
+    assertEquals(2, parsedEmail.getTo().size());
+    assertEquals(2, parsedEmail.getCc().size());
+    assertEquals(1, parsedEmail.getCco().size());
+
+    values = JsonNodeFactory.instance.arrayNode();
+    values.add("tutu@test.com");
+    values.add("lala@test.com");
+
+    parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("value", values);
+    parameters.set("label", values);
+
+    parsedEmail = new XMLEmailBuilder(queryService, queryUtil, aweElements)
+      .setEmail(email)
+      .setParameters(parameters)
+      .parseEmail()
+      .build();
+
+    // Build message
+    emailService.sendEmail(parsedEmail);
 
     assertEquals(2, parsedEmail.getTo().size());
     assertEquals(2, parsedEmail.getCc().size());
