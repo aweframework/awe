@@ -22,24 +22,16 @@ aweApplication.controller("ViewController",
 
       /**
        * On view controller initialization
-       * @param data Screen data
        */
       $ctrl.onInit = function (data) {
         let sendInitialization = true;
         // If there's no controller in data, probably the request has been cancelled
         if (data) {
           if (typeof data !== "object") {
-            $log.error("[ERROR] Loading view (screen data is not an object)", {
-              view: view,
-              screenData: screenData,
-              context: context
-            });
+            $log.error("[ERROR] Loading view (screen data is not an object)", {view, data, context});
 
             // Send error message
-            ActionController.sendMessage({
-              view: view,
-              context: context
-            }, 'error', 'ERROR_TITLE_SCREEN_GENERATION_ERROR', data);
+            ActionController.sendMessage({view, context}, 'error', 'ERROR_TITLE_SCREEN_GENERATION_ERROR', data);
           } else {
             if ('components' in data) {
               sendInitialization = false;
@@ -48,16 +40,10 @@ aweApplication.controller("ViewController",
               $scope.view = view;
               $scope.context = context;
 
-              // Store data
-              ServerData.storeScreenData(data, view);
-
               // Check controller
               if (data.screen) {
                 $scope.$root.screen = data.screen;
               }
-
-              // Clear data
-              screenData[view] = null;
 
               // Start loading phase
               let  load = new Load($scope, view, data.components);
@@ -65,7 +51,7 @@ aweApplication.controller("ViewController",
             }
           }
         } else {
-          $log.error("[ERROR] Loading view", {view: view, screenData: screenData, context: context});
+          $log.error("[ERROR] Loading view", {view, data, context});
         }
 
         // Check whether to send initialization if it's not delayed
@@ -86,7 +72,6 @@ aweApplication.controller("ViewController",
 
       // Initialize scope view
       loadingBar.end();
-      let screenData = Storage.get("screenData");
-      $ctrl.onInit(screenData[view]);
+      $ctrl.onInit(Storage.get("screenData"));
     }
   ]);

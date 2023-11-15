@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 
+import java.util.Objects;
+
 @Configuration
 @Slf4j
 @EnableConfigurationProperties({SecurityConfigProperties.class, TotpConfigProperties.class})
@@ -52,25 +54,19 @@ public class SecurityConfig extends ServiceConfig {
     AuthType mode = securityConfigProperties.getAuthMode();
     log.info("Using authentication mode: " + mode);
 
-    switch (mode) {
-      case CUSTOM:
-        // Custom authentication bean
-        for (String provider : securityConfigProperties.getAuthCustomProviders()) {
-          try {
-            Object beanObj = getBean(provider);
-            if (beanObj instanceof AuthenticationProvider authProvider) {
-              auth.authenticationProvider(authProvider);
-            }
-          } catch (Exception exc) {
-            log.error("Couldn't load authentication provider bean with name [{}]", provider, exc);
+    if (Objects.requireNonNull(mode) == AuthType.CUSTOM) {// Custom authentication bean
+      for (String provider : securityConfigProperties.getAuthCustomProviders()) {
+        try {
+          Object beanObj = getBean(provider);
+          if (beanObj instanceof AuthenticationProvider authProvider) {
+            auth.authenticationProvider(authProvider);
           }
+        } catch (Exception exc) {
+          log.error("Couldn't load authentication provider bean with name [{}]", provider, exc);
         }
-        break;
-
-      case LDAP, BBDD:
-      default:
-        auth.authenticationProvider(getBean(AuthenticationProvider.class));
-        break;
+      }
+    } else {
+      auth.authenticationProvider(getBean(AuthenticationProvider.class));
     }
   }
 

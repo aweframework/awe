@@ -80,21 +80,17 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiDate.js', funct
     $rootScope.$digest();
   });
 
-  it('initializes a date plugin and change its value', function (done) {
+  it('initializes a date plugin and change its value', function () {
     $rootScope.firstLoad = true;
     $rootScope.component = component;
 
     // Spy on storage
     spyOn($control, "checkComponent").and.returnValue(true);
     spyOn($control, "getAddressModel").and.returnValue(component.model);
-    spyOn($utilities, "timeout").and.callFake(fn => {
-      fn();
-      done();
-    });
 
     $rootScope.initialized = false;
     // Compile a piece of HTML containing the directive
-    let element = $compile("<input ui-date='dateOptions' initialized='initialized'/>")($rootScope);
+    $compile("<input ui-date='dateOptions' initialized='initialized'/>")($rootScope);
     $rootScope.$digest();
     $rootScope.initialized = true;
     $rootScope.dateOptions = datepickerOptions;
@@ -109,21 +105,17 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiDate.js', funct
     expect(component.model).toEqual({selected: '15/11/2020', values: [], page: 1, records: 1, total: 1});
   });
 
-  it('initializes a date plugin and empty it', function (done) {
+  it('initializes a date plugin and empty it', function () {
     $rootScope.firstLoad = true;
     $rootScope.component = component;
 
     // Spy on storage
     spyOn($control, "checkComponent").and.returnValue(true);
     spyOn($control, "getAddressModel").and.returnValue(component.model);
-    spyOn($utilities, "timeout").and.callFake(fn => {
-      fn();
-      done();
-    });
 
     $rootScope.initialized = false;
     // Compile a piece of HTML containing the directive
-    let element = $compile("<input ui-date='dateOptions' initialized='initialized'/>")($rootScope);
+    $compile("<input ui-date='dateOptions' initialized='initialized'/>")($rootScope);
     $rootScope.$digest();
     $rootScope.initialized = true;
     $rootScope.dateOptions = datepickerOptions;

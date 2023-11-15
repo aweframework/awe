@@ -24,22 +24,22 @@ aweApplication.factory('ServerData',
          * @returns {String} Screen template
          */
         getScreenData: function (screen, view) {
-          let  parameters = ServerData.getFormValues();
-          parameters[$settings.get("serverActionKey")] = "screen-data";
-          parameters["view"] = view;
+          let parameters = {
+            ...ServerData.getFormValues(),
+            view
+          };
+          let screenToRetrieve = "initial screen";
           if (screen !== null) {
             parameters[$settings.get("optionKey")] = screen;
-            $log.info("Retrieving screen data for " + screen);
-          } else {
-            $log.info("Retrieving screen data for initial screen");
+            screenToRetrieve = screen;
           }
+          $log.info(`Retrieving screen data for ${screenToRetrieve}`);
 
-          // Generate server action
-          let  serverAction = {type: 'server', parameters: parameters};
-          let  actionList = [serverAction];
-
-          // Add action to actions stack
-          return ActionController.addActionList(actionList, false, {});
+          // Send ajax post
+          return Connection.post(ServerData.getScreenDataUrl(screen), parameters, "application/json").then(screenData => {
+            ServerData.storeScreenData(screenData.data, view);
+            return screenData.data.template;
+          });
         },
         /**
          * Store the loaded screen data
@@ -47,6 +47,7 @@ aweApplication.factory('ServerData',
          * @param {String} view Screen view
          */
         storeScreenData: function (data, view) {
+          Storage.put("screenData", data);
           let controller = Storage.get("controller");
           let messages = Storage.get("messages");
           let api = Storage.get("api");
@@ -118,6 +119,17 @@ aweApplication.factory('ServerData',
           api[component.id] = {};
         },
         /**
+         * Retrieve a screen data url
+         * @param {String} screen Screen name
+         * @returns {String} Screen template
+         */
+        getScreenDataUrl: function (screen) {
+          let option = screen ? `/${screen}` : "";
+
+          // Retrieve url
+          return Connection.getRawUrl() + "/screen-data" + option;
+        },
+        /**
          * Retrieve a screen template code
          * @param {String} screen Screen name
          * @param {String} view Screen view
@@ -135,16 +147,6 @@ aweApplication.factory('ServerData',
 
           // Retrieve url
           return Connection.getRawUrl() + template + (random ? "?r=" + random : "");
-        },
-        /**
-         * Retrieve a screen template code
-         * @param {String} screen Screen name
-         * @param {String} view Screen view
-         * @returns {String} Screen template
-         */
-        getTaglistUrl: function (option, taglist) {
-          // Retrieve url
-          return Connection.getRawUrl() + $utilities.generateEndpointUrl("taglist", option, taglist);
         },
         /**
          * Retrieve the help url for a screen
@@ -338,19 +340,6 @@ aweApplication.factory('ServerData',
 
           // Return server action
           return action;
-        },
-        /**
-         * Send a query to the server
-         * @param {Object} address Target address
-         * @param {Object} custom Custom values
-         * @param {Boolean} async Async action
-         * @param {Boolean} silent Silent action
-         */
-        sendQuery: function (address, custom, async, silent) {
-          // Generate server action
-          let  action = ServerData.getServerAction(address, custom, async, silent);
-          // Add action to actions stack
-          return ActionController.addActionList([action], true, {address: address, context: ""});
         },
         /**
          * Send a query to the server
