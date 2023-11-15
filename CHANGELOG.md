@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.7.6
+*15/11/2023*
+
+- Allow parameter reading on template generation. [MR #468](https://gitlab.com/aweframework/awe/-/merge_requests/468) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.5
 *09/11/2023*
 
