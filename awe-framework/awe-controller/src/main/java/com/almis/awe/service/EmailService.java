@@ -7,6 +7,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.Message;
@@ -34,6 +35,8 @@ public class EmailService extends ServiceConfig {
   // Autowired services
   private final JavaMailSender mailSender;
   private final BaseConfigProperties baseConfigProperties;
+  private final QueryService queryService;
+  private final QueryUtil queryUtil;
 
   /**
    * Autowired constructor
@@ -41,28 +44,21 @@ public class EmailService extends ServiceConfig {
    * @param mailSender           Email sender
    * @param baseConfigProperties Base configuration properties
    */
-  public EmailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties) {
+  public EmailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties,
+                      QueryService queryService, QueryUtil queryUtil) {
     this.mailSender = mailSender;
     this.baseConfigProperties = baseConfigProperties;
+    this.queryService = queryService;
+    this.queryUtil = queryUtil;
   }
 
   @Async("contextlessTaskExecutor")
   public Future<ServiceData> sendEmail(String emailName, ObjectNode parameters) throws AWException {
-    // Get email
-    Email email = getElements().getEmail(emailName).copy();
-
     // Initialize needed variables variables
     ServiceData serviceData = new ServiceData();
 
-    // Build message
-    ParsedEmail parsedEmail = this.getBean(XMLEmailBuilder.class)
-      .setEmail(email)
-      .setParameters(parameters)
-      .parseEmail()
-      .build();
-
     // Send email
-    sendEmail(parsedEmail);
+    sendParsedEmail(parseEmail(getElements().getEmail(emailName).copy(), parameters));
 
     // Return ok
     return CompletableFuture.completedFuture(serviceData
@@ -72,6 +68,27 @@ public class EmailService extends ServiceConfig {
 
   @Async("contextlessTaskExecutor")
   public void sendEmail(ParsedEmail email) {
+    sendParsedEmail(email);
+  }
+
+  /**
+   * Parse email
+   *
+   * @param email      Email XML to parse
+   * @param parameters Parameters to send
+   * @return Parsed email
+   * @throws AWException
+   */
+  private ParsedEmail parseEmail(Email email, ObjectNode parameters) throws AWException {
+    // Build message
+    return new XMLEmailBuilder(queryService, queryUtil, getElements())
+      .setEmail(email)
+      .setParameters(parameters)
+      .parseEmail()
+      .build();
+  }
+
+  private void sendParsedEmail(ParsedEmail email) {
     MimeMessage message = mailSender.createMimeMessage();
 
     try {
@@ -91,7 +108,6 @@ public class EmailService extends ServiceConfig {
       log.error("Error sending email message", exc);
     }
   }
-
 
   /**
    * Generate email message parts
