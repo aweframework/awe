@@ -15,7 +15,7 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
   private boolean editable;
   private boolean multiselect;
   private boolean paginationDisabled;
-  private boolean rowNumbers;
+  private boolean rowNumbers = true;
   private boolean sendAll;
   private boolean sendOperations;
   private boolean showTotals;
