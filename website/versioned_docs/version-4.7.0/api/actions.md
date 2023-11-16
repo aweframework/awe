@@ -300,32 +300,39 @@ ServiceData setCriteriaValue() {
 
 **fill**
 
-```java 
-ServiceData fillGrid() {
- // Variable initialization
- ServiceData serviceData = new ServiceData();
+Using a list of beans as parameters:
+```java
+@Data
+@Accessors(chain=true)
+public class MyBean {
+  private String id;
+  private String label;
+  private Integer type;
+}
+```
 
- // Create client action to fill many criteria
- ClientAction fillGrdAction = new ClientAction("fill");
+The _fill_ action should be something like:
+```java
+public ServiceData fillGrid(List<MyBean> beanList) {
+ return new ServiceData()
+   .addClientAction(new FillActionBuilder("GridToFill", DataListUtil.fromBeanList(beanList))
+     .build()
+   );
+}
+```
 
- // Set target (Grid ID to fill)
- fillGrdAction.setTarget("GrdParameterEventLst");
-
- // Build datalist
- DataList grdParametersDatalist = new DataList();
- for (LokiPair pair : lokiMessage.getParameters()) {
-  HashMap<String, CellData> parametersRow = new HashMap<String, CellData>();
-  parametersRow.put("id", new CellData(rowIndex));
-  parametersRow.put("ParNam", new CellData(pair.getVariable()));
-  parametersRow.put("ParVal", new CellData(pair.getValue()));
-  parametersRow.put("ParTyp", new CellData(pair.getType()));
-  grdParametersDatalist.getRows().add(parametersRow);
- }
-
- // Add parameters to action
- fillGrdAction.addParameter("datalist", grdParametersDatalist);
-
- return serviceData;
+Using parameter list the _fill_ action should be like:
+```java
+public ServiceData fillGrid(List<String> idList, List<String> labelList, List<Integer> typeList) {
+  DataList dataList = new DataList();
+  DataListUtil.addColumn(dataList, "id", idList);
+  DataListUtil.addColumn(dataList, "label", labelList);
+  DataListUtil.addColumn(dataList, "type", typeList);
+  
+  return new ServiceData()
+   .addClientAction(new FillActionBuilder("GridToFill", dataList)
+     .build()
+   );
 }
 ```
 
