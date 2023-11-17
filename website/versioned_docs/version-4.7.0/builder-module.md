@@ -513,8 +513,9 @@ XML Screen structure:
 ```java
 ScreenBuilder builder = new ScreenBuilder()
   .setId(UUID.randomUUID().toString())
+  .setTemplate("window")
   .addTag(new TagBuilder()
-    .setSource("buttons")
+    .setSource("center")
     .setLabel("LABEL")
     .setStyle("expand")
     .setType("div")
