@@ -19,6 +19,8 @@ A **tab** is a very useful screen component to separate the screen components in
 </tab>
 ```
 
+The tab list is filled with the `value` and `label` fields of the query/enum launched with `[target-action]`.
+
 ## Tab structure
 
 ```xml
@@ -45,6 +47,9 @@ A **tab** is a very useful screen component to separate the screen components in
 | maximize    | Optional | Boolean   | Whether to show the maximize icon or not |                                  |
 
 ## Tabcontainer structure
+
+A tabcontainer is a window opened when a tab is selected. Note that `[tabcontainer-identifier]` must match the value
+of the query/enumerated list set at `Tab` element.
 
 ```xml
 <tabcontainer id="[tabcontainer-identifier]" type="[type]" label="[label]" style="[style]" expandible="[expandible]">

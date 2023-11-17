@@ -25,6 +25,8 @@ The wizard structure is very similar to [tab and tabcontainer](tab-and-tabcontai
 </wizard>
 ```
 
+The wizard list is filled with the `value` and `label` fields of the query/enum launched with `[target-action]`.
+
 ## Wizard structure
 
 ```xml
@@ -47,6 +49,9 @@ The wizard structure is very similar to [tab and tabcontainer](tab-and-tabcontai
 | help-image  | Optional     | String    | Help image for the criterion | This **must** be a image path |
 
 ## Wizard panel structure
+
+A wizard panel is a window opened when a stage of the wizard is selected. Note that `[panel-identifier]` must match the value
+of the query/enumerated list set at `Wizard` element.
 
 ```xml
 <wizard-panel id="[panel-identifier]">
