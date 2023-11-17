@@ -98,8 +98,18 @@ public class WebSecurityConfig {
 
   // query and maintain action  required
   private static final String[] PUBLIC_QUERY_MAINTAIN_LIST = {
-          "/action/data/**",
-          "/action/maintain/**",
+          "/action/data*/**",
+          "/action/update*/**",
+          "/action/control*/**",
+          "/action/unique*/**",
+          "/action/value*/**",
+          "/action/validate*/**",
+          "/action/subscribe*/**",
+          "/action/tree-branch*/**",
+          "/action/maintain*/**",
+          "/action/get-file-maintain/**",
+          "/file/stream/maintain/**",
+          "/file/download/maintain/**"
   };
 
   @Value("${session.cookie.name:JSESSIONID}")
