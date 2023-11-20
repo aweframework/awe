@@ -479,8 +479,8 @@ awe.database.migration.prefix=%s_V
 awe.database.migration.repeatable.prefix=%s_R
 # List of modules to migrate. 
 # - Add other modules if you need take its scripts
-# - Ex:  awe.database.migration.modules=AWE,SCHEDULER,APP
-awe.database.migration.modules=AWE
+# - Ex:  awe.database.migration-modules=AWE,SCHEDULER,APP
+awe.database.migration-modules=AWE
 # Scripts location. Takes into account the type of database from the vendor place holder
 spring.flyway.locations=classpath:db/migration/{vendor}
 
