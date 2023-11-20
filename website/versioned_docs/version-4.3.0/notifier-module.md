@@ -65,5 +65,5 @@ module.notifier=awe-notifier
 - Finally, if you are using `flyway`, add the notifier tables into the migration module:
 
 ```properties
-awe.database.migration.modules=AWE,...,NOTIFIER,...
+awe.database.migration-modules=AWE,...,NOTIFIER,...
 ```

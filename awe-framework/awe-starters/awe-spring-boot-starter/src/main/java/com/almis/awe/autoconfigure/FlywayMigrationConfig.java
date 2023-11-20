@@ -61,7 +61,7 @@ public class FlywayMigrationConfig {
 
     log.info("\u001B[32m==========  Migrating default database  ==========\u001B[0m");
     for (String module : databaseConfigProperties.getMigrationModules()) {
-      Flyway customFlyway = customizeFlywayConfig(module.toUpperCase(), dataSource);
+      Flyway customFlyway = customizeFlywayConfig(module, dataSource);
 
       // Migrate first connection
       log.info("\t\u001B[32m> > Migrating database of \u001B[35m{} \u001B[32mmodule  ...\u001B[0m", module);
@@ -77,7 +77,7 @@ public class FlywayMigrationConfig {
       for (String module : databaseConfigProperties.getMigrationModules()) {
         aweRoutingDataSource.getResolvedDataSources().forEach((key, value) -> {
                   log.info("\t\u001B[32m> > Migrating database \u001B[35m{}\u001B[32m for module \u001B[35m{}\u001B[32m ...\u001B[0m", key, module);
-                  Flyway customFlyway = customizeFlywayConfig(module.toUpperCase(), value);
+                  Flyway customFlyway = customizeFlywayConfig(module, value);
                   customFlyway.migrate();
                   log.info("\t\u001B[32m> > Current version of module \u001B[35m{}\u001B[32m from database \u001B[35m{}: {}\u001B[0m", module, key, customFlyway.info().current().getVersion());
                 }
