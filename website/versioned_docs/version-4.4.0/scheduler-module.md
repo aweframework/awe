@@ -55,5 +55,5 @@ module.scheduler=awe-scheduler
 - Finally, if you are using `flyway`, add the scheduler tables into the migration module:
 
 ```properties
-awe.database.migration.modules=AWE,...,SCHEDULER,...
+awe.database.migration-modules=AWE,...,SCHEDULER,...
 ```

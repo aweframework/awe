@@ -5,14 +5,12 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
-import com.almis.awe.service.data.builder.XMLEmailBuilder;
 import com.almis.awe.service.data.connector.maintain.EmailMaintainConnector;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -83,12 +81,15 @@ public class EmailConfig {
    * Email service
    * @param mailSender Mail sender
    * @param baseConfigProperties Base configuration properties
+   * @param queryService Query Service
+   * @param queryUtil Query utilities
    * @return Email service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public EmailService emailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties) {
-    return new EmailService(mailSender, baseConfigProperties);
+  public EmailService emailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties,
+                                   QueryService queryService, QueryUtil queryUtil) {
+    return new EmailService(mailSender, baseConfigProperties, queryService, queryUtil);
   }
 
   /////////////////////////////////////////////
@@ -105,21 +106,4 @@ public class EmailConfig {
   public EmailMaintainConnector emailMaintainConnector(EmailService emailService) {
     return new EmailMaintainConnector(emailService);
   }
-
-
-  /////////////////////////////////////////////
-  // BUILDERS
-  /////////////////////////////////////////////
-
-  /**
-   * XML Email builder
-   * @return XML Email builder bean
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  @Scope("prototype")
-  public XMLEmailBuilder xmlEmailBuilder(QueryService queryService, QueryUtil queryUtil) {
-    return new XMLEmailBuilder(queryService, queryUtil);
-  }
-
 }

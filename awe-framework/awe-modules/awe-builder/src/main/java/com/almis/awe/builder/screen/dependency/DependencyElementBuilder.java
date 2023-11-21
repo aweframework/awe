@@ -34,7 +34,7 @@ public class DependencyElementBuilder extends AweBuilder<DependencyElementBuilde
   private String row;
   private String value;
   private boolean cancel;
-  private boolean checkChanges;
+  private boolean checkChanges = true;
   private boolean optional;
 
   @Override

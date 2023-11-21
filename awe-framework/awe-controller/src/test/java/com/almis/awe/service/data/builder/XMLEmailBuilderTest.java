@@ -7,65 +7,38 @@ import com.almis.awe.model.entities.email.EmailMessage;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationContext;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
 
+@ExtendWith(MockitoExtension.class)
 class XMLEmailBuilderTest {
 
-  @InjectMocks
-  private XMLEmailBuilder emailBuilder;
+  @Mock
+  private QueryService queryService;
 
   @Mock
   private QueryUtil queryUtil;
 
   @Mock
-  private ApplicationContext context;
-
-  @Mock
   private AweElements aweElements;
-
-  /**
-   * Initializes json mapper for tests
-   */
-  @BeforeEach
-  public void initBeans() throws Exception {
-    MockitoAnnotations.openMocks(this);
-    emailBuilder.setApplicationContext(context);
-    doReturn(aweElements).when(context).getBean(AweElements.class);
-    given(aweElements.getLanguage()).willReturn("ES");
-    given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
-    given(queryUtil.getParameters((String) eq(null))).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryUtil.getParameter(any(), any())).willReturn(JsonNodeFactory.instance.textNode("tutu"));
-  }
-
-  /**
-   * Test context loaded
-   */
-  @Test
-  void contextLoads() {
-    // Check that controller are active
-    assertNotNull(emailBuilder);
-  }
 
   /**
    * Set null variables
    */
   @Test
   void setNullVariables() throws Exception {
-    XMLEmailBuilder builder = emailBuilder.setVariables(null);
+    XMLEmailBuilder builder = new XMLEmailBuilder(queryService, queryUtil, aweElements);
 
     // Assert builder is not null
     assertNotNull(builder);
@@ -76,6 +49,9 @@ class XMLEmailBuilderTest {
    */
   @Test
   void parseAttachments() throws Exception {
+    given(queryUtil.getParameter(any(), any())).willReturn(JsonNodeFactory.instance.textNode("tutu"));
+    XMLEmailBuilder emailBuilder = new XMLEmailBuilder(queryService, queryUtil, aweElements);
+
     Email email = new Email();
     email.setFrom(new EmailItem());
     email.setSubjectList(Collections.singletonList(new EmailMessage()));
@@ -93,6 +69,9 @@ class XMLEmailBuilderTest {
    */
   @Test
   void parseAttachmentsWithValues() throws Exception {
+    given(queryUtil.getParameter(any(), any())).willReturn(JsonNodeFactory.instance.textNode("tutu"));
+    XMLEmailBuilder emailBuilder = new XMLEmailBuilder(queryService, queryUtil, aweElements);
+
     Email email = new Email();
     email.setFrom(new EmailItem());
     email.setToList(Collections.singletonList(new EmailItem()));

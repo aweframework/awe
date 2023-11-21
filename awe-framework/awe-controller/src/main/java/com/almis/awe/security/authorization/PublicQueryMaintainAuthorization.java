@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -22,6 +23,23 @@ import java.util.function.Supplier;
 public class PublicQueryMaintainAuthorization implements AuthorizationManager<RequestAuthorizationContext> {
 
   private final AweElements elements;
+  private static final List<String> QUERY_PUBLIC_LIST = Arrays.asList("/action/data",
+    "/action/update",
+    "/action/control",
+    "/action/unique",
+    "/action/value",
+    "/action/validate",
+    "/action/subscribe",
+    "/action/tree-branch",
+    "/api/data",
+    "/api/public/data");
+
+  private static final List<String> MAINTAIN_PUBLIC_LIST = Arrays.asList("/action/maintain",
+    "/action/get-file-maintain",
+    "/file/stream/maintain",
+    "/file/download/maintain",
+    "/api/maintain",
+    "/api/public/maintain");
 
   /**
    * Autowired constructor
@@ -85,9 +103,7 @@ public class PublicQueryMaintainAuthorization implements AuthorizationManager<Re
    */
   private boolean isQueryAction(HttpServletRequest request) {
     final String requestString = request.getRequestURI();
-    return requestString.contains("/action/data")
-            || requestString.contains("/api/data")
-            || requestString.contains("/api/public/data");
+    return QUERY_PUBLIC_LIST.stream().anyMatch(requestString::contains);
   }
 
   /**
@@ -97,9 +113,7 @@ public class PublicQueryMaintainAuthorization implements AuthorizationManager<Re
    */
   private boolean isMaintainAction(HttpServletRequest request) {
     final String requestString = request.getRequestURI();
-    return requestString.contains("/action/maintain")
-            || requestString.contains("/api/maintain")
-            || requestString.contains("/api/public/maintain");
+    return MAINTAIN_PUBLIC_LIST.stream().anyMatch(requestString::contains);
   }
 
   /**

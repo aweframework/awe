@@ -14,11 +14,11 @@ import lombok.Getter;
 @Getter(AccessLevel.PRIVATE)
 public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
 
-  private GridAttributes gridAttributes;
+  private final GridAttributes<GridBuilder> gridAttributes;
 
   public GridBuilder() {
     super();
-    this.gridAttributes = new GridAttributes(this);
+    this.gridAttributes = new GridAttributes<>(this);
   }
 
   @Override

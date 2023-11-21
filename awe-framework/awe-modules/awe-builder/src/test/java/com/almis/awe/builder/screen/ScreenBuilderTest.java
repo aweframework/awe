@@ -704,6 +704,7 @@ class ScreenBuilderTest {
     assertTrue(Attribute.EDITABLE.equalsStr(dependencyElement.getAttribute2()));
     assertEquals("column2", dependencyElement.getColumn2());
     assertEquals("id2", dependencyElement.getId2());
+    assertTrue(dependencyElement.getCheckChanges());
   }
 
   /**
