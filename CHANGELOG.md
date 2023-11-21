@@ -1,4 +1,16 @@
 
+# Changelog for AWE 4.7.7
+*21/11/2023*
+
+- Documentation : add row-number and row-height attribute. [MR #476](https://gitlab.com/aweframework/awe/-/merge_requests/476) (Pablo Javier García Mora)
+- Need to specify that wizard panel id and tab container id must match the enum / querry. [MR #475](https://gitlab.com/aweframework/awe/-/merge_requests/475) (Pablo Javier García Mora)
+- Add setTemplate attribute to ScreenBuilder class in the example. [MR #474](https://gitlab.com/aweframework/awe/-/merge_requests/474) (Pablo Javier García Mora)
+- awe-boot-archetype changes. [MR #473](https://gitlab.com/aweframework/awe/-/merge_requests/473) (Pablo Javier García Mora)
+- redo the fill example without the class LokiPair and the object lokiMessage. [MR #472](https://gitlab.com/aweframework/awe/-/merge_requests/472) (Pablo Javier García Mora)
+- GridBuilder.setRowNumbers is by default false when it should be true. [MR #471](https://gitlab.com/aweframework/awe/-/merge_requests/471) (Pablo Javier García Mora)
+- Duplicated Email receiver and cc. [MR #470](https://gitlab.com/aweframework/awe/-/merge_requests/470) (Pablo Javier García Mora)
+- DependencyElementBuilder.CheckChanges is by default false when it should be true. [MR #469](https://gitlab.com/aweframework/awe/-/merge_requests/469) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.6
 *15/11/2023*
 
