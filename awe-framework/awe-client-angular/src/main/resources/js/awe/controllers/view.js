@@ -40,6 +40,9 @@ aweApplication.controller("ViewController",
               $scope.view = view;
               $scope.context = context;
 
+              // Store data
+              ServerData.storeScreenData(data, view);
+
               // Check controller
               if (data.screen) {
                 $scope.$root.screen = data.screen;
@@ -72,6 +75,6 @@ aweApplication.controller("ViewController",
 
       // Initialize scope view
       loadingBar.end();
-      $ctrl.onInit(Storage.get("screenData"));
+      $ctrl.onInit(Storage.get("screenData-" + view));
     }
   ]);
