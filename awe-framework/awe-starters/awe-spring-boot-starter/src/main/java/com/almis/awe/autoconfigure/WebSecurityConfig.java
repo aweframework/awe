@@ -45,12 +45,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.*;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.io.IOException;
 import java.util.function.Supplier;
+
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Web security configuration class.
@@ -66,52 +70,6 @@ import java.util.function.Supplier;
 @Slf4j
 public class WebSecurityConfig {
 
-  // White list urls
-  private static final String[] ALLOW_LIST = {
-    // Web resources
-    "/css/**",
-    "/js/**",
-    "/fonts/**",
-    "/images/**",
-    "/error**",
-    "/websocket/**",
-    "/template/**",
-    "/settings",
-    "/locals-*/**",
-    // public actions
-    "/action/login",
-    "/action/get-locals",
-    "/action/screen-data",
-    "/action/encrypt",
-    "/action/get-file",
-    "/action/file-info",
-    "/action/delete-file",
-    "/screen/public/**",
-    "/screen-data/**",
-    // File and upload controllers
-    "/file/text",
-    "/file/stream",
-    "/file/download",
-    "/file/upload",
-    "/file/delete"
-  };
-
-  // query and maintain action  required
-  private static final String[] PUBLIC_QUERY_MAINTAIN_LIST = {
-          "/action/data*/**",
-          "/action/update*/**",
-          "/action/control*/**",
-          "/action/unique*/**",
-          "/action/value*/**",
-          "/action/validate*/**",
-          "/action/subscribe*/**",
-          "/action/tree-branch*/**",
-          "/action/maintain*/**",
-          "/action/get-file-maintain/**",
-          "/file/stream/maintain/**",
-          "/file/download/maintain/**"
-  };
-
   @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
 
@@ -122,7 +80,6 @@ public class WebSecurityConfig {
   private final AweElements elements;
   private final ActionService actionService;
   private final ObjectMapper objectMapper;
-
 
   /**
    * Web security config constructor.
@@ -155,43 +112,88 @@ public class WebSecurityConfig {
    */
   @Bean(name = "aweSecurityFilterChain")
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+
     httpSecurity
-            .headers().xssProtection().headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED).and()
-            .and().authorizeHttpRequests(requests -> requests
-                    // Web
-                    .requestMatchers(ALLOW_LIST).permitAll()
-                    // Public queries and maintains
-                    .requestMatchers(PUBLIC_QUERY_MAINTAIN_LIST).access(publicQueryMaintainAuthorization(elements))
-                    // 2FA endpoint
-                    .requestMatchers("/access/**").authenticated()
-                    // Any other request
-                    .anyRequest().authenticated()
-            )
-            // Add a filter to parse login parameters
-            .addFilterAt(jsonAuthenticationFilter(baseConfigProperties, elements, actionService, objectMapper), UsernamePasswordAuthenticationFilter.class)
-            // Add logout handler
-            .logout().logoutUrl("/action/logout")
-            .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-            .addLogoutHandler(logoutHandler(sessionDetails))
-            // Security context repository (to adapt for spring security 6)
-            .and().securityContext().securityContextRepository(securityContextRepository())
-            // Login redirect
-            .and().formLogin().loginPage("/").permitAll()
-            // Exceptions handling
-            .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-            .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(sessionDetails), new AntPathRequestMatcher("/action/**"))
-            // Csrf SPA customize
-            .and().csrf(csrf -> csrf
-				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-				.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
-			)
-			.addFilterAfter(new CsrfCookieFilter(), JsonAuthenticationFilter.class);
+        .headers().xssProtection().headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED).and()
+        .and().authorizeHttpRequests(requests -> requests
+            // Web resources
+            .requestMatchers(
+                antMatcher("/css/**"),
+                antMatcher("/js/**"),
+                antMatcher("/fonts/**"),
+                antMatcher("/images/**"),
+                antMatcher("/error**"),
+                antMatcher("/websocket/**"),
+                antMatcher("/template/**"),
+                antMatcher("/settings"),
+                antMatcher("/locals-*/**")).permitAll()
+            // Public actions
+            .requestMatchers(
+                antMatcher("/action/login"),
+                antMatcher("/action/get-locals"),
+                antMatcher("/action/screen-data"),
+                antMatcher("/action/encrypt"),
+                antMatcher("/action/get-file"),
+                antMatcher("/action/file-info"),
+                antMatcher("/action/delete-file"),
+                antMatcher("/screen/public/**"),
+                antMatcher("/screen-data/**")).permitAll()
+            // File and upload controllers
+            .requestMatchers(
+                antMatcher("/file/text"),
+                antMatcher("/file/stream"),
+                antMatcher("/file/download"),
+                antMatcher("/file/upload"),
+                antMatcher("/file/delete")).permitAll()
+            // Public queries and maintains
+            .requestMatchers(
+                antMatcher("/action/data*/**"),
+                antMatcher("/action/control*/**"),
+                antMatcher("/action/update*/**"),
+                antMatcher("/action/control*/**"),
+                antMatcher("/action/unique*/**"),
+                antMatcher("/action/value*/**"),
+                antMatcher("/action/validate*/**"),
+                antMatcher("/action/subscribe*/**"),
+                antMatcher("/action/maintain*/**"),
+                antMatcher("/action/get-file-maintain/**"),
+                antMatcher("/file/stream/maintain/**"),
+                antMatcher("/file/download/maintain/**")).access(publicQueryMaintainAuthorization(elements))
+            // 2FA endpoint
+            .requestMatchers(antMatcher("/access/**")).authenticated()
+            // Any other request
+            .anyRequest().authenticated()
+        )
+        // Add a filter to parse login parameters
+        .addFilterAt(jsonAuthenticationFilter(baseConfigProperties, elements, actionService, objectMapper), UsernamePasswordAuthenticationFilter.class)
+        // Add logout handler
+        .logout().logoutUrl("/action/logout")
+        .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
+        .addLogoutHandler(logoutHandler(sessionDetails))
+        // Security context repository (to adapt for spring security 6)
+        .and().securityContext().securityContextRepository(securityContextRepository())
+        // Login redirect
+        .and().formLogin().loginPage("/").permitAll()
+        // Exceptions handling
+        .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+        .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(sessionDetails), new AntPathRequestMatcher("/action/**"))
+        // Csrf SPA customize
+        .and().csrf(csrf -> csrf
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+        )
+        .addFilterAfter(new CsrfCookieFilter(), JsonAuthenticationFilter.class);
 
     if (securityConfigProperties.isSameOriginEnable()) {
       httpSecurity.headers().frameOptions().sameOrigin();
     }
 
     return httpSecurity.build();
+  }
+
+  @Bean
+  MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+    return new MvcRequestMatcher.Builder(introspector);
   }
 
   /**

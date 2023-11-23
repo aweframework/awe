@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 /**
  * REST security configuration
  */
@@ -24,14 +26,15 @@ public class SchedulerSecurityConfig extends ServiceConfig {
   @Bean(name = "aweSchedulerSecurityFilterChain")
   @Order(98)
   public SecurityFilterChain schedulerFilterChain(HttpSecurity httpSecurity) throws Exception {
-      httpSecurity.securityMatcher("/scheduler/api/**").authorizeHttpRequests(httpRequest -> httpRequest
-                      // Filter /scheduler/api urls
-                      .requestMatchers("/scheduler/api/**").anonymous()
-              )
-              // Disable csrf
-              .csrf().disable()
-              // No session cookie for API endpoints
-              .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    httpSecurity.securityMatcher("/scheduler/api/**")
+        .authorizeHttpRequests(httpRequest -> httpRequest
+            // Filter /scheduler/api urls
+            .requestMatchers(antMatcher("/scheduler/api/**")).anonymous()
+        )
+        // Disable csrf
+        .csrf().disable()
+        // No session cookie for API endpoints
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     return httpSecurity.build();
   }
