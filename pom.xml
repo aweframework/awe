@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.7.7</version>
+  <version>4.7.8</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.7.7</revision>
+    <revision>4.7.8</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -253,7 +253,7 @@
             <extensions>true</extensions>
             <configuration>
               <serverId>central</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
               <stagingProgressTimeoutMinutes>60</stagingProgressTimeoutMinutes>
             </configuration>
@@ -300,12 +300,10 @@
   <distributionManagement>
     <repository>
       <id>central</id>
-      <name>Releases</name>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <snapshotRepository>
       <id>central</id>
-      <name>Snapshots</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>

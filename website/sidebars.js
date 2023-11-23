@@ -33,6 +33,7 @@ module.exports = {
               collapsed: true,
               items: [
                 'annotations',
+                'developer',
                 'developer-tools',
                 'builder',
                 'rest',

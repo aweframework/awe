@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.7.7</version>
+    <version>4.7.8</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -216,6 +216,11 @@
       <artifactId>hsqldb</artifactId>
       <scope>runtime</scope>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.h2database</groupId>-->
+<!--      <artifactId>h2</artifactId>-->
+<!--      <scope>runtime</scope>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>com.mysql</groupId>
       <artifactId>mysql-connector-j</artifactId>

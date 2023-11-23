@@ -52,6 +52,12 @@ To use this module, the following steps are necessary:
 </info>
 ```
 
+- Configure property value to add `awe-notifier` to module list.
+
+```properties
+awe.application.module-list = APP, ..., awe-notifier, ..., awe
+```
+
 - Finally, if you are using `flyway`, add the notifier tables into the migration module:
 
 ```properties

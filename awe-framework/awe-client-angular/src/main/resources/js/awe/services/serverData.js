@@ -37,7 +37,7 @@ aweApplication.factory('ServerData',
 
           // Send ajax post
           return Connection.post(ServerData.getScreenDataUrl(screen), parameters, "application/json").then(screenData => {
-            ServerData.storeScreenData(screenData.data, view);
+            Storage.put("screenData-" + view, screenData.data);
             return screenData.data.template;
           });
         },
@@ -47,7 +47,6 @@ aweApplication.factory('ServerData',
          * @param {String} view Screen view
          */
         storeScreenData: function (data, view) {
-          Storage.put("screenData", data);
           let controller = Storage.get("controller");
           let messages = Storage.get("messages");
           let api = Storage.get("api");
