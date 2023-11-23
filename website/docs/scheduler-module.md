@@ -41,6 +41,12 @@ To activate this module, follow this steps:
 </option>
 ```
 
+- Configure property value to add `awe-scheduler` to module list.
+
+```properties
+awe.application.module-list = APP, ..., awe-scheduler, ..., awe
+```
+
 - Finally, if you are using `flyway`, add the scheduler tables into the migration module:
 
 ```properties
