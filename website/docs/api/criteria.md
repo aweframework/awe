@@ -41,10 +41,10 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 
 ## Criteria structure
 
-| Element                         | Use          | Multiples instances | Description                                               |
-|---------------------------------|--------------|---------------------|-----------------------------------------------------------|
-| [criteria](#general-attributes) | **Required** | No                  | Global node of criteria. Defines the criterion attributes |
-| [dependency](dependencies.md)   | Optional     | Yes                 | List of dependencies attached to the criterion            |
+| Element                         | Use           | Multiples instances | Description                                               |
+|---------------------------------|---------------|---------------------|-----------------------------------------------------------|
+| [criteria](#general-attributes) | **Required**  | No                  | Global node of criteria. Defines the criterion attributes |
+| [dependency](dependencies.md)   | Optional      | Yes                 | List of dependencies attached to the criterion            |
 
 ### General attributes
 
@@ -187,6 +187,17 @@ Allows the user to search a value by typing some characters of the seek value.
 <img alt="Suggest" src={require('@docusaurus/useBaseUrl').default('img/Suggest.png')} />
 
 > **Note:** The *typed* text is sent to the server as `suggest` parameter, but only when the query is used to fill in the options. Otherwise, suggest's id should be used as usual.
+>
+> **Important:** `initial-load="query"` or `initial-load="enum"` attributes must not be used with this
+> component, as it search for the values when typing. If you want to set an initial value on the
+> suggest component, you should use the `target` attribute on screen or the `variable` attribute on
+> the criterion.
+>
+> The `check-target` attribute will make to launch a query when criterion is initialized **only if**
+> the criterion data has `value` field but no `label` field (i.e. if suggest component has been loaded)
+> with a `target` query on screen load but only with a field instead of a compound field with `value`
+> and `label` fields).
+
 
 ### Select VS Suggest
 
