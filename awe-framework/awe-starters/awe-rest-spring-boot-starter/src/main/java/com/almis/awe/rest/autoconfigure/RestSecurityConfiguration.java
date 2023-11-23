@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 /**
  * REST security configuration
  */
@@ -33,13 +35,6 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
   private static final String[] API_URL_LIST = {
           "/api/**",
-          // -- Swagger UI v3 (OpenAPI)
-          "/v3/api-docs/**",
-          "/swagger-ui/**"
-  };
-
-  private static final String[] ALLOW_LIST = {
-          "/api/authenticate",
           // -- Swagger UI v3 (OpenAPI)
           "/v3/api-docs/**",
           "/swagger-ui/**"
@@ -69,12 +64,17 @@ public class RestSecurityConfiguration extends ServiceConfig {
   @Order(99)
   public SecurityFilterChain restFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity.securityMatcher(API_URL_LIST).authorizeHttpRequests(httpRequest -> httpRequest
-                    // Swagger UI and api authenticate
-                    .requestMatchers(ALLOW_LIST).permitAll()
-                    // Filter public queries and maintains
-                    .requestMatchers("/api/public/data/**", "/api/public/maintain/**").access(publicQueryMaintainAuthorization)
-                    // Any requests needs be authenticated
-                    .anyRequest().authenticated()
+                // Swagger UI and api authenticate
+                .requestMatchers(
+                    antMatcher("/api/authenticate"),
+                    antMatcher("/v3/api-docs/**"),
+                    antMatcher("/swagger-ui/**")).permitAll()
+                // Filter public queries and maintains
+                .requestMatchers(
+                    antMatcher("/api/public/data/**"),
+                    antMatcher("/api/public/maintain/**")).access(publicQueryMaintainAuthorization)
+                // Any requests needs be authenticated
+                .anyRequest().authenticated()
             )
             // Handles unauthorized attempts to access protected URLS
             .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
