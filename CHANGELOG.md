@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.7.9
+*27/11/2023*
+
+- Notifier module: Email notification doesn't search the user subscriptions to send the notification. [MR #481](https://gitlab.com/aweframework/awe/-/merge_requests/481) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.8
 *23/11/2023*
 
