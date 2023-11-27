@@ -52,8 +52,15 @@ To use this module, the following steps are necessary:
 </info>
 ```
 
-- Finally, if you are using `flyway`, add the notifier tables into the migration module:
+- If you are using `flyway`, add the notifier tables into the migration module:
 
 ```properties
 awe.database.migration-modules=AWE,...,NOTIFIER,...
+```
+
+- Finally, add the `from` name and email properties to set the notification email sender:
+
+```properties
+awe.notifier.from-name=Notifier
+awe.notifier.from-email=notifier-sender@test.com
 ```
