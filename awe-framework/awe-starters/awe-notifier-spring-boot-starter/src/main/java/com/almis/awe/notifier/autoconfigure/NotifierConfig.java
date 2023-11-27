@@ -1,11 +1,13 @@
 package com.almis.awe.notifier.autoconfigure;
 
 import com.almis.awe.model.service.DataListService;
+import com.almis.awe.notifier.autoconfigure.config.NotifierConfigProperties;
 import com.almis.awe.notifier.service.NotifierService;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -14,6 +16,7 @@ import org.springframework.core.env.Environment;
  * Notifier module configuration
  */
 @Configuration
+@EnableConfigurationProperties({NotifierConfigProperties.class})
 public class NotifierConfig {
 
   // Autowired services
