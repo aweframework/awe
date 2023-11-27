@@ -9,12 +9,17 @@
 
 <emails xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/email.xsd">
   <email id="notify-users">
-    <from query="SesUsr" label="SesNam" value="SesEma" />
+    <from label="FromName" value="FromEmail" />
     <to query="GetEmaLst" label="UsrNam" value="UsrEml" />
     <subject label="EMAIL_SUBJECT_NOTIFY" value="asd"/>
     <body label="EMAIL_MESSAGE_HTML_HEADER" type="html" value=""/>
     <body label="EMAIL_MESSAGE_HTML_NOTIFY" type="html" value=""/>
     <body label="EMAIL_MESSAGE_HTML_BOTTOM" type="html" value=""/>
     <body label="EMAIL_MESSAGE_TEXT_NOTIFY" type="text" value=""/>
+    <variable id="FromName" type="STRING" property="awe.notifier.from-name"/>
+    <variable id="FromEmail" type="STRING" property="awe.notifier.from-email"/>
+    <variable id="title" type="STRING" name="title"/>
+    <variable id="subscription" type="STRING" name="subscription"/>
+    <variable id="description" type="STRING" name="description"/>
   </email>
 </emails>

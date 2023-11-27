@@ -1,11 +1,8 @@
 
-# Changelog for AWE 4.7.8
-*23/11/2023*
+# Changelog for AWE 4.7.9
+*27/11/2023*
 
-- Document advise to avoid using initial-load with suggest components (specially if the query has variables inside the screen). [MR #480](https://gitlab.com/aweframework/awe/-/merge_requests/480) (Pablo Javier García Mora)
-- Add module-list step in modules documentation. [MR #479](https://gitlab.com/aweframework/awe/-/merge_requests/479) (Pablo Vidal Otero)
-- Spring security cve-2023-34035. [MR #478](https://gitlab.com/aweframework/awe/-/merge_requests/478) (Pablo Vidal Otero)
-- Sometimes components are loaded before load protocol, returning a timeout as components can't be found. [MR #477](https://gitlab.com/aweframework/awe/-/merge_requests/477) (Pablo Javier García Mora)
+- Notifier module: Email notification doesn't search the user subscriptions to send the notification. [MR #481](https://gitlab.com/aweframework/awe/-/merge_requests/481) (Pablo Javier García Mora)
 
 # Changelog for AWE 4.7.8
 *23/11/2023*

@@ -9,6 +9,7 @@ import com.almis.awe.model.entities.email.EmailItem;
 import com.almis.awe.model.entities.email.EmailMessage;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.EmailMessageType;
+import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.QueryService;
@@ -23,7 +24,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
 @Getter
@@ -81,15 +81,6 @@ public class XMLEmailBuilder extends EmailBuilder {
     parseAttachments();
 
     return this;
-  }
-
-  /**
-   * Get variables
-   *
-   * @return Map with Variable
-   */
-  public Map<String, Variable> getVariables() {
-    return variables;
   }
 
   /**
@@ -353,15 +344,14 @@ public class XMLEmailBuilder extends EmailBuilder {
    */
   private void manageQueryResults(String query) throws AWException {
     if (query != null) {
-      ServiceData result = queryService.launchPrivateQuery(query);
+      ServiceData result = queryService.launchPrivateQuery(query, parameters);
       if (result.getDataList() != null && result.getDataList().getRows() != null) {
         for (Map<String, CellData> row : result.getDataList().getRows()) {
-          for (Entry<String, CellData> entry : row.entrySet()) {
-            Variable variable = new Variable();
-            variable.setName(entry.getKey());
-            variable.setValue(entry.getValue().getStringValue());
-            addVariable(variable);
-          }
+          row.forEach((key, value) -> addVariable(new Variable()
+            .setId(key)
+            .setType(ParameterType.STRING.toString())
+            .setName(key)
+            .setValue(value.getStringValue())));
         }
       }
     }
