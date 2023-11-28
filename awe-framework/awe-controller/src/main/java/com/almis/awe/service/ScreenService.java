@@ -76,7 +76,7 @@ public class ScreenService extends ServiceConfig {
     String optionId = this.getRequest().getParameterAsString(AweConstants.PARAMETER_OPTION);
     ScreenData screenData;
     try {
-      screenData = generateScreenData(optionId);
+      screenData = generateScreenData(optionId, true);
     } catch (AWESessionException exc) {
       screenData = generateScreenDataError(exc);
       screenData.addError(exc);
@@ -106,10 +106,11 @@ public class ScreenService extends ServiceConfig {
    * Generates an screen data
    *
    * @param optionId Option identifier
+   * @param generateTemplate Generate template
    * @return Screen data
    * @throws AWException Screen data generation failed
    */
-  public ScreenData generateScreenData(String optionId) throws AWException {
+  public ScreenData generateScreenData(String optionId, boolean generateTemplate) throws AWException {
     // Get screen
     Screen screen = getScreenFromOptionId(optionId);
 
@@ -117,7 +118,7 @@ public class ScreenService extends ServiceConfig {
     initializeScreenNavigation(screen, optionId);
 
     // Generate map with model and controller data
-    return getScreenData(screen, optionId);
+    return getScreenData(screen, optionId, generateTemplate);
   }
 
   /**
@@ -160,11 +161,12 @@ public class ScreenService extends ServiceConfig {
 
   /**
    * Retrieve screen data
+   * @param generateTemplate Generate template
    *
    * @return Screen data
    */
-  public ScreenData getScreenData() {
-    return getScreenData(null);
+  public ScreenData getScreenData(boolean generateTemplate) {
+    return getScreenData(null, generateTemplate);
   }
 
   /**
@@ -173,14 +175,16 @@ public class ScreenService extends ServiceConfig {
    * @param optionId Option id
    * @return Screen data
    */
-  public ScreenData getScreenData(String optionId) {
+  public ScreenData getScreenData(String optionId, boolean generateTemplate) {
     try {
-      ScreenData screenData = generateScreenData(optionId);
-      screenData.setStructure(getScreenFromOptionId(optionId));
+      ScreenData screenData = generateScreenData(optionId, generateTemplate);
+      if (!generateTemplate) {
+        screenData.setStructure(getScreenFromOptionId(optionId));
+      }
       return screenData;
     } catch (AWException exc) {
       log.error("Error retrieving screen structure for option {}", optionId, exc);
-      return new ScreenData();
+      return generateScreenDataError(exc);
     }
   }
 
@@ -189,10 +193,11 @@ public class ScreenService extends ServiceConfig {
    *
    * @param screen   Screen object
    * @param optionId Option identifier
+   * @param generateTemplate Generate template
    * @return Screen data
    * @throws AWException Error retrieving menu
    */
-  private ScreenData getScreenData(Screen screen, String optionId) throws AWException {
+  private ScreenData getScreenData(Screen screen, String optionId, boolean generateTemplate) throws AWException {
     ScreenData data = new ScreenData();
     Menu menu = menuService.getMenu();
 
@@ -214,8 +219,10 @@ public class ScreenService extends ServiceConfig {
     // Add components to screen data
     addComponentsToScreenData(data, componentMap);
 
-    // Add template to screen data
-    addTemplateToScreenData(screen, data, getRequest().getParameterAsString("view"), optionId);
+    if (generateTemplate) {
+      // Add template to screen data
+      addTemplateToScreenData(screen, data, getRequest().getParameterAsString("view"), optionId);
+    }
 
     return data;
   }

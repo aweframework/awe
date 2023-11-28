@@ -3,9 +3,12 @@ package com.almis.awe.controller;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.ScreenService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * Manage all incoming action requests
@@ -43,7 +46,7 @@ public class ScreenDataController {
     request.setParameterList(parameters);
 
     // Launch action
-    return screenService.getScreenData();
+    return screenService.getScreenData(generateTemplate());
   }
 
   /**
@@ -61,6 +64,14 @@ public class ScreenDataController {
     request.setParameterList(parameters);
 
     // Launch action
-    return screenService.getScreenData(optionId);
+    return screenService.getScreenData(optionId, generateTemplate());
+  }
+
+  /**
+   * Check template parameter
+   * @return Generate template or not
+   */
+  private boolean generateTemplate() {
+    return Optional.ofNullable(request.getParameter("template")).map(JsonNode::asBoolean).orElse(true);
   }
 }

@@ -36,10 +36,11 @@ aweApplication.factory('ServerData',
           $log.info(`Retrieving screen data for ${screenToRetrieve}`);
 
           // Send ajax post
-          return Connection.post(ServerData.getScreenDataUrl(screen), parameters, "application/json").then(screenData => {
-            Storage.put("screenData-" + view, screenData.data);
-            return screenData.data.template;
-          });
+          return Connection.post(ServerData.getScreenDataUrl(screen), {...parameters, template: true}, "application/json")
+              .then(screenData => {
+                Storage.put("screenData-" + view, screenData.data);
+                return screenData.data.template;
+              });
         },
         /**
          * Store the loaded screen data
