@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.7.10
+*29/11/2023*
+
+- Add information on data retrieval for component type select / select-multiple / suggest / suggest-multiple. [MR #483](https://gitlab.com/aweframework/awe/-/merge_requests/483) (Pablo Javier García Mora)
+- Fix security settings to allow access to locale reading from React. [MR #482](https://gitlab.com/aweframework/awe/-/merge_requests/482) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.9
 *27/11/2023*
 
