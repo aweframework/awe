@@ -3,15 +3,12 @@ package com.almis.awe.test.controller;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.session.AweSessionDetails;
 import com.almis.awe.test.listener.TestSessionListener;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by dfuentes on 29/05/2017.

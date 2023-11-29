@@ -28,9 +28,9 @@ public class SpecificSecurityConfig {
   @Bean(name = "customSecurityFilterChain")
   @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity.antMatcher(actuatorEndpoint + "/**").anonymous()
-      .and().csrf().disable();
-    return httpSecurity.build();
+    return httpSecurity.securityMatcher(actuatorEndpoint + "/**").anonymous()
+      .and().csrf().disable()
+      .build();
   }
 
   @Bean
