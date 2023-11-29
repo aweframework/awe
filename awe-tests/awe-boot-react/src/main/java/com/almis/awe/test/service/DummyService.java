@@ -13,13 +13,13 @@ import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.test.bean.Planet;
 import com.almis.awe.test.bean.Planets;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

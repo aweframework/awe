@@ -16,7 +16,7 @@
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <wavefront.version>2.2.2</wavefront.version>
@@ -43,6 +43,7 @@
     <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
     <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
     <build.environment>development</build.environment>
+    <plugin-spring-boot.version>3.1.2</plugin-spring-boot.version>
   </properties>
 
   <dependencies>
@@ -100,10 +101,17 @@
       <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
     </dependency>
 
-    <!-- Secret management -->
+    <!-- Google cloud integration -->
     <dependency>
       <groupId>com.google.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
+      <artifactId>spring-cloud-gcp-starter</artifactId>
+    </dependency>
+
+    <!-- EHcache -->
+    <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <classifier>jakarta</classifier>
     </dependency>
 
     <!-- Redis cache server -->
@@ -116,6 +124,21 @@
       <artifactId>spring-session-data-redis</artifactId>
     </dependency>
 
+    <!--  Observability and metrics -->
+    <!--  prometheus -->
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-exporter-otlp</artifactId>
+    </dependency>
+
     <!-- JDBC Drivers -->
     <dependency>
       <groupId>org.hsqldb</groupId>
@@ -123,8 +146,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
       <scope>runtime</scope>
     </dependency>
 
@@ -138,13 +161,6 @@
       <artifactId>flyway-sqlserver</artifactId>
     </dependency>
 
-    <!--  Wavefront metrics -->
-    <dependency>
-      <groupId>com.wavefront</groupId>
-      <artifactId>wavefront-spring-boot-starter</artifactId>
-      <version>${wavefront.version}</version>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>com.almis.awe</groupId>
@@ -156,6 +172,18 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.mail</groupId>
+      <artifactId>jakarta.mail-api</artifactId>
+      <version>2.1.2</version>
     </dependency>
   </dependencies>
 
@@ -330,6 +358,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
         <configuration>
           <skip>${skip.junit}</skip>
           <includes>
@@ -344,6 +373,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.1.2</version>
         <executions>
           <execution>
             <id>integration-test</id>
@@ -423,11 +453,10 @@
                 <configuration>
                   <arguments>
                     <argument>--integration-test</argument>
-                    <argument>--management.metrics.export.wavefront.enabled=false</argument>
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>
-                  <fork>true</fork>
+                  <jvmArguments>${failsafe.argLine}</jvmArguments>
                 </configuration>
                 <goals>
                   <goal>start</goal>
@@ -449,19 +478,11 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- Add Wavefront Cloud Dependency BOM -->
-      <dependency>
-        <groupId>com.wavefront</groupId>
-        <artifactId>wavefront-spring-boot-bom</artifactId>
-        <version>${wavefront.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <!-- Spring Cloud GCP -->
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>spring-cloud-gcp-dependencies</artifactId>
-        <version>2.0.5</version>
+        <version>4.7.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
