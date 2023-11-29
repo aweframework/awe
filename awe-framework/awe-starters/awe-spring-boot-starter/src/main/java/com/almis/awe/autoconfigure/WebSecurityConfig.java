@@ -122,6 +122,7 @@ public class WebSecurityConfig {
                 antMatcher("/js/**"),
                 antMatcher("/fonts/**"),
                 antMatcher("/images/**"),
+                antMatcher("/locales/**"),
                 antMatcher("/error**"),
                 antMatcher("/websocket/**"),
                 antMatcher("/template/**"),
