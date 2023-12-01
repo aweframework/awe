@@ -19,7 +19,6 @@
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <wavefront.version>2.2.2</wavefront.version>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
     <!-- Frontend configuration -->
@@ -361,11 +360,7 @@
         <version>3.1.2</version>
         <configuration>
           <skip>${skip.junit}</skip>
-          <includes>
-            <include>${surefire.suite}</include>
-          </includes>
-          <parallel>suites</parallel>
-          <useUnlimitedThreads>true</useUnlimitedThreads>
+          <groups>${test.tags}</groups>
         </configuration>
       </plugin>
 
@@ -384,9 +379,6 @@
             <configuration>
               <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
               <skip>${skip.selenium}</skip>
-              <includes>
-                <include>${failsafe.suite}</include>
-              </includes>
               <systemPropertyVariables>
                 <failsafe.browser>${browser}</failsafe.browser>
               </systemPropertyVariables>
@@ -436,6 +428,13 @@
                   <goal>integration-test</goal>
                   <goal>verify</goal>
                 </goals>
+                <configuration>
+                  <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                  <skip>${skip.selenium}</skip>
+                  <systemPropertyVariables>
+                    <awe.test.browser>${browser}</awe.test.browser>
+                  </systemPropertyVariables>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -456,6 +455,7 @@
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>
+                  <fork>true</fork>
                   <jvmArguments>${failsafe.argLine}</jvmArguments>
                 </configuration>
                 <goals>

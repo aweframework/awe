@@ -8,7 +8,7 @@
 -->
 <menu screen="signin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen" default-action="screen">
   <option name="signin" screen="signin" invisible="true" />
-  <option name="change_password" screen="change_password" invisible="true" />
+  <option name="change-password" screen="change-password" invisible="true" />
   <option name="information" screen="info" invisible="true" />
   <option name="test-initial-load" screen="TestInitialLoad" />
   <option name="test-initial-values" screen="TestInitialValues" />

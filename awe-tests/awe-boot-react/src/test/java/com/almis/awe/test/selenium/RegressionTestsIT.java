@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
@@ -16,7 +16,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -24,7 +24,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**
@@ -36,13 +36,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     setTestTitle("Select test module: Test to select test module");
 
     // Select module
-    selectModule("Test");
-
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    selectTestModule();
   }
 
   /**
@@ -60,7 +54,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     waitForButton("ButPrn");
 
     // Click on tab
-    clickTab("TabSelMat", "EDITABLE");
+    clickTab("TabSelMat", "ENUM_MATRIX_EDITABLE");
 
     // Check row contents
     checkRowContents("Prueba - adminflare");
@@ -339,7 +333,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t012_fillOverSelect() {
-    t001_selectTestModule();
+    selectTestModule();
 
     // Title
     setTestTitle("Test filling a select with less values than usual");
@@ -392,7 +386,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t020_checkDependenciesAfterRestore() {
-    t001_selectTestModule();
+    selectTestModule();
 
     // Title
     setTestTitle("Check if dependencies are working after restore (issue #279)");
@@ -447,15 +441,80 @@ class RegressionTestsIT extends SeleniumUtilities {
     checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked");
   }
 
+  /**
+   * Test for select all rows of grid
+   */
+  @Test
+  void t040_suggestChangeValue() {
+    selectTestModule();
 
-    /**
-     * Suggest delayed
-     * @param selector Selector
-     * @param search1 Search on first case
-     * @param search2 Search on second case
-     * @param match Match result
-     * @param pause Pause
-     */
+    // Title
+    setTestTitle("Launch 2 selected actions into a suggest and check value has changed successfully");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test-left");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Wait for button
+    waitForButton("ButtonLoadSuggest");
+
+    // Click on button
+    clickButton("ButtonLoadSuggest", true);
+
+    // Check suggest value
+    checkSelectContents("SugTst", "DjrRepPth");
+
+    // Click on button
+    clickButton("ButtonLoadSuggest2", true);
+
+    // Check suggest value
+    checkSelectContents("SugTst", "DjrHdgPag");
+
+    // Click on button
+    clickButton("ButtonResetSuggest", true);
+
+    // Check suggest value
+    checkSelectContents("SugTst", "");
+  }
+
+  /**
+   * Test update suggest multiple with dependency
+   */
+  @Test
+  void t050_updateSuggestMultipleWithDependency() {
+    selectTestModule();
+
+    // Title
+    setTestTitle("Update suggest multiple with dependency");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Write on criterion
+    writeText("Txt", "suggest-multiple");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
+    // Check suggest value
+    checkMultipleSelectorContents("SugMul", "pei (pei@test.com)");
+    checkMultipleSelectorContents("SugMul", "test (test@test.com)");
+  }
+
+  /**
+   * Suggest delayed
+   *
+   * @param selector Selector
+   * @param search1  Search on first case
+   * @param search2  Search on second case
+   * @param match    Match result
+   * @param pause    Pause
+   */
   private void suggestDelayed(String selector, String search1, String search2, String match, Integer pause) {
     // Write text
     writeText(By.cssSelector(selector + " input.select2-input"), search1);
@@ -471,5 +530,19 @@ class RegressionTestsIT extends SeleniumUtilities {
 
     // Click selector
     selectResult(match);
+  }
+
+  /**
+   * Select test module
+   */
+  private void selectTestModule() {
+    // Select module
+    selectModule("Test");
+
+    // Wait for text
+    waitForText("mm-text", "Tests");
+
+    // Check text
+    checkVisible("[translate-multiple='MENU_TEST'");
   }
 }

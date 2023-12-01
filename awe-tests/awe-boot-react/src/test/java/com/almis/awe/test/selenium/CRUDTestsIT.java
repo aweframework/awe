@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ class CRUDTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -25,12 +25,11 @@ class CRUDTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**
    * Go to a screen to add a new option
-   *
    * @param options Menu options
    */
   private void addNew(String... options) {
@@ -46,7 +45,6 @@ class CRUDTestsIT extends SeleniumUtilities {
 
   /**
    * Go to a screen to add a new option
-   *
    * @param options Menu options
    */
   private void update(String suggest, String search, String... options) {
@@ -100,10 +98,9 @@ class CRUDTestsIT extends SeleniumUtilities {
 
   /**
    * Delete from a screen
-   *
    * @param criterion Criterion to search
-   * @param search    Search text
-   * @param options   Screen options
+   * @param search Search text
+   * @param options Screen options
    */
   private void delete(String criterion, String search, String... options) {
     // Go to screen
@@ -152,7 +149,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Usr", "test selenium");
 
     // Select on selector
-    selectContain("Sta", "Yes");
+    selectContain("Sta",  "Yes");
 
     // Insert text
     writeText("Pas", "1234");
@@ -197,10 +194,10 @@ class CRUDTestsIT extends SeleniumUtilities {
     clickButton("ButGrdAdd");
 
     // Suggest on column selector
-    suggest("SitModDbsLst", "IdeMod", "Base", "Base");
+    selectContain("SitModDbsLst", "IdeMod", "Base");
 
     // Suggest on column selector
-    suggest("SitModDbsLst", "IdeDbs", "awedb", "awedb");
+    selectContain("SitModDbsLst", "IdeDbs", "awedb");
 
     // Write on criterion
     writeText("SitModDbsLst", "Order", "3");
@@ -236,10 +233,10 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Nam", "Site changed");
 
     // Click row
-    clickRowContents("Base");
+    editRow("Base");
 
     // Suggest on column selector
-    suggest("SitModDbsLst", "IdeDbs", "awedb2", "awedb2");
+    selectContain("SitModDbsLst", "IdeDbs", "awedb2");
 
     // Save line
     saveRow();
@@ -269,7 +266,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     addNew("tools", "modules");
 
     // Select option
-    suggest("Nam", "Inf", "Inf");
+    selectContain("Nam", "Inf");
 
     // Suggest on selector
     suggest("Scr", "Sites", "Sites");
@@ -281,7 +278,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Ord", "3");
 
     // Select on selector
-    suggest("Act", "Yes", "Yes");
+    selectContain("Act",  "Yes");
 
     // Click on button
     clickButton("ButMdlUsrLstAdd");
@@ -296,7 +293,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     saveRow("MdlUsrLst");
 
     // Check row values
-    checkRowContentsGrid("MdlUsrLst", "test", "sky");
+    checkRowContentsGrid("MdlUsrLst","test", "sky");
 
     // Click on button
     clickButton("ButMdlPrfLstAdd");
@@ -308,7 +305,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     saveRow("MdlPrfLst");
 
     // Check row values
-    checkRowContentsGrid("MdlPrfLst", "TS");
+    checkRowContentsGrid("MdlPrfLst","TS");
 
     // Click on button
     clickButton("ButMdlSitDbsLstAdd");
@@ -323,7 +320,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     saveRow("MdlSitDbsLst");
 
     // Check row values
-    checkRowContentsGrid("MdlSitDbsLst", "Site", "awedb");
+    checkRowContentsGrid("MdlSitDbsLst","Site", "awedb");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
@@ -338,7 +335,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkCriterionContents("Thm", "grass");
 
     // Check contents
-    checkSelectContents("Scr", "Sites (Sit)");
+    checkSuggestContents("Scr", "Sites (Sit)");
 
     // Check row contents
     checkRowContents("test", "TST", "Site changed");
@@ -356,13 +353,13 @@ class CRUDTestsIT extends SeleniumUtilities {
     update("CrtMod", "Inf", "tools", "modules");
 
     // Write on criterion
-    suggest("Nam", "Inf Changed", "Inf Changed");
+    selectContain("Nam", "Inf Changed");
 
     // Write on criterion
     suggest("Scr", "Usr", "Usr");
 
     // Click row
-    clickRowContents("test");
+    editRow("test");
 
     // Suggest on column selector
     selectContain("MdlUsrLst", "IdeThm", "grass");
@@ -371,10 +368,10 @@ class CRUDTestsIT extends SeleniumUtilities {
     saveRow("MdlUsrLst");
 
     // Check row values
-    checkRowContentsGrid("MdlUsrLst", "grass");
+    checkRowContentsGrid("MdlUsrLst","grass");
 
     // Click row
-    clickRowContents("TST");
+    editRow("TST");
 
     // Suggest on column selector
     selectContain("MdlPrfLst", "IdePro", "ADM - Administrator");
@@ -383,10 +380,10 @@ class CRUDTestsIT extends SeleniumUtilities {
     saveRow("MdlPrfLst");
 
     // Check row values
-    checkRowContentsGrid("MdlPrfLst", "ADM - Administrator");
+    checkRowContentsGrid("MdlPrfLst","ADM - Administrator");
 
     // Click row
-    clickRowContents("Site changed");
+    editRow("Site changed");
 
     // Suggest on column selector
     selectContain("MdlSitDbsLst", "IdeDbs", "awedb2");
@@ -395,7 +392,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     saveRow("MdlSitDbsLst");
 
     // Check row values
-    checkRowContentsGrid("MdlSitDbsLst", "awedb2");
+    checkRowContentsGrid("MdlSitDbsLst","awedb2");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
@@ -410,7 +407,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkCriterionContents("Thm", "grass");
 
     // Check criterion
-    checkSelectContents("Scr", "Usr");
+    checkSuggestContents("Scr", "Usr");
 
     // Check row contents
     checkRowContents("test", "ADM", "Site changed");
@@ -434,7 +431,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Nam", "Test profile");
 
     // Select on selector
-    suggest("Act", "Yes", "Yes");
+    selectContain("Act",  "Yes");
 
     // Suggest on  selector
     suggest("IdeThm", "sunse", "sunse");
@@ -443,7 +440,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     suggest("ScrIni", "Modules", "Modules");
 
     // Verify criterion
-    checkSelectContents("IdeThm", "sunset");
+    checkSuggestContents("IdeThm", "sunset");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
@@ -509,31 +506,31 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Als", "DBSTest");
 
     // Select on selector
-    selectContain("Dct", "Jdbc");
+    selectContain("Dct",  "Jdbc");
 
     // Insert text
     writeText("Dbc", "jdbc:hsqldb:file:awe-tests/awe-boot/target/db/awe-boot");
 
     // Select on selector
-    selectContain("Typ", "Development");
+    selectContain("Typ",  "Development");
 
     // Insert text
     writeText("Des", "This is a test case of new DataBase");
 
     // Select on selector
-    selectContain("Dbt", "HSQL");
+    selectContain("Dbt",  "HSQL");
 
     // Click on button
     clickButton("ButSitModDbsLstAdd");
 
     // Suggest on column selector
-    suggest("SitModDbsLst", "IdeSit", "Site changed", "Site changed");
+    selectContain("SitModDbsLst", "IdeSit", "Site changed");
 
     // Suggest on column selector
-    suggest("SitModDbsLst", "IdeMod", "Inf Changed", "Inf Changed");
+    selectContain("SitModDbsLst", "IdeMod", "Inf Changed");
 
     // Insert text
-    writeText("SitModDbsLst", "Ord", "5");
+    writeText("SitModDbsLst","Ord", "5");
 
     // Save line
     saveRow();
@@ -569,7 +566,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Als", "DBSTest Changed");
 
     // Select on selector
-    selectContain("Dct", "Jdbc");
+    selectContain("Dct",  "Jdbc");
 
     // Insert text
     writeText("Dbc", "Test");
@@ -578,10 +575,10 @@ class CRUDTestsIT extends SeleniumUtilities {
     writeText("Des", "This is a tes case of modify DB");
 
     // Click on row
-    clickRowContents("Site changed");
+    editRow("Site changed");
 
     // Suggest on column selector
-    suggest("SitModDbsLst", "IdeMod", "Test", "Test");
+    selectContain("SitModDbsLst", "IdeMod", "Test");
 
     // Save line
     saveRow();
@@ -635,10 +632,10 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkCriterionContents("Eml", "test@almis.com");
 
     // Check contents
-    checkSelectContents("Thm", "grass");
+    checkSuggestContents("Thm", "grass");
 
     // Check contents
-    checkSelectContents("Pro", "TS1 - Profile changed");
+    checkSuggestContents("Pro", "TS1 - Profile changed");
   }
 
   /**
@@ -680,7 +677,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkCriterionContents("Usr", "test selenium");
 
     // Store and confirm
-    clickButtonAndConfirm("ButCnf", "warning");
+    clickButtonAndConfirm("ButCnf", "warn");
   }
 
   /**

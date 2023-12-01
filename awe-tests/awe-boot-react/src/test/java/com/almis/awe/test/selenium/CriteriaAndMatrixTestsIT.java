@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
@@ -15,7 +15,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -23,7 +23,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**
@@ -38,10 +38,10 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     selectModule("Test");
 
     // Wait for text
-    waitForText("mm-text", "Tests");
+    waitForText("p-menuitem-text", "Tests");
 
     // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    checkVisible(".p-menuitem.test");
   }
 
   /**
@@ -62,13 +62,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     checkCriterionContents("Tar", "checkbox off");
 
     // Check selector
-    checkSelectContents("Sug", "test (Manager)");
+    checkSuggestContents("Sug", "test (Manager)");
 
     // Click button
     clickButton("ButRst");
 
     // Check selector
-    checkSelectContents("Sug", "");
+    checkSuggestContents("Sug", "test (Manager)");
   }
 
   /**
@@ -133,13 +133,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickDate("FilCal");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
+    click(".p-datepicker .p-datepicker-calendar td span:not(.p-disabled)");
 
     // Click on date
     clickDate("FilCalReq");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
+    click(".p-datepicker .p-datepicker-calendar td span:not(.p-disabled)");
 
     // Check date contents
     checkCriterionContents("Cal", "23/10/1978");
@@ -224,7 +224,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     setTestTitle("Test criteria: Select and suggest multiple");
 
     // Select on selector
-    suggestMultiple("SelMul", "e", "e");
+    suggestMultiple("SelMul", "test@", "test@");
 
     // Verify text
     checkMultipleSelectorContents("SelMul", "test (test@test.com)");
@@ -236,13 +236,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     checkMultipleSelectorContents("SelMulReq", "General");
 
     // Select on selector
-    suggestMultiple("SugMul", "e", "e");
+    suggestMultiple("SugMul", "test", "test");
 
     // Verify text
     checkMultipleSelectorContents("SugMul", "test (test@test.com)");
 
     // Select on selector
-    suggestMultiple("SugMulReq", "e", "e");
+    suggestMultiple("SugMulReq", "test", "test");
 
     // Verify text
     checkMultipleSelectorContents("SugMulReq", "test (test@test.com)");
@@ -267,7 +267,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickCheckbox("ChkBoxVa2");
 
     // Check text on criterion
-    checkText("[criterion-id='Unt'] .unit", "Inf");
+    checkText("[criterion-id='Unt'] .p-inputgroup-addon:last-of-type", "Inf");
 
     // Click checkbox
     clickCheckbox("ChkBoxVa5");
@@ -279,13 +279,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickCheckbox("RadBox1");
 
     // Check text on criterion
-    checkText("[criterion-id='Unt'] .unit", "EUR");
+    checkText("[criterion-id='Unt'] .p-inputgroup-addon:last-of-type", "EUR");
 
     // Click checkbox
     clickCheckbox("RadBox3");
 
     // Check text on criterion
-    checkText("[criterion-id='Unt'] .unit", "USD");
+    checkText("[criterion-id='Unt'] .p-inputgroup-addon:last-of-type", "USD");
 
     // Click checkbox
     clickCheckbox("RadBox4");
@@ -652,7 +652,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     pause(5000);
 
     // Click on grid
-    clickRowContents("GrdEdi", "adminflare");
+    editRow("GrdEdi", "adminflare");
 
     // Click on date
     clickDate("GrdEdi", "FilDat");
@@ -670,10 +670,10 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     checkCellContents("GrdEdi", "2", "Dat", date);
 
     // Click on grid
-    clickRowContents("GrdEdi", "asphalt");
+    editRow("GrdEdi", "asphalt");
 
     // Click on grid
-    clickRowContents("GrdEdi", "clean");
+    editRow("GrdEdi", "clean");
 
     // Click on date
     selectDate("GrdEdi", "Dat", "23/10/1978");
@@ -733,7 +733,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-plus");
 
     // Click on a cell
-    clickCell("GrdMuo", "1", "Des2");
+    editRow("GrdMuo", "1", "Des2");
 
     // Write on text
     writeText("GrdMuo", "Des2", "asdasda");
@@ -787,16 +787,16 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     pause(500);
 
     // Click on a cell
-    clickCell("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
 
     // Click on a cell
-    clickCell("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
 
     // Click on a cell
-    clickCell("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
 
     // Click on a cell
-    clickCell("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
+    editRow("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
 
     // Save row
     saveRow("TreGrdEdi");
