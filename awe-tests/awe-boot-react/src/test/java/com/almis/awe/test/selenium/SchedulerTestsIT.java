@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
@@ -17,7 +17,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**
@@ -306,7 +306,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "45");
@@ -391,7 +391,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "3");
@@ -491,7 +491,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "45");
@@ -664,7 +664,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // UPDATE PARAMETERS
 
     // Click on row
-    clickRowContents("ParameterList", "secondsToWait");
+    editRow("ParameterList", "secondsToWait");
 
     // Insert text
     writeText("ParameterList", "ParVal", "33");

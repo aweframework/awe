@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
@@ -20,7 +20,7 @@ class PrintTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -30,7 +30,7 @@ class PrintTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**

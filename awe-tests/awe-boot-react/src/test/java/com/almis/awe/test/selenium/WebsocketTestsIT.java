@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
@@ -16,7 +16,7 @@ class WebsocketTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -24,7 +24,7 @@ class WebsocketTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**
@@ -44,11 +44,8 @@ class WebsocketTestsIT extends SeleniumUtilities {
     // Pause 5 seconds
     pause(5000);
 
-    // Go to broadcast screen
-    gotoScreen("tools", "sites");
-
     // Accept danger message
-    checkAndCloseMessage("danger");
+    checkAndCloseMessage("warn");
 
     // Do login
     checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");

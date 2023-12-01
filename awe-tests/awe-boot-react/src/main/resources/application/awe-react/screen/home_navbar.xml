@@ -44,8 +44,8 @@
                              style="col-xs-12 no-label" info-style="form-group">
                 <dependency>
                   <dependency-element id="module"/>
-                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarMod"
-                                     silent="true"/>
+                  <dependency-action type="server" server-action="maintain-silent" target-action="SesVarMod" silent="true"/>
+                  <dependency-action type="server" server-action="refresh-menu" silent="true"/>
                 </dependency>
               </info-criteria>
               <info-criteria icon="sitemap" title="SCREEN_TEXT_SITE" component="select" id="site" initial-load="query"

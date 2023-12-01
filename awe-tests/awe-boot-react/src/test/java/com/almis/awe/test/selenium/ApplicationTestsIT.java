@@ -1,4 +1,4 @@
-package com.almis.awe.test.integration;
+package com.almis.awe.test.selenium;
 
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
@@ -15,7 +15,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout("#ButLogIn .p-button-label", "Login");
   }
 
   /**
@@ -273,7 +273,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     searchAndWait();
 
     // Click on row
-    clickRowContents("testKey");
+    editRow("testKey");
 
     // Insert text
     writeText("GrdKeyLst", "KeyVal", "1");
@@ -414,7 +414,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     searchAndWait();
 
     // Click on row
-    clickRowContents("application-info");
+    editRow("application-info");
 
     // Select on selector
     selectContain("GrdScrAccLst", "AccMod",  "Restricted");
@@ -764,7 +764,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     searchAndWait();
 
     // Click on row
-    clickRowContents("Dbs");
+    editRow("Dbs");
 
     // Select on selector
     writeText("GrdScrCnf", "Val",  "false");
@@ -993,10 +993,10 @@ class ApplicationTestsIT extends SeleniumUtilities {
     waitForButton("ButBck");
 
     // Check text
-    waitForText("visible-text", "[SCHEDULER]");
+    waitForText("react-lazylog", "[SCHEDULER]");
 
     // Check text
-    checkTextContains(".visible-text", "[SCHEDULER]");
+    checkTextContains(".react-lazylog", "[SCHEDULER]");
 
     // Click back button
     clickButton("ButBck", true);
