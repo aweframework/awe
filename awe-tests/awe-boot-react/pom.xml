@@ -455,7 +455,6 @@
                   </arguments>
                   <wait>1000</wait>
                   <maxAttempts>180</maxAttempts>
-                  <fork>true</fork>
                   <jvmArguments>${failsafe.argLine}</jvmArguments>
                 </configuration>
                 <goals>
