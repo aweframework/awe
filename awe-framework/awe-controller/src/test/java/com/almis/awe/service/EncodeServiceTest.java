@@ -11,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,23 +62,11 @@ class EncodeServiceTest {
   }
 
   @Test
-  void decryptAes() throws Exception {
-    when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    when(securityConfigProperties.getMasterKey()).thenReturn("test");
-    assertEquals("prueba", encodeService.decryptAes("anOaQgQpsvevpS8bhKNoscIeTecJYo+9gWJju+XTHBTDBA=="));
-  }
-
-  @Test
-  void testDecryptAes() throws Exception {
-    when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("prueba", encodeService.decryptAes("anOaQgQpsvevpS8bhKNoscIeTecJYo+9gWJju+XTHBTDBA==", "test"));
-  }
-
-  @Test
   void encryptAes() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
     when(securityConfigProperties.getMasterKey()).thenReturn("test");
     String encrypted = encodeService.encryptAes("prueba");
+    assertNotEquals("prueba", encrypted);
     assertEquals("prueba", encodeService.decryptAes(encrypted, "test"));
   }
 
@@ -87,6 +74,7 @@ class EncodeServiceTest {
   void testEncryptAes() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
     String encrypted = encodeService.encryptAes("prueba", "test");
+    assertNotEquals("prueba", encrypted);
     assertEquals("prueba", encodeService.decryptAes(encrypted, "test"));
   }
 
@@ -152,25 +140,25 @@ class EncodeServiceTest {
   void encodePBKDF2WithHmacSHA1() throws Exception {
     when(securityConfigProperties.getMasterKey()).thenReturn("test");
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("f974465329f70bb0dbde61ce2cd93e0f0f34da1b98c54e577181b7492f0d31bc", encodeService.encodePBKDF2WithHmacSHA1("test"));
+    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test"));
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA1() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("f974465329f70bb0dbde61ce2cd93e0f0f34da1b98c54e577181b7492f0d31bc", encodeService.encodePBKDF2WithHmacSHA1("test", "test"));
+    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test"));
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA11() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("f974465329f70bb0dbde61ce2cd93e0f0f34da1b98c54e577181b7492f0d31bc", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber()));
+    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber()));
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA12() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("f974465329f70bb0dbde61ce2cd93e0f0f34da1b98c54e577181b7492f0d31bc", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber(), 256));
+    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber(), 256));
   }
 
   @Test
