@@ -6,7 +6,10 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -31,8 +34,8 @@ public class SpecificSecurityConfig {
   @Bean(name = "customSecurityFilterChain")
   @Order(2)
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-    return httpSecurity.securityMatcher(actuatorEndpoint + "/**").anonymous()
-            .and().csrf().disable()
+    return httpSecurity.securityMatcher(actuatorEndpoint + "/**").anonymous(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
             .build();
   }
 
@@ -50,7 +53,7 @@ public class SpecificSecurityConfig {
         .authorizeHttpRequests( auth -> auth
             .requestMatchers(antMatcher("/h2-console/**")).permitAll())
         .csrf(csrf -> csrf.ignoringRequestMatchers(antMatcher("/h2-console/**")))
-        .headers(headers -> headers.frameOptions().disable())
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .build();
   }
 

@@ -36,6 +36,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -114,8 +115,11 @@ public class WebSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
     httpSecurity
-        .headers().xssProtection().headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED).and()
-        .and().authorizeHttpRequests(requests -> requests
+        .headers(headers ->
+            headers.xssProtection(
+            xssConfig -> xssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED)
+            ))
+        .authorizeHttpRequests(requests -> requests
             // Web resources
             .requestMatchers(
                 antMatcher("/css/**"),
@@ -168,25 +172,31 @@ public class WebSecurityConfig {
         // Add a filter to parse login parameters
         .addFilterAt(jsonAuthenticationFilter(baseConfigProperties, elements, actionService, objectMapper), UsernamePasswordAuthenticationFilter.class)
         // Add logout handler
-        .logout().logoutUrl("/action/logout")
-        .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
-        .addLogoutHandler(logoutHandler(sessionDetails))
+        .logout(logoutConfig ->
+            logoutConfig.logoutUrl("/action/logout")
+                .deleteCookies(cookieName).clearAuthentication(true).invalidateHttpSession(true)
+                .addLogoutHandler(logoutHandler(sessionDetails))
+        )
         // Security context repository (to adapt for spring security 6)
-        .and().securityContext().securityContextRepository(securityContextRepository())
+        .securityContext(httpSecuritySecurityContextConfigurer ->
+            httpSecuritySecurityContextConfigurer.securityContextRepository(securityContextRepository()))
         // Login redirect
-        .and().formLogin().loginPage("/").permitAll()
+        .formLogin(
+            formLoginConfigurer -> formLoginConfigurer.loginPage("/").permitAll())
         // Exceptions handling
-        .and().exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-        .and().exceptionHandling().defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(sessionDetails), new AntPathRequestMatcher("/action/**"))
+        .exceptionHandling(
+            exceptionHandlingConfigurer -> exceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler())
+                .defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(sessionDetails), new AntPathRequestMatcher("/action/**")))
         // Csrf SPA customize
-        .and().csrf(csrf -> csrf
+        .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
         )
         .addFilterAfter(new CsrfCookieFilter(), JsonAuthenticationFilter.class);
 
     if (securityConfigProperties.isSameOriginEnable()) {
-      httpSecurity.headers().frameOptions().sameOrigin();
+      httpSecurity.headers(headers ->
+          headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
     }
 
     return httpSecurity.build();

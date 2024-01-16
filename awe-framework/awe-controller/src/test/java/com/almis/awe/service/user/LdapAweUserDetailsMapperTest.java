@@ -15,8 +15,6 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
-import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
 
 import java.util.Collections;
 
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,7 +68,6 @@ class LdapAweUserDetailsMapperTest {
   void testLdapUserDetailsWithPasswordRetrieved() {
     given(contextOperations.getNameInNamespace()).willReturn("test");
     given(contextOperations.getObjectAttribute("userPassword")).willReturn("test");
-    given(contextOperations.getObjectAttribute(PasswordPolicyControl.OID)).willReturn(mock(PasswordPolicyResponseControl.class));
     given(contextOperations.getStringAttributes("dummy")).willReturn(new String[]{"dummy", "dummy"});
 
     ldapAweUserDetailsMapper.setRoleAttributes(new String[]{"dummy", "dummy"});
