@@ -261,7 +261,7 @@ class TaskDAOTest {
   @Test
   void checkTaskFinishError() throws Exception {
     doReturn(aweElements).when(context).getBean(any(Class.class));
-    given(aweElements.getLocaleWithLanguage(anyString(), eq(null), any())).willReturn("LOCALE");
+    given(aweElements.getLocaleWithLanguage(anyString(), eq(null), any(Object[].class))).willReturn("LOCALE");
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryUtil.getParameters((String) isNull())).willReturn(JsonNodeFactory.instance.objectNode());
 

@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
@@ -77,11 +78,13 @@ public class RestSecurityConfiguration extends ServiceConfig {
                 .anyRequest().authenticated()
             )
             // Handles unauthorized attempts to access protected URLS
-            .exceptionHandling().authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper))
+            .exceptionHandling(exceptionHandlingConfig ->
+                exceptionHandlingConfig.authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper)))
             // No session cookie for API endpoints
-            .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement(sessionManagementConfig ->
+                sessionManagementConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // Disable csrf
-            .and().csrf().disable();
+            .csrf(AbstractHttpConfigurer::disable);
 
     // Add JWT (Json web token) filters
     httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);

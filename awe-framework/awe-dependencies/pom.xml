@@ -19,7 +19,7 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.2.0</ade.version>
-    <spring-boot.version>3.0.12</spring-boot.version>
+    <spring-boot.version>3.1.7</spring-boot.version>
     <spring-cloud.version>2022.0.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v16.18.0</node.version>
@@ -38,7 +38,6 @@
     <graalvm.version>21.3.0</graalvm.version>
     <selenium.version>4.11.0</selenium.version>
     <webdrivermanager.version>5.5.2</webdrivermanager.version>
-    <httpclient5.version>5.2.1</httpclient5.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <querydsl.version>5.0.0</querydsl.version>
     <janino.version>3.1.6</janino.version>
@@ -337,11 +336,6 @@
         <groupId>io.github.bonigarcia</groupId>
         <artifactId>webdrivermanager</artifactId>
         <version>${webdrivermanager.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>${httpclient5.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
