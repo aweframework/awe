@@ -4,16 +4,14 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
-import com.almis.awe.model.dto.CellData;
-import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.dto.Favourite;
-import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.*;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -58,9 +57,10 @@ class MenuServiceTest {
   @Mock
   private BaseConfigProperties baseConfigProperties;
   @Mock
-  private ScreenRestrictionGenerator screenRestrictionGenerator;
-  @Mock
   private FavouriteService favouriteService;
+
+  @Mock
+  private DataListService dataListService;
 
   @Mock
   private BaseConfigProperties.Files files;
@@ -220,7 +220,6 @@ class MenuServiceTest {
     ServiceData serviceData = menuService.getMenuOptionTreeByModule(null, null, null);
 
     // Assert
-    verify(screenRestrictionGenerator, times(1)).applyModuleRestriction(any(), any(Menu.class));
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(12, serviceData.getDataList().getRecords());
   }
@@ -256,7 +255,6 @@ class MenuServiceTest {
     ServiceData serviceData = menuService.getMenuOptionTreeByModule(null, 1, "test");
 
     // Assert
-    verify(screenRestrictionGenerator, times(1)).applyModuleRestriction(any(), any(Menu.class));
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(12, serviceData.getDataList().getRecords());
   }
@@ -292,7 +290,6 @@ class MenuServiceTest {
     ServiceData serviceData = menuService.getMenuOptionTreeByModule(1, null, "test");
 
     // Assert
-    verify(screenRestrictionGenerator, times(1)).applyModuleRestriction(any(), any(Menu.class));
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(12, serviceData.getDataList().getRecords());
     assertEquals("R", ((ObjectNode) serviceData.getDataList().getRows().get(1).get("restriction").getObjectValue()).get("value").asText());
@@ -380,4 +377,46 @@ class MenuServiceTest {
     assertEquals("favourites - favourite-test - favourite-test4 - favourites-separator - test - test2 - test3 - test4",
       menu.getElementsByType(Option.class).stream().map(Option::getId).collect(Collectors.joining(" - ")));
   }
-}
+
+  @Test
+  void getMenuWithRestrictions() throws AWException {
+    Menu menu = new Menu()
+      .addElement(new Option().setName("test"))
+      .addElement(new Option().setName("test2"))
+      .addElement(new Option().setName("test3")
+        .addElement(new Option().setName("test3-1")
+          .addElement(new Option().setName("test3-1-1"))))
+      .addElement(new Option().setName("test4"))
+      .addElement(new Option().setName("test5")
+        .addElement(new Option().setName("test5-1")
+          .addElement(new Option().setName("test5-1-1"))
+          .addElement(new Option().setName("test5-1-2")))
+        .addElement(new Option().setName("test5-2")))
+      .addElement(new Option().setName("test6"))
+      .addElement(new Option().setName("test7"));
+
+    List<ScreenRestriction> screenRestrictionList = Arrays.asList(
+      new ScreenRestriction().setOption("test").setRestricted(true),
+      new ScreenRestriction().setOption("test").setRestricted(true).setProfile("1"),
+      new ScreenRestriction().setOption("test").setRestricted(false).setUser("test"),
+      new ScreenRestriction().setOption("test2").setRestricted(true),
+      new ScreenRestriction().setOption("test2").setRestricted(false).setProfile("1"),
+      new ScreenRestriction().setOption("test3").setRestricted(true),
+      new ScreenRestriction().setOption("test4").setRestricted(true).setUser("test"),
+      new ScreenRestriction().setOption("test6").setRestricted(true).setProfile("1"),
+      new ScreenRestriction().setOption("test7").setRestricted(false),
+      new ScreenRestriction().setOption("test7").setRestricted(true).setUser("test"),
+      new ScreenRestriction().setOption("test5-1").setRestricted(true).setProfile("1")
+    );
+
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweSession.isAuthenticated()).thenReturn(true);
+    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(new ServiceData().setDataList(new DataList()));
+    when(dataListService.asBeanList(any(DataList.class), eq(ScreenRestriction.class))).thenReturn(screenRestrictionList);
+
+    menu = menuService.getMenuWithRestrictions(menu);
+
+    assertEquals(13, menu.getElementsByType(Option.class).size());
+    assertEquals(9, menu.getElementsByType(Option.class).stream().filter(Option::isRestricted).count());
+  }
+ }
