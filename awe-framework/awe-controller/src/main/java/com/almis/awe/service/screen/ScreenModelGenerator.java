@@ -9,6 +9,7 @@ import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.ScreenRestriction;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.component.MenuContainer;
@@ -20,6 +21,7 @@ import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,21 +41,21 @@ import static com.almis.awe.model.type.InputType.*;
 public class ScreenModelGenerator extends ServiceConfig {
 
   // Autowired services
-  private final ScreenRestrictionGenerator screenRestrictionGenerator;
   private final InitialLoadDao initialLoadDao;
   private final BaseConfigProperties baseConfigProperties;
+  private final DataListService dataListService;
 
   /**
    * Autowired constructor
    *
-   * @param screenRestrictionGenerator Screen restriction generator
    * @param initialLoadDao             Initial load service
    * @param baseConfigProperties       Base config properties
+   * @param dataListService            DataList service
    */
-  public ScreenModelGenerator(ScreenRestrictionGenerator screenRestrictionGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties) {
-    this.screenRestrictionGenerator = screenRestrictionGenerator;
+  public ScreenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties, DataListService dataListService) {
     this.initialLoadDao = initialLoadDao;
     this.baseConfigProperties = baseConfigProperties;
+    this.dataListService = dataListService;
   }
 
   /**
@@ -101,7 +103,7 @@ public class ScreenModelGenerator extends ServiceConfig {
     ObjectNode parameters = getRequest().getParametersSafe();
 
     // Elements per page
-    parameters.put(AweConstants.COMPONENT_MAX, Optional.ofNullable(component.getMax()).orElse(component instanceof Criteria ? baseConfigProperties.getComponent().getCriteriaRowsPerPage() : baseConfigProperties.getComponent().getGridRowsPerPage() ));
+    parameters.put(AweConstants.COMPONENT_MAX, Optional.ofNullable(component.getMax()).orElse(component instanceof Criteria ? baseConfigProperties.getComponent().getCriteriaRowsPerPage() : baseConfigProperties.getComponent().getGridRowsPerPage()));
 
     // Get sort if stored
     String specialAttributesKey = component.getElementKey() + baseConfigProperties.getComponent().getDataSuffix();
@@ -238,8 +240,9 @@ public class ScreenModelGenerator extends ServiceConfig {
   private void storeMenuRestrictions(Future<ServiceData> taskResult, MenuContainer menuContainer, ScreenData data) {
     try {
       ServiceData screenConfigurationOutput = taskResult.get();
-      DataList screenRestriction = (DataList) screenConfigurationOutput.getVariableMap().get(AweConstants.ACTION_DATA).getObjectValue();
-      screenRestrictionGenerator.applyScreenRestriction(screenRestriction, menuContainer.getMenu());
+      DataList screenRestrictionData = (DataList) screenConfigurationOutput.getVariableMap().get(AweConstants.ACTION_DATA).getObjectValue();
+      List<ScreenRestriction> screenRestrictions = dataListService.asBeanList(screenRestrictionData, ScreenRestriction.class);
+      new ScreenRestrictionGenerator().applyScreenRestriction(screenRestrictions, menuContainer.getMenu());
     } catch (Exception exc) {
       String screen = data.getScreenProperties().get(AweConstants.JSON_OPTION);
       String errorMessage = getLocale("ERROR_MESSAGE_SCREEN_RESTRICTIONS", screen);
@@ -568,7 +571,8 @@ public class ScreenModelGenerator extends ServiceConfig {
 
   /**
    * Check if a criterion belongs to a specific component
-   * @param typeList Component type list
+   *
+   * @param typeList      Component type list
    * @param componentType Component type to check
    * @return Component type belongs to type list
    */
@@ -580,6 +584,7 @@ public class ScreenModelGenerator extends ServiceConfig {
 
   /**
    * Check if component type is RADIO BUTTON
+   *
    * @param componentType Component type to check
    * @return Component type is radio button
    */
@@ -589,6 +594,7 @@ public class ScreenModelGenerator extends ServiceConfig {
 
   /**
    * Check if component type is CHECKBOX
+   *
    * @param componentType Component type to check
    * @return Component type is checkbox
    */

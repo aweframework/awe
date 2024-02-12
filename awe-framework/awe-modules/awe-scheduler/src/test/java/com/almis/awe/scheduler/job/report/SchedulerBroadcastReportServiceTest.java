@@ -17,8 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.naming.NamingException;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,10 +59,9 @@ class SchedulerBroadcastReportServiceTest {
   /**
    * Check triggers contains calendars without calendar list
    *
-   * @throws NamingException Test error
    */
-  public void executeBroadcastJob(TaskStatus status) throws Exception {
-    Task task = new Task().setReport(new Report().setReportUserDestination(new ArrayList<>()));
+  public void executeBroadcastJob(TaskStatus status) {
+    Task task = new Task().setReport(new Report().setReportUserDestination(List.of("DummyUser")));
     TaskExecution execution = new TaskExecution().setStatus(status.getValue());
 
     broadcastReportService.execute(task, execution);

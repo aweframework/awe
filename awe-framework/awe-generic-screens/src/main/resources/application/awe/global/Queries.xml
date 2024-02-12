@@ -640,6 +640,8 @@
   <query id="getScreenRestrictions" public="true" cacheable="true" service="getScreenRestrictions">
     <field id="option"/>
     <field id="restricted"/>
+    <field id="user"/>
+    <field id="profile"/>
     <variable id="restriction" type="STRING" session="restriction"/>
   </query>
 
@@ -648,8 +650,8 @@
     <table id="AweScrRes" alias="scrRes" />
     <field id="IdeOpe" table="ope" alias="IdeOpe" noprint="true"/>
     <field id="IdePro" table="pro" alias="IdePro" noprint="true"/>
-    <field id="Acr" table="pro" alias="Pro" />
-    <field id="l1_nom" table="ope" alias="Usr" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="l1_nom" table="ope" alias="user" />
     <field id="Nam" table="mod" alias="module" />
     <field id="Opt" table="scrRes" alias="option" />
     <field id="AccMod" table="scrRes" alias="access" />

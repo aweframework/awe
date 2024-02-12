@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -26,16 +27,15 @@ public class SchedulerSecurityConfig extends ServiceConfig {
   @Bean(name = "aweSchedulerSecurityFilterChain")
   @Order(98)
   public SecurityFilterChain schedulerFilterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity.securityMatcher("/scheduler/api/**")
+    return httpSecurity.securityMatcher("/scheduler/api/**")
         .authorizeHttpRequests(httpRequest -> httpRequest
             // Filter /scheduler/api urls
-            .requestMatchers(antMatcher("/scheduler/api/**")).anonymous()
-        )
+            .requestMatchers(antMatcher("/scheduler/api/**")).anonymous())
         // Disable csrf
-        .csrf().disable()
+        .csrf(AbstractHttpConfigurer::disable)
         // No session cookie for API endpoints
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-    return httpSecurity.build();
+        .sessionManagement(sessionManagement ->
+            sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .build();
   }
 }

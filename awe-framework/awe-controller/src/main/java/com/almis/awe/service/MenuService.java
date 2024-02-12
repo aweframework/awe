@@ -8,10 +8,7 @@ import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.builder.MenuScreenBuilder;
 import com.almis.awe.model.constant.AweConstants;
-import com.almis.awe.model.dto.CellData;
-import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.dto.Favourite;
-import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.dto.*;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.access.Profile;
 import com.almis.awe.model.entities.access.Restriction;
@@ -22,6 +19,7 @@ import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.panelable.Panelable;
 import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
+import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.type.RestrictionType;
 import com.almis.awe.model.util.data.DataListUtil;
@@ -54,37 +52,38 @@ public class MenuService extends ServiceConfig {
   private static final String ERROR_TITLE_SCREEN_NOT_DEFINED = "ERROR_TITLE_SCREEN_NOT_DEFINED";
   // Autowired services
   private final QueryService queryService;
-  private final ScreenRestrictionGenerator screenRestrictionGenerator;
   private final ScreenComponentGenerator screenComponentGenerator;
   private final InitialLoadDao initialLoadDao;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
   private final FavouriteService favouriteService;
   private final LauncherService launcherService;
+  private final DataListService dataListService;
 
   /**
    * Autowired constructor
    *
    * @param queryService               Query service
-   * @param screenRestrictionGenerator Screen restriction generator
    * @param screenComponentGenerator   Screen component generator
    * @param initialLoadDao             Initial load service
    * @param baseConfigProperties       Base configuration properties
    * @param securityConfigProperties   Security configuration properties
    * @param favouriteService           Favourites service
    * @param launcherService            Service launcher service
+   * @param dataListService            DataList service
    */
-  public MenuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
-                     ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                     SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService, LauncherService launcherService) {
+  public MenuService(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
+                     InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
+                     SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService,
+                     LauncherService launcherService, DataListService dataListService) {
     this.queryService = queryService;
-    this.screenRestrictionGenerator = screenRestrictionGenerator;
     this.screenComponentGenerator = screenComponentGenerator;
     this.initialLoadDao = initialLoadDao;
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
     this.favouriteService = favouriteService;
     this.launcherService = launcherService;
+    this.dataListService = dataListService;
   }
 
   /**
@@ -157,10 +156,10 @@ public class MenuService extends ServiceConfig {
     if (getSession().isAuthenticated()) {
       // Get restrictions
       ServiceData queryOutput = queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
-      DataList queryRestrictions = queryOutput.getDataList();
+      List<ScreenRestriction> screenRestrictions = dataListService.asBeanList(queryOutput.getDataList(), ScreenRestriction.class);
 
       // Apply restrictions
-      screenRestrictionGenerator.applyScreenRestriction(queryRestrictions, menu);
+      new ScreenRestrictionGenerator().applyScreenRestriction(screenRestrictions, menu);
     }
 
     return menu;
@@ -203,7 +202,7 @@ public class MenuService extends ServiceConfig {
       String module = getSession().getParameter(String.class, AweConstants.SESSION_MODULE);
 
       // Apply module restrictions
-      screenRestrictionGenerator.applyModuleRestriction(module, restrictedMenu);
+      new ScreenRestrictionGenerator().applyModuleRestriction(module, restrictedMenu);
 
       // Apply configuration restrictions
       restrictedMenu = getMenuWithRestrictions(restrictedMenu);
@@ -797,7 +796,7 @@ public class MenuService extends ServiceConfig {
   public ServiceData getMenuOptionTreeByModule(Integer user, Integer profile, String module) throws AWException {
     // Retrieve the full menu
     Menu menu = getMenu(PRIVATE_MENU);
-    screenRestrictionGenerator.applyModuleRestriction(module, menu);
+    new ScreenRestrictionGenerator().applyModuleRestriction(module, menu);
 
     // Retrieve the number of restrictions per option and transform datalist into map
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
