@@ -43,7 +43,6 @@ public class ScreenComponentGenerator extends ServiceConfig {
   // Autowired services
   private final AweRequest aweRequest;
   private final ScreenModelGenerator screenModelGenerator;
-  private final ScreenConfigurationGenerator screenConfigurationGenerator;
   private final InitialLoadDao initialLoadDao;
   private final AweElementsDao aweElementsDao;
   private final BaseConfigProperties baseConfigProperties;
@@ -53,17 +52,15 @@ public class ScreenComponentGenerator extends ServiceConfig {
    *
    * @param request                      Request
    * @param screenModelGenerator         Screen model generator
-   * @param screenConfigurationGenerator Screen configuration generator
    * @param initialLoadDao               Initial load service
    * @param aweElementsDao               AWE Elements DAO
    * @param baseConfigProperties         Base configuration properties
    */
   public ScreenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
-                                  ScreenConfigurationGenerator screenConfigurationGenerator, InitialLoadDao initialLoadDao,
-                                  AweElementsDao aweElementsDao, BaseConfigProperties baseConfigProperties) {
+                                  InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
+                                  BaseConfigProperties baseConfigProperties) {
     this.aweRequest = request;
     this.screenModelGenerator = screenModelGenerator;
-    this.screenConfigurationGenerator = screenConfigurationGenerator;
     this.initialLoadDao = initialLoadDao;
     this.aweElementsDao = aweElementsDao;
     this.baseConfigProperties = baseConfigProperties;
@@ -99,7 +96,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
       Future<ServiceData> configurationResult = initialLoadDao.launchInitialLoad(screenConfigurationThread);
 
       // Apply screen configuration
-      screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen);
+      new ScreenConfigurationGenerator().applyScreenConfiguration(configurationResult, screen);
 
       // Add component
       List<Component> components = screen.getElementsByType(Component.class);

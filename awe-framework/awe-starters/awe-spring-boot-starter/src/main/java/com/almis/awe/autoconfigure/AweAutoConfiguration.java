@@ -26,9 +26,7 @@ import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
 import com.almis.awe.service.report.ReportDesigner;
 import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
-import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
-import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -281,21 +279,24 @@ public class AweAutoConfiguration {
   /**
    * Menu service
    *
-   * @param queryService               Query service
-   * @param screenRestrictionGenerator Screen Restriction generator
-   * @param screenComponentGenerator   Screen component generator
-   * @param initialLoadDao             Initial load service
-   * @param baseConfigProperties       Base configuration properties
-   * @param securityConfigProperties   Security configuration properties
+   * @param queryService             Query service
+   * @param screenComponentGenerator Screen component generator
+   * @param initialLoadDao           Initial load service
+   * @param baseConfigProperties     Base configuration properties
+   * @param securityConfigProperties Security configuration properties
+   * @param favouriteService         Favourite service
+   * @param launcherService          Launcher service
+   * @param dataListService          DataList service
    * @return Menu service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MenuService menuService(QueryService queryService, ScreenRestrictionGenerator screenRestrictionGenerator,
-                                 ScreenComponentGenerator screenComponentGenerator, InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService, LauncherService launcherService) {
-    return new MenuService(queryService, screenRestrictionGenerator, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties, favouriteService, launcherService);
+  public MenuService menuService(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
+                                 InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
+                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService,
+                                 LauncherService launcherService, DataListService dataListService) {
+    return new MenuService(queryService, screenComponentGenerator, initialLoadDao,
+      baseConfigProperties, securityConfigProperties, favouriteService, launcherService, dataListService);
   }
 
   /**
@@ -468,59 +469,36 @@ public class AweAutoConfiguration {
   /////////////////////////////////////////////
 
   /**
-   * Screen restriction generator
-   *
-   * @return Screen restriction generator bean
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  public ScreenRestrictionGenerator screenRestrictionGenerator() {
-    return new ScreenRestrictionGenerator();
-  }
-
-  /**
-   * Screen configuration generator
-   *
-   * @return Screen configuration generator bean
-   */
-  @Bean
-  @ConditionalOnMissingBean
-  public ScreenConfigurationGenerator screenConfigurationGenerator() {
-    return new ScreenConfigurationGenerator();
-  }
-
-  /**
    * Screen model generator
    *
-   * @param screenRestrictionGenerator Screen restriction generator
-   * @param initialLoadDao             Initial load service
-   * @param baseConfigProperties       Base config properties
+   * @param initialLoadDao       Initial load service
+   * @param baseConfigProperties Base config properties
+   * @param dataListService      DataList service
    * @return Screen model generator bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public ScreenModelGenerator screenModelGenerator(ScreenRestrictionGenerator screenRestrictionGenerator,
-                                                   InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties) {
-    return new ScreenModelGenerator(screenRestrictionGenerator, initialLoadDao, baseConfigProperties);
+  public ScreenModelGenerator screenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
+                                                   DataListService dataListService) {
+    return new ScreenModelGenerator(initialLoadDao, baseConfigProperties, dataListService);
   }
 
   /**
    * Screen component generator
    *
-   * @param request                      Request
-   * @param screenModelGenerator         Screen model
-   * @param screenConfigurationGenerator Screen configuration
-   * @param initialLoadDao               Initial load service
-   * @param aweElementsDao               AWE Elements DAO
-   * @param baseConfigProperties         Base config properties
+   * @param request              Request
+   * @param screenModelGenerator Screen model
+   * @param initialLoadDao       Initial load service
+   * @param aweElementsDao       AWE Elements DAO
+   * @param baseConfigProperties Base config properties
    * @return Screen component generator bean
    */
   @Bean
   @ConditionalOnMissingBean
   public ScreenComponentGenerator screenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
-                                                           ScreenConfigurationGenerator screenConfigurationGenerator,
-                                                           InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao, BaseConfigProperties baseConfigProperties) {
-    return new ScreenComponentGenerator(request, screenModelGenerator, screenConfigurationGenerator, initialLoadDao, aweElementsDao, baseConfigProperties);
+                                                           InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
+                                                           BaseConfigProperties baseConfigProperties) {
+    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties);
   }
 
   /////////////////////////////////////////////
