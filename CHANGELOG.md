@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.7.11
+*12/02/2024*
+
+- Screen restrictions are not applied in the right order. [MR #487](https://gitlab.com/aweframework/awe/-/merge_requests/487) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Update Spring Boot to 3.1.x branch. [MR #485](https://gitlab.com/aweframework/awe/-/merge_requests/485) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.7.10
 *29/11/2023*
 
