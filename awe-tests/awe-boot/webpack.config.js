@@ -16,30 +16,15 @@ module.exports = {
     path: path.join(__dirname, 'target', 'classes', 'static'),
     publicPath : "../"
   },
-  optimization: {
-    splitChunks: {
-      name: true,
-      cacheGroups: {
-        commons: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'commons',
-          chunks: 'all'
-        }
-      }
-    }
-  },
   module : {
     rules : [
-      { test: /\.jsx?$/, loader: 'babel-loader', exclude: /node_modules/},
-      // Hack to load angular synchronously
-      { test : /[\/]angular\.js$/, loader : "exports-loader?angular"},
+      { test: /\.jsx?$/, exclude: /node_modules/, use: [{loader: 'babel-loader'}]},
       { test : /\.css$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
       { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
-          loader: "less-loader", options: { lessPlugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ],
-            minimize: true, sourceMap: true}}]},
-      { test : /\.(jpg|gif|png)$/, loader : 'url-loader?limit=100000&name=./images/[hash].[ext]'},
-      { test : /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use : "url-loader?limit=10000&mimetype=application/font-woff&name=./fonts/[hash].[ext]"},
-      { test : /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use : "file-loader?name=./fonts/[hash].[ext]"}
+          loader: "less-loader", options: { lessPlugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ], sourceMap: true}}]},
+      { test : /\.(jpg|gif|png)$/, use: [{loader: 'url-loader', options: {limit: 100000, name: './images/[hash].[ext]'}}]},
+      { test : /\.woff[2]*?(\?v=\d+\.\d+\.\d+)?$/, use: [{loader: 'url-loader', options: {limit: 100000, mimetype: 'application/font-woff', name: './fonts/[hash].[ext]'}}]},
+      { test : /\.(ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, use: [{loader: 'file-loader', options: {name: './fonts/[hash].[ext]'}}]},
     ]
   },
   resolve : {
