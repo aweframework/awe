@@ -2351,7 +2351,7 @@
   </query>
 
   <query id="nextIdForFavourites">
-    <table query="getAllFavouritesForUser" alias="fi"/>
+    <table query="getAllFavourites" alias="fi"/>
     <operation operator="ADD">
       <operation operator="COALESCE">
         <field id="IdeFav" table="fi" function="MAX"/>
@@ -2372,6 +2372,11 @@
       <constant value="1" type="INTEGER"/>
     </operation>
     <variable id="user" type="STRING" name="user"/>
+  </query>
+
+  <query id="getAllFavourites">
+    <table id="AweUsrFav"/>
+    <field id="IdeFav"/>
   </query>
 
   <query id="getAllFavouritesForUser">
