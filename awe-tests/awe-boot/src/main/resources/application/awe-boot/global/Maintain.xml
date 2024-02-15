@@ -400,6 +400,9 @@
       </where>
       <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
     </delete>
+    <delete>
+      <table id="AweUsrFav"/>
+    </delete>
   </target>
 
   <target name="CleanUpSequence" public="true">
