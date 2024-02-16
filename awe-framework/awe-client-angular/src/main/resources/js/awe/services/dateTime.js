@@ -8,7 +8,7 @@ export const calendarInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies"
      ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label | translateMultiple}}
@@ -33,7 +33,7 @@ export const calendarInputTemplate =
 export const calendarColumnTemplate =
   `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
-  <span class="edition">
+  <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input-group input-append date input-group-{{::size}} focus-target" ui-date="aweDateOptions" initialized="initialized">
       <input type="text" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" placeholder="{{::component.controller.placeholder| translateMultiple}}"
              ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-blur="blur()"
@@ -51,7 +51,7 @@ export const calendarColumnTemplate =
 export const timeInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -73,7 +73,7 @@ export const timeInputTemplate =
 export const timeColumnTemplate =
 `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
-  <span class="edition">
+  <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input-group input-group-{{::size}} input-append date focus-target">
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on col-xs-12 {{classes}} {{component.model.values[0].style}}"
              ng-press-enter="saveRow($event)" autocomplete="off" ng-model="component.model.selected" ng-disabled="component.controller.readonly"

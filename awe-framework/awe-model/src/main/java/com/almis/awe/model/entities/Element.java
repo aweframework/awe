@@ -67,7 +67,7 @@ public abstract class Element implements XMLNode, Copyable {
   @XStreamAsAttribute
   private String label;
 
-  // Title
+  // Title: Show title when moving mouse over the element
   @XStreamAlias("title")
   @XStreamAsAttribute
   private String title;

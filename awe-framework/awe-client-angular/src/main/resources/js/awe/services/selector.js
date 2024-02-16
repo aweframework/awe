@@ -6,7 +6,7 @@ import {getIconTemplate} from "./component";
 export const templateSelector =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -25,7 +25,7 @@ export const templateSelector =
 export const templateSelectorColumn =
 `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate {{component.model.values[0].style}}" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
-  <span class="edition">
+  <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input input-group-{{::size}} focus-target">
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}" value="{{component.model.selected}}"
              ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off"/>
