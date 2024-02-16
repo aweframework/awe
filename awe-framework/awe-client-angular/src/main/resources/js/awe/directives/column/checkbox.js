@@ -1,5 +1,6 @@
 import {aweApplication} from "./../../awe";
 import "../../services/checkboxRadio";
+import {templateColumnCheckbox} from "../../services/checkboxRadio";
 
 // Column checkbox directive
 aweApplication.directive('aweColumnCheckbox',
@@ -8,9 +9,7 @@ aweApplication.directive('aweColumnCheckbox',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('column/checkbox');
-        },
+        template: templateColumnCheckbox,
         link: function (scope, elem, attrs) {
           // Create column, criterion and component
           let  column = new Column(attrs);

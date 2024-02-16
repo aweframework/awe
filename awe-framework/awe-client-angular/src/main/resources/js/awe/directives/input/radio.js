@@ -1,5 +1,6 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "../../services/checkboxRadio";
+import {templateRadio} from "../../services/checkboxRadio";
 
 // Radio directive
 aweApplication.directive('aweInputRadio',
@@ -8,9 +9,7 @@ aweApplication.directive('aweInputRadio',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/radio');
-        },
+        template: templateRadio,
         scope: {
           'criterionId': '@inputRadioId'
         },

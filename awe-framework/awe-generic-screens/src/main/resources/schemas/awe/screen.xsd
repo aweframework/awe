@@ -474,6 +474,7 @@
     <xs:attribute name="date-view-mode" type="viewModeEnum" />
     <xs:attribute name="left-label" type="xs:integer" />
     <xs:attribute name="visible" type="booleanEnum" />
+    <xs:attribute name="title" type="xs:string" />
     <xs:attributeGroup ref="serverCallAttr" />
   </xs:attributeGroup>
 
@@ -885,7 +886,6 @@
   <xs:complexType name="infoCriteriaType">
     <xs:complexContent>
       <xs:extension base="criteriaType">
-        <xs:attribute name="title" type="xs:string" />
         <xs:attribute name="info-style" type="xs:string" />
       </xs:extension>
     </xs:complexContent>

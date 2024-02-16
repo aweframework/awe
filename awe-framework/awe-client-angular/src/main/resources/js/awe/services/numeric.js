@@ -7,7 +7,7 @@ import "../directives/plugins/uiSlider";
 export const templateNumeric =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -28,7 +28,7 @@ export const templateNumeric =
 export const templateNumericColumn =
 `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value text-right" ng-cloak>{{component.visibleValue}}</span>
-  <div class="edition input input-group-{{::size}} focus-target">
+  <div class="edition input input-group-{{::size}} focus-target" title="{{component.model.values[0].title| translateMultiple}}">
     <input ui-numeric="aweNumericOptions" class="form-control text-right col-xs-12 {{classes}} {{component.model.values[0].style}}" autocomplete="off"
            ng-disabled="component.controller.readonly" ng-focus="focus()" ng-blur="blur()"
            placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-click="click($event)" ng-press-enter="saveRow($event)"/>

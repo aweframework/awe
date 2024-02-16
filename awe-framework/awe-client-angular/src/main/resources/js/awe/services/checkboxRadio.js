@@ -4,11 +4,12 @@ import {getIconTemplate} from "./component";
 
 export const templateButtonCheckbox = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': checked, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
-         ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly" ng-focus="focus()" ng-blur="blur()"/>
+  <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" 
+         ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly" 
+         ng-focus="focus()" ng-blur="blur()"/>
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
-  <span class="lbl label-{{::size}}">
+  <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
     <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
     {{controller.label| translateMultiple}}
   </span>
@@ -20,12 +21,58 @@ export const templateButtonRadio = `<label ng-show="controller.visible" class="c
          ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
-  <span class="lbl label-{{::size}}">
+  <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
     <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
     {{controller.label| translateMultiple}}
   </span>
   <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </label>`;
+
+export const templateInputCheckbox = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" class="control-label label-{{::size}}" ng-cloak></label>
+    <div class="validator input">
+      <label class="checkbox" title="{{controller.title | translateMultiple}}" >
+        <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
+               ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"/>
+        <span class="lbl label-{{::size}}">
+          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          {{controller.label| translateMultiple}}
+        </span>
+        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      </label>
+    </div>
+  </div>
+</div>`;
+
+export const templateColumnCheckbox = `<div ng-show="component.controller.visible" class="validator column-input criterion column-checkbox no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <div class="input">
+    <label class="checkbox" title="{{component.model.values[0].title | translateMultiple}}" >
+      <input type="checkbox" class="px form-control" ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="component.controller.readonly || !component.editing"/>
+      <span class="lbl"></span>
+    </label>
+  </div>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
+
+export const templateRadio = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-cloak></label>
+    <div class="validator input">
+      <label class="radio" title="{{controller.title| translateMultiple}}" >
+        <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.group}}"
+               ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
+        <span class="lbl label-{{::size}}">
+          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          {{controller.label| translateMultiple}}
+        </span>
+        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+      </label>
+    </div>
+  </div>
+</div>`;
 
 // Checkbox Radio service
 aweApplication.factory('CheckboxRadio',
