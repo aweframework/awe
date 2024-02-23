@@ -1,12 +1,12 @@
 package com.almis.awe.test.integration.security;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -66,7 +66,7 @@ class SecurityIntegrationTest extends AbstractSpringAppIntegrationTest {
   }
 
   @Test
-  @WithMockCustomUser()
+  @WithMockUser()
   void givenAuthUserAndInvalidCSRFToken_shouldForbidden403() throws Exception {
     mockMvc.perform(post("/action/data/SimpleGetAll")
         .with(csrf().useInvalidToken())

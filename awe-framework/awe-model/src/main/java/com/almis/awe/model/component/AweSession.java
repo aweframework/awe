@@ -1,6 +1,7 @@
 package com.almis.awe.model.component;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,9 +11,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import java.io.Serializable;
 import java.util.Set;
 
-/**
- * Created by dfuentes on 13/04/2017.
- */
 @Slf4j
 public class AweSession implements Serializable {
 
@@ -51,7 +49,7 @@ public class AweSession implements Serializable {
    * @return Session user
    */
   public String getUser() {
-    return isAuthenticated() ? ((UserDetails) getAuthentication().getPrincipal()).getUsername() : null;
+    return isAuthenticated() && !(getAuthentication() instanceof AnonymousAuthenticationToken) ? ((UserDetails) getAuthentication().getPrincipal()).getUsername() : null;
   }
 
   /**
@@ -124,7 +122,7 @@ public class AweSession implements Serializable {
   }
 
   /**
-   * Returns parameter value casted to the given class
+   * Returns parameter value cast to the given class
    *
    * @param clazz Parameter class
    * @param name Parameter name
@@ -172,11 +170,19 @@ public class AweSession implements Serializable {
    * @return User is authenticated
    */
   public boolean isAuthenticated() {
+    boolean authenticated = false;
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.getPrincipal() instanceof AweUserDetails) {
-      return ((AweUserDetails) authentication.getPrincipal()).isFullyAuthenticated();
+    if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken))  {
+      if (authentication.getPrincipal() instanceof AweUserDetails aweUserDetails) {
+        if (aweUserDetails.isEnabled2fa()) {
+          authenticated = aweUserDetails.isFullyAuthenticated();
+        } else {
+          authenticated = authentication.isAuthenticated();
+        }
+      } else {
+        authenticated = authentication.isAuthenticated();
+      }
     }
-
-    return false;
+    return authenticated;
   }
 }

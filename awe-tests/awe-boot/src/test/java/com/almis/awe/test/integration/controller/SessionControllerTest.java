@@ -1,12 +1,12 @@
 package com.almis.awe.test.integration.controller;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @Tag("integration")
 @DisplayName("Session controller Tests")
-@WithMockCustomUser(username = "test", password = "test")
+@WithMockUser(username = "test", password = "test")
 class SessionControllerTest extends AbstractSpringAppIntegrationTest {
 
   private static final String SESSION_ID = "16617f0d-97ee-4f6b-ad54-905d6ce3c328";
