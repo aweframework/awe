@@ -1,7 +1,6 @@
 package com.almis.awe.test.integration.database;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @DisplayName("Query tests")
 @Slf4j
-@WithMockCustomUser
+@WithMockUser
 public class QueryTest extends AbstractSpringAppIntegrationTest {
 
   // Constants
@@ -2899,7 +2899,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @WithMockCustomUser(username = "LaloElMalo", roles = {"ADMIN", "USER"})
+  @WithMockUser(username = "LaloElMalo", roles = {"ADMIN", "USER"})
   void testCheckInitialQuerySelectedValues() throws Exception {
     setParameter("user", "LaloElMalo");
     String expected =
@@ -3163,7 +3163,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    */
 
   @Test
-  @WithMockCustomUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
   void testCheckAuthenticatedUserQuery() throws Exception {
     String queryName = "SimpleGetAll";
     String variables = "";

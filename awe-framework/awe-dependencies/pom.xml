@@ -19,7 +19,7 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.2.0</ade.version>
-    <spring-boot.version>3.1.7</spring-boot.version>
+    <spring-boot.version>3.1.9</spring-boot.version>
     <spring-cloud.version>2022.0.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v18.19.0</node.version>

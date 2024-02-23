@@ -62,7 +62,6 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         DecodedJWT decodedJWT = jwtTokenService.verifyToken(token);
         if (decodedJWT != null) {
           AweUserDetails userDetails = (AweUserDetails) userDetailsService.loadUserByUsername(decodedJWT.getSubject());
-          userDetails.setFullyAuthenticated(true);
           authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
         }
       }

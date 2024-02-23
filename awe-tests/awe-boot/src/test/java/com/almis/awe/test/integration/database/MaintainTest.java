@@ -1,6 +1,5 @@
 package com.almis.awe.test.integration.database;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.StringUtil;
@@ -17,6 +16,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @DisplayName("Maintain tests")
 @Slf4j
-@WithMockCustomUser
+@WithMockUser
 @Transactional
 public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
