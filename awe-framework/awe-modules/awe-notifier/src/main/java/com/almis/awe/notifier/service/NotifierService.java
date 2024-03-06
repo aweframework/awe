@@ -7,7 +7,6 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.notifier.dto.InterestedUsersDto;
 import com.almis.awe.notifier.dto.NotificationDto;
@@ -19,7 +18,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class NotifierService {
 
@@ -43,7 +41,7 @@ public class NotifierService {
   private final QueryService queryService;
   private final MaintainService maintainService;
   private final BroadcastService broadcastService;
-  private final DataListService dataListService;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
@@ -51,14 +49,13 @@ public class NotifierService {
    * @param queryService     Query service
    * @param maintainService  Maintain service
    * @param broadcastService Broadcast service
-   * @param dataListService  DataList service
+   * @param objectMapper     Object mapper
    */
-  public NotifierService(QueryService queryService, MaintainService maintainService, BroadcastService broadcastService,
-                         DataListService dataListService) {
+  public NotifierService(QueryService queryService, MaintainService maintainService, BroadcastService broadcastService, ObjectMapper objectMapper) {
     this.queryService = queryService;
     this.maintainService = maintainService;
     this.broadcastService = broadcastService;
-    this.dataListService = dataListService;
+    this.mapper = objectMapper;
   }
 
   /**
@@ -136,7 +133,7 @@ public class NotifierService {
    */
   public ServiceData goToNotificationScreen(Integer notificationId) throws AWException {
     DataList dataList = queryService.launchPrivateQuery(GET_NOTIFICATION, JsonNodeFactory.instance.objectNode().put("notification", notificationId)).getDataList();
-    List<NotificationDto> notificationDtoList = dataListService.asBeanList(dataList, NotificationDto.class);
+    List<NotificationDto> notificationDtoList = DataListUtil.asBeanList(dataList, NotificationDto.class);
     return new ServiceData().addClientAction(new ScreenActionBuilder(notificationDtoList.get(0).getScreen(), true).setContext("screen/private/home").setAsync(true).setSilent(true).build());
   }
 
@@ -146,7 +143,6 @@ public class NotifierService {
    * @param notification Notification to send
    */
   public void notify(NotificationDto notification) throws AWException {
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode parameters = mapper.valueToTree(notification);
 
     // Store notification
@@ -154,7 +150,7 @@ public class NotifierService {
 
     // Get users interested in notification
     DataList dataList = queryService.launchPrivateQuery(INTERESTED_USERS, parameters).getDataList();
-    List<InterestedUsersDto> userList = dataListService.asBeanList(dataList, InterestedUsersDto.class);
+    List<InterestedUsersDto> userList = DataListUtil.asBeanList(dataList, InterestedUsersDto.class);
 
     // Refresh connected users
     broadcastService.broadcastMessageToUsers(
@@ -162,7 +158,7 @@ public class NotifierService {
       userList.stream().filter(InterestedUsersDto::isByWeb).map(InterestedUsersDto::getUser).map(String::trim).toArray(String[]::new));
 
     // Send email notifications
-    List<String> interestedEmailUsers = userList.stream().filter(InterestedUsersDto::isByEmail).map(InterestedUsersDto::getUser).map(String::trim).collect(Collectors.toList());
+    List<String> interestedEmailUsers = userList.stream().filter(InterestedUsersDto::isByEmail).map(InterestedUsersDto::getUser).map(String::trim).toList();
     if (!interestedEmailUsers.isEmpty()) {
       parameters.set("UsrPrn", mapper.valueToTree(interestedEmailUsers));
       maintainService.launchPrivateMaintain(NOTIFY_EMAIL_USERS, parameters);

@@ -9,6 +9,7 @@ import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.service.report.SchedulerEmailReportService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,9 @@ class SchedulerEmailReportServiceTest {
 
   @Mock
   private AweElements aweElements;
+
+  @Mock
+  private ObjectMapper mapper;
 
   /**
    * Initializes json mapper for tests

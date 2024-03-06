@@ -3,8 +3,8 @@ package com.almis.awe.model.util.file;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.util.data.CompressionUtil;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,8 +24,6 @@ import java.util.regex.Matcher;
  * @author Pablo GARCIA - 19/JUL/2017
  */
 public class FileUtil  {
-
-  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   /**
    * FileUtil constructor
@@ -74,7 +72,7 @@ public class FileUtil  {
    */
   public static String fileDataToString(FileData fileData) throws AWException {
     try {
-      return Base64.getEncoder().encodeToString(CompressionUtil.compress(StringUtil.compressJson(objectMapper.writeValueAsString(fileData))));
+      return Base64.getEncoder().encodeToString(CompressionUtil.compress(StringUtil.compressJson(DataListUtil.getMapper().writeValueAsString(fileData))));
     } catch (IOException exc) {
       throw new AWException("Error encoding file into string", "There was an error trying to encode file data into string:\n" + fileData.getFileName(),  exc);
     }
@@ -89,7 +87,7 @@ public class FileUtil  {
   public static FileData stringToFileData(String fileStringEncoded) throws AWException {
     try {
       String fileString = StringUtil.decompressJson(CompressionUtil.decompress(Base64.getDecoder().decode(fileStringEncoded)));
-      return objectMapper.treeToValue(objectMapper.readTree(fileString), FileData.class);
+      return DataListUtil.getMapper().treeToValue(DataListUtil.getMapper().readTree(fileString), FileData.class);
     } catch (IOException exc) {
       throw new AWException("Error decoding file from string", "There was an error trying to decode file data from string:\n" + fileStringEncoded,  exc);
     }

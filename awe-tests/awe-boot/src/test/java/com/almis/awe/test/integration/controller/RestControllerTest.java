@@ -276,7 +276,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testComplexPostParametersPOJOList() throws Exception {
-      doRestTest("TestComplexJavaParametersPOJOList", "maintain", "\"name\":\"my concert\",\"userGroupName\":\"user group\",\"eventHallName\":\"great hall\",", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+      doRestTest("TestComplexJavaParametersPOJOList", "maintain", "\"dates\":[\"10/02/1985\", \"11/02/1985\"],\"name\":\"my concert\",\"userGroupName\":\"user group\",\"eventHallName\":\"great hall\",", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
     }
 
     /**

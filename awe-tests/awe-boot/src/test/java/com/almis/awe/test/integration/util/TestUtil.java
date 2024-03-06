@@ -1,7 +1,7 @@
 package com.almis.awe.test.integration.util;
 
 import com.almis.awe.model.details.MaintainResultDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +18,6 @@ import static org.junit.Assert.assertTrue;
 @Slf4j
 public class TestUtil {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
-
   /**
    * Asserts the JSON in the response
    *
@@ -30,7 +28,7 @@ public class TestUtil {
    * @throws Exception Error in asser
    */
   public static void assertResultJson(String maintainName, String result, int expectedOperationNumber, MaintainResultDetails[] expectedOperations) throws Exception {
-    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ArrayNode resultList = (ArrayNode) DataListUtil.getMapper().readTree(result);
     ObjectNode messageAction = (ObjectNode) resultList.get(1);
     assertEquals("message", messageAction.get("type").textValue());
     ObjectNode messageParameters = (ObjectNode) messageAction.get("parameters");

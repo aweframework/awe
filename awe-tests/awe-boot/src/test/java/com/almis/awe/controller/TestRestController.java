@@ -113,9 +113,9 @@ public class TestRestController {
    */
   @PostMapping(value = "/complex/parameterList")
   @ResponseBody
-  public ServiceData testPostParameterList(@RequestParam(name = "integerList", required = true) List<Integer> integerList,
-                                           @RequestParam(name = "stringList", required = true) List<String> stringList,
-                                           @RequestParam(name = "dateList", required = true) @DateTimeFormat(pattern = "dd/MM/yyyy") List<Date> dateList) throws AWException {
+  public ServiceData testPostParameterList(@RequestParam(name = "integerList") List<Integer> integerList,
+                                           @RequestParam(name = "stringList") List<String> stringList,
+                                           @RequestParam(name = "dateList")  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) List<Date> dateList) throws AWException {
     // Initialize parameters
     return new ServiceData();
   }

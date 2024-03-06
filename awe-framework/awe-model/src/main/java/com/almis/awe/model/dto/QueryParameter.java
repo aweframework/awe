@@ -2,12 +2,12 @@ package com.almis.awe.model.dto;
 
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.ParameterType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.NotNull;
 import lombok.experimental.Accessors;
 
@@ -175,8 +175,7 @@ public class QueryParameter implements Copyable {
 
   private void writeObject(@NotNull ObjectOutputStream stream) throws IOException {
     stream.defaultWriteObject();
-    ObjectMapper objectMapper = new ObjectMapper();
-    byte[] jsonBytes = objectMapper.writeValueAsBytes(value);
+    byte[] jsonBytes = DataListUtil.getMapper().writeValueAsBytes(value);
     stream.write(jsonBytes.length);
     stream.writeObject(jsonBytes);
   }
@@ -185,7 +184,6 @@ public class QueryParameter implements Copyable {
     stream.defaultReadObject();
     byte[] jsonBytes = new byte[stream.readInt()];
     stream.readFully(jsonBytes);
-    ObjectMapper objectMapper = new ObjectMapper();
-    this.value = objectMapper.readTree(jsonBytes);
+    this.value = DataListUtil.getMapper().readTree(jsonBytes);
   }
 }

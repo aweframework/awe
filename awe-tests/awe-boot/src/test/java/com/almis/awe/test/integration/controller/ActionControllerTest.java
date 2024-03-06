@@ -2,10 +2,10 @@ package com.almis.awe.test.integration.controller;
 
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.type.MaintainType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import com.almis.awe.test.integration.util.TestUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -241,8 +241,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(translationEsSize, translationsFR.size());
 
       // Test all keys
-      ObjectMapper mapper = new ObjectMapper();
-      Map<String, String> translationsMap = mapper.convertValue(translationsES, Map.class);
+      Map<String, String> translationsMap = DataListUtil.getMapper().convertValue(translationsES, Map.class);
       List<String> keys = new ArrayList<>(translationsMap.keySet());
       Collections.sort(keys);
 

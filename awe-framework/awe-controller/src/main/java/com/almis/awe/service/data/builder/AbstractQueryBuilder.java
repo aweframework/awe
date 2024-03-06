@@ -6,6 +6,7 @@ import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
+import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -32,10 +33,10 @@ public abstract class AbstractQueryBuilder extends ServiceConfig implements Quer
 
   protected ObjectNode parameters;
   protected Map<String, QueryParameter> variables;
-  private Query query;
-  private ComponentAddress address;
   protected Integer variableIndex;
   protected List<SortColumn> componentSortList;
+  private Query query;
+  private ComponentAddress address;
 
   /**
    * Autowired constructor
@@ -185,6 +186,12 @@ public abstract class AbstractQueryBuilder extends ServiceConfig implements Quer
             return node.asBoolean();
           case OBJECT:
             return node;
+          case DATE:
+            return DateUtil.web2Date(node.asText());
+          case TIME:
+            return DateUtil.web2Time(node.asText());
+          case TIMESTAMP:
+            return DateUtil.web2Timestamp(node.asText());
           default:
             return node.asText();
         }

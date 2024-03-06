@@ -4,10 +4,9 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.service.QueryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +25,8 @@ import javax.naming.NamingException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 
@@ -56,7 +56,7 @@ class CalendarDAOTest {
   private AweElements aweElements;
 
   @Mock
-  private DataListService dataListService;
+  ObjectMapper mapper;
 
   /**
    * Initializes json mapper for tests
@@ -148,7 +148,6 @@ class CalendarDAOTest {
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
-    given(dataListService.asBeanList(any(DataList.class), eq(Task.class))).willReturn(new ArrayList<>());
 
     prepareCalendarForTests(1);
 

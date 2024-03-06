@@ -1,8 +1,8 @@
 package com.almis.awe.model.entities.actions;
 
+import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -72,10 +72,8 @@ public class ComponentAddress implements Serializable {
    * @return Component address
    */
   public static ComponentAddress fromJson(JsonNode address) {
-    ObjectMapper mapper = new ObjectMapper();
-
     try {
-      return mapper.treeToValue(address, ComponentAddress.class);
+      return DataListUtil.getMapper().treeToValue(address, ComponentAddress.class);
     } catch (Exception exc) {
       log.error("Error reading component address: {}", address);
       return new ComponentAddress();

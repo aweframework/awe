@@ -1,6 +1,5 @@
 package com.almis.awe.scheduler.autoconfigure;
 
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
@@ -28,6 +27,7 @@ import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,8 +114,10 @@ public class SchedulerConfig {
    * @return Scheduler service
    */
   @Bean
-  public RemoteSchedulerService remoteSchedulerService(SchedulerService schedulerService, RemoteScheduler remoteScheduler) {
-    return new RemoteSchedulerService(schedulerService, remoteScheduler, schedulerConfigProperties.isRemoteEnabled());
+  public RemoteSchedulerService remoteSchedulerService(SchedulerService schedulerService, RemoteScheduler remoteScheduler,
+                                                       ObjectMapper objectMapper) {
+    return new RemoteSchedulerService(schedulerService, remoteScheduler, objectMapper,
+      schedulerConfigProperties.isRemoteEnabled());
   }
 
   /**
@@ -148,15 +150,16 @@ public class SchedulerConfig {
    * @return Scheduler service
    */
   @Bean
-  public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher) {
-    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+  public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService,
+                                               QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher,
+                                               ObjectMapper mapper) {
+    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, mapper,
       schedulerConfigProperties.getTaskTimeout(),
       schedulerConfigProperties.isSchedulerInstance(),
       schedulerConfigProperties.getRemoteCallbackUrl(),
       schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
       schedulerConfigProperties.getRemoteCallbackUser(),
-      schedulerConfigProperties.getRemoteCallbackPassword()
-    );
+      schedulerConfigProperties.getRemoteCallbackPassword());
   }
 
   /**
@@ -259,8 +262,9 @@ public class SchedulerConfig {
    * @return Email report service
    */
   @Bean
-  public SchedulerEmailReportService emailReportService(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService) {
-    return new SchedulerEmailReportService(queryUtil, maintainService, queryService);
+  public SchedulerEmailReportService emailReportService(QueryUtil queryUtil, MaintainService maintainService,
+                                                        QueryService queryService, ObjectMapper mapper) {
+    return new SchedulerEmailReportService(queryUtil, maintainService, queryService, mapper);
   }
 
   /**
@@ -304,8 +308,8 @@ public class SchedulerConfig {
    * @return Calendar DAO
    */
   @Bean
-  public CalendarDAO calendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
-    return new CalendarDAO(scheduler, queryService, queryUtil, dataListService);
+  public CalendarDAO calendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil, ObjectMapper mapper) {
+    return new CalendarDAO(scheduler, queryService, queryUtil, mapper);
   }
 
   /**
@@ -326,9 +330,8 @@ public class SchedulerConfig {
    */
   @Bean
   public TaskDAO taskDAO(Scheduler scheduler, QueryService queryService, MaintainService maintainService,
-                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker,
-                         DataListService dataListService) {
-    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), schedulerConfigProperties.getExecutionLogPath(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, dataListService);
+                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker) {
+    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), schedulerConfigProperties.getExecutionLogPath(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker);
   }
 
   /**
@@ -347,8 +350,8 @@ public class SchedulerConfig {
    * @return File DAO
    */
   @Bean
-  public ServerDAO serverDAO(QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
-    return new ServerDAO(queryService, queryUtil, dataListService);
+  public ServerDAO serverDAO(QueryService queryService, QueryUtil queryUtil) {
+    return new ServerDAO(queryService, queryUtil);
   }
 
   /**

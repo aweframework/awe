@@ -27,7 +27,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.Duration;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
@@ -46,6 +45,8 @@ public class MaintainJobService extends JobService {
   private final String remotePassword;
   private final WebClient webClient;
 
+  private final ObjectMapper mapper;
+
   /**
    * MaintainJobService constructor
    *
@@ -55,11 +56,12 @@ public class MaintainJobService extends JobService {
    * @param taskDAO               Task DAO
    * @param eventPublisher        Event publisher
    * @param defaultTimeout        Default timeout
-   * @param isSchedulerInstance     Is a remote scheduler instance
+   * @param isSchedulerInstance   Is a remote scheduler instance
    * @param remoteUrl             Remote URL
    * @param isRemoteSecureEnabled Remote is secured enabled
    * @param remoteUser            Remote user
    * @param remotePassword        Remote password
+   * @param mapper                Object mapper
    */
 
   public MaintainJobService(ExecutionService executionService,
@@ -67,6 +69,7 @@ public class MaintainJobService extends JobService {
                             QueryUtil queryUtil,
                             TaskDAO taskDAO,
                             ApplicationEventPublisher eventPublisher,
+                            ObjectMapper mapper,
                             Duration defaultTimeout,
                             boolean isSchedulerInstance,
                             URI remoteUrl,
@@ -80,6 +83,7 @@ public class MaintainJobService extends JobService {
     this.remoteUser = remoteUser;
     this.remotePassword = remotePassword;
     this.webClient = Optional.ofNullable(remoteUrl).map(URI::toString).map(WebClient::create).orElse(null);
+    this.mapper = mapper;
   }
 
   /**
@@ -146,8 +150,7 @@ public class MaintainJobService extends JobService {
    */
   private Future<ServiceData> launchRemoteMaintainRest(String maintain, ObjectNode parameters) throws AWException {
     RequestParameter requestParameter = new RequestParameter();
-    ObjectMapper mapper = new ObjectMapper();
-    requestParameter.setParameters(mapper.convertValue(parameters, new TypeReference<Map<String, Object>>() {
+    requestParameter.setParameters(mapper.convertValue(parameters, new TypeReference<>() {
     }));
 
     // Launch request

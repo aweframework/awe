@@ -7,6 +7,7 @@ import com.almis.awe.model.pojo.NoAttributes;
 import com.almis.awe.model.pojo.Planet;
 import com.almis.awe.model.type.CellDataType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.data.DateUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -256,6 +257,10 @@ class DataListBuilderTest {
     builder.addColumn("gravity", Arrays.asList("9,807 m/s²", "3,711 m/s²", "24,79 m/s²"), "STRING");
     builder.addColumn("terrain", Arrays.asList("solid", "solid", "gas"), "STRING");
     builder.addColumn("population", Arrays.asList(101231012312L, 0L, 0L), "LONG");
+    builder.addColumn("terrestrial", Arrays.asList(true, true, false), "BOOLEAN");
+    builder.addColumn("surfaceWater", Arrays.asList(80, 0.001, 0), "FLOAT");
+    builder.addColumn("created", Arrays.asList("22/04/2014", "04/07/2014", "05/11/2014"), "STRING");
+    builder.addColumn("edited", Arrays.asList(DateUtil.web2Date("22/04/2014"), DateUtil.web2Date("04/07/2014"), DateUtil.web2Date("05/11/2014")), "DATE");
 
     // Run
     DataList output = builder.build();
@@ -266,6 +271,9 @@ class DataListBuilderTest {
     // Assert
     assertEquals(3, planetList.size());
     assertEquals("3,711 m/s²", planetList.get(1).getGravity());
+    assertTrue(planetList.get(0).isTerrestrial());
+    assertFalse(planetList.get(2).isTerrestrial());
+    assertNull(planetList.get(1).getOrbitalPeriod());
   }
 
   /**
@@ -356,6 +364,4 @@ class DataListBuilderTest {
   void asBeanListNull() {
     assertThrows(NullPointerException.class, () -> DataListUtil.asBeanList(null, null));
   }
-
-
 }

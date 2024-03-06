@@ -16,7 +16,6 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.email.ParsedEmail;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
@@ -47,19 +46,15 @@ public class DummyService extends ServiceConfig {
   public static final String STAT_ROW = "stat-row";
   // Autowired services
   private final QueryService queryService;
-  private final DataListService dataListService;
   private final Random random = new Random();
 
   /**
    * Autowired constructor
    *
    * @param queryService    Query Service
-   * @param dataListService DataList service
    */
-  public DummyService(QueryService queryService, DataListService dataListService) {
-
+  public DummyService(QueryService queryService) {
     this.queryService = queryService;
-    this.dataListService = dataListService;
   }
 
   /**
@@ -391,6 +386,7 @@ public class DummyService extends ServiceConfig {
       sleep(secondsToWait * 1000L);
       logger.info("Waiting finished!");
     } catch (Exception exc) {
+      Thread.currentThread().interrupt();
       throw new AWException("Interrupted thread exception", exc);
     }
     return new ServiceData();
@@ -423,7 +419,7 @@ public class DummyService extends ServiceConfig {
    * @return Service data
    */
   public ServiceData getDummyData(Planet planet) {
-    return new ServiceData();
+    return new ServiceData().setDataList(DataListUtil.fromBeanList(List.of(planet)));
   }
 
   /**
@@ -445,7 +441,7 @@ public class DummyService extends ServiceConfig {
    * @return Service data
    */
   public ServiceData getDummyData(List<Planet> planetList) {
-    return new ServiceData();
+    return new ServiceData().setDataList(DataListUtil.fromBeanList(planetList));
   }
 
   /**
@@ -484,7 +480,7 @@ public class DummyService extends ServiceConfig {
   public ServiceData dynamicScreen() throws AWException {
     // Get profile list
     ServiceData serviceData = queryService.launchPrivateQuery("getProfiles");
-    List<ProfileModel> profileModels = dataListService.asBeanList(serviceData.getDataList(), ProfileModel.class);
+    List<ProfileModel> profileModels = DataListUtil.asBeanList(serviceData.getDataList(), ProfileModel.class);
     TagBuilder profileModelCards = new TagBuilder()
       .setType("div")
       .setStyle("row");

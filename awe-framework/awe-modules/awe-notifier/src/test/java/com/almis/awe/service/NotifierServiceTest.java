@@ -4,11 +4,13 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
-import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.notifier.dto.InterestedUsersDto;
 import com.almis.awe.notifier.dto.NotificationDto;
 import com.almis.awe.notifier.service.NotifierService;
 import com.almis.awe.notifier.type.NotificationType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,7 +44,7 @@ class NotifierServiceTest {
   private BroadcastService broadcastService;
 
   @Mock
-  private DataListService dataListService;
+  private ObjectMapper mapper;
 
   @Test
   void getNotifications() throws Exception {
@@ -112,12 +117,9 @@ class NotifierServiceTest {
 
   @Test
   void goToNotificationScreen() throws Exception {
-    DataList dataList = new DataList();
-    Map<String, CellData> row = new HashMap<>();
-    row.put("screen", new CellData("screen"));
-    dataList.addRow(row);
-    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(dataList));
-    when(dataListService.asBeanList(any(), eq(NotificationDto.class))).thenReturn(Collections.singletonList(new NotificationDto().setScreen("screen")));
+    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(
+      DataListUtil.fromBeanList(List.of(new NotificationDto().setScreen("screen")))
+    ));
 
     // Run
     ServiceData result = notifierService.goToNotificationScreen(1);
@@ -130,14 +132,16 @@ class NotifierServiceTest {
 
   @Test
   void testNotify() throws Exception {
+    when(mapper.valueToTree(any())).thenReturn(JsonNodeFactory.instance.objectNode(), JsonNodeFactory.instance.arrayNode().add("tutut"));
     List<InterestedUsersDto> interestedUsersDtoList = Arrays.asList(
             new InterestedUsersDto().setUser("User1").setByEmail(true).setByWeb(false),
             new InterestedUsersDto().setUser("User2").setByEmail(false).setByWeb(false),
             new InterestedUsersDto().setUser("User3").setByEmail(true).setByWeb(true),
             new InterestedUsersDto().setUser("User4").setByEmail(false).setByWeb(true)
     );
-    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(new DataList()));
-    when(dataListService.asBeanList(any(), eq(InterestedUsersDto.class))).thenReturn(interestedUsersDtoList);
+    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(
+      DataListUtil.fromBeanList(interestedUsersDtoList)
+    ));
 
     // Run
     notifierService.notify(new NotificationDto().setType(NotificationType.NORMAL));
