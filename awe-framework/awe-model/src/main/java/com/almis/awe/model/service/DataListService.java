@@ -13,6 +13,8 @@ import org.springframework.core.convert.ConversionService;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static com.almis.awe.model.util.data.DataListUtil.initializeList;
+
 public class DataListService extends ServiceConfig {
 
   private final ConversionService conversionService;
@@ -129,33 +131,5 @@ public class DataListService extends ServiceConfig {
     }
 
     return fields;
-  }
-
-  /**
-   * Initialize bean list
-   *
-   * @param valueList Value list of field
-   * @param beanClass Bean class
-   * @param <T>       bean class
-   * @return Initialized bean list
-   * @throws AWException AWE exception
-   */
-  private <T> List<T> initializeList(List<T> valueList, Class<T> beanClass) throws AWException {
-    List<T> beanList = new ArrayList<>();
-    // Initialize list if first defined
-    if (!valueList.isEmpty()) {
-      for (int i = 0, t = valueList.size(); i < t; i++) {
-        // Initialize list
-        try {
-          // Generate row bean
-          T parameterBean = beanClass.getConstructor().newInstance();
-          beanList.add(parameterBean);
-        } catch (Exception exc) {
-          throw new AWException("Error converting datalist into a bean list", CANT_CREATE_INSTANCE + beanClass.getSimpleName(), exc);
-        }
-      }
-    }
-
-    return beanList;
   }
 }

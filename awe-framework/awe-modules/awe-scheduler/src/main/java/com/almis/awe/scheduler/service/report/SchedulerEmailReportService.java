@@ -39,11 +39,11 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
    * @param maintainService Maintain service
    * @param queryService    Query service
    */
-  public SchedulerEmailReportService(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService) {
+  public SchedulerEmailReportService(QueryUtil queryUtil, MaintainService maintainService, QueryService queryService, ObjectMapper mapper) {
     this.queryUtil = queryUtil;
     this.maintainService = maintainService;
     this.queryService = queryService;
-    this.mapper = new ObjectMapper();
+    this.mapper = mapper;
   }
 
   @Override
@@ -148,8 +148,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
       case JOB_ERROR:
         builder.append(LIST_START).append(getLocale(ERROR_LOG)).append(BOLD_END).append(execution.getDescription()).append(LIST_END);
         break;
-      case JOB_WARNING:
-      case JOB_INFO:
+      case JOB_WARNING, JOB_INFO:
         builder.append(LIST_START).append(queryService.findLabel("StaTit", execution.getStatus().toString())).append(BOLD_END).append(execution.getDescription()).append(LIST_END);
         break;
       default:
@@ -223,8 +222,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
       case JOB_ERROR:
         builder.append(getLocale(ERROR_LOG)).append(COLON_SPACE).append(execution.getDescription()).append(NEW_LINE);
         break;
-      case JOB_WARNING:
-      case JOB_INFO:
+      case JOB_WARNING, JOB_INFO:
         builder.append(queryService.findLabel("StaTit", execution.getStatus().toString())).append(COLON_SPACE).append(execution.getDescription()).append(NEW_LINE);
         break;
       default:

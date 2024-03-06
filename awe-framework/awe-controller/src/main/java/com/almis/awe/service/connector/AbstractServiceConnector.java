@@ -3,13 +3,13 @@ package com.almis.awe.service.connector;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.ParameterType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -23,11 +23,11 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
 
   private static final String CANT_CREATE_INSTANCE = "Can't create instance of ";
 
-  @Autowired
-  private DataListService dataListService;
+  private final ObjectMapper objectMapper;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  AbstractServiceConnector(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
   /**
    * Extract parameters values
@@ -61,13 +61,13 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
     if (parameter.getBeanClass() != null) {
       Class beanClass = getParameterClass(parameter);
       if (parameter.isList()) {
-        paramsToInvoke[index] = dataListService.getParameterBeanListValue(beanClass, paramsMapFromRequest);
+        paramsToInvoke[index] = DataListUtil.getParameterBeanListValue(beanClass, paramsMapFromRequest);
         paramsClassesToInvoke[index] = List.class;
       } else if ("JSON".equalsIgnoreCase(parameter.getType())) {
         paramsToInvoke[index] = getParameterJsonBeanValue(parameter, beanClass, paramsMapFromRequest);
         paramsClassesToInvoke[index] = beanClass;
       } else {
-        paramsToInvoke[index] = dataListService.getParameterBeanValue(beanClass, paramsMapFromRequest);
+        paramsToInvoke[index] = DataListUtil.getParameterBeanValue(beanClass, paramsMapFromRequest);
         paramsClassesToInvoke[index] = beanClass;
       }
     } else {
@@ -128,18 +128,18 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
    */
   private Object getParameterValue(ServiceInputParameter parameter, Object parameterValue) {
     switch (ParameterType.valueOf(parameter.getType())) {
-      case INTEGER:
-      case LONG:
-      case FLOAT:
-      case DOUBLE:
-      case BOOLEAN:
+      case INTEGER, LONG, FLOAT, DOUBLE, BOOLEAN:
         return "".equals(parameterValue) ? null : parameterValue;
-      case DATE:
-      case TIME:
-      case TIMESTAMP:
-        return "".equals(parameterValue) ? null : DateUtil.web2Date((String) parameterValue);
-      case OBJECT:
-      case STRING:
+      case DATE, TIME, TIMESTAMP:
+        if (parameterValue instanceof String stringValue) {
+          return Optional.ofNullable(stringValue)
+            .filter(StringUtils::isNotBlank)
+            .map(DateUtil::web2Date)
+            .orElse(null);
+        } else {
+          return parameterValue;
+        }
+      case OBJECT, STRING:
       default:
         return parameterValue;
     }
@@ -159,8 +159,8 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
     Object parameterValue;
     if (paramsMap.containsKey(parameter.getName()) && !"".equals(paramsMap.get(parameter.getName()))) {
       parameterValue = paramsMap.get(parameter.getName());
-      if (parameterValue instanceof Collection) {
-        for (Object parameterValueElement : (Collection) parameterValue) {
+      if (parameterValue instanceof Collection parameterListValue) {
+        for (Object parameterValueElement : parameterListValue) {
           parameterList.add(getParameterValue(parameter, parameterValueElement));
         }
       } else {

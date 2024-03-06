@@ -35,16 +35,20 @@ public class QueryUtil extends ServiceConfig {
   // Autowired services
   private final BaseConfigProperties baseConfigProperties;
   private final DatabaseConfigProperties databaseConfigProperties;
+  private final ObjectMapper mapper;
 
 
   /**
    * QueryUtil constructor
-   * @param baseConfigProperties Base config properties
+   *
+   * @param baseConfigProperties     Base config properties
    * @param databaseConfigProperties Database config properties
+   * @param mapper                   Object mapper
    */
-  public QueryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties) {
+  public QueryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper) {
     this.baseConfigProperties = baseConfigProperties;
     this.databaseConfigProperties = databaseConfigProperties;
+    this.mapper = mapper;
   }
 
   /**
@@ -153,9 +157,7 @@ public class QueryUtil extends ServiceConfig {
    */
   private boolean allowVariable(Variable variable, JsonNode value) {
     switch (ParameterType.valueOf(variable.getType())) {
-      case SYSTEM_DATE:
-      case SYSTEM_TIME:
-      case SYSTEM_TIMESTAMP:
+      case SYSTEM_DATE, SYSTEM_TIME, SYSTEM_TIMESTAMP:
         return true;
       default:
         return !variable.isOptional() || value != null && !value.isNull();
@@ -401,25 +403,16 @@ public class QueryUtil extends ServiceConfig {
 
     // If parameter is not json, generate it
     switch (type) {
-      case DOUBLE:
-      case FLOAT:
-      case INTEGER:
-      case LONG:
+      case DOUBLE,FLOAT,INTEGER, LONG:
         parameter = getNumberParameter(parameter, stringValue, variableId, type);
         break;
       case OBJECT:
         parameter = getObjectParameter(parameter, stringValue);
         break;
-      case DATE:
-      case TIME:
-      case TIMESTAMP:
-      case STRINGN:
+      case DATE, TIME, TIMESTAMP, STRINGN:
         parameter = getStringWithNullsParameter(parameter, stringValue);
         break;
-      case SYSTEM_DATE:
-      case SYSTEM_TIME:
-      case SYSTEM_TIMESTAMP:
-      case NULL:
+      case SYSTEM_DATE, SYSTEM_TIME, SYSTEM_TIMESTAMP, NULL:
         parameter = nodeFactory.nullNode();
         break;
       case STRING_TO_LIST:
@@ -431,14 +424,8 @@ public class QueryUtil extends ServiceConfig {
 
         parameter = valueList;
         break;
-      case STRING:
-      case STRINGB:
-      case STRINGL:
-      case STRINGR:
-      case STRING_ENCRYPT:
-      case STRING_HASH_RIPEMD160:
-      case STRING_HASH_PBKDF_2_W_HMAC_SHA_1:
-      case STRING_HASH_SHA:
+      case STRING, STRINGB, STRINGL, STRINGR, STRING_ENCRYPT,
+        STRING_HASH_RIPEMD160, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
       default:
         parameter = getStringParameter(parameter, stringValue);
     }
@@ -461,7 +448,7 @@ public class QueryUtil extends ServiceConfig {
     JsonNode output = parameter;
     if (parameter == null && stringParameter != null) {
       try {
-        output = new ObjectMapper().reader().readTree(stringParameter);
+        output = mapper.reader().readTree(stringParameter);
       } catch (IOException exc) {
         throw new AWException(getLocale("ERROR_MESSAGE_PARSING_OBJECT", stringParameter), exc);
       }
@@ -508,7 +495,7 @@ public class QueryUtil extends ServiceConfig {
   /**
    * Retrieve parameter from request
    *
-   * @param name       Parameter name
+   * @param name Parameter name
    * @return Parameter
    */
   public JsonNode getRequestParameter(String name) {
@@ -669,14 +656,15 @@ public class QueryUtil extends ServiceConfig {
 
   /**
    * Format log parameters
+   *
    * @param binding Binding to format
    * @return Formatted parameter
    */
   private String formatParameter(Object binding) {
-    if (binding instanceof String) {
-      return MessageFormat.format("''{0}''", StringUtil.shortenText((String) binding, 25, "..."));
-    } else if (binding instanceof Date) {
-      return MessageFormat.format("(timestamp ''{0}'')", DateUtil.dat2SqlTimeString((Date) binding));
+    if (binding instanceof String stringBinding) {
+      return MessageFormat.format("''{0}''", StringUtil.shortenText(stringBinding, 25, "..."));
+    } else if (binding instanceof Date dateBinding) {
+      return MessageFormat.format("(timestamp ''{0}'')", DateUtil.dat2SqlTimeString(dateBinding));
     }
     return binding.toString();
   }

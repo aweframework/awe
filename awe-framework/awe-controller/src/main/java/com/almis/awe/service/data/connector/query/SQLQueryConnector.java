@@ -20,6 +20,7 @@ import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -67,10 +68,14 @@ public class SQLQueryConnector extends AbstractQueryConnector {
    * @param numericService           Numeric service
    * @param encodeService            Encode service
    * @param databaseConfigProperties Database configuration properties
+   * @param mapper                   Object mapper
    */
   @Autowired
-  public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
-    super(queryUtil, baseConfigProperties, elements, numericService, encodeService);
+  public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource,
+                           BaseConfigProperties baseConfigProperties, AweElements elements,
+                           NumericService numericService, EncodeService encodeService,
+                           DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper) {
+    super(queryUtil, baseConfigProperties, elements, numericService, encodeService, mapper);
     this.contextHolder = contextHolder;
     this.dataSource = dataSource;
     this.databaseConfigProperties = databaseConfigProperties;

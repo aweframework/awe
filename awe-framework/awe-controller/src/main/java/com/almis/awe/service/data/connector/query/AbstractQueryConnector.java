@@ -17,6 +17,7 @@ import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.QueryBuilder;
 import com.almis.awe.service.data.processor.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.Optional;
  * <p>
  * Abstract class that all database-related query launcher should extend
  * </p>
+ *
  * @author Jorge BELLON 24-02-2017
  */
 public abstract class AbstractQueryConnector extends ServiceConfig implements QueryConnector {
@@ -37,6 +39,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
   private final AweElements elements;
   private final NumericService numericService;
   private final EncodeService encodeService;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
@@ -46,13 +49,16 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    * @param elements             AWE elements
    * @param numericService       Numeric service
    * @param encodeService        Encode service
+   * @param mapper               Object mapper
    */
-  protected AbstractQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
+  protected AbstractQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements,
+                                   NumericService numericService, EncodeService encodeService, ObjectMapper mapper) {
     this.queryUtil = queryUtil;
     this.baseConfigProperties = baseConfigProperties;
     this.elements = elements;
     this.numericService = numericService;
     this.encodeService = encodeService;
+    this.mapper = mapper;
   }
 
   /**
@@ -206,7 +212,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
     // Add compound fields
     if (query.getCompoundList() != null) {
       for (Compound compound : query.getCompoundList()) {
-        builder.addCompound(new CompoundColumnProcessor(elements, baseConfigProperties, compound, variables, numericService, encodeService));
+        builder.addCompound(new CompoundColumnProcessor(elements, baseConfigProperties, compound, variables, numericService, encodeService, mapper));
       }
     }
 
@@ -225,8 +231,8 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
   /**
    * Add field transformations to the builder
    *
-   * @param field   Field
-   * @param builder Builder
+   * @param field     Field
+   * @param builder   Builder
    * @param variables Variable map
    * @throws AWException AWE exception
    */

@@ -4,7 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.Favourite;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
-import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +19,11 @@ public class FavouriteService {
 
   private final QueryService queryService;
   private final QueryUtil queryUtil;
-  private final DataListService dataListService;
   private final MaintainService maintainService;
 
-  public FavouriteService(QueryService queryService, QueryUtil queryUtil, DataListService dataListService, MaintainService maintainService) {
+  public FavouriteService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService) {
     this.queryService = queryService;
     this.queryUtil = queryUtil;
-    this.dataListService = dataListService;
     this.maintainService = maintainService;
   }
 
@@ -105,7 +103,7 @@ public class FavouriteService {
     // Get favourites
     ObjectNode parameters = getUserAndOptionParameters(user, null);
     ServiceData serviceData = queryService.launchPrivateQuery("getFavourites", parameters);
-    return dataListService.asBeanList(serviceData.getDataList(), Favourite.class);
+    return DataListUtil.asBeanList(serviceData.getDataList(), Favourite.class);
   }
 
 

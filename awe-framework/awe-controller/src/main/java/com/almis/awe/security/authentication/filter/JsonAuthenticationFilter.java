@@ -25,14 +25,16 @@ import java.io.IOException;
 public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
   private final AweElements elements;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
    *
    * @param aweElements AweElements
    */
-  public JsonAuthenticationFilter(AweElements aweElements) {
+  public JsonAuthenticationFilter(AweElements aweElements, ObjectMapper mapper) {
     this.elements = aweElements;
+    this.mapper = mapper;
   }
 
   @Override
@@ -66,7 +68,7 @@ public class JsonAuthenticationFilter extends UsernamePasswordAuthenticationFilt
     String body = ((AweHttpServletRequestWrapper) request).getBody();
     try {
       // Read the parameters
-      ObjectNode parameters = (ObjectNode) new ObjectMapper().readTree(body);
+      ObjectNode parameters = (ObjectNode) mapper.readTree(body);
 
       // Fill username and password authentication token with the right values
       return new UsernamePasswordAuthenticationToken(

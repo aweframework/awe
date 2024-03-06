@@ -1,7 +1,7 @@
 package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.file.Server;
 import com.almis.awe.service.QueryService;
@@ -18,19 +18,16 @@ public class ServerDAO {
   // Autowired services
   private final QueryService queryService;
   private final QueryUtil queryUtil;
-  private final DataListService dataListService;
 
   /**
    * Autowired constructor
    *
    * @param queryService    Query service
    * @param queryUtil       Query utilities
-   * @param dataListService DataList service
    */
-  public ServerDAO(QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
+  public ServerDAO(QueryService queryService, QueryUtil queryUtil) {
     this.queryService = queryService;
     this.queryUtil = queryUtil;
-    this.dataListService = dataListService;
   }
 
   /**
@@ -45,7 +42,7 @@ public class ServerDAO {
     parameters.put("serverId", serverId);
 
     // Retrieve server
-    List<Server> serverList = dataListService.asBeanList(queryService.launchPrivateQuery(SCHEDULER_SERVER_DATA, parameters).getDataList(), Server.class);
+    List<Server> serverList = DataListUtil.asBeanList(queryService.launchPrivateQuery(SCHEDULER_SERVER_DATA, parameters).getDataList(), Server.class);
     if (!serverList.isEmpty()) {
       return serverList.get(0);
     }

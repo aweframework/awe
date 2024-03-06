@@ -271,7 +271,7 @@ public class WebSecurityConfig {
    */
   @Bean
   public JsonAuthenticationFilter jsonAuthenticationFilter(BaseConfigProperties baseConfigProperties, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
-    JsonAuthenticationFilter authenticationFilter = new JsonAuthenticationFilter(elements);
+    JsonAuthenticationFilter authenticationFilter = new JsonAuthenticationFilter(elements, objectMapper);
     authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/action/login", "POST"));
     authenticationFilter.setUsernameParameter(baseConfigProperties.getParameter().getUsername());
     authenticationFilter.setPasswordParameter(baseConfigProperties.getParameter().getPassword());

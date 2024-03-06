@@ -1,11 +1,11 @@
 package com.almis.awe.notifier.autoconfigure;
 
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.notifier.autoconfigure.config.NotifierConfigProperties;
 import com.almis.awe.notifier.service.NotifierService;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,12 +38,12 @@ public class NotifierConfig {
    * @param queryService     Query service
    * @param maintainService  Maintain service
    * @param broadcastService Broadcast service
-   * @param dataListService  DataList service
+   * @param mapper           Object mapper
    * @return Notifier service
    */
   @Bean
   public NotifierService notifierService(QueryService queryService, MaintainService maintainService,
-                                         BroadcastService broadcastService, DataListService dataListService) {
-    return new NotifierService(queryService, maintainService, broadcastService, dataListService);
+                                         BroadcastService broadcastService, ObjectMapper mapper) {
+    return new NotifierService(queryService, maintainService, broadcastService, mapper);
   }
 }

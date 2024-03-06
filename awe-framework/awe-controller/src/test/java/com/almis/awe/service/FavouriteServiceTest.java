@@ -4,7 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.Favourite;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,8 +30,6 @@ class FavouriteServiceTest {
   QueryUtil queryUtil;
   @Mock
   QueryService queryService;
-  @Mock
-  DataListService dataListService;
   @Mock
   MaintainService maintainService;
 
@@ -68,8 +66,9 @@ class FavouriteServiceTest {
   void checkFavouritesWithFav() throws AWException {
     // Prepare
     when(queryUtil.getParameters(any(), anyString(), anyString())).thenReturn(JsonNodeFactory.instance.objectNode());
-    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(new DataList()));
-    when(dataListService.asBeanList(any(), any())).thenReturn(Collections.singletonList(new Favourite().setOption("test")));
+    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(
+      DataListUtil.fromBeanList(List.of(new Favourite().setOption("test")))
+    ));
 
     // Do
     ServiceData serviceData = favouriteService.checkFavourites("user", "test");
@@ -83,12 +82,16 @@ class FavouriteServiceTest {
   void getFavourites() throws AWException {
     // Prepare
     when(queryUtil.getParameters(any(), anyString(), anyString())).thenReturn(JsonNodeFactory.instance.objectNode());
-    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(new DataList()));
+    when(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(
+      DataListUtil.fromBeanList(List.of(
+        new Favourite().setOption("test"),
+        new Favourite().setOption("test2")))
+    ));
 
     // Do
-    favouriteService.getFavourites("user");
+    List<Favourite> favourites = favouriteService.getFavourites("user");
 
     // Check
-    verify(dataListService, times(1)).asBeanList(any(DataList.class), any());
+    assertEquals(2, favourites.size());
   }
 }

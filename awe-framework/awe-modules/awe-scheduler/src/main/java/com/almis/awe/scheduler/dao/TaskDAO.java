@@ -14,7 +14,6 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.queries.Variable;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
@@ -75,7 +74,6 @@ public class TaskDAO extends ServiceConfig {
   private final CalendarDAO calendarDAO;
   private final ServerDAO serverDAO;
   private final FileChecker fileChecker;
-  private final DataListService dataListService;
   private final String executionLogPath;
   private final int defaultStoredExecutions;
 
@@ -91,10 +89,9 @@ public class TaskDAO extends ServiceConfig {
    * @param calendarDAO       Calendar DAO
    * @param serverDAO         Server DAO
    * @param fileChecker       File checker
-   * @param dataListService   Data list service
    */
   public TaskDAO(Scheduler scheduler, int storedExecutions, String executionLogPath, QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
-                 CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker, DataListService dataListService) {
+                 CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker) {
     this.scheduler = scheduler;
     this.defaultStoredExecutions = storedExecutions;
     this.executionLogPath = executionLogPath;
@@ -104,7 +101,6 @@ public class TaskDAO extends ServiceConfig {
     this.calendarDAO = calendarDAO;
     this.serverDAO = serverDAO;
     this.fileChecker = fileChecker;
-    this.dataListService = dataListService;
   }
 
   /**
@@ -171,10 +167,10 @@ public class TaskDAO extends ServiceConfig {
     TaskBuilder taskBuilder = TaskFactory.getInstance(generateTask(taskParameters), generateFile(taskParameters), scheduler);
 
     // Set task parameters
-    taskBuilder.setParameters(dataListService.asBeanList(queryService.launchPrivateQuery(SCHEDULER_TASK_PARAMETERS_QUERY, parameters).getDataList(), TaskParameter.class));
+    taskBuilder.setParameters(DataListUtil.asBeanList(queryService.launchPrivateQuery(SCHEDULER_TASK_PARAMETERS_QUERY, parameters).getDataList(), TaskParameter.class));
 
     // Retrieve task dependencies
-    taskBuilder.setDependencies(dataListService.asBeanList(queryService.launchPrivateQuery(SCHEDULER_TASK_DEPENDENCIES_QUERY, parameters).getDataList(), TaskDependency.class));
+    taskBuilder.setDependencies(DataListUtil.asBeanList(queryService.launchPrivateQuery(SCHEDULER_TASK_DEPENDENCIES_QUERY, parameters).getDataList(), TaskDependency.class));
 
     // Retrieve task calendar
     if (taskBuilder.getCalendarId() != null) {
@@ -195,15 +191,15 @@ public class TaskDAO extends ServiceConfig {
   }
 
   private Task generateTask(ServiceData taskParameters) throws AWException {
-    return dataListService.asBeanList(taskParameters.getDataList(), Task.class)
+    return DataListUtil.asBeanList(taskParameters.getDataList(), Task.class)
       .stream().findFirst()
       .orElseThrow(() -> new AWException("No task data found"))
-      .setSchedule(dataListService.asBeanList(taskParameters.getDataList(), Schedule.class).stream().findFirst().orElse(new Schedule()))
-      .setReport(dataListService.asBeanList(taskParameters.getDataList(), Report.class).stream().findFirst().orElse(new Report()));
+      .setSchedule(DataListUtil.asBeanList(taskParameters.getDataList(), Schedule.class).stream().findFirst().orElse(new Schedule()))
+      .setReport(DataListUtil.asBeanList(taskParameters.getDataList(), Report.class).stream().findFirst().orElse(new Report()));
   }
 
-  private File generateFile(ServiceData taskParameters) throws AWException {
-    return dataListService.asBeanList(taskParameters.getDataList(), File.class).stream().findFirst().orElse(null);
+  private File generateFile(ServiceData taskParameters) {
+    return DataListUtil.asBeanList(taskParameters.getDataList(), File.class).stream().findFirst().orElse(null);
   }
 
 
@@ -313,7 +309,7 @@ public class TaskDAO extends ServiceConfig {
     DataList dataList = serviceData.getDataList();
 
     // Filter rows
-    dataList.setRows(serviceData.getDataList().getRows().stream().skip(executions).collect(Collectors.toList()));
+    dataList.setRows(serviceData.getDataList().getRows().stream().skip(executions).toList());
     dataList.getRows().forEach(row -> row.remove("id"));
 
     // Set records
@@ -332,7 +328,7 @@ public class TaskDAO extends ServiceConfig {
     ArrayNode executionsToPurge = JsonNodeFactory.instance.arrayNode();
     String logPath = executionLogPath;
     DataList dataList = getExecutionsToPurge(taskId, executions).getDataList();
-    List<TaskExecution> taskExecutionList = dataListService.asBeanList(dataList, TaskExecution.class);
+    List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
 
     for (TaskExecution taskExecution : taskExecutionList) {
       // Delete each task execution file
@@ -367,7 +363,7 @@ public class TaskDAO extends ServiceConfig {
     log.info("===== Deleting old execution logs =====");
 
     DataList dataList = queryService.launchPrivateQuery(GET_ALL_EXECUTIONS).getDataList();
-    List<TaskExecution> taskExecutionList = dataListService.asBeanList(dataList, TaskExecution.class);
+    List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
     Set<String> validLogFiles = taskExecutionList
       .stream()
       .map(e -> "execution_" + e.getTaskId() + TASK_SEPARATOR + e.getExecutionId() + ".log")
@@ -1128,7 +1124,7 @@ public class TaskDAO extends ServiceConfig {
   private TaskExecution getTaskExecution(String query, ObjectNode parameters) throws AWException {
     // Get task average time datalist
     ServiceData serviceData = queryService.launchPrivateQuery(query, parameters);
-    List<TaskExecution> executionList = dataListService.asBeanList(serviceData.getDataList(), TaskExecution.class);
+    List<TaskExecution> executionList = DataListUtil.asBeanList(serviceData.getDataList(), TaskExecution.class);
     return executionList.isEmpty() ? null : executionList.get(0);
   }
 

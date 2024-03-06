@@ -4,6 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.rest.dto.LoginResponse;
 import com.almis.awe.scheduler.bean.task.Task;
@@ -12,7 +13,6 @@ import com.almis.awe.scheduler.bean.task.TaskParameter;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -79,8 +79,8 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobLocal() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, Duration.ofSeconds(5),
-      false, null, false, null, null);
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5), false, null, false, null, null);
     maintainJobService.setApplicationContext(context);
 
 
@@ -108,7 +108,8 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobLocalErrorInMaintain() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, Duration.ofSeconds(5),
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5),
       false, null, false, null, null);
     maintainJobService.setApplicationContext(context);
 
@@ -136,16 +137,17 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobRemote() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, Duration.ofSeconds(5),
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5),
       true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), true, "user", "pass");
     maintainJobService.setApplicationContext(context);
 
     // Back end response
     mockBackEnd.enqueue(new MockResponse()
-      .setBody(new ObjectMapper().writeValueAsString(new LoginResponse().setToken("token")))
+      .setBody(DataListUtil.getMapper().writeValueAsString(new LoginResponse().setToken("token")))
       .addHeader("Content-Type", "application/json"));
     mockBackEnd.enqueue(new MockResponse()
-      .setBody(new ObjectMapper().writeValueAsString(new ServiceData()))
+      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData()))
       .addHeader("Content-Type", "application/json"));
 
 
@@ -171,7 +173,8 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobRemoteErrorInAuthentication() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, Duration.ofSeconds(5),
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5),
       true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), true, "user", "pass");
     maintainJobService.setApplicationContext(context);
 
@@ -179,7 +182,7 @@ class MaintainJobServiceTest {
       .setBody("")
       .addHeader("Content-Type", "application/json"));
     mockBackEnd.enqueue(new MockResponse()
-      .setBody(new ObjectMapper().writeValueAsString(new ServiceData().setType(AnswerType.ERROR)))
+      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData().setType(AnswerType.ERROR)))
       .addHeader("Content-Type", "application/json"));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
@@ -204,11 +207,12 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobRemoteNoAuth() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, Duration.ofSeconds(5),
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5),
       true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null);
     maintainJobService.setApplicationContext(context);
     mockBackEnd.enqueue(new MockResponse()
-      .setBody(new ObjectMapper().writeValueAsString(new ServiceData()))
+      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData()))
       .addHeader("Content-Type", "application/json"));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
@@ -233,11 +237,12 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobRemoteNoAuthErrorInResponse() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, Duration.ofSeconds(5),
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5),
       true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null);
     maintainJobService.setApplicationContext(context);
     mockBackEnd.enqueue(new MockResponse()
-      .setBody(new ObjectMapper().writeValueAsString(new ServiceData().setType(AnswerType.ERROR)))
+      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData().setType(AnswerType.ERROR)))
       .addHeader("Content-Type", "application/json"));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);

@@ -16,7 +16,6 @@ public class Concert {
   private String eventDateName;
   private String name;
   @DateTimeFormat(pattern = "dd/MM/yyyy")
-  //@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
   private Date dateOfShow;
   private String userGroupName;
   private String eventHallName;

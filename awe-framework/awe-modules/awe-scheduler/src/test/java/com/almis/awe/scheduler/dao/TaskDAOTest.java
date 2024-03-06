@@ -4,11 +4,8 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
-import com.almis.awe.scheduler.bean.file.File;
-import com.almis.awe.scheduler.bean.report.Report;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
@@ -78,15 +75,12 @@ class TaskDAOTest {
   @Mock
   private FileChecker fileChecker;
 
-  @Mock
-  private DataListService dataListService;
-
   /**
    * Initializes json mapper for tests
    */
   @BeforeEach
   void initBeans() {
-    taskDAO = new TaskDAO(scheduler, 5, "", queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, dataListService);
+    taskDAO = new TaskDAO(scheduler, 5, "", queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker);
     taskDAO.setApplicationContext(context);
   }
 
@@ -240,11 +234,10 @@ class TaskDAOTest {
   @Test
   void checkTaskFinishOk() throws Exception {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
-    given(dataListService.asBeanList(any(DataList.class), eq(Task.class))).willReturn(Collections.singletonList(mockTask()));
-    given(dataListService.asBeanList(any(DataList.class), eq(Schedule.class))).willReturn(Collections.singletonList(new Schedule().setRepeatType(1).setRepeatNumber(1)));
-    given(dataListService.asBeanList(any(DataList.class), eq(Report.class))).willReturn(Collections.singletonList(new Report()));
+    DataList taskDataList = getTaskDataList(true);
     Task task = mockTask();
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
+      new ServiceData().setDataList(taskDataList));
     TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
     TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_OK.getValue()).setParentExecution(parentExecution);
 
@@ -265,11 +258,10 @@ class TaskDAOTest {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryUtil.getParameters((String) isNull())).willReturn(JsonNodeFactory.instance.objectNode());
 
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
-    given(dataListService.asBeanList(any(DataList.class), eq(Task.class))).willReturn(Collections.singletonList(mockTask()));
-    given(dataListService.asBeanList(any(DataList.class), eq(Schedule.class))).willReturn(Collections.singletonList(new Schedule().setRepeatType(1).setRepeatNumber(1)));
-    given(dataListService.asBeanList(any(DataList.class), eq(Report.class))).willReturn(Collections.singletonList(new Report()));
+    DataList taskDataList = getTaskDataList(true);
     Task task = mockTask();
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
+      new ServiceData().setDataList(taskDataList));
     TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
     TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_ERROR.getValue()).setParentExecution(parentExecution);
 
@@ -286,11 +278,11 @@ class TaskDAOTest {
   @Test
   void checkTaskFinishErrorParentOk() throws Exception {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
+    DataList taskDataList = getTaskDataList(false);
     Task task = mockTask(false);
-    given(dataListService.asBeanList(any(DataList.class), eq(Task.class))).willReturn(Collections.singletonList(task));
-    given(dataListService.asBeanList(any(DataList.class), eq(Schedule.class))).willReturn(Collections.singletonList(new Schedule().setRepeatType(1).setRepeatNumber(1)));
-    given(dataListService.asBeanList(any(DataList.class), eq(Report.class))).willReturn(Collections.singletonList(new Report()));
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
+      new ServiceData().setDataList(taskDataList));
+
     TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
     TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_ERROR.getValue()).setParentExecution(parentExecution);
 
@@ -307,11 +299,10 @@ class TaskDAOTest {
   @Test
   void checkTaskFinishWarning() throws Exception {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    DataList taskDataList = getTaskDataList(true);
     Task task = mockTask();
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
-    given(dataListService.asBeanList(any(DataList.class), eq(Task.class))).willReturn(Collections.singletonList(task));
-    given(dataListService.asBeanList(any(DataList.class), eq(Schedule.class))).willReturn(Collections.singletonList(new Schedule().setRepeatType(1).setRepeatNumber(1)));
-    given(dataListService.asBeanList(any(DataList.class), eq(Report.class))).willReturn(Collections.singletonList(new Report()));
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
+      new ServiceData().setDataList(taskDataList));
     TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
     TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_WARNING.getValue()).setParentExecution(parentExecution);
 
@@ -328,17 +319,11 @@ class TaskDAOTest {
   @Test
   void checkTaskFinishInterrupted() throws Exception {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
-    given(dataListService.asBeanList(any(DataList.class), any(Class.class))).willReturn(
-            Collections.singletonList(mockTask()),
-            Collections.singletonList(new Schedule()
-                    .setRepeatType(1)
-                    .setRepeatNumber(1)),
-            Collections.singletonList(new Report()),
-            Collections.singletonList(new File())
-    );
-
+    DataList taskDataList = getTaskDataList(true);
     Task task = mockTask();
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
+      new ServiceData().setDataList(taskDataList));
+
     TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
     TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_INTERRUPTED.getValue()).setParentExecution(parentExecution);
 
@@ -403,9 +388,6 @@ class TaskDAOTest {
     dataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
-    given(dataListService.asBeanList(any(), eq(TaskExecution.class))).willReturn(Collections.singletonList(new TaskExecution()
-            .setExecutionId(1)
-            .setInitialDate(new Date()).setStatus(TaskStatus.JOB_INTERRUPTED.getValue())));
 
     // Finish task
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
@@ -436,12 +418,6 @@ class TaskDAOTest {
     dataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
-    given(dataListService.asBeanList(any(), eq(TaskExecution.class))).willReturn(Collections.singletonList(new TaskExecution()
-            .setExecutionId(1)
-            .setInitialDate(new Date())
-            .setEndDate(new Date())
-            .setExecutionTime(1231)
-            .setStatus(TaskStatus.JOB_WARNING.getValue())));
 
     // Finish task
     ServiceData serviceData = taskDAO.reloadExecutionScreen(1, 1);
@@ -465,6 +441,18 @@ class TaskDAOTest {
    * @return Task mocked
    */
   private Task mockTask(boolean setTaskOnWarning) {
+    return new Task()
+            .setTaskId(1)
+            .setExecutionType(1)
+            .setLaunchType(TaskLaunchType.SCHEDULED.getValue())
+            .setLaunchDependenciesOnError(true)
+            .setLaunchDependenciesOnWarning(true)
+            .setSetTaskOnWarningIfDependencyError(setTaskOnWarning)
+            .setSchedule(new Schedule().setRepeatNumber(2).setRepeatType(2))
+            .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(1).setParentId(2)));
+  }
+
+  private DataList getTaskDataList(boolean setTaskOnWarning) {
     // Mock
     DataList taskDataList = new DataList();
     Map<String, CellData> row = new HashMap<>();
@@ -481,16 +469,6 @@ class TaskDAOTest {
     row.put(UPDATE_DATE, new CellData(new Date()));
     taskDataList.addRow(row);
 
-    Task task = new Task()
-            .setTaskId(1)
-            .setExecutionType(1)
-            .setLaunchType(TaskLaunchType.SCHEDULED.getValue())
-            .setLaunchDependenciesOnError(true)
-            .setLaunchDependenciesOnWarning(true)
-            .setSetTaskOnWarningIfDependencyError(setTaskOnWarning)
-            .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(1).setParentId(2)));
-
-    new Schedule().setRepeatNumber(2).setRepeatType(2);
-    return task;
+    return taskDataList;
   }
 }

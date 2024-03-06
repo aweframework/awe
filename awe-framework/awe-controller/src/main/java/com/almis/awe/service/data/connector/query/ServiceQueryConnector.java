@@ -13,6 +13,7 @@ import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.ServiceBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,9 +37,11 @@ public class ServiceQueryConnector extends AbstractQueryConnector {
    * @param elements             AWE elements
    * @param numericService       Numeric service
    * @param encodeService        Encode service
+   * @param mapper               Object mapper
    */
-  public ServiceQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
-    super(queryUtil, baseConfigProperties, elements, numericService, encodeService);
+  public ServiceQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements,
+                               NumericService numericService, EncodeService encodeService, ObjectMapper mapper) {
+    super(queryUtil, baseConfigProperties, elements, numericService, encodeService, mapper);
   }
 
   @Override

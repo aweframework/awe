@@ -18,6 +18,7 @@ import com.almis.awe.service.data.connector.maintain.SQLMaintainConnector;
 import com.almis.awe.service.data.connector.query.SQLQueryConnector;
 import com.almis.awe.template.FixedOracleTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.sql.*;
 import com.querydsl.sql.types.ClobType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,18 +173,25 @@ public class SQLConfig {
    * @param numericService           Numeric Service
    * @param encodeService            Encode Service
    * @param databaseConfigProperties Database configuration properties
+   * @param mapper                   Object mapper
    * @return SQL Query connector bean
    */
   @Bean
   @ConditionalOnMissingBean
   @Autowired
-  public SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
-    return new SQLQueryConnector(contextHolder, queryUtil, dataSource, baseConfigProperties, elements, numericService, encodeService, databaseConfigProperties);
+  public SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil,
+                                             DataSource dataSource, BaseConfigProperties baseConfigProperties,
+                                             AweElements elements, NumericService numericService,
+                                             EncodeService encodeService,
+                                             DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper) {
+    return new SQLQueryConnector(contextHolder, queryUtil, dataSource, baseConfigProperties, elements, numericService,
+      encodeService, databaseConfigProperties, mapper);
   }
 
   /**
-   *  SQL Maintain connector
-   * @param queryUtil QueryUtil service
+   * SQL Maintain connector
+   *
+   * @param queryUtil                QueryUtil service
    * @param databaseConfigProperties Database configuration properties
    * @return SQL Query connector bean
    */
@@ -200,7 +208,7 @@ public class SQLConfig {
   /**
    * SQL Query builder
    *
-   * @param queryUtil Query utilities
+   * @param queryUtil     Query utilities
    * @param encodeService Encode service
    * @return SQL Query builder bean
    */
@@ -213,8 +221,9 @@ public class SQLConfig {
 
   /**
    * SQL Maintain builder
-   * @param queryUtil QueryUtil service
-   * @param encodeService Encode service
+   *
+   * @param queryUtil                QueryUtil service
+   * @param encodeService            Encode service
    * @param databaseConfigProperties Database properties
    * @return SQLMaintainBuilder bean
    */

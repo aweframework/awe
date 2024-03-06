@@ -38,17 +38,20 @@ public class FileManagerController {
   // Autowired services
   private final FileManagerService service;
   private final ServletContext context;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
    *
    * @param service File manager service
    * @param context Servlet context
+   * @param mapper  Object Mapper
    */
   @Autowired
-  public FileManagerController(FileManagerService service, ServletContext context) {
+  public FileManagerController(FileManagerService service, ServletContext context, ObjectMapper mapper) {
     this.service = service;
     this.context = context;
+    this.mapper = mapper;
   }
 
   /**
@@ -191,7 +194,6 @@ public class FileManagerController {
    */
   private ObjectNode requestParamsToJSON(ServletRequest request) {
     ObjectNode paramJson = JsonNodeFactory.instance.objectNode();
-    ObjectMapper mapper = new ObjectMapper();
 
     StringBuilder jb = new StringBuilder();
     String line = null;
