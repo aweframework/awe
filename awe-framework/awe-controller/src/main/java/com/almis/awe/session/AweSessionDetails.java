@@ -65,7 +65,9 @@ public class AweSessionDetails extends ServiceConfig {
     AweUserDetails userDetails = (AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     // Set user as fully authenticated
-    userDetails.setFullyAuthenticated(true);
+    if (userDetails.isEnabled2fa()) {
+      userDetails.setFullyAuthenticated(true);
+    }
 
     // Store user in session
     sessionService.setSessionParameter(SESSION_USER, userDetails.getUsername());

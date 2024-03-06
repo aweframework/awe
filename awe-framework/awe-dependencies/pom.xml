@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.7.11</version>
+    <version>4.7.12</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -19,7 +19,7 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.2.0</ade.version>
-    <spring-boot.version>3.1.7</spring-boot.version>
+    <spring-boot.version>3.1.9</spring-boot.version>
     <spring-cloud.version>2022.0.4</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v18.19.0</node.version>
@@ -36,8 +36,8 @@
     <aspectjweaver.version>1.9.2</aspectjweaver.version>
     <xtream.version>1.4.20</xtream.version>
     <graalvm.version>21.3.0</graalvm.version>
-    <selenium.version>4.11.0</selenium.version>
-    <webdrivermanager.version>5.5.2</webdrivermanager.version>
+    <selenium.version>4.18.1</selenium.version>
+    <webdrivermanager.version>5.6.4</webdrivermanager.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <querydsl.version>5.0.0</querydsl.version>
     <janino.version>3.1.6</janino.version>

@@ -9,7 +9,7 @@ export const textInputTemplate =
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
     </label>
-    <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">
+    <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}" title="{{controller.title| translateMultiple}}">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
@@ -23,7 +23,7 @@ export const textInputTemplate =
 export const textColumnTemplate = `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
   <span class="edition">
-    <div class="input input-group-{{::size}} focus-target">
+    <div class="input input-group-{{::size}} focus-target" title="{{component.model.values[0].title| translateMultiple}}">
       <input type="text" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected"
              placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}" autocomplete="off"
              ng-focus="focus()" ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)"/>
@@ -35,7 +35,7 @@ export const textColumnTemplate = `<div ng-show="component.controller.visible" c
 
 export const textViewInputTemplate = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -52,7 +52,8 @@ export const textViewInputTemplate = `<div ng-show="controller.visible" class="c
 </div>`;
 
 export const textViewColumnTemplate = `<div ng-show="component.controller.visible" class="column-input text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-mouseup="onClick()" ng-cloak title="{{(component.controller.title || component.model.values[0].title || component.visibleValue) | translateMultiple}}">
-  <span class="{{classes}} {{component.model.values[0].style}} col-xs-{{(component.controller.unit || component.model.values[0].unit) ? '10' : '12'}}" ng-cloak>
+  <span class="{{classes}} {{component.model.values[0].style}} col-xs-{{(component.controller.unit || component.model.values[0].unit) ? '10' : '12'}}" ng-cloak
+   title="{{component.model.values[0].title| translateMultiple}}">
     ${getIconTemplate("text-icon fa-fw")}
     <span class="text-value" ng-cloak>{{component.visibleValue}}</span>
   </span>
@@ -65,7 +66,7 @@ export const textViewColumnTemplate = `<div ng-show="component.controller.visibl
 
 export const passwordInputTemplate = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -84,7 +85,7 @@ export const passwordInputTemplate = `<div ng-show="controller.visible" class="c
 
 export const passwordColumnTemplate = `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
-  <span class="edition">
+  <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input input-group-{{::size}} focus-target"><!--  ng-class="{'input-group': component.controller.unit, 'has-warning has-feedback': $root.isCapsLockOn}" -->
       <input type="password" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected"
              placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
@@ -98,7 +99,7 @@ export const passwordColumnTemplate = `<div ng-show="component.controller.visibl
 
 export const textareaInputTemplate = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -115,7 +116,7 @@ export const textareaInputTemplate = `<div ng-show="controller.visible" class="c
 </div>`;
 export const textareaColumnTemplate = `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
-  <span class="edition">
+  <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input focus-target">
       <textarea class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-model="component.model.selected" ng-disabled="component.controller.readonly" autocomplete="off"
                 placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"

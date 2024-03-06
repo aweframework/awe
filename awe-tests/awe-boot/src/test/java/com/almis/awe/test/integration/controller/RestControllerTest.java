@@ -1,11 +1,11 @@
 package com.almis.awe.test.integration.controller;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import org.junit.jupiter.api.*;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -18,7 +18,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
   @DisplayName("Microservices Tests")
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   class MicroServiceTest {
 
     private static final String SESSION_ID = "16617f0d-97ee-4f6b-ad54-905d6ce3c328";
@@ -166,7 +166,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
   @DisplayName("Rest services Tests")
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   class RestServiceTest {
 
     /**
@@ -276,7 +276,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testComplexPostParametersPOJOList() throws Exception {
-      doRestTest("TestComplexJavaParametersPOJOList", "maintain", "\"name\":\"my concert\",\"userGroupName\":\"user group\",\"eventHallName\":\"great hall\",", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+      doRestTest("TestComplexJavaParametersPOJOList", "maintain", "\"dates\":[\"10/02/1985\", \"11/02/1985\"],\"name\":\"my concert\",\"userGroupName\":\"user group\",\"eventHallName\":\"great hall\",", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
     }
 
     /**

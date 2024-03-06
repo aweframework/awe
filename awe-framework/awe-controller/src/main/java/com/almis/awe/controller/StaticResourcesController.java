@@ -4,7 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.Theme;
-import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.QueryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,19 +20,16 @@ public class StaticResourcesController {
   // Autowired services
   private final BaseConfigProperties baseConfigProperties;
   private final QueryService queryService;
-  private final DataListService dataListService;
 
   /**
    * Static resource controller constructor
    *
    * @param baseConfigProperties Base config properties
    * @param queryService         Query service
-   * @param dataListService      DataList service
    */
-  public StaticResourcesController(BaseConfigProperties baseConfigProperties, QueryService queryService, DataListService dataListService) {
+  public StaticResourcesController(BaseConfigProperties baseConfigProperties, QueryService queryService) {
     this.baseConfigProperties = baseConfigProperties;
     this.queryService = queryService;
-    this.dataListService = dataListService;
   }
 
   /**
@@ -72,7 +69,7 @@ public class StaticResourcesController {
   public String getThemeVariables() throws AWException {
     // Call themes query and retrieve all variables
     DataList dataList = queryService.launchPrivateQuery("themeVariables").getDataList();
-    List<Theme> themeList = dataListService.asBeanList(dataList, Theme.class);
+    List<Theme> themeList = DataListUtil.asBeanList(dataList, Theme.class);
 
     return themeList.stream().map(Theme::toString).collect(Collectors.joining("\n"));
   }

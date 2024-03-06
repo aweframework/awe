@@ -25,15 +25,15 @@ import java.util.Map;
  */
 public class CompoundColumnProcessor implements ColumnProcessor {
 
-  private Compound compound;
   private final Map<String, QueryParameter> variableMap;
-  private Map<String, ComputedColumnProcessor> computedMap;
-
   // Autowired services
   private final AweElements elements;
   private final BaseConfigProperties baseConfigProperties;
   private final NumericService numericService;
   private final EncodeService encodeService;
+  private final ObjectMapper mapper;
+  private Compound compound;
+  private Map<String, ComputedColumnProcessor> computedMap;
 
   /**
    * Compound column processor constructor
@@ -43,19 +43,24 @@ public class CompoundColumnProcessor implements ColumnProcessor {
    * @param variableMap          Variables map
    * @param numericService       Numeric service
    * @param encodeService        Encode service
+   * @param mapper               Object Mapper
    * @throws AWException AWE exception
    */
-  public CompoundColumnProcessor(AweElements elements, BaseConfigProperties baseConfigProperties, Compound compound, Map<String, QueryParameter> variableMap, NumericService numericService, EncodeService encodeService) throws AWException {
+  public CompoundColumnProcessor(AweElements elements, BaseConfigProperties baseConfigProperties, Compound compound,
+                                 Map<String, QueryParameter> variableMap, NumericService numericService, EncodeService encodeService,
+                                 ObjectMapper mapper) throws AWException {
     this.elements = elements;
     this.baseConfigProperties = baseConfigProperties;
     this.variableMap = variableMap;
     this.numericService = numericService;
     this.encodeService = encodeService;
+    this.mapper = mapper;
     setCompound(compound);
   }
 
   /**
    * Set compound
+   *
    * @param compound Compound field
    * @return CompoundColumnProcessor
    * @throws AWException Error adding compound field
@@ -78,6 +83,7 @@ public class CompoundColumnProcessor implements ColumnProcessor {
 
   /**
    * Retrieve column identifier
+   *
    * @return column identifier
    */
   public String getColumnIdentifier() {
@@ -86,11 +92,11 @@ public class CompoundColumnProcessor implements ColumnProcessor {
 
   /**
    * Process row
+   *
    * @param row datalist row
    */
   public CellData process(Map<String, CellData> row) throws AWException {
     CellData compoundCell = new CellData();
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode compoundData = JsonNodeFactory.instance.objectNode();
     if (compound.getComputedList() != null) {
       for (Computed computed : compound.getComputedList()) {

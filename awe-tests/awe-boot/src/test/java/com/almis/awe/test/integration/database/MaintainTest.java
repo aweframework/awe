@@ -1,6 +1,5 @@
 package com.almis.awe.test.integration.database;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.StringUtil;
@@ -17,6 +16,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @DisplayName("Maintain tests")
 @Slf4j
-@WithMockCustomUser
+@WithMockUser
 @Transactional
 public class MaintainTest extends AbstractSpringAppIntegrationTest {
 
@@ -289,10 +289,11 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
   void testSimpleSingleDelete() throws Exception {
     String maintainName = "CleanUp";
     String variables = "";
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
-    assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+    assertResultJson(maintainName, result, 3, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.DELETE, 0L),
       new MaintainResultDetails(MaintainType.DELETE, 0L),
       new MaintainResultDetails(MaintainType.DELETE, 0L)
     });
@@ -705,8 +706,30 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
       new MaintainResultDetails(MaintainType.INSERT, 1L),
       new MaintainResultDetails(MaintainType.AUDIT, 1L)
     });
+  }
 
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testAddFavourite() throws Exception {
+    String maintainName = "addToFavourites";
+    String variables = "\"user\": \"test\", \"option\": \"themes\",";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    logger.debug(result);
+    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
+    });
 
+    variables = "\"user\": \"test\", \"option\": \"users\",";
+    result = launchMaintain(maintainName, variables, expected);
+    logger.debug(result);
+    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
+    });
   }
 
   /**

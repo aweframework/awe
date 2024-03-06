@@ -3,11 +3,14 @@ package com.almis.awe.model.util.data;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NonNull;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -23,10 +26,27 @@ import java.util.stream.IntStream;
  */
 public final class DataListUtil {
 
+  private static final String CANT_CREATE_INSTANCE = "Can't create instance of ";
+  private static final ObjectMapper mapper = new Jackson2ObjectMapperBuilder()
+    .failOnUnknownProperties(false)
+    .defaultViewInclusion(false)
+    .simpleDateFormat("yyyy-MM-dd@HH:mm:ss.SSSZ")
+    .featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .modules(new JavaTimeModule())
+    .build();
+
   /**
    * Private constructor to hide the implicit one
    */
   private DataListUtil() {
+  }
+
+  /**
+   * Retrieve object mapper
+   * @return ObjectMapper
+   */
+  public static ObjectMapper getMapper() {
+    return mapper;
   }
 
   /**
@@ -155,8 +175,8 @@ public final class DataListUtil {
     // Add alias row by row
     for (Object columnData : columnValues) {
       CellData cell;
-      if (columnData instanceof CellData) {
-        cell = (CellData) columnData;
+      if (columnData instanceof CellData cellData) {
+        cell = cellData;
       } else {
         cell = new CellData(columnData);
       }
@@ -217,34 +237,80 @@ public final class DataListUtil {
    * @param beanClass bean class
    * @param <T>       class type
    * @return bean list
-   * @throws AWException AWE exception
-   * @deprecated Use <code>asBeanList</code> at {@link com.almis.awe.model.service.DataListService#asBeanList(DataList, Class)}
    */
-  @Deprecated
-  public static <T> List<T> asBeanList(@NonNull DataList dataList, Class<T> beanClass) throws AWException {
-    List<T> list = new ArrayList<>();
-    T rowBean;
+  public static <T> List<T> asBeanList(@NonNull DataList dataList, Class<T> beanClass) {
+    return dataList.getRows().stream()
+      .map(row -> mapper.convertValue(row, beanClass))
+      .toList();
+  }
 
-    for (Map<String, CellData> row : dataList.getRows()) {
-      try {
-        // Generate row bean
-        rowBean = beanClass.getDeclaredConstructor().newInstance();
-      } catch (Exception exc) {
-        throw new AWException("Error converting datalist into a bean list", "Cannot create instance of " + beanClass.getSimpleName(), exc);
-      }
+  /**
+   * Retrieve parameter as bean value from JSON. You can use Spring Formatter SPI with annotations
+   *
+   * @param beanClass Bean class
+   * @param paramsMap Parameter map
+   * @param <T>       Bean type
+   * @return Bean value
+   */
+  public static <T> T getParameterBeanValue(Class<T> beanClass, Map<String, Object> paramsMap) {
+    return mapper.convertValue(paramsMap, beanClass);
+  }
 
-      // Set field value if found in row
-      for (Field field : getAllFields(beanClass)) {
-        if (row.containsKey(field.getName())) {
-          PropertyAccessor rowBeanAccesor = PropertyAccessorFactory.forDirectFieldAccess(rowBean);
-          rowBeanAccesor.setPropertyValue(field.getName(), row.get(field.getName()).getObjectValue());
+  /**
+   * Retrieve parameter as bean list value. You can use Spring Formatter SPI with annotations.
+   *
+   * @param beanClass Bean class
+   * @param paramsMap Parameter map
+   * @return Bean list
+   */
+  public static <T> List<T> getParameterBeanListValue(Class<T> beanClass, Map<String, Object> paramsMap) {
+    return fixParamMap(paramsMap)
+      .stream()
+      .map(row -> getParameterBeanValue(beanClass, row))
+      .toList();
+  }
+
+  private static List<Map<String, Object>> fixParamMap(Map<String, Object> paramsMap) {
+    // Get max length of list
+    int maxSize = paramsMap.values().stream()
+      .filter(List.class::isInstance)
+      .max(Comparator.comparing(o -> ((List<?>) o).size()))
+      .map(o -> ((List<?>) o).size())
+      .orElse(1);
+
+    // Get each value of the map in a list
+    return IntStream.range(0, maxSize)
+      .mapToObj(i -> paramsMap.entrySet().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() instanceof List<?> ? ((List<?>) e.getValue()).get(i) : e.getValue() )))
+      .toList();
+  }
+
+  /**
+   * Initialize bean list
+   *
+   * @param valueList Value list of field
+   * @param beanClass Bean class
+   * @param <T>       bean class
+   * @return Initialized bean list
+   * @throws AWException AWE exception
+   */
+  public static <T> List<T> initializeList(List<T> valueList, Class<T> beanClass) throws AWException {
+    List<T> beanList = new ArrayList<>();
+    // Initialize list if first defined
+    if (!valueList.isEmpty()) {
+      for (int i = 0, t = valueList.size(); i < t; i++) {
+        // Initialize list
+        try {
+          // Generate row bean
+          T parameterBean = beanClass.getConstructor().newInstance();
+          beanList.add(parameterBean);
+        } catch (Exception exc) {
+          throw new AWException("Error converting datalist into a bean list", CANT_CREATE_INSTANCE + beanClass.getSimpleName(), exc);
         }
       }
-
-      // Store row bean
-      list.add(rowBean);
     }
-    return list;
+
+    return beanList;
   }
 
   /**
@@ -302,7 +368,7 @@ public final class DataListUtil {
    */
   public static List<CellData> getColumn(DataList list, String columnName) {
     // Add alias row by row
-    return list.getRows().stream().map(row -> new CellData(row.get(columnName))).collect(Collectors.toList());
+    return list.getRows().stream().map(row -> new CellData(row.get(columnName))).toList();
   }
 
   /**
@@ -314,7 +380,6 @@ public final class DataListUtil {
    */
   public static ArrayNode getColumnAsArrayNode(DataList list, String columnName) {
     ArrayNode arrayNode = JsonNodeFactory.instance.arrayNode();
-    ObjectMapper mapper = new ObjectMapper();
 
     // Add alias row by row
     list.getRows().forEach(row -> arrayNode.add(mapper.valueToTree(row.get(columnName))));

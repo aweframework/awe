@@ -24,14 +24,17 @@ public class RemoteSchedulerService extends ServiceConfig {
   // Locales
   private final SchedulerService schedulerService;
   private final RemoteScheduler remoteScheduler;
+  private final ObjectMapper mapper;
   private final boolean remote;
 
   /**
    * Constructor
    */
-  public RemoteSchedulerService(SchedulerService schedulerService, RemoteScheduler remoteScheduler, boolean remote) {
+  public RemoteSchedulerService(SchedulerService schedulerService, RemoteScheduler remoteScheduler, ObjectMapper mapper,
+                                boolean remote) {
     this.schedulerService = schedulerService;
     this.remoteScheduler = remoteScheduler;
+    this.mapper = mapper;
     this.remote = remote;
   }
 
@@ -345,7 +348,6 @@ public class RemoteSchedulerService extends ServiceConfig {
    * @return Integer list
    */
   private List<String> readJsonAsList(JsonNode jsonNode) {
-    ObjectMapper mapper = new ObjectMapper();
     return jsonNode.isNull() ? null : mapper.convertValue(jsonNode, new TypeReference<List<String>>() {
     });
   }

@@ -1,7 +1,6 @@
 package com.almis.awe.test.integration.service;
 
 import com.almis.awe.config.BaseConfigProperties;
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
@@ -19,6 +18,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.io.File;
 
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @Tag("integration")
 @DisplayName("Email service Tests")
-@WithMockCustomUser(username = "test", password = "test")
+@WithMockUser(username = "test", password = "test")
 class EmailServiceTest extends AbstractSpringAppIntegrationTest {
 
   private EmailService emailService;

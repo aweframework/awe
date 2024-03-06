@@ -9,7 +9,6 @@ import com.almis.awe.model.dto.*;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -58,9 +57,6 @@ class MenuServiceTest {
   private BaseConfigProperties baseConfigProperties;
   @Mock
   private FavouriteService favouriteService;
-
-  @Mock
-  private DataListService dataListService;
 
   @Mock
   private BaseConfigProperties.Files files;
@@ -411,8 +407,9 @@ class MenuServiceTest {
 
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(aweSession.isAuthenticated()).thenReturn(true);
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(new ServiceData().setDataList(new DataList()));
-    when(dataListService.asBeanList(any(DataList.class), eq(ScreenRestriction.class))).thenReturn(screenRestrictionList);
+    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(new ServiceData().setDataList(
+      DataListUtil.fromBeanList(screenRestrictionList)
+    ));
 
     menu = menuService.getMenuWithRestrictions(menu);
 

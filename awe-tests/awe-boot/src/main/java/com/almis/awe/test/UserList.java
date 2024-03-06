@@ -7,7 +7,6 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ public class UserList extends ServiceConfig {
 
   private ObjectMapper objectMapper;
 
-  @Autowired
   public UserList(ObjectMapper aweObjectMapper) {
     this.objectMapper = aweObjectMapper;
   }
@@ -58,7 +56,7 @@ public class UserList extends ServiceConfig {
           }
         }
 
-        dataList.setRecords((long) userList.size() * simulateNumFile);
+        dataList.setRecords(userList.size() * simulateNumFile);
         serviceData.setDataList(dataList);
       }
     } catch (Exception ex) {
@@ -83,11 +81,9 @@ public class UserList extends ServiceConfig {
       Resource resource = new ClassPathResource("static/tree_data.json");
       if (resource.exists()) {
         InputStream resourceInputStream = resource.getInputStream();
-        // create ObjectMapper instance
-        ObjectMapper objectMapper = new ObjectMapper();
 
         // convert json string to object
-        List<TreeData> treeDataList = objectMapper.readValue(resourceInputStream, new TypeReference<List<TreeData>>() {
+        List<TreeData> treeDataList = objectMapper.readValue(resourceInputStream, new TypeReference<>() {
         });
 
         // Get datalist

@@ -1,12 +1,11 @@
 package com.almis.awe.test.integration.controller;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.type.MaintainType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import com.almis.awe.test.integration.util.TestUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
@@ -241,8 +241,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(translationEsSize, translationsFR.size());
 
       // Test all keys
-      ObjectMapper mapper = new ObjectMapper();
-      Map<String, String> translationsMap = mapper.convertValue(translationsES, Map.class);
+      Map<String, String> translationsMap = DataListUtil.getMapper().convertValue(translationsES, Map.class);
       List<String> keys = new ArrayList<>(translationsMap.keySet());
       Collections.sort(keys);
 
@@ -259,7 +258,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
   @DisplayName("Screen Restrictions Tests")
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   class ScreenRestrictionsTest {
 
     @BeforeEach
@@ -435,7 +434,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
   @DisplayName("Screen Configuration Tests")
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   class ScreenConfigurationTest {
 
     // Initialize parameters

@@ -1,4 +1,16 @@
 
+# Changelog for AWE 4.7.12
+*06/03/2024*
+
+- **[HAS IMPACTS]** Add a new DataList converter (asBeanList) using Jackson. [MR #495](https://gitlab.com/aweframework/awe/-/merge_requests/495) (Pablo Javier García Mora)
+- Change menu-screen style to set the icon position fixed in the upper side and the text smaller. [MR #494](https://gitlab.com/aweframework/awe/-/merge_requests/494) (Pablo Javier García Mora)
+- Generate some AI-driven unit tests with Codi. [MR #493](https://gitlab.com/aweframework/awe/-/merge_requests/493) (Pablo Javier García Mora)
+- Problem with 2fa spring security. [MR #492](https://gitlab.com/aweframework/awe/-/merge_requests/492) (Pablo Vidal Otero)
+- Bump webdriver manager and selenium dependencies. [MR #491](https://gitlab.com/aweframework/awe/-/merge_requests/491) (Pablo Javier García Mora)
+- Add title attribute to criteria. [MR #490](https://gitlab.com/aweframework/awe/-/merge_requests/490) (Pablo Javier García Mora)
+- Fix AweUsrFav primary key generation. [MR #489](https://gitlab.com/aweframework/awe/-/merge_requests/489) (Pablo Javier García Mora)
+- Fix AweUsrFav query on MySQL. [MR #488](https://gitlab.com/aweframework/awe/-/merge_requests/488) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.11
 *12/02/2024*
 

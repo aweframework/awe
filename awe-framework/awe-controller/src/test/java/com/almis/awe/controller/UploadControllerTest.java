@@ -1,6 +1,5 @@
-package com.almis.awe.component.controller;
+package com.almis.awe.controller;
 
-import com.almis.awe.controller.UploadController;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;

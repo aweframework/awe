@@ -1,9 +1,9 @@
 package com.almis.awe.test.integration.service;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,12 +13,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
 @DisplayName("Query service Tests")
-@WithMockCustomUser(username = "test", password = "test")
+@WithMockUser
 class QueryServiceTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired
@@ -60,7 +61,9 @@ class QueryServiceTest extends AbstractSpringAppIntegrationTest {
     parameters.put("url", "https://www.dummy.url");
     ServiceData serviceData = queryService.launchQuery("testServiceBeanParameter", parameters);
     assertNotNull(serviceData);
+    assertNotNull(serviceData.getDataList());
     assertTrue(serviceData.isValid());
+    assertEquals(1, serviceData.getDataList().getRows().size());
   }
 
   /**
@@ -71,9 +74,9 @@ class QueryServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testServiceBeanParameterList() throws Exception {
     // Launch query service
+    ObjectMapper mapper = DataListUtil.getMapper();
     JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
     ObjectNode parameters = nodeFactory.objectNode();
-    ObjectMapper mapper = new ObjectMapper();
     parameters.set("name", mapper.readTree("[\"Earth\",\"Mars\",\"Jupiter\"]"));
     parameters.set("rotationPeriod", mapper.readTree("[\"1d\",\"4d\",\"8h\"]"));
     parameters.set("orbitalPeriod", mapper.readTree("[\"365d\",\"632d\",\"4y\"]"));
@@ -88,7 +91,9 @@ class QueryServiceTest extends AbstractSpringAppIntegrationTest {
     parameters.set("url", mapper.readTree("[\"https://www.dummy.url\",\"https://www.dummy.url\",\"https://www.dummy.url\"]"));
     ServiceData serviceData = queryService.launchQuery("testServiceBeanParameterList", parameters);
     assertNotNull(serviceData);
+    assertNotNull(serviceData.getDataList());
     assertTrue(serviceData.isValid());
+    assertEquals(3, serviceData.getDataList().getRows().size());
   }
 
   /**
@@ -99,8 +104,8 @@ class QueryServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testServiceBeanListParameter() throws Exception {
     // Launch query service
+    ObjectMapper mapper = DataListUtil.getMapper();
     JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode parameters = nodeFactory.objectNode();
     parameters.set("nameList", mapper.readTree("[\"Earth\",\"Mars\",\"Jupiter\"]"));
     parameters.set("populationList", mapper.readTree("[13421341,4,1]"));

@@ -1,8 +1,9 @@
 package com.almis.awe.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -12,15 +13,17 @@ public class Planet {
 
   private String name;
   private String rotationPeriod;
+  @JsonIgnore
   private String orbitalPeriod;
   private String diameter;
   private String climate;
   private String gravity;
   private String terrain;
-  private String surfaceWater;
+  private Float surfaceWater;
   private Long population;
-  @DateTimeFormat(pattern = "dd/MM/yyyy")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy", timezone = "CET")
   private Date created;
   private Date edited;
   private String url;
+  private boolean terrestrial;
 }

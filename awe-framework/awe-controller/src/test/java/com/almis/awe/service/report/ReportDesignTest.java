@@ -57,7 +57,7 @@ class ReportDesignTest {
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
-    gridData.set("visibleColumns", new ObjectMapper().valueToTree(columnDataList));
+    gridData.set("visibleColumns", mapper.valueToTree(columnDataList));
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set("gridId.data", gridData);

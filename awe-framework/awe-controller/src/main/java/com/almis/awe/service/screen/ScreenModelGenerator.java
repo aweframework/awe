@@ -21,9 +21,9 @@ import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -43,19 +43,16 @@ public class ScreenModelGenerator extends ServiceConfig {
   // Autowired services
   private final InitialLoadDao initialLoadDao;
   private final BaseConfigProperties baseConfigProperties;
-  private final DataListService dataListService;
 
   /**
    * Autowired constructor
    *
    * @param initialLoadDao             Initial load service
    * @param baseConfigProperties       Base config properties
-   * @param dataListService            DataList service
    */
-  public ScreenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties, DataListService dataListService) {
+  public ScreenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties) {
     this.initialLoadDao = initialLoadDao;
     this.baseConfigProperties = baseConfigProperties;
-    this.dataListService = dataListService;
   }
 
   /**
@@ -241,7 +238,7 @@ public class ScreenModelGenerator extends ServiceConfig {
     try {
       ServiceData screenConfigurationOutput = taskResult.get();
       DataList screenRestrictionData = (DataList) screenConfigurationOutput.getVariableMap().get(AweConstants.ACTION_DATA).getObjectValue();
-      List<ScreenRestriction> screenRestrictions = dataListService.asBeanList(screenRestrictionData, ScreenRestriction.class);
+      List<ScreenRestriction> screenRestrictions = DataListUtil.asBeanList(screenRestrictionData, ScreenRestriction.class);
       new ScreenRestrictionGenerator().applyScreenRestriction(screenRestrictions, menuContainer.getMenu());
     } catch (Exception exc) {
       String screen = data.getScreenProperties().get(AweConstants.JSON_OPTION);

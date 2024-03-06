@@ -46,10 +46,11 @@ public abstract class AbstractRestConnector extends AbstractServiceConnector {
   /**
    * Autowired constructor
    *
-   * @param requestFactory Request factory
-   * @param objectMapper Object Mapper
+   * @param requestFactory  Request factory
+   * @param objectMapper    Object Mapper
    */
   protected AbstractRestConnector(ClientHttpRequestFactory requestFactory, ObjectMapper objectMapper) {
+    super(objectMapper);
     this.requestFactory = requestFactory;
     this.objectMapper = objectMapper;
   }

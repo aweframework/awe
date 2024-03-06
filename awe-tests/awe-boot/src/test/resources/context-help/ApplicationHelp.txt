@@ -4441,6 +4441,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -4453,6 +4454,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -4471,6 +4473,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -4483,6 +4486,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_1"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -10269,6 +10273,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -10281,6 +10286,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -10299,6 +10305,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -10311,6 +10318,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_1"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -11677,6 +11685,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -11689,6 +11698,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -11707,6 +11717,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -11719,6 +11730,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_1"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -12920,6 +12932,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -12932,6 +12945,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -12950,6 +12964,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -12962,6 +12977,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_1"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -14168,6 +14184,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -14180,6 +14197,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CHECKBOX"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_CHECKBOX"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -14198,6 +14216,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_2"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_2"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>
@@ -14210,6 +14229,7 @@
       <span class="text-bold text-uppercase" translate-multiple="PARAMETER_RADIO_1"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
+    <p class=" no-margin text-justify" translate-multiple="PARAMETER_RADIO_1"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-success text-semibold text-sm">
       <i class="fa fa-pencil-square-o fa-fw"></i>

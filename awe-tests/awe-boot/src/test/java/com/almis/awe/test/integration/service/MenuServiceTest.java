@@ -1,6 +1,5 @@
 package com.almis.awe.test.integration.service;
 
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.service.MenuService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +42,7 @@ class MenuServiceTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   void testCheckPrivateAddresses() throws Exception {
     assertFalse(menuService.checkOptionAddress(""));
     assertTrue(menuService.checkOptionAddress("screen/signin"));
@@ -67,7 +67,7 @@ class MenuServiceTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test failed
    */
   @Test
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   void getAvailablePrivateScreenList() throws Exception {
     assertEquals(28, menuService.getAvailableScreenList("").getDataList().getRecords());
   }
@@ -76,7 +76,7 @@ class MenuServiceTest extends AbstractSpringAppIntegrationTest {
    * Check all screen list
    */
   @Test
-  @WithMockCustomUser(username = "test", password = "test")
+  @WithMockUser(username = "test", password = "test")
   void getAllScreenList() {
     assertEquals(125, menuService.getAllScreenList("").getDataList().getRecords());
   }

@@ -2,13 +2,13 @@ package com.almis.awe.model.dto;
 
 import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.type.CellDataType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -436,8 +436,7 @@ public class CellData implements Comparable<CellData>, Copyable {
         stream.writeInt(bigDecimal.scale());
         break;
       case JSON:
-        ObjectMapper objectJsonMapper = new ObjectMapper();
-        stream.writeUTF(objectJsonMapper.writeValueAsString(objectValue));
+        stream.writeUTF(DataListUtil.getMapper().writeValueAsString(objectValue));
         break;
       case STRING:
       default:
@@ -473,8 +472,7 @@ public class CellData implements Comparable<CellData>, Copyable {
         this.objectValue = new BigDecimal(value, stream.readInt());
         break;
       case JSON:
-        ObjectMapper objectJsonMapper = new ObjectMapper();
-        this.objectValue = objectJsonMapper.readTree(stream.readUTF());
+        this.objectValue = DataListUtil.getMapper().readTree(stream.readUTF());
         break;
       case STRING:
       default:

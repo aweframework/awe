@@ -4,7 +4,6 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.security.authentication.encoder.Ripemd160PasswordEncoder;
 import com.almis.awe.service.QueryService;
@@ -49,12 +48,11 @@ public class AuthenticationConfig {
    *
    * @param queryUtil       Query utilities
    * @param queryService    Query service
-   * @param dataListService DataList service
    * @return UserDetailService
    */
   @Bean
-  public UserDAO userDAO(QueryUtil queryUtil, QueryService queryService, DataListService dataListService) {
-    return new UserDAOImpl(queryUtil, queryService, dataListService);
+  public UserDAO userDAO(QueryUtil queryUtil, QueryService queryService) {
+    return new UserDAOImpl(queryUtil, queryService);
   }
 
   /**

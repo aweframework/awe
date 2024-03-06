@@ -5,7 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.calendar.Calendar;
@@ -46,21 +46,21 @@ public class CalendarDAO extends ServiceConfig {
   private final Scheduler scheduler;
   private final QueryService queryService;
   private final QueryUtil queryUtil;
-  private final DataListService dataListService;
+  private final ObjectMapper mapper;
 
   /**
    * Autowired constructor
    *
-   * @param scheduler       Scheduler
-   * @param queryService    Query service
-   * @param queryUtil       Query utilities
-   * @param dataListService DataList service
+   * @param scheduler    Scheduler
+   * @param queryService Query service
+   * @param queryUtil    Query utilities
+   * @param mapper       Object mapper
    */
-  public CalendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil, DataListService dataListService) {
+  public CalendarDAO(Scheduler scheduler, QueryService queryService, QueryUtil queryUtil, ObjectMapper mapper) {
     this.scheduler = scheduler;
     this.queryService = queryService;
     this.queryUtil = queryUtil;
-    this.dataListService = dataListService;
+    this.mapper = mapper;
   }
 
   /**
@@ -72,7 +72,7 @@ public class CalendarDAO extends ServiceConfig {
     DataList calendarIdeList = queryService.launchPrivateQuery(SCHEDULER_CALENDAR_LIST_QUERY).getDataList();
     log.debug("[CALENDARS] Starting calendar load from database");
 
-    List<Calendar> calendarList = dataListService.asBeanList(calendarIdeList, Calendar.class);
+    List<Calendar> calendarList = DataListUtil.asBeanList(calendarIdeList, Calendar.class);
 
     for (Calendar calendar : calendarList) {
       // load a calendar with the given ide
@@ -98,12 +98,12 @@ public class CalendarDAO extends ServiceConfig {
     DataList calendarDays = queryService.launchPrivateQuery(SCHEDULER_TASK_CALENDAR_DATES_QUERY, parameters).getDataList();
 
     // Get calendar parameters
-    List<Calendar> calendarList = dataListService.asBeanList(calendarDetails, Calendar.class);
+    List<Calendar> calendarList = DataListUtil.asBeanList(calendarDetails, Calendar.class);
 
     // Fill calendar parameters
     return calendarList
       .get(0)
-      .addExcludedDateSet(dataListService.asBeanList(calendarDays, CalendarExcludedDate.class));
+      .addExcludedDateSet(DataListUtil.asBeanList(calendarDays, CalendarExcludedDate.class));
   }
 
   /**
@@ -367,11 +367,10 @@ public class CalendarDAO extends ServiceConfig {
    * @throws AWException Error retrieving tasks with calendars
    */
   private List<Task> retrieveTasksWithCalendars(List<Integer> calendarIdList) throws AWException {
-    ObjectMapper mapper = new ObjectMapper();
     ObjectNode parameters = queryUtil.getParameters();
     parameters.set("calendarId", mapper.valueToTree(calendarIdList));
     DataList dataList = queryService.launchPrivateQuery(SCHEDULER_GET_TASKS_WITH_CALENDARS, parameters).getDataList();
-    return dataListService.asBeanList(dataList, Task.class);
+    return DataListUtil.asBeanList(dataList, Task.class);
   }
 
   /**

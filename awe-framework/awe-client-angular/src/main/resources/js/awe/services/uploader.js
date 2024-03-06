@@ -8,7 +8,7 @@ aweApplication.requires.push(ngFileUpload);
 
 export const uploaderInputTemplate = `<div ng-show="controller.visible" class="criterion uploader" ng-class="criterionClass" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
-  <div ng-class="::groupClass" ng-cloak>
+  <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
     <label ng-attr-for="::controller.id" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
       <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
       {{controller.label| translateMultiple}}
@@ -39,7 +39,7 @@ export const uploaderInputTemplate = `<div ng-show="controller.visible" class="c
 </div>`;
 export const uploaderColumnTemplate = `<div ng-show="component.controller.visible" class="validator column-input criterion uploader text-{{::component.controller.align}} {{component.model.values[0].style}} no-animate" ui-dependency="dependencies" ng-cloak>
   <div class="visible-value" ng-cloak>{{component.visibleValue}}</div>
-  <div class="edition focus-target">
+  <div class="edition focus-target" title="{{component.model.values[0].title| translateMultiple}}">
     <div ng-show="component.uploading" class="uploading-{{::size}} no-animate">
       <div class="progress progress-striped active" ng-if="component.uploading">
         <div class="progress-bar" ng-style="{width: component.uploadProgress}"></div>

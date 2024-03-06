@@ -270,7 +270,7 @@ class ClientActionBuilderTest {
    */
   @Test
   void testFillSuggestAction() throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = DataListUtil.getMapper();
     List<SuggestValue> values = Arrays.asList(
       new SuggestValue("aaa", "aaa"),
       new SuggestValue("bbb", "bbb"),

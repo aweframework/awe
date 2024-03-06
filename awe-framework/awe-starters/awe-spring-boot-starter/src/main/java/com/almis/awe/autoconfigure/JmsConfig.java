@@ -15,6 +15,7 @@ import com.almis.awe.service.data.builder.QueueBuilder;
 import com.almis.awe.service.data.connector.maintain.QueueMaintainConnector;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
 import com.almis.awe.service.data.processor.QueueProcessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.jms.ConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -80,16 +81,20 @@ public class JmsConfig {
    * @param elements             AWE elements
    * @param numericService       Numeric service
    * @param encodeService        Encode service
+   * @param mapper               Object mapper
    * @return Queue Query connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public QueueQueryConnector queueQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
-    return new QueueQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService);
+  public QueueQueryConnector queueQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties,
+                                                 AweElements elements, NumericService numericService,
+                                                 EncodeService encodeService, ObjectMapper mapper) {
+    return new QueueQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService, mapper);
   }
 
   /**
    * Queue Maintain connector
+   *
    * @return Queue Query connector bean
    */
   @Bean
@@ -104,6 +109,7 @@ public class JmsConfig {
 
   /**
    * Queue processor
+   *
    * @return Queue list builder bean
    */
   @Bean
@@ -137,7 +143,8 @@ public class JmsConfig {
 
   /**
    * Message builder
-   * @param context Context
+   *
+   * @param context    Context
    * @param serializer Serializer
    * @return Message builder bean
    */
@@ -154,7 +161,8 @@ public class JmsConfig {
 
   /**
    * Queue listener
-   * @param queryService Query service
+   *
+   * @param queryService     Query service
    * @param broadcastService Broadcasting service
    * @return Queue listener bean
    */

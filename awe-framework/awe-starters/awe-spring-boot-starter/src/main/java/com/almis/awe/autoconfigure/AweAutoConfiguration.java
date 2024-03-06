@@ -10,6 +10,7 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.*;
 import com.almis.awe.service.connector.JavaConnector;
@@ -28,8 +29,6 @@ import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -128,12 +126,7 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public ObjectMapper objectMapper() {
-    return new Jackson2ObjectMapperBuilder()
-      .failOnUnknownProperties(false)
-      .defaultViewInclusion(false)
-      .featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-      .modules(new JavaTimeModule())
-      .build();
+    return DataListUtil.getMapper();
   }
 
   /////////////////////////////////////////////
@@ -174,12 +167,13 @@ public class AweAutoConfiguration {
    *
    * @param baseConfigProperties     Base config properties
    * @param databaseConfigProperties Database config properties
+   * @param mapper                   Object mapper
    * @return Query utilities bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public QueryUtil queryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties) {
-    return new QueryUtil(baseConfigProperties, databaseConfigProperties);
+  public QueryUtil queryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper) {
+    return new QueryUtil(baseConfigProperties, databaseConfigProperties, mapper);
   }
 
   /**
@@ -286,7 +280,6 @@ public class AweAutoConfiguration {
    * @param securityConfigProperties Security configuration properties
    * @param favouriteService         Favourite service
    * @param launcherService          Launcher service
-   * @param dataListService          DataList service
    * @return Menu service bean
    */
   @Bean
@@ -294,9 +287,9 @@ public class AweAutoConfiguration {
   public MenuService menuService(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
                                  InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
                                  SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService,
-                                 LauncherService launcherService, DataListService dataListService) {
+                                 LauncherService launcherService) {
     return new MenuService(queryService, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties, favouriteService, launcherService, dataListService);
+      baseConfigProperties, securityConfigProperties, favouriteService, launcherService);
   }
 
   /**
@@ -319,15 +312,14 @@ public class AweAutoConfiguration {
    *
    * @param queryService    Query service
    * @param queryUtil       Query utilities
-   * @param dataListService DataList service
    * @param maintainService Maintain service
    * @return Menu service bean
    */
   @Bean
   @ConditionalOnMissingBean
   public FavouriteService favouriteService(QueryService queryService, QueryUtil queryUtil,
-                                           DataListService dataListService, MaintainService maintainService) {
-    return new FavouriteService(queryService, queryUtil, dataListService, maintainService);
+                                           MaintainService maintainService) {
+    return new FavouriteService(queryService, queryUtil, maintainService);
   }
 
   /**
@@ -473,14 +465,12 @@ public class AweAutoConfiguration {
    *
    * @param initialLoadDao       Initial load service
    * @param baseConfigProperties Base config properties
-   * @param dataListService      DataList service
    * @return Screen model generator bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public ScreenModelGenerator screenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                                   DataListService dataListService) {
-    return new ScreenModelGenerator(initialLoadDao, baseConfigProperties, dataListService);
+  public ScreenModelGenerator screenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties) {
+    return new ScreenModelGenerator(initialLoadDao, baseConfigProperties);
   }
 
   /**
@@ -544,8 +534,8 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public JavaConnector javaConnector() {
-    return new JavaConnector();
+  public JavaConnector javaConnector(ObjectMapper objectMapper) {
+    return new JavaConnector(objectMapper);
   }
 
   /**
@@ -584,12 +574,15 @@ public class AweAutoConfiguration {
    * @param elements             AWE elements
    * @param numericService       Numeric service
    * @param encodeService        Encode service
+   * @param mapper               Object mapper
    * @return EnumQuery connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public EnumQueryConnector enumQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
-    return new EnumQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService);
+  public EnumQueryConnector enumQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties,
+                                               AweElements elements, NumericService numericService,
+                                               EncodeService encodeService, ObjectMapper mapper) {
+    return new EnumQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService, mapper);
   }
 
   /**
@@ -600,12 +593,15 @@ public class AweAutoConfiguration {
    * @param elements             AWE elements
    * @param numericService       Numeric service
    * @param encodeService        Encode service
+   * @param mapper               Object mapper
    * @return Service Query connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public ServiceQueryConnector serviceQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties, AweElements elements, NumericService numericService, EncodeService encodeService) {
-    return new ServiceQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService);
+  public ServiceQueryConnector serviceQueryConnector(QueryUtil queryUtil, BaseConfigProperties baseConfigProperties,
+                                                     AweElements elements, NumericService numericService,
+                                                     EncodeService encodeService, ObjectMapper mapper) {
+    return new ServiceQueryConnector(queryUtil, baseConfigProperties, elements, numericService, encodeService, mapper);
   }
 
   /**

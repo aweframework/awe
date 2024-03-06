@@ -1,5 +1,6 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "./../../awe";
 import "../../services/checkboxRadio";
+import {templateInputCheckbox} from "../../services/checkboxRadio";
 
 // Checkbox directive
 aweApplication.directive('aweInputCheckbox',
@@ -8,9 +9,7 @@ aweApplication.directive('aweInputCheckbox',
       return {
         restrict: 'E',
         replace: true,
-        templateUrl: function () {
-          return serverData.getAngularTemplateUrl('input/checkbox');
-        },
+        template: templateInputCheckbox,
         scope: {
           'criterionId': '@inputCheckboxId'
         },

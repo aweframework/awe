@@ -6,6 +6,7 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.entities.services.ServiceJava;
 import com.almis.awe.model.entities.services.ServiceType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.web.context.support.GenericWebApplicationContext;
@@ -21,6 +22,10 @@ import java.util.Objects;
  */
 @Slf4j
 public class JavaConnector extends AbstractServiceConnector {
+
+  public JavaConnector(ObjectMapper objectMapper) {
+    super(objectMapper);
+  }
 
   @Override
   public ServiceData launch(ServiceType service, Map<String, Object> paramsMapFromRequest) throws AWException {

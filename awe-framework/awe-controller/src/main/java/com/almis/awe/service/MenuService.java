@@ -19,7 +19,6 @@ import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.panelable.Panelable;
 import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
-import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.type.RestrictionType;
 import com.almis.awe.model.util.data.DataListUtil;
@@ -58,7 +57,6 @@ public class MenuService extends ServiceConfig {
   private final SecurityConfigProperties securityConfigProperties;
   private final FavouriteService favouriteService;
   private final LauncherService launcherService;
-  private final DataListService dataListService;
 
   /**
    * Autowired constructor
@@ -70,12 +68,11 @@ public class MenuService extends ServiceConfig {
    * @param securityConfigProperties   Security configuration properties
    * @param favouriteService           Favourites service
    * @param launcherService            Service launcher service
-   * @param dataListService            DataList service
    */
   public MenuService(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
                      InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
                      SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService,
-                     LauncherService launcherService, DataListService dataListService) {
+                     LauncherService launcherService) {
     this.queryService = queryService;
     this.screenComponentGenerator = screenComponentGenerator;
     this.initialLoadDao = initialLoadDao;
@@ -83,7 +80,6 @@ public class MenuService extends ServiceConfig {
     this.securityConfigProperties = securityConfigProperties;
     this.favouriteService = favouriteService;
     this.launcherService = launcherService;
-    this.dataListService = dataListService;
   }
 
   /**
@@ -156,7 +152,7 @@ public class MenuService extends ServiceConfig {
     if (getSession().isAuthenticated()) {
       // Get restrictions
       ServiceData queryOutput = queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0");
-      List<ScreenRestriction> screenRestrictions = dataListService.asBeanList(queryOutput.getDataList(), ScreenRestriction.class);
+      List<ScreenRestriction> screenRestrictions = DataListUtil.asBeanList(queryOutput.getDataList(), ScreenRestriction.class);
 
       // Apply restrictions
       new ScreenRestrictionGenerator().applyScreenRestriction(screenRestrictions, menu);

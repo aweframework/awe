@@ -1,7 +1,6 @@
 package com.almis.awe.test.integration.service;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.factory.WithMockCustomUser;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 @Tag("integration")
 @DisplayName("Maintain service Tests")
-@WithMockCustomUser(username = "test", password = "test")
+@WithMockUser
 @Transactional
 class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
 

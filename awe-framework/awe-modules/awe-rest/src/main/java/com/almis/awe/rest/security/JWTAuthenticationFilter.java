@@ -50,7 +50,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
     // Get user info from request
     try {
-      LoginRequest loginRequest = new ObjectMapper()
+      LoginRequest loginRequest = objectMapper
         .readValue(request.getInputStream(), LoginRequest.class);
 
       return super.getAuthenticationManager().authenticate(

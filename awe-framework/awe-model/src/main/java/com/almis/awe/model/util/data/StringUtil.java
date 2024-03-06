@@ -2,7 +2,6 @@ package com.almis.awe.model.util.data;
 
 import com.almis.awe.model.entities.Global;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -434,14 +433,11 @@ public final class StringUtil {
    * @return Value as ArrayNode
    */
   public static ArrayNode toArrayNode(String pattern, String value) {
-    // Mapper Object
-    ObjectMapper mapper = new ObjectMapper();
-
     // Split value by pattern
     String[] splittedVal = value.split(pattern);
 
     // Adds splitted Array to ArrayNode
-    return mapper.valueToTree(splittedVal);
+    return DataListUtil.getMapper().valueToTree(splittedVal);
   }
 
   /**
