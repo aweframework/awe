@@ -11,6 +11,7 @@ import com.almis.awe.model.rest.RestParameter;
 import com.almis.awe.model.rest.ServiceAuth;
 import com.almis.awe.model.rest.ServiceDetails;
 import com.almis.awe.model.type.ParameterType;
+import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,9 @@ public class MicroserviceConnector extends AbstractRestConnector {
       microservice.setUsername(serviceAuth.getUsername());
       microservice.setPassword(serviceAuth.getPassword());
     }
+
+    // Fix date parameters
+    fixDateParameterMap(Optional.ofNullable(microservice.getParameterList()).orElse(Collections.emptyList()), paramsMapFromRequest);
 
     // Add specific parameters to the microservice call
     addDefinedParameters(microservice, paramsMapFromRequest);
@@ -136,5 +140,29 @@ public class MicroserviceConnector extends AbstractRestConnector {
     }
     parameterList.add(parameter);
     microservice.setParameterList(parameterList);
+  }
+
+  /**
+   * Fix date parameters when sending to microservices
+   * @param parameters List of parameters
+   *                   @param paramsMapFromRequest Parameter map
+   */
+  private void fixDateParameterMap(List<ServiceInputParameter> parameters, Map<String, Object> paramsMapFromRequest) {
+    parameters.stream()
+      .filter(p -> List.of(ParameterType.DATE.toString(), ParameterType.DATE_RDB.toString()).contains(p.getType()))
+      .forEach(p -> paramsMapFromRequest.put(p.getName(), fixDateParameter(p, paramsMapFromRequest.get(p.getName()))));
+  }
+
+  private Object fixDateParameter(ServiceInputParameter parameter, Object value) {
+    if (value instanceof Date dateValue) {
+      if (ParameterType.DATE.toString().equals(parameter.getType())) {
+        return DateUtil.dat2WebDate(dateValue);
+      } else if (ParameterType.DATE_RDB.toString().equals(parameter.getType())) {
+        return DateUtil.dat2RDBDate(dateValue);
+      }
+    } else if (value instanceof String stringValue && ParameterType.DATE_RDB.toString().equals(parameter.getType())) {
+      return DateUtil.web2RdbDate(stringValue);
+    }
+    return value;
   }
 }

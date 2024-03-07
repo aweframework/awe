@@ -5,6 +5,7 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,7 @@ public class TestMicroserviceController {
     row.put("double", new CellData(22D));
     row.put("float", new CellData(22F));
     row.put("null", new CellData());
+    row.put("rdb", new CellData(Optional.ofNullable(jsonData.get("param7")).orElse(JsonNodeFactory.instance.textNode("")).asText()));
 
     DataList dataList = new DataList();
     dataList.addRow(row);

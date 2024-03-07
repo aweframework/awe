@@ -41,6 +41,8 @@ public enum ParameterType {
   TIME,
   // timestamp
   TIMESTAMP,
+  // Date RDB formatted
+  DATE_RDB,
   // date
   SYSTEM_DATE,
   // time
