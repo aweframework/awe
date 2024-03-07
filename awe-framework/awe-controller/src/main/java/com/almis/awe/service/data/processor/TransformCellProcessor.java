@@ -11,8 +11,10 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import jakarta.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * TransformCellProcessor class
@@ -103,11 +105,11 @@ public class TransformCellProcessor implements CellProcessor {
           break;
 
         case NUMBER:
-          transformed = processNumber(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processNumber).orElse(transformed);
           break;
 
         case NUMBER_PLAIN:
-          transformed = processNumberPlain(cell);
+          transformed =  Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processNumberPlain).orElse(transformed);
           break;
 
         case BOOLEAN:
