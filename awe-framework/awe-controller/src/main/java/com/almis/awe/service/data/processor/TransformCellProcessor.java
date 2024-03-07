@@ -61,47 +61,47 @@ public class TransformCellProcessor implements CellProcessor {
       // Transform value if needed
       switch (TransformType.valueOf(field.getTransform())) {
         case DATE:
-          transformed = processDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processDate).orElse(transformed);
           break;
           
         case DATE_MS:
-          transformed = processDateMs(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processDateMs).orElse(transformed);
           break;
           
         case TIME:
-          transformed = processTime(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processTime).orElse(transformed);
           break;
           
         case TIMESTAMP:
-          transformed = processTimestamp(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processTimestamp).orElse(transformed);
           break;
 
         case TIMESTAMP_MS:
-          transformed = processTimestampMs(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processTimestampMs).orElse(transformed);
           break;
           
         case JS_DATE:
-          transformed = processJavascriptDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processJavascriptDate).orElse(transformed);
           break;
           
         case JS_TIMESTAMP:
-          transformed = processJavascriptTimestamp(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processJavascriptTimestamp).orElse(transformed);
           break;
           
         case GENERIC_DATE:
-          transformed = processGenericDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processGenericDate).orElse(transformed);
           break;
           
         case DATE_RDB:
-          transformed = processRDBDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processRDBDate).orElse(transformed);
           break;
 
         case ELAPSED_TIME:
-          transformed = processElapsedTime(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processElapsedTime).orElse(transformed);
           break;
 
         case DATE_SINCE:
-          transformed = processDateSince(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processDateSince).orElse(transformed);
           break;
 
         case NUMBER:
