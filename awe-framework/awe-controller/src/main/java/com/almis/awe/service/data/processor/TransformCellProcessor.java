@@ -55,7 +55,7 @@ public class TransformCellProcessor implements CellProcessor {
    */
   public CellData process(CellData cell) throws AWException {
     String transformed = cell.getStringValue();
-    if (transformed != null && !transformed.isEmpty()) {
+    if (transformed != null) {
       // Transform value if needed
       switch (TransformType.valueOf(field.getTransform())) {
         case DATE:

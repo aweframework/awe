@@ -2,10 +2,14 @@ package com.almis.awe.model.util.data;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NonNull;
 import org.springframework.beans.PropertyAccessor;
@@ -31,7 +35,8 @@ public final class DataListUtil {
     .failOnUnknownProperties(false)
     .defaultViewInclusion(false)
     .simpleDateFormat("yyyy-MM-dd@HH:mm:ss.SSSZ")
-    .featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+    //.serializationInclusion(JsonInclude.Include.NON_EMPTY)
     .modules(new JavaTimeModule())
     .build();
 
@@ -39,6 +44,7 @@ public final class DataListUtil {
    * Private constructor to hide the implicit one
    */
   private DataListUtil() {
+    mapper.coercionConfigFor(LogicalType.Collection).setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
   }
 
   /**

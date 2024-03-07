@@ -8,4 +8,5 @@ import java.util.List;
 public class Planets {
   private List<String> nameList;
   private List<Long> populationList;
+  private String solarSystem;
 }
