@@ -1017,7 +1017,7 @@ public final class DateUtil {
    * @param date (Web formatted)
    * @return RDB date formatted
    */
-  public static String rdbDate2String(java.util.Date date) {
+  public static String dat2RDBDate(java.util.Date date) {
 
     // Variable definition
     String outDat = null;
@@ -1026,7 +1026,7 @@ public final class DateUtil {
       // Generate rdb date string
       outDat = asLocalDate(date).format(DATE_FORMAT_RDB).toUpperCase();
     } catch (Exception exc) {
-      log.error("[{}] Error parsing RDB date to WEB date -{}-", UTILITY_NAME, date, exc);
+      log.error("[{}] Error parsing date to RDB date -{}-", UTILITY_NAME, date, exc);
     }
 
     // Return rdb date string in UPPERCASE

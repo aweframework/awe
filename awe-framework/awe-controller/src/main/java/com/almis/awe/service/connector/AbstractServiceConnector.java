@@ -85,7 +85,7 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
    * Get parameter class
    * @param parameter Parameter
    */
-  private Class getParameterClass(ServiceInputParameter parameter) {
+  Class getParameterClass(ServiceInputParameter parameter) {
     switch (ParameterType.valueOf(parameter.getType())) {
       case INTEGER:
         return Integer.class;
@@ -95,9 +95,7 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
         return Float.class;
       case DOUBLE:
         return Double.class;
-      case DATE:
-      case TIME:
-      case TIMESTAMP:
+      case DATE, TIME, TIMESTAMP:
         return Date.class;
       case BOOLEAN:
         return Boolean.class;
@@ -114,7 +112,7 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
         } catch (Exception exc) {
           return JsonNode.class;
         }
-      case STRING:
+      case DATE_RDB, STRING:
       default:
         return String.class;
     }
@@ -126,16 +124,27 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
    * @param parameter      Parameter
    * @param parameterValue Parameter value
    */
-  private Object getParameterValue(ServiceInputParameter parameter, Object parameterValue) {
+  Object getParameterValue(ServiceInputParameter parameter, Object parameterValue) {
     switch (ParameterType.valueOf(parameter.getType())) {
       case INTEGER, LONG, FLOAT, DOUBLE, BOOLEAN:
         return "".equals(parameterValue) ? null : parameterValue;
       case DATE, TIME, TIMESTAMP:
         if (parameterValue instanceof String stringValue) {
-          return Optional.ofNullable(stringValue)
+          return Optional.of(stringValue)
             .filter(StringUtils::isNotBlank)
             .map(DateUtil::web2Date)
             .orElse(null);
+        } else {
+          return parameterValue;
+        }
+      case DATE_RDB:
+        if (parameterValue instanceof String stringValue) {
+          return Optional.of(stringValue)
+            .filter(StringUtils::isNotBlank)
+            .map(DateUtil::web2RdbDate)
+            .orElse(null);
+        } else if (parameterValue instanceof Date dateValue) {
+          return DateUtil.dat2RDBDate(dateValue);
         } else {
           return parameterValue;
         }
@@ -152,10 +161,10 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
    * @param paramsMap map with parameters
    * @return Service call string
    */
-  private List getParameterListValue(ServiceInputParameter parameter, Map<String, Object> paramsMap) {
+  List<Object> getParameterListValue(ServiceInputParameter parameter, Map<String, Object> paramsMap) {
 
     // Variable definition
-    List parameterList = new ArrayList();
+    List<Object> parameterList = new ArrayList<>();
     Object parameterValue;
     if (paramsMap.containsKey(parameter.getName()) && !"".equals(paramsMap.get(parameter.getName()))) {
       parameterValue = paramsMap.get(parameter.getName());
@@ -166,8 +175,6 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
       } else {
         parameterList.add(getParameterValue(parameter, parameterValue));
       }
-    } else {
-      parameterList = new ArrayList();
     }
     return parameterList;
   }
@@ -180,7 +187,7 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
    * @return Bean value
    * @throws AWException
    */
-  private <T> T getParameterJsonBeanValue(ServiceInputParameter parameter, Class<T> beanClass, Map<String, Object> paramsMap) throws AWException {
+  <T> T getParameterJsonBeanValue(ServiceInputParameter parameter, Class<T> beanClass, Map<String, Object> paramsMap) throws AWException {
     try {
       if (paramsMap.get(parameter.getName()) != null) {
         // Generate row bean

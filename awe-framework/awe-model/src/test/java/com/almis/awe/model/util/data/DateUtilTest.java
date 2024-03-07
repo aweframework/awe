@@ -410,8 +410,8 @@ class DateUtilTest {
     LocalDate localDate = LocalDate.parse("27/10/1985", DATE_FORMAT_WEB);
     // Assert
     assertAll("Should assert all RDB Dates",
-            () -> assertEquals("27-OCT-1985", DateUtil.rdbDate2String(DateUtil.asUtilDate(localDate))),
-            () -> assertNull(DateUtil.rdbDate2String(null))
+            () -> assertEquals("27-OCT-1985", DateUtil.dat2RDBDate(DateUtil.asUtilDate(localDate))),
+            () -> assertNull(DateUtil.dat2RDBDate(null))
     );
   }
 

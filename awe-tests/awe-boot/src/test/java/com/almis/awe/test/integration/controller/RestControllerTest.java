@@ -1,6 +1,7 @@
 package com.almis.awe.test.integration.controller;
 
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.http.MediaType;
@@ -10,10 +11,12 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("integration")
 @DisplayName("Rest controller Tests")
+@Slf4j
 class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   @Nested
@@ -41,7 +44,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     void testSimpleMicroservice() throws Exception {
       setParameter("database", "awedb01");
       setParameter("currentDate", "22/02/2019");
-      doRestTest("CallAluMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallAluMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
@@ -51,7 +54,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAnotherMicroservice() throws Exception {
-      doRestTest("CallAnotherMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"null\":null,\"double\":22.0,\"text\":\"test\",\"integer\":22,\"id\":1,\"float\":22.0,\"long\":22}]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallAnotherMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"rdb\":\"\",\"null\":null,\"double\":22.0,\"text\":\"test\",\"integer\":22,\"id\":1,\"float\":22.0,\"long\":22}]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
@@ -63,7 +66,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     void testSimpleMicroserviceWithoutParameters() throws Exception {
       setParameter("database", "awedb01");
       setParameter("currentDate", "22/02/2019");
-      doRestTest("CallAluMicroserviceWithoutParameters", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallAluMicroserviceWithoutParameters", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
@@ -73,7 +76,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAnotherMicroserviceWithParameters() throws Exception {
-      doRestTest("CallAnotherMicroserviceWithParameters", "data", "\"tutu\":\"23/10/1978\", \"lala\":[1,2,4], \"erre\": \"\", \"queErre\": null, \"yQueErre\": null,", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"floatFormatted\":\"22\",\"dateFormatted\":\"23/10/1978\",\"longFormatted\":\"22\",\"doubleFormatted\":\"22\",\"null\":null,\"text\":\"test\",\"id\":1,\"integerFormatted\":\"22\"}]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallAnotherMicroserviceWithParameters", "data", "\"tutu\":\"23/10/1978\", \"lala\":[1,2,4], \"erre\": \"\", \"queErre\": null, \"yQueErre\": null,", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"rdb\":\"01-JAN-2019\",\"floatFormatted\":\"22\",\"dateFormatted\":\"23/10/1978\",\"longFormatted\":\"22\",\"doubleFormatted\":\"22\",\"null\":null,\"text\":\"test\",\"id\":1,\"integerFormatted\":\"22\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
@@ -83,7 +86,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAnotherMoreMicroservice() throws Exception {
-      doRestTest("CallAnotherMoreMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallAnotherMoreMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
@@ -93,7 +96,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void overwriteMicroserviceNameTest() throws Exception {
-      doRestTest("CallOverWriteMicroserviceName", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\"}]");
+      doRestTest("CallOverWriteMicroserviceName", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
@@ -138,13 +141,8 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
               .accept(MediaType.APPLICATION_JSON)
               .session(session))
               .andExpect(status().isOk())
+              .andExpect(content().json(expected))
               .andReturn();
-      String result = mvcResult.getResponse().getContentAsString();
-
-      // Check expected
-      if (expected != null) {
-        JSONAssert.assertEquals(expected, result, false);
-      }
     }
 
     /**

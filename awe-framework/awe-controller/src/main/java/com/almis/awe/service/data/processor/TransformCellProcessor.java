@@ -332,7 +332,7 @@ public class TransformCellProcessor implements CellProcessor {
     if (date != null) {
       cell.setValue(date);
       cell.setSendStringValue(true);
-      transformed = DateUtil.rdbDate2String(date);
+      transformed = DateUtil.dat2RDBDate(date);
     }
     return transformed;
   }
