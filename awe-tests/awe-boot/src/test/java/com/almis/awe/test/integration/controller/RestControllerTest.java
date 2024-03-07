@@ -54,7 +54,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAnotherMicroservice() throws Exception {
-      doRestTest("CallAnotherMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"date\":\"1978-10-23@00:00:00.000+0100\",\"rdb\":\"\",\"null\":null,\"double\":22.0,\"text\":\"test\",\"integer\":22,\"id\":1,\"float\":22.0,\"long\":22}]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
+      doRestTest("CallAnotherMicroservice", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"rdb\":\"\",\"null\":null,\"double\":22.0,\"text\":\"test\",\"integer\":22,\"id\":1,\"float\":22.0,\"long\":22}]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
     }
 
     /**
