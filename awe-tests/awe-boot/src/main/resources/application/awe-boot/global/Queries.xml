@@ -2923,8 +2923,11 @@
   </query>
 
   <query id="testServiceBeanListParameter" service="testServiceBeanListParameter">
+    <variable id="vacio" type="STRING" value=""/>
+    <variable id="otro" type="STRING" name="otro" optional="true"/>
     <variable id="nameList" type="STRING" name="nameList"/>
     <variable id="populationList" type="LONG" name="populationList"/>
+    <variable id="solarSystem" type="STRING" name="solarSystem"/>
   </query>
 
   <query id="testServiceJsonBeanParameter" service="testServiceJsonBeanParameter">
