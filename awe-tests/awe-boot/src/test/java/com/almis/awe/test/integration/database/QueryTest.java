@@ -1856,7 +1856,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     // Give
     String queryName = "TranslateNotDefined";
     String variables = "";
-    String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"error\",\"title\":\"Error retrieving data\",\"message\":\"There has been a problem executing TranslateNotDefined query. The enumerated NotDefinedTranslate is not defined\"}}]";
+    String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"error\",\"title\":\"Error retrieving data\",\"message\":\"There has been a problem executing TranslateNotDefined query.\"}}]";
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertEquals(expected, result);
   }
