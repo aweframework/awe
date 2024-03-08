@@ -2359,12 +2359,14 @@
     <field id="long" alias="longFormatted" transform="NUMBER"/>
     <field id="text" alias="text"/>
     <field id="null" alias="null"/>
+    <field id="rdb" alias="rdb"/>
     <variable id="param1" type="STRING" value="prueba"/>
     <variable id="param2" type="DATE" name="tutu"/>
     <variable id="param3" type="INTEGER" name="lala"/>
     <variable id="param4" type="STRING" name="erre"/>
     <variable id="param5" type="STRINGN" name="queErre"/>
     <variable id="param6" type="STRINGN" name="yQueErre"/>
+    <variable id="param7" type="DATE" value="01/01/2019"/>
   </query>
 
   <query id="CallAnotherMoreMicroservice" service="simpleMicroservice3"/>
@@ -2921,8 +2923,11 @@
   </query>
 
   <query id="testServiceBeanListParameter" service="testServiceBeanListParameter">
+    <variable id="vacio" type="STRING" value=""/>
+    <variable id="otro" type="STRING" name="otro" optional="true"/>
     <variable id="nameList" type="STRING" name="nameList"/>
     <variable id="populationList" type="LONG" name="populationList"/>
+    <variable id="solarSystem" type="STRING" name="solarSystem"/>
   </query>
 
   <query id="testServiceJsonBeanParameter" service="testServiceJsonBeanParameter">

@@ -451,7 +451,7 @@ public class DummyService extends ServiceConfig {
    * @return Service data
    */
   public ServiceData getDummyData(Planets planets) {
-    return new ServiceData();
+    return new ServiceData().setDataList(DataListUtil.fromBeanList(List.of(planets)));
   }
 
   /**

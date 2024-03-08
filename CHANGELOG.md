@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.7.13
+*08/03/2024*
+
+- Fix some locales. [MR #497](https://gitlab.com/aweframework/awe/-/merge_requests/497) (Pablo Javier García Mora)
+- Add a new DATE_RDB type to format dates before calling REST services. [MR #496](https://gitlab.com/aweframework/awe/-/merge_requests/496) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.12
 *06/03/2024*
 

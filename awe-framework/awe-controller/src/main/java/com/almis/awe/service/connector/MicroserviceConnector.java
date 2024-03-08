@@ -11,6 +11,7 @@ import com.almis.awe.model.rest.RestParameter;
 import com.almis.awe.model.rest.ServiceAuth;
 import com.almis.awe.model.rest.ServiceDetails;
 import com.almis.awe.model.type.ParameterType;
+import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,9 @@ public class MicroserviceConnector extends AbstractRestConnector {
       microservice.setUsername(serviceAuth.getUsername());
       microservice.setPassword(serviceAuth.getPassword());
     }
+
+    // Fix date parameters
+    fixDateParameterMap(Optional.ofNullable(microservice.getParameterList()).orElse(Collections.emptyList()), paramsMapFromRequest);
 
     // Add specific parameters to the microservice call
     addDefinedParameters(microservice, paramsMapFromRequest);
@@ -136,5 +140,39 @@ public class MicroserviceConnector extends AbstractRestConnector {
     }
     parameterList.add(parameter);
     microservice.setParameterList(parameterList);
+  }
+
+  /**
+   * Fix date parameters when sending to microservices
+   * @param parameters List of parameters
+   *                   @param paramsMapFromRequest Parameter map
+   */
+  private void fixDateParameterMap(List<ServiceInputParameter> parameters, Map<String, Object> paramsMapFromRequest) {
+    parameters.stream()
+      .filter(p -> ParameterType.DATE.toString().equals(p.getType()))
+      .forEach(p -> paramsMapFromRequest.put(p.getName(), fixDateParameter(paramsMapFromRequest.get(p.getName()))));
+    parameters.stream()
+      .filter(p -> ParameterType.DATE_RDB.toString().equals(p.getType()))
+      .forEach(p -> paramsMapFromRequest.put(p.getName(), fixDateRDBParameter(paramsMapFromRequest.get(p.getName()))));
+  }
+
+  private Object fixDateParameter(Object value) {
+    if (value instanceof Collection<?> valueList) {
+      return valueList.stream().map(this::fixDateParameter).toList();
+    } else if (value instanceof Date dateValue) {
+      return DateUtil.dat2WebDate(dateValue);
+    }
+    return value;
+  }
+
+  private Object fixDateRDBParameter(Object value) {
+    if (value instanceof Collection<?> valueList) {
+      return valueList.stream().map(this::fixDateRDBParameter).toList();
+    } else if (value instanceof Date dateValue) {
+      return DateUtil.dat2RDBDate(dateValue);
+    } else if (value instanceof String stringValue) {
+      return DateUtil.web2RdbDate(stringValue);
+    }
+    return value;
   }
 }

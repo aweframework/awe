@@ -109,6 +109,7 @@ class QueryServiceTest extends AbstractSpringAppIntegrationTest {
     ObjectNode parameters = nodeFactory.objectNode();
     parameters.set("nameList", mapper.readTree("[\"Earth\",\"Mars\",\"Jupiter\"]"));
     parameters.set("populationList", mapper.readTree("[13421341,4,1]"));
+    parameters.put("solarSystem", "Sun");
     ServiceData serviceData = queryService.launchQuery("testServiceBeanListParameter", parameters);
     assertNotNull(serviceData);
     assertTrue(serviceData.isValid());

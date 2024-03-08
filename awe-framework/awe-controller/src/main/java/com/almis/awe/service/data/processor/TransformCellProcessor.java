@@ -11,8 +11,10 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import jakarta.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * TransformCellProcessor class
@@ -55,59 +57,59 @@ public class TransformCellProcessor implements CellProcessor {
    */
   public CellData process(CellData cell) throws AWException {
     String transformed = cell.getStringValue();
-    if (transformed != null && !transformed.isEmpty()) {
+    if (transformed != null) {
       // Transform value if needed
       switch (TransformType.valueOf(field.getTransform())) {
         case DATE:
-          transformed = processDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processDate).orElse(transformed);
           break;
           
         case DATE_MS:
-          transformed = processDateMs(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processDateMs).orElse(transformed);
           break;
           
         case TIME:
-          transformed = processTime(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processTime).orElse(transformed);
           break;
           
         case TIMESTAMP:
-          transformed = processTimestamp(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processTimestamp).orElse(transformed);
           break;
 
         case TIMESTAMP_MS:
-          transformed = processTimestampMs(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processTimestampMs).orElse(transformed);
           break;
           
         case JS_DATE:
-          transformed = processJavascriptDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processJavascriptDate).orElse(transformed);
           break;
           
         case JS_TIMESTAMP:
-          transformed = processJavascriptTimestamp(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processJavascriptTimestamp).orElse(transformed);
           break;
           
         case GENERIC_DATE:
-          transformed = processGenericDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processGenericDate).orElse(transformed);
           break;
           
         case DATE_RDB:
-          transformed = processRDBDate(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processRDBDate).orElse(transformed);
           break;
 
         case ELAPSED_TIME:
-          transformed = processElapsedTime(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processElapsedTime).orElse(transformed);
           break;
 
         case DATE_SINCE:
-          transformed = processDateSince(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processDateSince).orElse(transformed);
           break;
 
         case NUMBER:
-          transformed = processNumber(cell);
+          transformed = Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processNumber).orElse(transformed);
           break;
 
         case NUMBER_PLAIN:
-          transformed = processNumberPlain(cell);
+          transformed =  Optional.of(cell).filter(c -> StringUtils.isNotBlank(c.getStringValue())).map(this::processNumberPlain).orElse(transformed);
           break;
 
         case BOOLEAN:
@@ -332,7 +334,7 @@ public class TransformCellProcessor implements CellProcessor {
     if (date != null) {
       cell.setValue(date);
       cell.setSendStringValue(true);
-      transformed = DateUtil.rdbDate2String(date);
+      transformed = DateUtil.dat2RDBDate(date);
     }
     return transformed;
   }
