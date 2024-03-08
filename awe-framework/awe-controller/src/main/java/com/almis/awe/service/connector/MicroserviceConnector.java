@@ -149,18 +149,28 @@ public class MicroserviceConnector extends AbstractRestConnector {
    */
   private void fixDateParameterMap(List<ServiceInputParameter> parameters, Map<String, Object> paramsMapFromRequest) {
     parameters.stream()
-      .filter(p -> List.of(ParameterType.DATE.toString(), ParameterType.DATE_RDB.toString()).contains(p.getType()))
-      .forEach(p -> paramsMapFromRequest.put(p.getName(), fixDateParameter(p, paramsMapFromRequest.get(p.getName()))));
+      .filter(p -> ParameterType.DATE.toString().equals(p.getType()))
+      .forEach(p -> paramsMapFromRequest.put(p.getName(), fixDateParameter(paramsMapFromRequest.get(p.getName()))));
+    parameters.stream()
+      .filter(p -> ParameterType.DATE_RDB.toString().equals(p.getType()))
+      .forEach(p -> paramsMapFromRequest.put(p.getName(), fixDateRDBParameter(paramsMapFromRequest.get(p.getName()))));
   }
 
-  private Object fixDateParameter(ServiceInputParameter parameter, Object value) {
-    if (value instanceof Date dateValue) {
-      if (ParameterType.DATE.toString().equals(parameter.getType())) {
-        return DateUtil.dat2WebDate(dateValue);
-      } else if (ParameterType.DATE_RDB.toString().equals(parameter.getType())) {
-        return DateUtil.dat2RDBDate(dateValue);
-      }
-    } else if (value instanceof String stringValue && ParameterType.DATE_RDB.toString().equals(parameter.getType())) {
+  private Object fixDateParameter(Object value) {
+    if (value instanceof Collection<?> valueList) {
+      return valueList.stream().map(this::fixDateParameter).toList();
+    } else if (value instanceof Date dateValue) {
+      return DateUtil.dat2WebDate(dateValue);
+    }
+    return value;
+  }
+
+  private Object fixDateRDBParameter(Object value) {
+    if (value instanceof Collection<?> valueList) {
+      return valueList.stream().map(this::fixDateRDBParameter).toList();
+    } else if (value instanceof Date dateValue) {
+      return DateUtil.dat2RDBDate(dateValue);
+    } else if (value instanceof String stringValue) {
       return DateUtil.web2RdbDate(stringValue);
     }
     return value;
