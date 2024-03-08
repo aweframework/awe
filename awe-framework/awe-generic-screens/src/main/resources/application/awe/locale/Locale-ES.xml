@@ -390,7 +390,7 @@
   <locale name="ERROR_MESSAGE_ENUMERATED_NOT_DEFINED" value="El enumerado {0} no ha sido definido"/>
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="La ejecución del método {1} de la clase {0} ha ocasionado un problema"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Ha habido un problema tratando de generar una instancia de la clase"/>
-  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Ha habido un problema ejecutando la consulta {0}. {1}"/>
+  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Ha habido un problema ejecutando la consulta {0}."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="Ha habido un error exportando el archivo"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Ha habido un error tratando de evaluar la expresión:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="Ha habido un problema tratando de acceder al fichero: {0}"/>

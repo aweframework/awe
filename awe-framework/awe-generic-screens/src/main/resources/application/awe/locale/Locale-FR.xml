@@ -387,7 +387,7 @@
   <locale name="ERROR_MESSAGE_ENUMERATED_NOT_DEFINED" value="Le énuméré {0} n&apos;est pas défini"/>
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="L&apos;exécution de la méthode {1} dans la classe {0} a causé un problème"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Probleme a l&apos;instantiation d&apos;une classe"/>
-  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Il y avait un problème d&apos;exécuter la requête {0}. {1}"/>
+  <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Il y avait un problème d&apos;exécuter la requête {0}."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="Il y a eu un problème d&apos;exportation du fichier"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Erreur lors de la tentative de traitement de l&apos;expression:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="Il y avait un problème d&apos;accès au fichier: {0}"/>
