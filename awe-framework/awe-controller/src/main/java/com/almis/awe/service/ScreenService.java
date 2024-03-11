@@ -165,7 +165,7 @@ public class ScreenService extends ServiceConfig {
    *
    * @return Screen data
    */
-  public ScreenData getScreenData(boolean generateTemplate) {
+  public ScreenData getScreenData(boolean generateTemplate) throws AWException {
     return getScreenData(null, generateTemplate);
   }
 
@@ -175,16 +175,26 @@ public class ScreenService extends ServiceConfig {
    * @param optionId Option id
    * @return Screen data
    */
-  public ScreenData getScreenData(String optionId, boolean generateTemplate) {
-    try {
+  public ScreenData getScreenData(String optionId, boolean generateTemplate) throws AWException {
       ScreenData screenData = generateScreenData(optionId, generateTemplate);
       if (!generateTemplate) {
         screenData.setStructure(getScreenFromOptionId(optionId));
       }
       return screenData;
-    } catch (AWException exc) {
-      log.error("Error retrieving screen structure for option {}", optionId, exc);
-      return generateScreenDataError(exc);
+  }
+
+  /**
+   * Retrieve error screen data
+   *
+   * @param errorOptionId Error option id
+   * @return Screen data
+   */
+  public ScreenData getErrorScreenData(String errorOptionId) {
+    try {
+      return generateScreenData(errorOptionId, true);
+    } catch (Exception exc) {
+      log.error("Error generating error screen data", exc);
+      return null;
     }
   }
 

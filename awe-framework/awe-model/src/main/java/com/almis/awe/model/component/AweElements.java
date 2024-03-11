@@ -1,6 +1,7 @@
 package com.almis.awe.model.component;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
@@ -440,7 +441,7 @@ public class AweElements {
     }
 
     if (screen == null) {
-      throw new AWException("Screen" + NOT_FOUND + screenId);
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_SCREEN_NOT_DEFINED"), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", screenId));
     }
 
     // Clone screen
