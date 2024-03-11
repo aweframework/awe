@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Error-5xx.xml
+    Created on : 08 de Marzo de 2024
+    Author     : Pablo VIDAL
+    Description: Ventana error 4xx
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full">
+    <tag source="center">
+        <tag type="div" style="page-404 fullScreen">
+            <tag type="div" style="header">
+                <tag type="a" style="logo"/>
+            </tag>
+            <tag type="div" style="error-code"/>
+            <tag type="div" style="error-text">
+                <tag type="span" style="oops" label="404"/>
+                <tag type="span" style="hr"/>
+                <tag type="span" style="solve" label="404-DESCRIPTION"/>
+            </tag>
+        </tag>
+    </tag>
+</screen>

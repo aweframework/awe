@@ -322,7 +322,7 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     } catch (Exception exc) {
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
-      data.addError(new AWException(errorMessage, exc));
+      data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
       Thread.currentThread().interrupt();
     }

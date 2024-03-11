@@ -7,6 +7,8 @@
 <!--$Id$-->
 
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
+  <locale name="404-DESCRIPTION" value="Vaya, no se ha podido encontrar esta pantalla. El elemento que buscas no existe, se ha cambiado, eliminado o no está disponible temporalmente"/>
+  <locale name="500-DESCRIPTION" value="Vaya, algo ha salido mal"/>
   <locale name="APP_CLIENT" value="Almis I.F."/>
   <locale name="APP_NAME" value="Almis Web Engine"/>
   <locale name="BUTTON_ACCEPT" value="Aceptar"/>

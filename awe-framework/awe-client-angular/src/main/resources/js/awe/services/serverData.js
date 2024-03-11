@@ -77,6 +77,11 @@ aweApplication.factory('ServerData',
               const option = data.screen.option;
               Control.changeModelAttribute({view: "base", component: "currentOption"}, {selected: option}, true);
             }
+
+            // Launch actions if defined
+            if ("actions" in data) {
+              return ActionController.addActionList(data.actions, true, {address: {}, context: ""});
+            }
           }
         },
         /**

@@ -116,7 +116,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void testLaunchScreenDataAction() throws Exception {
       String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ButLogIn\",\"controller\":{\"actions\":[{\"type\":\"validate\"},{\"type\":\"server\",\"parameters\":{\"serverAction\":\"login\"}}],\"buttonType\":\"submit\",\"checkInitial\":true,\"checkTarget\":false,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"icon\":\"sign-in\",\"id\":\"ButLogIn\",\"label\":\"BUTTON_LOGIN\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"no-class btn btn-primary signin-btn bg-primary\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"pwd_usr\",\"controller\":{\"checkInitial\":true,\"checkTarget\":false,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"icon\":\"key signin-form-icon\",\"id\":\"pwd_usr\",\"optional\":false,\"placeholder\":\"SCREEN_TEXT_PASS\",\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"style\":\"no-label\",\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"cod_usr\",\"controller\":{\"checkInitial\":true,\"checkTarget\":false,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"icon\":\"user signin-form-icon\",\"id\":\"cod_usr\",\"optional\":false,\"placeholder\":\"SCREEN_TEXT_USER\",\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"style\":\"no-label\",\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}}],\"messages\":{},\"errors\":[],\"screen\":{\"name\":\"signin\",\"title\":\"SCREEN_TITLE_LOGIN\",\"option\":null}}}},{\"type\":\"end-load\"}]";
-      MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+      MvcResult mvcResult = mockMvc.perform(post("/screen-data")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content("{\"view\":\"base\"}")
@@ -126,22 +126,13 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
       logger.debug(expected);
-      ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+      ObjectNode screenData = (ObjectNode) objectMapper.readTree(result);
 
-      ObjectNode screenDataAction = (ObjectNode) resultList.get(0);
-      assertEquals("screen-data", screenDataAction.get("type").textValue());
-      ObjectNode screenDataParameters = (ObjectNode) screenDataAction.get("parameters");
-      assertEquals(2, screenDataParameters.size());
-      assertEquals("base", screenDataParameters.get("view").textValue());
-      ObjectNode screenData = (ObjectNode) screenDataParameters.get("screenData");
       assertEquals(0, screenData.get("actions").size());
       assertEquals(0, screenData.get("messages").size());
       ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
       assertEquals(3, screenDataComponents.size());
       assertEquals("signin", screenData.get("screen").get("name").textValue());
-
-      ObjectNode endLoad = (ObjectNode) resultList.get(1);
-      assertEquals("end-load", endLoad.get("type").textValue());
 
       // Test all keys
       for (JsonNode element : screenDataComponents) {
@@ -162,11 +153,11 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testLaunchScreenDataActionError() throws Exception {
-      String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"error\",\"title\":\"Option not defined\",\"option\":\"error\"}}}},{\"type\":\"end-load\"}]";
-      MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+      String expected = "{\"components\":[],\"messages\":{},\"template\":\"<div class=\\\"page-404 fullScreen\\\"><div class=\\\"header\\\"><a class=\\\"logo\\\"></a></div><div class=\\\"error-code\\\"></div><div class=\\\"error-text\\\"><span class=\\\"oops\\\"><span translate>404</span></span><span class=\\\"hr\\\"></span><span class=\\\"solve\\\"><span translate>404-DESCRIPTION</span></span></div></div>\\n<div></div>\\n<div class=\\\"hidden\\\"></div>\",\"actions\":[],\"screen\":{}}";
+      MvcResult mvcResult = mockMvc.perform(post("/screen-data/pantalla-inexistente")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
-          .content("{\"option\":\"pantalla-inexistente\",\"view\":\"base\"}")
+          .content("{\"view\":\"base\"}")
           .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andDo(print())
@@ -500,15 +491,15 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       addRestriction("INSERT", "CrtTstLeft", "SelRea", "restrictedValueList", "0");
 
       // Check screen
-      mockMvc.perform(post("/action/screen-data")
+      mockMvc.perform(post("/screen-data/criteria-test-left")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content(screenParameters)
           .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.records", is(Collections.singletonList(1))))
-        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.values[0].label", is(Collections.singletonList("ENUM_YES"))))
-        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'SelRea')].model.values[0].value", is(Collections.singletonList("1"))))
+        .andExpect(jsonPath("$.components[?(@.id == 'SelRea')].model.records", is(Collections.singletonList(1))))
+        .andExpect(jsonPath("$.components[?(@.id == 'SelRea')].model.values[0].label", is(Collections.singletonList("ENUM_YES"))))
+        .andExpect(jsonPath("$.components[?(@.id == 'SelRea')].model.values[0].value", is(Collections.singletonList("1"))))
         .andReturn();
     }
 
@@ -618,15 +609,15 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       addRestriction("INSERT", "CrtTstLeft", "Txt", "initialLoad", "value");
       addRestriction("INSERT", "CrtTstLeft", "Txt", "targetAction", "TestComponentInitialLoadValue");
 
-      MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+      MvcResult mvcResult = mockMvc.perform(post("/screen-data/criteria-test-left")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content(screenParameters)
           .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].controller.initialLoad", is(Collections.singletonList("value"))))
-        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].controller.targetAction", is(Collections.singletonList("TestComponentInitialLoadValue"))))
-        .andExpect(jsonPath("$[0].parameters.screenData.components[?(@.id == 'Txt')].model.records", is(Collections.singletonList(1))))
+        .andExpect(jsonPath("$.components[?(@.id == 'Txt')].controller.initialLoad", is(Collections.singletonList("value"))))
+        .andExpect(jsonPath("$.components[?(@.id == 'Txt')].controller.targetAction", is(Collections.singletonList("TestComponentInitialLoadValue"))))
+        .andExpect(jsonPath("$.components[?(@.id == 'Txt')].model.records", is(Collections.singletonList(1))))
         .andReturn();
 
       String result = mvcResult.getResponse().getContentAsString();
@@ -673,13 +664,13 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
     private void checkAttributeComponentMatcher(String componentId, String attribute, Matcher matcher) throws Exception {
       // Get screen action and check attribute
-      MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+      MvcResult mvcResult = mockMvc.perform(post("/screen-data/criteria-test-left")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content(screenParameters)
           .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(jsonPath(String.format("$[0].parameters.screenData.components[?(@.id == '%s')].controller.%s", componentId, attribute), matcher))
+        .andExpect(jsonPath(String.format("$.components[?(@.id == '%s')].controller.%s", componentId, attribute), matcher))
         .andReturn();
 
       String result = mvcResult.getResponse().getContentAsString();

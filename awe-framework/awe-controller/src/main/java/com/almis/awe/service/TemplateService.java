@@ -2,6 +2,7 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.TemplateDao;
+import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
@@ -91,7 +92,7 @@ public class TemplateService extends ServiceConfig {
     // Get screen from option
     Screen screen = menuService.getAvailableOptionScreen(optionId);
     if (screen == null) {
-      throw new AWException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"),
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"),
         getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
     }
 
@@ -268,7 +269,7 @@ public class TemplateService extends ServiceConfig {
   public TagList getTagList(String optionId, String tagListId) throws AWException {
     Screen screen = menuService.getOptionScreen(optionId);
     if (screen == null) {
-      throw new AWException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
     }
     return getTagList(screen, tagListId);
   }

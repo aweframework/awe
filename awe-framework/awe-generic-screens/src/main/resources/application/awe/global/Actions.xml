@@ -1004,35 +1004,6 @@
     <call service="launchMaintain" />
   </action>
 
-  <!-- GET SCREEN DATA -->
-  <action id="screen-data" format="JSON">
-    <call service="getScreenData" />
-    <answer type="ok">
-      <response>
-        <type>screen-data</type>
-        <parameters>
-          <parameter name="view" parameter="view"/>
-          <parameter name="screenData" variable="SCREEN_DATA" />
-        </parameters>
-      </response>
-      <response>
-        <type>end-load</type>
-      </response>
-    </answer>
-    <answer type="error">
-      <response>
-        <type>screen-data</type>
-        <parameters>
-          <parameter name="view" parameter="view" />
-          <parameter name="screenData" variable="SCREEN_DATA" />
-        </parameters>
-      </response>
-      <response>
-        <type>end-load</type>
-      </response>
-    </answer>
-  </action>
-
   <!-- ENCRYPT TEXT -->
   <action id="encrypt" format="TEXT">
     <call service="EncTxt" />

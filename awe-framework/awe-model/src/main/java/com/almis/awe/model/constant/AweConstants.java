@@ -102,7 +102,7 @@ public class AweConstants {
 
   // Error
   public static final String ERROR_SCREEN = ERROR;
-  public static final String ERROR_OPTION = ERROR;
+  public static final String ERROR_OPTION = "error-5";
   public static final String ERROR_TEMPLATE = ERROR;
 
   // Data
