@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
+import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.builder.MenuScreenBuilder;
@@ -331,7 +332,7 @@ public class MenuService extends ServiceConfig {
   public Screen getScreen(String screenId, String optionId) throws AWException {
     // Check if option has a screen
     if (screenId == null) {
-      throw new AWException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", optionId));
+      throw new AWENotFoundException(getLocale(ERROR_TITLE_SCREEN_NOT_DEFINED), getLocale("ERROR_MESSAGE_SCREEN_NOT_DEFINED", optionId));
     }
 
     // Get screen
@@ -444,7 +445,7 @@ public class MenuService extends ServiceConfig {
       if (sessionExpired(optionId)) {
         throw new AWESessionException(getLocale("ERROR_TITLE_SESSION_EXPIRED"), getLocale("ERROR_MESSAGE_SESSION_EXPIRED"));
       } else {
-        throw new AWException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
+        throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
       }
     }
 
@@ -466,7 +467,7 @@ public class MenuService extends ServiceConfig {
 
     // Check if option is defined
     if (option == null) {
-      throw new AWException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
     }
 
     // Retrieve option
@@ -928,7 +929,7 @@ public class MenuService extends ServiceConfig {
 
       // Update menu
       newMenu.setElementList(Stream.concat(Stream.of(favourite, separator), newMenu.getElementList().stream()
-        .filter(o -> !(o instanceof Option) || !Arrays.asList("favourites", "favourites-separator").contains(((Option) o).getName())))
+        .filter(o -> !(o instanceof Option option) || !Arrays.asList("favourites", "favourites-separator").contains((option).getName())))
         .toList());
     }
 

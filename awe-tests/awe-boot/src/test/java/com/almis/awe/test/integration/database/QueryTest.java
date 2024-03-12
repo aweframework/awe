@@ -2852,34 +2852,22 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   @WithAnonymousUser
   void testCheckInitialQueryTarget() throws Exception {
-    String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"visible\":true},\"model\":{\"selected\":[1],\"defaultValues\":[],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"visible\":true},\"model\":{\"selected\":[1],\"defaultValues\":[],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialLoad\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-load\"}}}},{\"type\":\"end-load\"}]";
-    MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+    MvcResult mvcResult = mockMvc.perform(post("/screen-data/test-initial-load")
         .with(csrf())
-        .content("{\"option\":\"test-initial-load\",\"view\":\"base\"}")
+        .content("{\"view\":\"base\"}")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
-      .andExpect(content().json(expected))
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
 
-    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
-
-    ObjectNode screenDataAction = (ObjectNode) resultList.get(0);
-    assertEquals("screen-data", screenDataAction.get("type").textValue());
-    ObjectNode screenDataParameters = (ObjectNode) screenDataAction.get("parameters");
-    assertEquals(2, screenDataParameters.size());
-    assertEquals("base", screenDataParameters.get("view").textValue());
-    ObjectNode screenData = (ObjectNode) screenDataParameters.get("screenData");
+    ObjectNode screenData = (ObjectNode) objectMapper.readTree(result);
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(5, screenDataComponents.size());
     assertEquals("TestInitialLoad", screenData.get("screen").get("name").textValue());
     assertEquals("test-initial-load", screenData.get("screen").get("option").textValue());
-
-    ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
@@ -2902,36 +2890,24 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @WithMockUser(username = "LaloElMalo", roles = {"ADMIN", "USER"})
   void testCheckInitialQuerySelectedValues() throws Exception {
     setParameter("user", "LaloElMalo");
-    String expected =
-      "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"value\":\"0\",\"visible\":true},\"model\":{\"selected\":[\"0\"],\"defaultValues\":[\"0\"],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSuggestCheckInitial\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checkTarget\":\"TestComponentInitialSuggestValue\",\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestCheckInitial\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"ComponentTextStaticValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"prueba\",\"visible\":true},\"model\":{\"selected\":[\"prueba\"],\"defaultValues\":[\"prueba\"],\"values\":[]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextStaticSessionValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticSessionValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"LaloElMalo\"],\"defaultValues\":[\"LaloElMalo\"],\"values\":[]}},{\"id\":\"ComponentTextStaticPropertyValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticPropertyValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"awe-boot\"],\"defaultValues\":[\"awe-boot\"],\"values\":[]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialValues\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-values\"}}}},{\"type\":\"end-load\"}]";
-    MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+    MvcResult mvcResult = mockMvc.perform(post("/screen-data/test-initial-values")
         .with(csrf())
-        .content("{\"option\":\"test-initial-values\",\"view\":\"base\"}")
+        .content("{\"view\":\"base\"}")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
         .session(session))
       .andExpect(status().isOk())
-      .andExpect(content().json(expected))
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
 
-    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ObjectNode screenData = (ObjectNode) objectMapper.readTree(result);
 
-    ObjectNode screenDataAction = (ObjectNode) resultList.get(0);
-    assertEquals("screen-data", screenDataAction.get("type").textValue());
-    ObjectNode screenDataParameters = (ObjectNode) screenDataAction.get("parameters");
-    assertEquals(2, screenDataParameters.size());
-    assertEquals("base", screenDataParameters.get("view").textValue());
-    ObjectNode screenData = (ObjectNode) screenDataParameters.get("screenData");
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
     assertEquals("TestInitialValues", screenData.get("screen").get("name").textValue());
     assertEquals("test-initial-values", screenData.get("screen").get("option").textValue());
-
-    ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
@@ -2953,36 +2929,25 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   @WithAnonymousUser
   void testCheckInitialVariables() throws Exception {
-    String expected = "[{\"type\":\"screen-data\",\"parameters\":{\"view\":\"base\",\"screenData\":{\"components\":[{\"id\":\"ComponentSelectEnum\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectEnum\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"Es1Es0\",\"value\":\"0\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[{\"id\":1,\"label\":\"ENUM_NO\",\"value\":\"0\"},{\"id\":2,\"label\":\"ENUM_YES\",\"value\":\"1\"}]}},{\"id\":\"ComponentSuggestCheckInitial\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checkTarget\":\"TestComponentInitialSuggestValue\",\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestCheckInitial\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"1\"],\"defaultValues\":[\"1\"],\"values\":[]}},{\"id\":\"ComponentSelectQuery\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSelectQuery\",\"label\":\"PARAMETER_SELECT\",\"optional\":true,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadQuery\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[\"2\"],\"defaultValues\":[\"2\"],\"values\":[{\"label\":\"test\",\"id\":1,\"value\":1},{\"label\":\"donald\",\"id\":2,\"value\":2},{\"label\":\"jorgito\",\"id\":3,\"value\":3},{\"label\":\"juanito\",\"id\":4,\"value\":811},{\"label\":\"jaimito\",\"id\":5,\"value\":1702}]}},{\"id\":\"ComponentTextStaticValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"value\":\"prueba\",\"visible\":true},\"model\":{\"selected\":[\"variableStatic\"],\"defaultValues\":[\"variableStatic\"],\"values\":[]}},{\"id\":\"WinDat\",\"controller\":{\"contextMenu\":[],\"dependencies\":[],\"label\":\"SCREEN_TEXT_DATA\",\"maximize\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[]}},{\"id\":\"ComponentSuggestValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentSuggestValue\",\"label\":\"PARAMETER_SUGGEST\",\"optional\":false,\"printable\":true,\"readonly\":false,\"serverAction\":\"data\",\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"value\":\"1\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextValue\",\"controller\":{\"checkEmpty\":true,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"targetAction\":\"TestComponentInitialLoadValue\",\"visible\":true},\"model\":{\"selected\":[1.0],\"defaultValues\":[1.0],\"values\":[{\"kk\":\"1\",\"value2\":1,\"label\":\"test\",\"id\":1,\"value\":1.0}]}},{\"id\":\"ComponentTextStaticSessionValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticSessionValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"variableSession\"],\"defaultValues\":[\"variableSession\"],\"values\":[]}},{\"id\":\"ComponentTextStaticPropertyValue\",\"controller\":{\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"id\":\"ComponentTextStaticPropertyValue\",\"label\":\"PARAMETER_TEXT\",\"optional\":false,\"printable\":true,\"readonly\":false,\"strict\":true,\"style\":\"col-xs-6 col-sm-3 col-lg-2\",\"visible\":true},\"model\":{\"selected\":[\"variableProperty\"],\"defaultValues\":[\"variableProperty\"],\"values\":[]}}],\"messages\":{},\"actions\":[],\"screen\":{\"name\":\"TestInitialValues\",\"title\":\"SCREEN_TITLE_BUTTON_TEST\",\"option\":\"test-initial-values\"}}}},{\"type\":\"end-load\"}]";
     String parameters = "\"SelectEnum\":\"1\",\"SelectQuery\":\"2\",\"InitialLoadValue\":\"otra\",\"StaticValue\":\"variableStatic\",\"SessionValue\":\"variableSession\",\"PropertyValue\":\"variableProperty\",";
-    MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+    MvcResult mvcResult = mockMvc.perform(post("/screen-data/test-initial-values")
         .with(csrf())
-        .content("{" + parameters + "\"option\":\"test-initial-values\",\"view\":\"base\"}")
+        .content("{" + parameters + "\"view\":\"base\"}")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
-      //        .andExpect(content().json(expected))
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     logger.info(("AYUDA:" + result));
 
-    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ObjectNode screenData = (ObjectNode) objectMapper.readTree(result);
 
-    ObjectNode screenDataAction = (ObjectNode) resultList.get(0);
-    assertEquals("screen-data", screenDataAction.get("type").textValue());
-    ObjectNode screenDataParameters = (ObjectNode) screenDataAction.get("parameters");
-    assertEquals(2, screenDataParameters.size());
-    assertEquals("base", screenDataParameters.get("view").textValue());
-    ObjectNode screenData = (ObjectNode) screenDataParameters.get("screenData");
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
     assertEquals("TestInitialValues", screenData.get("screen").get("name").textValue());
     assertEquals("test-initial-values", screenData.get("screen").get("option").textValue());
-
-    ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
@@ -3005,32 +2970,23 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @WithAnonymousUser
   void testCheckInitialQueryTargetVariables() throws Exception {
     String parameters = "\"SelectEnum\":\"1\",\"SelectQuery\":\"2\",\"InitialLoadValue\":\"otra\",\"StaticValue\":\"variableStatic\",\"SessionValue\":\"variableSession\",\"PropertyValue\":\"variableProperty\",";
-    MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+    MvcResult mvcResult = mockMvc.perform(post("/screen-data/test-initial-values-load")
         .with(csrf())
-        .content("{" + parameters + "\"option\":\"test-initial-values-load\",\"view\":\"base\"}")
+        .content("{" + parameters + "\"view\":\"base\"}")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
 
-    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ObjectNode screenData = (ObjectNode) objectMapper.readTree(result);
 
-    ObjectNode screenDataAction = (ObjectNode) resultList.get(0);
-    assertEquals("screen-data", screenDataAction.get("type").textValue());
-    ObjectNode screenDataParameters = (ObjectNode) screenDataAction.get("parameters");
-    assertEquals(2, screenDataParameters.size());
-    assertEquals("base", screenDataParameters.get("view").textValue());
-    ObjectNode screenData = (ObjectNode) screenDataParameters.get("screenData");
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
     assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").textValue());
     assertEquals("test-initial-values-load", screenData.get("screen").get("option").textValue());
-
-    ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
@@ -3051,32 +3007,23 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    */
   @Test
   void testDatabaseGridsAndChartScreen() throws Exception {
-    MvcResult mvcResult = mockMvc.perform(post("/action/screen-data")
+    MvcResult mvcResult = mockMvc.perform(post("/screen-data/grid-and-chart")
         .with(csrf())
-        .content("{\"option\":\"grid-and-chart\",\"view\":\"report\"}")
+        .content("{\"view\":\"report\"}")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     logger.warn(result);
-    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ObjectNode screenData = (ObjectNode) objectMapper.readTree(result);
 
-    ObjectNode screenDataAction = (ObjectNode) resultList.get(0);
-    assertEquals("screen-data", screenDataAction.get("type").textValue());
-    ObjectNode screenDataParameters = (ObjectNode) screenDataAction.get("parameters");
-    assertEquals(2, screenDataParameters.size());
-    assertEquals("report", screenDataParameters.get("view").textValue());
-    ObjectNode screenData = (ObjectNode) screenDataParameters.get("screenData");
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(27, screenDataComponents.size());
     assertEquals("GrdChrPrn", screenData.get("screen").get("name").textValue());
     assertEquals("grid-and-chart", screenData.get("screen").get("option").textValue());
-
-    ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {

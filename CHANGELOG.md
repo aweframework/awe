@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.7.14
+*12/03/2024*
+
+- Fix primary button text color. [MR #499](https://gitlab.com/aweframework/awe/-/merge_requests/499) (Pablo Javier García Mora)
+- Manage screen error. [MR #498](https://gitlab.com/aweframework/awe/-/merge_requests/498) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.13
 *08/03/2024*
 

@@ -20,6 +20,7 @@
   --panel-background-color: #fff;
   --panel-header-color: #C75858;
   --panel-border-color: #b13b3b;
+  --panel-text-color: #fff;
   --grid-header-color: #ebebeb;
   --grid-border-color: #dbdbdb;
   --disabled-border-color: #d6d6d6;
@@ -46,6 +47,7 @@
     --panel-background-color: #131313;
     --panel-header-color: #C75858;
     --panel-border-color: #b13b3b;
+    --panel-text-color: #fff;
     --grid-header-color: #333;
     --grid-border-color: #444;
     --border-color: #444;
@@ -64,6 +66,10 @@
     }
     #main-menu-toggle {
       background: @secondary-navbar-color;
+      color: var(--panel-text-color);
+      .fa:before {
+        color: var(--panel-text-color);
+      }
     }
     .main-navbar-collapse {
       background: @primary-navbar-color;

@@ -340,12 +340,12 @@
 
 // Buttons theme
 //
-.awe-buttons(@default, @primary, @font-color: @text-color) {
+.awe-buttons(@default, @primary, @font-color: var(--secondary-text-color), @primary-font-color: var(--primary-text-color)) {
   .btn-awe {
     .pixel-button(@color: @default, @gradient: 5%, @hover: 2%, @border: 4%, @font-color: @font-color);
   }
   .btn-awe.btn-primary {
-    .pixel-button(@primary);
+    .pixel-button(@color: @primary, @font-color: @primary-font-color);
   }
   .btn-awe.btn-danger {
     .pixel-button(@danger-color);
