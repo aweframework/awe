@@ -152,8 +152,14 @@
 
   .pagination {
     overflow: hidden;
-    > li > a {
-      border-color: @grid-border-color;
+    > li {
+        &.active > a {
+          color: var(--primary-text-color);
+          background: var(--primary-color);
+        }
+        > a {
+        border-color: @grid-border-color;
+      }
     }
   }
 
@@ -176,6 +182,7 @@
     width: 28px;
     padding-left: 2px;
     border: 1px solid @grid-border-color;
+    background: var(--secondary-background-color);
   }
 
   input[type="number"][class~="pagination-goto"]::-webkit-outer-spin-button, input[type="number"][class~="pagination-goto"]::-webkit-inner-spin-button {
@@ -508,6 +515,7 @@
   }
   input[type="text"].ui-grid-filter-input {
     padding: 2px 6px;
+    background: var(--secondary-background-color);
   }
 }
 
