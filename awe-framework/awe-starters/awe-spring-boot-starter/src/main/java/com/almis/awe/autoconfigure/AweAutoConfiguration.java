@@ -27,6 +27,7 @@ import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
 import com.almis.awe.service.report.ReportDesigner;
 import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
+import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -474,6 +475,16 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * Screen configuration generator
+   * @return Screen configuration generator
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenConfigurationGenerator screenConfigurationGenerator(){
+    return new ScreenConfigurationGenerator();
+  }
+
+  /**
    * Screen component generator
    *
    * @param request              Request
@@ -487,8 +498,8 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public ScreenComponentGenerator screenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                                            InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
-                                                           BaseConfigProperties baseConfigProperties) {
-    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties);
+                                                           BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator) {
+    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator);
   }
 
   /////////////////////////////////////////////
