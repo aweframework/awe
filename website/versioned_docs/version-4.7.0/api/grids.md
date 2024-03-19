@@ -73,24 +73,24 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 
 ### Column attributes
 
-| Attribute  | Use          | Type    | Description                                                                                                                       | Values                                                                     |
-|------------|--------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| name       | **Required** | String  | Column identifier. For reference purposes                                                                                         |                                                                            |
-| sort-field | Optional     | String  | Sort field to sort by (if not treegrid)                                                                                           |                                                                            |
-| type       | Optional     | String  | Field type (for printing purposes)                                                                                                | `string`, `integer`, `float` or `date`                                     |
-| hidden     | Optional     | Boolean | Column is **not** visible                                                                                                         | Default value is `false`                                                   |
-| align      | Optional     | String  | Column is **not** visible                                                                                                         | `left`, `center` or `right`                                                |
-| width      | Optional     | Integer | Column width in pixels                                                                                                            |                                                                            |
-| sortable   | Optional     | Boolean | Field is sortable (if not treegrid)                                                                                               | Default value is `true`                                                    |
-| movable    | Optional     | Boolean | Allows to move column position in the grid                                                                                        | Default value is `true`                                                    |
-| sendable   | Optional     | Boolean | Column data must be sent to the server                                                                                            | Default value is `true`                                                    |
-| charlength | Optional     | Integer | Column width in chars                                                                                                             |                                                                            |
-| label      | Optional     | String  | Column label                                                                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| style      | Optional     | String  | Column css class                                                                                                                  | Css class to apply to the column                                           |
-| component  | Optional     | String  | Column type (if editable)                                                                                                         | See [components](criteria.md#components)                                   |
-| max        | Optional     | Integer | Max number of records to retrieve when the column is initialized with target-action                                               | Default value is `30`                                                      |
-| visibility | Optional     | Boolean | Initial visibility of the column component                                                                                        | Default value is `true`                                                    |
-| frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height | Default value is `false`                                                   |
+| Attribute  | Use          | Type    | Description                                                                                                                       | Values                                                                           |
+|------------|--------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| name       | **Required** | String  | Column identifier. For reference purposes                                                                                         |                                                                                  |
+| sort-field | Optional     | String  | Sort field to sort by (if not treegrid)                                                                                           |                                                                                  |
+| type       | Optional     | String  | Field type (for printing purposes)                                                                                                | `string`, `integer`, `float` or `date`                                           |
+| hidden     | Optional     | Boolean | Column is **not** visible                                                                                                         | Default value is `false`                                                         |
+| align      | Optional     | String  | Column is **not** visible                                                                                                         | `left`, `center` or `right`                                                      |
+| width      | Optional     | Integer | Column width in pixels or percent.                                                                                                | Ex.: `width = "10"` or `width = "20%"` **Note:** You can use '*' value for auto. |
+| sortable   | Optional     | Boolean | Field is sortable (if not treegrid)                                                                                               | Default value is `true`                                                          |
+| movable    | Optional     | Boolean | Allows to move column position in the grid                                                                                        | Default value is `true`                                                          |
+| sendable   | Optional     | Boolean | Column data must be sent to the server                                                                                            | Default value is `true`                                                          |
+| charlength | Optional     | Integer | Column width in chars                                                                                                             |                                                                                  |
+| label      | Optional     | String  | Column label                                                                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)       |
+| style      | Optional     | String  | Column css class                                                                                                                  | Css class to apply to the column                                                 |
+| component  | Optional     | String  | Column type (if editable)                                                                                                         | See [components](criteria.md#components)                                         |
+| max        | Optional     | Integer | Max number of records to retrieve when the column is initialized with target-action                                               | Default value is `30`                                                            |
+| visibility | Optional     | Boolean | Initial visibility of the column component                                                                                        | Default value is `true`                                                          |
+| frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height | Default value is `false`                                                         |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
 
@@ -119,6 +119,17 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | button           | Component which allows the user to click a button which launches a set of `button-action`                   |
 | progress         | Progress column component. Useful for showing a progress bar in a column. (Work in progress)                |
 | sparkline        | Sparkline column component. Useful for showing a sparkline chart in a column. (Work in progress)            |
+
+### Specific row style
+
+When you need set specific style to all cells of one row (ex.: change background color), you can add a new field called `_style_` with CSS style name.
+
+```xml
+<query id="MyQuery" >
+    <field id="_style_" alias="_style_" variable="styleClass"/>
+    <variable id="styleClass" type="STRING" value="red"/>
+</query>
+```
 
 ### Specific column components
 
