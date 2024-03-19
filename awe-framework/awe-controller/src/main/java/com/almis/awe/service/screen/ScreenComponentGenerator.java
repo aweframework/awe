@@ -46,6 +46,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private final InitialLoadDao initialLoadDao;
   private final AweElementsDao aweElementsDao;
   private final BaseConfigProperties baseConfigProperties;
+  private final ScreenConfigurationGenerator screenConfigurationGenerator;
 
   /**
    * Autowired constructor
@@ -58,12 +59,13 @@ public class ScreenComponentGenerator extends ServiceConfig {
    */
   public ScreenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                   InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
-                                  BaseConfigProperties baseConfigProperties) {
+                                  BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator) {
     this.aweRequest = request;
     this.screenModelGenerator = screenModelGenerator;
     this.initialLoadDao = initialLoadDao;
     this.aweElementsDao = aweElementsDao;
     this.baseConfigProperties = baseConfigProperties;
+    this.screenConfigurationGenerator = screenConfigurationGenerator;
   }
 
   /**
@@ -96,7 +98,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
       Future<ServiceData> configurationResult = initialLoadDao.launchInitialLoad(screenConfigurationThread);
 
       // Apply screen configuration
-      new ScreenConfigurationGenerator().applyScreenConfiguration(configurationResult, screen);
+      screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen);
 
       // Add component
       List<Component> components = screen.getElementsByType(Component.class);
