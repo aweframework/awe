@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.7.15
+*20/03/2024*
+
+- Update doc for width and row _style_. [MR #501](https://gitlab.com/aweframework/awe/-/merge_requests/501) (Pablo Vidal Otero)
+- Error manage initial load data. [MR #500](https://gitlab.com/aweframework/awe/-/merge_requests/500) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.7.14
 *12/03/2024*
 

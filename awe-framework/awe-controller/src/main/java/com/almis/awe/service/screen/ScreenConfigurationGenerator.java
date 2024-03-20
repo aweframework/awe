@@ -40,9 +40,6 @@ public class ScreenConfigurationGenerator extends ServiceConfig {
 
       // For each column, store value in components
       addScreenConfigurationToComponents(screenConfiguration, screen);
-    } catch (InterruptedException exc) {
-      Thread.currentThread().interrupt();
-      throw new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA", screen.getId()), exc);
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA", screen.getId()), exc);
     }
