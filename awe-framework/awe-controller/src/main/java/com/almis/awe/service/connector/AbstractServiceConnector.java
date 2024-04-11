@@ -128,11 +128,20 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
     switch (ParameterType.valueOf(parameter.getType())) {
       case INTEGER, LONG, FLOAT, DOUBLE, BOOLEAN:
         return "".equals(parameterValue) ? null : parameterValue;
-      case DATE, TIME, TIMESTAMP:
+      case DATE, TIMESTAMP:
         if (parameterValue instanceof String stringValue) {
           return Optional.of(stringValue)
             .filter(StringUtils::isNotBlank)
             .map(DateUtil::web2Date)
+            .orElse(null);
+        } else {
+          return parameterValue;
+        }
+      case TIME:
+        if (parameterValue instanceof String stringValue) {
+          return Optional.of(stringValue)
+            .filter(StringUtils::isNotBlank)
+            .map(DateUtil::web2Time)
             .orElse(null);
         } else {
           return parameterValue;

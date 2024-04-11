@@ -29,6 +29,7 @@
       <xs:enumeration value="STRINGN"/>
       <xs:enumeration value="STRING"/>
       <xs:enumeration value="DATE"/>
+      <xs:enumeration value="TIME"/>
       <xs:enumeration value="TIMESTAMP"/>
       <xs:enumeration value="SYSTEM_DATE"/>
       <xs:enumeration value="SYSTEM_TIME"/>

@@ -154,6 +154,18 @@
     </serve>
   </target>
 
+  <!-- Call service with dates -->
+  <target name="testMaintainWithDates">
+    <serve service="testWithDates">
+      <variable id="date" type="DATE" value="22/11/2022"/>
+      <variable id="time" type="TIME" value="12:33:21"/>
+      <variable id="timestamp" type="TIMESTAMP" value="22/11/2022 12:33:21"/>
+      <variable id="systemDate" type="SYSTEM_DATE"/>
+      <variable id="systemTime" type="SYSTEM_TIME"/>
+      <variable id="systemTimestamp" type="SYSTEM_TIMESTAMP"/>
+    </serve>
+  </target>
+
   <target name="SimpleSingleInsert">
     <insert>
       <table id="HISAweDbs"/>
