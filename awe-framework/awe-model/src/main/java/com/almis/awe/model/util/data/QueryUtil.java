@@ -412,7 +412,16 @@ public class QueryUtil extends ServiceConfig {
       case DATE, TIME, TIMESTAMP, STRINGN:
         parameter = getStringWithNullsParameter(parameter, stringValue);
         break;
-      case SYSTEM_DATE, SYSTEM_TIME, SYSTEM_TIMESTAMP, NULL:
+      case SYSTEM_DATE:
+        parameter = nodeFactory.textNode(DateUtil.dat2WebDate(new Date()));
+        break;
+      case SYSTEM_TIME:
+        parameter = nodeFactory.textNode(DateUtil.dat2WebTime(new Date()));
+        break;
+      case SYSTEM_TIMESTAMP:
+        parameter = nodeFactory.textNode(DateUtil.dat2WebTimestamp(new Date()));
+        break;
+      case NULL:
         parameter = nodeFactory.nullNode();
         break;
       case STRING_TO_LIST:
