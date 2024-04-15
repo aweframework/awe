@@ -586,4 +586,11 @@ public class DummyService extends ServiceConfig {
           ))
       );
   }
+
+  public ServiceData testWithDates(Date date, Date time, Date timestamp, Date systemDate, Date systemTime, Date systemTimestamp) throws Exception {
+    if (date == null || time == null || timestamp == null || systemDate == null || systemTime == null || systemTimestamp == null) {
+      throw new RuntimeException();
+    }
+    return new ServiceData();
+  }
 }

@@ -842,16 +842,27 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
    */
   @Test
   void testRetrieveDataAndInsertAfter() throws Exception {
-
-
     String maintainName = "testRetrieveDataAndInsertAfter";
     String variables = "";
     setParameter("user", "LaloElMalo");
     String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1}]}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
+  }
 
-
+  /**
+   * Test of maintain with service and date parameters
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testServiceWithDates() throws Exception {
+    String maintainName = "testMaintainWithDates";
+    String variables = "";
+    setParameter("user", "LaloElMalo");
+    String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    logger.info(result);
   }
 
   // *****************************************************************************************************************//

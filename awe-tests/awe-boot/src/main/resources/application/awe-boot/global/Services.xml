@@ -445,4 +445,15 @@
     <java classname="com.almis.awe.service.DummyService" method="dynamicSubScreen"/>
   </service>
 
+  <service id="testWithDates">
+    <java classname="com.almis.awe.service.DummyService" method="testWithDates">
+      <service-parameter name="date" type="DATE"/>
+      <service-parameter name="time" type="TIME"/>
+      <service-parameter name="timestamp" type="TIMESTAMP"/>
+      <service-parameter name="systemDate" type="DATE"/>
+      <service-parameter name="systemTime" type="TIME"/>
+      <service-parameter name="systemTimestamp" type="TIMESTAMP"/>
+    </java>
+  </service>
+
 </services>

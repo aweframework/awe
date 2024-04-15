@@ -103,28 +103,29 @@ The dependency elements are the definition of the *conditions* required to launc
 
 ```xml 
 <dependency-element id="[id]" column="[column]" attribute="[attribute]" condition="[condition]" row="[row]"
-                    id2="[id2]" column2="[column2]" attribute2="[attribute2]" event="[event]" value="[value]" 
-                    optional="[optional]" cancel="[cancel]" alias="[alias]"/>
-```
+                    id2="[id2]" column2="[column2]" attribute2="[attribute2]" event="[event]" value="[value]"
+                    optional="[optional]" cancel="[cancel]" view="[view]" alias="[alias]"/>
+````
 
 ### Dependency element attributes
 
-| Attribute   | Use      | Type      |  Description                |   Values                                           |
-| ----------- | -------- |-----------|-----------------------------|----------------------------------------------------|
-| id          | **Required** | String   | Component identifier     |  |
-| column      | Optional | String   | Column identifier of the component (applicable on grids) |  |
-| attribute   | Optional | String   | Attribute to check.          | See [attributes](#attributes) below. Default value is `selected` |
-| condition   | Optional | String   | Compare condition  | See [dependency element conditions](#dependency-element-conditions). Default value is `is not empty`|
-| row         | Optional | String   | Row number from the grid to check the attribute | |
-| id2         | Optional | String   | Component identifier to compare |  |
-| column2     | Optional | String   | Column identifier of the component (appliable on grids) |                                               |
-| attribute2  | Optional | String   | Attribute to check. |               |
-| event       | Optional | String   | Event to check | See [events](#events) below. |
-| value       | Optional | String   | Value to check |                         |
-| optional    | Optional | Boolean  | Mark the element as optional. It is useful to use its values even if they are empty | Default value is `false` |
-| cancel      | Optional | Boolean  | Cancel the dependency if this element has not been checked (useful for mandatory events) | Default value is `false` |
-| alias       | Optional | String   | Name to apply to the dependency element. Useful for `launcher` dependency targets |  |
-| check-value | Optional | Boolean  | Check this element values (launch the dependency if this element changes) | Default value is `true` |
+| Attribute   | Use          | Type    | Description                                                                                                                       | Values                                                                                               |
+|-------------|--------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| id          | **Required** | String  | Component identifier                                                                                                              |                                                                                                      |
+| column      | Optional     | String  | Column identifier of the component (applicable on grids)                                                                          |                                                                                                      |
+| attribute   | Optional     | String  | Attribute to check.                                                                                                               | See [attributes](#attributes) below. Default value is `selected`                                     |
+| condition   | Optional     | String  | Compare condition                                                                                                                 | See [dependency element conditions](#dependency-element-conditions). Default value is `is not empty` |
+| row         | Optional     | String  | Row number from the grid to check the attribute                                                                                   |                                                                                                      |
+| id2         | Optional     | String  | Component identifier to compare                                                                                                   |                                                                                                      |
+| column2     | Optional     | String  | Column identifier of the component (appliable on grids)                                                                           |                                                                                                      |
+| attribute2  | Optional     | String  | Attribute to check.                                                                                                               |                                                                                                      |
+| event       | Optional     | String  | Event to check                                                                                                                    | See [events](#events) below.                                                                         |
+| value       | Optional     | String  | Value to check                                                                                                                    |                                                                                                      |
+| optional    | Optional     | Boolean | Mark the element as optional. It is useful to use its values even if they are empty                                               | Default value is `false`                                                                             |
+| cancel      | Optional     | Boolean | Cancel the dependency if this element has not been checked (useful for mandatory events)                                          | Default value is `false`                                                                             |
+| view        | Optional     | String  | Name of view where element is placed. Used when you need specify in what context the element on which you want to act is located. | Ex.: `view = "base"`                                                                                 |
+| alias       | Optional     | String  | Name to apply to the dependency element. Useful for `launcher` dependency targets                                                 |                                                                                                      |
+| check-value | Optional     | Boolean | Check this element values (launch the dependency if this element changes)                                                         | Default value is `true`                                                                              |
 
 #### Dependency element conditions
 

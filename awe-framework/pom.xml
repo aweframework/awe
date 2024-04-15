@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-parent</artifactId>
-    <version>4.7.15</version>
+    <version>4.7.16</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
