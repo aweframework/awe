@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.7.16
+*15/04/2024*
+
+- Generate SYSTEM_DATE, SYSTEM_TIME and SYSTEM_TIMESTAMP for services. [MR #502](https://gitlab.com/aweframework/awe/-/merge_requests/502) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.15
 *20/03/2024*
 
