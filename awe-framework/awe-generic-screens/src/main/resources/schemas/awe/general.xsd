@@ -111,6 +111,7 @@
       <xs:enumeration value="confirm-updated-data" />
       <xs:enumeration value="confirm-not-updated-data" />
       <xs:enumeration value="confirm-empty-data" />
+      <xs:enumeration value="cancel-row" />
       <xs:enumeration value="add-row" />
       <xs:enumeration value="add-row-top" />
       <xs:enumeration value="add-row-up" />
