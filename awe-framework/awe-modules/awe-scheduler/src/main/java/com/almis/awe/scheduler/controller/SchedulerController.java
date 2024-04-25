@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.controller;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
+import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.service.SchedulerService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +30,9 @@ public class SchedulerController {
    * @return ServiceData
    * @throws AWException Error retrieving task list
    */
-  @GetMapping("/tasks")
-  ServiceData getTaskList() throws AWException {
-    return schedulerService.getTaskList();
+  @PostMapping("/tasks")
+  ServiceData getTaskList(@RequestBody TaskListCriteria taskListCriteria) throws AWException {
+    return schedulerService.getTaskList(taskListCriteria);
   }
 
   /**

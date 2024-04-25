@@ -5,6 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
+import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,8 +46,8 @@ public class RemoteSchedulerService extends ServiceConfig {
    * @return ServiceData
    * @throws AWException Error retrieving task list
    */
-  public ServiceData getTaskList() throws AWException {
-    return remote ? remoteScheduler.getTaskList() : schedulerService.getTaskList();
+  public ServiceData getTaskList(TaskListCriteria taskListCriteria) throws AWException {
+    return remote ? remoteScheduler.getTaskList(taskListCriteria) : schedulerService.getTaskList(taskListCriteria);
   }
 
   /**
