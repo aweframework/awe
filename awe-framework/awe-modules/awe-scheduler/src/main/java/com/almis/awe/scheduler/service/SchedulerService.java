@@ -5,6 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.scheduler.dao.SchedulerDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
@@ -149,8 +150,8 @@ public class SchedulerService extends ServiceConfig {
    * @return ServiceData
    * @throws AWException Error retrieving task list
    */
-  public ServiceData getTaskList() throws AWException {
-    return taskDAO.getTaskList();
+  public ServiceData getTaskList(TaskListCriteria taskListCriteria) throws AWException {
+    return taskDAO.getTaskList(taskListCriteria);
   }
 
   /**
