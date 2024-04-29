@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
@@ -245,7 +246,7 @@ public class QueryUtil extends ServiceConfig {
    * @return Query parameter map
    */
   public ObjectNode getParameters() {
-    return getRequest() != null ? getParameters(getRequest().getParametersSafe()) : JsonNodeFactory.instance.objectNode();
+    return getParameters(Optional.ofNullable(getRequest()).map(AweRequest::getParametersSafe).orElse(JsonNodeFactory.instance.objectNode()));
   }
 
   /**
@@ -255,7 +256,18 @@ public class QueryUtil extends ServiceConfig {
    * @return Query parameter map
    */
   public ObjectNode getParameters(ObjectNode parameters) {
-    return parameters != null ? parameters : JsonNodeFactory.instance.objectNode();
+    return getParameters(Optional.ofNullable(parameters).orElse(JsonNodeFactory.instance.objectNode()), null, null, null);
+  }
+
+  /**
+   * Prepare query variables if not defined previously
+   *
+   * @param parametersBean Parameters bean
+   * @return Query parameter map
+   */
+  public <T> ObjectNode getParameters(T parametersBean) {
+    ObjectNode parameters = new ObjectMapper().convertValue(parametersBean, ObjectNode.class);
+    return getParameters(Optional.ofNullable(parameters).orElse(JsonNodeFactory.instance.objectNode()), null, null, null);
   }
 
   /**
@@ -400,29 +412,30 @@ public class QueryUtil extends ServiceConfig {
    */
   public JsonNode getParameter(String stringValue, JsonNode parameter, ParameterType type, String variableId) throws AWException {
     JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
+    JsonNode output;
 
     // If parameter is not json, generate it
     switch (type) {
-      case DOUBLE,FLOAT,INTEGER, LONG:
-        parameter = getNumberParameter(parameter, stringValue, variableId, type);
+      case DOUBLE, FLOAT, INTEGER, LONG:
+        output = getNumberParameter(parameter, stringValue, variableId, type);
         break;
       case OBJECT:
-        parameter = getObjectParameter(parameter, stringValue);
+        output = getObjectParameter(parameter, stringValue);
         break;
       case DATE, TIME, TIMESTAMP, STRINGN:
-        parameter = getStringWithNullsParameter(parameter, stringValue);
+        output = getStringWithNullsParameter(parameter, stringValue);
         break;
       case SYSTEM_DATE:
-        parameter = nodeFactory.textNode(DateUtil.dat2WebDate(new Date()));
+        output = nodeFactory.textNode(DateUtil.dat2WebDate(new Date()));
         break;
       case SYSTEM_TIME:
-        parameter = nodeFactory.textNode(DateUtil.dat2WebTime(new Date()));
+        output = nodeFactory.textNode(DateUtil.dat2WebTime(new Date()));
         break;
       case SYSTEM_TIMESTAMP:
-        parameter = nodeFactory.textNode(DateUtil.dat2WebTimestamp(new Date()));
+        output = nodeFactory.textNode(DateUtil.dat2WebTimestamp(new Date()));
         break;
       case NULL:
-        parameter = nodeFactory.nullNode();
+        output = nodeFactory.nullNode();
         break;
       case STRING_TO_LIST:
         // Retrieve string value as list
@@ -431,16 +444,17 @@ public class QueryUtil extends ServiceConfig {
           .map(String::trim)
           .forEach(valueList::add);
 
-        parameter = valueList;
+        output = valueList;
         break;
       case STRING, STRINGB, STRINGL, STRINGR, STRING_ENCRYPT,
         STRING_HASH_RIPEMD160, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
       default:
-        parameter = getStringParameter(parameter, stringValue);
+        output = getStringParameter(parameter, stringValue);
+        break;
     }
 
     // Retrieve Json node
-    return parameter;
+    return output;
   }
 
   private JsonNode getNumberParameter(JsonNode parameter, String stringParameter, String variableId, ParameterType type) {

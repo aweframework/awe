@@ -7,7 +7,9 @@
 
   <!-- scheduler tasks -->
   <service id="getSchedulerTaskList">
-    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskList"/>
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskList">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.TaskListCriteria" name="taskListCriteria"/>
+    </java>
   </service>
 
   <service id="nextExecutions">

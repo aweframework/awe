@@ -2,6 +2,7 @@ package com.almis.awe.scheduler.feign;
 
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
+import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,8 +11,8 @@ import java.util.List;
 @FeignClient(name = "remote-scheduler", url = "${awe.scheduler.remote-scheduler-url:http://localhost:8000/scheduler/api/v1}")
 public interface RemoteScheduler {
 
-  @GetMapping("/tasks")
-  ServiceData getTaskList();
+  @PostMapping("/tasks")
+  ServiceData getTaskList(@RequestBody TaskListCriteria taskListCriteria);
 
   @PostMapping("/tasks/executions")
   ServiceData getNextFireTimes(@RequestParam("numberOfFireTimes") int numberOfFireTimes, @RequestBody Schedule schedule);
