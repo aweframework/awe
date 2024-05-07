@@ -39,6 +39,7 @@ public class PublicQueryMaintainAuthorization implements AuthorizationManager<Re
     "/file/stream/maintain",
     "/file/download/maintain",
     "/api/maintain",
+    "/api/maintain/async",
     "/api/public/maintain");
 
   /**

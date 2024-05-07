@@ -21,10 +21,7 @@ import com.almis.awe.model.util.data.TimeUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.report.Report;
-import com.almis.awe.scheduler.bean.task.Task;
-import com.almis.awe.scheduler.bean.task.TaskDependency;
-import com.almis.awe.scheduler.bean.task.TaskExecution;
-import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.bean.task.*;
 import com.almis.awe.scheduler.builder.task.TaskBuilder;
 import com.almis.awe.scheduler.enums.TaskLaunchType;
 import com.almis.awe.scheduler.enums.TaskStatus;
@@ -841,9 +838,9 @@ public class TaskDAO extends ServiceConfig {
    * @return ServiceData
    * @throws AWException Error retrieving task list
    */
-  public ServiceData getTaskList() throws AWException {
+  public ServiceData getTaskList(TaskListCriteria taskListCriteria) throws AWException {
     // Get task list details
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    ObjectNode parameters = queryUtil.getParameters(queryUtil.getParameters(taskListCriteria), null, "1", "0");
     ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, parameters);
     DataList filtered = new DataList();
     for (Map<String, CellData> row : serviceData.getDataList().getRows()) {

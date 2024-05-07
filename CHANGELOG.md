@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.7.17
+*29/04/2024*
+
+- Pass task list criteria as parameters instead of retrieving them from request. [MR #505](https://gitlab.com/aweframework/awe/-/merge_requests/505) (Pablo Javier García Mora)
+- /api/mainain/async is always returning 401 when being called. [MR #504](https://gitlab.com/aweframework/awe/-/merge_requests/504) (Pablo Javier García Mora)
+- Add button action cancel-row to XSD. [MR #503](https://gitlab.com/aweframework/awe/-/merge_requests/503) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.7.16
 *15/04/2024*
 
