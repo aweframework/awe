@@ -240,7 +240,7 @@ public class AweRestController {
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public AweRestResponse handleException(Exception exc) {
-    log.debug(AWE_REST + exc);
+    log.error(AWE_REST + exc);
     // Retrieve exception
     AweRestResponse aweRestResponse = new AweRestResponse();
     aweRestResponse.setType(AnswerType.ERROR);
@@ -258,7 +258,7 @@ public class AweRestController {
   @ExceptionHandler(AWException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public AweRestResponse handleException(AWException exc) {
-    log.debug(AWE_REST + exc);
+    log.error(AWE_REST + exc);
     // Retrieve exception
     AweRestResponse aweRestResponse = new AweRestResponse();
     aweRestResponse.setType(AnswerType.ERROR);
@@ -276,7 +276,7 @@ public class AweRestController {
   @ExceptionHandler(AuthenticationException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public AweRestResponse handleAuthenticationException(Exception exc) {
-    log.debug(AWE_REST + exc);
+    log.error(AWE_REST + exc);
     // Retrieve exception
     AweRestResponse aweRestResponse = new AweRestResponse();
     aweRestResponse.setType(AnswerType.ERROR);
