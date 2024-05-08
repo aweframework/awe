@@ -424,8 +424,6 @@ Build package:
       artifacts: false
   services:
     - docker:dind
-  tags:
-    - docker
   script:
     # Gitlab container
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
