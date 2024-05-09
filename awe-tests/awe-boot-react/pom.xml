@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.almis.awe.clients</groupId>
       <artifactId>awe-client-react</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -255,7 +255,7 @@
                 <artifactItem>
                   <groupId>com.almis.awe.clients</groupId>
                   <artifactId>awe-client-react</artifactId>
-                  <version>1.0.0-SNAPSHOT</version>
+                  <version>0.0.1-SNAPSHOT</version>
                   <outputDirectory>${project.build.frontend}</outputDirectory>
                   <includes>images/**,css/**</includes>
                 </artifactItem>
