@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.almis.awe.clients</groupId>
       <artifactId>awe-client-react</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>${revision}</version>
     </dependency>
 
     <dependency>
