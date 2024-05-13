@@ -16,6 +16,7 @@
 
   <properties>
     <!-- Application maven properties -->
+    <awe.react.version>${revision}</awe.react.version>
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -61,7 +62,7 @@
     <dependency>
       <groupId>com.almis.awe.clients</groupId>
       <artifactId>awe-client-react</artifactId>
-      <version>${revision}</version>
+      <version>${awe.react.version}</version>
     </dependency>
 
     <dependency>
@@ -255,7 +256,7 @@
                 <artifactItem>
                   <groupId>com.almis.awe.clients</groupId>
                   <artifactId>awe-client-react</artifactId>
-                  <version>0.0.1-SNAPSHOT</version>
+                  <version>${awe.react.version}</version>
                   <outputDirectory>${project.build.frontend}</outputDirectory>
                   <includes>images/**,css/**</includes>
                 </artifactItem>
