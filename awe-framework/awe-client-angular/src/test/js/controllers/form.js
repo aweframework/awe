@@ -138,6 +138,23 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       expect($control.getAddressApi).toHaveBeenCalled();
     });
 
+    // Launch server-download action
+    it('should launch a copy-criterion-value-clipboard action', function() {
+      // Prepare
+      defineForm();
+      spyOn($control, "getAddressModel").and.returnValue({selected: "test"});
+      spyOn(navigator.clipboard, "writeText").and.returnValue(null);
+      spyOn($actionController, "acceptAction").and.returnValue({});
+
+      // Run
+      launchFormAction("copy-criterion-value-clipboard", "copyCriterionValueClipboard", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{message:{message: "This field is required", id: "cod_usr", uid: "6a2bda7a-03dd-8106-d906-ecd029f5c6fa"}}});
+
+      // Assert
+      expect($control.getAddressModel).toHaveBeenCalled();
+      expect(navigator.clipboard.writeText).toHaveBeenCalled();
+      expect($actionController.acceptAction).toHaveBeenCalled();
+    });
+
     // Call update-controller action
     it('should call an update-controller action', function() {
       // Prepare

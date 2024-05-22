@@ -403,29 +403,8 @@ aweApplication.factory('GridEvents',
             rowsPrintData[index] = rowPrintData.join("\t");
           })
 
-          // We join all rows and separate them with new line feed
-          let  printData = rowsPrintData.join("\n");
-
-          // Event handler for copy event
-          let  eventHandler = function(clipEvent) {
-            // Add data information to event and stop it
-            clipEvent.stopPropagation();
-            clipEvent.preventDefault();
-
-            let  cd = clipEvent.originalEvent.clipboardData || window.clipboardData;
-            cd.setData("text", printData);
-
-            // Remove copy event handler
-            document.removeEventListener("copy", eventHandler);
-          };
-
-          // We launch the copy event
-          $(document).on("copy", eventHandler);
-          try {
-            document.execCommand("copy");
-          } catch (e) {
-            $log.error("Copying to clipboard is not allowed");
-          }
+          // Copy the lines into the clipboard
+          navigator.clipboard.writeText(rowsPrintData.join("\n"));
         },
         /**
          * Update row

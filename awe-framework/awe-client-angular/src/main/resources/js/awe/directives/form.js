@@ -178,6 +178,22 @@ aweApplication.directive('aweForm',
           Utilities.downloadFile(fileData);
         },
         /**
+         * Copy a criterion value to the clipboard
+         * @param {Action} action Action received
+         */
+        copyCriterionValueClipboard: function (action) {
+          // Launch server action for printing
+          let address = action.attr("callbackTarget");
+          let model = Control.getAddressModel(address);
+
+          // Copy the lines into the clipboard
+          document.body.focus();
+          navigator.clipboard.writeText(Utilities.isEmpty(model.selected) ? "" : model.selected);
+
+          // Finish action
+          $actionController.acceptAction(action);
+        },
+        /**
          * Update model with action values
          * @param {Action} action Action received
          */

@@ -61,6 +61,7 @@ public enum Action {
   SELECT_LAST_ROW("select-last-rows"),
   SERVER("server"),
   SERVER_DOWNLOAD("server-download"),
+  COPY_CRITERION_VALUE_CLIPBOARD("copy-criterion-value-clipboard"),
   SERVER_PRINT("server-print"),
   START_LOAD("start-load"),
   TOGGLE_MENU("toggle-menu"),
