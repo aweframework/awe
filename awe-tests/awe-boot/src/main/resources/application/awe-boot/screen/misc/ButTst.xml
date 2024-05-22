@@ -11,6 +11,9 @@
     <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
       <button-action type="dialog" target="HlpOpt" />
     </button>
+    <button button-type="button" id="CopyValueToClipboard" icon="mdi:content_copy">
+      <button-action type="copy-criterion-value-clipboard" target="ButVal"/>
+    </button>
     <button button-type="button" id="ButSetVa3" label="BUTTON_SET_VALUE3" icon="calculator" value="Valor3" />
     <button button-type="button" id="ButSetVa2" label="BUTTON_SET_VALUE2" icon="calculator" value="Valor2" />
     <button button-type="button" id="ButSetVa1" label="BUTTON_SET_VALUE1" icon="calculator" value="Valor1" />

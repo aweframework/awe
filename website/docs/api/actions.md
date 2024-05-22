@@ -106,44 +106,47 @@ Actions which works over components in the screen.
 
 #### Component actions
 
-| Action                    | Description                                                                                                | Works on                    |
-|---------------------------|------------------------------------------------------------------------------------------------------------|-----------------------------|
-| `add-class`               | Add the css class/classes defined on `target-action` to the tag with the selector defined on `target`      | `tag`                       |
-| `remove-class`            | Remove the css class/classes defined on `target-action` to the tag with the selector defined on `target`   | `tag`                       |
-| `reset`                   | Empty a criterion value                                                                                    | `criteria`, `grid`, `chart` |
-| `restore`                 | Restore to initial values a criterion                                                                      | `criteria`, `grid`, `chart` |
-| `start-load`              | Sets a component as *loading*                                                                              | `criteria`, `grid`, `chart` |
-| `validate`                | Launch a validation on the criterion or criteria inside the `target` tag                                   | `tag`, `criteria`           |
-| `dialog`                  | Opens a modal dialog                                                                                       | `dialog`                    |
-| `close`                   | Closes a dialog                                                                                            | `dialog`                    |
-| `filter`                  | Reload a grid                                                                                              | `grid`                      |
-| `add-row`                 | Add an empty row at the bottom of the grid                                                                 | `grid`                      |
-| `add-row-top`             | Add an empty row at the top of the grid                                                                    | `grid`                      |
-| `add-row-up`              | Add an empty row over the selected row                                                                     | `grid`                      |
-| `add-row-down`            | Add an empty row below the selected row                                                                    | `grid`                      |
-| `copy-row`                | Copy the selected row at the bottom of the grid                                                            | `grid`                      |
-| `copy-row-top`            | Copy the selected row at the top of the grid                                                               | `grid`                      |
-| `copy-row-up`             | Copy the selected row over the selected row                                                                | `grid`                      |
-| `copy-row-down`           | Copy the selected row below the selected row                                                               | `grid`                      |
-| `delete-row`              | Delete the selected row                                                                                    | `grid`                      | 
-| `save-row`                | Save the selected row                                                                                      | `grid`                      |
-| `check-one-selected`      | Checks if there is one row selected                                                                        | `grid`                      |
-| `check-some-selected`     | Checks if there is one or more rows selected                                                               | `grid`                      |
-| `check-records-saved`     | Checks if all records are stored (user is not editing a row)                                               | `grid`                      |
-| `check-records-generated` | Checks if there is at least one row in the grid                                                            | `grid`                      |
-| `select-first-row`        | Selects the first row of the grid                                                                          | `grid`                      |
-| `select-last-row`         | Selects the last row of the grid                                                                           | `grid`                      |
-| `select-all-rows`         | Select all rows of the grid                                                                                | `grid`                      |
-| `unselect-all-rows`       | Unselect all rows of the grid                                                                              | `grid`                      |
-| `validate-selected-row`   | Launch a validation on the selected row of the grid                                                        | `grid`                      |
-| `change-theme`            | Changes the theme to the value defined on the `target` criterion                                           | `criteria`                  |
-| `change-language`         | Changes the language to the value defined on the `target` criterion                                        | `criteria`                  |
-| `reload-language`         | Reload the language searching for changes                                                                  | `criteria`                  |
-| `next-step`               | Move to the next step of the wizard                                                                        | `wizard`                    |
-| `prev-step`               | Move to the previous step of the wizard                                                                    | `wizard`                    |
-| `first-step`              | Move to the first step of the wizard                                                                       | `wizard`                    |
-| `last-step`               | Move to the last step of the wizard                                                                        | `wizard`                    |
-| `nth-step`                | Move to the nth step of the wizard                                                                         | `wizard`                    |
+| Action                           | Description                                                                                              | Works on                    |
+|----------------------------------|----------------------------------------------------------------------------------------------------------|-----------------------------|
+| `add-class`                      | Add the css class/classes defined on `target-action` to the tag with the selector defined on `target`    | `tag`                       |
+| `remove-class`                   | Remove the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`                       |
+| `reset`                          | Empty a criterion value                                                                                  | `criteria`, `grid`, `chart` |
+| `restore`                        | Restore to initial values a criterion                                                                    | `criteria`, `grid`, `chart` |
+| `start-load`                     | Sets a component as *loading*                                                                            | `criteria`, `grid`, `chart` |
+| `copy-criterion-value-clipboard` | Copy a criterion value to the clipboard                                                                  | `criteria`                  |
+| `validate`                       | Launch a validation on the criterion or criteria inside the `target` tag                                 | `tag`, `criteria`           |
+| `dialog`                         | Opens a modal dialog                                                                                     | `dialog`                    |
+| `close`                          | Closes a dialog                                                                                          | `dialog`                    |
+| `filter`                         | Reload a grid                                                                                            | `grid`                      |
+| `add-row`                        | Add an empty row at the bottom of the grid                                                               | `grid`                      |
+| `add-row-top`                    | Add an empty row at the top of the grid                                                                  | `grid`                      |
+| `add-row-up`                     | Add an empty row over the selected row                                                                   | `grid`                      |
+| `add-row-down`                   | Add an empty row below the selected row                                                                  | `grid`                      |
+| `copy-row`                       | Copy the selected row at the bottom of the grid                                                          | `grid`                      |
+| `copy-row-top`                   | Copy the selected row at the top of the grid                                                             | `grid`                      |
+| `copy-row-up`                    | Copy the selected row over the selected row                                                              | `grid`                      |
+| `copy-row-down`                  | Copy the selected row below the selected row                                                             | `grid`                      |
+| `delete-row`                     | Delete the selected row                                                                                  | `grid`                      | 
+| `save-row`                       | Save the selected row                                                                                    | `grid`                      |
+| `check-one-selected`             | Checks if there is one row selected                                                                      | `grid`                      |
+| `check-some-selected`            | Checks if there is one or more rows selected                                                             | `grid`                      |
+| `check-records-saved`            | Checks if all records are stored (user is not editing a row)                                             | `grid`                      |
+| `check-records-generated`        | Checks if there is at least one row in the grid                                                          | `grid`                      |
+| `select-first-row`               | Selects the first row of the grid                                                                        | `grid`                      |
+| `select-last-row`                | Selects the last row of the grid                                                                         | `grid`                      |
+| `select-all-rows`                | Select all rows of the grid                                                                              | `grid`                      |
+| `unselect-all-rows`              | Unselect all rows of the grid                                                                            | `grid`                      |
+| `validate-selected-row`          | Launch a validation on the selected row of the grid                                                      | `grid`                      |
+| `copy-selected-rows-clipboard`   | Copy the selected rows on the grid to the clipboard                                                      | `grid`                      |
+| `change-theme`                   | Changes the theme to the value defined on the `target` criterion                                         | `criteria`                  |
+| `change-language`                | Changes the language to the value defined on the `target` criterion                                      | `criteria`                  |
+| `reload-language`                | Reload the language searching for changes                                                                | `criteria`                  |
+| `next-step`                      | Move to the next step of the wizard                                                                      | `wizard`                    |
+| `prev-step`                      | Move to the previous step of the wizard                                                                  | `wizard`                    |
+| `first-step`                     | Move to the first step of the wizard                                                                     | `wizard`                    |
+| `last-step`                      | Move to the last step of the wizard                                                                      | `wizard`                    |
+| `nth-step`                       | Move to the nth step of the wizard                                                                       | `wizard`                    |
+
 
 #### Component attributes
 
