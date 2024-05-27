@@ -1198,6 +1198,8 @@
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
       <variable id="Act" type="INTEGER" name="Act" value="1"/>
     </insert>
+    <commit/>
+    <serve service="reloadMailServers"/>
   </target>
 
   <target name="EmlSrvDel">
@@ -1223,6 +1225,8 @@
       <variable id="EmlPwd" type="STRING" name="EmlPwd"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </delete>
+    <commit/>
+    <serve service="reloadMailServers"/>
   </target>
 
   <target name="EmlSrvUpd">
@@ -1263,6 +1267,8 @@
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
       <variable id="FlgPwdUpd" type="INTEGER" name="FlgPwdUpd"/>
     </update>
+    <commit/>
+    <serve service="reloadMailServers"/>
   </target>
 
   <!-- QUEUE MESSAGES MAINTAINS -->

@@ -272,4 +272,8 @@
       <service-parameter type="STRING" name="mode" />
     </java>
   </service>
+  <!-- Email service -->
+  <service id="reloadMailServers">
+    <java classname="com.almis.awe.service.EmailService" method="reloadMailServers"/>
+  </service>
 </services>

@@ -1,6 +1,8 @@
 package com.almis.awe.test.integration.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.dao.UserDAOImpl;
+import com.almis.awe.factory.MailSenderFactory;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
@@ -32,6 +34,9 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
 
   private EmailService emailService;
 
+  @Mock
+  private MailSenderFactory mailSenderFactory;
+
   @Autowired
   private QueryService queryService;
 
@@ -44,6 +49,9 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
   @Autowired
   private ApplicationContext applicationContext;
 
+  @Autowired
+  private UserDAOImpl userDAO;
+
   @Mock
   private JavaMailSender mailSender;
 
@@ -52,7 +60,7 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
 
   @BeforeEach
   public void setUp() {
-    emailService = new EmailService(mailSender, baseConfigProperties, queryService, queryUtil);
+    emailService = new EmailService(mailSenderFactory, baseConfigProperties, queryService, queryUtil, userDAO);
     emailService.setApplicationContext(applicationContext);
   }
 
@@ -64,6 +72,7 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void sendMail() throws Exception {
     doReturn(mimeMessage).when(mailSender).createMimeMessage();
+    when(mailSenderFactory.getMailSender(any())).thenReturn(mailSender);
 
     ParsedEmail email = new ParsedEmail()
       .setFrom(new InternetAddress("test@almis.com"))
@@ -88,6 +97,7 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void sendXMLMail() throws Exception {
     doReturn(mimeMessage).when(mailSender).createMimeMessage();
+    when(mailSenderFactory.getMailSender(any())).thenReturn(mailSender);
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.put("title", "test");

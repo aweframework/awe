@@ -1,7 +1,11 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.dao.UserDAOImpl;
+import com.almis.awe.factory.MailSenderFactory;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.dto.User;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.email.EmailItem;
 import com.almis.awe.model.entities.email.EmailMessage;
@@ -44,10 +48,16 @@ class EmailServiceTest {
   private EmailService emailService;
 
   @Mock
+  private MailSenderFactory mailSenderFactory;
+
+  @Mock
   private JavaMailSender mailSender;
 
   @Mock
   private AweElements aweElements;
+
+  @Mock
+  private AweSession aweSession;
 
   @Mock
   private BaseConfigProperties baseConfigProperties;
@@ -64,6 +74,9 @@ class EmailServiceTest {
   @Mock
   private QueryUtil queryUtil;
 
+  @Mock
+  private UserDAOImpl userDAO;
+
   @BeforeEach
   public void setUp() {
     emailService.setApplicationContext(context);
@@ -76,8 +89,9 @@ class EmailServiceTest {
    */
   @Test
   void sendMail() throws Exception {
-    emailService.setApplicationContext(context);
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
     doReturn(aweElements).when(context).getBean(AweElements.class);
+    given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     given(mailSender.createMimeMessage()).willReturn(mimeMessage);
     given(aweElements.getLanguage()).willReturn("ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
@@ -102,6 +116,8 @@ class EmailServiceTest {
    */
   @Test
   void sendXMLMail() throws Exception {
+    when(context.getBean(AweSession.class)).thenReturn(null);
+    given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
@@ -151,6 +167,10 @@ class EmailServiceTest {
 
   @Test
   void sendXMLMailTwice() throws Exception {
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweSession.getUser()).thenReturn("user");
+    when(userDAO.findByUserName(anyString())).thenReturn(new User().setEmailServer("emailServer"));
+    given(mailSenderFactory.getMailSender(anyString())).willReturn(mailSender);
     when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
