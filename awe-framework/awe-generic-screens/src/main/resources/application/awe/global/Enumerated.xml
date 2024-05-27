@@ -289,6 +289,18 @@
     <option label="ENUM_NO" value="0"/>
     <option label="ENUM_YES" value="1"/>
   </group>
+  <group id="authenticated-icon">
+    <option label="fa-unlock" value="0"/>
+    <option label="fa-lock" value="1"/>
+  </group>
+  <group id="authenticated-style">
+    <option label="text-light-gray" value="0"/>
+    <option label="text-info" value="1"/>
+  </group>
+  <group id="authenticated-label">
+    <option label="ENUM_NO" value="0"/>
+    <option label="ENUM_YES" value="1"/>
+  </group>
   <group id="user-settings">
     <option label="PROFILE" value="profile"/>
     <option label="SECURITY" value="security"/>

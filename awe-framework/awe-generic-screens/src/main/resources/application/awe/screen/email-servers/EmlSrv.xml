@@ -72,7 +72,6 @@
         <column label="PARAMETER_AUTH" component="icon" name="AthIco" sort-field="Ath" align="center" charlength="20" />
         <column name="Ath" sort-field="Ath" hidden="true" align="center" />
         <column label="PARAMETER_USER" name="EmlUsr" sort-field="EmlUsr" align="center" charlength="30" />
-        <column label="PARAMETER_PASSWD" component="password" name="EmlPwd" sort-field="EmlPwd" hidden="true" />
         <column label="PARAMETER_ACTIVE" component="icon" name="ActIco" sort-field="Act" align="center" charlength="10" />
         <column name="Act" sort-field="Act" hidden="true" align="center" />
       </grid>

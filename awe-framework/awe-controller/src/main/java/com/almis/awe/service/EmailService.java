@@ -2,8 +2,12 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.factory.MailSenderFactory;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.dto.User;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
@@ -24,6 +28,7 @@ import org.springframework.scheduling.annotation.Async;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -33,23 +38,25 @@ public class EmailService extends ServiceConfig {
   // Constants
   private static final String CRLF = "\n";
   // Autowired services
-  private final JavaMailSender mailSender;
+  private final MailSenderFactory mailSenderFactory;
   private final BaseConfigProperties baseConfigProperties;
   private final QueryService queryService;
   private final QueryUtil queryUtil;
+  private final UserDAOImpl userDAO;
 
   /**
    * Autowired constructor
    *
-   * @param mailSender           Email sender
+   * @param mailSenderFactory    Email sender factory
    * @param baseConfigProperties Base configuration properties
    */
-  public EmailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties,
-                      QueryService queryService, QueryUtil queryUtil) {
-    this.mailSender = mailSender;
+  public EmailService(MailSenderFactory mailSenderFactory, BaseConfigProperties baseConfigProperties,
+                      QueryService queryService, QueryUtil queryUtil, UserDAOImpl userDAO) {
+    this.mailSenderFactory = mailSenderFactory;
     this.baseConfigProperties = baseConfigProperties;
     this.queryService = queryService;
     this.queryUtil = queryUtil;
+    this.userDAO = userDAO;
   }
 
   @Async("contextlessTaskExecutor")
@@ -57,8 +64,11 @@ public class EmailService extends ServiceConfig {
     // Initialize needed variables variables
     ServiceData serviceData = new ServiceData();
 
+    // Get mail sender
+    JavaMailSender mailSender = getMailServer();
+
     // Send email
-    sendParsedEmail(parseEmail(getElements().getEmail(emailName).copy(), parameters));
+    sendParsedEmail(parseEmail(getElements().getEmail(emailName).copy(), parameters), mailSender);
 
     // Return ok
     return CompletableFuture.completedFuture(serviceData
@@ -68,7 +78,17 @@ public class EmailService extends ServiceConfig {
 
   @Async("contextlessTaskExecutor")
   public void sendEmail(ParsedEmail email) {
-    sendParsedEmail(email);
+    sendParsedEmail(email, getMailServer());
+  }
+
+  /**
+   * Reload mail servers (when updated)
+   * @return
+   * @throws AWException
+   */
+  public ServiceData reloadMailServers() throws AWException {
+    mailSenderFactory.init();
+    return new ServiceData();
   }
 
   /**
@@ -88,7 +108,7 @@ public class EmailService extends ServiceConfig {
       .build();
   }
 
-  private void sendParsedEmail(ParsedEmail email) {
+  private void sendParsedEmail(ParsedEmail email, JavaMailSender mailSender) {
     MimeMessage message = mailSender.createMimeMessage();
 
     try {
@@ -207,5 +227,20 @@ public class EmailService extends ServiceConfig {
    */
   private String getFileExtension(String fileName) {
     return fileName.substring(fileName.lastIndexOf('.'));
+  }
+
+  /**
+   * Retrieve java mail server depending on user
+   * @return Java Mail server
+   */
+  private JavaMailSender getMailServer() {
+    String userName = Optional.ofNullable(getSession()).map(AweSession::getUser).orElse(null);
+
+    if (userName != null) {
+      User user = userDAO.findByUserName(userName);
+      return mailSenderFactory.getMailSender(user.getEmailServer());
+    }
+
+    return mailSenderFactory.getMailSender();
   }
 }
