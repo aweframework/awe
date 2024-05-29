@@ -32,6 +32,7 @@ import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
@@ -193,6 +194,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     if (database != null) {
       databaseConnection = contextHolder.getDatabaseConnection(database);
       currentDataSource = databaseConnection.getDataSource();
+      MDC.put(AweConstants.SESSION_DATABASE, database);
     }
 
     // Retrieve query factory
