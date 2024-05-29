@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
@@ -322,6 +323,7 @@ public class MaintainService extends ServiceConfig {
       // Remove autocommit
       if (databaseConnection != null && databaseConnection.getConnection() != null) {
         databaseConnection.getConnection().setAutoCommit(false);
+        MDC.put(AweConstants.SESSION_DATABASE, databaseConnection.getDatabaseAlias());
       } else {
         // If connection is null, avoid connection management
         manageConnection = false;
