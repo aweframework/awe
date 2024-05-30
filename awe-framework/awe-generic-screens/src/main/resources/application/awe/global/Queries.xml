@@ -1816,16 +1816,6 @@
     <field id="label" />
   </query>
 
-  <query id="PrnActAll" enumerated="PrnAct" cacheable="true">
-    <field id="value" />
-    <field id="label" />
-  </query>
-
-  <query id="PrnActNotPrn" enumerated="PrnActNotPrn" cacheable="true">
-    <field id="value" />
-    <field id="label" />
-  </query>
-
   <query id="PrnAct" service="PrnAct">
     <field id="value" />
     <field id="label" />

@@ -59,7 +59,7 @@ public class EmailService extends ServiceConfig {
     this.userDAO = userDAO;
   }
 
-  @Async("contextlessTaskExecutor")
+  @Async("threadPoolTaskExecutor")
   public Future<ServiceData> sendEmail(String emailName, ObjectNode parameters) throws AWException {
     // Initialize needed variables variables
     ServiceData serviceData = new ServiceData();
@@ -76,7 +76,7 @@ public class EmailService extends ServiceConfig {
       .setMessage("OK_MESSAGE_EMAIL_OPERATION"));
   }
 
-  @Async("contextlessTaskExecutor")
+  @Async("threadPoolTaskExecutor")
   public void sendEmail(ParsedEmail email) {
     sendParsedEmail(email, getMailServer());
   }

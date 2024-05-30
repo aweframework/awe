@@ -167,9 +167,11 @@
   <locale name="ELEMENT_TYPE_WIDGET" value="Widget"/>
   <locale name="ELEMENT_TYPE_WIDGETPARAMETER" value="Widget parameter"/>
   <locale name="ELEMENT_TYPE_WINDOW" value="Window"/>
-  <locale name="EMAIL_FILE_DOC" value="[#ScrTitFil#]-[#DatFil#].doc"/>
-  <locale name="EMAIL_FILE_PDF" value="[#ScrTitFil#]-[#DatFil#].pdf"/>
-  <locale name="EMAIL_FILE_XLS" value="[#ScrTitFil#]-[#DatFil#].xls"/>
+  <locale name="EMAIL_FILE_CSV" value="[#ScrTitFil#].csv"/>
+  <locale name="EMAIL_FILE_DOC" value="[#ScrTitFil#].doc"/>
+  <locale name="EMAIL_FILE_PDF" value="[#ScrTitFil#].pdf"/>
+  <locale name="EMAIL_FILE_TXT" value="[#ScrTitFil#].txt"/>
+  <locale name="EMAIL_FILE_XLS" value="[#ScrTitFil#].xls"/>
   <locale name="EMAIL_MESSAGE_HTML_BOTTOM" value="&lt;/body&gt;&lt;/html&gt;"/>
   <locale name="EMAIL_MESSAGE_HTML_GENERAL" value="[#EmlTxt#]"/>
   <locale name="EMAIL_MESSAGE_HTML_HEADER" value="&lt;html&gt;&lt;head&gt;&lt;style&gt;* {font-family:Arial, sans-serif;font-size:12px;}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;"/>
