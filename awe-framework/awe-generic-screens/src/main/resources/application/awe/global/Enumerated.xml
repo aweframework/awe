@@ -75,16 +75,9 @@
   </group>
 
   <!-- PRINTING ACTIONS -->
-  <group id="PrnAct">
-    <option label="ENUM_PRN_ACT_MAIL" value="0" />
-    <option label="ENUM_PRN_ACT_PRINT" value="1" />
-    <option label="ENUM_PRN_ACT_CREATE" value="2" />
-  </group>
-
-  <!-- PRINTING ACTIONS -->
   <group id="PrnActNotPrn">
-    <option label="ENUM_PRN_ACT_MAIL" value="0" />
-    <option label="ENUM_PRN_ACT_CREATE" value="2" />
+    <option label="ENUM_PRN_ACT_MAIL" value="MAIL" />
+    <option label="ENUM_PRN_ACT_CREATE" value="CREATE" />
   </group>
 
   <!-- PRINTING TYPE (ALL/TAB) -->

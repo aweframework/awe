@@ -58,10 +58,10 @@ public class ReportGenerator extends ServiceConfig {
    * Generate a report and return client actions to download it
    *
    * @param screen Screen to generate
-   * @return Service data with the actions to download the generated reports
+   * @return List of file data
    * @throws AWException Error generating report
    */
-  public ServiceData generateScreenReport(Screen screen) throws AWException {
+  public List<FileData> generateScreenReportFiles(Screen screen) throws AWException {
     // Get screen parameters
     ObjectNode parameters = getRequest().getParametersSafe();
 
@@ -75,14 +75,36 @@ public class ReportGenerator extends ServiceConfig {
     String currentDate = DateUtil.dat2WebTimestamp(new Date());
 
     // Generate file name
-    String fileName = StringUtil.fixFileName(getLocale(screen.getLabel()) + "_" + currentDate);
+    String screenTitle = getLocale(screen.getLabel());
+    String fileName = StringUtil.fixFileName( screenTitle + "_" + currentDate);
+
+    // Set screen title parameter
+    getRequest().setParameter("ScrTit", screenTitle);
+    getRequest().setParameter("ScrTitFil", fileName);
 
     // Llamar a ADE con el bean creado
     TemplateExporterBuilder builderService = buildReport(printBean, fileName);
 
 
-    // Generar los formatos que haya definido el usuario y crear las acciones de descarga de los ficheros
-    return generateReportFormats(builderService, printFormats, fileName);
+    // Generar los formatos que haya definido el usuario
+    String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
+    return printFormats.stream().map(format -> generateReportFormat(builderService, format, fileName, basePath)).toList();
+  }
+
+  /**
+   * Generate a report and return client actions to download it
+   *
+   * @param reportFiles Report files to download
+   * @return Service data with the actions to download the generated reports
+   * @throws AWException Error generating report
+   */
+  public ServiceData downloadScreenReportFiles(List<FileData> reportFiles) throws AWException {
+    ServiceData serviceData = new ServiceData();
+    for (FileData reportFile : reportFiles) {
+      serviceData.addClientAction(new ClientAction("get-file").addParameter("filename", FileUtil.fileDataToString(reportFile)));
+    }
+
+    return serviceData;
   }
 
   /**
@@ -125,23 +147,6 @@ public class ReportGenerator extends ServiceConfig {
   }
 
   /**
-   * Generate report formats
-   *
-   * @param builderService Report builder service
-   * @return Service data with output formats
-   * @throws AWException Error generating output formats
-   */
-  private ServiceData generateReportFormats(TemplateExporterBuilder builderService, List<String> formats, String fileName) throws AWException {
-    ServiceData serviceData = new ServiceData();
-    String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
-    for (String format : formats) {
-      serviceData.addClientAction(generateReportFormat(builderService, format, fileName, basePath));
-    }
-
-    return serviceData;
-  }
-
-  /**
    * Generate report format (Async)
    *
    * @param builderService template export builder
@@ -149,10 +154,9 @@ public class ReportGenerator extends ServiceConfig {
    * @param fileName       file name
    * @param basePath       base path
    * @return future with generate report action
-   * @throws AWException AWE exception
    */
-  public ClientAction generateReportFormat(TemplateExporterBuilder builderService, String format, String fileName, String basePath) throws AWException {
-    String mimeType;
+  public FileData generateReportFormat(TemplateExporterBuilder builderService, String format, String fileName, String basePath) {
+    String mimeType = MediaType.APPLICATION_PDF_VALUE;
     String fullFileName = fileName;
 
     try {
@@ -161,35 +165,36 @@ public class ReportGenerator extends ServiceConfig {
           builderService.toXlsx();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".xlsx";
+          getRequest().setParameter("XlsNam", Paths.get(basePath, fullFileName).toString());
           break;
         case CSV:
           builderService.toCsv();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".csv";
+          getRequest().setParameter("CsvNam", Paths.get(basePath, fullFileName).toString());
           break;
         case DOCX:
           builderService.toDocx();
           mimeType = AweConstants.APPLICATION_WORD;
           fullFileName += ".docx";
+          getRequest().setParameter("DocNam", Paths.get(basePath, fullFileName).toString());
           break;
         case TEXT:
           builderService.toText();
           mimeType = MediaType.TEXT_PLAIN_VALUE;
           fullFileName += ".txt";
+          getRequest().setParameter("TxtNam", Paths.get(basePath, fullFileName).toString());
           break;
         case PDF:
         default:
           builderService.toPDF();
           mimeType = MediaType.APPLICATION_PDF_VALUE;
           fullFileName += ".pdf";
+          getRequest().setParameter("PdfNam", Paths.get(basePath, fullFileName).toString());
           break;
       }
     } catch (Exception exc) {
       log.error("Error generating report file ({}): {}{}", format, basePath, fullFileName, exc);
-      return new ClientAction("message")
-              .addParameter("type", "error")
-              .addParameter("title", getLocale("ERROR_TITLE_GENERATING_DOCUMENT"))
-              .addParameter("message", "ERROR_MESSAGE_GENERATING_DOCUMENT");
     }
 
     // Generate file data
@@ -202,9 +207,7 @@ public class ReportGenerator extends ServiceConfig {
     log.debug("Report file ({}) generated: {}{}", mimeType, basePath, fullFileName);
 
     // Generate client action with file data
-    return new ClientAction("get-file")
-            .addParameter("filename", FileUtil.fileDataToString(fileData));
-
+    return fileData;
   }
 
   /**

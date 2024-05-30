@@ -1383,6 +1383,7 @@
   <target name="ExpFil">
     <serve service="ExpFil">
       <variable id="screen" type="STRING" name="PrnScr"/>
+      <variable id="printAction" type="STRING" name="ActPrn"/>
     </serve>
   </target>
 

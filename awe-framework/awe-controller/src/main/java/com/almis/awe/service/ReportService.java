@@ -1,10 +1,10 @@
 package com.almis.awe.service;
 
-import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.PrintActionType;
 import com.almis.awe.service.report.ReportGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * QueryService Class
@@ -21,6 +22,7 @@ import java.nio.file.Paths;
  * AWE Data Engine
  * Provides generate function to get application data
  * </p>
+ *
  * @author Pablo GARCIA
  */
 @Slf4j
@@ -30,49 +32,45 @@ public class ReportService extends ServiceConfig {
   private static final String ERROR_TITLE_VIEWING_PDF_FILE = "ERROR_TITLE_VIEWING_PDF_FILE";
 
   // Autowired services
-  private final QueryService queryService;
+  private final MaintainService maintainService;
   private final MenuService menuService;
   private final ReportGenerator reportGenerator;
-  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
    *
-   * @param queryService         query service
-   * @param menuService          menu service
-   * @param reportGenerator      report generator
-   * @param baseConfigProperties base config properties
+   * @param maintainService Maintain service
+   * @param menuService     menu service
+   * @param reportGenerator report generator
    */
-  public ReportService(QueryService queryService, MenuService menuService, ReportGenerator reportGenerator, BaseConfigProperties baseConfigProperties) {
-    this.queryService = queryService;
+  public ReportService(MaintainService maintainService, MenuService menuService, ReportGenerator reportGenerator) {
+    this.maintainService = maintainService;
     this.menuService = menuService;
     this.reportGenerator = reportGenerator;
-    this.baseConfigProperties = baseConfigProperties;
-  }
-
-  /**
-   * Retrieve print actions
-   *
-   * @return Print actions as service data
-   * @throws AWException Error retrieving print actions
-   */
-  public ServiceData getPrintActions() throws AWException {
-    return queryService.launchPrivateQuery(baseConfigProperties.isPrintAllOptionsEnable() ? "PrnActAll" : "PrnActNotPrn");
   }
 
   /**
    * Print current screen
    *
+   * @param screenName  Screen name
+   * @param printAction Print action
    * @return Screen print status
    * @throws AWException Error generating reports
    */
-  public ServiceData printScreen(String screenName) throws AWException {
-    // Generate a screen report with the screen
-    return reportGenerator.generateScreenReport(menuService.getScreen(screenName));
+  public ServiceData printScreen(String screenName, String printAction) throws AWException {
+    // Generate the files
+    List<FileData> reportFiles = reportGenerator.generateScreenReportFiles(menuService.getScreen(screenName));
+
+    // Launch the print action
+    if (PrintActionType.valueOf(printAction) == PrintActionType.MAIL) {
+      return maintainService.launchMaintain("SndRep");
+    }
+    return reportGenerator.downloadScreenReportFiles(reportFiles);
   }
 
   /**
    * Retrieve application manual header
+   *
    * @param filePath absolute file path
    * @return Pdf file as FileData
    * @throws AWException File not found
@@ -86,9 +84,9 @@ public class ReportService extends ServiceConfig {
       if (resource.exists()) {
         File pdfFile = resource.getFile();
         fileData = new FileData(pdfFile.getName(),
-                                resource.contentLength(),
-                                "application/pdf")
-                                .setBasePath(pdfFile.getParent());
+          resource.contentLength(),
+          "application/pdf")
+          .setBasePath(pdfFile.getParent());
       }
       serviceData.setData(fileData);
     } catch (IOException exc) {

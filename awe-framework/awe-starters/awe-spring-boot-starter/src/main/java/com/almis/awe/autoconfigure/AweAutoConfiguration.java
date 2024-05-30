@@ -381,16 +381,16 @@ public class AweAutoConfiguration {
   /**
    * Report service
    *
-   * @param queryService         Query service
+   * @param maintainService      Maintain service
    * @param menuService          Menu service
    * @param reportGenerator      Report generator
-   * @param baseConfigProperties Base config properties
    * @return Report service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public ReportService reportService(QueryService queryService, MenuService menuService, ReportGenerator reportGenerator, BaseConfigProperties baseConfigProperties) {
-    return new ReportService(queryService, menuService, reportGenerator, baseConfigProperties);
+  public ReportService reportService(MaintainService maintainService, MenuService menuService,
+                                     ReportGenerator reportGenerator) {
+    return new ReportService(maintainService, menuService, reportGenerator);
   }
 
   /**
@@ -476,11 +476,12 @@ public class AweAutoConfiguration {
 
   /**
    * Screen configuration generator
+   *
    * @return Screen configuration generator
    */
   @Bean
   @ConditionalOnMissingBean
-  public ScreenConfigurationGenerator screenConfigurationGenerator(){
+  public ScreenConfigurationGenerator screenConfigurationGenerator() {
     return new ScreenConfigurationGenerator();
   }
 

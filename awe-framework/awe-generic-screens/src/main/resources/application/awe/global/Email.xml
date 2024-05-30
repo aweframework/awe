@@ -20,6 +20,15 @@
     <attachment value="PdfNam" label="EMAIL_FILE_PDF" />
     <attachment value="DocNam" label="EMAIL_FILE_DOC" />
     <attachment value="XlsNam" label="EMAIL_FILE_XLS" />
+    <attachment value="CsvNam" label="EMAIL_FILE_CSV" />
+    <attachment value="TxtNam" label="EMAIL_FILE_TXT" />
+    <variable id="ScrTit" type="STRING" name="ScrTit"/>
+    <variable id="ScrTitFil" type="STRING" name="ScrTitFil"/>
+    <variable id="PdfNam" type="STRING" name="PdfNam" optional="true"/>
+    <variable id="DocNam" type="STRING" name="DocNam" optional="true"/>
+    <variable id="XlsNam" type="STRING" name="XlsNam" optional="true"/>
+    <variable id="CsvNam" type="STRING" name="CsvNam" optional="true"/>
+    <variable id="TxtNam" type="STRING" name="TxtNam" optional="true"/>
   </email>
 
   <email id="EmlActUsr">

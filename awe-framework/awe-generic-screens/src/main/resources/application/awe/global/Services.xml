@@ -67,13 +67,11 @@
   <service id="ExpFil">
     <java classname="com.almis.awe.service.ReportService" method="printScreen">
       <service-parameter name="screen" type="STRING" />
+      <service-parameter name="printAction" type="STRING" />
     </java>
   </service>
   <service id="ShwPrn">
     <java classname="com.almis.awe.service.ReportService" method="getShowPrint" />
-  </service>
-  <service id="PrnAct">
-    <java classname="com.almis.awe.service.ReportService" method="getPrintActions" />
   </service>
   <service id="launchQuery">
     <java classname="com.almis.awe.service.QueryService" method="launchQueryAction" />
