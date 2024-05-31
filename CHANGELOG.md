@@ -2,6 +2,12 @@
 # Changelog for AWE 4.8.0
 *31/05/2024*
 
+- Print actions is always downloading files. [MR #510](https://gitlab.com/aweframework/awe/-/merge_requests/510) (Pablo Javier García Mora)
+- Update MDC database variables. [MR #509](https://gitlab.com/aweframework/awe/-/merge_requests/509) (Pablo Vidal Otero)
+- Generate a bean which contains a list of defined email servers, to use them if user has assigned one. [MR #508](https://gitlab.com/aweframework/awe/-/merge_requests/508) (Pablo Javier García Mora)
+- Document validate-on-save attribute on grids. [MR #507](https://gitlab.com/aweframework/awe/-/merge_requests/507) (Pablo Javier García Mora)
+- Clipboard copy criteria action. [MR #506](https://gitlab.com/aweframework/awe/-/merge_requests/506) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.7.17
 *29/04/2024*
 
