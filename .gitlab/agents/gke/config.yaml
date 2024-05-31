@@ -2,13 +2,13 @@ ci_access:
   # This agent is accessible from CI jobs in projects in these groups
   groups:
     - id: aweframework
-gitops:
-  manifest_projects:
-    - id: "aweframework/awe-gke-config"
-      paths:
-        - glob: 'staging/awe-boot/awe*.{yaml,yml,json}'
-        - glob: 'production/awe-boot/awe*.{yaml,yml,json}'
-        - glob: 'staging/awe-react/awe*.{yaml,yml,json}'
-        - glob: 'production/awe-react/awe*.{yaml,yml,json}'
-        - glob: 'staging/redis/*.{yaml,yml,json}'
-        - glob: 'production/redis/*.{yaml,yml,json}'
+#gitops:
+#  manifest_projects:
+#    - id: "aweframework/awe-gke-config"
+#      paths:
+#        - glob: 'staging/awe-boot/*.{yaml,yml,json}'
+#        - glob: 'production/awe-boot/*.{yaml,yml,json}'
+#        - glob: 'staging/awe-react/*.{yaml,yml,json}'
+#        - glob: 'production/awe-react/*.{yaml,yml,json}'
+#        - glob: 'staging/redis/*.{yaml,yml,json}'
+#        - glob: 'production/redis/*.{yaml,yml,json}'

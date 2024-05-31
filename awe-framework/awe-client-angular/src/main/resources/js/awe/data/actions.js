@@ -42,6 +42,7 @@ export const ClientActions = {
     "server": {method: "server"},
     "server-print": {method: "serverPrint"},
     "server-download": {method: "serverDownload"},
+    "copy-criterion-value-clipboard": {method: "copyCriterionValueClipboard"},
 
     "fill": {method: "fill"},
     "fill-suggest": {method: "fillSuggest"},

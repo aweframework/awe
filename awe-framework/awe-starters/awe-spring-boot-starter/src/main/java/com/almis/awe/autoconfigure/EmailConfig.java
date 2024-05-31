@@ -2,6 +2,8 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.autoconfigure.config.EmailConfigProperties;
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.dao.UserDAOImpl;
+import com.almis.awe.factory.MailSenderFactory;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
@@ -9,6 +11,7 @@ import com.almis.awe.service.data.connector.maintain.EmailMaintainConnector;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -74,22 +77,35 @@ public class EmailConfig {
     return javaMailSender;
   }
 
+  /**
+   * Java Mail sender map
+   *
+   * @return Mail sender
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  @DependsOnDatabaseInitialization
+  public MailSenderFactory mailSenderFactory(JavaMailSender defaultMailSender, QueryService queryService) {
+    return new MailSenderFactory(defaultMailSender, queryService);
+  }
+
   /////////////////////////////////////////////
   // SERVICES
   /////////////////////////////////////////////
   /**
    * Email service
-   * @param mailSender Mail sender
+   * @param mailSenderFactory Mail sender factory
    * @param baseConfigProperties Base configuration properties
    * @param queryService Query Service
    * @param queryUtil Query utilities
+   * @param userDAO  User DAO
    * @return Email service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public EmailService emailService(JavaMailSender mailSender, BaseConfigProperties baseConfigProperties,
-                                   QueryService queryService, QueryUtil queryUtil) {
-    return new EmailService(mailSender, baseConfigProperties, queryService, queryUtil);
+  public EmailService emailService(MailSenderFactory mailSenderFactory, BaseConfigProperties baseConfigProperties,
+                                   QueryService queryService, QueryUtil queryUtil, UserDAOImpl userDAO) {
+    return new EmailService(mailSenderFactory, baseConfigProperties, queryService, queryUtil, userDAO);
   }
 
   /////////////////////////////////////////////

@@ -32,9 +32,9 @@ public class EmailMaintainConnector extends ServiceConfig implements MaintainCon
       return emailService.sendEmail(query.getId(), parameters).get();
     } catch (InterruptedException exc) {
       Thread.currentThread().interrupt();
-      throw new AWException("Error sending email - Thread interrupted", exc);
+      throw new AWException(getLocale("ERROR_TITLE_DURING_EMAIL_SEND"), getLocale("ERROR_MESSAGE_DURING_EMAIL_SEND") + " - " + getLocale("ENUM_TITLE_STATUS_INTERRUPTED"), exc);
     } catch (Exception exc) {
-      throw new AWException("Error sending email", exc);
+      throw new AWException(getLocale("ERROR_TITLE_DURING_EMAIL_SEND"), getLocale("ERROR_MESSAGE_DURING_EMAIL_SEND"), exc);
     }
   }
 }

@@ -75,16 +75,9 @@
   </group>
 
   <!-- PRINTING ACTIONS -->
-  <group id="PrnAct">
-    <option label="ENUM_PRN_ACT_MAIL" value="0" />
-    <option label="ENUM_PRN_ACT_PRINT" value="1" />
-    <option label="ENUM_PRN_ACT_CREATE" value="2" />
-  </group>
-
-  <!-- PRINTING ACTIONS -->
   <group id="PrnActNotPrn">
-    <option label="ENUM_PRN_ACT_MAIL" value="0" />
-    <option label="ENUM_PRN_ACT_CREATE" value="2" />
+    <option label="ENUM_PRN_ACT_MAIL" value="MAIL" />
+    <option label="ENUM_PRN_ACT_CREATE" value="CREATE" />
   </group>
 
   <!-- PRINTING TYPE (ALL/TAB) -->
@@ -286,6 +279,18 @@
     <option label="text-success" value="1"/>
   </group>
   <group id="active-label">
+    <option label="ENUM_NO" value="0"/>
+    <option label="ENUM_YES" value="1"/>
+  </group>
+  <group id="authenticated-icon">
+    <option label="fa-unlock" value="0"/>
+    <option label="fa-lock" value="1"/>
+  </group>
+  <group id="authenticated-style">
+    <option label="text-light-gray" value="0"/>
+    <option label="text-info" value="1"/>
+  </group>
+  <group id="authenticated-label">
     <option label="ENUM_NO" value="0"/>
     <option label="ENUM_YES" value="1"/>
   </group>

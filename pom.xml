@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.7.17</version>
+  <version>4.8.0</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.7.17</revision>
+    <revision>4.8.0</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -34,6 +34,7 @@
     </jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
+    <plugin-sonar.version>3.11.0.3922</plugin-sonar.version>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.links.homepage>https://gitlab.com/aweframework/awe</sonar.links.homepage>
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
@@ -103,6 +104,12 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${plugin-jacoco.version}</version>
+      </plugin>
+      <!-- Sonar -->
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>${plugin-sonar.version}</version>
       </plugin>
     </plugins>
     <pluginManagement>

@@ -14,11 +14,13 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.io.File;
@@ -29,6 +31,7 @@ import java.util.regex.Matcher;
 @Getter
 @Setter
 @Accessors(chain = true)
+@Slf4j
 public class XMLEmailBuilder extends EmailBuilder {
   private final QueryService queryService;
   private final QueryUtil queryUtil;
@@ -98,7 +101,7 @@ public class XMLEmailBuilder extends EmailBuilder {
    * @param variables Variables
    * @return this
    */
-  public XMLEmailBuilder setVariables(List<Variable> variables) throws AWException {
+  public XMLEmailBuilder setVariables(List<Variable> variables) {
     if (variables != null) {
       for (Variable variable : variables) {
         this.variables.put(variable.getId(), variable);
@@ -112,7 +115,7 @@ public class XMLEmailBuilder extends EmailBuilder {
   /**
    * Parse attachments from email template
    */
-  private void parseAttachments() throws AWException {
+  private void parseAttachments() {
     if (this.email.getAttachmentList() != null) {
       for (EmailItem attachment : this.email.getAttachmentList()) {
 
@@ -121,8 +124,8 @@ public class XMLEmailBuilder extends EmailBuilder {
         String name = attachment.getLabel();
 
         // Get variable values
-        String filePath = this.variables.get(path) == null ? "" : getVariableAsString(variables.get(path));
-        String fileName = this.variables.get(name) == null ? "" : getVariableAsString(variables.get(name));
+        String filePath = Optional.ofNullable(variables.get(path)).map(this::getVariableAsString).orElse("");
+        String fileName = Optional.ofNullable(name).map(aweElements::getLocale).map(this::replaceWildcards).orElse("");
 
         // Insert new attachment for each email item
         if (!filePath.isEmpty() && !fileName.isEmpty()) {
@@ -210,9 +213,8 @@ public class XMLEmailBuilder extends EmailBuilder {
    * Parse body list
    *
    * @param bodyList Email body
-   * @throws AWException AWE exception
    */
-  private void parseBody(List<EmailMessage> bodyList) throws AWException {
+  private void parseBody(List<EmailMessage> bodyList) {
     if (Objects.requireNonNull(getParsedEmail().getMessageType()) == EmailMessageType.TEXT) {
       parseBody(EmailMessageType.TEXT, bodyList);
 
@@ -235,7 +237,7 @@ public class XMLEmailBuilder extends EmailBuilder {
    * @param type     Message type
    * @param bodyList Body list
    */
-  private void parseBody(EmailMessageType type, List<EmailMessage> bodyList) throws AWException {
+  private void parseBody(EmailMessageType type, List<EmailMessage> bodyList) {
     StringBuilder textBodyBuilder = new StringBuilder();
 
     for (EmailMessage body : bodyList) {
@@ -385,11 +387,16 @@ public class XMLEmailBuilder extends EmailBuilder {
     return messageOut;
   }
 
-  private JsonNode getVariable(Variable variable) throws AWException {
-    return queryUtil.getParameter(variable, getParameters());
+  private JsonNode getVariable(Variable variable) {
+    try {
+      return queryUtil.getParameter(variable, getParameters());
+    } catch (AWException exc) {
+      log.error("Error retrieving variable {} for email", variable.getName(), exc);
+    }
+    return JsonNodeFactory.instance.textNode("");
   }
 
-  private String getVariableAsString(Variable variable) throws AWException {
+  private String getVariableAsString(Variable variable) {
     return getVariable(variable).asText();
   }
 }

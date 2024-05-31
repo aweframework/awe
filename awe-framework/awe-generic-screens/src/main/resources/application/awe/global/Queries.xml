@@ -1816,16 +1816,6 @@
     <field id="label" />
   </query>
 
-  <query id="PrnActAll" enumerated="PrnAct" cacheable="true">
-    <field id="value" />
-    <field id="label" />
-  </query>
-
-  <query id="PrnActNotPrn" enumerated="PrnActNotPrn" cacheable="true">
-    <field id="value" />
-    <field id="label" />
-  </query>
-
   <query id="PrnAct" service="PrnAct">
     <field id="value" />
     <field id="label" />
@@ -2045,8 +2035,10 @@
     <field id="Hst" alias="Hst" />
     <field id="Ath" alias="Ath" />
     <compound alias="AthIco">
-      <computed format="AUTHENTICATION_STATUS_[Ath]" alias="icon" />
-      <computed format="[Ath]" alias="label" translate="Es1Es0" />
+      <computed format="[Ath]" alias="value"/>
+      <computed format="[Ath]" alias="icon" translate="authenticated-icon"/>
+      <computed format="[Ath]" alias="style" translate="authenticated-style"/>
+      <computed format="[Ath]" alias="label" translate="authenticated-label"/>
     </compound>
     <field id="EmlUsr" alias="EmlUsr" />
     <field id="EmlPwd" alias="EmlPwd" />
@@ -2057,17 +2049,24 @@
       <computed format="[Act]" alias="style" translate="active-style"/>
       <computed format="[Act]" alias="label" translate="active-label"/>
     </compound>
+
+    <!-- Fields for EmailServer bean -->
+    <field id="SrvNam" alias="name" />
+    <field id="Hst" alias="host" />
+    <field id="Ath" alias="authenticated" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="EmlUsr" alias="user" />
+    <field id="EmlPwd" alias="pass" />
     <where>
       <and>
-        <filter left-field="SrvNam" condition="like" right-variable="SrvNam" optional="true" />
-        <filter left-field="Hst" condition="like" right-variable="Hst" optional="true" />
-        <filter left-field="Ath" condition="eq" right-variable="Ath" optional="true" />
+        <filter left-field="SrvNam" condition="like" right-variable="serverName" optional="true" />
+        <filter left-field="Hst" condition="like" right-variable="host" optional="true" />
+        <filter left-field="Ath" condition="eq" right-variable="authenticated" optional="true" />
         <filter left-field="Act" condition="eq" right-variable="active" optional="true" />
       </and>
     </where>
-    <variable id="SrvNam" type="STRINGN" name="CrtNam" />
-    <variable id="Hst" type="STRINGN" name="CrtSrv" />
-    <variable id="Ath" type="INTEGER" name="CrtAth" />
+    <variable id="serverName" type="STRINGN" name="CrtNam" />
+    <variable id="host" type="STRINGN" name="CrtSrv" />
+    <variable id="authenticated" type="INTEGER" name="CrtAth" />
     <variable id="active" type="INTEGER" name="CrtAct" />
     <order-by field="Act" type="ASC" />
   </query>

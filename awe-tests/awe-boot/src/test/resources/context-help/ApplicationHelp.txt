@@ -4820,6 +4820,7 @@
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
     </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_SET_VALUE3"></span>

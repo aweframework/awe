@@ -424,8 +424,6 @@ Build package:
       artifacts: false
   services:
     - docker:dind
-  tags:
-    - docker
   script:
     # Gitlab container
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
@@ -484,7 +482,7 @@ Deploy Maven Central:
     - git clone ${GIT_REPO_AWE_CONFIG}
     - git config --global user.email ${GIT_REPO_CI_USER_EMAIL}
     - git config --global user.name "${GIT_REPO_CI_USER_NAME}"
-    - cd awe-gke-config/${CI_ENVIRONMENT_SLUG}/awe-boot
+    - cd awe-gke-config/manifests/${CI_ENVIRONMENT_SLUG}/awe-boot
     - kustomize edit set image registry.gitlab.com/aweframework/awe/awe-boot@${PACKAGE_DIGEST}
     - kustomize edit set annotation version:${PROJECT_VERSION}
     - kustomize build -o awe-boot-deployment.yaml
@@ -542,6 +540,19 @@ pages:
     - <<: *if-master
     - <<: *if-develop
 
+Generate release notes:
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
+  cache: { }
+  dependencies: [ ]
+  stage: deploy
+  script:
+    - ./bin/release_notes.sh $API_URL $API_TOKEN "$CI_PROJECT_TITLE" $CI_COMMIT_TAG
+  artifacts:
+    paths:
+      - release_notes.md
+  rules:
+    - <<: *if-tag
+
 ##############################
 # Release stage
 ##############################
@@ -596,3 +607,23 @@ Notify new release:
     - <<: *if-tag
       when: delayed
       start_in: 1 hour
+
+Generate Gitlab release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: Generate release notes
+      artifacts: true
+  rules:
+    - <<: *if-tag
+  script:
+    - echo "Creating release"
+  release:
+    name: 'Release $CI_COMMIT_TAG'
+    description: release_notes.md
+    tag_name: '$CI_COMMIT_TAG'
+    ref: '$CI_COMMIT_SHA'
+    assets:
+      links:
+        - name: 'Container Image $CI_COMMIT_TAG'
+          url: "https://$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA"

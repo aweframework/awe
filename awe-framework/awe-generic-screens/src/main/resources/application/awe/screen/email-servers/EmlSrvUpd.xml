@@ -42,11 +42,8 @@
             <dependency-element id="Ath" condition="ne" value="1" />
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_PASSWD" id="EmlPwd" component="password" variable="EmlPwd" readonly="true" style="col-xs-12 col-sm-4 col-lg-3">
+        <criteria label="PARAMETER_PASSWD" id="EmlPwd" component="password" readonly="true" style="col-xs-12 col-sm-4 col-lg-3">
           <dependency target-type="set-editable" initial="true">
-            <dependency-element id="Ath" condition="eq" value="1" />
-          </dependency>
-          <dependency target-type="set-required" initial="true">
             <dependency-element id="Ath" condition="eq" value="1" />
           </dependency>
           <dependency source-type="reset" target-type="input" initial="true">
