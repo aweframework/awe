@@ -608,7 +608,7 @@ Notify new release:
       when: delayed
       start_in: 1 hour
 
-Generate Gitlab release:
+Generate gitlab release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
