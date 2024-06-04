@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 0.0.10
+*04/06/2024*
+
+- Fix release notes text generation. [MR #33](https://gitlab.com/aweframework/awe-react/-/merge_requests/33) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.9
 *04/06/2024*
 
