@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.factory.MailSenderFactory;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.User;
 import com.almis.awe.model.entities.email.Email;
@@ -60,6 +61,9 @@ class EmailServiceTest {
   private AweSession aweSession;
 
   @Mock
+  private AweRequest aweRequest;
+
+  @Mock
   private BaseConfigProperties baseConfigProperties;
 
   @Mock
@@ -90,6 +94,7 @@ class EmailServiceTest {
   @Test
   void sendMail() throws Exception {
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     given(mailSender.createMimeMessage()).willReturn(mimeMessage);
@@ -117,6 +122,7 @@ class EmailServiceTest {
   @Test
   void sendXMLMail() throws Exception {
     when(context.getBean(AweSession.class)).thenReturn(null);
+    when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
@@ -168,6 +174,7 @@ class EmailServiceTest {
   @Test
   void sendXMLMailTwice() throws Exception {
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getUser()).thenReturn("user");
     when(userDAO.findByUserName(anyString())).thenReturn(new User().setEmailServer("emailServer"));
     given(mailSenderFactory.getMailSender(anyString())).willReturn(mailSender);

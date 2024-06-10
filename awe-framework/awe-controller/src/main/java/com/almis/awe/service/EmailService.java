@@ -234,7 +234,9 @@ public class EmailService extends ServiceConfig {
    * @return Java Mail server
    */
   private JavaMailSender getMailServer() {
-    String userName = Optional.ofNullable(getSession()).map(AweSession::getUser).orElse(null);
+    String userName = Optional.ofNullable(getRequest().getParameterAsString("user"))
+      .orElse(Optional.ofNullable(getSession()).map(AweSession::getUser)
+        .orElse(null));
 
     if (userName != null) {
       User user = userDAO.findByUserName(userName);
