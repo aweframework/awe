@@ -23,8 +23,8 @@
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
     <!-- Frontend configuration -->
-    <node.version>v16.16.0</node.version>
-    <yarn.version>v1.22.19</yarn.version>
+    <node.version>v18.19.0</node.version>
+    <yarn.version>v1.22.21</yarn.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
