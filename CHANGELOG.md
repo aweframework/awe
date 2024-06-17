@@ -1,4 +1,7 @@
 
+# Changelog for AWE 4.8.1
+*17/06/2024*
+
 # Changelog for AWE 4.8.0
 *31/05/2024*
 
