@@ -1,6 +1,7 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
 import com.almis.awe.model.util.data.ListUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -52,6 +53,7 @@ public class ChartLegend extends AbstractChart {
   // Vertical align of chart legend
   @XStreamAlias("verticalAlign")
   @XStreamAsAttribute
+  @JsonProperty("verticalAlign")
   private String verticalAlign;
 
   // Chart legend floating
@@ -62,6 +64,7 @@ public class ChartLegend extends AbstractChart {
   // The width of the drawn border around the legend
   @XStreamAlias("border-width")
   @XStreamAsAttribute
+  @JsonProperty("borderWidth")
   private Integer borderWidth;
 
   // Chart legend parameter list

@@ -2,6 +2,7 @@ package com.almis.awe.model.entities.screen.component.chart;
 
 import com.almis.awe.model.type.CrosshairType;
 import com.almis.awe.model.util.data.ListUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import lombok.EqualsAndHashCode;
@@ -49,6 +50,7 @@ public class ChartTooltip extends AbstractChart {
   // Number of decimals in tooltip
   @XStreamAlias("number-decimals")
   @XStreamAsAttribute
+  @JsonProperty("numberDecimals")
   private Integer numberDecimals;
 
   // Suffix string in tooltip
@@ -64,11 +66,13 @@ public class ChartTooltip extends AbstractChart {
   // Point format in tooltip
   @XStreamAlias("point-format")
   @XStreamAsAttribute
+  @JsonProperty("pointFormat")
   private String pointFormat;
 
   // Format for the date if the X axis is a datetime axis
   @XStreamAlias("date-format")
   @XStreamAsAttribute
+  @JsonProperty("dateFormat")
   private String dateFormat;
 
   // Shared tooltip for multiple series

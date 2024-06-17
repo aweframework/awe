@@ -1,6 +1,7 @@
 package com.almis.awe.model.entities.screen.component.chart;
 
 import com.almis.awe.model.util.data.ListUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -43,36 +44,43 @@ public class ChartSerie extends AbstractChart {
   // Index xAxis of serie
   @XStreamAlias("x-axis")
   @XStreamAsAttribute
+  @JsonProperty("xAxis")
   private String xAxis;
 
   // Index yAxis of serie
   @XStreamAlias("y-axis")
   @XStreamAsAttribute
+  @JsonProperty("yAxis")
   private String yAxis;
 
   // Point value of serie X
   @XStreamAlias("x-value")
   @XStreamAsAttribute
+  @JsonProperty("xValue")
   private String xValue;
 
   // Point value of serie Y
   @XStreamAlias("y-value")
   @XStreamAsAttribute
+  @JsonProperty("yValue")
   private String yValue;
 
   // Point value of serie Z
   @XStreamAlias("z-value")
   @XStreamAsAttribute
+  @JsonProperty("zValue")
   private String zValue;
 
   // Id serie for drilldown
   @XStreamAlias("drilldown-serie")
   @XStreamAsAttribute
+  @JsonProperty("drillDownSerie")
   private String drillDownSerie;
 
   // Flag if serie is type drilldown
   @XStreamAlias("drilldown")
   @XStreamAsAttribute
+  @JsonProperty("drillDown")
   private Boolean drillDown;
 
   // Chart serie data
