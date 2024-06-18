@@ -57,13 +57,12 @@ public class Chart extends ServiceConfig {
       ChartSerie serie = new ChartSerie();
       serie.setId(user);
       serie.setName(user);
+      serie.setXValue("month");
+      serie.setYValue(user + "-y");
 
       // Add data to serie
-      for (String month : months) {
-        ChartSeriePoint point = new ChartSeriePoint(factory.textNode(month), factory.numberNode(EncodeService.getSecureRandom().nextInt(11)));
-        // Add point to serie [x,y]
-        serie.getData().add(point);
-      }
+      serie.setData(months.stream().map(month -> new ChartSeriePoint(factory.textNode(month), factory.numberNode(EncodeService.getSecureRandom().nextInt(11)))).toList());
+
       // Add serie
       serieList.add(serie);
     }
