@@ -15,13 +15,13 @@ and open the template in the editor.
            <button-action type="reset"/>
           </button>
           <button id="ButAddSer" label="BUTTON_ADD_SERIES" icon="plus-circle" help="HELP_SEARCH_ADD_SERIE_BUTTON">
-            <button-action type="server" server-action="data" target-action="TstAddSeriesToChart" target="ChrLinTst" />
+            <button-action type="server" server-action="data-silent" target-action="TstAddSeriesToChart" target="ChrLinTst" />
           </button>
           <button id="ButDelSer" label="BUTTON_REMOVE_SERIES" icon="minus-circle" help="HELP_SEARCH_REMOVE_SERIE_BUTTON">
-            <button-action type="server" server-action="data" target-action="TstRemoveSeriesOfChart" target="ChrLinTst" />
+            <button-action type="server" server-action="data-silent" target-action="TstRemoveSeriesOfChart" target="ChrLinTst" />
           </button>
           <button id="ButReplaceSer" button-type="submit" label="BUTTON_REPLACE_SERIES" icon="repeat" help="HELP_SEARCH_REPLACE_SERIE_BUTTON">
-            <button-action type="server" server-action="data" target-action="TstReplaceSeriesChart" target="ChrLinTst" />
+            <button-action type="server" server-action="data-silent" target-action="TstReplaceSeriesChart" target="ChrLinTst" />
           </button>
         </tag>
       </tag>
