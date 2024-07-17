@@ -67,7 +67,7 @@ public class NotifierService {
     ServiceData serviceData = queryService.launchPrivateQuery(USER_NOTIFICATIONS);
 
     // Add client action to update bell controller
-    return serviceData.addClientAction(new UpdateControllerActionBuilder("notifications", "unit", serviceData.getDataList().getRecords()).build());
+    return serviceData.addClientAction(new UpdateControllerActionBuilder("notification-bell", "unit", serviceData.getDataList().getRecords()).build());
   }
 
   /**
