@@ -2984,4 +2984,12 @@
     <constant value="Radio2" alias="RadBoxButGrp"/>
   </query>
 
+  <query id="dynamicScreen" service="dynamicScreen"/>
+
+  <query id="getProfiles" cacheable="true">
+    <table id="AwePro"/>
+    <field id="Nam" alias="name"/>
+    <field id="IdePro" alias="value"/>
+  </query>
+
 </queries>

@@ -1,5 +1,11 @@
 package com.almis.awe.test.service;
 
+import com.almis.awe.builder.enumerates.Action;
+import com.almis.awe.builder.screen.ScreenBuilder;
+import com.almis.awe.builder.screen.TagBuilder;
+import com.almis.awe.builder.screen.button.ButtonActionBuilder;
+import com.almis.awe.builder.screen.button.ButtonBuilder;
+import com.almis.awe.builder.screen.criteria.HiddenCriteriaBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.DataList;
@@ -9,9 +15,11 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.EmailService;
+import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.test.bean.Planet;
 import com.almis.awe.test.bean.Planets;
+import com.almis.awe.test.model.ProfileModel;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -36,9 +44,13 @@ import static java.lang.Thread.sleep;
 @Service
 public class DummyService extends ServiceConfig {
 
+  public static final String PROFILE_VALUE = "profileValue";
+  public static final String PROFILE_NAME = "profileName";
+
   // Autowired services
   private WebApplicationContext context;
   private Random random = new Random();
+  private final QueryService queryService;
 
   /**
    * Autowired constructor
@@ -46,8 +58,9 @@ public class DummyService extends ServiceConfig {
    * @param context Context
    */
   @Autowired
-  public DummyService(WebApplicationContext context) {
+  public DummyService(WebApplicationContext context, QueryService queryService) {
     this.context = context;
+    this.queryService = queryService;
   }
 
   /**
@@ -402,5 +415,111 @@ public class DummyService extends ServiceConfig {
   public ServiceData doNothing() {
     logger.info("Launching a test service");
     return new ServiceData();
+  }
+
+  /**
+   * Dynamic screen generation
+   *
+   * @return Service data with dynamic screen
+   */
+  public ServiceData dynamicScreen() throws AWException {
+    // Get profile list
+    ServiceData serviceData = queryService.launchPrivateQuery("getProfiles");
+    List<ProfileModel> profileModels = DataListUtil.asBeanList(serviceData.getDataList(), ProfileModel.class);
+    TagBuilder profileModelCards = new TagBuilder()
+      .setType("div")
+      .setStyle("flex align-items-center justify-content-center pt-2 gap-2");
+    for (ProfileModel profileModel : profileModels) {
+      TagBuilder statPanel = generateStatPanel(profileModel.getName(), profileModel.getValue().toString(), new TagBuilder()
+        .setType("div")
+        .setStyle("p-card-footer")
+        .addButton(new ButtonBuilder()
+          .setId("Button" + profileModel.getValue().toString())
+          .setLabel("BUTTON_VIEW")
+          .addButtonAction(new ButtonActionBuilder()
+            .setType(Action.VALUE)
+            .setTarget(PROFILE_NAME)
+            .setValue(profileModel.getName()))
+          .addButtonAction(new ButtonActionBuilder()
+            .setType(Action.VALUE)
+            .setTarget(PROFILE_VALUE)
+            .setValue(profileModel.getValue().toString()))
+          .addButtonAction(new ButtonActionBuilder()
+            .setType(Action.SCREEN)
+            .setTarget("dynamic-subscreen"))
+        )
+      );
+      profileModelCards.addTag(statPanel);
+    }
+
+    // Generate screen with profile list
+    return new ServiceData().setData(new ScreenBuilder()
+      .setTemplate("window")
+      .setLabel("MENU_TEST_DYNAMIC_SCREEN")
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .addCriteria(new HiddenCriteriaBuilder().setId(PROFILE_NAME))
+        .addCriteria(new HiddenCriteriaBuilder().setId(PROFILE_VALUE))
+        .addTag(profileModelCards)
+      )
+      .build());
+  }
+
+  /**
+   * Dynamic screen generation
+   *
+   * @return Service data with dynamic screen
+   */
+  public ServiceData dynamicSubScreen() throws AWException {
+    // Get profile list
+    ProfileModel profileModel = new ProfileModel()
+      .setName(getRequest().getParameterAsString(PROFILE_NAME))
+      .setValue(Integer.parseInt(getRequest().getParameterAsString(PROFILE_VALUE)));
+
+    // Generate screen with profile list
+    return new ServiceData().setData(new ScreenBuilder()
+      .setTemplate("window")
+      .setLabel("MENU_TEST_DYNAMIC_SUB_SCREEN")
+      .addTag(new TagBuilder()
+        .setSource("buttons")
+        .addButton(new ButtonBuilder()
+          .setId("ButtonBack")
+          .setLabel("BUTTON_BACK")
+          .addButtonAction(new ButtonActionBuilder()
+            .setType(Action.BACK))
+        )
+      )
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .addTag(new TagBuilder()
+          .setType("div")
+          .setStyle("flex align-items-center justify-content-center pt-2 gap-2")
+          .addTag(generateStatPanel(profileModel.getName(), profileModel.getValue().toString(), new TagBuilder()))
+        )
+      ).build());
+  }
+
+  private TagBuilder generateStatPanel(String title, String value, TagBuilder footer) {
+    return new TagBuilder()
+      .setType("div")
+      .setStyle("w-2")
+      .addTag(new TagBuilder()
+        .setType("div")
+        .setStyle("p-card")
+        .addTag(new TagBuilder()
+          .setType("div")
+          .setStyle("p-card-body")
+          .addTag(new TagBuilder()
+            .setType("div")
+            .setStyle("p-card-title")
+            .setText(title),
+            new TagBuilder()
+              .setType("div")
+              .setStyle("p-card-content")
+              .setText(value),
+            footer
+          )
+        )
+      );
   }
 }
