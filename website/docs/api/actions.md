@@ -110,6 +110,7 @@ Actions which works over components in the screen.
 |----------------------------------|----------------------------------------------------------------------------------------------------------|-----------------------------|
 | `add-class`                      | Add the css class/classes defined on `target-action` to the tag with the selector defined on `target`    | `tag`                       |
 | `remove-class`                   | Remove the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`                       |
+| `toggle-class`                   | Toggle the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`                       |
 | `reset`                          | Empty a criterion value                                                                                  | `criteria`, `grid`, `chart` |
 | `restore`                        | Restore to initial values a criterion                                                                    | `criteria`, `grid`, `chart` |
 | `start-load`                     | Sets a component as *loading*                                                                            | `criteria`, `grid`, `chart` |

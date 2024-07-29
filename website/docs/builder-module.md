@@ -220,6 +220,18 @@ serviceData.addClientAction(new RemoveCssClassActionBuilder(".selector", "class1
 
 This sample search for the `.selector` CSS selector, and removes the "class1", "class2" and "class3" classes from the element if found.
 
+####  **`toggle-class` action builder**
+
+This action search for a CSS class in the screen and toggles it from the element.
+
+Usage:
+
+```java
+serviceData.addClientAction(new ToggleCssClassActionBuilder(".selector", "class1", "class2", "class3").build());
+```
+
+This sample search for the `.selector` CSS selector, and removes the "class1", "class2" and "class3" classes from the element if found.
+
 ###  **Grid action builders**
 
 ####  **`add-columns` action builder**

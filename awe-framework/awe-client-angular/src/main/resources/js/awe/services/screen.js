@@ -279,21 +279,37 @@ aweApplication.factory("Screen",
          * @param {Action} action Action received
          */
         addClass: function (action) {
-          $screen.toggleClass(action, true);
+          $screen.changeClass(action, true);
         },
         /**
          * Remove Class
          * @param {Action} action Action received
          */
         removeClass: function (action) {
-          $screen.toggleClass(action, false);
+          $screen.changeClass(action, false);
+        },
+        /**
+         * Toggle Class
+         * @param {Action} action Action received
+         */
+        toggleClass: function (action) {
+          // Variable definition
+          let  tagSelector = action.attr("target");
+          let  parameters = action.attr("parameters");
+          let  targetClass = parameters[$settings.get("targetActionKey")];
+
+          // Add/remove the class/classes
+          targetClass.split(" ").forEach(cssClass => $(tagSelector).toggleClass(cssClass));
+
+          // Close action
+          $actionController.acceptAction(action);
         },
         /**
          * Add/Remove a class to a tag
          * @param {Action} action Action received
          * @param {Action} add Add/Remove a class
          */
-        toggleClass: function (action, add) {
+        changeClass: function (action, add) {
           // Variable definition
           let  tagSelector = action.attr("target");
           let  parameters = action.attr("parameters");
