@@ -109,6 +109,7 @@
       <xs:enumeration value="resize" />
       <xs:enumeration value="add-class" />
       <xs:enumeration value="remove-class" />
+      <xs:enumeration value="toggle-class" />
       <xs:enumeration value="confirm-updated-data" />
       <xs:enumeration value="confirm-not-updated-data" />
       <xs:enumeration value="confirm-empty-data" />
