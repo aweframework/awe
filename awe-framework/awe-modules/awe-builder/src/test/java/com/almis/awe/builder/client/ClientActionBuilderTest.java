@@ -6,6 +6,7 @@ import com.almis.awe.builder.client.chart.RemoveChartSeriesActionBuilder;
 import com.almis.awe.builder.client.chart.ReplaceChartSeriesActionBuilder;
 import com.almis.awe.builder.client.css.AddCssClassActionBuilder;
 import com.almis.awe.builder.client.css.RemoveCssClassActionBuilder;
+import com.almis.awe.builder.client.css.ToggleCssClassActionBuilder;
 import com.almis.awe.builder.client.grid.*;
 import com.almis.awe.builder.enumerates.RowPosition;
 import com.almis.awe.builder.model.SuggestValue;
@@ -764,6 +765,23 @@ class ClientActionBuilderTest {
     assertTrue(action.getSilent());
 
     checkSimpleClientActionBuilder("remove-class", new RemoveCssClassActionBuilder());
+  }
+
+  /**
+   * Build a toggle-class action with ClientActionBuilder
+   */
+  @Test
+  void testToggleCssClassAction() {
+    ClientAction action = new ToggleCssClassActionBuilder("targetSelector", "class1", "class2").build();
+
+    // Assertions
+    assertEquals("toggle-class", action.getType());
+    assertEquals("targetSelector", action.getTarget());
+    assertEquals("class1 class2", action.getParameters().get("targetAction"));
+    assertTrue(action.getAsync());
+    assertTrue(action.getSilent());
+
+    checkSimpleClientActionBuilder("toggle-class", new ToggleCssClassActionBuilder());
   }
 
   /**

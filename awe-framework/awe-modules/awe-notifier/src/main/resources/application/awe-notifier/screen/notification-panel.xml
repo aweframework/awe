@@ -3,7 +3,7 @@
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full">
   <tag source="notification-panel">
-    <info id="notifications" icon="bell" unit="" style="nav-icon-btn-success"
+    <info id="notification-bell" icon="bell" unit="" style="nav-icon-btn-success"
           dropdown-style="dropdown-xl widget-notifications no-padding">
       <button-action type="filter" target="notification-bulletin"/>
       <tag>
@@ -29,7 +29,7 @@
             <dependency-element id="notification-bulletin" attribute="totalValues" condition="gt" value="10"/>
           </dependency>
         </button>
-        <button id="no-notifications" label="NO_NOTIFICATIONS" style="no-class notifications-link text-uppercase">
+        <button id="show-no-notifications" label="NO_NOTIFICATIONS" style="no-class notifications-link text-uppercase">
           <dependency target-type="show" initial="true">
             <dependency-element id="notification-bulletin" attribute="totalValues" condition="eq" value="0"/>
           </dependency>
@@ -41,7 +41,7 @@
     </info>
   </tag>
   <tag source="user-settings">
-    <info-button label="BUTTON_SETTINGS" id="user-settings" icon="sliders">
+    <info-button label="BUTTON_SETTINGS" id="button-user-settings" icon="sliders">
       <button-action type="screen" target="user-settings" context="screen/private/home"/>
     </info-button>
   </tag>

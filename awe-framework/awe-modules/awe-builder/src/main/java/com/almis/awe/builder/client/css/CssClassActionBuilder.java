@@ -14,7 +14,7 @@ public abstract class CssClassActionBuilder<T> extends ClientActionBuilder<T> {
    *
    * @param type Action type
    */
-  public CssClassActionBuilder(String type) {
+  protected CssClassActionBuilder(String type) {
     setType(type);
   }
 
@@ -25,7 +25,7 @@ public abstract class CssClassActionBuilder<T> extends ClientActionBuilder<T> {
    * @param cssSelector CSS selector
    * @param classes     Classes to add
    */
-  public CssClassActionBuilder(String type, String cssSelector, String... classes) {
+  protected CssClassActionBuilder(String type, String cssSelector, String... classes) {
     setType(type);
     setTarget(cssSelector);
     setAsync(true);
