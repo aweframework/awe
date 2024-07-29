@@ -67,6 +67,7 @@
   <locale name="HELP_SEARCH_ADD_SERIE_BUTTON" value="Añadir series a un gráfico"/>
   <locale name="HELP_SEARCH_REMOVE_SERIE_BUTTON" value="Quitar series de un gráfico"/>
   <locale name="HELP_SEARCH_REPLACE_SERIE_BUTTON" value="Reemplazar las series de un gráfico"/>
+  <locale name="MENU_DASHBOARD" value="Panel de control"/>
   <locale name="MENU_GRID_CHART" value="Grids y Charts"/>
   <locale name="MENU_TEST" value="Tests"/>
   <locale name="MENU_TEST_ACCORDIONS" value="Acordeones"/>
