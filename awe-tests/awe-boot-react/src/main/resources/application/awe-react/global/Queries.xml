@@ -1507,7 +1507,8 @@
     <compound alias="Sug">
       <computed alias="label" format="Prueba - [Txt]"/>
       <computed alias="value" format="[IdeThmNum]" transform="NUMBER"/>
-      <computed alias="icon" format="[Sel]" transform="NUMBER"/>
+      <computed alias="icon" format="download"/>
+      <computed alias="unit" format="[IdeThmNum]" transform="NUMBER"/>
     </compound>
     <compound alias="Sug1">
       <computed alias="label" format="Prueba - [Txt]"/>
