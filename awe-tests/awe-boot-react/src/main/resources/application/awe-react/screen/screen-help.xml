@@ -15,4 +15,18 @@
       </tag>
     </dialog>
   </tag>
+  <tag source="application-help-source">
+    <dialog id="application-help-dialog" modal="true" style="modal-lg expand" label="SCREEN_HELP" icon="question-circle" help="HELP_SCREEN_HELP">
+      <tag type="div" style="modal-body scrollable expand">
+        <widget type="help-viewer" id="applicationHelpViewer"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button label="BUTTON_CLOSE" icon="times" id="application-help-close-button" button-type="submit" help="HELP_CLOSE_HELP_BUTTON">
+            <button-action type="close" target="application-help-dialog" />
+          </button>
+        </tag>
+      </tag>
+    </dialog>
+  </tag>
 </screen>
