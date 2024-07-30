@@ -10,8 +10,8 @@ helpApplication(content) ::= <<
 </div>
 >>
 helpOption(e,title,level,content,icon) ::= <<
-$icon$
 <h$level$ id="$title$" class="help-snippet help-header text-primary">
+  $icon$
   {{'$title$'| translateMultiple}}
 </h$level$>
 <hr class="help-header-separator"/>
