@@ -39,7 +39,7 @@
                 <include target-screen="info-buttons" target-source="favourites"/>
                 <include target-screen="notification-panel" target-source="notification-panel"/>
                 <info-button id="help" icon="question-circle" style="nav-icon-btn-success">
-                  <button-action type="dialog" target="HlpOpt" />
+                  <button-action type="dialog" target="application-help-dialog" />
                 </info-button>
                 <include target-screen="info-buttons" target-source="siteModuleDatabase"/>
                 <info id="ButSetAutRef" icon="refresh" title="SCREEN_TEXT_REFRESH_SETTINGS"
@@ -88,5 +88,8 @@
         <dependency-element id="ButPlayRefresh" event="click"/>
       </dependency>
     </criteria>
+  </tag>
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="application-help-source"/>
   </tag>
 </screen>
