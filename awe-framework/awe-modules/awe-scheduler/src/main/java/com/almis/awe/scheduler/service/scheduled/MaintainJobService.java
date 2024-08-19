@@ -18,16 +18,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
@@ -43,7 +44,7 @@ public class MaintainJobService extends JobService {
   private final boolean isRemoteSecureEnabled;
   private final String remoteUser;
   private final String remotePassword;
-  private final WebClient webClient;
+  private final RestTemplate restTemplate;
 
   private final ObjectMapper mapper;
 
@@ -75,15 +76,15 @@ public class MaintainJobService extends JobService {
                             URI remoteUrl,
                             boolean isRemoteSecureEnabled,
                             String remoteUser,
-                            String remotePassword) {
+                            String remotePassword, RestTemplate restTemplate) {
     super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, defaultTimeout);
     this.isSchedulerInstance = isSchedulerInstance;
     this.remoteUrl = remoteUrl;
     this.isRemoteSecureEnabled = isRemoteSecureEnabled;
     this.remoteUser = remoteUser;
     this.remotePassword = remotePassword;
-    this.webClient = Optional.ofNullable(remoteUrl).map(URI::toString).map(WebClient::create).orElse(null);
     this.mapper = mapper;
+    this.restTemplate = restTemplate;
   }
 
   /**
@@ -124,11 +125,11 @@ public class MaintainJobService extends JobService {
       if (isSchedulerInstance) {
         result = launchRemoteMaintainRest(task.getAction(), parameters);
       } else {
-        result = new AsyncResult<>(getMaintainService().launchPrivateMaintain(task.getAction(), parameters));
+        result = CompletableFuture.completedFuture(getMaintainService().launchPrivateMaintain(task.getAction(), parameters));
       }
     } catch (AWException exc) {
       log.error("Error launching maintain job", exc);
-      result = new AsyncResult<>(new ServiceData()
+      result = CompletableFuture.completedFuture(new ServiceData()
         .setType(exc.getType())
         .setTitle(exc.getTitle())
         .setMessage(exc.getMessage()));
@@ -154,33 +155,32 @@ public class MaintainJobService extends JobService {
     }));
 
     // Launch request
-    log.info("Launching scheduler remote REST maintain call: {}/api/maintain/async/{}", remoteUrl, maintain);
-    Mono<ServiceData> response = webClient.post()
-      .uri("/api/maintain/async/{maintainId}", maintain)
-      .headers(h -> Optional.ofNullable(authenticateRequest()).ifPresent(h::setBearerAuth))
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(BodyInserters.fromValue(requestParameter))
-      .retrieve()
-      .bodyToMono(ServiceData.class);
+    log.info("Launching scheduler remote REST maintain call: {}/api/maintain/{}", remoteUrl, maintain);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    String token = authenticateRequest();
+    if (token != null) {
+      headers.setBearerAuth(token);
+    }
 
-    return response.toFuture();
+    ResponseEntity<ServiceData> response = restTemplate.postForEntity(remoteUrl + "/api/maintain/{maintainId}",
+        new HttpEntity<>(requestParameter, headers), ServiceData.class, maintain);
+
+    return CompletableFuture.completedFuture(response.getBody());
   }
 
   private String authenticateRequest() {
     if (isRemoteSecureEnabled) {
       // Authenticate request
       log.info("Launching scheduler remote REST authentication call: {}/api/authenticate", remoteUrl);
-      return webClient.post()
-        .uri("/api/authenticate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(BodyInserters.fromValue(new LoginRequest()
-          .setUsername(remoteUser)
-          .setPassword(remotePassword)))
-        .retrieve()
-        .bodyToMono(LoginResponse.class)
-        .blockOptional()
-        .map(LoginResponse::getToken)
-        .orElse(null);
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      ResponseEntity<LoginResponse> response = restTemplate.postForEntity(remoteUrl + "/api/authenticate",
+          new HttpEntity<>(new LoginRequest()
+              .setUsername(remoteUser)
+              .setPassword(remotePassword), headers), LoginResponse.class);
+
+      return Optional.ofNullable(response.getBody()).map(LoginResponse::getToken).orElse(null);
     }
     return null;
   }

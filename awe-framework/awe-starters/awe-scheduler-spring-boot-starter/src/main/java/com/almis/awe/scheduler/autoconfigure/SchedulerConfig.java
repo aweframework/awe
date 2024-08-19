@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -64,6 +65,15 @@ public class SchedulerConfig {
   @Bean
   public Scheduler scheduler(SchedulerFactoryBean factory) {
     return factory.getScheduler();
+  }
+
+  /**
+   * Define RestTemplate
+   * @return rest template
+   */
+  @Bean
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
   }
 
   /**
@@ -152,14 +162,15 @@ public class SchedulerConfig {
   @Bean
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService,
                                                QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher,
-                                               ObjectMapper mapper) {
+                                               ObjectMapper mapper, RestTemplate restTemplate) {
     return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, mapper,
       schedulerConfigProperties.getTaskTimeout(),
       schedulerConfigProperties.isSchedulerInstance(),
       schedulerConfigProperties.getRemoteCallbackUrl(),
       schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
       schedulerConfigProperties.getRemoteCallbackUser(),
-      schedulerConfigProperties.getRemoteCallbackPassword());
+      schedulerConfigProperties.getRemoteCallbackPassword(),
+      restTemplate);
   }
 
   /**
@@ -254,6 +265,15 @@ public class SchedulerConfig {
   @Bean
   public SchedulerMaintainReportService maintainReportService(QueryUtil queryUtil, MaintainService maintainService) {
     return new SchedulerMaintainReportService(queryUtil, maintainService);
+  }
+  /**
+   * Define none report service
+   *
+   * @return None report service
+   */
+  @Bean
+  public SchedulerNoneReport schedulerNoneReportService() {
+    return new SchedulerNoneReport();
   }
 
   /**
