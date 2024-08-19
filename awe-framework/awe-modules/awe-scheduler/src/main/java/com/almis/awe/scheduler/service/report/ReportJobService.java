@@ -84,9 +84,10 @@ public class ReportJobService {
     requestParameter.setParameters(parameters);
 
     // Launch request
-    log.info("Launching scheduler remote REST maintain call: {}/api/maintain/async/reportSchedulerTaskFinished", remoteUrl);
+    log.info("Launching scheduler remote REST maintain call: {}/api/maintain/reportSchedulerTaskFinished", remoteUrl);
+
     Mono<ServiceData> response = webClient.post()
-      .uri("/api/maintain/async/reportSchedulerTaskFinished")
+      .uri("/api/maintain/reportSchedulerTaskFinished")
       .headers(h -> Optional.ofNullable(authenticateRequest()).ifPresent(h::setBearerAuth))
       .contentType(MediaType.APPLICATION_JSON)
       .body(BodyInserters.fromValue(requestParameter))
