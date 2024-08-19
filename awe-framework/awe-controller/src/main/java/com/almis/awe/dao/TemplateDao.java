@@ -115,7 +115,7 @@ public class TemplateDao {
           break;
         case "fa":
         default:
-          iconTemplate = "<i role=\"icon\" class=\"help-icon text-primary fa fa-" + icon + " fa-2x fa-fw\"></i>";
+          iconTemplate = "<i role=\"icon\" class=\"help-icon text-primary fa fa-" + icon + " fa-fw\"></i>";
           break;
       }
     }

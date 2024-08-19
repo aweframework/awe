@@ -1,12 +1,12 @@
 <div id="help-content" class="help-content col-md-8 col-print-12" role="main">
   <div class="application-help">
-  <i role="icon" class="help-icon text-primary fa fa-wrench fa-2x fa-fw"></i>
   <h1 id="MENU_TOOLS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-wrench fa-fw"></i>
     {{'MENU_TOOLS'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
   <h2 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-sitemap fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -209,8 +209,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-puzzle-piece fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_MDL" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_MDL" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-puzzle-piece fa-fw"></i>
     {{'SCREEN_TITLE_MDL'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -433,8 +433,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-user fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_USR" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_USR" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-user fa-fw"></i>
     {{'SCREEN_TITLE_USR'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -715,8 +715,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-group fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_PRF" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_PRF" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-group fa-fw"></i>
     {{'SCREEN_TITLE_PRF'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -943,8 +943,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-database fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_DBS" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_DBS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-database fa-fw"></i>
     {{'SCREEN_TITLE_DBS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -1183,8 +1183,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-picture-o fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_THM" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_THM" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-picture-o fa-fw"></i>
     {{'SCREEN_TITLE_THM'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -1389,8 +1389,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-envelope fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_EML_SRV" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_EML_SRV" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-envelope fa-fw"></i>
     {{'SCREEN_TITLE_EML_SRV'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -1607,8 +1607,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-exchange fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_QUE" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_QUE" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-exchange fa-fw"></i>
     {{'SCREEN_TITLE_QUE'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -1843,8 +1843,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-key fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_AWEKEY" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_AWEKEY" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-key fa-fw"></i>
     {{'SCREEN_TITLE_AWEKEY'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -2057,8 +2057,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-cogs fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_APP_PARAMETERS" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_APP_PARAMETERS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-cogs fa-fw"></i>
     {{'SCREEN_TITLE_APP_PARAMETERS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -2206,8 +2206,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-rss fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_BROADCAST" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_BROADCAST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-rss fa-fw"></i>
     {{'SCREEN_TITLE_BROADCAST'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -2257,8 +2257,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-file-text fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_LOG" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_LOG" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-file-text fa-fw"></i>
     {{'SCREEN_TITLE_LOG'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -2366,8 +2366,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-database fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_SQL_EXTRACTOR" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_SQL_EXTRACTOR" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-database fa-fw"></i>
     {{'SCREEN_TITLE_SQL_EXTRACTOR'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -2549,18 +2549,18 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-cog fa-2x fa-fw"></i>
-  <h1 id="MENU_SETTINGS" class="help-snippet help-header text-primary">
+  </div><h1 id="MENU_SETTINGS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-cog fa-fw"></i>
     {{'MENU_SETTINGS'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-unlock-alt fa-2x fa-fw"></i>
   <h2 id="MENU_TOOLS_SECURITY" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-unlock-alt fa-fw"></i>
     {{'MENU_TOOLS_SECURITY'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
   <h3 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-eye-slash fa-fw"></i>
     {{'SCREEN_TITLE_SECURITY_SCREEN'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -2799,8 +2799,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-eye-slash fa-fw"></i>
     {{'SCREEN_TITLE_SECURITY_SCREEN'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -3031,8 +3031,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_MENU_ACCESS" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_MENU_ACCESS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-eye-slash fa-fw"></i>
     {{'SCREEN_TITLE_MENU_ACCESS'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -3237,8 +3237,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-lock fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_ENC" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_ENC" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-lock fa-fw"></i>
     {{'SCREEN_TITLE_ENC'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -3306,8 +3306,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-laptop fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_SCR_CNF" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_SCR_CNF" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-laptop fa-fw"></i>
     {{'SCREEN_TITLE_SCR_CNF'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -3548,18 +3548,18 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-flask fa-2x fa-fw"></i>
-  <h1 id="MENU_TEST" class="help-snippet help-header text-primary">
+  </div><h1 id="MENU_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-flask fa-fw"></i>
     {{'MENU_TEST'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-object-group fa-2x fa-fw"></i>
   <h2 id="MENU_TEST_CRITERIA" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-object-group fa-fw"></i>
     {{'MENU_TEST_CRITERIA'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
   <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -4097,8 +4097,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-align-right fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -4645,8 +4645,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -4805,8 +4805,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-check fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_BUTTON_TEST" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_BUTTON_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-check fa-fw"></i>
     {{'SCREEN_TITLE_BUTTON_TEST'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -4894,13 +4894,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
-  <h2 id="MENU_TEST_MATRIX" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_MATRIX" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-table fa-fw"></i>
     {{'MENU_TEST_MATRIX'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-list-alt fa-2x fa-fw"></i>
   <h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-list-alt fa-fw"></i>
     {{'SCREEN_TITLE_MATRIX_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -6017,8 +6017,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-list-ol fa-2x fa-fw"></i>
-  <h3 id="MENU_TEST_MATRIX_NUMBERS" class="help-snippet help-header text-primary">
+  </div><h3 id="MENU_TEST_MATRIX_NUMBERS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-list-ol fa-fw"></i>
     {{'MENU_TEST_MATRIX_NUMBERS'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -6131,8 +6131,8 @@
         </table>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-list-ul fa-2x fa-fw"></i>
-  <h3 id="MENU_TEST_MATRIX_SUGGEST" class="help-snippet help-header text-primary">
+  </div><h3 id="MENU_TEST_MATRIX_SUGGEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-list-ul fa-fw"></i>
     {{'MENU_TEST_MATRIX_SUGGEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -6245,8 +6245,8 @@
         </table>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-list-alt fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-list-alt fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -6421,8 +6421,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_MATRIX_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-table fa-fw"></i>
     {{'SCREEN_TITLE_MATRIX_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -6601,8 +6601,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_TREE_TEST" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_TREE_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-sitemap fa-fw"></i>
     {{'SCREEN_TITLE_TREE_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -6785,13 +6785,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-area-chart fa-2x fa-fw"></i>
-  <h2 id="MENU_TEST_CHARTS" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_CHARTS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-area-chart fa-fw"></i>
     {{'MENU_TEST_CHARTS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-bar-chart-o fa-2x fa-fw"></i>
   <h3 id="SCREEN_TITLE_CHART_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-bar-chart-o fa-fw"></i>
     {{'SCREEN_TITLE_CHART_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -7012,8 +7012,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-line-chart fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_CHART_DYNAMIC_SERIES" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_CHART_DYNAMIC_SERIES" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-line-chart fa-fw"></i>
     {{'SCREEN_TITLE_CHART_DYNAMIC_SERIES'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -7056,8 +7056,8 @@
       <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DYNAMIC_SERIES_CHART"></span>
       <span translate-multiple="HELP_CHART" class="text-xxs text-uppercase"></span>
     </h6>
-  </div><i role="icon" class="help-icon text-primary fa fa-file-text-o fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_CHART_GRID_PRINT" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_CHART_GRID_PRINT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-file-text-o fa-fw"></i>
     {{'SCREEN_TITLE_CHART_GRID_PRINT'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -7233,8 +7233,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-exchange fa-2x fa-fw"></i>
-  <h3 id="SCREEN_TITLE_QUE" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_QUE" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-exchange fa-fw"></i>
     {{'SCREEN_TITLE_QUE'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -7435,13 +7435,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-list-alt fa-2x fa-fw"></i>
-  <h2 id="MENU_TEST_LAYOUT" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_LAYOUT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-list-alt fa-fw"></i>
     {{'MENU_TEST_LAYOUT'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-th-large fa-2x fa-fw"></i>
   <h3 id="layout" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-th-large fa-fw"></i>
     {{'layout'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -7496,8 +7496,8 @@
       <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_PASS"></span>
       <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
-  </div><i role="icon" class="help-icon text-primary fa fa-th-large fa-2x fa-fw"></i>
-  <h3 id="layout" class="help-snippet help-header text-primary">
+  </div><h3 id="layout" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-th-large fa-fw"></i>
     {{'layout'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -7764,13 +7764,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-th fa-2x fa-fw"></i>
-  <h2 id="MENU_TEST_BUTTON_MENU" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_BUTTON_MENU" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-th fa-fw"></i>
     {{'MENU_TEST_BUTTON_MENU'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary material-icons">science</i>
   <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary material-icons">science</i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -8308,8 +8308,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary material-icons">toys</i>
-  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary material-icons">toys</i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -8847,8 +8847,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary material-icons">developer_board</i>
-  <h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h3 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary material-icons">developer_board</i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
@@ -9386,13 +9386,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
-  <h3 id="MENU_TEST_BUTTON_MENU_GROUP_1" class="help-snippet help-header text-primary">
+  </div><h3 id="MENU_TEST_BUTTON_MENU_GROUP_1" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-fw"></i>
     {{'MENU_TEST_BUTTON_MENU_GROUP_1'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary material-icons">keyboard</i>
   <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary material-icons">keyboard</i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -9930,8 +9930,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-align-right fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -10478,8 +10478,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -10638,8 +10638,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -10798,13 +10798,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-file-text-o fa-2x fa-fw"></i>
-  <h3 id="MENU_TEST_BUTTON_MENU_GROUP_2" class="help-snippet help-header text-primary">
+  </div><h3 id="MENU_TEST_BUTTON_MENU_GROUP_2" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-file-text-o fa-fw"></i>
     {{'MENU_TEST_BUTTON_MENU_GROUP_2'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
   <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -11342,8 +11342,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-align-right fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -11890,8 +11890,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -12050,8 +12050,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-table fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -12589,8 +12589,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-align-right fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -13137,8 +13137,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-sitemap fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -13297,13 +13297,12 @@
         </div>
       </div>
     </div>
-  </div>
-  <h3 id="MENU_TEST_BUTTON_MENU_GROUP_3" class="help-snippet help-header text-primary">
+  </div><h3 id="MENU_TEST_BUTTON_MENU_GROUP_3" class="help-snippet help-header text-primary">
     {{'MENU_TEST_BUTTON_MENU_GROUP_3'| translateMultiple}}
   </h3>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-2x fa-fw"></i>
   <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-keyboard-o fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -13841,8 +13840,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-align-right fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_CRITERIA_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-align-right fa-fw"></i>
     {{'SCREEN_TITLE_CRITERIA_TEST'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -14389,8 +14388,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -14549,8 +14548,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -14709,8 +14708,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-refresh fa-2x fa-fw"></i>
-  <h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  </div><h4 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-refresh fa-fw"></i>
     {{'SCREEN_TITLE_SIT'| translateMultiple}}
   </h4>
   <hr class="help-header-separator"/>
@@ -14869,8 +14868,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary material-icons">developer_board</i>
-  <h2 id="MENU_TEST_DYNAMIC_SCREEN" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_DYNAMIC_SCREEN" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary material-icons">developer_board</i>
     {{'MENU_TEST_DYNAMIC_SCREEN'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -14878,8 +14877,8 @@
     {{'MENU_TEST_DYNAMIC_SUB_SCREEN'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-magic fa-2x fa-fw"></i>
   <h2 id="SCREEN_TITLE_WIZARD" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-magic fa-fw"></i>
     {{'SCREEN_TITLE_WIZARD'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -15017,8 +15016,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-bars fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_ACCORDION_TEST" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_ACCORDION_TEST" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-bars fa-fw"></i>
     {{'SCREEN_TITLE_ACCORDION_TEST'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -15059,8 +15058,8 @@
     </h6>
   </div>
   <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-  </div><i role="icon" class="help-icon text-primary fa fa-eye-slash fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_SECURITY_SCREEN" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-eye-slash fa-fw"></i>
     {{'SCREEN_TITLE_SECURITY_SCREEN'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -15317,8 +15316,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-table fa-2x fa-fw"></i>
-  <h2 id="MENU_TEST_PIVOT" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_PIVOT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-table fa-fw"></i>
     {{'MENU_TEST_PIVOT'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -15348,20 +15347,20 @@
       <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DATA"></span>
       <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     </h6>
-  </div><i role="icon" class="help-icon text-primary fa fa-folder fa-2x fa-fw"></i>
-  <h2 id="MENU_TEST_FILEMANAGER" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_TEST_FILEMANAGER" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-folder fa-fw"></i>
     {{'MENU_TEST_FILEMANAGER'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
   <div class="help-snippet">
   </div>
-  <i role="icon" class="help-icon text-primary fa fa-clock-o fa-2x fa-fw"></i>
   <h1 id="MENU_SCHEDULER" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-clock-o fa-fw"></i>
     {{'MENU_SCHEDULER'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-cogs fa-2x fa-fw"></i>
   <h2 id="MENU_SCHEDULER_MANAGEMENT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-cogs fa-fw"></i>
     {{'MENU_SCHEDULER_MANAGEMENT'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -15674,8 +15673,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-tasks fa-2x fa-fw"></i>
-  <h2 id="MENU_SCHEDULER_TASKS" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_SCHEDULER_TASKS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-tasks fa-fw"></i>
     {{'MENU_SCHEDULER_TASKS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -15999,8 +15998,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-server fa-2x fa-fw"></i>
-  <h2 id="MENU_SCHEDULER_SERVERS" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_SCHEDULER_SERVERS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-server fa-fw"></i>
     {{'MENU_SCHEDULER_SERVERS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -16213,8 +16212,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-calendar fa-2x fa-fw"></i>
-  <h2 id="MENU_SCHEDULER_CALENDARS" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_SCHEDULER_CALENDARS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-calendar fa-fw"></i>
     {{'MENU_SCHEDULER_CALENDARS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -16423,13 +16422,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-flash fa-2x fa-fw"></i>
-  <h1 id="MENU_NOTIFIER" class="help-snippet help-header text-primary">
+  </div><h1 id="MENU_NOTIFIER" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-flash fa-fw"></i>
     {{'MENU_NOTIFIER'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-ticket fa-2x fa-fw"></i>
   <h2 id="SCREEN_TITLE_SUBSCRIPTIONS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-ticket fa-fw"></i>
     {{'SCREEN_TITLE_SUBSCRIPTIONS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -16630,8 +16629,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-bell fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_NOTIFICATIONS" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_NOTIFICATIONS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-bell fa-fw"></i>
     {{'SCREEN_TITLE_NOTIFICATIONS'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -16854,13 +16853,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-paint-brush fa-2x fa-fw"></i>
-  <h1 id="MENU_DEVELOPER" class="help-snippet help-header text-primary">
+  </div><h1 id="MENU_DEVELOPER" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-paint-brush fa-fw"></i>
     {{'MENU_DEVELOPER'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-terminal fa-2x fa-fw"></i>
   <h2 id="SCREEN_TITLE_MNG_PTH" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-terminal fa-fw"></i>
     {{'SCREEN_TITLE_MNG_PTH'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -16910,8 +16909,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-language fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_MNG_LIT" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_MNG_LIT" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-language fa-fw"></i>
     {{'SCREEN_TITLE_MNG_LIT'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -17164,13 +17163,13 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-question-circle fa-2x fa-fw"></i>
-  <h1 id="MENU_HELP" class="help-snippet help-header text-primary">
+  </div><h1 id="MENU_HELP" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-question-circle fa-fw"></i>
     {{'MENU_HELP'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <i role="icon" class="help-icon text-primary fa fa-book fa-2x fa-fw"></i>
   <h2 id="MENU_USER_HELP" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-book fa-fw"></i>
     {{'MENU_USER_HELP'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -17208,8 +17207,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-question fa-2x fa-fw"></i>
-  <h2 id="MENU_HELP_APPLICATION" class="help-snippet help-header text-primary">
+  </div><h2 id="MENU_HELP_APPLICATION" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-question fa-fw"></i>
     {{'MENU_HELP_APPLICATION'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
@@ -17247,8 +17246,8 @@
         </div>
       </div>
     </div>
-  </div><i role="icon" class="help-icon text-primary fa fa-info fa-2x fa-fw"></i>
-  <h2 id="SCREEN_TITLE_APP_INF" class="help-snippet help-header text-primary">
+  </div><h2 id="SCREEN_TITLE_APP_INF" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary fa fa-info fa-fw"></i>
     {{'SCREEN_TITLE_APP_INF'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>

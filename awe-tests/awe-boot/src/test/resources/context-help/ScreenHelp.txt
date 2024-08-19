@@ -1,5 +1,5 @@
-<i role="icon" class="help-icon text-primary fa fa-sitemap fa-2x fa-fw"></i>
 <h1 id="SCREEN_TITLE_SIT" class="help-snippet help-header text-primary">
+  <i role="icon" class="help-icon text-primary fa fa-sitemap fa-fw"></i>
   {{'SCREEN_TITLE_SIT'| translateMultiple}}
 </h1>
 <hr class="help-header-separator"/>

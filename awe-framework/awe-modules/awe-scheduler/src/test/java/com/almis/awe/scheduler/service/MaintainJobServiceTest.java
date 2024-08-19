@@ -16,7 +16,6 @@ import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,6 +28,9 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.URI;
@@ -63,6 +65,8 @@ class MaintainJobServiceTest {
   TaskDAO taskDAO;
   @Mock
   ApplicationEventPublisher eventPublisher;
+  @Mock
+  RestTemplate restTemplate;
   private MaintainJobService maintainJobService;
   private static MockWebServer mockBackEnd;
 
@@ -80,7 +84,7 @@ class MaintainJobServiceTest {
   @Test
   void testExecuteJobLocal() throws Exception {
     maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
-      DataListUtil.getMapper(), Duration.ofSeconds(5), false, null, false, null, null);
+      DataListUtil.getMapper(), Duration.ofSeconds(5), false, null, false, null, null, restTemplate);
     maintainJobService.setApplicationContext(context);
 
 
@@ -110,7 +114,7 @@ class MaintainJobServiceTest {
   void testExecuteJobLocalErrorInMaintain() throws Exception {
     maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
       DataListUtil.getMapper(), Duration.ofSeconds(5),
-      false, null, false, null, null);
+      false, null, false, null, null, restTemplate);
     maintainJobService.setApplicationContext(context);
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
@@ -139,17 +143,12 @@ class MaintainJobServiceTest {
   void testExecuteJobRemote() throws Exception {
     maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
       DataListUtil.getMapper(), Duration.ofSeconds(5),
-      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), true, "user", "pass");
+      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), true, "user", "pass", restTemplate);
     maintainJobService.setApplicationContext(context);
 
     // Back end response
-    mockBackEnd.enqueue(new MockResponse()
-      .setBody(DataListUtil.getMapper().writeValueAsString(new LoginResponse().setToken("token")))
-      .addHeader("Content-Type", "application/json"));
-    mockBackEnd.enqueue(new MockResponse()
-      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData()))
-      .addHeader("Content-Type", "application/json"));
-
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(LoginResponse.class))).thenReturn(ResponseEntity.ok(new LoginResponse().setToken("token")));
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq( ServiceData.class), anyString())).thenReturn(ResponseEntity.ok(new ServiceData()));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getProperty(anyString())).willReturn("ES");
@@ -173,17 +172,14 @@ class MaintainJobServiceTest {
 
   @Test
   void testExecuteJobRemoteErrorInAuthentication() throws Exception {
-    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
-      DataListUtil.getMapper(), Duration.ofSeconds(5),
-      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), true, "user", "pass");
+    final URI uri = new URI(String.format("http://localhost:%s", mockBackEnd.getPort()));
+        maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+            DataListUtil.getMapper(), Duration.ofSeconds(5),
+            true, uri, true, "user", "pass", restTemplate);
     maintainJobService.setApplicationContext(context);
 
-    mockBackEnd.enqueue(new MockResponse()
-      .setBody("")
-      .addHeader("Content-Type", "application/json"));
-    mockBackEnd.enqueue(new MockResponse()
-      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData().setType(AnswerType.ERROR)))
-      .addHeader("Content-Type", "application/json"));
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(LoginResponse.class))).thenReturn(ResponseEntity.ok(new LoginResponse()));
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq( ServiceData.class), anyString())).thenReturn(ResponseEntity.ok(new ServiceData().setType(AnswerType.ERROR)));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getProperty(anyString())).willReturn("ES");
@@ -209,11 +205,10 @@ class MaintainJobServiceTest {
   void testExecuteJobRemoteNoAuth() throws Exception {
     maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
       DataListUtil.getMapper(), Duration.ofSeconds(5),
-      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null);
+      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null, restTemplate);
     maintainJobService.setApplicationContext(context);
-    mockBackEnd.enqueue(new MockResponse()
-      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData()))
-      .addHeader("Content-Type", "application/json"));
+
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq( ServiceData.class), anyString())).thenReturn(ResponseEntity.ok(new ServiceData()));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getProperty(anyString())).willReturn("ES");
@@ -239,11 +234,10 @@ class MaintainJobServiceTest {
   void testExecuteJobRemoteNoAuthErrorInResponse() throws Exception {
     maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
       DataListUtil.getMapper(), Duration.ofSeconds(5),
-      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null);
+      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null, restTemplate);
     maintainJobService.setApplicationContext(context);
-    mockBackEnd.enqueue(new MockResponse()
-      .setBody(DataListUtil.getMapper().writeValueAsString(new ServiceData().setType(AnswerType.ERROR)))
-      .addHeader("Content-Type", "application/json"));
+
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq( ServiceData.class), anyString())).thenReturn(ResponseEntity.ok(new ServiceData().setType(AnswerType.ERROR)));
 
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getProperty(anyString())).willReturn("ES");
