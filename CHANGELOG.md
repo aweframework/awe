@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.8.4
+*19/08/2024*
+
+- Error launching manual tasks from scheduler. [MR #517](https://gitlab.com/aweframework/awe/-/merge_requests/517) (Pablo Vidal Otero)
+- Add a new toggle class method which allows a button to toggle a class in a node. [MR #515](https://gitlab.com/aweframework/awe/-/merge_requests/515) (Pablo Javier García Mora)
+- Error closing milestone. [MR #514](https://gitlab.com/aweframework/awe/-/merge_requests/514) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.8.3
 *19/08/2024*
 
