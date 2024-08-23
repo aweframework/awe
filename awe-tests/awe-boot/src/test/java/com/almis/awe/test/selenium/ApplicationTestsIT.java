@@ -15,7 +15,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
   }
 
   /**

@@ -1,0 +1,32 @@
+/*******************************************************************************
+ AVATAR DIRECTIVE
+*******************************************************************************/
+
+.nav li.avatar {
+  cursor: pointer;
+
+  .avatar-icon {
+    margin-top: 0.5rem;
+    > .nav-icon {
+      font-size: 1.5rem;
+      &.material-icons {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  .avatar-image {
+    margin-bottom: 0.5rem;
+  }
+
+  .avatar-icon,
+  .avatar-image {
+    border-radius: 50%;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-width: 2px;
+    box-shadow: 1px 2px 2px var(--shadow-color);
+    display: inline-block;
+    background-color: var(--secondary-background-color);
+  }
+}

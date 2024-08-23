@@ -17,6 +17,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +35,10 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Accessors(chain = true)
-@XStreamInclude({Button.class, Info.class, InfoButton.class, ContextButton.class, ContextSeparator.class})
+@XStreamInclude({Button.class, Info.class, InfoButton.class, ContextButton.class, ContextSeparator.class, Avatar.class})
 public abstract class AbstractButton extends AbstractCriteria {
 
+  @Serial
   private static final long serialVersionUID = 4537762712903942049L;
 
   // Template name
