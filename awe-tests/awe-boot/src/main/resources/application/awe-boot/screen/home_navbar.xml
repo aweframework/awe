@@ -63,12 +63,12 @@
                 </dependency>
               </info-button>
             </info>
-            <info id="ButUsrAct" icon="user" initial-load="query" target-action="connectedUser">
+            <avatar id="ButUsrAct" image="/images/logo/logo-awe-nuevo.svg" icon="mdi:person_outline" initial-load="query" target-action="connectedUser">
               <include target-screen="notification-panel" target-source="user-settings"/>
               <include target-screen="info-buttons" target-source="themeModeSelector"/>
               <include target-screen="info-buttons" target-source="themeSelector"/>
               <include target-screen="info-buttons" target-source="languageSelector"/>
-            </info>
+            </avatar>
             <include target-screen="info-buttons" target-source="logout"/>
           </tag>
         </tag>

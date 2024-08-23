@@ -17,7 +17,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
   }
 
   /**
@@ -164,7 +164,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
 
     checkLogout(".slogan", "Almis Web Engine");
 
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
 
     // Verify that ButPrn button is not visible
     checkVisibleAndContains("li[option-name='test']", "Tests");

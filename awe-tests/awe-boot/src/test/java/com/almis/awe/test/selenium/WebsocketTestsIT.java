@@ -16,7 +16,7 @@ class WebsocketTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
   }
 
   /**
@@ -48,7 +48,7 @@ class WebsocketTestsIT extends SeleniumUtilities {
     checkAndCloseMessage("warn");
 
     // Do login
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
 
     // Do broadcast test
     broadcastMessageToUser("test", "This is a broadcast message test");
