@@ -669,6 +669,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
         return StringExpressions.ltrim(StringExpressions.rtrim(fieldExpression));
       case "TRUNCDATE":
         return Expressions.dateOperation(Date.class, Ops.DateTimeOps.DATE, fieldExpression);
+      case "LENGTH":
+        return new WindowOver<>(Integer.class, Ops.STRING_LENGTH, fieldExpression);
       case "SECOND":
       case "MINUTE":
       case "HOUR":

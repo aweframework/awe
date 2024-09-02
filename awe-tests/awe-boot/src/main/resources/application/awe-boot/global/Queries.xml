@@ -198,6 +198,7 @@
     </operation>
     <constant value="-1212" type="INTEGER" alias="AbsInteger" function="ABS"/>
     <constant value="-1212.12123" type="DOUBLE" alias="AbsDouble" function="ABS"/>
+    <constant value="Test" type="STRING" alias="StrLength" function="LENGTH"/>
     <field id="IdeDbs" alias="Cnt" function="CNT"/>
     <field id="Ord" alias="CntDst" function="CNT_DISTINCT"/>
     <field id="Ord" alias="Sum" function="SUM"/>

@@ -610,6 +610,7 @@
       <xs:enumeration value="SUM" />
       <xs:enumeration value="FIRST_VALUE" />
       <xs:enumeration value="LAST_VALUE" />
+      <xs:enumeration value="LENGTH" />
     </xs:restriction>
   </xs:simpleType>
 

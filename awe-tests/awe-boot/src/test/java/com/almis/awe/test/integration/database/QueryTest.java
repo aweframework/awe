@@ -159,8 +159,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseQueryFieldFunctions() throws Exception {
     String queryName = "TestFieldFunctions";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"Sum\":24,\"Max\":2584,\"AbsOpe\":2584,\"AbsIde\":15934,\"AbsInteger\":1212,\"AbsDouble\":1212.12123,\"Avg\":10.16666666666666666666666666666666666667,\"CntDst\":3\"Cnt\":12,\"Min\":60,\"Trim\":\"as as  daef\"}]}}},{\"type\":\"end-load\"}]";
-
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"AbsInteger\":1212,\"CntDst\":3,\"Max\":2584,\"Trim\":\"as as  daef\",\"StrLength\":4,\"Cnt\":12,\"Sum\":24,\"Min\":60,\"Avg\":10,\"AbsOpe\":2584,\"id\":1,\"AbsIde\":15934,\"AbsDouble\":1212.12123}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
     String result = performRequest(queryName, variables, DATABASE);
     logger.debug(expected);
 
@@ -178,6 +177,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       assertEquals(3, component.get("CntDst").asInt());
       assertEquals(60, component.get("Min").asInt());
       assertEquals("as as  daef", component.get("Trim").asText());
+      assertEquals(4, component.get("StrLength").asInt());
       logger.debug(component.toString());
     }
 
