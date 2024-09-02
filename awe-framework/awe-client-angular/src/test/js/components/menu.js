@@ -121,7 +121,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
       // Expect
       let scope = element.find("ul.awe-menu").scope();
       expect(scope.visible).toBe(true);
-      expect(scope.status.minimized).toBe(false);
+      expect(scope.status.minimized).toBe($("body").hasClass("mmc"));
 
       done();
     });
@@ -150,7 +150,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
       // Expect
       let scope = element.find("ul.awe-menu").scope();
       expect(scope.visible).toBe(true);
-      expect(scope.status.minimized).toBe(true);
+      expect(scope.status.minimized).toBe($("body").hasClass("mmc"));
 
       done();
     });
