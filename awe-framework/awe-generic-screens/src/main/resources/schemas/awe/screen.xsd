@@ -191,7 +191,10 @@
   <!-- Info Criteria Element -->
   <xs:element name="info-criteria" type="infoCriteriaType" />
 
-  <!-- Info Element -->
+  <!-- Avatar Element -->
+  <xs:element name="avatar" type="avatarType" />
+
+  <!-- Menu container -->
   <xs:element name="menu-container" type="menuContainerType" />
 
   <!-- Frame Element -->
@@ -492,6 +495,23 @@
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
 
+  <!-- Avatar Attributes -->
+  <xs:attributeGroup name="avatarAttr">
+    <xs:attributeGroup ref="serverCallAttr" />
+    <xs:attribute name="id" type="nameEnum" use="required" />
+    <xs:attribute name="type" type="xs:string" />
+    <xs:attribute name="label" type="xs:string" />
+    <xs:attribute name="style" type="xs:string" />
+    <xs:attribute name="value" type="xs:string" />
+    <xs:attribute name="size" type="xs:string" />
+    <xs:attribute name="button-type" type="buttonTypes" />
+    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="help" type="xs:string" />
+    <xs:attribute name="help-image" type="xs:string" />
+    <xs:attribute name="image" type="xs:string" />
+    <xs:attribute name="show-label" type="booleanEnum" />
+  </xs:attributeGroup>
+
   <!-- Window Attributes -->
   <xs:attributeGroup name="windowAttr">
     <xs:attribute name="id" type="nameEnum" />
@@ -764,6 +784,7 @@
       <xs:element ref="wizard" />
       <xs:element ref="criteria" />
       <xs:element ref="button" />
+      <xs:element ref="avatar" />
       <xs:element ref="message" />
       <xs:element ref="text" />
       <xs:element ref="widget" />
@@ -926,6 +947,20 @@
       <xs:element ref="dependency" />
     </xs:choice>
     <xs:attributeGroup ref="buttonAttr" />
+  </xs:complexType>
+
+  <!-- Button Type -->
+  <xs:complexType name="avatarType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="info" />
+      <xs:element ref="info-button" />
+      <xs:element ref="info-criteria" />
+      <xs:element ref="tag" />
+      <xs:element ref="include" />
+      <xs:element ref="button-action" />
+      <xs:element ref="dependency" />
+    </xs:choice>
+    <xs:attributeGroup ref="avatarAttr" />
   </xs:complexType>
 
   <!-- Context Separator Type -->

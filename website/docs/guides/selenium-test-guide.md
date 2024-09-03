@@ -99,7 +99,7 @@ public class WebsocketTestsIT extends SeleniumUtilities {
    */
   @Test
   public void t000_loginTest() throws Exception {
-    checkLogin("test", "test", "span.info-text", "Manager (test)");
+    checkLogin("test", "test", "span.avatar-text", "Manager (test)");
   }
 
   /**
@@ -149,7 +149,7 @@ parameters:
 
  ```java
  // Title
- checkLogin("test", "test", "span.info-text", "Manager (test)");
+ checkLogin("test", "test", "span.avatar-text", "Manager (test)");
  ```
  
  To logout the application just call to `checkLogout` method with the following 

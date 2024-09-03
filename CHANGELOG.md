@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.8.5
+*03/09/2024*
+
+- Add LENGTH function to query engine. [MR #519](https://gitlab.com/aweframework/awe/-/merge_requests/519) (Pablo Javier García Mora)
+- Add the Avatar component. [MR #518](https://gitlab.com/aweframework/awe/-/merge_requests/518) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.8.4
 *19/08/2024*
 

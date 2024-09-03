@@ -213,6 +213,7 @@ The *field* element has the following attributes:
 - `MINUTE`: Retrieve minutes from date
 - `SECOND`: Retrieve seconds from date
 - `TRIM`: Remove all spaces from both sides of the string
+- `LENGTH`: Length value of field
 
 #### Transform attribute
 
@@ -499,6 +500,7 @@ The *over* element allows to modelate **SQL window functions**. This element con
 - `LAG`: Lag
 - `ROW_NUMBER`: Row number
 - `TRUNCDATE` (not standard): Truncates date
+- `LENGTH`: Length value of field
 
 #### Over examples
 

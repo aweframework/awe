@@ -19,6 +19,8 @@ import "./button";
 import "./infoButton";
 import "./column/button";
 
+import "./avatar";
+
 import "./menu";
 import "./option";
 import "./contextMenu";

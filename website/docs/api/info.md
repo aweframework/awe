@@ -7,6 +7,8 @@ The navigation bar is used to add visual elements with logic functions in the to
 
 You can add `info` elements to show more info and `info-button` elements as buttons with actions. Also, you can put `info-criteria` elements inside info elements as criteria for show more info. 
 
+You also can user `avatar` component to show the user image, and of course use it as dropdown menu.
+
 <img alt="NavBar" src={require('@docusaurus/useBaseUrl').default('img/NavBar.png')} />
 
 ## Xml structure
@@ -38,11 +40,13 @@ The xml structure of navigation bar component is the following:
 
 ## Nabvar structure
 
-| Element     | Use      | Multiples instances    | Description                                        |
-| ----------- | ---------|------------------------|----------------------------------------------------|
-| [info](#info-attributes) | Optional  | Yes | Graphical element to show information |
-| [info-button](#info-button-attributes) | Optional | Yes | Navbar button for execute task. Same as button element in Awe |
-| [info-criteria](#info-criteria-attributes) | Optional | Yes | Navbar criteria to get input from the user and send it to the application server (business logic) . Same as criteria element in Awe |
+| Element                                    | Use        | Multiples instances | Description                                                                                                                         |
+|--------------------------------------------|------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| [info](#info-attributes)                   | Optional   | Yes                 | Graphical element to show information                                                                                               |
+| [info-button](#info-button-attributes)     | Optional   | Yes                 | Navbar button for execute task. Same as button element in Awe                                                                       |
+| [info-criteria](#info-criteria-attributes) | Optional   | Yes                 | Navbar criteria to get input from the user and send it to the application server (business logic) . Same as criteria element in Awe |
+| [avatar](#avatar-attributes)               | Optional   | Yes                 | Navbar component which shows the user image. It can be used as button or as navbar dropdown menu                                    |
+
 
 ### info attributes
 
@@ -71,7 +75,7 @@ The xml structure of navigation bar component is the following:
 | `title`      | Optional | String | Static text show when over button  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `info-style` | Optional | String | Css style of info-button container |                                                                            |
 
-> **Note:** info-button element has other attributes as button element. You can see more info [here](button.md#button-attributes).
+> **Note:** `info-butto`n element has other attributes as `button` element. You can see more info [here](button.md#button-attributes).
 
 ### info-criteria attributes
 
@@ -80,7 +84,18 @@ The xml structure of navigation bar component is the following:
 | `title`      | Optional | String | Static text show when over criteria  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `info-style` | Optional | String | Css style of info-criteria container | Ex.: `info-style="form-group"`                                             |
 
-> **Note:** info-criteria element has the same attributes as criteria element. You can see more info [here](criteria.md#criteria-attributes).
+> **Note:** `info-criteria` element has the same attributes as `criteria` element. You can see more info [here](criteria.md#criteria-attributes).
+
+### avatar attributes
+
+| Attribute    | Use      | Type    | Description                                             | Values                                                                     |
+|--------------|----------|---------|---------------------------------------------------------|----------------------------------------------------------------------------|
+| `title`      | Optional | String  | Static text show when over element                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| `show-label` | Optional | Boolean | Whether to show or not the label next to the user image | The default value is `true`                                                |
+| `image`      | Optional | String  | Relative or absolute of the image to use as avatar      |                                                                            |
+
+> **Note:** avatar element has the same attributes as `button` element. You can see more info [here](button.md#button-attributes).
+
 
 ## Examples
 
@@ -142,4 +157,21 @@ The xml structure of navigation bar component is the following:
    <dependency-element id="database"/>
   </dependency>
 </info>
+```
+
+- Avatar element with dropdown
+
+<img alt="Avatar" src={require('@docusaurus/useBaseUrl').default('img/avatar.png')} />
+
+```xml
+<tag type="div" id="main-navbar-collapse" style="collapse navbar-collapse main-navbar-collapse">
+  <tag type="div" style="right clearfix">
+    <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
+      <avatar id="ButUsrAct" image="/images/logo/logo-awe-nuevo.svg" icon="user" field="Val" server-action="data" target-action="ConUsr"/>
+      <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT">
+        <button-action type="logout" />
+      </info-button>
+    </tag>
+  </tag>
+</tag>
 ```
