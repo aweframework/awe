@@ -44,6 +44,8 @@
     <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
     <build.environment>development</build.environment>
     <plugin-spring-boot.version>3.1.2</plugin-spring-boot.version>
+
+    <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
   </properties>
 
   <dependencies>
@@ -290,7 +292,7 @@
         <version>${maven-deploy-plugin.version}</version>
         <configuration>
           <skip>true</skip>
-        </configuration>  
+        </configuration>
       </plugin>
 
       <!-- Spring boot -->
@@ -354,6 +356,20 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <validationSets>
+            <validationSet>
+              <dir>${check.xml.directory}/app/</dir>
+              <excludes>
+                <exclude>templates/**</exclude>
+              </excludes>
+              <validating>true</validating>
+            </validationSet>
+          </validationSets>
+          <catalogs>
+            <catalog>file:///${project.build.directory}/schemas/awe/catalog.xml</catalog>
+          </catalogs>
+        </configuration>
       </plugin>
 
       <!-- Frontend generation -->
