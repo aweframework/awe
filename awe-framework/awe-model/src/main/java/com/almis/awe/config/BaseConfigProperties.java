@@ -1,6 +1,7 @@
 package com.almis.awe.config;
 
 import com.almis.awe.model.type.MenuType;
+import com.almis.awe.model.type.XStreamDriverType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -127,6 +128,11 @@ public class BaseConfigProperties {
    * Default value <a href="https://export.highcharts.com">...</a>
    */
   private String highchartsServerUrl = "https://export.highcharts.com";
+
+  /**
+   * XStream driver
+   */
+  private XStreamDriverType xstreamDriverType = XStreamDriverType.DOM;
 
   /**
    * Loading timeout in milliseconds.
