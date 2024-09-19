@@ -17,18 +17,9 @@ module.exports = {
     rules : [
       {test: /\.(tsx|ts|jsx|js)$/, exclude: /node_modules/, use: 'babel-loader'},
       {test: /\.(le|c)ss$/, use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader", "less-loader"]},
-      {test: /\.(jpg|gif|png)$/, use: {loader: 'url-loader', options: {limit: 10240, name: './images/[hash].[ext]'}}},
-      {
-        test: /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: {
-          loader: "url-loader",
-          options: {limit: 10000, mimetype: 'application/font-woff', name: './fonts/[hash].[ext]'}
-        }
-      },
-      {
-        test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: {loader: "file-loader", options: {name: "./fonts/[hash].[ext]"}}
-      }
+      {test: /\.(jpg|gif|png)$/, type: 'asset/resource', generator: { filename: 'images/[hash][ext][query]'}},
+      {test: /\.woff[2]*?(\?v=[0-9]\.[0-9]\.[0-9])?$/, type: 'asset/resource', generator: {filename: "fonts/[hash][ext][query]"}},
+      {test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, type: 'asset/resource', generator: {filename: "fonts/[hash][ext][query]"}}
     ]
   },
   resolve : {
