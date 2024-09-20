@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 0.0.12
+*20/09/2024*
+
+- The second time a message is shown and hides the action gets blocked. [MR #44](https://gitlab.com/aweframework/awe-react/-/merge_requests/44) (Pablo Javier García Mora)
+- Generate a new module with react client generic screens. [MR #43](https://gitlab.com/aweframework/awe-react/-/merge_requests/43) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.11
 *06/09/2024*
 
