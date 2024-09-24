@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -124,34 +125,20 @@ public class CellData implements Comparable<CellData>, Copyable {
    */
   @JsonIgnore
   public Double getDoubleValue() {
-    Double doubleValue;
-    switch (getType()) {
+    return switch (getType()) {
       // Get value as double
-      case DOUBLE:
-        doubleValue = (Double) getObjectValue();
-        break;
+      case DOUBLE -> (Double) getObjectValue();
       // Get float value as double
-      case FLOAT:
-        doubleValue = ((Float) getObjectValue()).doubleValue();
-        break;
+      case FLOAT -> ((Float) getObjectValue()).doubleValue();
       // Get integer value as double
-      case INTEGER:
-        doubleValue = ((Integer) getObjectValue()).doubleValue();
-        break;
+      case INTEGER -> ((Integer) getObjectValue()).doubleValue();
       // Get long value as double
-      case LONG:
-        doubleValue = ((Long) getObjectValue()).doubleValue();
-        break;
+      case LONG -> ((Long) getObjectValue()).doubleValue();
       // Get long value as double
-      case DECIMAL:
-        doubleValue = ((BigDecimal) getObjectValue()).doubleValue();
-        break;
-      // If default, set to null
-      default:
-        doubleValue = null;
-        break;
-    }
-    return doubleValue;
+      case DECIMAL -> ((BigDecimal) getObjectValue()).doubleValue();
+      // If defaulted, set to null
+      default -> null;
+    };
   }
 
   /**
@@ -161,29 +148,22 @@ public class CellData implements Comparable<CellData>, Copyable {
    */
   @JsonIgnore
   public Integer getIntegerValue() {
-    switch (getType()) {
+    return switch (getType()) {
       // Get value as double
-      case DOUBLE:
-        return ((Double) getObjectValue()).intValue();
+      case DOUBLE -> ((Double) getObjectValue()).intValue();
       // Get float value as double
-      case FLOAT:
-        return ((Float) getObjectValue()).intValue();
+      case FLOAT -> ((Float) getObjectValue()).intValue();
       // Get integer value as double
-      case INTEGER:
-        return (Integer) getObjectValue();
+      case INTEGER -> (Integer) getObjectValue();
       // Get long value as double
-      case LONG:
-        return ((Long) getObjectValue()).intValue();
+      case LONG -> ((Long) getObjectValue()).intValue();
       // Get long value as double
-      case DECIMAL:
-        return ((BigDecimal) getObjectValue()).intValue();
+      case DECIMAL -> ((BigDecimal) getObjectValue()).intValue();
       // Get integer value from json node
-      case JSON:
-        return ((JsonNode) getObjectValue()).intValue();
+      case JSON -> ((JsonNode) getObjectValue()).intValue();
       // If default, set to null
-      default:
-        return null;
-    }
+      default -> null;
+    };
   }
 
   /**
@@ -278,31 +258,25 @@ public class CellData implements Comparable<CellData>, Copyable {
    */
   @Override
   public int compareTo(CellData cell2) {
-    switch (getType()) {
+    return switch (getType()) {
       // Compare as date
-      case DATE:
-        return compareObjects(getObjectValue(), cell2.getObjectValue(), Date.class);
+      case DATE -> compareObjects(getObjectValue(), cell2.getObjectValue(), Date.class);
       // Compare as double
-      case DOUBLE:
-        return compareObjects(getObjectValue(), cell2.getObjectValue(), Double.class);
+      case DOUBLE -> compareObjects(getObjectValue(), cell2.getObjectValue(), Double.class);
       // Compare as decimal
-      case DECIMAL:
-        return compareObjects(getObjectValue(), cell2.getObjectValue(), BigDecimal.class);
+      case DECIMAL -> compareObjects(getObjectValue(), cell2.getObjectValue(), BigDecimal.class);
       // Compare as float
-      case FLOAT:
-        return compareObjects(getObjectValue(), cell2.getObjectValue(), Float.class);
+      case FLOAT -> compareObjects(getObjectValue(), cell2.getObjectValue(), Float.class);
       // Compare as integer
-      case INTEGER:
-        return compareObjects(getObjectValue(), cell2.getObjectValue(), Integer.class);
+      case INTEGER -> compareObjects(getObjectValue(), cell2.getObjectValue(), Integer.class);
       // Compare as long
-      case LONG:
-        return compareObjects(getObjectValue(), cell2.getObjectValue(), Long.class);
+      case LONG -> compareObjects(getObjectValue(), cell2.getObjectValue(), Long.class);
       // Compare as string
-      case STRING:
-      default:
+      default -> {
         String string2 = cell2.getStringValue();
-        return getStringValue().compareTo(string2);
-    }
+        yield getStringValue().compareTo(string2);
+      }
+    };
   }
 
   /**
@@ -339,20 +313,15 @@ public class CellData implements Comparable<CellData>, Copyable {
     if (isSendStringValue()) {
       return getStringValue();
     } else {
-      switch (getType()) {
+      return switch (getType()) {
         // Get object value
-        case DOUBLE, FLOAT, INTEGER, LONG, DECIMAL, JSON, OBJECT:
-          return getObjectValue();
+        case DOUBLE, FLOAT, INTEGER, LONG, DECIMAL, JSON, OBJECT -> getObjectValue();
         // Get json value as null
-        case NULL:
-          return null;
+        case NULL -> null;
         // Get json value as string
-        case DATE:
-          return dateToString(getDateValue());
-        case STRING:
-        default:
-          return getStringValue();
-      }
+        case DATE -> dateToString(getDateValue());
+        default -> getStringValue();
+      };
     }
   }
 
@@ -388,6 +357,10 @@ public class CellData implements Comparable<CellData>, Copyable {
     } else if (value instanceof Date date) {
       String dateString = DateUtil.dat2WebTimestamp(date);
       setValue(dateString, date, DATE);
+    } else if (value instanceof LocalDateTime date) {
+      setValue(DateUtil.localDatetime2WebTimestamp(date), DateUtil.asUtilDate(date), DATE);
+    } else if (value instanceof LocalDate date) {
+      setValue(DateUtil.localDate2WebDate(date), DateUtil.asUtilDate(date), DATE);
     } else if (value instanceof JsonNode) {
       setValue(value, JSON);
     } else if (value instanceof CellData cell) {

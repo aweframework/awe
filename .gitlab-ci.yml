@@ -151,6 +151,8 @@ Build website with i18n:
   needs:
     - job: Build project
       artifacts: false
+  variables:
+    TZ: Europe/Madrid
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false
   rules:

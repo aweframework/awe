@@ -488,4 +488,18 @@ class DateUtilTest {
     );
 
   }
+
+  @Test
+  void testLocalDatetime2WebTimestamp() {
+    String expectedDateTime = "14/02/2022 14:54:01";
+    LocalDateTime localDateTime = LocalDateTime.parse("14/02/2022 14:54:01", DATETIME_FORMAT_WEB);
+    assertEquals(expectedDateTime, DateUtil.localDatetime2WebTimestamp(localDateTime));
+  }
+
+  @Test
+  void testLocalDate2WebDate() {
+    String expectedDate = "14/02/2022";
+    LocalDate localDate = LocalDate.parse("14/02/2022", DATE_FORMAT_WEB);
+    assertEquals(expectedDate, DateUtil.localDate2WebDate(localDate));
+  }
 }

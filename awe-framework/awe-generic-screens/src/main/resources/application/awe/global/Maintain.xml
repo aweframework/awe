@@ -99,7 +99,7 @@
       <variable id="ScrIni" type="STRING" name="ScrIni"/>
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="PwdLck" type="INTEGER" name="PwdLck"/>
-      <variable id="UpdateDate" type="SYSTEM_DATE"/>
+      <variable id="UpdateDate" type="SYSTEM_TIMESTAMP"/>
     </update>
     <update>
       <table id="ope"/>
