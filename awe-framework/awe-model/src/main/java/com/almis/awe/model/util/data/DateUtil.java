@@ -289,6 +289,28 @@ public final class DateUtil {
   }
 
   /**
+   * Transforms a LocalDatetime into a Web Timestamp
+   *
+   * @param localDateTime Date
+   * @return Web Timestamp
+   */
+  public static String localDatetime2WebTimestamp(LocalDateTime localDateTime) {
+    // Format date
+    return localDateTime.format(DATETIME_FORMAT_WEB);
+  }
+
+  /**
+   * Transforms a LocalDate into a Web date
+   *
+   * @param localDate Date
+   * @return Web Timestamp
+   */
+  public static String localDate2WebDate(LocalDate localDate) {
+    // Format date
+    return localDate.format(DATE_FORMAT_WEB);
+  }
+
+  /**
    * Transforms a timestamp date into a SQL Timestamp string
    *
    * @param date Date
