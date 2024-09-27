@@ -5,13 +5,15 @@ Scheduler AWE module logback configuration provided for import
 
 <included>
   <!-- Conversion rules -->
-  <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
-  <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
-  <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
-
+  <conversionRule conversionWord="applicationName" class="org.springframework.boot.logging.logback.ApplicationNameConverter" />
+  <conversionRule conversionWord="clr" class="org.springframework.boot.logging.logback.ColorConverter" />
+  <conversionRule conversionWord="correlationId" class="org.springframework.boot.logging.logback.CorrelationIdConverter" />
+  <conversionRule conversionWord="esb" class="org.springframework.boot.logging.logback.EnclosedInSquareBracketsConverter" />
+  <conversionRule conversionWord="wex" class="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+  <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
   <!-- Properties -->
   <springProperty name="EXECUTION_LOG_PATTERN" scope="context" source="awe.scheduler.execution-log-pattern" defaultValue="%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx"/>
-  <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : [execution=%X{execution} user=%X{user} database=%mdc{database} screen=%mdc{currentScreen}] %m%n%wEx}"/>
+  <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- %applicationName[%t] ${LOG_CORRELATION_PATTERN:-}%-40.40logger{39} : [execution=%X{execution} user=%X{user} database=%mdc{database} screen=%mdc{currentScreen}] %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
   <property name="APPLICATION_LOG_PATH" value="${APPLICATION_LOG_PATH:-/application}"/>
 
   <!-- SCHEDULER FILE Appender -->

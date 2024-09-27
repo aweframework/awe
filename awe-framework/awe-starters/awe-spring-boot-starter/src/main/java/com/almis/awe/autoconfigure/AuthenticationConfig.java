@@ -132,7 +132,7 @@ public class AuthenticationConfig {
    */
   @Bean
   @ConditionalOnProperty(prefix = "awe.security", name = "auth-mode", havingValue = "bbdd", matchIfMissing = true)
-  public AuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
+  public DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService) {
     DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
     daoAuthenticationProvider.setPasswordEncoder(new Ripemd160PasswordEncoder());
     daoAuthenticationProvider.setUserDetailsService(userDetailsService);

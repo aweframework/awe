@@ -52,7 +52,7 @@ public class SecurityConfig extends ServiceConfig {
   public void configureGlobal(AuthenticationManagerBuilder auth) {
 
     AuthType mode = securityConfigProperties.getAuthMode();
-    log.info("Using authentication mode: " + mode);
+    log.info("Using authentication mode: {}", mode);
 
     if (Objects.requireNonNull(mode) == AuthType.CUSTOM) {// Custom authentication bean
       for (String provider : securityConfigProperties.getAuthCustomProviders()) {
@@ -65,8 +65,6 @@ public class SecurityConfig extends ServiceConfig {
           log.error("Couldn't load authentication provider bean with name [{}]", provider, exc);
         }
       }
-    } else {
-      auth.authenticationProvider(getBean(AuthenticationProvider.class));
     }
   }
 

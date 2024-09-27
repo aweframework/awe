@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.9.0
+*27/09/2024*
+
+- Prepare to new awe minor version 4.9.x. [MR #523](https://gitlab.com/aweframework/awe/-/merge_requests/523) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Migrate AWE to Spring Boot 3.3.x. [MR #522](https://gitlab.com/aweframework/awe/-/merge_requests/522) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.8.5
 *03/09/2024*
 

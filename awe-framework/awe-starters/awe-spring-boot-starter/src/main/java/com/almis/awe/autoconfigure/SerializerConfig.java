@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.entities.Element;
@@ -17,6 +18,8 @@ import com.almis.awe.model.entities.services.Services;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.graalvm.polyglot.Context;
@@ -36,6 +39,7 @@ public class SerializerConfig {
 
   // Autowired services
   private final SecurityConfigProperties securityConfigProperties;
+  private final BaseConfigProperties baseConfigProperties;
 
   private ThreadLocal<Context> engineThread;
 
@@ -43,8 +47,9 @@ public class SerializerConfig {
    * SerializeConfig constructor
    * @param securityConfigProperties Security configuration properties
    */
-  public SerializerConfig(SecurityConfigProperties securityConfigProperties) {
+  public SerializerConfig(SecurityConfigProperties securityConfigProperties, BaseConfigProperties baseConfigProperties) {
     this.securityConfigProperties = securityConfigProperties;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -88,7 +93,12 @@ public class SerializerConfig {
   @ConditionalOnMissingBean
   public XStreamMarshaller xStreamMarshaller() {
     XStreamMarshaller xstreamMarshaller = new XStreamMarshaller();
-    xstreamMarshaller.setStreamDriver(new DomDriver(null, new NoNameCoder()));
+
+    switch (baseConfigProperties.getXstreamDriverType()) {
+      case STAX -> xstreamMarshaller.setStreamDriver(new StaxDriver());
+      case XPP -> xstreamMarshaller.setStreamDriver(new XppDriver());
+      default -> xstreamMarshaller.setStreamDriver(new DomDriver(null, new NoNameCoder()));
+    }
 
     // Process annotations
     xstreamMarshaller.getXStream().processAnnotations(new Class[]{
