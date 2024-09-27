@@ -136,7 +136,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
         driver = getFirefoxDriver(firefoxOptions);
         break;
       case HEADLESS_CHROME:
-        chromeOptions.setHeadless(true);
+        chromeOptions.addArguments("--headless=new");
         driver = getChromeDriver(chromeOptions);
         break;
       case REMOTE_FIREFOX:

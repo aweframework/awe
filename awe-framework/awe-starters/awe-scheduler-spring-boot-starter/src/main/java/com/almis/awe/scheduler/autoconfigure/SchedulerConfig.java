@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationEventPublisher;
@@ -55,6 +56,16 @@ public class SchedulerConfig {
   @Autowired
   public SchedulerConfig(SchedulerConfigProperties schedulerConfigProperties) {
     this.schedulerConfigProperties = schedulerConfigProperties;
+  }
+
+  /**
+   * Modify bean registration jobRegistryBeanPostProcessor to avoid some WARN messages when the application is starting
+   * @return Bean post processor
+   */
+  //TODO Remove this bean definition when spring-batch v5.2 will released
+  @Bean
+  public static BeanDefinitionRegistryPostProcessor jobRegistryBeanPostProcessorRemover() {
+    return registry -> registry.removeBeanDefinition("jobRegistryBeanPostProcessor");
   }
 
   /**

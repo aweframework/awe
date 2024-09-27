@@ -42,9 +42,8 @@ public class TaskService {
   /**
    * Load tasks from the database to the scheduler
    *
-   * @throws AWException
    */
-  public void loadSchedulerTasks() throws AWException {
+  public void loadSchedulerTasks() {
     // Load the list of task from database
     List<Future<Task>> taskList = new ArrayList<>();
     try {
@@ -61,14 +60,14 @@ public class TaskService {
         lastLoadedTask = loadTask(lastLoadedTask, futureTask);
       }
     } catch (Exception exc) {
-      log.warn("No scheduler tables on the current database");
+      log.error("Error launching task {}", exc.getMessage(), exc);
     }
   }
 
   /**
    * Load tasks from the database to the scheduler
    *
-   * @throws AWException
+   * @throws AWException AWE exception
    */
   public ServiceData updateInterruptedTasks() throws AWException {
     return taskDAO.updateInterruptedTasks();
@@ -77,10 +76,10 @@ public class TaskService {
   /**
    * Load a single task
    *
-   * @param lastLoadedTask
-   * @param taskFuture
-   * @return
-   * @throws AWException
+   * @param lastLoadedTask Last loaded task
+   * @param taskFuture future task
+   * @return Task
+   * @throws AWException AWE exception
    */
   private Task loadTask(Task lastLoadedTask, Future<Task> taskFuture) throws AWException {
     try {
