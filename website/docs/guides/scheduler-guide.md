@@ -50,20 +50,20 @@ The configuration wizard consists in 5 steps:
 
 In this step we have to add the task basic configuration.
 
-| Element       | Definition    | Use   |
-| ------------- |:-------------:| -----:|
-| Name          | Task name     | **Required** |
-| Active        | Task status, if not active the task would not be launched   | **Required** |
-| Description   | Task description |  Optional |
-| Max. stored executions| Maximum number of executions to be stored in the database (Used to calculate the average time). The default value is 10. |  Optional|
-| Timeout       | Maximum time for the task to finish. If the task execution time exceeds the timeout time (represented in milliseconds) the task will be interrupted |  Optional |
-| Execute       | The task execution type (Command or Maintain) |  **Required** |
-| Execute at    | Server in which the command task has to be launched |  Optional (Only needed in `Command` launch type) |
-| Command    | Command to launch |  **Required** (Only needed in `Command` launch type) |
-| Maintain   | Maintain to launch |  **Required** (Only needed in `Maintain` launch type) |
-| Launch dependencies in case of warning | Launch the task dependencies in case of warning |  Optional |
-| Launch dependencies in case of error| Launch the task dependencies in case of error |  Optional |
-| Set execution as warning in case of error| Sets the parent execution as warning in case of dependency error |  Optional |
+| Element       |                                                                   Definition                                                                   | Use   |
+| ------------- |:----------------------------------------------------------------------------------------------------------------------------------------------:| -----:|
+| Name          |                                                                   Task name                                                                    | **Required** |
+| Active        |                                           Task status, if not active the task would not be launched                                            | **Required** |
+| Description   |                                                                Task description                                                                |  Optional |
+| Max. stored executions|            Maximum number of executions to be stored in the database (Used to calculate the average time). The default value is 10.            |  Optional|
+| Timeout       | Maximum time for the task to finish. If the task execution time exceeds the timeout time (represented in seconds) the task will be interrupted |  Optional |
+| Execute       |                                                 The task execution type (Command or Maintain)                                                  |  **Required** |
+| Execute at    |                                              Server in which the command task has to be launched                                               |  Optional (Only needed in `Command` launch type) |
+| Command    |                                                               Command to launch                                                                |  **Required** (Only needed in `Command` launch type) |
+| Maintain   |                                                               Maintain to launch                                                               |  **Required** (Only needed in `Maintain` launch type) |
+| Launch dependencies in case of warning |                                                Launch the task dependencies in case of warning                                                 |  Optional |
+| Launch dependencies in case of error|                                                 Launch the task dependencies in case of error                                                  |  Optional |
+| Set execution as warning in case of error|                                        Sets the parent execution as warning in case of dependency error                                        |  Optional |
 
 > **Note:** To add a new maintain to the Scheduler, the maintain must be set to `public="true"`.
 
@@ -190,12 +190,12 @@ The list will show some basic information of each task, like the name, the launc
 
 When selecting one task, some options will be activated:
 
-| Option       | Definition    | Multiple |
-| ------------- |:-------------:| --------:|
-| Update | Update the selected task | No |
-| Delete | Delete the selected task/s | Yes |
-| Start | Launch the selected task as a manual task. It doesn't need to be a manual task in order to launch an instance of the task manually | No |
-| Activate/Deactivate | Act
+| Option              |                                                             Definition                                                             | Multiple |
+|---------------------|:----------------------------------------------------------------------------------------------------------------------------------:|---------:|
+| Update              |                                                      Update the selected task                                                      |       No |
+| Delete              |                                                     Delete the selected task/s                                                     |      Yes |
+| Start               | Launch the selected task as a manual task. It doesn't need to be a manual task in order to launch an instance of the task manually |       No |
+| Activate/Deactivate |                                                                Act                                                                 |          |
 
 ## `Servers`
 
