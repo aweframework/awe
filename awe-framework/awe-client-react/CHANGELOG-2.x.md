@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 0.0.13
+*30/09/2024*
+
+- Bump awe version to 4.9.0. [MR #47](https://gitlab.com/aweframework/awe-react/-/merge_requests/47) (Pablo Javier García Mora)
+- Force selection on suggest (do not allow a not selected value). [MR #46](https://gitlab.com/aweframework/awe-react/-/merge_requests/46) (Pablo Javier García Mora)
+- Add-class, Remove-class and Toggle-class actions are being launched a lot of times. [MR #45](https://gitlab.com/aweframework/awe-react/-/merge_requests/45) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.12
 *20/09/2024*
 
