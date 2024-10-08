@@ -25,7 +25,7 @@
     <testng.version>6.14.3</testng.version>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
     <log-back.version>0.1.5</log-back.version>
-    <logstash.version>6.6</logstash.version>
+    <logstash.version>8.0</logstash.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
@@ -69,7 +69,7 @@
       <artifactId>spring-cloud-gcp-starter</artifactId>
     </dependency>
 
-    <!-- EHcache -->
+    <!-- EH cache -->
     <dependency>
       <groupId>org.ehcache</groupId>
       <artifactId>ehcache</artifactId>
@@ -266,7 +266,7 @@
     <dependency>
       <groupId>org.jsmart</groupId>
       <artifactId>zerocode-tdd-jupiter</artifactId>
-      <version>1.3.28</version>
+      <version>1.3.42</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -716,5 +716,12 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <repositories>
+    <repository>
+      <id>maven_central</id>
+      <name>Maven Central</name>
+      <url>https://repo.maven.apache.org/maven2/</url>
+    </repository>
+  </repositories>
 
 </project>

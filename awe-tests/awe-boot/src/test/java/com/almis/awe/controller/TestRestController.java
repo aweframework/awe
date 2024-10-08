@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ import java.util.List;
  * Created by pgarcia on 18/05/2018.
  */
 @Controller
-@RequestMapping("/testapi")
+@RequestMapping(value = "/testapi", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TestRestController {
 
   @Autowired

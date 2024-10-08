@@ -93,6 +93,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
       LoginRequest loginRequest = new LoginRequest()
         .setUsername("test")
         .setPassword("dummy");
+      headers.setContentType(MediaType.APPLICATION_JSON);
       HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
       ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
               HttpMethod.POST, loginRequestEntity, AweRestResponse.class);

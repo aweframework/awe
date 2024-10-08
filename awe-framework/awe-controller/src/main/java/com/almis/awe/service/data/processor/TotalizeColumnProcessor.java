@@ -10,7 +10,7 @@ import com.almis.awe.model.entities.queries.TotalizeBy;
 import com.almis.awe.model.entities.queries.TotalizeField;
 import com.almis.awe.model.type.TotalizeFunctionType;
 import com.almis.awe.service.NumericService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.util.*;
