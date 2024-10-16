@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.9.1
+*16/10/2024*
+
+- Fix transitive dependency vulnerabilities. [MR #524](https://gitlab.com/aweframework/awe/-/merge_requests/524) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.9.0
 *27/09/2024*
 
