@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 0.0.14
+*16/10/2024*
+
+- Bump AWE to 4.9.1 version. [MR #50](https://gitlab.com/aweframework/awe-react/-/merge_requests/50) (Pablo Javier García Mora)
+- Manage event to be launched once each time they are called, instead of keeping event in model. [MR #49](https://gitlab.com/aweframework/awe-react/-/merge_requests/49) (Pablo Javier García Mora)
+- Uploader doesn't take into account context-path when trying to upload files. [MR #48](https://gitlab.com/aweframework/awe-react/-/merge_requests/48) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.13
 *30/09/2024*
 
