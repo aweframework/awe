@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 0.0.15
+*17/10/2024*
+
+- Wizard doesn't show the step where you are. [MR #53](https://gitlab.com/aweframework/awe-react/-/merge_requests/53) (Pablo Javier García Mora)
+- Input Numeric shows always a 0 if no value defined. [MR #52](https://gitlab.com/aweframework/awe-react/-/merge_requests/52) (Pablo Javier García Mora)
+- Text view doesn't show the value if there is no label defined. [MR #51](https://gitlab.com/aweframework/awe-react/-/merge_requests/51) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.14
 *16/10/2024*
 
