@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 0.0.16
+*21/10/2024*
+
+- Change message position to bottom. [MR #55](https://gitlab.com/aweframework/awe-react/-/merge_requests/55) (Pablo Javier García Mora)
+- The tree is not working when the parent id is null instead of blank. [MR #54](https://gitlab.com/aweframework/awe-react/-/merge_requests/54) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.15
 *17/10/2024*
 
