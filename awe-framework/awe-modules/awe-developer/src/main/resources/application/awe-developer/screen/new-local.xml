@@ -9,15 +9,17 @@
         <criteria id="CrtLitTxt" label="PARAMETER_LOCAL_VALUE" placeholder="SCREEN_TEXT_ADD_LOCAL" style="col-xs-12" component="textarea"/>
       </tag>
       <tag type="div" style="modal-footer">
-        <button label="BUTTON_CLOSE" icon="close" id="ButDiaCan" help="HELP_CLOSE_DIALOG_BUTTON">
-          <button-action type="close" target="new-local" />
-        </button>
-        <button button-type="submit" id="ButSavDia" label="Save" icon="floppy-o" help="HELP_CREATE_NEW_LOCAL_BUTTON">
-          <button-action type="server" server-action="maintain" target-action="LitNew" />
-          <button-action type="reload-language"/>
-          <button-action type="filter" target="GrdStrLit" silent="true"/>
-          <button-action type="close" target="new-local" />
-        </button>
+        <tag type="div" style="pull-right">
+          <button label="BUTTON_CLOSE" icon="close" id="ButDiaCan" help="HELP_CLOSE_DIALOG_BUTTON">
+            <button-action type="close" target="new-local" />
+          </button>
+          <button button-type="submit" id="ButSavDia" label="Save" icon="floppy-o" help="HELP_CREATE_NEW_LOCAL_BUTTON">
+            <button-action type="server" server-action="maintain" target-action="LitNew" />
+            <button-action type="reload-language"/>
+            <button-action type="filter" target="GrdStrLit" silent="true"/>
+            <button-action type="close" target="new-local" />
+          </button>
+        </tag>
       </tag>
     </dialog>
   </tag>

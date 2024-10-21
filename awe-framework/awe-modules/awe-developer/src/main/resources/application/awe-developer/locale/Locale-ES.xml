@@ -34,6 +34,7 @@
   <locale name="PARAMETER_NEW_PATH" value="Nueva ruta de acceso"/>
   <locale name="PARAMETER_PATH" value="Ruta de acceso actual"/>
   <locale name="PARAMETER_SEARCH" value="Buscar"/>
+  <locale name="PARAMETER_SELECT_LANGUAGE" value="Seleccione un idioma"/>
   <locale name="SCREEN_TITLE_MNG_LIT" value="Gestor de literales"/>
   <locale name="SCREEN_TITLE_MNG_PTH" value="Gestor de ruta de desarrollo"/>
   <locale name="SCREEN_TITLE_NEW_LOCAL" value="Nuevo literal"/>

@@ -32,7 +32,7 @@
       </tag>
     </window>
     <window id="menu-options" style="expand" maximize="true" icon="bars" label="SCREEN_TEXT_MENU">
-      <grid id="menu-option-tree" treegrid="true" tree-id="option-id" tree-parent="parent-option" tree-leaf="option-is-leaf" expand-column="option" style="expand" server-action="data" target-action="menu-option-tree-by-module" autoload="true" load-all="true">
+      <grid id="menu-option-tree" treegrid="true" tree-id="option-id" tree-parent="parent-option" tree-leaf="option-is-leaf" expand-column="option-name" style="expand" server-action="data" target-action="menu-option-tree-by-module" autoload="true" load-all="true">
         <column name="option-id" hidden="true"/>
         <column name="parent-option" hidden="true"/>
         <column name="option-is-leaf" hidden="true"/>
