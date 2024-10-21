@@ -40,6 +40,7 @@
   <locale name="TITLE_LOCALS" value="Locals"/>
   <locale name="TITLE_PATH" value="Path"/>
   <locale name="TITLE_SEARCH" value="Search"/>
+  <locale name="PARAMETER_SELECT_LANGUAGE" value="Select language"/>
   <locale name="TITLE_TRANSLATION" value="Translation"/>
   <locale name="TITLE_TRANSLATIONS" value="Translations"/>
   <locale name="WARNING_MESSAGE_TRANSLATION_FAILED" value="Couldn&apos;t connect with translation API"/>
