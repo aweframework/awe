@@ -91,9 +91,9 @@
   <locale name="MENU_TEST_WIZARD" value="Wizard"/>
   <locale name="PARAMETER_AGE" value="Age"/>
   <locale name="PARAMETER_CHECKBOX" value="Checkbox"/>
-  <locale name="PARAMETER_CHECKBOX_1" value="Checkbox 1"/>
-  <locale name="PARAMETER_CHECKBOX_2" value="Checkbox 2"/>
-  <locale name="PARAMETER_CHECKBOX_3" value="Checkbox 3"/>
+  <locale name="PARAMETER_CHECKBOX_1" value="Checkbox 1 EN"/>
+  <locale name="PARAMETER_CHECKBOX_2" value="Checkbox 2 EN"/>
+  <locale name="PARAMETER_CHECKBOX_3" value="Checkbox 3 EN"/>
   <locale name="PARAMETER_CITY" value="City"/>
   <locale name="PARAMETER_COLOR" value="Color"/>
   <locale name="PARAMETER_COLOR_READONLY" value="Color (read)"/>
@@ -113,9 +113,9 @@
   <locale name="PARAMETER_NUMERIC_READONLY" value="Numeric (read)"/>
   <locale name="PARAMETER_OTHER" value="Other"/>
   <locale name="PARAMETER_PRESSED_BUTTON" value="Pressed button"/>
-  <locale name="PARAMETER_RADIO_1" value="Radio 1"/>
-  <locale name="PARAMETER_RADIO_2" value="Radio 2"/>
-  <locale name="PARAMETER_RADIO_3" value="Radio 3"/>
+  <locale name="PARAMETER_RADIO_1" value="Radio Button 1"/>
+  <locale name="PARAMETER_RADIO_2" value="Radio Button 2"/>
+  <locale name="PARAMETER_RADIO_3" value="Radio Button 3"/>
   <locale name="PARAMETER_SELECT" value="Select"/>
   <locale name="PARAMETER_SELECT_MULTIPLE" value="MultiSelect"/>
   <locale name="PARAMETER_SELECT_MULTIPLE_READONLY" value="MultiSelect (read)"/>
