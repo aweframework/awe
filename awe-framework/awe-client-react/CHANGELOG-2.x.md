@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 0.0.17
+*22/10/2024*
+
+- Fix tree grid issue with Columns module import. [MR #56](https://gitlab.com/aweframework/awe-react/-/merge_requests/56) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.16
 *21/10/2024*
 
