@@ -173,6 +173,7 @@ public class ScreenService extends ServiceConfig {
    * Retrieve an option screen data
    *
    * @param optionId Option id
+   * @param generateTemplate Generate template for awe-angular
    * @return Screen data
    */
   public ScreenData getScreenData(String optionId, boolean generateTemplate) throws AWException {
@@ -187,11 +188,12 @@ public class ScreenService extends ServiceConfig {
    * Retrieve error screen data
    *
    * @param errorOptionId Error option id
+   * @param generateTemplate Generate template for awe-angular
    * @return Screen data
    */
-  public ScreenData getErrorScreenData(String errorOptionId) {
+  public ScreenData getErrorScreenData(String errorOptionId, boolean generateTemplate) {
     try {
-      return generateScreenData(errorOptionId, true);
+      return getScreenData(errorOptionId, generateTemplate);
     } catch (Exception exc) {
       log.error("Error generating error screen data", exc);
       return null;
