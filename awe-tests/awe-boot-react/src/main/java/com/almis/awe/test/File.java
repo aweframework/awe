@@ -4,6 +4,9 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.Global;
+import com.almis.awe.model.service.DataListService;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.file.FileUtil;
 import com.almis.awe.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Collections;
 
 /**
  * File test class
@@ -22,6 +26,9 @@ public class File extends ServiceConfig {
 
   @Autowired
   private FileService fileService;
+
+  @Autowired
+  private DataListService dataListService;
 
   /**
    * Given a file identifier, download a file
@@ -60,9 +67,6 @@ public class File extends ServiceConfig {
     FileData fileData = FileUtil.stringToFileData(filedata);
 
     // Set variables
-    String[] out = { filedata, fileData.getFileName() };
-
-    // Set variables
-    return serviceData.setData(out);
+    return serviceData.setDataList(DataListUtil.fromBeanList(Collections.singletonList(new Global().setValue(filedata).setLabel(fileData.getFileName()))));
   }
 }

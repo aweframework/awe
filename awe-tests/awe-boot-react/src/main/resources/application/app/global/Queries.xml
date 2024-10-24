@@ -2227,6 +2227,7 @@
   <query id="getFileInfo" service="getFileInfo">
     <field id="value" alias="value"/>
     <field id="label" alias="label"/>
+    <computed alias="selected" format="true" transform="BOOLEAN"/>
     <variable id="fileName" type="STRING" name="Upl"/>
   </query>
 
@@ -2991,6 +2992,13 @@
     <table id="AwePro"/>
     <field id="Nam" alias="name"/>
     <field id="IdePro" alias="value"/>
+  </query>
+
+  <query id="dummyLineQuery" service="dummyLineService">
+    <field id="dates"  function="TRUNCDATE" alias="dates" transform="DATE_MS"/>
+    <field id="profitability" alias="profitability"/>
+    <field id="amount" alias="amount"/>
+    <variable value="currentYear" type="STRING" id="years" />
   </query>
 
 </queries>
