@@ -410,4 +410,10 @@
     <java classname="com.almis.awe.test.service.DummyService" method="dynamicSubScreen"/>
   </service>
 
+  <service id="dummyLineService">
+    <java classname="com.almis.awe.test.service.DummyService" method="dummyLineService">
+      <service-parameter name="years" type="STRING" />
+    </java>
+  </service>
+
 </services>

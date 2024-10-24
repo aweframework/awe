@@ -24,14 +24,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.NumberUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 
@@ -521,5 +526,57 @@ public class DummyService extends ServiceConfig {
           )
         )
       );
+  }
+
+  /**
+   * @return ServiceData
+   *
+   * @throws NoSuchAlgorithmException NoSuchAlgorithmException
+   * @author Santiago ROZAS
+   * <p> * fill line chart with dummy data
+   */
+  public ServiceData dummyLineService(String years) throws NoSuchAlgorithmException {
+    ServiceData serviceData = new ServiceData();
+    DataList dataList = new DataList();
+
+    // Parámetros
+    double mu = 0.05;
+    double sigma = 0.5;
+    double dt = 1d;
+
+    // Calculamos el primer día del gráfico en función de la selección
+    Date firstDay;
+    if (years == null)
+      years = "currentYear";
+
+    if (NumberUtils.isNumber(years)) {
+      firstDay = DateUtils.addYears(new Date(), -NumberUtils.stringToInt(years));
+    } else if (years.equals("currentYear")) {
+      firstDay = DateUtils.truncate(new Date(), Calendar.YEAR);
+    } else {
+      firstDay = DateUtils.addYears(new Date(), -12);
+    }
+
+    long diff = new Date().getTime() - firstDay.getTime();
+    int n = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+    // Arrays para almacenar el tiempo y los valores de la serie
+    Date[] dateSeries = new Date[n + 1];
+    Double[] values = new Double[n + 1];
+    Double[] amounts = new Double[n + 1];
+    values[0] = 0.0;  dateSeries[0] = firstDay;
+    amounts[0] = 250000d;
+    Random rand = SecureRandom.getInstanceStrong();
+
+    for (int i = 1; i <= n; i++) {
+      double dW = rand.nextGaussian() * Math.sqrt(dt);
+      values[i] = values[i - 1] + mu * dt + sigma * dW;
+      dateSeries[i] = DateUtils.addDays(dateSeries[i - 1], (int) dt);
+      amounts[i] = amounts[0]*(1d+values[i]/100d);
+    }
+
+    DataListUtil.addColumn(dataList, "dates", Arrays.asList(dateSeries));
+    DataListUtil.addColumn(dataList, "profitability", Arrays.asList(values));
+    DataListUtil.addColumn(dataList, "amount", List.of(amounts));
+    return serviceData.setDataList(dataList);
   }
 }

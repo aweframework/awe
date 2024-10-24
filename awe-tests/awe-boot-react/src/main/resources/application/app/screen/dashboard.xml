@@ -23,14 +23,12 @@
                 </chart>
             </window>
             <window label="PARAMETER_TEXT" icon="mdi:insights" style="expand">
-                <chart id="chart-insights" label="PARAMETER_TEXT" type="spline" initial-load="query"
-                       target-action="QryEdiTst">
+                <chart id="fundProfitabilityChart" type="line" initial-load="query" target-action="dummyLineQuery" zoom-type="xAxis" max="0" label="PARAMETER_TEXT">
                     <chart-legend enabled="true"/>
-                    <x-axis label="Stuff"/>
-                    <y-axis label="Values"/>
+                    <x-axis label="DATE" type="datetime"/>
+                    <y-axis label="PROFITABILITY"/>
                     <chart-tooltip suffix=" %" number-decimals="2"/>
-                    <chart-serie id="serie1" x-value="Txt" y-value="Num" label="Stuff"/>
-                    <chart-serie id="serie2" x-value="Txt" y-value="Num2" label="Other Stuff" />
+                    <chart-serie id="serie1" x-value="dates" y-value="profitability" label="PROFITABILITY"/>
                 </chart>
             </window>
             <window label="PARAMETER_TEXT" icon="mdi:donut_small" style="expand">
