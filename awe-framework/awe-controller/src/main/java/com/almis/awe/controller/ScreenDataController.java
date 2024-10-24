@@ -87,7 +87,7 @@ public class ScreenDataController {
   @ExceptionHandler(AWException.class)
   public ScreenData handleAWException(AWException exc) {
     log.error("Error generating screen: Internal server error", exc);
-    return screenService.getErrorScreenData("error-5xx") ;
+    return screenService.getErrorScreenData("error-5xx", generateTemplate()) ;
   }
 
   /**
@@ -98,6 +98,6 @@ public class ScreenDataController {
   @ExceptionHandler(AWENotFoundException.class)
   public ScreenData handleAWENotFoundException(AWException exc) {
     log.error("Error generating screen: Not found", exc);
-    return screenService.getErrorScreenData("error-4xx");
+    return screenService.getErrorScreenData("error-4xx", generateTemplate());
   }
 }

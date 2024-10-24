@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.9.2
+*24/10/2024*
+
+- Pick the new ADE version - 2.2.4. [MR #527](https://gitlab.com/aweframework/awe/-/merge_requests/527) (Pablo Javier García Mora)
+- Error screens doesn't have the appropriate structure for awe-react. [MR #526](https://gitlab.com/aweframework/awe/-/merge_requests/526) (Pablo Javier García Mora)
+- Fix menu restrictions screen tree. [MR #525](https://gitlab.com/aweframework/awe/-/merge_requests/525) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.9.1
 *16/10/2024*
 

@@ -34,6 +34,7 @@
   <locale name="PARAMETER_NEW_PATH" value="Nouveau chemin"/>
   <locale name="PARAMETER_PATH" value="Chemin d&apos;accès actuel"/>
   <locale name="PARAMETER_SEARCH" value="Recherche"/>
+  <locale name="PARAMETER_SELECT_LANGUAGE" value="Sélectionner une langue"/>
   <locale name="SCREEN_TITLE_MNG_LIT" value="Gestion des paramètres régionaux"/>
   <locale name="SCREEN_TITLE_MNG_PTH" value="Le gestionnaire  de la route de développement"/>
   <locale name="SCREEN_TITLE_NEW_LOCAL" value="Nouveau paramètre régionaux"/>

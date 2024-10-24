@@ -77,7 +77,7 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
             <dependency-element id="CrtLitIde" alias="NewLocale"/>
           </dependency>
         </criteria>
-        <criteria id="CrtSchLan" label="PARAMETER_LANGUAGE" placeholder="PARAMETER_SELECT_LANGUAGE" style="col-xs-12 col-sm-2 col-lg-2 padding-sm" component="select" initial-load="enum" target-action="Lan" property="awe.application.language-default"/>
+        <criteria id="CrtSchLan" label="PARAMETER_LANGUAGE" placeholder="PARAMETER_SELECT_LANGUAGE" style="col-xs-12 col-sm-2 col-lg-2 padding-sm" component="select" initial-load="enum" target-action="Lan" session="language"/>
       </tag>
       <tag type="div" style="panel-footer">
         <tag type="div" style="pull-right">
@@ -131,8 +131,8 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
                 <tabcontainer id="TEXT">
                   <tag type="div" style="panel-body">
                     <tag type="div" style="col-xs-12 col-sm-4 col-lg-3 no-padding">
-                      <criteria id="CrtLitLanFroTxt" label="PARAMETER_FROM" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" property="awe.application.language-default"/>
-                      <criteria id="CrtLitLanToTxt" label="PARAMETER_TO" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" property="awe.application.language-default">
+                      <criteria id="CrtLitLanFroTxt" label="PARAMETER_FROM" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language"/>
+                      <criteria id="CrtLitLanToTxt" label="PARAMETER_TO" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language">
                         <dependency source-type="formule" target-type="input" formule="'[selectedLanguageTxt]'.toLowerCase()">
                           <dependency-element id="GrdTraLit" column="idio" attribute="selectedRowValue" alias="selectedLanguageTxt"/>
                           <dependency-element id="GrdTraLit" attribute="selectedRows" condition="eq" value="1" />
@@ -158,8 +158,8 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
                 <tabcontainer id="MARKDOWN">
                   <tag type="div" style="panel-body">
                     <tag type="div" style="col-xs-12 col-sm-4 col-lg-3 no-padding">
-                      <criteria id="CrtLitLanFroMrk" label="PARAMETER_FROM" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" property="awe.application.language-default"/>
-                      <criteria id="CrtLitLanToMrk" label="PARAMETER_TO" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" property="awe.application.language-default">
+                      <criteria id="CrtLitLanFroMrk" label="PARAMETER_FROM" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language"/>
+                      <criteria id="CrtLitLanToMrk" label="PARAMETER_TO" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language">
                         <dependency source-type="formule" target-type="input" formule="'[selectedLanguageMrk]'.toLowerCase()">
                           <dependency-element id="GrdTraLit" column="idio" attribute="selectedRowValue" alias="selectedLanguageMrk"/>
                           <dependency-element id="GrdTraLit" attribute="selectedRows" condition="eq" value="1" />
@@ -190,7 +190,6 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
               <button label="BUTTON_UPDATE" icon="pencil" id="ButUpd" help="HELP_UPDATE_BUTTON">
                 <dependency target-type="enable">
                   <dependency-element id="GrdTraLit" attribute="selectedRows" condition="eq" value="1" />
-                  <dependency-element id="GrdTraLit" event="select-row" />
                 </dependency>
                 <button-action type="server" server-action="maintain-silent" target-action="LitSav" silent="true"/>
               </button>
