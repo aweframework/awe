@@ -76,6 +76,7 @@
   <locale name="MENU_TEST_CHARTS" value="Graphiques"/>
   <locale name="MENU_TEST_CRITERIA" value="Critères"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Critères Reset"/>
+  <locale name="MENU_TEST_EMPTY" value="Écran vide"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestionnaire de fichiers"/>
   <locale name="MENU_TEST_GRIDS" value="Grids"/>
   <locale name="MENU_TEST_LAYOUT" value="Layout"/>
