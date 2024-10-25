@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 0.0.18
+*25/10/2024*
+
+- Highcharts doesn't change locales when changing language. [MR #59](https://gitlab.com/aweframework/awe-react/-/merge_requests/59) (Pablo Javier García Mora)
+- Show 4xx and 5xx screens when page generation returns an error. [MR #58](https://gitlab.com/aweframework/awe-react/-/merge_requests/58) (Pablo Javier García Mora)
+- AweButtonRadio doesn't change labels when changing the language. [MR #57](https://gitlab.com/aweframework/awe-react/-/merge_requests/57) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.17
 *22/10/2024*
 
