@@ -14,4 +14,6 @@
   <option name="test-initial-values" screen="TestInitialValues" />
   <option name="test-initial-values-load" screen="TestInitialValuesLoad" />
   <option name="test-public-layout" screen="public-layout" />
+  <option name="error-4xx" screen="error-4xx" invisible="true" />
+  <option name="error-5xx" screen="error-5xx" invisible="true" />
 </menu>
