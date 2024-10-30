@@ -44,7 +44,7 @@
             </tag>
             <criteria label="ENABLE_2FA" component="checkbox" id="enable2fa" style="col-sm-12">
                 <dependency>
-                    <dependency-element id="enable2fa" condition="eq" value="0"/>
+                    <dependency-element id="enable2fa" condition="ne" value="1"/>
                     <dependency-action type="server" server-action="maintain-silent" target-action="update2faStatus"/>
                     <dependency-action type="filter" target="2fa-code-list"/>
                 </dependency>
