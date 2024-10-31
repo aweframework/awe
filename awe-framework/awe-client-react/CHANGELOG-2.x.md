@@ -1,4 +1,47 @@
 
+# Changelog for AWE React 1.0.0
+*31/10/2024*
+
+- Add PDF Viewer widget. [MR #64](https://gitlab.com/aweframework/awe-react/-/merge_requests/64) (Pablo Javier García Mora)
+- Add a new component for videos. [MR #63](https://gitlab.com/aweframework/awe-react/-/merge_requests/63) (Pablo Javier García Mora)
+- Add a new component for links. [MR #62](https://gitlab.com/aweframework/awe-react/-/merge_requests/62) (Pablo Javier García Mora)
+- Add a new component for images. [MR #61](https://gitlab.com/aweframework/awe-react/-/merge_requests/61) (Pablo Javier García Mora)
+- Pager-values is not being used in pagination. [MR #60](https://gitlab.com/aweframework/awe-react/-/merge_requests/60) (Pablo Javier García Mora)
+- Improve confirm message style. [MR #41](https://gitlab.com/aweframework/awe-react/-/merge_requests/41) (Pablo Javier García Mora)
+- Add vertical menu depending on style. [MR #37](https://gitlab.com/aweframework/awe-react/-/merge_requests/37) (Pablo Javier García Mora)
+- Add material design icons. [MR #36](https://gitlab.com/aweframework/awe-react/-/merge_requests/36) (Pablo Javier García Mora)
+- Finish component actions. [MR #35](https://gitlab.com/aweframework/awe-react/-/merge_requests/35) (Pablo Javier García Mora)
+- Add Chart actions. [MR #34](https://gitlab.com/aweframework/awe-react/-/merge_requests/34) (Pablo Javier García Mora)
+- Add Grid context menu. [MR #30](https://gitlab.com/aweframework/awe-react/-/merge_requests/30) (Pablo Javier García Mora)
+- Add missing Form Actions. [MR #29](https://gitlab.com/aweframework/awe-react/-/merge_requests/29) (Pablo Javier García Mora)
+- Hide and show columns dependency is not working. [MR #27](https://gitlab.com/aweframework/awe-react/-/merge_requests/27) (Pablo Javier García Mora)
+- Format components before sending as print data. [MR #26](https://gitlab.com/aweframework/awe-react/-/merge_requests/26) (Pablo Javier García Mora)
+- Bump AWE to 4.7.9 version. [MR #25](https://gitlab.com/aweframework/awe-react/-/merge_requests/25) (Pablo Javier García Mora)
+- Add Treegrid. [MR #24](https://gitlab.com/aweframework/awe-react/-/merge_requests/24) (Pablo Javier García Mora)
+- Update project to awe v4.6.0. [MR #23](https://gitlab.com/aweframework/awe-react/-/merge_requests/23) (Pablo Javier García Mora)
+- Pick version 4.4.7 of AWE. [MR #22](https://gitlab.com/aweframework/awe-react/-/merge_requests/22) (Pablo Javier García Mora)
+- Difference between editing rows and selected rows. [MR #21](https://gitlab.com/aweframework/awe-react/-/merge_requests/21) (Pablo Javier García Mora)
+- Add Grid actions. [MR #20](https://gitlab.com/aweframework/awe-react/-/merge_requests/20) (Pablo Javier García Mora)
+- Add Multioperation Grid. [MR #19](https://gitlab.com/aweframework/awe-react/-/merge_requests/19) (Pablo Javier García Mora)
+- The app doesn't work with context-path. [MR #18](https://gitlab.com/aweframework/awe-react/-/merge_requests/18) (Pablo Javier García Mora)
+- Validation with format `maxlength: {value: 4, type: 'integer'}` is not working. [MR #17](https://gitlab.com/aweframework/awe-react/-/merge_requests/17) (Pablo Javier García Mora)
+- Fix checkbox and radio button styles (changed after primeflex update). [MR #16](https://gitlab.com/aweframework/awe-react/-/merge_requests/16) (Pablo Javier García Mora)
+- Add grid footer. [MR #15](https://gitlab.com/aweframework/awe-react/-/merge_requests/15) (Pablo Javier García Mora)
+- Add Grid line number. [MR #14](https://gitlab.com/aweframework/awe-react/-/merge_requests/14) (Pablo Javier García Mora)
+- Update primereact version to latest one. [MR #13](https://gitlab.com/aweframework/awe-react/-/merge_requests/13) (Pablo Javier García Mora)
+- Add Help Viewer widget. [MR #12](https://gitlab.com/aweframework/awe-react/-/merge_requests/12) (Pablo Javier García Mora)
+- Add Log Viewer widget. [MR #11](https://gitlab.com/aweframework/awe-react/-/merge_requests/11) (Pablo Javier García Mora)
+- Define initial value for suggest and file uploader. [MR #10](https://gitlab.com/aweframework/awe-react/-/merge_requests/10) (Pablo Javier García Mora)
+- Add Pivot Table component. [MR #9](https://gitlab.com/aweframework/awe-react/-/merge_requests/9) (Pablo Javier García Mora)
+- Add File Manager component. [MR #8](https://gitlab.com/aweframework/awe-react/-/merge_requests/8) (Pablo Javier García Mora)
+- Add Accordion component. [MR #7](https://gitlab.com/aweframework/awe-react/-/merge_requests/7) (Pablo Javier García Mora)
+- Add resizable component. [MR #6](https://gitlab.com/aweframework/awe-react/-/merge_requests/6) (Pablo Javier García Mora)
+- Add suggest `strict=false` functionality. [MR #5](https://gitlab.com/aweframework/awe-react/-/merge_requests/5) (Pablo Javier García Mora)
+- Fix grid reloading data when changing tabs. [MR #4](https://gitlab.com/aweframework/awe-react/-/merge_requests/4) (Pablo Javier García Mora)
+- Update primereact version to latest one. [MR #3](https://gitlab.com/aweframework/awe-react/-/merge_requests/3) (Pablo Javier García Mora)
+- When session is lost, screens remains empty and there's no interactivity with user. [MR #2](https://gitlab.com/aweframework/awe-react/-/merge_requests/2) (Pablo Javier García Mora)
+- Add Grid bottom buttons. [MR #1](https://gitlab.com/aweframework/awe-react/-/merge_requests/1) (Pablo Javier García Mora)
+
 # Changelog for AWE React 0.0.18
 *25/10/2024*
 
