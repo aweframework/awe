@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 1.0.1
+*06/11/2024*
+
+- Allow HTML from markdown on toast messages. [MR #67](https://gitlab.com/aweframework/awe-react/-/merge_requests/67) (Pablo Javier García Mora)
+- Use `size` attribute in criteria and buttons. [MR #66](https://gitlab.com/aweframework/awe-react/-/merge_requests/66) (Pablo Javier García Mora)
+- * Fixed issue. [MR #65](https://gitlab.com/aweframework/awe-react/-/merge_requests/65) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.0
 *31/10/2024*
 
