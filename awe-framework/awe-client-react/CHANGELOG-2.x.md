@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.0.2
+*11/11/2024*
+
+- Allow to add new languages in application (highcharts bug). [MR #68](https://gitlab.com/aweframework/awe-react/-/merge_requests/68) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.1
 *06/11/2024*
 
