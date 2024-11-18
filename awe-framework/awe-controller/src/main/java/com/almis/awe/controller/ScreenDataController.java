@@ -1,14 +1,18 @@
 package com.almis.awe.controller;
 
 import com.almis.awe.exception.AWENotFoundException;
+import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
+import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.ScreenService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -77,6 +81,17 @@ public class ScreenDataController {
    */
   private boolean generateTemplate() {
     return Optional.ofNullable(request.getParameter("template")).map(JsonNode::asBoolean).orElse(true);
+  }
+
+  /**
+   * Handle error
+   *
+   * @param exc Exception to handle
+   */
+  @ExceptionHandler(AWESessionException.class)
+  public ResponseEntity<String> handleSession(AWESessionException exc) {
+    log.error("Connection expired", exc);
+    return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(exc.getMessage()) ;
   }
 
   /**
