@@ -321,6 +321,9 @@
             <dependency-element id="TxtVal"/>
           </dependency>
         </criteria>
+        <avatar id="prueba-avatar" icon="mdi:person_outline" label="prueba" image="images/flags/MOD.svg" show-label="true" size="lg">
+          <button-action type="validate" />
+        </avatar>
       </tag>
     </window>
   </tag>
