@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.9.3
+*19/11/2024*
+
+- Manage AWESessionException on screen-data calls. [MR #529](https://gitlab.com/aweframework/awe/-/merge_requests/529) (Pablo Javier García Mora)
+- Update spring boot to 3.3.5. [MR #528](https://gitlab.com/aweframework/awe/-/merge_requests/528) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.9.2
 *24/10/2024*
 
