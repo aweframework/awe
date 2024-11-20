@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 1.0.3
+*20/11/2024*
+
+- Fix some chart issues (formatting options for labels). [MR #71](https://gitlab.com/aweframework/awe-react/-/merge_requests/71) (Pablo Javier García Mora)
+- Allow avatar to be used without values in model (only with attributes). [MR #70](https://gitlab.com/aweframework/awe-react/-/merge_requests/70) (Pablo Javier García Mora)
+- When losing session the engine shows error 500 instead of returning to signin screen. [MR #69](https://gitlab.com/aweframework/awe-react/-/merge_requests/69) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.2
 *11/11/2024*
 
