@@ -510,6 +510,7 @@
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="image" type="xs:string" />
     <xs:attribute name="show-label" type="booleanEnum" />
+    <xs:attribute name="unit" type="xs:string" />
   </xs:attributeGroup>
 
   <!-- Window Attributes -->

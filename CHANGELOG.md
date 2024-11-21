@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.9.4
+*21/11/2024*
+
+- Enconding error on login response. [MR #530](https://gitlab.com/aweframework/awe/-/merge_requests/530) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.9.3
 *19/11/2024*
 
