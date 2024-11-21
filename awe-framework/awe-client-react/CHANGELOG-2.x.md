@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 1.0.4
+*21/11/2024*
+
+- Pick the new AWE version. [MR #73](https://gitlab.com/aweframework/awe-react/-/merge_requests/73) (Pablo Javier García Mora)
+- Fix chart animation issues on show. [MR #72](https://gitlab.com/aweframework/awe-react/-/merge_requests/72) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.3
 *20/11/2024*
 
