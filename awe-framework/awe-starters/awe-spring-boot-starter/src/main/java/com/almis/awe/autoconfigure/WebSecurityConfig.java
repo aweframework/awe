@@ -282,6 +282,7 @@ public class WebSecurityConfig {
     authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {
       initRequest(request, objectMapper);
       String username = context.getBean(AweRequest.class).getParameterAsString(baseConfigProperties.getParameter().getUsername());
+      response.setHeader("Content-Type", "application/json; charset=UTF-8");
       response.getWriter().write(objectMapper.writeValueAsString(actionService.launchError("afterLogin", getCredentialsException(authenticationException, username))));
     });
     authenticationFilter.setSecurityContextRepository(securityContextRepository());
