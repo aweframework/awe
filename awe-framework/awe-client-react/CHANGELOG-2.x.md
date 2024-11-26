@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.0.5
+*26/11/2024*
+
+- When adding or removing a class on add-class or remove-class actions, node may be not defined and it crashes. [MR #74](https://gitlab.com/aweframework/awe-react/-/merge_requests/74) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.4
 *21/11/2024*
 
