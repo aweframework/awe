@@ -56,7 +56,7 @@ class LocaleFileServiceTest {
 
   @BeforeAll
   static void setUp() {
-    final List<@Size(min = 2, max = 2) String> languageCodeList = Arrays.asList("EN", "ES", "FR");
+    final List<@Size(min = 5, max = 5) String> languageCodeList = Arrays.asList("en-GB", "es-ES", "fr-FR");
     // Given
     createLocaleFiles(tempFolder, languageCodeList);
   }
@@ -74,7 +74,7 @@ class LocaleFileServiceTest {
     when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
     when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");
     // Launch
-    Locales locales = localeFileService.readLocalesFromFile("en");
+    Locales locales = localeFileService.readLocalesFromFile("en-GB");
     assertNotNull(locales);
   }
 
@@ -88,7 +88,7 @@ class LocaleFileServiceTest {
     // Launch
     when(baseConfigProperties.getFiles()).thenReturn(new BaseConfigProperties.Files());
     when(baseConfigProperties.getExtensionXml()).thenReturn(".xml");
-    Assertions.assertThrows(NullPointerException.class, () -> localeFileService.readLocalesFromFile("en"));
+    Assertions.assertThrows(NullPointerException.class, () -> localeFileService.readLocalesFromFile("en-GB"));
   }
 
   /**
@@ -139,7 +139,7 @@ class LocaleFileServiceTest {
     when(pathService.getPath()).thenReturn(tempFolder.getAbsolutePath());
     // Do
     assertDoesNotThrow(() ->
-            localeFileService.storeLocaleListFile("en", new Locales().setLocales(Collections.singletonList(dummyLocal))));
+            localeFileService.storeLocaleListFile("en-GB", new Locales().setLocales(Collections.singletonList(dummyLocal))));
   }
 
   /**

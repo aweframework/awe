@@ -5,7 +5,7 @@
  * English lenguage
  * @author Pablo Vidal
  */
-global.HighchartsLocale['en'] = {
+global.HighchartsLocale['en-GB'] = {
   noData: "No data to display",
   tooMuchData: "Too much data to display",
   contextButtonTitle: "Chart context menu",

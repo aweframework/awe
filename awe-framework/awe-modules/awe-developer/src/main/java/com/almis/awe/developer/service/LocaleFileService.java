@@ -63,12 +63,12 @@ public class LocaleFileService extends ServiceConfig {
   /**
    * Read local list from file
    *
-   * @param codeLang Language code (ES, EN, FR...)
+   * @param codeLang Language code (es-ES, en-GB, fr-FR...)
    * @return List of locales loaded
    */
   public Locales readLocalesFromFile(String codeLang) throws AWException {
 
-    String fileName = baseConfigProperties.getFiles().getLocale() + codeLang.toUpperCase();
+    String fileName = baseConfigProperties.getFiles().getLocale() + codeLang;
     File xmlFile = Paths.get(pathService.getPath(),fileName + baseConfigProperties.getExtensionXml()).toFile();
     return (Locales) readXmlFile(xmlFile);
   }
@@ -104,7 +104,7 @@ public class LocaleFileService extends ServiceConfig {
    */
   public void storeLocaleListFile(String codeLang, Locales locales) throws AWException {
 
-    String fileName = baseConfigProperties.getFiles().getLocale() + codeLang.toUpperCase();
+    String fileName = baseConfigProperties.getFiles().getLocale() + codeLang;
     XStream xstream;
     // Define XML file
     File xmlFile = Paths.get(pathService.getPath(), fileName + baseConfigProperties.getExtensionXml()).toFile();
@@ -153,7 +153,7 @@ public class LocaleFileService extends ServiceConfig {
       File folder = new File(path);
       if (folder.exists() && folder.isDirectory()) {
 
-        String patternString = baseConfigProperties.getFiles().getLocale() + "([a-zA-Z]+)" + baseConfigProperties.getExtensionXml();
+        String patternString = baseConfigProperties.getFiles().getLocale() + "([a-zA-Z\\-]+)" + baseConfigProperties.getExtensionXml();
         final Pattern pattern = Pattern.compile(patternString);
         String[] files = folder.list((File dir, String name) -> pattern.matcher(name).matches());
         for (String file : Objects.requireNonNull(files)) {

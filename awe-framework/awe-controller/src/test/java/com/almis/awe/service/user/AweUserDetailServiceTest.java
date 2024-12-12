@@ -68,7 +68,7 @@ class AweUserDetailServiceTest {
 
   private void mockProperties() {
     when(baseConfigProperties.getTheme()).thenReturn("sky");
-    when(baseConfigProperties.getLanguageDefault()).thenReturn("ES");
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
     when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
     when(securityConfigProperties.getDefaultRestriction()).thenReturn("manager");
   }

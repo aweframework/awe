@@ -53,9 +53,6 @@ aweApplication.factory('AweLocals',
         let  language = parameters.language;
 
         if (language !== null) {
-          // Set language to lower case
-          language = language.toLowerCase();
-
           // Finish locals action
           $actionController.acceptAction(action);
 

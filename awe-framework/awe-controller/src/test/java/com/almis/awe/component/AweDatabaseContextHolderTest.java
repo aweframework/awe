@@ -78,7 +78,7 @@ class AweDatabaseContextHolderTest {
   void givenMultiDatabaseEnabledAndEmptyDataSourceMapContainsAlias_shouldThrowAWException() {
     // Given
     given(databaseConfigProperties.isMultidatabaseEnable()).willReturn(true);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     // Asserts
     assertThrows(AWException.class, () -> aweDatabaseContextHolder.getDataSource("dummyAlias"));

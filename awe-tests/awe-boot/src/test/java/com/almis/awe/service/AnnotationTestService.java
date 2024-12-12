@@ -49,7 +49,7 @@ public class AnnotationTestService {
    * @return string
    */
   public String localeFromParameters(
-          @Locale (language = "es") String test) {
+          @Locale (language = "es-ES") String test) {
     return test;
   }
 
@@ -58,9 +58,9 @@ public class AnnotationTestService {
    *
    * @return string
    */
-  @Locale (language = "ES")
+  @Locale (language = "es-ES")
   public String localeFromReturnedValue() {
-    return "ENUM_LAN_ES";
+    return "ENUM_LAN_ES-ES";
   }
 
   /**
@@ -69,7 +69,7 @@ public class AnnotationTestService {
    * @param param the param
    * @return the string
    */
-  public String localeFromAnnotationValue(@Locale (value = "ENUM_LAN_ES", language = "ES") String param) {
+  public String localeFromAnnotationValue(@Locale (value = "ENUM_LAN_ES-ES", language = "es-ES") String param) {
     return param;
   }
 

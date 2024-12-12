@@ -3,7 +3,7 @@
  * by Leandro Poblet <leandrodrhouse@gmail.com>
  */
 (function($){
-  $.fn.markdown.messages['es'] = {
+  $.fn.markdown.messages['es-ES'] = {
     'Bold': "Negrita",
     'Italic': "Itálica",
     'Heading': "Título",

@@ -3,7 +3,7 @@
  * Benoît Bourgeois <bierdok@gmail.com>
  */
 (function ($) {
-  $.fn.markdown.messages.fr = {
+  $.fn.markdown.messages["fr-FR"] = {
     'Bold': "Gras",
     'Italic': "Italique",
     'Heading': "Titre",

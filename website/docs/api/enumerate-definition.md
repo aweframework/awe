@@ -70,10 +70,10 @@ Several examples of enumerated groups:
 
 ```xml
 <!-- LANGUAGES -->
-<group id="LanUsr">
-  <option label="ENUM_LAN_ES" value="ESP"/>
-  <option label="ENUM_LAN_EN" value="ENG"/>
-  <option label="ENUM_LAN_FR" value="FRA"/>
+<group id="Lan">
+  <option label="ENUM_LAN_ES" value="es-ES"/>
+  <option label="ENUM_LAN_EN" value="en-GB"/>
+  <option label="ENUM_LAN_FR" value="fr-FR"/>
 </group>
 ```
 

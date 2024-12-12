@@ -21,7 +21,7 @@
         <criteria label="PARAMETER_NAME" id="Nam" component="text" variable="Nam" readonly="true" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_EMAIL" id="Eml" component="text" variable="Eml" readonly="true" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_USER" id="Nom" component="text" variable="Nom" readonly="true" style="col-xs-6 col-sm-6 col-lg-3" />
-        <criteria label="PARAMETER_LANGUAGE" id="Lan" variable="Lan" component="select" initial-load="enum" target-action="LanUsr" readonly="true" style="col-xs-6 col-sm-6 col-lg-3" />
+        <criteria label="PARAMETER_LANGUAGE" id="Lan" variable="Lan" component="select" initial-load="enum" target-action="Lan" readonly="true" style="col-xs-6 col-sm-6 col-lg-3" />
         <criteria label="PARAMETER_PROFILE" id="Pro" component="suggest" variable="Pro" readonly="true" server-action="data" target-action="ProSug" check-target="ProIni" style="col-xs-12 col-sm-6 col-lg-3" />
         <criteria label="PARAMETER_THEME" id="Thm" component="suggest" variable="Thm" readonly="true" server-action="data" target-action="ThmSug" style="col-xs-12 col-sm-6 col-lg-3" />
         <criteria label="PARAMETER_SCREEN" id="ScrIni" component="suggest" variable="ScrIni" readonly="true" server-action="data" target-action="getScreenList" style="col-xs-12 col-sm-6 col-lg-3" />
