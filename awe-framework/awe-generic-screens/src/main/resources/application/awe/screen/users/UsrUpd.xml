@@ -31,7 +31,7 @@
         <criteria label="PARAMETER_EMAIL" id="Eml" component="text" variable="Eml" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_USER" id="Nom" component="text" variable="Nom" readonly="true" strict="false" style="col-xs-6 col-sm-3 col-lg-3" />
         <criteria id="IdeOpe" component="hidden" variable="IdeOpe" />
-        <criteria label="PARAMETER_LANGUAGE" id="Lan" variable="Lan" component="select" validation="required" initial-load="enum" target-action="LanUsr" style="col-xs-6 col-sm-3 col-lg-3" />
+        <criteria label="PARAMETER_LANGUAGE" id="Lan" variable="Lan" component="select" validation="required" initial-load="enum" target-action="Lan" style="col-xs-6 col-sm-3 col-lg-3" />
         <criteria id="MinPwd" component="hidden" property="MinPwd" />
         <criteria id="FlgPwdUpd" component="hidden" value="0">
           <dependency source-type="formule" target-type="input" initial="true" formule="'[Pas]' != 'null' &amp;&amp; '[Pas]' != '' ? 1 : 0" type="or">

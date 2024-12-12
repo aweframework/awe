@@ -5,7 +5,7 @@
  * French lenguage
  * @author Pablo Vidal
  */
-global.HighchartsLocale['fr'] = {
+global.HighchartsLocale['fr-FR'] = {
   noData: "Aucune donnée à afficher",
   tooMuchData: "Trop de données pour montrer",
   contextButtonTitle: "Menú contextuel",

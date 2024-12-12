@@ -32,7 +32,7 @@
         <criteria label="PARAMETER_NAME" id="Nam" variable="Nam" component="text" validation="required" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_EMAIL" id="Eml" variable="Eml" component="text" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_USER" id="Usr" variable="Nom" component="text" validation="required" style="col-xs-6 col-sm-3 col-lg-3" />
-        <criteria label="PARAMETER_LANGUAGE" id="Lan" variable="Lan" component="select" validation="required" initial-load="enum" target-action="LanUsr" value="ESP" style="col-xs-6 col-sm-3 col-lg-3" />
+        <criteria label="PARAMETER_LANGUAGE" id="Lan" variable="Lan" component="select" validation="required" initial-load="enum" target-action="Lan" value="es-ES" style="col-xs-6 col-sm-3 col-lg-3" />
         <criteria id="MinPwd" component="hidden" property="MinPwd" />
         <criteria label="PARAMETER_PASSWD" id="Pas" component="password" validation="{required:true, pattern:{setting:'passwordPattern'}, minlength:{setting:'minlengthPassword'}}" style="col-xs-6 col-sm-3 col-lg-3" />
         <criteria label="PARAMETER_RETYPE_PASSWD" id="RetPas" component="password" validation="{required: true, eq:{criterion:'Pas'}}" style="col-xs-6 col-sm-3 col-lg-3" />

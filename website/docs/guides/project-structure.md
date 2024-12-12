@@ -35,7 +35,7 @@ The *global* folder contains the following files:
 
 ### Locale folder
 
-The *locale* folder contains a file for each language defined on the application. All files are named Locale-*{language}*.xml, where **language** is the language acronym in two letters (ES, EN, FR...).
+The *locale* folder contains a file for each language defined on the application. All files are named Locale-*{language-code}*.xml, where **language-code** is the language code in ISO 3166 and ISO 639 codes (es-ES, en-GB, fr-FR...).
 
 ### Menu folder
 

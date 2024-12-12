@@ -72,7 +72,7 @@ class LiteralsServiceTest {
   @Test
   void translateSameLanOriginDestination() throws AWException {
     // Launch
-    ServiceData serviceData = literalsService.translate("This is a test", "en", "en");
+    ServiceData serviceData = literalsService.translate("This is a test", "en-GB", "en-GB");
 
     // Asserts and verifications
     assertNotNull(serviceData.getDataList());
@@ -102,7 +102,7 @@ class LiteralsServiceTest {
    */
   @Test
   void switchLanguages() {
-    ServiceData serviceData = literalsService.switchLanguages("EN", "ES", "en", "es");
+    ServiceData serviceData = literalsService.switchLanguages("en-GB", "es-ES", "en-GB", "es-ES");
     assertEquals(2, serviceData.getClientActionList().size());
   }
 
@@ -113,10 +113,10 @@ class LiteralsServiceTest {
   void newLiteral() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
-    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es-ES", "en-GB", "fr-FR"));
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
     when(translationService.getTranslation(anyString(), anyString(), anyString())).thenReturn(new TranslationResponse().setResponseData(new Translation()));
-    ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
+    ServiceData serviceData = literalsService.newLiteral("en-GB", "TEST", "Test");
     assertEquals("OK", serviceData.getTitle());
   }
 
@@ -127,11 +127,11 @@ class LiteralsServiceTest {
   void newLiteralWithRemaining() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
-    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es-ES", "en-GB", "fr-FR"));
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
-    when(translationService.getTranslation(anyString(), anyString(), eq("es"))).thenReturn(new TranslationResponse().setRemaining("9978").setResponseData(new Translation()));
-    when(translationService.getTranslation(anyString(), anyString(), eq("fr"))).thenReturn(new TranslationResponse().setRemaining("9975").setResponseData(new Translation()));
-    ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
+    when(translationService.getTranslation(anyString(), anyString(), eq("es-ES"))).thenReturn(new TranslationResponse().setRemaining("9978").setResponseData(new Translation()));
+    when(translationService.getTranslation(anyString(), anyString(), eq("fr-FR"))).thenReturn(new TranslationResponse().setRemaining("9975").setResponseData(new Translation()));
+    ServiceData serviceData = literalsService.newLiteral("en-GB", "TEST", "Test");
     assertEquals("OK", serviceData.getTitle());
   }
 
@@ -142,9 +142,9 @@ class LiteralsServiceTest {
   void newLiteralWithError() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(translationService.getTranslation(anyString(), anyString(), anyString())).thenThrow(new AWException("ERROR", "VAYA"));
-    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es-ES", "en-GB", "fr-FR"));
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
-    ServiceData serviceData = literalsService.newLiteral("en", "TEST", "Test");
+    ServiceData serviceData = literalsService.newLiteral("en-GB", "TEST", "Test");
     assertEquals(AnswerType.ERROR, serviceData.getType());
     assertEquals("ERROR", serviceData.getTitle());
     assertEquals("VAYA", serviceData.getMessage());
@@ -157,7 +157,7 @@ class LiteralsServiceTest {
   void saveTranslation() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
-    ServiceData serviceData = literalsService.saveTranslation("TEXT", "texto", null, "es", "en", "TEXTO");
+    ServiceData serviceData = literalsService.saveTranslation("TEXT", "texto", null, "es-ES", "en-GB", "TEXTO");
     assertEquals(AnswerType.OK, serviceData.getType());
   }
 
@@ -168,7 +168,7 @@ class LiteralsServiceTest {
   void saveTranslationWithMarkdown() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(new ArrayList<>()));
-    ServiceData serviceData = literalsService.saveTranslation("MARKDOWN", null, "texto", "es", "es", "TEXTO");
+    ServiceData serviceData = literalsService.saveTranslation("MARKDOWN", null, "texto", "es-ES", "es-ES", "TEXTO");
     assertEquals(AnswerType.OK, serviceData.getType());
   }
 
@@ -179,7 +179,7 @@ class LiteralsServiceTest {
   void saveTranslationErrorStoring() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(localeFileService.readLocalesFromFile(anyString())).thenThrow(new AWException("ea"));
-    assertThrows(AWException.class, () -> literalsService.saveTranslation("MARKDOWN", null, "texto", "es", "es", "TEXTO"));
+    assertThrows(AWException.class, () -> literalsService.saveTranslation("MARKDOWN", null, "texto", "es-ES", "es-ES", "TEXTO"));
   }
 
   /**
@@ -192,7 +192,7 @@ class LiteralsServiceTest {
             new Global().setName("TEXT").setValue("eeeo"),
             new Global().setName("LOLO").setValue("lalo")
     )));
-    ServiceData serviceData = literalsService.getSelectedLocale("es", "TEXT");
+    ServiceData serviceData = literalsService.getSelectedLocale("es-ES", "TEXT");
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(4, serviceData.getClientActionList().size());
   }
@@ -207,7 +207,7 @@ class LiteralsServiceTest {
             new Global().setName("TEXT").setMarkdown("eeeo"),
             new Global().setName("LOLO").setMarkdown("lalo")
     )));
-    ServiceData serviceData = literalsService.getSelectedLocale("es", "TEXT");
+    ServiceData serviceData = literalsService.getSelectedLocale("es-ES", "TEXT");
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(4, serviceData.getClientActionList().size());
   }
@@ -219,7 +219,7 @@ class LiteralsServiceTest {
   void deleteLiteral() throws Exception {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("OK");
-    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es-ES", "en-GB", "fr-FR"));
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
             new Global().setName("TATA").setMarkdown("lala"),
             new Global().setName("TEXT").setMarkdown("eeeo"),
@@ -239,7 +239,7 @@ class LiteralsServiceTest {
             new Global().setName("TEXT").setMarkdown("eeeo"),
             new Global().setName("LOLO").setMarkdown("lalo")
     )));
-    ServiceData serviceData = literalsService.getLocaleMatches("la", "en");
+    ServiceData serviceData = literalsService.getLocaleMatches("la", "en-GB");
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(2, serviceData.getDataList().getRows().size());
   }
@@ -249,7 +249,7 @@ class LiteralsServiceTest {
    */
   @Test
   void getTranslationList() throws Exception {
-    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es", "en", "fr"));
+    when(localeFileService.getLanguageList()).thenReturn(Arrays.asList("es-ES", "en-GB", "fr-FR"));
     when(localeFileService.readLocalesFromFile(anyString())).thenReturn(new Locales().setLocales(Arrays.asList(
             new Global().setName("TATA").setMarkdown("lala"),
             new Global().setName("TEXT").setMarkdown("eeeo"),
@@ -266,7 +266,7 @@ class LiteralsServiceTest {
    */
   @Test
   void getUsingLanguage() {
-    when(baseConfigProperties.getLanguageDefault()).thenReturn("en");
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("en-GB");
     ServiceData serviceData = literalsService.getUsingLanguage();
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(1, serviceData.getDataList().getRows().size());

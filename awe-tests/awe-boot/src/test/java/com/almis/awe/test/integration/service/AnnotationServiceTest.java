@@ -60,7 +60,7 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void checkLocaleAnnotations() {
 
-    String valueFromInput = annotationTestService.localeFromParameters("ENUM_LAN_ES");
+    String valueFromInput = annotationTestService.localeFromParameters("ENUM_LAN_ES-ES");
     String valueFromReturn = annotationTestService.localeFromReturnedValue();
 
     assertEquals("Español", valueFromInput);

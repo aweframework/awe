@@ -12,16 +12,9 @@
 
   <!-- LANGUAGES -->
   <group id="Lan">
-    <option label="ENUM_LAN_ES" value="es" />
-    <option label="ENUM_LAN_EN" value="en" />
-    <option label="ENUM_LAN_FR" value="fr" />
-  </group>
-
-  <!-- LANGUAGES -->
-  <group id="LanUsr">
-    <option label="ENUM_LAN_ES" value="ESP" />
-    <option label="ENUM_LAN_EN" value="ENG" />
-    <option label="ENUM_LAN_FR" value="FRA" />
+    <option label="ENUM_LAN_ES-ES" value="es-ES" />
+    <option label="ENUM_LAN_EN-GB" value="en-GB" />
+    <option label="ENUM_LAN_FR-FR" value="fr-FR" />
   </group>
 
   <!-- MATRIX TEST TYPE -->

@@ -9,7 +9,7 @@ AWE implements a i18n system for internationalization of web applications. For t
 Also you can add `CDATA` tag inside local in **markdown** language to show rich text. Very useful when you want to show a lot of formatting information. For example in the help screen application. You can view all markdown syntax in [this](https://wiki.almis.com/help/markdown/markdown) page.
 
 :::info
-**Note:** All locales are defined in the `Locale-[Country code].xml` files at **locale folder**. The country codes must be two capital letters.  View [project structure](../guides/project-structure.md#global-folder)  for more info.
+**Note:** All locales are defined in the `Locale-[Locale code].xml` files at **locale folder**. The country codes must be in ISO 3166 and ISO 639 codes (es-ES, en-GB, fr-FR...).  View [project structure](../guides/project-structure.md#global-folder)  for more info.
 :::
 
 ## Locales XML structure
@@ -52,7 +52,7 @@ Some examples of locales in different languages:
 
 
 
-**File Locale-EN.xml**
+**File Locale-en-GB.xml**
 ```xml
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_ACCEPT" value="Accept" />
@@ -64,7 +64,7 @@ Some examples of locales in different languages:
 
 
 
-**File Locale-ES.xml**
+**File Locale-es-ES.xml**
 ```xml
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_ACCEPT" value="Aceptar" />
@@ -76,7 +76,7 @@ Some examples of locales in different languages:
 
 
 
-**File Locale-FR.xml**
+**File Locale-fr-FR.xml**
 ```xml
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_ACCEPT" value="Accepter" />

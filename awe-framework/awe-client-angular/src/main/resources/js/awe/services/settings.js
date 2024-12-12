@@ -127,8 +127,7 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
        * @returns {Object} Session token
        */
       getLanguage: function () {
-        let language = $settings.get("language");
-        return language === null ? null : language.toLowerCase();
+        return $settings.get("language");
       },
       /**
        * Change current language;
@@ -137,8 +136,8 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
        */
       changeLanguage: function (language, forceChange) {
         if (language !== null) {
-          let  newLanguage = language.toLowerCase();
-          if (newLanguage != $settings.getLanguage() || forceChange) {
+          let  newLanguage = language;
+          if (newLanguage !== $settings.getLanguage() || forceChange) {
             // Change language $settings
             $settings.update({language: newLanguage});
 

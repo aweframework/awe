@@ -98,7 +98,7 @@ class EmailServiceTest {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     given(mailSender.createMimeMessage()).willReturn(mimeMessage);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
     ParsedEmail email = new ParsedEmail()

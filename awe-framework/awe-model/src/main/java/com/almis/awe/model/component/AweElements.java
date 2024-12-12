@@ -240,7 +240,7 @@ public class AweElements {
               module,
               baseConfigProperties.getPaths().getLocale() +
                 baseConfigProperties.getFiles().getLocale() +
-                language.toUpperCase() +
+                language +
                 baseConfigProperties.getExtensionXml())
             .toString()));
           return languageMap.entrySet().stream();
@@ -670,7 +670,7 @@ public class AweElements {
    */
   public String getLocaleWithLanguage(String localeIdentifier, String language) {
     String locale = localeIdentifier;
-    Map<String, String> locales = localeList.get(language.toLowerCase());
+    Map<String, String> locales = localeList.get(language);
 
     // Check if locale exists, and retrieve it
     if (localeIdentifier != null && locales.containsKey(localeIdentifier)) {

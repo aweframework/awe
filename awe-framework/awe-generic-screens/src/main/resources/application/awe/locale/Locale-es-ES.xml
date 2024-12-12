@@ -233,9 +233,9 @@
   <locale name="ENUM_GRID" value="Matriz"/>
   <locale name="ENUM_HDG_STL" value="Estilo de cabecera"/>
   <locale name="ENUM_JAVA" value="Java"/>
-  <locale name="ENUM_LAN_EN" value="Inglés"/>
-  <locale name="ENUM_LAN_ES" value="Español"/>
-  <locale name="ENUM_LAN_FR" value="Francés"/>
+  <locale name="ENUM_LAN_EN-GB" value="Inglés"/>
+  <locale name="ENUM_LAN_ES-ES" value="Español"/>
+  <locale name="ENUM_LAN_FR-FR" value="Francés"/>
   <locale name="ENUM_MDL_PROFILES" value="Perfiles"/>
   <locale name="ENUM_MDL_USERS" value="Usuarios"/>
   <locale name="ENUM_NO" value="No"/>

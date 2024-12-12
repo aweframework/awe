@@ -308,7 +308,7 @@
     <field id="EmlAdr" table="ope" alias="Eml" />
     <field id="EmlSrv" table="ope" alias="EmlSrv" />
     <field id="l1_lan" table="ope" alias="Lan" />
-    <field id="l1_lan" table="ope" alias="LanTxt" translate="LanUsr"/>
+    <field id="l1_lan" table="ope" alias="LanTxt" translate="Lan"/>
     <field id="PwdLck" table="ope" alias="Lck" />
     <field id="enable2fa" table="ope" alias="2fa" />
     <compound alias="LanImg">

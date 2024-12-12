@@ -72,8 +72,8 @@ class TranslateCellProcessorTest {
         new Global().setValue("test2").setLabel("lala"),
         new Global().setValue("prueba").setLabel("lolo"),
         new Global().setValue("test4").setLabel("lerele")));
-    when(aweElements.getLanguage()).thenReturn("es");
-    when(aweElements.getLocaleWithLanguage("lolo", "es")).thenReturn("result");
+    when(aweElements.getLanguage()).thenReturn("es-ES");
+    when(aweElements.getLocaleWithLanguage("lolo", "es-ES")).thenReturn("result");
     TranslateCellProcessor processor = new TranslateCellProcessor(aweElements, field, Collections.emptyMap(), enumeratedGroup);
     CellData expected = new CellData("prueba");
     assertEquals("result", processor.process(expected).getStringValue());
@@ -89,10 +89,10 @@ class TranslateCellProcessorTest {
         new Global().setValue("prueba").setLabel("lolo"),
         new Global().setValue("test4").setLabel("lerele")));
     when(aweElements.getLanguage()).thenReturn("es");
-    when(aweElements.getLocaleWithLanguage("lolo", "en")).thenReturn("result");
+    when(aweElements.getLocaleWithLanguage("lolo", "en-GB")).thenReturn("result");
     Map<String, QueryParameter> variables = new HashMap<>();
     QueryParameter parameter = new QueryParameter(JsonNodeFactory.instance.objectNode());
-    parameter.setValue(JsonNodeFactory.instance.textNode("en"));
+    parameter.setValue(JsonNodeFactory.instance.textNode("en-GB"));
     variables.put("lang", parameter);
     TranslateCellProcessor processor = new TranslateCellProcessor(aweElements, field, variables, enumeratedGroup);
     CellData expected = new CellData("prueba");

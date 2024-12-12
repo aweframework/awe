@@ -5,7 +5,7 @@
  * Spanish lenguage
  * @author Pablo Vidal
  */
-global.HighchartsLocale['eu'] = {
+global.HighchartsLocale['eu-ES'] = {
   noData: "Ez daude daturik erakusteko",
   tooMuchData: "Erakusteko datu gehiegi",
   contextButtonTitle: 'Menua ikusi',
