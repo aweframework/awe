@@ -1,15 +1,20 @@
 package com.almis.awe.model.component;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.Serializable;
 import java.util.Set;
+
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
 @Slf4j
 public class AweSession implements Serializable {
@@ -49,7 +54,12 @@ public class AweSession implements Serializable {
    * @return Session user
    */
   public String getUser() {
-    return isAuthenticated() && !(getAuthentication() instanceof AnonymousAuthenticationToken) ? ((UserDetails) getAuthentication().getPrincipal()).getUsername() : null;
+    String user = null;
+    Authentication authentication = getAuthentication();
+    if (isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+      user = authentication instanceof OAuth2AuthenticationToken ? StringUtils.substringBefore(((DefaultOAuth2User) authentication.getPrincipal()).getAttribute(PREFERRED_USERNAME), "@") : ((UserDetails) authentication.getPrincipal()).getUsername();
+    }
+    return user;
   }
 
   /**

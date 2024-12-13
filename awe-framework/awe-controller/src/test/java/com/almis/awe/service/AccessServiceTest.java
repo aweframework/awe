@@ -10,7 +10,9 @@ import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
+import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,18 +23,27 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
+import static com.almis.awe.model.constant.AweConstants.AZURE_OAUTH2_AUTHORIZATION_URL;
+import static com.almis.awe.model.constant.AweConstants.SESSION_INITIAL_URL;
+import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
 @ExtendWith(MockitoExtension.class)
 class AccessServiceTest {
@@ -75,6 +86,12 @@ class AccessServiceTest {
 
   @Mock
   AweElements aweElements;
+
+  @Mock
+  AweUserDetailService aweUserDetailService;
+
+  @Mock
+  MaintainService maintainService;
 
   private AweUserDetails aweUserDetails;
 
@@ -138,7 +155,7 @@ class AccessServiceTest {
   }
 
   @Test
-  void getProfileNameFileList() throws Exception {
+  void getProfileNameFileList() {
     when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getProfileList()).thenReturn(new HashSet<>(Arrays.asList("profile1", "profile2")));
     ServiceData serviceData = accessService.getProfileNameFileList();
@@ -164,5 +181,56 @@ class AccessServiceTest {
     when(securityConfigProperties.getMasterKey()).thenReturn("4W3M42T3RK3Y%$ED");
     ServiceData serviceData = accessService.encryptProperty("test", null);
     assertEquals(1, serviceData.getDataList().getRows().size());
+  }
+
+  @Test
+  void loginWithAzureEntraID() {
+    ServiceData serviceData = accessService.loginWithAzureEntraID();
+    assertEquals(1, serviceData.getClientActionList().size());
+    assertEquals(AZURE_OAUTH2_AUTHORIZATION_URL, serviceData.getClientActionList().get(0).getTarget());
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_userAlreadyInDB() throws AWException {
+    // Given
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+    // When
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweUserDetailService.loadUserByEmail(anyString())).thenReturn(new AweUserDetails());
+    when(menuService.getMenu()).thenReturn(mockMenu);
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2User);
+    //Asserts
+    verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
+    assertNotNull(initialUrl);
+  }
+
+  @Test
+  void givenOauth2InfoWithRole_onAuthenticationSuccess_provisionNewUser() throws AWException {
+    // Given
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    aweUserDetails.setEmail("foo@acme.com");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+
+    // When
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweUserDetailService.loadUserByEmail(anyString())).thenReturn(null);
+    when(aweUserDetailService.loadUserByRole(oAuth2User)).thenReturn(aweUserDetails);
+    when(securityConfigProperties.isAutoProvisionUser()).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(mockMenu);
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2User);
+    //Asserts
+    verify(maintainService, times(1)).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), any(ObjectNode.class));
+    verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
+    assertNotNull(initialUrl);
   }
 }

@@ -43,6 +43,7 @@
     <totp.version>1.7.1</totp.version>
     <javase.version>3.5.3</javase.version> <!-- Used to overwrite totp vulnerability -->
     <guava.version>33.3.0-jre</guava.version>
+    <spring-cloud-azure.version>5.18.0</spring-cloud-azure.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -342,6 +343,14 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+      </dependency>
+      <!-- Azure cloud -->
+      <dependency>
+        <groupId>com.azure.spring</groupId>
+        <artifactId>spring-cloud-azure-dependencies</artifactId>
+        <version>${spring-cloud-azure.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

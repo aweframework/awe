@@ -45,8 +45,7 @@ X-XSS-Protection=1; mode=block
 Awe lets you choose which authentication and authorization system you want to use, instead of bundling any specific one. 
 Awe is fully compatible with the most used security solutions in the Spring Boot ecosystem like `In memory`, `Database`, `LDAP`, `OAuth`, `Oauth2`, ...
 
-:::info You can visit [this](https://spring.io/guides/topicals/spring-security-architecture) for more info.
-:::
+:::info You can visit [this](https://spring.io/guides/topicals/spring-security-architecture) for more info.:::
 
 ### Spring Security in Awe
 Awe provides configuration beans to manage security in your application. You can use them or overwrite and create your custom auth method. 
@@ -82,8 +81,38 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
     // Your custom configuration
   }
 }
-
 ```
+
+
+### Authentication with Azure EntraID
+AWE provide Azure oauth2 authentication service integration. Uses the Spring Boot Starter for Microsoft Entra ID enables you to connect your web application to a Microsoft Entra tenant and protect your resource server with Microsoft Entra ID. It uses the Oauth 2.0 protocol to protect web applications and resource servers.
+
+<img style={{ width: "70%", margin: "30px 15% 0% 15%" }}
+alt="Azure Entra ID"
+src={require('@docusaurus/useBaseUrl').default('img/Azure_entraID.png')}
+/>
+<div style={{textAlign:"center",fontStyle:"italic"}}>Azure Entra ID</div>
+
+To enable Azure oauth2 active directory, you have to add spring-cloud-azure starter and configure your organization tenantId and application ID and secret.
+
+```xml title="Add dependency"
+    <dependency>
+      <groupId>com.azure.spring</groupId>
+      <artifactId>spring-cloud-azure-starter-active-directory</artifactId>
+    </dependency>
+```
+```properties title="Configure azure EntraID properties"
+# Enable related features.
+spring.cloud.azure.active-directory.enabled=true
+# Specifies your Active Directory ID:
+spring.cloud.azure.active-directory.profile.tenant-id={CONFIGURE YOUR TENANT ID}
+# Specifies your App Registration's Application ID:
+spring.cloud.azure.active-directory.credential.client-id={CONFIGURE YOUR CLIENT ID}
+# Specifies your App Registration's secret key:
+spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SECRET KEY}
+```
+
+:::info You can visit [this](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/spring-boot-starter-for-azure-active-directory-developer-guide?tabs=SpringCloudAzure4x) for more info.:::
 
 ## SSL and HTTPS
 Awe always recommend developers to set up secure server endpoints and run all communication exclusively under HTTPS. 

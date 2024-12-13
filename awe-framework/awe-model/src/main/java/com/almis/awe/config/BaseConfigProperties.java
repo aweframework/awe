@@ -46,7 +46,7 @@ public class BaseConfigProperties {
   private String languageDefault = "en-GB";
 
   /**
-   * Application available languages in in ISO 3166 and ISO 639 codes format. (en-GB = English from Great Britain)
+   * Application available languages in ISO 3166 and ISO 639 codes format. (en-GB = English from Great Britain)
    * Default value list with en-GB, es-ES, fr-FR languages
    */
   private List<@Size(min = 5, max = 5) String> languageList = Arrays.asList("en-GB", "es-ES", "fr-FR");
@@ -62,6 +62,11 @@ public class BaseConfigProperties {
    * Default value awe
    */
   private String acronym = "awe";
+
+  /**
+   * Application default user role
+   */
+  private String defaultRole = "operator";
 
   /**
    * List with application modules separate by commas. Used to load xml files for each module.

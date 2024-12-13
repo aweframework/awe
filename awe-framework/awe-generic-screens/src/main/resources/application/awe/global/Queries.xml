@@ -426,6 +426,90 @@
     <variable id="Usr" type="STRING" name="user" />
   </query>
 
+  <query id="userDetailsByProfile" cacheable="true">
+    <table id="AwePro" alias="Pro" />
+    <field id="IdeThm" alias="IdeThm" />
+    <field id="Nam" table="UsrThm" alias="profileTheme" />
+    <field id="ScrIni" alias="profileInitialScreen" />
+    <join type="LEFT">
+      <table id="AweThm" alias="UsrThm" />
+      <and>
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-field="IdeThm" right-table="UsrThm" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Nam" left-table="Pro" condition="eq" right-variable="profile" trim="true" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="profile" type="STRING" name="profile" />
+  </query>
+
+  <query id="userDetailsByEmail" cacheable="true">
+    <table id="ope" alias="Usr" />
+    <field id="IdeOpe" table="Usr" alias="userId" />
+    <field id="l1_nom" table="Usr" alias="username" function="TRIM"/>
+    <field id="IdePro" table="Usr" alias="profileId" />
+    <field id="Acr" table="Pro" alias="profile" />
+    <field id="Nam" table="Pro" alias="profileName" />
+    <field id="IdeThm" table="Usr" alias="themeId" />
+    <field id="Nam" table="UsrThm" alias="userTheme" />
+    <field id="Nam" table="ProThm" alias="profileTheme" />
+    <field id="ScrIni" table="Usr" alias="userInitialScreen" />
+    <field id="ScrIni" table="Pro" alias="profileInitialScreen" />
+    <field id="Res" table="Usr" alias="userRestriction" />
+    <field id="Res" table="Pro" alias="profileRestriction" />
+    <field id="l1_act" table="Usr" alias="enabled" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="PwdLck" table="Usr" alias="locked" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="l1_psd" table="Usr" alias="lastChangedPasswordDate" />
+    <field id="l1_con" table="Usr" alias="connected" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="l1_dat" table="Usr" alias="lastLogin"/>
+    <field id="dat_mod" table="Usr" alias="updateDate" />
+    <field id="PcPrn" table="Usr" alias="printer" />
+    <field id="WebPrn" table="Usr" alias="webPrinter" />
+    <field id="EmlAdr" table="Usr" alias="email" />
+    <field id="EmlSrv" table="Usr" alias="emailServer" />
+    <field id="l1_lan" table="Usr" alias="language" />
+    <field id="OpeNam" table="Usr" alias="fullName" />
+    <field id="l1_pas" table="Usr" alias="password" />
+    <field id="NumLog" table="Usr" alias="loginAttempts" />
+    <field id="enable2fa" table="Usr" alias="enable2fa" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="secret2fa" table="Usr" alias="secret2fa" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="Usr" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweThm" alias="UsrThm" />
+      <and>
+        <filter left-field="IdeThm" left-table="Usr" condition="eq" right-field="IdeThm" right-table="UsrThm" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweThm" alias="ProThm" />
+      <and>
+        <filter left-field="IdeThm" left-table="Pro" condition="eq" right-field="IdeThm" right-table="ProThm" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="EmlAdr" condition="eq" right-variable="email" trim="true" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="email" type="STRING" name="email" />
+  </query>
+
+  <query id="checkProfileExists" cacheable="true">
+    <table id="AwePro" />
+    <field id="IdePro"/>
+    <where>
+      <filter left-field="Nam" condition="eq" right-variable="profile" ignorecase="true"/>
+    </where>
+    <variable id="profile" type="STRING" name="profile" />
+  </query>
+
   <!-- USER NAME -->
   <query id="UsrNam" cacheable="true">
     <table id="ope" />
@@ -1045,6 +1129,15 @@
     </where>
     <variable id="IdePro" type="STRING" name="suggest" />
     <variable id="Pro" type="STRINGB" name="suggest" />
+  </query>
+
+  <query id="GetProfileId" cacheable="true">
+    <table id="AwePro" />
+    <field id="IdePro" />
+    <where>
+      <filter left-field="Nam" condition="eq" right-variable="Profile" ignorecase="true" />
+    </where>
+    <variable id="Profile" type="STRING" name="profile" />
   </query>
 
   <!-- PROFILES INITIAL VALUE -->

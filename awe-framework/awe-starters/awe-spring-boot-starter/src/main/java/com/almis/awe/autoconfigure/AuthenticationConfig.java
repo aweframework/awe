@@ -64,7 +64,7 @@ public class AuthenticationConfig {
    * @return User detail service
    */
   @Bean
-  public UserDetailsService aweUserDetailsService(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, UserDAO userDAO) {
+  public AweUserDetailService aweUserDetailsService(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, UserDAO userDAO) {
     return new AweUserDetailService(baseConfigProperties, securityConfigProperties, userDAO);
   }
 

@@ -20,7 +20,7 @@
       <!-- Left side -->
       <tag type="div" style="signin-info">
         <tag type="h1">
-          <tag type="span" label="APP_CLIENT"></tag>
+          <tag type="span" label="APP_CLIENT"/>
         </tag>
         <tag type="div" style="slogan" label="APP_NAME"/>
       </tag>
@@ -29,7 +29,7 @@
       <!-- Right side -->
       <tag type="div" style="signin-form">
         <tag type="div" style="signin-text">
-          <tag type="span" label="SCREEN_TITLE_LOGIN"></tag>
+          <tag type="span" label="SCREEN_TITLE_LOGIN"/>
         </tag>
         <criteria placeholder="SCREEN_TEXT_USER" component="text" id="cod_usr" validation="required" size="lg"
                   icon="user signin-form-icon" style="no-label"/>
@@ -41,6 +41,14 @@
                     icon="sign-in" id="ButLogIn">
               <button-action type="validate"/>
               <button-action type="server" server-action="login"/>
+            </button>
+            <!-- Azure EntraID -->
+            <button id="ButLogInAzure" style="no-class sign-in-azure-btn-light" >
+              <dependency target-type="hide" initial="true" type="or">
+                <dependency-element id="azure-enabled" condition="eq" value="false"/>
+                <dependency-element id="azure-enabled" condition="is empty"/>
+              </dependency>
+              <button-action type="server" server-action="login-azure"/>
             </button>
           </tag>
         </tag>
@@ -54,5 +62,9 @@
       <tag type="p" label="User: test"/>
       <tag type="p" label="Password: test"/>
     </tag>
+  </tag>
+
+  <tag source="hidden">
+    <criteria id="azure-enabled" component="text" property="spring.cloud.azure.active-directory.enabled"/>
   </tag>
 </screen>

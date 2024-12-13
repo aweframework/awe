@@ -14,20 +14,27 @@ import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static com.almis.awe.model.constant.AweConstants.*;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
 /**
  * Manage application accesses
  */
+@Service
 public class AccessService extends ServiceConfig {
 
   // Autowired components
@@ -38,11 +45,17 @@ public class AccessService extends ServiceConfig {
   private final MenuService menuService;
   private final TotpConfigProperties totpConfigProperties;
   private final TotpService totpService;
+  private final AweUserDetailService userDetailsService;
+  private final MaintainService maintainService;
 
-
+  public static final String PROVISIONING_NEW_USER = "ProvisionNewUser";
   public static final String SCREEN = "screen";
+  public static final String REDIRECT = "redirect";
   public static final String CHANGE_LANGUAGE = "change-language";
   public static final String CHANGE_THEME = "change-theme";
+  private static final String EMAIL = "email";
+  private static final String USERNAME = "userName";
+  private static final String PROFILE = "profile";
 
   @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
   private String jasyptAlgorithm;
@@ -67,6 +80,8 @@ public class AccessService extends ServiceConfig {
    * @param baseConfigProperties     Base configuration properties
    * @param securityConfigProperties Security configuration properties
    * @param totpConfigProperties     Totp configuration properties
+   * @param aweUserDetailService     Awe user details
+   * @param maintainService          Maintain service
    */
   public AccessService(AweSessionDetails sessionDetails,
                        MenuService menuService,
@@ -74,7 +89,9 @@ public class AccessService extends ServiceConfig {
                        TotpService totpService,
                        BaseConfigProperties baseConfigProperties,
                        SecurityConfigProperties securityConfigProperties,
-                       TotpConfigProperties totpConfigProperties) {
+                       TotpConfigProperties totpConfigProperties,
+                       AweUserDetailService aweUserDetailService,
+                       MaintainService maintainService) {
     this.sessionDetails = sessionDetails;
     this.menuService = menuService;
     this.encodeService = encodeService;
@@ -82,6 +99,8 @@ public class AccessService extends ServiceConfig {
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
     this.totpConfigProperties = totpConfigProperties;
+    this.userDetailsService = aweUserDetailService;
+    this.maintainService = maintainService;
   }
 
   /**
@@ -116,15 +135,75 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Go home screen
-   *
-   * @param userDetails User details
-   * @return Service data
+   * Azure EntraID redirection
+   * @return do send redirect to Azure oauth portal
+   */
+  public ServiceData loginWithAzureEntraID() {
+    return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(AZURE_OAUTH2_AUTHORIZATION_URL));
+  }
+
+  /**
+   * Manage Oauth success authentication
+   * @param oauth2User Oauth2 user info
+   * @return initial screen url for redirection
    * @throws AWException AWE exception
    */
+  public String onAuthenticationSuccess(DefaultOAuth2User oauth2User) throws AWException {
+
+    // Get user details
+    AweUserDetails userDetails = getUserDetails(oauth2User);
+
+    // Store session details
+    sessionDetails.onLoginSuccess(userDetails);
+
+    // Generate initial URL
+    Menu menu = menuService.getMenu();
+    String initialUrl = "/" + menu.getScreenContext() + "/" + userDetails.getInitialScreen();
+
+    // Store initial url in session
+    getSession().setParameter(SESSION_INITIAL_URL, initialUrl);
+
+    return initialUrl;
+  }
+
+  private AweUserDetails getUserDetails(DefaultOAuth2User oauth2User) throws AWException {
+    AweUserDetails userDetails;
+    String userEmail = oauth2User.getAttribute(PREFERRED_USERNAME);
+    // Get user info from email
+    userDetails = userDetailsService.loadUserByEmail(userEmail);
+
+    if (userDetails == null) {
+      // User not exist, retrieve generic user info from role
+      userDetails = userDetailsService.loadUserByRole(oauth2User);
+      // If is enabled, provision new user
+      autoProvisionUser(userDetails);
+    }
+    return userDetails;
+  }
+
+  private void autoProvisionUser(AweUserDetails userDetails) throws AWException {
+    if (securityConfigProperties.isAutoProvisionUser()) {
+      // Provision new user
+      ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+      parameters.put(EMAIL, userDetails.getEmail());
+      parameters.put(USERNAME, userDetails.getUsername());
+      parameters.put(SESSION_FULLNAME, userDetails.getName());
+      parameters.put(PROFILE, userDetails.getProfile());
+      parameters.put(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault());
+      maintainService.launchPrivateMaintain(PROVISIONING_NEW_USER, parameters);
+    }
+  }
+
+  /**
+     * Go home screen
+     *
+     * @param userDetails User details
+     * @return Service data
+     * @throws AWException AWE exception
+     */
   private ServiceData goToHomeScreen(AweUserDetails userDetails) throws AWException {
     // Store session details
-    sessionDetails.onLoginSuccess();
+    sessionDetails.onLoginSuccess(userDetails);
 
     // Generate initial URL
     Menu menu = menuService.getMenu();
@@ -223,9 +302,8 @@ public class AccessService extends ServiceConfig {
    * Get profile restriction list
    *
    * @return Profile restriction file list
-   * @throws AWException Error retrieving profile list
    */
-  public ServiceData getProfileNameFileList() throws AWException {
+  public ServiceData getProfileNameFileList() {
     // Get profiles file list
     ServiceData serviceData = new ServiceData();
     DataList dataList = new DataList();
