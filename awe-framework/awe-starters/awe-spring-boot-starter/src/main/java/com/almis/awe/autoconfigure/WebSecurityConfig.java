@@ -11,9 +11,12 @@ import com.almis.awe.security.authentication.entrypoint.ActionAuthenticationEntr
 import com.almis.awe.security.authentication.filter.JsonAuthenticationFilter;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import com.almis.awe.security.handler.AweAccessDeniedHandler;
+import com.almis.awe.security.handler.AweOauth2AuthenticationSuccessHandler;
 import com.almis.awe.security.handler.AweLogoutHandler;
+import com.almis.awe.service.AccessService;
 import com.almis.awe.service.ActionService;
 import com.almis.awe.session.AweSessionDetails;
+import com.azure.spring.cloud.autoconfigure.implementation.aad.security.AadWebApplicationHttpSecurityConfigurer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.FilterChain;
@@ -55,6 +58,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+import static com.almis.awe.model.constant.AweConstants.AZURE_OAUTH2_AUTHORIZATION_URL;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
@@ -74,9 +79,15 @@ public class WebSecurityConfig {
   @Value("${session.cookie.name:JSESSIONID}")
   private String cookieName;
 
+  @Value("${spring.cloud.azure.active-directory.enabled:false}")
+  private boolean azureEnabled;
+  @Value("${spring.cloud.azure.active-directory.redirect-uri-template:/login/oauth2/code/}")
+  private String azureRedirectUriTemplate;
+
   private final ApplicationContext context;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
+  private final AccessService accessService;
   private final AweSessionDetails sessionDetails;
   private final AweElements elements;
   private final ActionService actionService;
@@ -88,15 +99,17 @@ public class WebSecurityConfig {
    * @param context                          Application context
    * @param baseConfigProperties             Base config properties
    * @param securityConfigProperties         Security config properties
+   * @param accessService                    Access service
    * @param sessionDetails                   Session details
    * @param elements                         Awe elements
    * @param actionService                    Action service
    * @param objectMapper                     Object mapper
    */
   @Autowired
-  public WebSecurityConfig(ApplicationContext context, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, AweSessionDetails sessionDetails, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
+  public WebSecurityConfig(ApplicationContext context, BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, AccessService accessService, AweSessionDetails sessionDetails, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
+    this.accessService = accessService;
     this.sessionDetails = sessionDetails;
     this.elements = elements;
     this.actionService = actionService;
@@ -114,8 +127,7 @@ public class WebSecurityConfig {
   @Bean(name = "aweSecurityFilterChain")
   public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-    httpSecurity
-        .headers(headers ->
+    httpSecurity.headers(headers ->
             headers.xssProtection(
             xssConfig -> xssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED)
             ))
@@ -135,6 +147,8 @@ public class WebSecurityConfig {
             // Public actions
             .requestMatchers(
                 antMatcher("/action/login"),
+                antMatcher("/action/login-azure"),
+                antMatcher("/action/logout-redirect"),
                 antMatcher("/action/get-locals"),
                 antMatcher("/action/screen-data"),
                 antMatcher("/action/encrypt"),
@@ -164,8 +178,10 @@ public class WebSecurityConfig {
                 antMatcher("/action/get-file-maintain/**"),
                 antMatcher("/file/stream/maintain/**"),
                 antMatcher("/file/download/maintain/**")).access(publicQueryMaintainAuthorization(elements))
-            // 2FA endpoint
-            .requestMatchers(antMatcher("/access/**")).authenticated()
+            // 2FA endpoint and OAuth2
+            .requestMatchers(
+                    antMatcher("/access/**")
+            ).authenticated()
             // Any other request
             .anyRequest().authenticated()
         )
@@ -182,7 +198,9 @@ public class WebSecurityConfig {
             httpSecuritySecurityContextConfigurer.securityContextRepository(securityContextRepository()))
         // Login redirect
         .formLogin(
-            formLoginConfigurer -> formLoginConfigurer.loginPage("/").permitAll())
+            formLoginConfigurer -> formLoginConfigurer
+                .loginPage("/").permitAll()
+        )
         // Exceptions handling
         .exceptionHandling(
             exceptionHandlingConfigurer -> exceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler())
@@ -199,7 +217,23 @@ public class WebSecurityConfig {
           headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
     }
 
+    // Configure oauth2
+    if (azureEnabled) {
+      httpSecurity.with(AadWebApplicationHttpSecurityConfigurer.aadWebApplication(), withDefaults())
+          .oauth2Login(oauth2LoginConfigurer -> oauth2LoginConfigurer
+              .loginPage(AZURE_OAUTH2_AUTHORIZATION_URL)
+              .loginProcessingUrl(azureRedirectUriTemplate)
+              .successHandler(authSuccessHandler())
+              .failureUrl("/oauth2/authorization/azure/error")
+          );
+    }
+
     return httpSecurity.build();
+  }
+
+  @Bean
+  public AweOauth2AuthenticationSuccessHandler authSuccessHandler() {
+    return new AweOauth2AuthenticationSuccessHandler(accessService);
   }
 
   @Bean

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.IOException;
 
@@ -36,9 +35,10 @@ public class AweLoggingFilter implements Filter {
     // Add user
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (baseConfigProperties.isLogUserEnable() && authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-      UserDetails principal = (UserDetails) authentication.getPrincipal();
-      MDC.put(AweConstants.SESSION_USER, principal.getUsername());
-      MDC.put(AweConstants.LOG_BY_USER, principal.getUsername());
+      // Add username
+      String username = aweSession.getUser();
+      MDC.put(AweConstants.SESSION_USER, username);
+      MDC.put(AweConstants.LOG_BY_USER, username);
       // Add Database name
       String databaseValue = aweSession.getParameter(String.class, AweConstants.SESSION_DATABASE);
       if (databaseValue != null) {

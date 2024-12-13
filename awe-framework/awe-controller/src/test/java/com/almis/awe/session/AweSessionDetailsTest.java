@@ -92,11 +92,9 @@ class AweSessionDetailsTest {
 
   @Test
   void onLoginSuccess() {
-    when(securityContext.getAuthentication()).thenReturn(authentication);
-    when(authentication.getPrincipal()).thenReturn(new AweUserDetails());
     SecurityContextHolder.setContext(securityContext);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
-    aweSessionDetails.onLoginSuccess();
+    aweSessionDetails.onLoginSuccess(new AweUserDetails());
     verify(aweSession, times(8)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
     verify(sessionService, times(1)).setSessionParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
   }
@@ -104,8 +102,6 @@ class AweSessionDetailsTest {
 
   @Test
   void onLoginSuccessErrorSessionParameters() {
-    when(securityContext.getAuthentication()).thenReturn(authentication);
-    when(authentication.getPrincipal()).thenReturn(new AweUserDetails());
     SecurityContextHolder.setContext(securityContext);
     when(sessionConfigProperties.getParameter()).thenReturn(Stream.of(new String[][] {
             { "module", "MyModule" },
@@ -113,17 +109,15 @@ class AweSessionDetailsTest {
             { "database", "MyDB" },
     }).collect(Collectors.toMap(data -> data[0], data -> data[1])));
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
-    aweSessionDetails.onLoginSuccess();
+    aweSessionDetails.onLoginSuccess(new AweUserDetails());
     verify(aweSession, times(3)).setParameter(eq(SESSION_FAILURE), any());
   }
 
   @Test
   void onLoginSuccessNullDataList() {
-    when(securityContext.getAuthentication()).thenReturn(authentication);
-    when(authentication.getPrincipal()).thenReturn(new AweUserDetails());
     SecurityContextHolder.setContext(securityContext);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
-    aweSessionDetails.onLoginSuccess();
+    aweSessionDetails.onLoginSuccess(new AweUserDetails());
     verify(aweSession, times(8)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
     verify(sessionService, times(1)).setSessionParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
   }

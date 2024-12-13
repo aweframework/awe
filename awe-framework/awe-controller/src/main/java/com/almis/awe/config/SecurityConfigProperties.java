@@ -31,6 +31,11 @@ public class SecurityConfigProperties {
   private String jsonParameter = "p";
 
   /**
+   * Flag to enable auto provisioning users in oauth2 authentication process. Create new record in ope table with user
+   */
+  private boolean autoProvisionUser = true;
+
+  /**
    * Default restriction set (default should be the most restricted).
    * Default value general
    */

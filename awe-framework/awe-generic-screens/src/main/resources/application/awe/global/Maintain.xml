@@ -65,6 +65,26 @@
     </insert>
   </target>
 
+  <target name="ProvisionNewUser">
+    <insert>
+      <table id="ope"/>
+      <field id="IdeOpe" sequence="OpeKey"/>
+      <field id="EmlAdr" variable="email"/>
+      <field id="l1_nom" variable="userName"/>
+      <field id="OpeNam" variable="fullName"/>
+      <field id="IdePro" query="GetProfileId"/>
+      <field id="l1_lan" variable="language" />
+      <field id="l1_act" variable="Sta"/>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="userName" type="STRING" name="userName"/>
+      <variable id="fullName" type="STRING" name="fullname"/>
+      <variable id="email" type="STRING" name="email"/>
+      <variable id="profile" type="STRING" name="profile"/>
+      <variable id="language" type="STRING" name="language"/>
+      <variable id="Sta" type="INTEGER" value="1"/>
+    </insert>
+  </target>
+
   <target name="UsrUpd">
     <update>
       <table id="ope"/>
