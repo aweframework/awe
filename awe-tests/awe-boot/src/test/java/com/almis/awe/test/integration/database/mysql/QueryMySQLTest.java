@@ -4,7 +4,7 @@ import com.almis.awe.test.integration.database.QueryTest;
 import org.junit.jupiter.api.Tag;
 import org.springframework.test.context.TestPropertySource;
 
-@TestPropertySource("classpath:mysql.properties")
 @Tag("Mysql")
+@TestPropertySource("classpath:mysql.properties")
 class QueryMySQLTest extends QueryTest {
 }
