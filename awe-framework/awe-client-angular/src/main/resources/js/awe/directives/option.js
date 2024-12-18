@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
 
 const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class="getOptionClasses()" ng-cloak>
@@ -190,18 +190,16 @@ aweApplication.directive('aweOption',
                     scope.opened = true;
                     scope.selectedOption.opened[scope.optionName] = scope.firstLevel;
                   }
-                } else {
+                } else if ("actions" in scope.controller) {
                   // Node is a leaf
-                  if ("actions" in scope.controller) {
-                    // Close all previous actions
-                    ActionController.closeAllActions();
+                  // Close all previous actions
+                  ActionController.closeAllActions();
 
-                    // All action list to stack
-                    ActionController.addActionList(scope.controller.actions, true, {address: scope.address, context: scope.context});
+                  // All action list to stack
+                  ActionController.addActionList(scope.controller.actions, true, {address: scope.address, context: scope.context});
 
-                    // Emit option clicked
-                    scope.$emit("optionClicked");
-                  }
+                  // Emit option clicked
+                  scope.$emit("optionClicked");
                 }
               };
 

@@ -114,6 +114,9 @@ spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SEC
 
 :::info You can visit [this](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/spring-boot-starter-for-azure-active-directory-developer-guide?tabs=SpringCloudAzure4x) for more info.:::
 
+By default, if the user logged in the application with this  doesn't exist in database, it  will be provisioned by registering it by adding a new record in the user table.
+If you do not want this behavior, you can disable it setting false the configuration property `awe.security.auto-provision-use`.
+
 ## SSL and HTTPS
 Awe always recommend developers to set up secure server endpoints and run all communication exclusively under HTTPS. 
 Awe works out-of-the-box with HTTPS, and there is nothing for the developer to configure in your application code. 

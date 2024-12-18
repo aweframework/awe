@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import "./plugins/uiModal";
 import {getIconTemplate} from "../services/component";
 

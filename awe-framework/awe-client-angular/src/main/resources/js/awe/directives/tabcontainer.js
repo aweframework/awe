@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 
 // Tab container directive
 aweApplication.directive('aweTabcontainer',

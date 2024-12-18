@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import _ from "lodash";
 
 // Server data service
@@ -281,7 +281,7 @@ aweApplication.factory('ServerData',
         },
         /**
          * Retrieve parameters and send them to the server
-         * @param {Action} action Action received
+         * @param {object} action Action received
          * @param {Object} parameters Server action parameters
          */
         launchServerAction: function (action, parameters) {

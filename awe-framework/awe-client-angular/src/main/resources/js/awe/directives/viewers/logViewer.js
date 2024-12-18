@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "../../awe";
 
 // Log viewer
 aweApplication.directive('aweLogViewer',
@@ -99,28 +99,15 @@ aweApplication.directive('aweLogViewer',
               lastScrollCheck = -1;
 
               // Stick scroll to bottom
-              stickToBottom(moveScroll, height);
+              if (stickBottom) {
+                $utilities.stickToBottom(moveScroll, height, initial, $element);
+                initial = false;
+              }
             }
 
             // Accept action
             $actionController.acceptAction(action);
           });
-
-          /**
-           * Stick scroll to bottom
-           * @param {boolean} moveScroll Move scroll or not
-           * @param {integer} top Position to move
-           */
-          function stickToBottom(moveScroll, top) {
-            if (stickBottom && (moveScroll || initial)) {
-              $utilities.timeout(() => {
-                $element.animate({scrollTop: top}, {complete: () => {
-                  initial = false;
-                  $element.trigger("scroll");
-                }});
-              });
-            }
-          }
 
           /**
            * Print text at scroll position

@@ -16,5 +16,6 @@ public class SchedulerNoneReport extends ServiceConfig implements ISchedulerRepo
 
   @Override
   public void execute(Task task, TaskExecution execution) {
+    // Do nothing when is none report scheduler task
   }
 }

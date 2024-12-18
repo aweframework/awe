@@ -1,5 +1,15 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
+
+function getResolutionType(width) {
+  if (width <= 640) {
+    return "mobile";
+  } else if (width <= 768) {
+    return "tablet";
+  } else {
+    return "desktop";
+  }
+}
 
 // Menu directive
 aweApplication.directive('aweMenu',
@@ -95,9 +105,9 @@ aweApplication.directive('aweMenu',
 
           /**
            * Toggle menu to visible or not visible
-           * @param {Action} action Action received
+           * @param {object || null} action Action received
            */
-          component.toggleMenu = function (action) {
+          component.toggleMenu = function (action= null) {
             // Toggle visibility depending on menu type
             // Change menu visibility
             if (scope.menuType === "horizontal") {
@@ -133,7 +143,7 @@ aweApplication.directive('aweMenu',
 
           /**
            * Finish toggle menu visibility
-           * @param {Action} action Action received
+           * @param {object || null} action Action received
            */
           component.onEndToggleMenu = function (action) {
             // End minimizing
@@ -153,7 +163,7 @@ aweApplication.directive('aweMenu',
 
           /**
            * Toggle navigation bar to visible or not visible
-           * @param {Action} action Action received
+           * @param {object} action Action received
            */
           component.toggleNavbar = function (action) {
             // main-navbar-collapse
@@ -207,39 +217,39 @@ aweApplication.directive('aweMenu',
            * Finish toggle menu visibility
            */
           function onResize() {
+            scope.status.resolution = getResolutionType($window.innerWidth);
             if (scope.menuType === "vertical") {
               // Tablet size
-              if ($window.innerWidth > 640 &&
-                $window.innerWidth <= 768) {
-                scope.status.resolution = "tablet";
-                if (!scope.status.minimized) {
-                  component.toggleMenu();
-                } else {
-                  scope.closeFirstLevel();
-                }
-                // Mobile size
-              } else if ($window.innerWidth <= 640) {
-                scope.status.resolution = "mobile";
-                if (!scope.status.minimized) {
-                  component.toggleMenu();
-                }
-                // Desktop size
-              } else {
-                scope.status.resolution = "desktop";
-                if (scope.status.minimized) {
-                  scope.closeFirstLevel();
-                }
+              switch (scope.status.resolution) {
+                case "tablet":
+                  if (!scope.status.minimized) {
+                    component.toggleMenu();
+                  } else {
+                    scope.closeFirstLevel();
+                  }
+                  break;
+                case "mobile":
+                  if (!scope.status.minimized) {
+                    component.toggleMenu();
+                  }
+                  break;
+                case "desktop":
+                default:
+                  if (scope.status.minimized) {
+                    scope.closeFirstLevel();
+                  }
+                  break;
               }
             }
           }
 
           // Watch click event if menu is dropdown
-          $document.bind('click', function (event) {
+          $document.bind('click', (event) => {
             if (scope.menuType === "horizontal" ||
               (scope.status.minimized && scope.status.resolution !== "mobile")) {
               let isClickedElementChildOfDropdown = $(element).find(event.target).length > 0;
               if (!isClickedElementChildOfDropdown && isDropdownVisible()) {
-                Utilities.timeout(function () {
+                Utilities.timeout(() => {
                   scope.closeFirstLevel();
                 });
               }

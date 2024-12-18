@@ -53,7 +53,7 @@ aweApplication.directive('uiDate',
               /**
                * Update selected value
                */
-              component.updateModelSelected = function () {
+              component.updateModelSelected = () => {
                 let selected = component.model.selected;
                 if (elem.val() !== selected) {
                   elem.datepicker('setDate', selected);
@@ -63,7 +63,7 @@ aweApplication.directive('uiDate',
               /**
                * Update value list
                */
-              component.updateModelValues = function () {
+              component.updateModelValues = () => {
                 elem.datepicker('update');
               };
 

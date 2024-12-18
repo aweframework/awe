@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
 
 const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id}}" title="{{controller.title| translateMultiple}}" class="info nav-icon-btn {{::controller.style}}" ng-class="::{'dropdown': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
@@ -55,7 +55,7 @@ aweApplication.directive('aweInfoDropdown', ['ServerData', 'Component', 'ActionC
          * Click button function
          */
         component.scope.infoClick = function () {
-          if (component.controller && component.controller.actions && component.controller.actions.length > 0) {
+          if (component.controller?.actions?.length > 0) {
             ActionController.addActionList(component.controller.actions, true, {address: component.address, context: component.context});
           }
         };

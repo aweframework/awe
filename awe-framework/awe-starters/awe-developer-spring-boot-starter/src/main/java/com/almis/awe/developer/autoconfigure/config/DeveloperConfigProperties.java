@@ -17,7 +17,7 @@ public class DeveloperConfigProperties {
    * Developer path. Used to manage the locale files.
    * Default value ${user.home}/awe-developer
    */
-  @Value("${user.home}/awe-developer")
+  @Value("${user.home}/awe-developer}")
   private String path;
   /**
    * Path file name

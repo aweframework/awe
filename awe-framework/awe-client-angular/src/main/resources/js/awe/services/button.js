@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {getIconTemplate} from "./component";
 
 export const templateButton = `<div ng-show="controller.visible" class="{{::groupClass}}" ui-dependency="dependencies" ng-cloak>

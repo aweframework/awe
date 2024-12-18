@@ -10,10 +10,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "awe.developer.translation.rapidapi")
 public class RapidAPIConfigProperties {
   /**
-   * Flag to load tasks on start application
-   * Default value f20790a0d6msh98d1dad8f0e3da9p10eb19jsn671d6cab2ec5
+   * Rapid API Key
    */
-  private String key = "f20790a0d6msh98d1dad8f0e3da9p10eb19jsn671d6cab2ec5";
+  private String key;
   /**
    * Translation service host
    * Default value translated-mymemory---translation-memory.p.rapidapi.com

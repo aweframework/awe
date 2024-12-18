@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 import _ from "lodash";
 
@@ -71,7 +71,7 @@ aweApplication.directive('aweForm',
       const FormActions = {
         /**
          * Validate the form
-         * @param {Action} action Action received
+         * @param {object} action Action received
          * @param {Object} scope Scope
          */
         validate: function (action, scope) {
@@ -108,7 +108,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Set a criterion as valid
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         setValid: function (action) {
           let  target = action.attr("callbackTarget");
@@ -117,7 +117,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Set a criterion as invalid
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         setInvalid: function (action) {
           let  parameters = action.attr("parameters");
@@ -133,7 +133,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Retrieve parameters and send them to the server
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         server: function (action) {
           // Launch server action with form values
@@ -141,7 +141,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         serverPrint: function (action) {
           // Launch server action for printing
@@ -149,10 +149,9 @@ aweApplication.directive('aweForm',
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)
-         * @param {Action} action Action received
-         * @param {Object} scope Scope
+         * @param {object} action Action received
          */
-        serverDownload: function (action, scope) {
+        serverDownload: function (action) {
           // Launch server action for printing
           let  parameters = {};
           let  target = action.attr("callbackTarget");
@@ -164,7 +163,7 @@ aweApplication.directive('aweForm',
           // Retrieve target specific attributes for the server call
           if (target) {
             const api = Control.getAddressApi(target);
-            if (api && api.getSpecificFields) {
+            if (api?.getSpecificFields) {
               // Add form values
               _.merge(parameters, api.getSpecificFields());
             }
@@ -179,7 +178,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Copy a criterion value to the clipboard
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         copyCriterionValueClipboard: function (action) {
           // Launch server action for printing
@@ -195,7 +194,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Update model with action values
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         fill: function (action) {
           // Retrieve parameters
@@ -216,7 +215,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Fill suggest model with action values
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         fillSuggest: function (action) {
           // Retrieve parameters
@@ -251,7 +250,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Update model with action values
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         select: function (action) {
           // Retrieve parameters
@@ -267,7 +266,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Reset view selected values
-         * @param {Action} action
+         * @param {object} action
          * @param {Object} scope
          */
         reset: function (action, scope) {
@@ -321,7 +320,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Destroy all views
-         * @param {Action} action
+         * @param {object} action
          */
         logout: function (action) {
           // Close following actions
@@ -344,7 +343,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Check if model has been modified
-         * @param {Action} action
+         * @param {object} action
          */
         checkModelUpdated: function (action) {
           // Get target
@@ -380,7 +379,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Check if model hasn't been modified
-         * @param {Action} action
+         * @param {object} action
          */
         checkModelNoUpdated: function (action) {
           // Get target
@@ -416,7 +415,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Check if model has empty data
-         * @param {Action} action
+         * @param {object} action
          */
         checkModelEmpty: function (action) {
           // Get target
@@ -451,7 +450,7 @@ aweApplication.directive('aweForm',
         },
         /**
          * Set a static value for an element
-         * @param {Action} action
+         * @param {object} action
          */
         value: function (action) {
           // Retrieve parameters

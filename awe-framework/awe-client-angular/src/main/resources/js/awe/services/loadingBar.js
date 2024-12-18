@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Loading bar service
 aweApplication.factory('LoadingBar',

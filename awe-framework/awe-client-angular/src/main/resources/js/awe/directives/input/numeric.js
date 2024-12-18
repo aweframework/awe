@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {templateNumeric} from "../../services/numeric";
 
 // Numeric directive

@@ -28,9 +28,9 @@ aweApplication.directive('uiNumeric',
   ['AweSettings', 'AweUtilities', 'Control',
     /**
      * jquery Autonumeric angular wrapper
-     * @param {Service} $settings
-     * @param {Service} Utilities
-     * @param {Service} Control
+     * @param {object} $settings
+     * @param {object} Utilities
+     * @param {object} Control
      */
     function ($settings, Utilities, Control) {
       // Declare a empty options object
@@ -71,8 +71,8 @@ aweApplication.directive('uiNumeric',
                 updateModel();
 
                 // Bind change event
-                elem.on("change", function () {
-                  Utilities.timeout(function () {
+                elem.on("change", () => {
+                  Utilities.timeout(() => {
                     let model = Control.getAddressModel(scope.component.address);
                     model.selected = parseFloat(elem.autoNumeric('get'));
                     updateModelValues();

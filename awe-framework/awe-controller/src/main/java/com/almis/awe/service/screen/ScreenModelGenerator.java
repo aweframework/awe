@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.almis.awe.model.type.InputType.*;
@@ -163,7 +164,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param data               Screen data
    * @throws AWException Error launching initial load list
    */
-  void launchInitialLoadList(List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ScreenData data) throws AWException {
+  public void launchInitialLoadList(List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ScreenData data) throws AWException {
     Map<String, Future<ServiceData>> taskScreenMap = new HashMap<>();
     Map<String, Future<ServiceData>> taskComponentMap = new HashMap<>();
     Map<String, Map<String, Future<ServiceData>>> taskColumnMap = new HashMap<>();
@@ -244,7 +245,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       String screen = data.getScreenProperties().get(AweConstants.JSON_OPTION);
       String errorMessage = getLocale("ERROR_MESSAGE_SCREEN_RESTRICTIONS", screen);
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
-      log.error(errorMessage + screen, exc);
+      log.error("{}{}", errorMessage, screen, exc);
       Thread.currentThread().interrupt();
     }
   }
@@ -320,10 +321,11 @@ public class ScreenModelGenerator extends ServiceConfig {
       model.setTotal(componentData.getTotal());
       model.setRecords(componentData.getRecords());
 
-    } catch (Exception exc) {
+    } catch (InterruptedException | ExecutionException exc) {
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
+      Thread.currentThread().interrupt();
     }
   }
 

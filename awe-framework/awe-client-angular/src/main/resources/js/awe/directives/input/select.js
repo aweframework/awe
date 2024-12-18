@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import { templateSelector } from "../../services/selector";
+import {aweApplication} from "../../awe";
+import {templateSelector} from "../../services/selector";
 
 // Select directive
 aweApplication.directive('aweInputSelect',

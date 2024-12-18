@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
 
 const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id}}" title="{{(model.values[0].title || controller.title) | translateMultiple}}" class="avatar nav-icon-btn {{::controller.style}}" ng-class="::{'dropdown': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
@@ -15,9 +15,9 @@ const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id
 aweApplication.directive('aweAvatar', ['ServerData', 'Component', 'ActionController',
   /**
    * Info directive
-   * @param {Service} ServerData Server call service
-   * @param {Service} Component
-   * @param {Service} ActionController
+   * @param {object} ServerData Server call service
+   * @param {function} Component
+   * @param {object} ActionController
    */
   function (ServerData, Component, ActionController) {
     return {
@@ -53,7 +53,7 @@ aweApplication.directive('aweAvatar', ['ServerData', 'Component', 'ActionControl
          * Click button function
          */
         component.scope.onClick = function () {
-          if (component.controller && component.controller.actions && component.controller.actions.length > 0) {
+          if (component.controller?.actions?.length > 0) {
             ActionController.addActionList(component.controller.actions, true, {address: component.address, context: component.context});
           }
         };

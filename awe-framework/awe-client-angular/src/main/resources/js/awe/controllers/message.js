@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 
 // Manage the message calls
@@ -90,7 +90,7 @@ aweApplication.controller("MessageController",
        * @param {Object} message Popover message
        */
       $ctrl.hidePopover = function (message = $ctrl.popover) {
-        if ((message.target || {}).popover) {
+        if (message.target?.popover) {
           message.visible = false;
           $utilities.timeout.cancel(message.timer);
           message.target.popover('hide');
@@ -102,7 +102,7 @@ aweApplication.controller("MessageController",
        * @param {Object} message Popover message
        */
       $ctrl.destroyPopover = function (message = $ctrl.popover) {
-        if ((message.target || {}).popover) {
+        if (message.target?.popover) {
           message.background.remove();
           message.target.popover('destroy');
           // Finish action if alive
@@ -116,7 +116,7 @@ aweApplication.controller("MessageController",
       $ctrl.MessageActions = {
         /**
          * Show a message in the screen
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         message: function (action) {
           let parameters = action.attr("parameters");
@@ -152,7 +152,7 @@ aweApplication.controller("MessageController",
         },
         /**
          * Show a message over a target in the screen
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         targetMessage: function (action) {
           let parameters = action.attr("parameters");

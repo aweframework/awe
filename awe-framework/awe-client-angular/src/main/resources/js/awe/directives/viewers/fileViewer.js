@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 
 // File viewer
 aweApplication.directive('aweFileViewer',
@@ -42,17 +42,13 @@ aweApplication.directive('aweFileViewer',
             let  action = component.controller[$settings.get("serverActionKey")];
             let  target = component.controller[$settings.get("targetActionKey")];
             let  url = serverData.getGenericFileUrl(action, target);
-            Connection.post(url, parameters).then(function (response) {
+            Connection.post(url, parameters).then((response) => {
               if (response.data && response.status === 201) {
                 let  moveScroll = elem.scrollTop() + elem.height() >= elem[0].scrollHeight;
                 scope.content = response.data;
                 if (stickBottom) {
-                  if (moveScroll || initial) {
-                    initial = false;
-                    Utilities.timeout(function () {
-                      elem.animate({scrollTop: elem[0].scrollHeight});
-                    });
-                  }
+                  Utilities.stickToBottom(moveScroll, elem[0].scrollHeight, initial, elem);
+                  initial = false;
                 }
               }
             });

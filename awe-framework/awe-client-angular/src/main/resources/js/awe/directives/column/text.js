@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {textColumnTemplate} from "../../services/text";
 
 // Column text directive

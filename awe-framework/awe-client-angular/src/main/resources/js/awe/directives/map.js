@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Map directive
 aweApplication.directive('aweMap',
@@ -108,7 +108,7 @@ aweApplication.directive('aweMap',
 
           /**
            * Update model with action values
-           * @param {Action} action Action received
+           * @param {object} action Action received
            */
           let  polyline = function (action) {
             // Retrieve parameters

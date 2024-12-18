@@ -72,13 +72,13 @@ public class FileManagerController {
    *
    * @param request  HttpServletRequest
    * @param response HttpServletResponse
-   * @throws IOException
-   * @throws AWException
+   * @throws IOException IO exception
+   * @throws AWException AWE exception
    */
   @GetMapping("/{actionId}")
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, AWException {
+  public void doGet(@PathVariable String actionId, HttpServletRequest request, HttpServletResponse response) throws IOException, AWException {
 
-    File file = null;
+    File file;
 
     // File action
     FileModeEnum mode = FileModeEnum.valueOf(request.getParameter("action").toUpperCase());
@@ -111,7 +111,7 @@ public class FileManagerController {
          BufferedOutputStream output = new BufferedOutputStream(response.getOutputStream())) {
 
       byte[] buffer = new byte[8192];
-      for (int length = 0; (length = input.read(buffer)) > 0; ) {
+      for (int length; (length = input.read(buffer)) > 0; ) {
         output.write(buffer, 0, length);
       }
     } catch (Exception ex) {
@@ -133,18 +133,17 @@ public class FileManagerController {
    *
    * @param request  HttpServletRequest
    * @param response HttpServletResponse
-   * @throws IOException
+   * @throws IOException IO exception
    */
   @PostMapping("/{actionId}")
-  @ResponseBody
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doPost(@PathVariable String actionId, HttpServletRequest request, HttpServletResponse response) throws IOException {
     log.debug("doPost");
     JsonNode responseNode = null;
     try {
       ObjectNode params = requestParamsToJSON(request);
       responseNode = service.fileOperation(params);
     } catch (Exception exc) {
-      log.error("Error handling post request", exc);
+      log.error("Error handling post request {}", actionId, exc);
       try {
         responseNode = service.error(exc);
       } catch (Exception ex) {
@@ -164,7 +163,6 @@ public class FileManagerController {
    * @throws IOException Error uploading
    */
   @PostMapping("/uploadUrl")
-  @ResponseBody
   public void doUploadPost(@RequestParam("files") List<MultipartFile> files, HttpServletRequest request, HttpServletResponse response) throws IOException {
     log.debug("doUploadPost");
     JsonNode responseNode = null;
@@ -196,7 +194,7 @@ public class FileManagerController {
     ObjectNode paramJson = JsonNodeFactory.instance.objectNode();
 
     StringBuilder jb = new StringBuilder();
-    String line = null;
+    String line;
     try {
       BufferedReader reader = request.getReader();
       while ((line = reader.readLine()) != null) {

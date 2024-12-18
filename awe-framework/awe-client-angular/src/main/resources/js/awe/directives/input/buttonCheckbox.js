@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {templateButtonCheckbox} from "../../services/checkboxRadio";
 
 // Button checkbox directive

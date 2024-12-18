@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Window storage service
 aweApplication.factory('WindowStorage',

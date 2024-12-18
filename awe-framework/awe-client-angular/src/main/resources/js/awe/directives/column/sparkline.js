@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 
 // Column sparkline directive
 aweApplication.directive('aweColumnSparkLine',

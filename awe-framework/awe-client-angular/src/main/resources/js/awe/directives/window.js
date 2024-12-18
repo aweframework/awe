@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
 
 const template = `<div class="panel panel-awe {{::panelClass + ' panel-' + size}} expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ng-cloak>

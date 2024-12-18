@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 import numeral from "numeral";
 import "numeral/locales";
 
