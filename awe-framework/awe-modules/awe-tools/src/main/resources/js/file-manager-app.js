@@ -22,13 +22,13 @@ angular.module('FileManagerApp').config([ 'fileManagerConfigProvider', '$httpPro
   $provide.decorator('apiHandler', [ '$delegate', '$q', 'Upload', function apiHandlerDecorator($delegate, $q, Upload) {
 
     function newUpload(apiUrl, destination, files) {
-      var self = this;
-      var deferred = $q.defer();
+      let self = this;
+      let deferred = $q.defer();
       self.prototype.inprocess = true;
       self.progress = 0;
       self.error = '';
 
-      var data = {
+      let data = {
           destination: destination,
           files: files
       };

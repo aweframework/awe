@@ -2,6 +2,25 @@ import {aweApplication} from "../../awe";
 import marked from "marked";
 import "bootstrap-markdown/js/bootstrap-markdown";
 
+function getMarkdownProperties(scope, $settings, Utilities) {
+  return {
+    iconlibrary: "fa",
+    language: $settings.getLanguage(),
+    parser: marked,
+    height: scope.component.controller.style,
+    onChange: function (e) {
+      Utilities.timeout(() => {
+        scope.component.model.selected = e.getContent();
+      });
+    },
+    onBlur: function () {
+      Utilities.timeout(() => {
+        scope.component.modelChange();
+      });
+    }
+  };
+}
+
 // Markdown editor directive
 aweApplication.directive('aweInputMarkdownEditor',
   ['ServerData', 'Criterion', 'AweUtilities', 'AweSettings',
@@ -29,22 +48,7 @@ aweApplication.directive('aweInputMarkdownEditor',
             },
             post: function (scope, elem) {
               // Generate markdown component
-              elem.find(".form-control").first().markdown({
-                iconlibrary: "fa",
-                language: $settings.getLanguage(),
-                parser: marked,
-                height: scope.component.controller.style,
-                onChange: function (e) {
-                  Utilities.timeout(() => {
-                    scope.component.model.selected = e.getContent();
-                  });
-                },
-                onBlur: function () {
-                  Utilities.timeout(() => {
-                    scope.component.modelChange();
-                  });
-                }
-              });
+              elem.find(".form-control").first().markdown(getMarkdownProperties(scope, $settings, Utilities));
             }
           };
         }

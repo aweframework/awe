@@ -44,6 +44,21 @@ aweApplication.directive('uiDate',
               }
             }
 
+            function updateModelSelected() {
+              let selected = scope.component.model.selected;
+              if (elem.val() !== selected) {
+                elem.datepicker('setDate', selected);
+              }
+            }
+
+            function updateModelValues() {
+              elem.datepicker('update');
+            }
+
+            function onChangeDate(event) {
+              scope.component.model.selected = Utilities.isEmpty(event.format()) ? null : event.format();
+            }
+
             /**
              * Add methods to component
              */
@@ -53,19 +68,12 @@ aweApplication.directive('uiDate',
               /**
                * Update selected value
                */
-              component.updateModelSelected = () => {
-                let selected = component.model.selected;
-                if (elem.val() !== selected) {
-                  elem.datepicker('setDate', selected);
-                }
-              };
+              component.updateModelSelected = updateModelSelected;
 
               /**
                * Update value list
                */
-              component.updateModelValues = () => {
-                elem.datepicker('update');
-              };
+              component.updateModelValues = updateModelValues;
 
               // Update initialization flag
               component.pluginInitialized = true;
@@ -80,16 +88,13 @@ aweApplication.directive('uiDate',
              * Event initialization
              */
             function initEvents() {
-              let component = scope.component;
               listeners = {};
 
               // Watch for language change
               listeners["languageChanged"] = scope.$on('languageChanged', updatePlugin);
 
               // Update model on change
-              elem.datepicker().on("changeDate", (event) => {
-                component.model.selected = Utilities.isEmpty(event.format()) ? null : event.format();
-              });
+              elem.datepicker().on("changeDate", onChangeDate);
             }
 
             /**
