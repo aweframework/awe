@@ -4,8 +4,8 @@ import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
-import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.screen.data.ScreenData;
+import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.ScreenService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -71,8 +71,10 @@ public class ScreenDataController {
     // Initialize parameters
     request.setParameterList(parameters);
 
+    String safeOptionID = StringUtil.sanitizeInputParameter(optionId);
+
     // Launch action
-    return screenService.getScreenData(optionId, generateTemplate());
+    return screenService.getScreenData(safeOptionID, generateTemplate());
   }
 
   /**
