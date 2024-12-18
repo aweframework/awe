@@ -20,7 +20,7 @@ aweApplication.directive('aweFileManager',
              */
             pre: function (scope) {
               // Init as component
-              var component = new Component(scope, scope.widgetId);
+              let component = new Component(scope, scope.widgetId);
               if (!component.asComponent()) {
                 // If component initialization is wrong, cancel initialization
                 return false;
