@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {templateColumnButton} from "../../services/button";
 
 // Column button directive

@@ -83,4 +83,26 @@ describe('awe-framework/awe-client-angular/src/test/js/services/utilities.js', f
     expect($utilities.decodeData($utilities.encodeSymetric(data), true)).toEqual({"test": 1});
     expect($utilities.decodeData(data, false)).toEqual({"test": 1});
   });
+
+  it('should call stick to bottom', function () {
+    const element = {animate: (a, o) => o.complete(), trigger: jasmine.createSpy("trigger")};
+    $utilities.timeout = (fn) => fn();
+
+    $utilities.stickToBottom(true, 0, false, element);
+
+    // Assert
+    expect(element.trigger).toHaveBeenCalledWith("scroll");
+
+    element.trigger = jasmine.createSpy("trigger2");
+    $utilities.stickToBottom(false, 0, false, element);
+
+    // Assert
+    expect(element.trigger).not.toHaveBeenCalled();
+
+    element.trigger = jasmine.createSpy("trigger3");
+    $utilities.stickToBottom(false, 0, true, element);
+
+    // Assert
+    expect(element.trigger).toHaveBeenCalledWith("scroll");
+  });
 });

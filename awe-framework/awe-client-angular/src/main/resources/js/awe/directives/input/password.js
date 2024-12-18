@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {passwordInputTemplate} from "../../services/text";
 
 // Password directive

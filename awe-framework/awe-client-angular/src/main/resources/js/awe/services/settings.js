@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {DefaultSettings} from "../data/options";
 
 // $settings service

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import "../services/button";
 import {getIconTemplate} from "../services/component";
 

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {templateSelectorColumn} from "../../services/selector";
 
 // Column select multiple directive

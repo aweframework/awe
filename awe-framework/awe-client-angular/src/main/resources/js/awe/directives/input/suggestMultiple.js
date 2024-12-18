@@ -1,5 +1,5 @@
-import { aweApplication } from "./../../awe";
-import { templateSelector } from "../../services/selector";
+import {aweApplication} from "../../awe";
+import {templateSelector} from "../../services/selector";
 
 // Suggest multiple directive
 aweApplication.directive('aweInputSuggestMultiple',

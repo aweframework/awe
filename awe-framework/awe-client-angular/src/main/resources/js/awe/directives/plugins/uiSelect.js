@@ -44,7 +44,7 @@ aweApplication.directive('uiSelect2',
                  * Fill the selector
                  * @param {Object} data
                  */
-                scope.component.fill = function (data) {
+                scope.component.fill = (data) => {
                   plugin.select2("data", data);
                 };
 
@@ -52,7 +52,7 @@ aweApplication.directive('uiSelect2',
                  * Select a value
                  * @param {Object} value
                  */
-                scope.component.select = function (value) {
+                scope.component.select = (value) => {
                   plugin.select2("val", value);
                 };
 
@@ -76,7 +76,7 @@ aweApplication.directive('uiSelect2',
               let select2 = elem.data("select2");
               if ("placeholder" in opts) {
                 select2.opts.placeholder = $translate.instant(opts.placeholder);
-                select2.setPlaceholder && select2.setPlaceholder();
+                select2.setPlaceholder?.();
               }
             }
 

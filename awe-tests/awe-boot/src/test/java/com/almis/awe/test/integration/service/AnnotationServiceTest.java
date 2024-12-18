@@ -81,9 +81,9 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
     // Crypto annotation on input parameters
     logger.warn("Check crypto annotations");
     String encriptedTextUtil = encodeService.encryptAes("Moderdonio", "1234");
-    logger.warn("EncodeUtil => " + encriptedTextUtil);
+    logger.warn("EncodeUtil => {}", encriptedTextUtil);
     String encryptedText = annotationTestService.encryptText("Moderdonio");
-    logger.warn("Annotation => " + encryptedText);
+    logger.warn("Annotation => {}", encryptedText);
 
     assertEquals("Moderdonio", encodeService.decryptAes(encryptedText, "1234"));
     assertEquals("Moderdonio", annotationTestService.decryptText(encriptedTextUtil));
@@ -131,7 +131,7 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
   @Test
   void checkAuditAnnotationReturnValueMap() {
     // Test message audit | Symbolic, some Audit messages should appear on the log files
-    Map<String, String> dummyMap = new HashMap<String, String>() {{
+    Map<String, String> dummyMap = new HashMap<>() {{
       put("key1", "value1");
       put("key2", "value2");
       put("key3", "value3");
@@ -230,5 +230,6 @@ class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {
   }
 
   private void dummyMethod() {
+    // Empty dummy method
   }
 }

@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 
 // Wizard panel directive
 aweApplication.directive('aweWizardPanel',

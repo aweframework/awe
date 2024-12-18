@@ -1,4 +1,4 @@
-import { aweApplication } from "./../../awe";
+import {aweApplication} from "../../awe";
 import marked from "marked";
 import "bootstrap-markdown/js/bootstrap-markdown";
 
@@ -35,12 +35,12 @@ aweApplication.directive('aweInputMarkdownEditor',
                 parser: marked,
                 height: scope.component.controller.style,
                 onChange: function (e) {
-                  Utilities.timeout(function () {
+                  Utilities.timeout(() => {
                     scope.component.model.selected = e.getContent();
                   });
                 },
                 onBlur: function () {
-                  Utilities.timeout(function () {
+                  Utilities.timeout(() => {
                     scope.component.modelChange();
                   });
                 }

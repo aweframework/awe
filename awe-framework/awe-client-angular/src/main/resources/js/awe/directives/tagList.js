@@ -1,4 +1,4 @@
-import { aweApplication } from "./../awe";
+import {aweApplication} from "../awe";
 import _ from "lodash";
 import {ClientActions} from "../data/actions";
 

@@ -68,7 +68,7 @@ aweApplication.factory('Uploader',
   ['Criterion', 'AweSettings', 'Upload', 'ActionController', 'ServerData', 'AweUtilities', '$translate',
     /**
      * Uploader service methods
-     * @param {object} Criterion
+     * @param {function} Criterion
      * @param {object} $settings
      * @param {object} Upload
      * @param {object} $actionController

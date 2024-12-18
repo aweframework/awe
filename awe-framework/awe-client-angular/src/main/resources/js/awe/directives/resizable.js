@@ -104,7 +104,7 @@ aweApplication.directive('aweResizable',
                 //prevent transition while dragging
                 element.addClass('no-transition');
 
-                document.addEventListener('mouseup', function () {
+                document.addEventListener('mouseup', () => {
                   document.removeEventListener('mousemove', drag, false);
                   element.removeClass('no-transition');
                   if (scope.onDragEnd) {

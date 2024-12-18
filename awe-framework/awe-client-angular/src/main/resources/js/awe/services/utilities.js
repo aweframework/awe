@@ -1024,6 +1024,22 @@ aweApplication.factory('AweUtilities',
             }
           }
           return -1;
+        },
+        /**
+         *
+         * @param moveScroll
+         * @param top
+         * @param initial
+         * @param element
+         */
+        stickToBottom: function(moveScroll, top, initial, element) {
+          if (moveScroll || initial) {
+            Utilities.timeout(() => {
+              element.animate({scrollTop: top}, {complete: () => {
+                element.trigger("scroll");
+              }});
+            });
+          }
         }
       };
       return Utilities;

@@ -32,7 +32,7 @@ public class SchedulerConfigProperties {
   /**
    * Scheduler execution log path
    */
-  @Value("${logging.file.path:${java.io.tmpdir}}/scheduler")
+  @Value("${logging.file.path:${java.io.tmpdir}}/scheduler}")
   private String executionLogPath;
   /**
    * Scheduler execution log pattern

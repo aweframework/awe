@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Screen service
 aweApplication.factory("Screen",
@@ -21,7 +21,7 @@ aweApplication.factory("Screen",
       const $screen = {
         /**
          * Retrieve parameters and send them to the server
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         screen: function (action) {
 
@@ -63,7 +63,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Reload the current state
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         reload: function (action) {
           // Retrieve action parameters
@@ -74,7 +74,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Return to the previous screen
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         back: function (action) {
           // Finish screen action
@@ -85,7 +85,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Change the language of the interface
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         changeLanguage: function (action) {
           // Retrieve action parameters
@@ -108,7 +108,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Wait x milliseconds
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         wait: function (action) {
           // Retrieve action parameters
@@ -122,7 +122,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Change the theme of the interface
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         changeTheme: function (action) {
           // Retrieve action parameters
@@ -146,7 +146,7 @@ aweApplication.factory("Screen",
 
         /**
          * Reload the theme variable css class
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         updateTheme: function (action) {
           // Reload themeVariable css
@@ -160,7 +160,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Load screen data
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         screenData: function (action) {
           // Get parameters
@@ -180,7 +180,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Open screen dialog
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         openDialog: function (action) {
           let  address = action.attr("callbackTarget");
@@ -191,7 +191,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Close screen dialog
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         closeDialog: function (action) {
           // Close action
@@ -204,7 +204,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Close screen dialog and cancel action
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         closeDialogAndCancel: function (action) {
           // Close action
@@ -217,7 +217,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Finish loading
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         endLoad: function (action) {
           // Retrieve action address
@@ -232,7 +232,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Get file from server
-         * @param {Action} action get file from server
+         * @param {object} action get file from server
          */
         getFile: function (action) {
           // Variable definition
@@ -250,21 +250,21 @@ aweApplication.factory("Screen",
         },
         /**
          * Enable dependencies
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         enableDependencies: function (action) {
           $screen.toggleDependencies(action, true);
         },
         /**
          * Disable dependencies
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         disableDependencies: function (action) {
           $screen.toggleDependencies(action, false);
         },
         /**
          * Enable/Disable dependencies
-         * @param {Action} action Action received
+         * @param {object} action Action received
          * @param {Boolean} enabled Enable/disable dependencies
          */
         toggleDependencies: function (action, enabled) {
@@ -276,21 +276,21 @@ aweApplication.factory("Screen",
         },
         /**
          * Add Class
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         addClass: function (action) {
           $screen.changeClass(action, true);
         },
         /**
          * Remove Class
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         removeClass: function (action) {
           $screen.changeClass(action, false);
         },
         /**
          * Toggle Class
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         toggleClass: function (action) {
           // Variable definition
@@ -306,8 +306,8 @@ aweApplication.factory("Screen",
         },
         /**
          * Add/Remove a class to a tag
-         * @param {Action} action Action received
-         * @param {Action} add Add/Remove a class
+         * @param {object} action Action received
+         * @param {object} add Add/Remove a class
          */
         changeClass: function (action, add) {
           // Variable definition
@@ -324,7 +324,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Print the current screen
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         screenPrint: function (action) {
           $window.print();
@@ -334,7 +334,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Redirect to another URL
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         redirect: function (action) {
           let url = action.attr("target");
@@ -353,7 +353,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Redirect screen to another URL
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         redirectScreen: function (action) {
           let screen = action.attr("parameters")?.screen || null;
@@ -367,7 +367,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Close the current window
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         closeWindow: function (action) {
           // Close action
@@ -378,7 +378,7 @@ aweApplication.factory("Screen",
         },
         /**
          * Finish a dependency
-         * @param {Action} action Action received
+         * @param {object} action Action received
          */
         endDependency: function (action) {
           let  dependency = action.attr("parameters").dependency;

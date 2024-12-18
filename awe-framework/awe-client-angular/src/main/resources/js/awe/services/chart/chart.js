@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import "../../directives/plugins/uiChart";
 import "./events";
 import "./sparkLine";

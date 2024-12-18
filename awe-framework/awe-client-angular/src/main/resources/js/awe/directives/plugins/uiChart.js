@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 
 // HIGHCHARTS
 import Highcharts from "highcharts/highstock";
@@ -116,11 +116,9 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
               };
             }
             scope.component.initialized = true;
-          } else {
-            if (scope.component.chart) {
-              // Redraw chart
-              scope.component.chart.redraw();
-            }
+          } else if (scope.component.chart) {
+            // Redraw chart
+            scope.component.chart.redraw();
           }
         };
         /**

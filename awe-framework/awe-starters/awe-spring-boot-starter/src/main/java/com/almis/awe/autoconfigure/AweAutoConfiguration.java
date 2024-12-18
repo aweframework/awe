@@ -7,6 +7,7 @@ import com.almis.awe.config.*;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.XStreamSerializer;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
@@ -669,11 +670,13 @@ public class AweAutoConfiguration {
   /**
    * Awe logging filter
    *
+   * @param aweSession           Awe session
+   * @param baseConfigProperties Base properties
    * @return servlet filter
    */
   @Bean
-  public AweLoggingFilter aweLoggingFilter() {
-    return new AweLoggingFilter();
+  public AweLoggingFilter aweLoggingFilter(AweSession aweSession, BaseConfigProperties baseConfigProperties) {
+    return new AweLoggingFilter(aweSession, baseConfigProperties);
   }
 
   /**

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import "../directives/plugins/uiSelect";
 import {getIconTemplate} from "./component";
 
@@ -41,7 +41,7 @@ aweApplication.factory('Selector',
     /**
      * @constructor Criterion generic methods
      * @param {object} Control
-     * @param {object} Criterion
+     * @param {function} Criterion
      * @param {object} $translate
      * @param {object} Utilities Awe Utilities
      * @param {object} $settings Awe $settings

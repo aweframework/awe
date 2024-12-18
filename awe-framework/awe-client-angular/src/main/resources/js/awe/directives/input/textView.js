@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {textViewInputTemplate} from "../../services/text";
 
 // Text view directive

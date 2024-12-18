@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {uploaderColumnTemplate} from "../../services/uploader";
 
 // Column uploader directive

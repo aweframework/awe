@@ -11,9 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MyMemoryConfigProperties {
   /**
    * MyMemory api key
-   * Default value 10ecdc1ed89ac3ebed3b
    */
-  private String key = "10ecdc1ed89ac3ebed3b";
+  private String key;
   /**
    * MyMemory translation service host
    * Default value api.mymemory.translated.net

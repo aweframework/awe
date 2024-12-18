@@ -1,11 +1,11 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Panel service
 aweApplication.factory('Panelable',
   ['Criterion', 'AweUtilities', 'Storage', '$translate', 'AweSettings',
     /**
      * @constructor Panelable generic methods
-     * @param {object} Criterion
+     * @param {function} Criterion
      * @param {object} $utilities
      * @param {object} $storage
      * @param {object} $translate

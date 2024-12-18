@@ -2,7 +2,6 @@ package com.almis.awe.service.screen;
 
 
 import com.almis.awe.config.ServiceConfig;
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
@@ -18,6 +17,7 @@ import org.springframework.beans.PropertyAccessorFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -30,9 +30,8 @@ public class ScreenConfigurationGenerator extends ServiceConfig {
    * Store screen target data in components
    * @param configurationTask Screen configuration future
    * @param screen Screen bean
-   * @throws AWException Awe exception
    */
-  void applyScreenConfiguration(Future<ServiceData> configurationTask, Screen screen) throws AWException {
+  public void applyScreenConfiguration(Future<ServiceData> configurationTask, Screen screen)  {
     // Retrieve screen configuration if defined
     try {
       ServiceData screenConfigurationOutput = configurationTask.get();
@@ -40,8 +39,9 @@ public class ScreenConfigurationGenerator extends ServiceConfig {
 
       // For each column, store value in components
       addScreenConfigurationToComponents(screenConfiguration, screen);
-    } catch (Exception exc) {
-      throw new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA", screen.getId()), exc);
+    } catch (InterruptedException | ExecutionException exc ) {
+      log.error(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), getLocale("ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA", screen.getId()), exc);
+      Thread.currentThread().interrupt();
     }
   }
 
