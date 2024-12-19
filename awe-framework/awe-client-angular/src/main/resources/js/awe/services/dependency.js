@@ -154,6 +154,7 @@ aweApplication.factory('Dependency',
         };
         const elementAttributes = {
           dependency,
+          element,
           row: element.row1 || dependency.component.address.row || null,
           // Element 1
           comp1: element.id,
