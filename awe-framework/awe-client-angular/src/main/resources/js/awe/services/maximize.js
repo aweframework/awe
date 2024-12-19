@@ -130,6 +130,40 @@ aweApplication.factory('Maximize',
           };
 
           /**
+           * Animate maximize
+           * @param resizing
+           */
+          const animateMaximize = function(resizing) {
+            Utilities.timeout(function () {
+              // Launch animation
+              let maximizeSizes = scope.maximizeTargetLayer();
+              updateElementsToMinimize(maximizeTarget);
+              $(minimize.targets).fadeOut(animationTime);
+              launchAnimation(resizing, maximizeSizes.final, function () {
+                scope.maximized = true;
+                scope.iconMaximized = true;
+                minimizeParentsAndSiblings();
+                scope.$broadcast("resize");
+              });
+            }, 200);
+          }
+
+          /**
+           * Animate restore
+           * @param resizing
+           */
+          const animateRestore = function(resizing) {
+            Utilities.timeout(function () {
+              // Launch animation
+              let finalSize = position.getOuterDimensions(elem);
+              launchAnimation(resizing, finalSize, function () {
+                scope.iconMaximized = false;
+                scope.$broadcast("resize");
+              });
+            }, 150);
+          }
+
+          /**
            * Calculate maximized size depending on maximize target
            * @returns {object} Resizing size
            */
@@ -162,12 +196,13 @@ aweApplication.factory('Maximize',
               elem.css(maximizeSizes.element);
             }
           };
+
           /**
            * Maximize the panel
            */
           scope.maximizePanel = function () {
             // Generate animation clone
-            let  resizing = generateAnimationClone();
+            let resizing = generateAnimationClone();
             // Set resizing and maximized
             scope.$root.resizing = true;
             scope.panelResizing = true;
@@ -180,19 +215,9 @@ aweApplication.factory('Maximize',
             }
 
             // Launch animation
-            Utilities.timeout(function () {
-              // Launch animation
-              let  maximizeSizes = scope.maximizeTargetLayer();
-              updateElementsToMinimize(maximizeTarget);
-              $(minimize.targets).fadeOut(animationTime);
-              launchAnimation(resizing, maximizeSizes.final, function () {
-                scope.maximized = true;
-                scope.iconMaximized = true;
-                minimizeParentsAndSiblings();
-                scope.$broadcast("resize");
-              });
-            }, 200);
+            animateMaximize(resizing);
           };
+
           /**
            * Restore the window size
            */
@@ -208,14 +233,9 @@ aweApplication.factory('Maximize',
             scope.$root.resizing = true;
             scope.panelResizing = true;
             scope.maximized = false;
-            Utilities.timeout(function () {
-              // Launch animation
-              let  finalSize = position.getOuterDimensions(elem);
-              launchAnimation(resizing, finalSize, function () {
-                scope.iconMaximized = false;
-                scope.$broadcast("resize");
-              });
-            }, 150);
+
+            // Launch animation
+            animateRestore(resizing);
           };
 
           /**

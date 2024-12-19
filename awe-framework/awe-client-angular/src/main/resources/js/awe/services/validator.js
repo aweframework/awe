@@ -17,6 +17,23 @@ aweApplication.factory('Validator',
       const ERROR_CONTAINER = '.error-container';
       const FORM_GROUP = '.form-group';
 
+      /**
+       * Validate each view
+       * @param view
+       * @param errorList
+       * @param baseNode
+       */
+      function validateView(view, errorList, baseNode) {
+        _.each(view, function (component) {
+          Validator.validateComponent(component, errorList, baseNode);
+          if ("cells" in component) {
+            _.each(component.cells, function (cell) {
+              Validator.validateComponent(cell, errorList, baseNode);
+            });
+          }
+        });
+      }
+
       let Validator = {
         /**
          * Validate a component
@@ -56,14 +73,7 @@ aweApplication.factory('Validator',
 
           // Retrieve components from each view
           _.each(api, function (view) {
-            _.each(view, function (component) {
-              Validator.validateComponent(component, errorList, baseNode);
-              if ("cells" in component) {
-                _.each(component.cells, function (cell) {
-                  Validator.validateComponent(cell, errorList, baseNode);
-                });
-              }
-            });
+            validateView(view, errorList, baseNode);
           });
           // Return data
           return errorList;
