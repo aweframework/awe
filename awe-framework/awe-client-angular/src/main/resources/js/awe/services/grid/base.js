@@ -41,77 +41,6 @@ aweApplication.factory('GridBase',
         return this.component;
       };
 
-      function onRowsRendered(grid) {
-        Utilities.timeout.cancel(grid.rowsRenderTimeout);
-        grid.rowsRenderTimeout = Utilities.timeout(function () {
-          Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
-        });
-      }
-
-      function afterAddRowsSpecific(deferred, newId, component, grid, rowIndex) {
-        // Resolve promise
-        deferred.resolve(newId);
-        // Show new row
-        Utilities.timeout(function () {
-          component.repositionSaveButton();
-          if (grid.api) {
-            let gridRow = grid.api.grid.getRow(component.model.values[rowIndex]);
-            grid.api.core.scrollToIfNecessary(gridRow, null);
-          }
-        });
-      }
-
-      /**
-       * Store pagination values on component
-       * @param first
-       * @param last
-       * @param records
-       * @param page
-       * @param total
-       * @param component
-       * @param gridWidth
-       */
-      function storePaginationValues(first, last, records, page, total, component, gridWidth) {
-        // Generate pagination text
-        let paginationText, paginationTextSmall, footerButtonStyle, footerPaginationStyle, bigGrid;
-        paginationText = "";
-        paginationText += $translate.instant('SCREEN_TEXT_GRID_VIEW');
-        paginationText += " " + first;
-        paginationText += " - " + last;
-        paginationText += " " + $translate.instant('SCREEN_TEXT_GRID_OF');
-        paginationText += " " + records;
-        paginationTextSmall = page + "/" + total;
-        // Generate pagination sizes
-        if (component.controller.disablePagination) {
-          if (component.controller.buttonModel.length > 0) {
-            component.footerButtonStyle = "col-xs-12";
-          } else {
-            component.footerButtonStyle = "hidden";
-          }
-        } else {
-          bigGrid = gridWidth > component.constants.SMALL_GRID;
-          if (bigGrid) {
-            footerButtonStyle = "col-xs-3";
-            footerPaginationStyle = "col-xs-9";
-          } else {
-            if (component.controller.buttonModel.length > 0) {
-              footerButtonStyle = "col-xs-4";
-              footerPaginationStyle = "col-xs-8";
-            } else {
-              footerButtonStyle = "hidden";
-              footerPaginationStyle = "col-xs-12";
-            }
-          }
-        }
-
-        // Set scope variables
-        component.paginationText = paginationText;
-        component.paginationTextSmall = paginationTextSmall;
-        component.footerButtonStyle = footerButtonStyle;
-        component.footerPaginationStyle = footerPaginationStyle;
-        component.bigGrid = bigGrid;
-      }
-
       GridBase.prototype = {
         /**
          * Initialize base grid
@@ -578,6 +507,90 @@ aweApplication.factory('GridBase',
           /******************************************************************************
            * PRIVATE METHODS
            *****************************************************************************/
+
+          /**
+           * On grid rows rendered
+           * @param grid
+           */
+          function onRowsRendered(grid) {
+            Utilities.timeout.cancel(grid.rowsRenderTimeout);
+            grid.rowsRenderTimeout = Utilities.timeout(function () {
+              Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
+            });
+          }
+
+          /**
+           * After add rows
+           * @param deferred
+           * @param newId
+           * @param component
+           * @param grid
+           * @param rowIndex
+           */
+          function afterAddRowsSpecific(deferred, newId, component, grid, rowIndex) {
+            // Resolve promise
+            deferred.resolve(newId);
+            // Show new row
+            Utilities.timeout(function () {
+              component.repositionSaveButton();
+              if (grid.api) {
+                let gridRow = grid.api.grid.getRow(component.model.values[rowIndex]);
+                grid.api.core.scrollToIfNecessary(gridRow, null);
+              }
+            });
+          }
+
+          /**
+           * Store pagination values on component
+           * @param first
+           * @param last
+           * @param records
+           * @param page
+           * @param total
+           * @param component
+           * @param gridWidth
+           */
+          function storePaginationValues(first, last, records, page, total, component, gridWidth) {
+            // Generate pagination text
+            let paginationText, paginationTextSmall, footerButtonStyle, footerPaginationStyle, bigGrid;
+            paginationText = "";
+            paginationText += $translate.instant('SCREEN_TEXT_GRID_VIEW');
+            paginationText += " " + first;
+            paginationText += " - " + last;
+            paginationText += " " + $translate.instant('SCREEN_TEXT_GRID_OF');
+            paginationText += " " + records;
+            paginationTextSmall = page + "/" + total;
+            // Generate pagination sizes
+            if (component.controller.disablePagination) {
+              if (component.controller.buttonModel.length > 0) {
+                component.footerButtonStyle = "col-xs-12";
+              } else {
+                component.footerButtonStyle = "hidden";
+              }
+            } else {
+              bigGrid = gridWidth > component.constants.SMALL_GRID;
+              if (bigGrid) {
+                footerButtonStyle = "col-xs-3";
+                footerPaginationStyle = "col-xs-9";
+              } else {
+                if (component.controller.buttonModel.length > 0) {
+                  footerButtonStyle = "col-xs-4";
+                  footerPaginationStyle = "col-xs-8";
+                } else {
+                  footerButtonStyle = "hidden";
+                  footerPaginationStyle = "col-xs-12";
+                }
+              }
+            }
+
+            // Set scope variables
+            component.paginationText = paginationText;
+            component.paginationTextSmall = paginationTextSmall;
+            component.footerButtonStyle = footerButtonStyle;
+            component.footerPaginationStyle = footerPaginationStyle;
+            component.bigGrid = bigGrid;
+          }
+
           /**
            * On scroll start
            */

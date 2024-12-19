@@ -172,12 +172,7 @@ aweApplication.factory('GridTree',
               return row.entity[component.constants.ROW_IDENTIFIER];
             };
             // Broadcast rows rendered
-            grid.api.core.on.rowsRendered(grid.scope, function () {
-              Utilities.timeout.cancel(grid.rowsRenderTimeout);
-              grid.rowsRenderTimeout = Utilities.timeout(function () {
-                Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
-              });
-            });
+            grid.api.core.on.rowsRendered(grid.scope, () => onRowsRendered(grid));
             // Manage on cell select events
             grid.api.selection.on.rowSelectionChanged(grid.scope, onSelectRow);
             grid.api.selection.on.rowSelectionChangedBatch(grid.scope, onSelectRow);
@@ -279,7 +274,7 @@ aweApplication.factory('GridTree',
             let primaryIdName = component.controller.treeId;
             let parentIdName = component.controller.treeParent;
             let treeLeaf = component.controller.treeLeaf;
-            let  expandLevel = parseInt(component.controller.initialLevel || "0", 10);
+            let expandLevel = parseInt(component.controller.initialLevel || "0", 10);
             if (!data || data.length === 0 || !primaryIdName || !parentIdName) {
               return [];
             }
@@ -315,22 +310,7 @@ aweApplication.factory('GridTree',
               tree.$$children.push(treeObjs[rootIds[j]]);
             }
 
-            function setLevels(base, level) {
-              _.each(base, function (node) {
-                node.$$treeLevel = level;
-                if ("expanded" in node) {
-                  node.$$expanded = Utilities.parseBoolean(node.expanded);
-                } else {
-                  node.$$expanded = node.$$loaded && (level + 1) < expandLevel;
-                }
-                setLevels(node.$$children, level + 1);
-
-                //'fa-minus': ( ( grid.options.showTreeExpandNoChildren && row.treeLevel > -1 ) || ( row.treeNode.children && row.treeNode.children.length > 0 ) ) && row.treeNode.state === 'expanded', 'fa-plus': ( ( grid.options.showTreeExpandNoChildren && row.treeLevel > -1 ) || ( row.treeNode.children && row.treeNode.children.length > 0 ) ) && row.treeNode.state === 'collapsed'}"
-                setNodeIcon(node);
-              });
-            }
-
-            setLevels(tree.$$children, 0);
+            setLevels(tree.$$children, 0, expandLevel);
             component.treeData = tree;
             return data;
           };
@@ -742,6 +722,17 @@ aweApplication.factory('GridTree',
            *****************************************************************************/
 
           /**
+           * On grid rows rendered
+           * @param grid
+           */
+          function onRowsRendered(grid) {
+            Utilities.timeout.cancel(grid.rowsRenderTimeout);
+            grid.rowsRenderTimeout = Utilities.timeout(function () {
+              Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
+            });
+          }
+
+          /**
            * Publish grid data changed
            */
           function onUpdatedGridData() {
@@ -987,6 +978,29 @@ aweApplication.factory('GridTree',
               });
             }
             component.onSelectRows(selectedList);
+          }
+
+          /**
+           * Define each level
+           * @param base
+           * @param level
+           * @param expandLevel
+           */
+          function setLevels(base, level, expandLevel) {
+            _.each(base, function (node) {
+              node.$$treeLevel = level;
+              if ("expanded" in node) {
+                node.$$expanded = Utilities.parseBoolean(node.expanded);
+              } else {
+                node.$$expanded = node.$$loaded && (level + 1) < expandLevel;
+              }
+
+              // Set child levels
+              setLevels(node.$$children, level + 1, expandLevel);
+
+              // Set node icon
+              setNodeIcon(node);
+            });
           }
 
           /**********************************************************************/
