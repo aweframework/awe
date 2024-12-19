@@ -15,6 +15,32 @@ aweApplication.directive('aweResizable',
           resizableId: '@'
         },
         compile: function () {
+
+          /**
+           * Manage onDragStart event
+           * @param {*} e
+           * @param {((this:Document, ev: DocumentEventMap[string]) => *)|EventListenerObject} drag
+           * @param {CSSStyleDeclaration} style
+           * @param {Object} element
+           * @param {Object} scope
+           */
+          function onDragStart(e, drag, style, element, scope) {
+            //prevent transition while dragging
+            element.addClass('no-transition');
+
+            document.addEventListener('mouseup', () => {
+              document.removeEventListener('mousemove', drag, false);
+              element.removeClass('no-transition');
+              if (scope.onDragEnd) {
+                scope.onDragEnd();
+              }
+            });
+            document.addEventListener('mousemove', drag, false);
+
+            // Cancel event propagation
+            Utilities.stopPropagation(e, true);
+          }
+
           return {
             /**
              * Pregeneration function
@@ -57,7 +83,7 @@ aweApplication.directive('aweResizable',
                 dragDir,
                 axis;
 
-              let  drag = function (e) {
+              const drag = function (e) {
                 let  offset = axis === 'x' ? start - e.clientX : start - e.clientY;
                 switch (dragDir) {
                   case 'top':
@@ -94,28 +120,7 @@ aweApplication.directive('aweResizable',
                     break;
                 }
               };
-              scope.dragStart = function (e, direction) {
-                dragDir = direction;
-                axis = dragDir === 'left' || dragDir === 'right' ? 'x' : 'y';
-                start = axis === 'x' ? e.clientX : e.clientY;
-                w = parseInt(style.getPropertyValue("width"));
-                h = parseInt(style.getPropertyValue("height"));
-
-                //prevent transition while dragging
-                element.addClass('no-transition');
-
-                document.addEventListener('mouseup', () => {
-                  document.removeEventListener('mousemove', drag, false);
-                  element.removeClass('no-transition');
-                  if (scope.onDragEnd) {
-                    scope.onDragEnd();
-                  }
-                });
-                document.addEventListener('mousemove', drag, false);
-
-                // Cancel event propagation
-                Utilities.stopPropagation(e, true);
-              };
+              scope.dragStart = (e) => onDragStart(e, drag, style, element, scope);
             }
           };
         }
