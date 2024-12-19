@@ -136,7 +136,7 @@ aweApplication.directive('uiNumeric',
               params.opts = processNumericOptions(params.opts);
 
               if (params.initialized) {
-                params.elem.autoNumeric('update', opts);
+                params.elem.autoNumeric('update', params.opts);
               } else {
                 // Set autonumeric
                 params.elem.autoNumeric(params.opts);
