@@ -19,6 +19,34 @@ aweApplication.factory('GridComponents',
         component.api.cells = {};
       };
 
+      /**
+       * Initialize Cell Model
+       * @param {object} component
+       * @param {object} cellValue
+       * @param {object} valueList
+       * @param {object} cellModel
+       * @param {string} cellId
+       * @param {object} address
+       */
+      function initializeCellModel(component, cellValue, valueList, cellModel, cellId, address) {
+        let cell = component.getCellObject(cellValue);
+
+        let model = {values: valueList || []};
+        if ("selected" in cell && "values" in cell) {
+          model = cell;
+        } else {
+          if ("value" in cell) {
+            model.selected = cell.value;
+          }
+          if (model.values.length === 0) {
+            model.values = angular.isArray(cell) ? cell : [cell];
+          }
+        }
+        cellModel[cellId] = model;
+        cellModel[cellId].initialized = true;
+        Control.setAddressModel(address, cellModel[cellId]);
+      }
+
       /*********
        * METHODS
        *********/
@@ -100,22 +128,7 @@ aweApplication.factory('GridComponents',
               }
 
               // Define columnId controller if not defined
-              let  cell = component.getCellObject(cellValue);
-
-              let  model = {values: valueList || []};
-              if ("selected" in cell && "values" in cell) {
-                model = cell;
-              } else {
-                if ("value" in cell) {
-                  model.selected = cell.value;
-                }
-                if (model.values.length === 0) {
-                  model.values = angular.isArray(cell) ? cell : [cell];
-                }
-              }
-              cellModel[cellId] = model;
-              cellModel[cellId].initialized = true;
-              Control.setAddressModel(address, cellModel[cellId]);
+              initializeCellModel(component, cellValue, valueList, cellModel, cellId, address);
             }
 
             // Define columnId controller if not defined

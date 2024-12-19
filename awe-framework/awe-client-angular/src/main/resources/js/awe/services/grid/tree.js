@@ -236,7 +236,7 @@ aweApplication.factory('GridTree',
 
             // Set node icon
             setNodeIcon(row);
-            deferRowsRendered().then(function () {
+            component.deferRowsRendered().then(function () {
               component.updateGridScrollBars();
             });
           };
@@ -251,7 +251,7 @@ aweApplication.factory('GridTree',
             component.model.values = sortTreeValues(component.model.values.filter(node => node.$$treeLevel === 0));
             component.scope.gridOptions.data = component.model.values;
             // On rows rendered, publish
-            deferRowsRendered().then(function () {
+            component.deferRowsRendered().then(function () {
               // Publish grid data changed
               onUpdatedGridData();
               if (!component.initialized) {
@@ -605,7 +605,7 @@ aweApplication.factory('GridTree',
             component.scope.gridOptions.data = component.model.values;
             grid.api.core.notifyDataChange(uiGridConstants.dataChange.ROW);
             // Retrieve new id
-            return deferRowsRendered(function (deferred) {
+            return component.deferRowsRendered(function (deferred) {
               // Publish grid data changed
               onUpdatedGridData();
               // Resolve promise
@@ -653,7 +653,7 @@ aweApplication.factory('GridTree',
             parent.$$children.push(row);
             component.scope.gridOptions.data = component.model.values;
             // Retrieve row identifier
-            return deferRowsRendered(function (deferred) {
+            return component.deferRowsRendered(function (deferred) {
               // Publish grid data changed
               onUpdatedGridData();
               // Resolve promise
@@ -695,7 +695,7 @@ aweApplication.factory('GridTree',
                 component.scope.gridOptions.data = component.model.values;
               }
             }
-            return deferRowsRendered().then(onUpdatedGridData);
+            return component.deferRowsRendered().then(onUpdatedGridData);
           };
           /**
            * Check if grid size has changed & update new measures if changed
@@ -943,32 +943,6 @@ aweApplication.factory('GridTree',
               // Reposition save button if showing
               component.repositionSaveButton();
             }
-          }
-
-          /**
-           * Launch a promise on rows rendered
-           * @param {type} onDefer
-           */
-          function deferRowsRendered(onDefer) {
-            let  deferred = Utilities.q.defer();
-            let  startTime = new Date();
-            let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
-              if (parameters.grid === grid.id) {
-                // Remove listener
-                listener();
-                // Resolve promise
-                if (onDefer) {
-                  onDefer(deferred);
-                } else {
-                  deferred.resolve();
-                }
-
-                let  dateDiff = (new Date() - startTime) / 1000;
-                $log.debug("[GRID ROWS] Grid rows have been COMPILED", {grid: grid.id, compilationTime: dateDiff + "s"});
-              }
-            });
-            // Retrieve new id
-            return deferred.promise;
           }
 
           /**

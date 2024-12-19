@@ -41,6 +41,77 @@ aweApplication.factory('GridBase',
         return this.component;
       };
 
+      function onRowsRendered(grid) {
+        Utilities.timeout.cancel(grid.rowsRenderTimeout);
+        grid.rowsRenderTimeout = Utilities.timeout(function () {
+          Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
+        });
+      }
+
+      function afterAddRowsSpecific(deferred, newId, component, grid, rowIndex) {
+        // Resolve promise
+        deferred.resolve(newId);
+        // Show new row
+        Utilities.timeout(function () {
+          component.repositionSaveButton();
+          if (grid.api) {
+            let gridRow = grid.api.grid.getRow(component.model.values[rowIndex]);
+            grid.api.core.scrollToIfNecessary(gridRow, null);
+          }
+        });
+      }
+
+      /**
+       * Store pagination values on component
+       * @param first
+       * @param last
+       * @param records
+       * @param page
+       * @param total
+       * @param component
+       * @param gridWidth
+       */
+      function storePaginationValues(first, last, records, page, total, component, gridWidth) {
+        // Generate pagination text
+        let paginationText, paginationTextSmall, footerButtonStyle, footerPaginationStyle, bigGrid;
+        paginationText = "";
+        paginationText += $translate.instant('SCREEN_TEXT_GRID_VIEW');
+        paginationText += " " + first;
+        paginationText += " - " + last;
+        paginationText += " " + $translate.instant('SCREEN_TEXT_GRID_OF');
+        paginationText += " " + records;
+        paginationTextSmall = page + "/" + total;
+        // Generate pagination sizes
+        if (component.controller.disablePagination) {
+          if (component.controller.buttonModel.length > 0) {
+            component.footerButtonStyle = "col-xs-12";
+          } else {
+            component.footerButtonStyle = "hidden";
+          }
+        } else {
+          bigGrid = gridWidth > component.constants.SMALL_GRID;
+          if (bigGrid) {
+            footerButtonStyle = "col-xs-3";
+            footerPaginationStyle = "col-xs-9";
+          } else {
+            if (component.controller.buttonModel.length > 0) {
+              footerButtonStyle = "col-xs-4";
+              footerPaginationStyle = "col-xs-8";
+            } else {
+              footerButtonStyle = "hidden";
+              footerPaginationStyle = "col-xs-12";
+            }
+          }
+        }
+
+        // Set scope variables
+        component.paginationText = paginationText;
+        component.paginationTextSmall = paginationTextSmall;
+        component.footerButtonStyle = footerButtonStyle;
+        component.footerPaginationStyle = footerPaginationStyle;
+        component.bigGrid = bigGrid;
+      }
+
       GridBase.prototype = {
         /**
          * Initialize base grid
@@ -129,12 +200,8 @@ aweApplication.factory('GridBase',
               return row.entity[component.constants.ROW_IDENTIFIER];
             };
             // Broadcast rows rendered
-            grid.api.core.on.rowsRendered(grid.scope, function () {
-              Utilities.timeout.cancel(grid.rowsRenderTimeout);
-              grid.rowsRenderTimeout = Utilities.timeout(function () {
-                Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
-              });
-            });
+            grid.api.core.on.rowsRendered(grid.scope, () => onRowsRendered(grid));
+
             // Manage on cell select events
             grid.api.selection.on.rowSelectionChanged(grid.scope, onSelectRow);
             grid.api.selection.on.rowSelectionChangedBatch(grid.scope, onSelectRow);
@@ -219,7 +286,7 @@ aweApplication.factory('GridBase',
             component.scope.gridOptions.data = component.model.values;
             component.currentPage = component.model.page;
             // On rows rendered, publish
-            return deferRowsRendered(deferred => {
+            return component.deferRowsRendered(deferred => {
               // Update pagination text
               updatePaginationText();
               // Update row number column size
@@ -421,18 +488,7 @@ aweApplication.factory('GridBase',
             // Update the model
             component.updateModelSpecific();
             // Retrieve new id
-            return deferRowsRendered(function (deferred) {
-              // Resolve promise
-              deferred.resolve(newId);
-              // Show new row
-              Utilities.timeout(function () {
-                component.repositionSaveButton();
-                if (grid.api) {
-                  let  gridRow = grid.api.grid.getRow(component.model.values[rowIndex]);
-                  grid.api.core.scrollToIfNecessary(gridRow, null);
-                }
-              });
-            });
+            return component.deferRowsRendered( (deferred)=> afterAddRowsSpecific(deferred, newId, component, grid, rowIndex));
           };
           /**
            * Removes the selected row
@@ -452,7 +508,7 @@ aweApplication.factory('GridBase',
                 component.updateModelSpecific();
               }
             }
-            return deferRowsRendered();
+            return component.deferRowsRendered();
           };
           /**
            * Updates the row
@@ -718,8 +774,6 @@ aweApplication.factory('GridBase',
            * @returns {undefined}
            */
           function updatePaginationText() {
-            let  paginationText, paginationTextSmall, footerButtonStyle, footerPaginationStyle, bigGrid;
-
             // Calculate grid width
             let  gridWidth = grid.measures.width;
             if (gridWidth === undefined) {
@@ -742,69 +796,11 @@ aweApplication.factory('GridBase',
             let  records = $filter('formatNumber')(component.model.records, '0,0');
             let  first = $filter('formatNumber')(getFirstRecord(), '0,0');
             let  last = $filter('formatNumber')(getLastRecord(), '0,0');
-            // Generate pagination text
-            paginationText = "";
-            paginationText += $translate.instant('SCREEN_TEXT_GRID_VIEW');
-            paginationText += " " + first;
-            paginationText += " - " + last;
-            paginationText += " " + $translate.instant('SCREEN_TEXT_GRID_OF');
-            paginationText += " " + records;
-            paginationTextSmall = page + "/" + total;
-            // Generate pagination sizes
-            if (component.controller.disablePagination) {
-              if (component.controller.buttonModel.length > 0) {
-                component.footerButtonStyle = "col-xs-12";
-              } else {
-                component.footerButtonStyle = "hidden";
-              }
-            } else {
-              bigGrid = gridWidth > component.constants.SMALL_GRID;
-              if (bigGrid) {
-                footerButtonStyle = "col-xs-3";
-                footerPaginationStyle = "col-xs-9";
-              } else {
-                if (component.controller.buttonModel.length > 0) {
-                  footerButtonStyle = "col-xs-4";
-                  footerPaginationStyle = "col-xs-8";
-                } else {
-                  footerButtonStyle = "hidden";
-                  footerPaginationStyle = "col-xs-12";
-                }
-              }
-            }
 
-            // Set scope variables
-            component.paginationText = paginationText;
-            component.paginationTextSmall = paginationTextSmall;
-            component.footerButtonStyle = footerButtonStyle;
-            component.footerPaginationStyle = footerPaginationStyle;
-            component.bigGrid = bigGrid;
+            // Store pagination values
+            storePaginationValues(first, last, records, page, total, component, gridWidth);
           }
-          /**
-           * Launch a promise on rows rendered
-           * @param {type} onDefer
-           */
-          function deferRowsRendered(onDefer) {
-            let  deferred = Utilities.q.defer();
-            let  startTime = new Date();
-            let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
-              if (parameters.grid === grid.id) {
-                // Remove listener
-                listener();
-                // Resolve promise
-                if (onDefer) {
-                  onDefer(deferred);
-                } else {
-                  deferred.resolve();
-                }
 
-                let  dateDiff = (new Date() - startTime) / 1000;
-                $log.debug("[GRID ROWS] Grid rows have been COMPILED", {grid: grid.id, compilationTime: dateDiff + "s"});
-              }
-            });
-            // Retrieve new id
-            return deferred.promise;
-          }
           /**
            * Update row number column size
            */

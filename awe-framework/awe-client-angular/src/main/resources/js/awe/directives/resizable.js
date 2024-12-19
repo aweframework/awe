@@ -17,25 +17,75 @@ aweApplication.directive('aweResizable',
         compile: function () {
 
           /**
+           * Manage drag event
+           * @param e Event
+           * @param dragOptions Drag options
+           */
+          function drag(e, dragOptions) {
+            const {element, scope, w, h, vx, vy, start, dragDir, axis} = dragOptions;
+            let  offset = axis === 'x' ? start - e.clientX : start - e.clientY;
+            switch (dragDir) {
+              case 'top':
+                if (scope.flex) {
+                  element[0].style.flexBasis = h + (offset * vy) + 'px';
+                }
+                else {
+                  element[0].style.height = h + (offset * vy) + 'px';
+                }
+                break;
+              case 'right':
+                if (scope.flex) {
+                  element[0].style.flexBasis = w - (offset * vx) + 'px';
+                }
+                else {
+                  element[0].style.width = w - (offset * vx) + 'px';
+                }
+                break;
+              case 'bottom':
+                if (scope.flex) {
+                  element[0].style.flexBasis = h - (offset * vy) + 'px';
+                }
+                else {
+                  element[0].style.height = h - (offset * vy) + 'px';
+                }
+                break;
+              case 'left':
+                if (scope.flex) {
+                  element[0].style.flexBasis = w + (offset * vx) + 'px';
+                }
+                else {
+                  element[0].style.width = w + (offset * vx) + 'px';
+                }
+                break;
+            }
+          }
+
+          /**
            * Manage onDragStart event
            * @param {*} e
-           * @param {((this:Document, ev: DocumentEventMap[string]) => *)|EventListenerObject} drag
-           * @param {CSSStyleDeclaration} style
-           * @param {Object} element
-           * @param {Object} scope
+           * @param {string} direction
+           * @param {object} dragOptions
            */
-          function onDragStart(e, drag, style, element, scope) {
+          function onDragStart(e, direction, dragOptions) {
+            const {element, scope, style} = dragOptions;
+            dragOptions.dragDir = direction;
+            dragOptions.axis =  dragOptions.dragDir === 'left' ||  dragOptions.dragDir === 'right' ? 'x' : 'y';
+            dragOptions.start = dragOptions.axis === 'x' ? e.clientX : e.clientY;
+            dragOptions.w = parseInt(style.getPropertyValue("width"));
+            dragOptions.h = parseInt(style.getPropertyValue("height"));
+
             //prevent transition while dragging
             element.addClass('no-transition');
+            const dragFcn = (evt) => drag(evt, dragOptions);
 
             document.addEventListener('mouseup', () => {
-              document.removeEventListener('mousemove', drag, false);
+              document.removeEventListener('mousemove', dragFcn, false);
               element.removeClass('no-transition');
               if (scope.onDragEnd) {
                 scope.onDragEnd();
               }
             });
-            document.addEventListener('mousemove', drag, false);
+            document.addEventListener('mousemove', dragFcn, false);
 
             // Cancel event propagation
             Utilities.stopPropagation(e, true);
@@ -74,53 +124,20 @@ aweApplication.directive('aweResizable',
              * @param {Object} element
              */
             post: function (scope, element) {
-              let  style = window.getComputedStyle(element[0], null),
-                w,
-                h,
-                vx = scope.rCenteredX ? 2 : 1, // if centered double velocity
-                vy = scope.rCenteredY ? 2 : 1, // if centered double velocity
-                start,
-                dragDir,
-                axis;
-
-              const drag = function (e) {
-                let  offset = axis === 'x' ? start - e.clientX : start - e.clientY;
-                switch (dragDir) {
-                  case 'top':
-                    if (scope.flex) {
-                      element[0].style.flexBasis = h + (offset * vy) + 'px';
-                    }
-                    else {
-                      element[0].style.height = h + (offset * vy) + 'px';
-                    }
-                    break;
-                  case 'right':
-                    if (scope.flex) {
-                      element[0].style.flexBasis = w - (offset * vx) + 'px';
-                    }
-                    else {
-                      element[0].style.width = w - (offset * vx) + 'px';
-                    }
-                    break;
-                  case 'bottom':
-                    if (scope.flex) {
-                      element[0].style.flexBasis = h - (offset * vy) + 'px';
-                    }
-                    else {
-                      element[0].style.height = h - (offset * vy) + 'px';
-                    }
-                    break;
-                  case 'left':
-                    if (scope.flex) {
-                      element[0].style.flexBasis = w + (offset * vx) + 'px';
-                    }
-                    else {
-                      element[0].style.width = w + (offset * vx) + 'px';
-                    }
-                    break;
-                }
+              const dragOptions = {
+                scope,
+                element,
+                style: window.getComputedStyle(element[0], null),
+                w: null,
+                h: null,
+                vx: scope.rCenteredX ? 2 : 1, // if centered double velocity
+                vy: scope.rCenteredY ? 2 : 1, // if centered double velocity
+                start: null,
+                dragDir: null,
+                axis: null
               };
-              scope.dragStart = (e) => onDragStart(e, drag, style, element, scope);
+
+              scope.dragStart = (e, direction) => onDragStart(e, direction, dragOptions);
             }
           };
         }
