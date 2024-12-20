@@ -36,6 +36,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/base.js', f
 
     // Assert
     expect(grid.asGrid()).toBe(true);
+
+    // Initialize the grid
+    grid.initGrid();
   });
 
   it('should delete a specific row not existent', function () {
