@@ -133,7 +133,7 @@ aweApplication.factory('Chart',
               return false;
             }
           });
-          let  onContextMenuPoint = function (event) {
+          let onContextMenuPoint = function (event) {
             if (event.which === 3) {
               // Right click
               // Cancel event propagation
@@ -149,6 +149,8 @@ aweApplication.factory('Chart',
           point.graphic.on('click', onContextMenuPoint);
           point.graphic.on('mouseup', onContextMenuPoint);
         }
+
+        return eventTimer;
       }
 
       /**
@@ -560,11 +562,11 @@ aweApplication.factory('Chart',
            */
           component.onRedraw = function () {
             let  chart = this;
-            let  eventTimer;
-            for (let  j in chart.series) {
-              let  series = chart.series[j];
-              for (let  i in series.data) {
-                regeneratePointEvents(i, series, eventTimer, component);
+            let  eventTimer = null;
+            for (let j in chart.series) {
+              let series = chart.series[j];
+              for (let i in series.data) {
+                eventTimer = regeneratePointEvents(i, series, eventTimer, component);
               }
             }
           };
