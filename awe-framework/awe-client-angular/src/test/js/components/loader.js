@@ -38,7 +38,6 @@ describe('awe-framework/awe-client-angular/src/test/js/components/loader.js', fu
         let  element = $compile("<awe-loader icon-loader='circle'/>")($rootScope);
         // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
         $rootScope.$digest();
-        console.info(element[0]);
         expect(element[0].tagName).toBe("AWE-LOADER");
     });
 
@@ -56,7 +55,6 @@ describe('awe-framework/awe-client-angular/src/test/js/components/loader.js', fu
         let  element = $compile("<awe-loader icon-loader='square'/>")($rootScope);
         // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
         $rootScope.$digest();
-        console.info(element[0]);
         expect(element[0].tagName).toBe("AWE-LOADER");
     });
 
@@ -71,7 +69,6 @@ describe('awe-framework/awe-client-angular/src/test/js/components/loader.js', fu
         let  element = $compile("<awe-loader icon-loader='spinner'/>")($rootScope);
         // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
         $rootScope.$digest();
-        console.info(element[0]);
         expect(element[0].tagName).toBe("AWE-LOADER");
     });
 });

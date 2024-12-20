@@ -5,4 +5,5 @@ require('./date.js');
 require('./image.js');
 require('./link.js');
 require('./loader.js');
+require('./resizable.js');
 require('./contextOption.js');
