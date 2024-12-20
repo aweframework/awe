@@ -18,5 +18,6 @@ require('./uploader.js');
 require('./utilities.js');
 require('./validationRules.js');
 require('./validator.js');
+require('./maximize.js');
 require('./grid/tests.js');
 require('./chart/tests.js');

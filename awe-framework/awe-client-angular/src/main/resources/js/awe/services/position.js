@@ -200,7 +200,7 @@ aweApplication.factory('Position', function () {
       _.merge(_position, position);
 
       /* Launch recalculation */
-      while (_inside != "ok" && _retries > 0) {
+      while (_inside !== "ok" && _retries > 0) {
         _position = Position._readjustPosition(_position, _inside);
 
         // Recalculate vertical position
@@ -297,19 +297,18 @@ aweApplication.factory('Position', function () {
     getInnerDimensions: function (node) {
       let  $node = $(node);
       let  offset = $node.offset();
-      let  dimensions = {
+
+      return {
         top: Math.floor(offset.top + $node.scrollTop() + parseInt($node.css('padding-top'))),
         left: Math.floor(offset.left + $node.scrollLeft() + parseInt($node.css('padding-left'))),
         width: Position.getInnerWidth($node),
         height: Position.getInnerHeight($node)
       };
-
-      return dimensions;
     },
     /**
      * Get node inner width
      * @param {object} $node Node to get dimensions
-     * @return {integer} node width
+     * @return {number} node width
      * @public
      */
     getInnerWidth: function ($node) {
@@ -318,7 +317,7 @@ aweApplication.factory('Position', function () {
     /**
      * Get node inner height
      * @param {object} $node Node to get dimensions
-     * @return {integer} node height
+     * @return {number} node height
      * @public
      */
     getInnerHeight: function ($node) {
@@ -328,7 +327,7 @@ aweApplication.factory('Position', function () {
      * Get node outer width
      * @param {object} $node Node to get dimensions
      * @param {boolean} margin Add margin width too
-     * @return {integer} node width
+     * @return {number} node width
      * @public
      */
     getOuterWidth: function ($node, margin) {
@@ -338,7 +337,7 @@ aweApplication.factory('Position', function () {
      * Get node outer height
      * @param {object} $node Node to get dimensions
      * @param {boolean} margin Add margin height too
-     * @return {integer} node height
+     * @return {number} node height
      * @public
      */
     getOuterHeight: function ($node, margin) {
@@ -354,14 +353,12 @@ aweApplication.factory('Position', function () {
       let  htmlNode = node[0] ? node[0] : node;
       let  $node = $(node);
       let  offset = $node.offset();
-      let  dimensions = {
+      return {
         top: Math.floor(offset.top + $node.scrollTop()),
         left: Math.floor(offset.left + $node.scrollLeft()),
         width: Math.floor(htmlNode.offsetWidth),
         height: Math.floor(htmlNode.offsetHeight)
       };
-
-      return dimensions;
     },
     /**
      * Get outer node dimensions
@@ -370,17 +367,17 @@ aweApplication.factory('Position', function () {
      * @return {object} node dimensions
      * @public
      */
-    getOuterDimensions: function (node, outer) {
+    getOuterDimensions: function (node, outer= false) {
       let  $node = $(node);
-      let  _outer = outer ? true : false;
+      let  _outer = !!outer;
       let  offset = $node.offset();
-      let  dimensions = {
+
+      return {
         top: Math.floor(offset.top + $node.scrollTop()),
         left: Math.floor(offset.left + $node.scrollLeft()),
         width: Position.getOuterWidth($node, _outer),
         height: Position.getOuterHeight($node, _outer)
       };
-      return dimensions;
     },
     /**
      * Get fast dimensions
@@ -390,14 +387,12 @@ aweApplication.factory('Position', function () {
      */
     getFastDimensions: function (node) {
       let  htmlNode = node[0] ? node[0] : node;
-      let  dimensions = {
+      return {
         top: 0,
         left: 0,
         width: htmlNode.clientWidth, //htmlNode.offsetWidth,
         height: htmlNode.clientHeight//,htmlNode.offsetHeight
       };
-
-      return dimensions;
     },
     /**
      * Get fast dimensions
@@ -407,14 +402,12 @@ aweApplication.factory('Position', function () {
      */
     getFastFullDimensions: function (node) {
       let  htmlNode = node[0] ? node[0] : node;
-      let  dimensions = {
+      return {
         top: htmlNode.offsetTop,
         left: htmlNode.offsetLeft,
         width: htmlNode.clientWidth, //htmlNode.offsetWidth,
         height: htmlNode.clientHeight//,htmlNode.offsetHeight
       };
-
-      return dimensions;
     }
   };
 

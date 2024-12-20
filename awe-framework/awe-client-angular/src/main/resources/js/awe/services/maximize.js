@@ -7,7 +7,7 @@ aweApplication.factory('Maximize',
       return {
         /**
          * Initialize dialog
-         * @param {scope} scope Dialog scope
+         * @param {object} scope Dialog scope
          * @param {object} elem dialog node
          */
         initMaximize: function (scope, elem) {
@@ -135,7 +135,7 @@ aweApplication.factory('Maximize',
            */
           const animateMaximize = function (resizing) {
             // Launch animation
-            let maximizeSizes = scope.maximizeTargetLayer();
+            let maximizeSizes = maximizeTargetLayer();
             updateElementsToMinimize(maximizeTarget);
             $(minimize.targets).fadeOut(animationTime);
             launchAnimation(resizing, maximizeSizes.final, function () {
@@ -163,7 +163,8 @@ aweApplication.factory('Maximize',
            * Calculate maximized size depending on maximize target
            * @returns {object} Resizing size
            */
-          scope.maximizeTargetLayer = function () {
+          const maximizeTargetLayer = function () {
+            console.info(maximizeTarget);
             let finalSize = position.getInnerDimensions(maximizeTarget);
             // Get margins
             let margins = {
@@ -174,6 +175,7 @@ aweApplication.factory('Maximize',
             finalSize.height -= margins.height;
             // Apply maximize dimensions to target layer
             let elemSize = _.cloneDeep(finalSize);
+            console.info(elem);
             let offset = elem.offsetParent().offset();
             elemSize.top -= offset.top;
             elemSize.left -= offset.left;
@@ -188,7 +190,7 @@ aweApplication.factory('Maximize',
            */
           scope.onResize = function () {
             if (scope.maximized) {
-              let maximizeSizes = scope.maximizeTargetLayer();
+              let maximizeSizes = maximizeTargetLayer();
               elem.css(maximizeSizes.element);
             }
           };
