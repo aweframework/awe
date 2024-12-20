@@ -4,7 +4,7 @@ import {aweApplication} from "../awe";
 aweApplication.factory('Maximize',
   ['Position', 'AweUtilities',
     function (position, Utilities) {
-      let  Maximize = {
+      return {
         /**
          * Initialize dialog
          * @param {scope} scope Dialog scope
@@ -12,16 +12,16 @@ aweApplication.factory('Maximize',
          */
         initMaximize: function (scope, elem) {
           // Panel text
-          let  panelText = {
+          let panelText = {
             MAXIMIZE: 'SCREEN_TEXT_MAXIMIZE',
             RESTORE: 'SCREEN_TEXT_RESTORE'
           };
 
           // Variable initialization
-          let  animationTime = 300;
-          let  useCSS3Animation = true;
-          let  maximizeTarget;
-          let  minimize = {
+          let animationTime = 300;
+          let useCSS3Animation = true;
+          let maximizeTarget;
+          let minimize = {
             targets: [],
             parents: []
           };
@@ -40,12 +40,12 @@ aweApplication.factory('Maximize',
           }
 
           // Store heading and content panel
-          let  $body = $('body');
+          let $body = $('body');
           /**
            * Remove animation node
            * @param {object} $node Animation node
            */
-          let  removeAnimationNode = function ($node) {
+          const removeAnimationNode = function ($node) {
             Utilities.timeout(function () {
               // Remove aanimation
               $body.removeClass("animationContainer");
@@ -63,12 +63,12 @@ aweApplication.factory('Maximize',
            * @param {function} onEndAnimation On end animation function (optional)
            * @returns {undefined}
            */
-          let  launchAnimation = function (node, finalSize, onEndAnimation) {
-            let  $node = $(node);
+          const launchAnimation = function (node, finalSize, onEndAnimation) {
+            let $node = $(node);
             /**
              * Launch end animation methods
              */
-            let  endAnimation = function () {
+            const endAnimation = function () {
               // Launch on end animation event (if defined)
               if (onEndAnimation) {
                 onEndAnimation();
@@ -86,11 +86,11 @@ aweApplication.factory('Maximize',
           /**
            * Generate layer cloned for animation
            */
-          let  generateAnimationClone = function () {
+          const generateAnimationClone = function () {
             // Get initial size
-            let  initialSize = position.getOuterDimensions(elem);
+            let initialSize = position.getOuterDimensions(elem);
             // Add animate clone
-            let  resizing = elem.clone();
+            let resizing = elem.clone();
             resizing.css(initialSize);
             resizing.removeClass("expand");
             resizing.addClass("resizeAnimation");
@@ -110,7 +110,7 @@ aweApplication.factory('Maximize',
            * @param {type} maximizeTarget
            * @returns {undefined}
            */
-          let  updateElementsToMinimize = function (maximizeTarget) {
+          const updateElementsToMinimize = function (maximizeTarget) {
             minimize.targets = [].concat(elem.siblings(":visible").toArray());
             minimize.parents = [];
             _.each(elem.parentsUntil(maximizeTarget), function (parent) {
@@ -123,7 +123,7 @@ aweApplication.factory('Maximize',
            * Minimize parents and siblings
            * @returns {undefined}
            */
-          let  minimizeParentsAndSiblings = function () {
+          const minimizeParentsAndSiblings = function () {
             $(minimize.parents).addClass("maximizeParent");
             $(minimize.targets).addClass("minimized");
             elem.removeAttr('style');
@@ -133,34 +133,30 @@ aweApplication.factory('Maximize',
            * Animate maximize
            * @param resizing
            */
-          const animateMaximize = function(resizing) {
-            Utilities.timeout(function () {
-              // Launch animation
-              let maximizeSizes = scope.maximizeTargetLayer();
-              updateElementsToMinimize(maximizeTarget);
-              $(minimize.targets).fadeOut(animationTime);
-              launchAnimation(resizing, maximizeSizes.final, function () {
-                scope.maximized = true;
-                scope.iconMaximized = true;
-                minimizeParentsAndSiblings();
-                scope.$broadcast("resize");
-              });
-            }, 200);
+          const animateMaximize = function (resizing) {
+            // Launch animation
+            let maximizeSizes = scope.maximizeTargetLayer();
+            updateElementsToMinimize(maximizeTarget);
+            $(minimize.targets).fadeOut(animationTime);
+            launchAnimation(resizing, maximizeSizes.final, function () {
+              scope.maximized = true;
+              scope.iconMaximized = true;
+              minimizeParentsAndSiblings();
+              scope.$broadcast("resize");
+            });
           }
 
           /**
            * Animate restore
            * @param resizing
            */
-          const animateRestore = function(resizing) {
-            Utilities.timeout(function () {
-              // Launch animation
-              let finalSize = position.getOuterDimensions(elem);
-              launchAnimation(resizing, finalSize, function () {
-                scope.iconMaximized = false;
-                scope.$broadcast("resize");
-              });
-            }, 150);
+          const animateRestore = function (resizing) {
+            // Launch animation
+            let finalSize = position.getOuterDimensions(elem);
+            launchAnimation(resizing, finalSize, function () {
+              scope.iconMaximized = false;
+              scope.$broadcast("resize");
+            });
           }
 
           /**
@@ -168,17 +164,17 @@ aweApplication.factory('Maximize',
            * @returns {object} Resizing size
            */
           scope.maximizeTargetLayer = function () {
-            let  finalSize = position.getInnerDimensions(maximizeTarget);
+            let finalSize = position.getInnerDimensions(maximizeTarget);
             // Get margins
-            let  margins = {
+            let margins = {
               width: elem.outerWidth(true) - elem.outerWidth(false),
               height: elem.outerHeight(true) - elem.outerHeight(false)
             };
             finalSize.width -= margins.width;
             finalSize.height -= margins.height;
             // Apply maximize dimensions to target layer
-            let  elemSize = _.cloneDeep(finalSize);
-            let  offset = elem.offsetParent().offset();
+            let elemSize = _.cloneDeep(finalSize);
+            let offset = elem.offsetParent().offset();
             elemSize.top -= offset.top;
             elemSize.left -= offset.left;
             // Calculate final size for animation
@@ -192,7 +188,7 @@ aweApplication.factory('Maximize',
            */
           scope.onResize = function () {
             if (scope.maximized) {
-              let  maximizeSizes = scope.maximizeTargetLayer();
+              let maximizeSizes = scope.maximizeTargetLayer();
               elem.css(maximizeSizes.element);
             }
           };
@@ -215,7 +211,7 @@ aweApplication.factory('Maximize',
             }
 
             // Launch animation
-            animateMaximize(resizing);
+            Utilities.timeout(() => animateMaximize(resizing), 200);
           };
 
           /**
@@ -223,7 +219,7 @@ aweApplication.factory('Maximize',
            */
           scope.restorePanel = function () {
             // Generate animation clone
-            let  resizing = generateAnimationClone();
+            let resizing = generateAnimationClone();
             // Remove minimize class
             $(minimize.targets).removeClass("minimized").fadeIn(animationTime + 150);
             $(minimize.parents).removeClass("maximizeParent").fadeIn(animationTime + 150);
@@ -235,7 +231,7 @@ aweApplication.factory('Maximize',
             scope.maximized = false;
 
             // Launch animation
-            animateRestore(resizing);
+            Utilities.timeout(() => animateRestore(resizing), 150)
           };
 
           /**
@@ -254,7 +250,7 @@ aweApplication.factory('Maximize',
           /**
            * Event listeners
            */
-          let  listeners = {};
+          let listeners = {};
           // Capture event for element resize
           listeners['resize'] = scope.$on("resize", function (event, initialScope) {
             if (scope !== initialScope && scope.onResize) {
@@ -274,6 +270,5 @@ aweApplication.factory('Maximize',
           });
         }
       };
-      return Maximize;
     }
   ]);

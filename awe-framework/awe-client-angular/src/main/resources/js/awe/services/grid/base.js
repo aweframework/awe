@@ -417,7 +417,7 @@ aweApplication.factory('GridBase',
             // Update the model
             component.updateModelSpecific();
             // Retrieve new id
-            return component.deferRowsRendered( (deferred)=> afterAddRowsSpecific(deferred, newId, component, grid, rowIndex));
+            return component.deferRowsRendered( (deferred)=> afterAddRow(deferred, newId, component, grid, rowIndex));
           };
           /**
            * Removes the selected row
@@ -527,7 +527,7 @@ aweApplication.factory('GridBase',
            * @param grid
            * @param rowIndex
            */
-          function afterAddRowsSpecific(deferred, newId, component, grid, rowIndex) {
+          function afterAddRow(deferred, newId, component, grid, rowIndex) {
             // Resolve promise
             deferred.resolve(newId);
             // Show new row

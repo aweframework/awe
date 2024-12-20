@@ -498,6 +498,7 @@ aweApplication.factory('GridTree',
               sort: grid.sorting
             };
           };
+
           /**
            * Adds a new row
            * @param {string} row Selected row
@@ -585,20 +586,7 @@ aweApplication.factory('GridTree',
             component.scope.gridOptions.data = component.model.values;
             grid.api.core.notifyDataChange(uiGridConstants.dataChange.ROW);
             // Retrieve new id
-            return component.deferRowsRendered(function (deferred) {
-              // Publish grid data changed
-              onUpdatedGridData();
-              // Resolve promise
-              deferred.resolve(newId);
-              // Show new row
-              Utilities.timeout(function () {
-                component.repositionSaveButton();
-                if (grid.api) {
-                  let  gridRow = grid.api.grid.getRow(rowData);
-                  grid.api.core.scrollToIfNecessary(gridRow, null);
-                }
-              }, scrollTime);
-            });
+            return component.deferRowsRendered( (deferred)  => afterAddRow(deferred, newId, rowData, scrollTime));
           };
           /**
            * Add a new child row
@@ -633,21 +621,7 @@ aweApplication.factory('GridTree',
             parent.$$children.push(row);
             component.scope.gridOptions.data = component.model.values;
             // Retrieve row identifier
-            return component.deferRowsRendered(function (deferred) {
-              // Publish grid data changed
-              onUpdatedGridData();
-              // Resolve promise
-              deferred.resolve(row[component.constants.ROW_IDENTIFIER]);
-              // Show new row
-              Utilities.timeout(function () {
-                component.repositionSaveButton();
-                if (grid.api) {
-                  let  gridRow = grid.api.grid.getRow(row);
-                  grid.api.core.scrollToIfNecessary(gridRow, null);
-
-                }
-              });
-            });
+            return component.deferRowsRendered((deferred) => afterAddRow(deferred, row[component.constants.ROW_IDENTIFIER], row, undefined));
           };
           /**
            * Removes the selected row
@@ -1001,6 +975,21 @@ aweApplication.factory('GridTree',
               // Set node icon
               setNodeIcon(node);
             });
+          }
+
+          function afterAddRow(deferred, newId, rowData, scrollTime) {
+            // Publish grid data changed
+            onUpdatedGridData();
+            // Resolve promise
+            deferred.resolve(newId);
+            // Show new row
+            Utilities.timeout(function () {
+              component.repositionSaveButton();
+              if (grid.api) {
+                let gridRow = grid.api.grid.getRow(rowData);
+                grid.api.core.scrollToIfNecessary(gridRow, null);
+              }
+            }, scrollTime);
           }
 
           /**********************************************************************/
