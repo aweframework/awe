@@ -1,4 +1,4 @@
-package com.almis.awe.test;
+package com.almis.awe.test.model;
 
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;

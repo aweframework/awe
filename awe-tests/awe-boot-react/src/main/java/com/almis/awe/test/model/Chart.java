@@ -1,4 +1,4 @@
-package com.almis.awe.test;
+package com.almis.awe.test.model;
 
 import com.almis.awe.builder.client.chart.AddChartSeriesActionBuilder;
 import com.almis.awe.builder.client.chart.RemoveChartSeriesActionBuilder;

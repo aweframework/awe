@@ -94,57 +94,57 @@
   </service>
 
   <service id="ValidateBankAccount">
-    <java classname="com.almis.awe.test.Validation" method="validateBankAccount">
+    <java classname="com.almis.awe.test.model.Validation" method="validateBankAccount">
       <service-parameter type="STRING" name="BankAccount" />
     </java>
   </service>
   <service id="downloadFile">
-    <java classname="com.almis.awe.test.File" method="downloadFile">
+    <java classname="com.almis.awe.test.model.File" method="downloadFile">
       <service-parameter type="STRING" name="filename" />
     </java>
   </service>
   <service id="getFileInfo">
-    <java classname="com.almis.awe.test.File" method="getFileInfo">
+    <java classname="com.almis.awe.test.model.File" method="getFileInfo">
       <service-parameter type="STRING" name="fileName" />
     </java>
   </service>
   <service id="fillTestDialog">
-    <java classname="com.almis.awe.test.Dialog" method="fillTestDialog">
+    <java classname="com.almis.awe.test.model.Dialog" method="fillTestDialog">
       <service-parameter type="JSON" name="denominations" bean-class="com.almis.awe.model.dto.DataList" />
       <service-parameter name="columnToUpdate" type="STRING"/>
     </java>
   </service>
   <service id="storeTestDialog">
-    <java classname="com.almis.awe.test.Dialog" method="storeTestDialog">
+    <java classname="com.almis.awe.test.model.Dialog" method="storeTestDialog">
       <service-parameter type="OBJECT" name="denominations" bean-class="com.almis.awe.test.bean.Denominations" />
       <service-parameter type="JSON" name="address"/>
       <service-parameter name="column" type="STRING"/>
     </java>
   </service>
   <service id="addColumns">
-    <java classname="com.almis.awe.test.Grid" method="addColumns" />
+    <java classname="com.almis.awe.test.model.Grid" method="addColumns" />
   </service>
   <service id="replaceColumns">
-    <java classname="com.almis.awe.test.Grid" method="replaceColumns">
+    <java classname="com.almis.awe.test.model.Grid" method="replaceColumns">
       <service-parameter name="fechas" type="DATE" list="true" />
       <service-parameter name="fecha" type="DATE"/>
     </java>
   </service>
   <!-- Dynamic series chserviceices -->
   <service id="replaceSeriesChart">
-    <java classname="com.almis.awe.test.Chart" method="replaceSeriesChart">
+    <java classname="com.almis.awe.test.model.Chart" method="replaceSeriesChart">
       <service-parameter type="STRING" name="CrtUsrLst"
         list="true" />
     </java>
   </service>
   <service id="addSeriesChart">
-    <java classname="com.almis.awe.test.Chart" method="addSeriesChart">
+    <java classname="com.almis.awe.test.model.Chart" method="addSeriesChart">
       <service-parameter type="STRING" name="CrtUsrLst"
         list="true" />
     </java>
   </service>
   <service id="removeSeriesChart">
-    <java classname="com.almis.awe.test.Chart" method="removeSeriesChart">
+    <java classname="com.almis.awe.test.model.Chart" method="removeSeriesChart">
       <service-parameter type="STRING" name="CrtUsrLst"
         list="true" />
     </java>
@@ -152,11 +152,11 @@
 
   <!-- Load user json file -->
   <service id="loadUserJsonFile">
-    <java classname="com.almis.awe.test.UserList" method="loadUsersJsonFile" />
+    <java classname="com.almis.awe.test.model.UserList" method="loadUsersJsonFile" />
   </service>
 
   <service id="loadTreeJsonFile">
-    <java classname="com.almis.awe.test.UserList" method="loadTreeJsonFile" />
+    <java classname="com.almis.awe.test.model.UserList" method="loadTreeJsonFile" />
   </service>
 
   <service id="simpleGETMicroservice">
@@ -249,7 +249,7 @@
 
 
   <service id="getQueryDataTotalize">
-    <java classname="com.almis.awe.test.Grid" method="getServiceData">
+    <java classname="com.almis.awe.test.model.Grid" method="getServiceData">
       <service-parameter name="query" type="STRING"/>
     </java>
   </service>
@@ -259,13 +259,13 @@
   </service>
 
   <service id="convertIcon">
-    <java classname="com.almis.awe.test.Grid" method="convertIcon" >
+    <java classname="com.almis.awe.test.model.Grid" method="convertIcon" >
       <service-parameter name="selected" type="INTEGER" list="true"/>
     </java>
   </service>
 
   <service id="delayedSuggest">
-    <java classname="com.almis.awe.test.Suggest" method="delayedSuggest">
+    <java classname="com.almis.awe.test.model.Suggest" method="delayedSuggest">
       <service-parameter type="STRING" name="queryName" />
     </java>
   </service>
