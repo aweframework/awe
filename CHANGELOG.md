@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.10.0
+*07/01/2025*
+
+- Several sonar issues in new Sonarcloud version. [MR #534](https://gitlab.com/aweframework/awe/-/merge_requests/534) (Pablo Javier García Mora)
+- Add a test for each database to test flyway initialization. [MR #533](https://gitlab.com/aweframework/awe/-/merge_requests/533) (Pablo Vidal Otero)
+- Add integration with azure oauth2. [MR #532](https://gitlab.com/aweframework/awe/-/merge_requests/532) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Change language codes to use ISO 3166 and ISO 639 codes. [MR #531](https://gitlab.com/aweframework/awe/-/merge_requests/531) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.9.5
 *07/01/2025*
 
