@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import _ from "lodash";
 
 // Dependency object
@@ -79,102 +79,139 @@ aweApplication.factory('Dependency',
       };
 
       /**
+       * Check element attributes
+       * @param elementAttributes ElementAttributes
+       * @param checkResults Results
+       */
+      function checkElementAttributes(elementAttributes, checkResults) {
+        const {comp2, view2, col2, row, attr2, event, element, optional, cancel, dependency, alias,
+          view1, comp1, col1, attr1, force, checkChanges, initial, condition} = elementAttributes;
+        // Input value
+        if (comp2 !== null) {
+          elementAttributes.value = Utilities.getAttribute({view: view2, component: comp2, column: col2, row}, attr2);
+        }
+
+        // Event
+        if (event !== null) {
+          // Test value
+          checkResults.condition = {
+            value: element.eventLaunched || optional,
+            string: "((" + event + " launched: " + element.eventLaunched + ") || " + optional + ")"
+          };
+          checkResults.changed.value = true;
+          checkResults.changed.string = "true";
+          // Set abort value
+          checkResults.abort.value = (Utilities.parseBoolean(cancel) && !element.eventLaunched);
+          checkResults.abort.string = "(" + cancel + " && !(" + element.eventLaunched + "))";
+
+          // Store value
+          dependency.values[alias] = element.eventLaunched;
+          element.eventLaunched = false;
+        } else {
+          // Get component value
+          let componentValue = Utilities.getAttribute({view: view1, component: comp1, column: col1, row}, attr1);
+          // Check forced
+          if (force) {
+            dependency.values[alias] = null;
+          }
+
+          // Check existence
+          if (!(alias in dependency.values)) {
+            dependency.values[alias] = componentValue;
+          }
+
+          // Check changed
+          if (((componentValue !== dependency.values[alias]) && checkChanges) || initial || event) {
+            checkResults.changed.value = true;
+            checkResults.changed.string = "true";
+          }
+
+          // Test value
+          checkResults.condition = testValue(componentValue, elementAttributes.value, condition);
+          // Set condition
+          checkResults.condition.value = checkResults.condition.value || optional;
+          checkResults.condition.string = "((" + checkResults.condition.string + ") || " + optional + ")";
+          // Set abort value
+          checkResults.abort.value = (Utilities.parseBoolean(cancel) && !checkResults.condition.value);
+          checkResults.abort.string = "(" + cancel + " && !(" + checkResults.condition.string + "))";
+          // Store value
+          dependency.values[alias] = componentValue;
+        }
+      }
+
+      /**
        * Check a depedency condition
        * @param {Object} dependency Dependency to check
        * @param {Object} element Element to check
        * @returns {Object} Check element object
        */
-      let  checkElement = function (dependency, element) {
-        let  checkResults = {
+      const checkElement = function (dependency, element) {
+        const checkResults = {
           abort: {value: false, string: "false"},
           changed: {value: false, string: "false"},
           update: true,
           valid: true
         };
-        // Define row
-        let  row = element.row1 || dependency.component.address.row || null;
-        // Element 1
-        let  comp1 = element.id;
-        let  view1 = element.view1 || dependency.component.address.view;
-        let  attr1 = element.attribute1 || "value";
-        let  col1 = element.column1 || null;
-        // Condition
-        let  condition = element.condition || "is not empty";
-        // Comparation value
-        let  value = element.value || null;
-        let  comp2 = element.id2 || null;
-        let  view2 = element.view2 || dependency.component.address.view;
-        let  attr2 = element.attribute2 || "value";
-        let  col2 = element.column2 || null;
-        let  event = element.event || null;
-        // Modifiers
-        let  cancel = element.cancel ? true : false;
-        let  optional = element.optional ? true : false;
-        let  checkChanges = element.checkChanges;
-        let  initial = dependency.initial && !dependency.alreadyLaunched ? true : false;
-        let  force = element.force ? true : false;
-        let  alias = element.alias || comp1;
-        if (comp1 in Storage.get("model")[view1]) {
-          // Input value
-          if (comp2 !== null) {
-            value = Utilities.getAttribute({view: view2, component: comp2, column: col2, row: row}, attr2);
-          }
+        const elementAttributes = {
+          dependency,
+          element,
+          row: element.row1 || dependency.component.address.row || null,
+          // Element 1
+          comp1: element.id,
+          view1: element.view1 || dependency.component.address.view,
+          attr1: element.attribute1 || "value",
+          col1: element.column1 || null,
+          // Condition
+          condition: element.condition || "is not empty",
+          // Comparation value
+          value: element.value || null,
+          comp2: element.id2 || null,
+          view2: element.view2 || dependency.component.address.view,
+          attr2: element.attribute2 || "value",
+          col2: element.column2 || null,
+          event: element.event || null,
+          // Modifiers
+          cancel: !!element.cancel,
+          optional: !!element.optional,
+          checkChanges: element.checkChanges,
+          initial: !!(dependency.initial && !dependency.alreadyLaunched),
+          force: !!element.force,
+          alias: element.alias || element.id
+        };
 
-          // Event
-          if (event !== null) {
-            // Test value
-            checkResults.condition = {
-              value: element.eventLaunched || optional,
-              string: "((" + event + " launched: " + element.eventLaunched + ") || " + optional + ")"
-            };
-            checkResults.changed.value = true;
-            checkResults.changed.string = "true";
-            // Set abort value
-            checkResults.abort.value = (Utilities.parseBoolean(cancel) && !element.eventLaunched);
-            checkResults.abort.string = "(" + cancel + " && !(" + element.eventLaunched + "))";
-
-            // Store value
-            dependency.values[alias] = element.eventLaunched;
-            element.eventLaunched = false;
-          } else {
-            // Get component value
-            let  componentValue = Utilities.getAttribute({view: view1, component: comp1, column: col1, row: row}, attr1);
-            // Check forced
-            if (force) {
-              dependency.values[alias] = null;
-            }
-
-            // Check existence
-            if (!(alias in dependency.values)) {
-              dependency.values[alias] = componentValue;
-            }
-
-            // Check changed
-            if (((componentValue !== dependency.values[alias]) && checkChanges) || initial || event) {
-              checkResults.changed.value = true;
-              checkResults.changed.string = "true";
-            }
-
-            // Test value
-            checkResults.condition = testValue(componentValue, value, condition);
-            // Set condition
-            checkResults.condition.value = checkResults.condition.value || optional;
-            checkResults.condition.string = "((" + checkResults.condition.string + ") || " + optional + ")";
-            // Set abort value
-            checkResults.abort.value = (Utilities.parseBoolean(cancel) && !checkResults.condition.value);
-            checkResults.abort.string = "(" + cancel + " && !(" + checkResults.condition.string + "))";
-            // Store value
-            dependency.values[alias] = componentValue;
-          }
+        if (elementAttributes.comp1 in Storage.get("model")[elementAttributes.view1]) {
+          checkElementAttributes(elementAttributes, checkResults);
         } else {
           checkResults.update = false;
           checkResults.valid = false;
-          $log.warn("[Dependency] WARNING! " + comp1 + " is not defined!");
+          $log.warn("[Dependency] WARNING! " + elementAttributes.comp1 + " is not defined!");
         }
 
         // Retrieve condition
         return checkResults;
       };
+
+      /**
+       * Specific cases of dependencies for attributes
+       * @param element Element
+       * @param launcherAddress Address
+       * @param apiView API
+       * @param sameRow The dependency is in the same row
+       * @param dependency Dependency
+       * @returns {boolean|boolean} Same row updated
+       */
+      function checkAttributeLauncher(element, launcherAddress, apiView, sameRow, dependency) {
+        switch (element.attribute1) {
+          case "selectedRowValue":
+            launcherAddress["row"] = apiView[element.id].getAttribute("selectedRow", element.column1);
+            sameRow = "row" in dependency.component.address ? String(dependency.component.address.row) === String(launcherAddress["row"]) : true;
+            break;
+          case "currentRowValue":
+            launcherAddress["row"] = apiView[element.id].getAttribute("currentRow", element.column1, element.row1 || dependency.component.address.row);
+            break;
+        }
+        return sameRow;
+      }
 
       /**
        * Retrieve element launcher
@@ -193,15 +230,7 @@ aweApplication.factory('Dependency',
           let  view = element.view1 ? element.view1 : dependency.component.address.view;
           let  apiView = Storage.get("api")[view];
           if (element.id in apiView && apiView[element.id].getAttribute) {
-            switch (element.attribute1) {
-              case "selectedRowValue":
-                launcherAddress["row"] = apiView[element.id].getAttribute("selectedRow", element.column1);
-                sameRow = "row" in dependency.component.address ? String(dependency.component.address.row) === String(launcherAddress["row"]) : true;
-                break;
-              case "currentRowValue":
-                launcherAddress["row"] = apiView[element.id].getAttribute("currentRow", element.column1, element.row1 || dependency.component.address.row);
-                break;
-            }
+            sameRow = checkAttributeLauncher(element, launcherAddress, apiView, sameRow, dependency);
           }
         }
         let  elementLauncher = Utilities.getAddressId(launcherAddress);
@@ -423,6 +452,71 @@ aweApplication.factory('Dependency',
           return this.deferred.promise;
         },
         /**
+         * Retrieve query values
+         * @param target Query target
+         * @param values Values to retrieve
+         * @returns {string}
+         */
+        retrieveSourceQueryValues(target, values) {
+          switch (target) {
+            case "label":
+              values.controllerAttribute = "label";
+              values.type = "update-controller";
+              break;
+            case "unit":
+              values.controllerAttribute = "unit";
+              values.type = "update-controller";
+              break;
+            case "format-number":
+              values.controllerAttribute = "numberFormat";
+              values.type = "update-controller";
+              break;
+            case "validate":
+              values.controllerAttribute = "validation";
+              values.type = "update-controller";
+              break;
+            case "input":
+            default:
+              values.type = this[$settings.get("serverActionKey")];
+          }
+
+          // Add component identifier and target action
+          values.componentId = this.component.id;
+          values[$settings.get("targetActionKey")] = this[$settings.get("targetActionKey")];
+          // Launch end dependency
+          let endDependency = {
+            type: 'end-dependency',
+            parameters: {
+              dependency: this
+            }
+          };
+          // Generate server action
+          let serverAction = ServerData.getServerAction(this.component.address, values, this.async, this.silent);
+          // Launch action list
+          ActionController.addActionList([serverAction, endDependency], true, {
+            address: this.component.address,
+            context: this.component.context
+          });
+          return VALUE_DEFERRED;
+        },
+        /**
+         * Retrieve source attributes
+         * @param target Target to retrieve attributes from
+         */
+        retrieveSourceAttributes(target) {
+          switch (target) {
+            case "format-number":
+              // Restore numberFormat
+              Control.restoreControllerAttribute(this.component.address, "numberFormat");
+              break;
+            case "validate":
+              // Restore validation
+              Control.restoreControllerAttribute(this.component.address, "validation");
+              break;
+            default:
+          }
+        },
+        /**
          * Retrieve dependency source
          * @param {Object} dependency Dependency
          * @param {String}  values Dependency values
@@ -438,54 +532,9 @@ aweApplication.factory('Dependency',
             // Update model with query output
             case "query":
               if (update) {
-                switch (target) {
-                  case "label":
-                    values.controllerAttribute = "label";
-                    values.type = "update-controller";
-                    break;
-                  case "unit":
-                    values.controllerAttribute = "unit";
-                    values.type = "update-controller";
-                    break;
-                  case "format-number":
-                    values.controllerAttribute = "numberFormat";
-                    values.type = "update-controller";
-                    break;
-                  case "validate":
-                    values.controllerAttribute = "validation";
-                    values.type = "update-controller";
-                    break;
-                  case "input":
-                  default:
-                    values.type = this[$settings.get("serverActionKey")];
-                }
-
-                // Add component identifier and target action
-                values.componentId = this.component.id;
-                values[$settings.get("targetActionKey")] = this[$settings.get("targetActionKey")];
-                // Launch end dependency
-                let  endDependency = {type: 'end-dependency',
-                  parameters: {
-                    dependency: this
-                  }
-                };
-                // Generate server action
-                let  serverAction = ServerData.getServerAction(this.component.address, values, this.async, this.silent);
-                // Launch action list
-                ActionController.addActionList([serverAction, endDependency], true, {address: this.component.address, context: this.component.context});
-                value = VALUE_DEFERRED;
+                value = this.retrieveSourceQueryValues(target, values);
               } else {
-                switch (target) {
-                  case "format-number":
-                    // Restore numberFormat
-                    Control.restoreControllerAttribute(this.component.address, "numberFormat");
-                    break;
-                  case "validate":
-                    // Restore validation
-                    Control.restoreControllerAttribute(this.component.address, "validation");
-                    break;
-                  default:
-                }
+                this.retrieveSourceAttributes(target);
               }
               break;
               // Update value with criteria value
@@ -538,19 +587,13 @@ aweApplication.factory('Dependency',
           let  target = this.target || "none";
           switch (target) {
             case "label":
-              if (update) {
-                Control.changeControllerAttribute(this.component.address, {label: value});
-              }
+              update && Control.changeControllerAttribute(this.component.address, {label: value});
               break;
             case "unit":
-              if (update) {
-                Control.changeControllerAttribute(this.component.address, {unit: value});
-              }
+              update && Control.changeControllerAttribute(this.component.address, {unit: value});
               break;
             case "icon":
-              if (update) {
-                Control.changeControllerAttribute(this.component.address, {icon: value});
-              }
+              update && Control.changeControllerAttribute(this.component.address, {icon: value});
               break;
             case "format-number":
               if (update) {
@@ -560,9 +603,7 @@ aweApplication.factory('Dependency',
               }
               break;
             case "chart-options":
-              if (update) {
-                Control.changeControllerAttribute(this.component.address, {chartOptions: value});
-              }
+              update && Control.changeControllerAttribute(this.component.address, {chartOptions: value});
               break;
             case "validate":
               Control.launchApiMethod(this.component.address, "changeValidation", [value, update]);
@@ -606,16 +647,10 @@ aweApplication.factory('Dependency',
               Control.launchApiMethod(this.component.address, "toggleAutorefresh", [value, !update]);
               break;
             case "attribute":
-              if (update) {
-                let  change = {};
-                change[this.query] = value;
-                Control.changeControllerAttribute(this.component.address, change);
-              }
+              update && Control.changeControllerAttribute(this.component.address, {[this.query]: value});
               break;
             case "input":
-              if (update) {
-                Control.changeModelAttribute(this.component.address, {selected: value}, true);
-              }
+              update && Control.changeModelAttribute(this.component.address, {selected: value}, true);
               break;
             case "none":
               break;

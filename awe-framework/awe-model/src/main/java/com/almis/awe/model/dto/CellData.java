@@ -336,12 +336,7 @@ public class CellData implements Comparable<CellData>, Copyable {
     if (value == null) {
       setNull();
     } else if (value instanceof String strValue) {
-      if (DateUtil.isJsonDate(strValue)) {
-        Date date = stringToDate(strValue);
-        setValue(date);
-      } else {
-        setValue(value, STRING);
-      }
+      setStringValue(value, strValue);
     } else if (value instanceof Integer) {
       setValue(value, INTEGER);
     } else if (value instanceof Long) {
@@ -372,6 +367,20 @@ public class CellData implements Comparable<CellData>, Copyable {
       setValue(value.toString(), value, OBJECT);
     }
     return this;
+  }
+
+  /**
+   * Set string value checking if is a date
+   * @param value Value to set
+   * @param strValue Value as string
+   */
+  private void setStringValue(Object value, String strValue) {
+    if (DateUtil.isJsonDate(strValue)) {
+      Date date = stringToDate(strValue);
+      setValue(date);
+    } else {
+      setValue(value, STRING);
+    }
   }
 
   @Override

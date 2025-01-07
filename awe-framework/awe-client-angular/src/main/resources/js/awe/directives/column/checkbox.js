@@ -1,5 +1,4 @@
-import {aweApplication} from "./../../awe";
-import "../../services/checkboxRadio";
+import {aweApplication} from "../../awe";
 import {templateColumnCheckbox} from "../../services/checkboxRadio";
 
 // Column checkbox directive

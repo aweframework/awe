@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {timeColumnTemplate} from "../../services/dateTime";
 
 // Column timepicker directive

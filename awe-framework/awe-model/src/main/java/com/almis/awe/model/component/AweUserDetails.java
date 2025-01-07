@@ -19,6 +19,7 @@ public class AweUserDetails implements UserDetails {
   @ToString.Exclude
   private String password;
   private String username;
+  private String email;
   private boolean accountNonExpired;
   private boolean accountNonLocked;
   private boolean credentialsNonExpired;

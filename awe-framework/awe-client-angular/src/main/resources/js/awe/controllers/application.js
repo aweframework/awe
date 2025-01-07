@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 function checkCapsLock($ctrl, event) {
   // Check caps lock

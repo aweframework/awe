@@ -9,7 +9,7 @@ import "./events";
 aweApplication.requires.push.apply(aweApplication.requires, ["ui.grid", "ui.grid.resizeColumns", "ui.grid.pinning", "ui.grid.selection", "ui.grid.pagination", "ui.grid.moveColumns", "ui.grid.treeView"]);
 
 // Grid commons service
-aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMultioperation', 'GridEvents', '$translate', 'AweSettings', 'Control', 'AweUtilities',
+aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMultioperation', 'GridEvents', '$translate', 'AweSettings', 'Control', 'AweUtilities', '$log',
   /**
    * Grid common methods
    *
@@ -21,8 +21,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
    * @param {service} $settings AWE $settings
    * @param {service} Control Control service
    * @param {service} Utilities AWE Utilities
+   * @param {object} $log
    */
-  function (GridComponents, GridEditable, GridMultioperation, GridEvents, $translate, $settings, Control, Utilities) {
+  function (GridComponents, GridEditable, GridMultioperation, GridEvents, $translate, $settings, Control, Utilities, $log) {
     // Retrieve $settings
 
     /**
@@ -358,6 +359,52 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
       return this;
     };
 
+    /**
+     * Summarize totals
+     * @param {$rootScope.Scope} component
+     * @param {object} summarizedCols
+     * @param {object} componentData
+     * @param {object} footerData
+     */
+    function summarizeTotals(component, summarizedCols, componentData, footerData) {
+      // For each row, summarize the data
+      _.each(component.model.values, function (row, rowIndex) {
+        _.each(summarizedCols, function (column, columnId) {
+          // Summarize value
+          switch (column.type) {
+            case "sum":
+            default:
+              let value = parseFloat(getRowValue(component.model.values, rowIndex, columnId));
+              column.value += isNaN(value) ? 0 : value;
+              break;
+          }
+          // Store as footer data
+          if (column.component) {
+            componentData[columnId] = column.value;
+          } else {
+            footerData[columnId] = column.value;
+          }
+        });
+      });
+    }
+
+    /**
+     * Initialize help column
+     * @param {object} component
+     * @param {object} column
+     */
+    function initHelpColumn(component, column) {
+      Utilities.timeout(function () {
+        // Initialize help node
+        let help = {
+          node: component.element.find(`[column-id='${column.id}']`),
+          text: column.help,
+          image: column.helpImage
+        };
+        component.initHelpNode(component.id, help);
+      });
+    }
+
     GridCommons.prototype = {
       /**
        * Initialize base grid
@@ -478,7 +525,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         /**
          * Generate the cell data
          *
-         * @param {type} cellValue
+         * @param {object || array || string || integer} cellValue
          */
         component.getCellObject = function (cellValue) {
           let  cellObject = cellValue;
@@ -1541,25 +1588,10 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
                 footerData[columnName] = "";
               }
             });
-            // For each row, summarize the data
-            _.each(component.model.values, function (row, rowIndex) {
-              _.each(summarizedCols, function (column, columnId) {
-                // Summarize value
-                switch (column.type) {
-                  case "sum":
-                  default:
-                    let  value = parseFloat(getRowValue(component.model.values, rowIndex, columnId));
-                    column.value += isNaN(value) ? 0 : value;
-                    break;
-                }
-                // Store as footer data
-                if (column.component) {
-                  componentData[columnId] = column.value;
-                } else {
-                  footerData[columnId] = column.value;
-                }
-              });
-            });
+            // Summarize totals
+            summarizeTotals(component, summarizedCols, componentData, footerData);
+
+            // Store footer
             component.model.footer = componentData;
             // Broadcast footer change
             Utilities.publishFromScope("footer-changed", {
@@ -1571,18 +1603,32 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.initHelpColumns = function() {
           component.controller.columnModel.forEach(column => {
             if ("help" in column) {
-              Utilities.timeout(function () {
-                // Initialize help node
-                let help = {
-                  node: component.element.find(`[column-id='${column.id}']`),
-                  text: column.help,
-                  image: column.helpImage
-                };
-                component.initHelpNode(component.id, help);
-              });
+              initHelpColumn(component, column);
             }
           });
         };
+
+        component.deferRowsRendered = function(onDefer = null) {
+          let deferred = Utilities.q.defer();
+          let startTime = new Date();
+          let listener = component.scope.$on("rows-rendered", function (event, parameters) {
+            if (parameters.grid === component.id) {
+              // Remove listener
+              listener();
+              // Resolve promise
+              if (onDefer) {
+                onDefer(deferred);
+              } else {
+                deferred.resolve();
+              }
+
+              let dateDiff = (new Date() - startTime) / 1000;
+              $log.debug("[GRID ROWS] Grid rows have been COMPILED", {grid: component.id, compilationTime: dateDiff + "s"});
+            }
+          });
+          // Retrieve new id
+          return deferred.promise;
+        }
 
         /** ******************************************************************* */
         /* EVENTS */

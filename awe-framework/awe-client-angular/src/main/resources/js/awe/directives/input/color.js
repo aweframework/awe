@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import "angular-bootstrap-colorpicker";
 import {templateInputColor} from "../../services/criterion";
 

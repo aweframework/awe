@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {getIconTemplate} from "./component";
 import "../directives/plugins/uiNumeric";
 import "../directives/plugins/uiSlider";
@@ -42,7 +42,7 @@ aweApplication.factory('Numeric',
   ['Criterion', 'AweUtilities', 'AweSettings', 'Control',
     /**
      * Numeric generic methods
-     * @param {object} Criterion
+     * @param {function} Criterion
      * @param {object} Utilities
      * @param {object} $settings
      * @param {object} Control

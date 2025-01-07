@@ -16,10 +16,10 @@ module.exports = {
   devtool: "source-map",
   entry: {
     "bundle": path.join(dir, "awe.config.js"),
-    "locals-es": path.join(dir, "locals-es.config.js"),
-    "locals-en": path.join(dir, "locals-en.config.js"),
-    "locals-eu": path.join(dir, "locals-eu.config.js"),
-    "locals-fr": path.join(dir, "locals-fr.config.js")
+    "locals-es-ES": path.join(dir, "locals-es-ES.config.js"),
+    "locals-en-GB": path.join(dir, "locals-en-GB.config.js"),
+    "locals-eu-ES": path.join(dir, "locals-eu-ES.config.js"),
+    "locals-fr-FR": path.join(dir, "locals-fr-FR.config.js")
   },
   output: {
     filename: "js/[name].js",

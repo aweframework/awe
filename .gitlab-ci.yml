@@ -173,6 +173,22 @@ All UT:
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec
 
+HSQL Flyway Test:
+  extends: .unit-testing
+  variables:
+    TEST_NAME: hsql-flyway
+
+Oracle Flyway Test:
+  extends: .unit-testing
+  services:
+    - name: epiclabs/docker-oracle-xe-11g
+      alias: oracle
+  variables:
+    ORACLE_ALLOW_REMOTE: "true"
+    ORACLE_PASSWORD: "$DATABASE_PASSWORD"
+    RELAX_SECURITY: "1"
+    TEST_NAME: oracle-flyway
+
 Oracle Tests:
   extends: .unit-testing
   services:
@@ -183,6 +199,15 @@ Oracle Tests:
     RELAX_SECURITY: "1"
     TEST_NAME: oracle
 
+MySQL Flyway Test:
+  extends: .unit-testing
+  variables:
+    MYSQL_DATABASE: "awetestdb"
+    MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
+    TEST_NAME: mysql-flyway
+  services:
+    - mysql
+
 MySQL Tests:
   extends: .unit-testing
   variables:
@@ -191,6 +216,19 @@ MySQL Tests:
     TEST_NAME: mysql
   services:
     - mysql
+
+SQL Server Flyway Test:
+  extends: .unit-testing
+  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest
+  variables:
+    ACCEPT_EULA: Y
+    SA_PASSWORD: "$DATABASE_PASSWORD"
+    TEST_NAME: sqlserver-flyway
+  before_script:
+    - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
+  services:
+    - name: mcr.microsoft.com/mssql/server:2019-latest
+      alias: mssqlserver
 
 SQL Server Tests:
   extends: .unit-testing

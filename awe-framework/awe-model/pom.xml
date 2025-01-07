@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.9.4</version>
+    <version>4.9.5</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -75,6 +75,11 @@
       <artifactId>flexmark</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
     </dependency>
@@ -126,6 +131,10 @@
     <dependency>
       <groupId>org.graalvm.js</groupId>
       <artifactId>js-scriptengine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-client</artifactId>
     </dependency>
     <!-- Test dependencies -->
     <!-- Junit 5 -->

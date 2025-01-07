@@ -172,12 +172,7 @@ aweApplication.factory('GridTree',
               return row.entity[component.constants.ROW_IDENTIFIER];
             };
             // Broadcast rows rendered
-            grid.api.core.on.rowsRendered(grid.scope, function () {
-              Utilities.timeout.cancel(grid.rowsRenderTimeout);
-              grid.rowsRenderTimeout = Utilities.timeout(function () {
-                Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
-              });
-            });
+            grid.api.core.on.rowsRendered(grid.scope, () => onRowsRendered(grid));
             // Manage on cell select events
             grid.api.selection.on.rowSelectionChanged(grid.scope, onSelectRow);
             grid.api.selection.on.rowSelectionChangedBatch(grid.scope, onSelectRow);
@@ -236,7 +231,7 @@ aweApplication.factory('GridTree',
 
             // Set node icon
             setNodeIcon(row);
-            deferRowsRendered().then(function () {
+            component.deferRowsRendered().then(function () {
               component.updateGridScrollBars();
             });
           };
@@ -251,7 +246,7 @@ aweApplication.factory('GridTree',
             component.model.values = sortTreeValues(component.model.values.filter(node => node.$$treeLevel === 0));
             component.scope.gridOptions.data = component.model.values;
             // On rows rendered, publish
-            deferRowsRendered().then(function () {
+            component.deferRowsRendered().then(function () {
               // Publish grid data changed
               onUpdatedGridData();
               if (!component.initialized) {
@@ -279,7 +274,7 @@ aweApplication.factory('GridTree',
             let primaryIdName = component.controller.treeId;
             let parentIdName = component.controller.treeParent;
             let treeLeaf = component.controller.treeLeaf;
-            let  expandLevel = parseInt(component.controller.initialLevel || "0", 10);
+            let expandLevel = parseInt(component.controller.initialLevel || "0", 10);
             if (!data || data.length === 0 || !primaryIdName || !parentIdName) {
               return [];
             }
@@ -315,22 +310,7 @@ aweApplication.factory('GridTree',
               tree.$$children.push(treeObjs[rootIds[j]]);
             }
 
-            function setLevels(base, level) {
-              _.each(base, function (node) {
-                node.$$treeLevel = level;
-                if ("expanded" in node) {
-                  node.$$expanded = Utilities.parseBoolean(node.expanded);
-                } else {
-                  node.$$expanded = node.$$loaded && (level + 1) < expandLevel;
-                }
-                setLevels(node.$$children, level + 1);
-
-                //'fa-minus': ( ( grid.options.showTreeExpandNoChildren && row.treeLevel > -1 ) || ( row.treeNode.children && row.treeNode.children.length > 0 ) ) && row.treeNode.state === 'expanded', 'fa-plus': ( ( grid.options.showTreeExpandNoChildren && row.treeLevel > -1 ) || ( row.treeNode.children && row.treeNode.children.length > 0 ) ) && row.treeNode.state === 'collapsed'}"
-                setNodeIcon(node);
-              });
-            }
-
-            setLevels(tree.$$children, 0);
+            setLevels(tree.$$children, 0, expandLevel);
             component.treeData = tree;
             return data;
           };
@@ -518,6 +498,7 @@ aweApplication.factory('GridTree',
               sort: grid.sorting
             };
           };
+
           /**
            * Adds a new row
            * @param {string} row Selected row
@@ -605,20 +586,7 @@ aweApplication.factory('GridTree',
             component.scope.gridOptions.data = component.model.values;
             grid.api.core.notifyDataChange(uiGridConstants.dataChange.ROW);
             // Retrieve new id
-            return deferRowsRendered(function (deferred) {
-              // Publish grid data changed
-              onUpdatedGridData();
-              // Resolve promise
-              deferred.resolve(newId);
-              // Show new row
-              Utilities.timeout(function () {
-                component.repositionSaveButton();
-                if (grid.api) {
-                  let  gridRow = grid.api.grid.getRow(rowData);
-                  grid.api.core.scrollToIfNecessary(gridRow, null);
-                }
-              }, scrollTime);
-            });
+            return component.deferRowsRendered( (deferred)  => afterAddRow(deferred, newId, rowData, scrollTime));
           };
           /**
            * Add a new child row
@@ -653,21 +621,7 @@ aweApplication.factory('GridTree',
             parent.$$children.push(row);
             component.scope.gridOptions.data = component.model.values;
             // Retrieve row identifier
-            return deferRowsRendered(function (deferred) {
-              // Publish grid data changed
-              onUpdatedGridData();
-              // Resolve promise
-              deferred.resolve(row[component.constants.ROW_IDENTIFIER]);
-              // Show new row
-              Utilities.timeout(function () {
-                component.repositionSaveButton();
-                if (grid.api) {
-                  let  gridRow = grid.api.grid.getRow(row);
-                  grid.api.core.scrollToIfNecessary(gridRow, null);
-
-                }
-              });
-            });
+            return component.deferRowsRendered((deferred) => afterAddRow(deferred, row[component.constants.ROW_IDENTIFIER], row, undefined));
           };
           /**
            * Removes the selected row
@@ -695,7 +649,7 @@ aweApplication.factory('GridTree',
                 component.scope.gridOptions.data = component.model.values;
               }
             }
-            return deferRowsRendered().then(onUpdatedGridData);
+            return component.deferRowsRendered().then(onUpdatedGridData);
           };
           /**
            * Check if grid size has changed & update new measures if changed
@@ -740,6 +694,17 @@ aweApplication.factory('GridTree',
           /******************************************************************************
            * PRIVATE METHODS
            *****************************************************************************/
+
+          /**
+           * On grid rows rendered
+           * @param grid
+           */
+          function onRowsRendered(grid) {
+            Utilities.timeout.cancel(grid.rowsRenderTimeout);
+            grid.rowsRenderTimeout = Utilities.timeout(function () {
+              Utilities.publishFromScope("rows-rendered", {grid: grid.id}, grid.scope);
+            });
+          }
 
           /**
            * Publish grid data changed
@@ -946,32 +911,6 @@ aweApplication.factory('GridTree',
           }
 
           /**
-           * Launch a promise on rows rendered
-           * @param {type} onDefer
-           */
-          function deferRowsRendered(onDefer) {
-            let  deferred = Utilities.q.defer();
-            let  startTime = new Date();
-            let  listener = component.scope.$on("rows-rendered", function (event, parameters) {
-              if (parameters.grid === grid.id) {
-                // Remove listener
-                listener();
-                // Resolve promise
-                if (onDefer) {
-                  onDefer(deferred);
-                } else {
-                  deferred.resolve();
-                }
-
-                let  dateDiff = (new Date() - startTime) / 1000;
-                $log.debug("[GRID ROWS] Grid rows have been COMPILED", {grid: grid.id, compilationTime: dateDiff + "s"});
-              }
-            });
-            // Retrieve new id
-            return deferred.promise;
-          }
-
-          /**
            * Finish the pending actions
            */
           function finishPendingActions() {
@@ -1013,6 +952,44 @@ aweApplication.factory('GridTree',
               });
             }
             component.onSelectRows(selectedList);
+          }
+
+          /**
+           * Define each level
+           * @param base
+           * @param level
+           * @param expandLevel
+           */
+          function setLevels(base, level, expandLevel) {
+            _.each(base, function (node) {
+              node.$$treeLevel = level;
+              if ("expanded" in node) {
+                node.$$expanded = Utilities.parseBoolean(node.expanded);
+              } else {
+                node.$$expanded = node.$$loaded && (level + 1) < expandLevel;
+              }
+
+              // Set child levels
+              setLevels(node.$$children, level + 1, expandLevel);
+
+              // Set node icon
+              setNodeIcon(node);
+            });
+          }
+
+          function afterAddRow(deferred, newId, rowData, scrollTime) {
+            // Publish grid data changed
+            onUpdatedGridData();
+            // Resolve promise
+            deferred.resolve(newId);
+            // Show new row
+            Utilities.timeout(function () {
+              component.repositionSaveButton();
+              if (grid.api) {
+                let gridRow = grid.api.grid.getRow(rowData);
+                grid.api.core.scrollToIfNecessary(gridRow, null);
+              }
+            }, scrollTime);
           }
 
           /**********************************************************************/

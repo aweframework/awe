@@ -196,6 +196,9 @@ public class AweConstants {
 
   // Querys
   public static final String USER_DETAIL_QUERY = "userDetails";
+  public static final String USER_DETAIL_EMAIL_QUERY = "userDetailsByEmail";
+  public static final String USER_DETAIL_PROFILE_QUERY = "userDetailsByProfile";
+  public static final String CHECK_EXIST_PROFILE = "checkProfileExists";
   public static final String SCREEN_CONFIGURATION_QUERY = "getScreenConfiguration";
   public static final String SCREEN_RESTRICTION_QUERY = "getScreenRestrictions";
   public static final String SCREEN_DATABASE_RESTRICTION_QUERY = "getOptionRestrictionFromDatabase";
@@ -254,4 +257,7 @@ public class AweConstants {
 
   // Random algorithm
   public static final String RANDOM_ALGORITHM = "SHA1PRNG";
+
+  // Oauth2 authentication url
+  public static final String AZURE_OAUTH2_AUTHORIZATION_URL = "/oauth2/authorization/azure";
 }

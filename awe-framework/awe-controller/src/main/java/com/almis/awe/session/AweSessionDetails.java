@@ -16,7 +16,6 @@ import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -61,8 +60,7 @@ public class AweSessionDetails extends ServiceConfig {
   /**
    * Manage login success
    */
-  public void onLoginSuccess() {
-    AweUserDetails userDetails = (AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  public void onLoginSuccess(AweUserDetails userDetails) {
 
     // Set user as fully authenticated
     if (userDetails.isEnabled2fa()) {

@@ -44,7 +44,7 @@ aweApplication.factory('Criterion',
     /**
      * Criterion generic methods
      * @constructor Generic Component constructor
-     * @param {object} Component
+     * @param {function} Component
      * @param {object} Utilities Awe Utilities
      * @param {object} Control Controller service
      * @param {object} $settings Awe $settings

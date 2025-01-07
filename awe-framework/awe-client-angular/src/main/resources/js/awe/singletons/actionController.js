@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import {ClientActions} from "./../data/actions";
 import _ from "lodash";
 
@@ -243,7 +243,7 @@ aweApplication.service('ActionController',
 
       /**
        * Launches the action
-       * @param {Action} action Action to launch
+       * @param {object} action Action to launch
        * @public
        */
       $ctrl.runAction = function (action) {

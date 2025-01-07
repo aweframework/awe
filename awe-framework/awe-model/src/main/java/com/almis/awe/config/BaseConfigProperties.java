@@ -39,17 +39,17 @@ public class BaseConfigProperties {
   private String name = "AWE (Almis Web Engine)";
 
   /**
-   * Application language in ISO 639-1 2 Letters format. (en = English)
+   * Application language in ISO 3166 and ISO 639 codes format. (en-GB = English from Great Britain)
    * Default value en
    */
-  @Size(min = 2, max = 2)
-  private String languageDefault = "en";
+  @Size(min = 5, max = 5)
+  private String languageDefault = "en-GB";
 
   /**
-   * Application available languages in ISO 639-1 2 Letters format. (en = English)
-   * Default value list with EN, ES, FR languages
+   * Application available languages in ISO 3166 and ISO 639 codes format. (en-GB = English from Great Britain)
+   * Default value list with en-GB, es-ES, fr-FR languages
    */
-  private List<@Size(min = 2, max = 2) String> languageList = Arrays.asList("en", "es", "fr");
+  private List<@Size(min = 5, max = 5) String> languageList = Arrays.asList("en-GB", "es-ES", "fr-FR");
 
   /**
    * Application theme.
@@ -62,6 +62,11 @@ public class BaseConfigProperties {
    * Default value awe
    */
   private String acronym = "awe";
+
+  /**
+   * Application default user role
+   */
+  private String defaultRole = "operator";
 
   /**
    * List with application modules separate by commas. Used to load xml files for each module.

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 import "../services/contextMenu";
 import {getIconTemplate} from "../services/component";
 
@@ -13,6 +13,38 @@ const template =
     <awe-context-option ng-repeat="option in controller.contextMenu track by option.id" option-id="{{::option.id}}" option="option"></awe-context-option>
   </ul>
 </li>`;
+
+/**
+ * Show the submenu (if it exists)
+ */
+let toggleSubmenu = function (params, Utilities, submenu, show, delay) {
+  const {component} = params;
+  if (submenu.length > 0) {
+    Utilities.timeout.cancel(params.timer);
+    params.timer = Utilities.timeout(() => {
+      component.controller.opened = show;
+    }, delay);
+  }
+};
+
+/**
+ * Initialize layers
+ */
+let initLayers = function (params, Utilities) {
+  const {elem} = params;
+
+  // Look for layers
+  let link = elem.children("a");
+  let submenu = elem.children("ul");
+
+  // Add mouseenter and mouseleave events
+  link.on("mouseenter", () => toggleSubmenu(params, Utilities, submenu, true, undefined));
+  link.on("mouseleave", () => toggleSubmenu(params, Utilities, submenu, false, 200));
+  if (submenu.length > 0) {
+    submenu.on("mouseenter", () => toggleSubmenu(params, Utilities, submenu, true, undefined));
+    submenu.on("mouseleave", () => toggleSubmenu(params, Utilities, submenu, false, 200));
+  }
+};
 
 // Context option directive
 aweApplication.directive('aweContextOption',
@@ -44,9 +76,6 @@ aweApplication.directive('aweContextOption',
               scope.opened = false;
               scope.active = false;
 
-              // Find a and ul
-              let  link, submenu, timer;
-
               // Init as component
               let  component = new Component(scope, scope.optionId);
               if (!component.asComponent()) {
@@ -57,11 +86,11 @@ aweApplication.directive('aweContextOption',
               // Check if option has children
               if (component.controller) {
                 component.controller.hasChildren = component.controller.contextMenu.length > 0;
-                component.controller.separator = scope.option.separator;
+                component.controller.separator = scope.option?.separator;
               } else {
                 component.controller = {
                   hasChildren: false,
-                  separator: scope.option.separator
+                  separator: scope.option?.separator
                 };
               }
 
@@ -73,46 +102,7 @@ aweApplication.directive('aweContextOption',
                 return {buttonValue: component.model.selected, buttonAddress: component.address};
               };
 
-              /**
-               * Show the submenu (if it exists)
-               */
-              let  showSubmenu = function () {
-                if (submenu.length > 0) {
-                  Utilities.timeout.cancel(timer);
-                  timer = Utilities.timeout(function () {
-                    component.controller.opened = true;
-                  });
-                }
-              };
-
-              /**
-               * Hide the submenu (if it exists)
-               */
-              let  hideSubmenu = function () {
-                if (submenu.length > 0) {
-                  Utilities.timeout.cancel(timer);
-                  timer = Utilities.timeout(function () {
-                    component.controller.opened = false;
-                  }, 200);
-                }
-              };
-
-              /**
-               * Initialize layers
-               */
-              let  initLayers = function () {
-                // Look for layers
-                link = elem.children("a");
-                submenu = elem.children("ul");
-
-                // Add mouseenter and mouseleave events
-                link.on("mouseenter", showSubmenu);
-                link.on("mouseleave", hideSubmenu);
-                if (submenu.length > 0) {
-                  submenu.on("mouseenter", showSubmenu);
-                  submenu.on("mouseleave", hideSubmenu);
-                }
-              };
+              const params = {timer: null, elem, component};
 
               /**
                * Click option function
@@ -130,8 +120,9 @@ aweApplication.directive('aweContextOption',
                * @returns {boolean} option is disabled
                */
               scope.isDisabled = function () {
-                return Storage.get("actions-running") || scope.$root.status.loading ||
-                  (component.controller && component.controller.disabled);
+                return Storage.get("actions-running") ||
+                    scope.$root.status.loading ||
+                    component.controller?.disabled;
               };
 
               // Disable option context menu
@@ -141,7 +132,7 @@ aweApplication.directive('aweContextOption',
               });
 
               // Initialize link and submenu layers
-              Utilities.timeout(initLayers);
+              Utilities.timeout(() => initLayers(params, Utilities));
             }
           };
         }

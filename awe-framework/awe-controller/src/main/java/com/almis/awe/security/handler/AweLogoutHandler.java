@@ -32,7 +32,7 @@ public class AweLogoutHandler extends SecurityContextLogoutHandler {
       setClearAuthentication(true);
       setInvalidateHttpSession(true);
       try {
-        httpServletRequest.getRequestDispatcher("/action/logoutRedirect").forward(httpServletRequest, response);
+        httpServletRequest.getRequestDispatcher("/action/logout-redirect").forward(httpServletRequest, response);
       } catch (Exception exc) {
         log.error("Error redirecting logout handler", exc);
       }

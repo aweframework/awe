@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Translate multiple filter
 aweApplication.filter('translateMultiple', ['$translate', ($translate) => {

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {uploaderInputTemplate} from "../../services/uploader";
 
 // Upload directive

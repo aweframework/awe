@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import "../../directives/plugins/uiChart";
 import "./events";
 import "./sparkLine";
@@ -8,7 +8,7 @@ aweApplication.factory('Chart',
   ['Component', '$translate', 'ChartEvents', 'Storage', 'Control', 'AweUtilities', 'AweSettings',
     /**
      * Chart generic methods
-     * @param {Object} Component
+     * @param {function} Component
      * @param {Object} $translate
      * @param {Object} ChartEvents
      * @param {Object} Storage
@@ -89,6 +89,69 @@ aweApplication.factory('Chart',
         });
         return serieData;
       };
+
+      function addSeriePoints (serie, points, component) {
+        if ("id" in serie) {
+          let  fieldList = [serie.xValue, serie.yValue];
+          if ("zValue" in serie) {
+            fieldList.push(serie.zValue);
+          }
+          // Get point for serie
+          let  point = [];
+          _.each(fieldList, function (field) {
+            point.push(points[0][field]);
+          });
+          // Add point
+          let swift = component.model.values.length >= component.getMax();
+          component.chart.get(serie.id).addPoint(point, false, swift);
+        }
+      }
+
+      /**
+       * Regenerate point events
+       * @param {string} index
+       * @param {object} series
+       * @param {object} eventTimer
+       * @param {object} component
+       */
+      function regeneratePointEvents(index, series, eventTimer, component) {
+        let point = series.data[index];
+        if (point.graphic) {
+          point.graphic.on('dblclick', function (event) {
+            event.preventDefault();
+            Utilities.timeout.cancel(eventTimer);
+            eventTimer = Utilities.timeout(function () {
+              component.onDblClick(event, point);
+            });
+
+            return false;
+          });
+          point.graphic.on('mousedown', function (event) {
+            if (event.which === 3) {
+              // Cancel event propagation
+              Utilities.stopPropagation(event, true);
+              return false;
+            }
+          });
+          let onContextMenuPoint = function (event) {
+            if (event.which === 3) {
+              // Right click
+              // Cancel event propagation
+              Utilities.stopPropagation(event, true);
+              Utilities.timeout.cancel(eventTimer);
+              eventTimer = Utilities.timeout(function () {
+                component.onContextMenu(event, point);
+              });
+              return false;
+            }
+          };
+          point.graphic.on('contextmenu', onContextMenuPoint);
+          point.graphic.on('click', onContextMenuPoint);
+          point.graphic.on('mouseup', onContextMenuPoint);
+        }
+
+        return eventTimer;
+      }
 
       /**
        * Chart constructor
@@ -329,22 +392,7 @@ aweApplication.factory('Chart',
             if (points) {
               // Get attribute id for each serie
               component.model.values.push(points[0]);
-              _.each(chartOptions.series, function (serie) {
-                if ("id" in serie) {
-                  let  fieldList = [serie.xValue, serie.yValue];
-                  if ("zValue" in serie) {
-                    fieldList.push(serie.zValue);
-                  }
-                  // Get point for serie
-                  let  point = [];
-                  _.each(fieldList, function (field) {
-                    point.push(points[0][field]);
-                  });
-                  // Add point
-                  let  swift = component.model.values.length >= component.getMax();
-                  component.chart.get(serie.id).addPoint(point, false, swift);
-                }
-              });
+              _.each(chartOptions.series, (serie) => addSeriePoints(serie, points, component));
               component.chart.redraw();
             }
           };
@@ -514,46 +562,11 @@ aweApplication.factory('Chart',
            */
           component.onRedraw = function () {
             let  chart = this;
-            let  eventTimer;
-            for (let  j in chart.series) {
-              let  series = chart.series[j];
-              for (let  i in series.data) {
-                (function (index) {
-                  let  point = series.data[index];
-                  if (point.graphic) {
-                    point.graphic.on('dblclick', function (event) {
-                      event.preventDefault();
-                      Utilities.timeout.cancel(eventTimer);
-                      eventTimer = Utilities.timeout(function () {
-                        component.onDblClick(event, point);
-                      });
-
-                      return false;
-                    });
-                    point.graphic.on('mousedown', function (event) {
-                      if (event.which === 3) {
-                        // Cancel event propagation
-                        Utilities.stopPropagation(event, true);
-                        return false;
-                      }
-                    });
-                    let  onContextMenuPoint = function (event) {
-                      if (event.which === 3) {
-                        // Right click
-                        // Cancel event propagation
-                        Utilities.stopPropagation(event, true);
-                        Utilities.timeout.cancel(eventTimer);
-                        eventTimer = Utilities.timeout(function () {
-                          component.onContextMenu(event, point);
-                        });
-                        return false;
-                      }
-                    };
-                    point.graphic.on('contextmenu', onContextMenuPoint);
-                    point.graphic.on('click', onContextMenuPoint);
-                    point.graphic.on('mouseup', onContextMenuPoint);
-                  }
-                })(i);
+            let  eventTimer = null;
+            for (let j in chart.series) {
+              let series = chart.series[j];
+              for (let i in series.data) {
+                eventTimer = regeneratePointEvents(i, series, eventTimer, component);
               }
             }
           };

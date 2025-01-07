@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import {timeInputTemplate} from "../../services/dateTime";
 
 // Time directive

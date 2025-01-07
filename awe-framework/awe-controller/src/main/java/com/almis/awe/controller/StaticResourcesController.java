@@ -9,7 +9,7 @@ import com.almis.awe.service.QueryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +52,7 @@ public class StaticResourcesController {
    * @return CSS styles
    */
   @GetMapping("/css/styles{xxx}.css")
-  public String getStyles(Model model) {
+  public String getStyles(@PathVariable String xxx, Model model) {
     model.addAttribute("startupLogo", baseConfigProperties.getPaths().getImageStartupLogo());
     model.addAttribute("startupBackground", baseConfigProperties.getPaths().getImageStartupBackground());
     model.addAttribute("navbarLogo", baseConfigProperties.getPaths().getImageNavbarLogo());
@@ -65,8 +65,7 @@ public class StaticResourcesController {
    * @return CSS styles
    */
   @GetMapping("/css/themeVariables{xxx}.css")
-  @ResponseBody
-  public String getThemeVariables() throws AWException {
+  public String getThemeVariables(@PathVariable String xxx) throws AWException {
     // Call themes query and retrieve all variables
     DataList dataList = queryService.launchPrivateQuery("themeVariables").getDataList();
     List<Theme> themeList = DataListUtil.asBeanList(dataList, Theme.class);

@@ -1,9 +1,9 @@
 // Application
 import "./../../main/resources/js/awe/app";
-import "./../../main/resources/webpack/locals-en.config";
-import "./../../main/resources/webpack/locals-es.config";
-import "./../../main/resources/webpack/locals-eu.config";
-import "./../../main/resources/webpack/locals-fr.config";
+import "../../main/resources/webpack/locals-en-GB.config";
+import "../../main/resources/webpack/locals-es-ES.config";
+import "../../main/resources/webpack/locals-eu-ES.config";
+import "../../main/resources/webpack/locals-fr-FR.config";
 
 // Tests libraries
 import "angular-mocks";

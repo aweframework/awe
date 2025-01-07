@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 import "bootstrap-tabdrop";
 
 // Tabdrop plugin
@@ -19,7 +19,6 @@ aweApplication.directive('uiTabdrop',
               elem.tabdrop();
               Utilities.publishDelayed("resize-action", {});
             };
-            //scope.$on('resize', initPlugin);
             Utilities.timeout(initPlugin);
           };
         }

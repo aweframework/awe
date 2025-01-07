@@ -33,7 +33,7 @@ class StaticResourcesControllerTest {
     when(queryService.launchPrivateQuery(anyString())).thenReturn(new ServiceData().setDataList(dataList));
 
     // Do
-    String result = staticResourcesController.getThemeVariables();
+    String result = staticResourcesController.getThemeVariables("xxx");
 
     // Verify
     assertEquals("""

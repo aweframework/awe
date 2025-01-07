@@ -2,10 +2,8 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.*;
 import com.almis.awe.security.accessbean.LoginAccessControl;
-import com.almis.awe.service.AccessService;
-import com.almis.awe.service.EncodeService;
-import com.almis.awe.service.MenuService;
-import com.almis.awe.service.TotpService;
+import com.almis.awe.service.*;
+import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
 import dev.samstevens.totp.code.CodeVerifier;
 import dev.samstevens.totp.qr.QrDataFactory;
@@ -21,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Objects;
 
@@ -89,6 +88,8 @@ public class SecurityConfig extends ServiceConfig {
    * @param baseConfigProperties     Base config properties
    * @param securityConfigProperties Security config properties
    * @param totpConfigProperties     Totp config properties
+   * @param userDetailsService       AWE user details
+   * @param maintainService          Maintain service
    * @return AccessService bean
    */
   @Bean
@@ -99,8 +100,10 @@ public class SecurityConfig extends ServiceConfig {
                                      TotpService totpService,
                                      BaseConfigProperties baseConfigProperties,
                                      SecurityConfigProperties securityConfigProperties,
-                                     TotpConfigProperties totpConfigProperties) {
-    return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties);
+                                     TotpConfigProperties totpConfigProperties,
+                                     UserDetailsService userDetailsService,
+                                     MaintainService maintainService) {
+    return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties, (AweUserDetailService) userDetailsService, maintainService);
   }
 
   /**

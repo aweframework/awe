@@ -36,6 +36,47 @@
     <call service="logout" />
   </action>
 
+  <action id="login-azure" format="JSON">
+    <call service="login-azure"/>
+    <answer type="ok">
+      <response>
+        <type>end-load</type>
+      </response>
+    </answer>
+    <answer type="warning">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+      <response>
+        <type>cancel</type>
+      </response>
+    </answer>
+    <answer type="error">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+      <response>
+        <type>cancel</type>
+      </response>
+    </answer>
+  </action>
+
   <!-- AFTER LOGIN ACTION -->
   <action id="afterLogin" format="JSON">
     <call service="login"/>
@@ -85,7 +126,7 @@
 
 
   <!-- LOGOUT ACTION -->
-  <action id="logoutRedirect" format="JSON">
+  <action id="logout-redirect" format="JSON">
     <call service="logout" />
     <answer type="ok">
       <response>

@@ -230,9 +230,9 @@
   <locale name="ENUM_GRID" value="Grid"/>
   <locale name="ENUM_HDG_STL" value="Column header style"/>
   <locale name="ENUM_JAVA" value="Java"/>
-  <locale name="ENUM_LAN_EN" value="English"/>
-  <locale name="ENUM_LAN_ES" value="Spanish"/>
-  <locale name="ENUM_LAN_FR" value="French"/>
+  <locale name="ENUM_LAN_EN-GB" value="English"/>
+  <locale name="ENUM_LAN_ES-ES" value="Spanish"/>
+  <locale name="ENUM_LAN_FR-FR" value="French"/>
   <locale name="ENUM_MDL_PROFILES" value="Profiles"/>
   <locale name="ENUM_MDL_USERS" value="Users"/>
   <locale name="ENUM_NO" value="No"/>

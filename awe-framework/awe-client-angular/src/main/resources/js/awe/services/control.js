@@ -27,6 +27,42 @@ aweApplication.factory('Control',
       let  COLUMN = "column";
       let  ROW = "row";
 
+      function getCellTarget(action, address, view, component, target) {
+        if (Storage.has(action)) {
+          let storedAction = Storage.get(action);
+          // Retrieve cell id
+          let cellId = Utilities.getCellId(address);
+          if (view in storedAction && component in storedAction[view] && cellId in storedAction[view][component].cells) {
+            target = storedAction[view][component].cells[cellId];
+          }
+        }
+        return target;
+      }
+
+      function getViewAndComponentTarget(action, view, component, target) {
+        // Normal component
+        if (Storage.has(action)) {
+          let storedAction = Storage.get(action);
+          if (view in storedAction && component in storedAction[view]) {
+            target = storedAction[view][component];
+          }
+        }
+        return target;
+      }
+
+      function getComponentTarget(action, component, target) {
+        if (Storage.has(action)) {
+          let storedAction = Storage.get(action);
+          // Normal component (no view)
+          _.each(storedAction, function (actionView) {
+            if (component in actionView) {
+              target = actionView[component];
+            }
+          });
+        }
+        return target;
+      }
+
       let  Control = {
         /**
          * Retrieve an address target
@@ -59,34 +95,13 @@ aweApplication.factory('Control',
           let component = address && COMPONENT in address ? address[COMPONENT] : null;
           switch (Control.getAddressType(address)) {
             case "cell":
-              if (Storage.has(action)) {
-                let storedAction = Storage.get(action);
-                // Retrieve cell id
-                let cellId = Utilities.getCellId(address);
-                if (view in storedAction && component in storedAction[view] && cellId in storedAction[view][component].cells) {
-                  target = storedAction[view][component].cells[cellId];
-                }
-              }
+              target = getCellTarget(action, address, view, component, target);
               break;
             case "viewAndComponent":
-              // Normal component
-              if (Storage.has(action)) {
-                let storedAction = Storage.get(action);
-                if (view in storedAction && component in storedAction[view]) {
-                  target = storedAction[view][component];
-                }
-              }
+              target = getViewAndComponentTarget(action, view, component, target);
               break;
             case "component":
-              if (Storage.has(action)) {
-                let storedAction = Storage.get(action);
-                // Normal component (no view)
-                _.each(storedAction, function (actionView) {
-                  if (component in actionView) {
-                    target = actionView[component];
-                  }
-                });
-              }
+              target = getComponentTarget(action, component, target);
               break;
             default:
               break;

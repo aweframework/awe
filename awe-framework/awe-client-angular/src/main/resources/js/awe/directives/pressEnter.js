@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Press enter directive
 aweApplication.directive('ngPressEnter',

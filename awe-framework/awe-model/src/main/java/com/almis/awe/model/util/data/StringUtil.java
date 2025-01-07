@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -304,6 +306,16 @@ public final class StringUtil {
     }
     fixPath = fixPath.replace("\\", PATH_DELIMITER);
     return fixPath.trim();
+  }
+
+  /**
+   * Sanitize input parameters. Replace some characters for not be vulnerable to injection attacks
+   *
+   * @param parameter unsafe input parameter
+   * @return parameter sanitized
+   */
+  public static String sanitizeInputParameter(String parameter) {
+    return Jsoup.clean(StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeJava(StringEscapeUtils.escapeJson(parameter))), Safelist.basic());
   }
 
   /**

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../awe";
+import {aweApplication} from "../awe";
 
 // Grid header directive
 aweApplication.directive('aweGridHeader',

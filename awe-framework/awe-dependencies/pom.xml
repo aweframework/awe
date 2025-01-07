@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.9.4</version>
+    <version>4.9.5</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -34,15 +34,17 @@
     <commons-fileupload.version>2.0.0-M1</commons-fileupload.version>
     <annotation-api.version>1.3.2</annotation-api.version>
     <aspectjweaver.version>1.9.2</aspectjweaver.version>
-    <xtream.version>1.4.20</xtream.version>
+    <xtream.version>1.4.21</xtream.version>
     <graalvm.version>23.0.6</graalvm.version>
     <selenium.version>4.18.1</selenium.version>
+    <jsoup.version>1.18.3</jsoup.version>
     <webdrivermanager.version>5.6.4</webdrivermanager.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <janino.version>3.1.12</janino.version>
     <totp.version>1.7.1</totp.version>
     <javase.version>3.5.3</javase.version> <!-- Used to overwrite totp vulnerability -->
     <guava.version>33.3.0-jre</guava.version>
+    <spring-cloud-azure.version>5.18.0</spring-cloud-azure.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -244,6 +246,11 @@
         <version>${commons-io.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>${jsoup.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
@@ -342,6 +349,14 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+      </dependency>
+      <!-- Azure cloud -->
+      <dependency>
+        <groupId>com.azure.spring</groupId>
+        <artifactId>spring-cloud-azure-dependencies</artifactId>
+        <version>${spring-cloud-azure.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

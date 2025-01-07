@@ -99,7 +99,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch change-language action
   it('should launch a change-language action with a defined language', function(done) {
-    spyOn($storage, "get").and.returnValue({base:{language:{selected:"fr"}}});
+    spyOn($storage, "get").and.returnValue({base:{language:{selected:"fr-FR"}}});
     //$control.changeComponent({component: "language", view: "base"}, {model: {values: [{selected: true, value: "fr", label: "Français"}]}});
     return launchScreenAction($injector, "change-language", "changeLanguage", {target: "language", context: "base"}, done);
   });

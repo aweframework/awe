@@ -78,7 +78,7 @@ public class LiteralsService extends ServiceConfig {
    */
   public ServiceData getLocaleMatches(String literal, String codeLang) throws AWException {
     return new ServiceData()
-      .setDataList(findStringInFile(codeLang.toUpperCase(), literal));
+      .setDataList(findStringInFile(codeLang, literal));
   }
 
   /**
@@ -95,7 +95,7 @@ public class LiteralsService extends ServiceConfig {
     // Iterate by language
     for (String codeLang : localeFileService.getLanguageList()) {
       // Get language
-      DataList languageData = retrieveLocaleFromFile(code, codeLang.toUpperCase());
+      DataList languageData = retrieveLocaleFromFile(code, codeLang);
       translations.getRows().addAll(languageData.getRows());
     }
 
@@ -119,7 +119,7 @@ public class LiteralsService extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
 
     try {
-      storeUpdatedLocale(codeLang.toUpperCase(), code, text, markdown, formatSelector);
+      storeUpdatedLocale(codeLang, code, text, markdown, formatSelector);
     } catch (Exception exc) {
       throw new AWException(getLocale("ERROR_TITLE_STORING_TRANSLATION"), getLocale("ERROR_MESSAGE_STORING_TRANSLATION", code, text), exc);
     }
@@ -166,7 +166,7 @@ public class LiteralsService extends ServiceConfig {
     List<ServiceData> resultList = localeFileService.getLanguageList().stream()
       .map(language -> addNewLocale(language, codeLang, code, literal))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
 
     // Retrieve service data
     Comparator<ServiceData> comparator = Comparator.comparingInt(serviceData -> Integer.parseInt(Optional.ofNullable((String) serviceData.getData()).orElse(String.valueOf(Integer.MAX_VALUE))));
@@ -192,7 +192,7 @@ public class LiteralsService extends ServiceConfig {
         String newLiteral = literal;
         String remaining = null;
         if (!oldLanguage.equalsIgnoreCase(language)) {
-          ITranslationResult result = translationService.getTranslation(literal, oldLanguage.toUpperCase(), language);
+          ITranslationResult result = translationService.getTranslation(literal, oldLanguage, language);
           newLiteral = result.getTranslation();
           remaining = result.getRemaining();
           if (remaining != null) {
@@ -250,7 +250,7 @@ public class LiteralsService extends ServiceConfig {
     return new ServiceData()
       .setDataList(DataListUtil.fromBeanList(Collections.singletonList(
         new Global()
-          .setValue(baseConfigProperties.getLanguageDefault().toLowerCase())
+          .setValue(baseConfigProperties.getLanguageDefault())
           .setLabel("ENUM_LAN_" + baseConfigProperties.getLanguageDefault().toUpperCase()))));
   }
 
@@ -315,7 +315,7 @@ public class LiteralsService extends ServiceConfig {
       .orElse(new Locales().setLocales(new ArrayList<>()))
       .getLocales().stream()
       .filter(global -> matchesSearch(search, global.getName(), Optional.ofNullable(global.getValue()).orElse(global.getMarkdown())))
-      .collect(Collectors.toList());
+      .toList();
 
     // Store in datalist
     DataListUtil.addColumn(dataList, "key", found.stream()

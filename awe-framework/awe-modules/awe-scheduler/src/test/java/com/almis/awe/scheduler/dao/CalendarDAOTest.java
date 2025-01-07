@@ -75,7 +75,7 @@ class CalendarDAOTest {
   void checkTriggersContainsCalendars() throws Exception {
     // Mock
     doReturn(aweElements).when(context).getBean(AweElements.class);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
@@ -93,7 +93,7 @@ class CalendarDAOTest {
   void checkTriggersContainsCalendarsNoCalendar() throws Exception {
     // Mock
     doReturn(aweElements).when(context).getBean(AweElements.class);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     prepareCalendarForTests(null);
 
@@ -110,7 +110,7 @@ class CalendarDAOTest {
   void checkTriggersContainsCalendarsOtherCalendar() throws Exception {
     // Mock
     doReturn(aweElements).when(context).getBean(AweElements.class);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     prepareCalendarForTests(8);
 
@@ -127,7 +127,7 @@ class CalendarDAOTest {
   void checkTriggersContainsCalendarsEmpty() throws Exception {
     // Mock
     doReturn(aweElements).when(context).getBean(AweElements.class);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     prepareCalendarForTests(1);
 
@@ -144,7 +144,7 @@ class CalendarDAOTest {
   void deleteSchedulerCalendar() throws Exception {
     // Mock
     doReturn(aweElements).when(context).getBean(AweElements.class);
-    given(aweElements.getLanguage()).willReturn("ES");
+    given(aweElements.getLanguage()).willReturn("es-ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
     given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));

@@ -1,4 +1,4 @@
-import {aweApplication} from "./../../awe";
+import {aweApplication} from "../../awe";
 
 // Help viewer
 aweApplication.directive('aweHelpViewer',

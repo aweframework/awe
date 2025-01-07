@@ -67,7 +67,7 @@ public class LocaleService extends ServiceConfig {
     locales.put("translations", translations);
 
     // Get local list for selected language
-    Map<String, String> localeList = getElements().getLocales().get(language.toLowerCase());
+    Map<String, String> localeList = getElements().getLocales().get(language);
 
     // Store local list in translations
     for (Entry<String, String> locale : localeList.entrySet()) {
@@ -85,6 +85,6 @@ public class LocaleService extends ServiceConfig {
    */
   public Map<String, String> getLocaleResource(String language) {
     // Write application settings in output
-    return getElements().getLocales().get(language.toLowerCase());
+    return getElements().getLocales().get(language);
   }
 }
