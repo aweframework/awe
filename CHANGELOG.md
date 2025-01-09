@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.1
+*09/01/2025*
+
+- Add H2 Flyway tests. [MR #535](https://gitlab.com/aweframework/awe/-/merge_requests/535) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.0
 *07/01/2025*
 
