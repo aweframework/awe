@@ -21,10 +21,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import javax.sql.DataSource;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -194,7 +191,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseQueryFieldGroupByFunctions() throws Exception {
 
-    assumeTrue(!isInMemoryDatabase());
+    assumeTrue(!isHSQLDatabase());
 
     String queryName = "TestFieldGroupByFunctions";
     String variables = "";
@@ -2819,7 +2816,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testOverPartitionOrder() throws Exception {
     String queryName = "testOverPartitionOrder";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":\"donald\",\"rankValue\":1},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":\"jaimito\",\"rankValue\":1},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":\"jorgito\",\"rankValue\":1},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":\"juanito\",\"rankValue\":1},{\"name\":\"test\",\"id\":5,\"rowNumber\":null,\"rankValue\":1}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-    assumeTrue(!isInMemoryDatabase());
+    assumeTrue(!isHSQLDatabase());
     String result = performRequest(queryName, "", DATABASE, expected);
     assertResultJson(queryName, result, 5);
   }
@@ -2834,7 +2831,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testOverPartitionOrderOperation() throws Exception {
     String queryName = "testOverPartitionOrderOperation";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"name\":\"donald\",\"id\":1,\"rowNumber\":2},{\"name\":\"jaimito\",\"id\":2,\"rowNumber\":4},{\"name\":\"jorgito\",\"id\":3,\"rowNumber\":6},{\"name\":\"juanito\",\"id\":4,\"rowNumber\":8},{\"name\":\"test\",\"id\":5,\"rowNumber\":10}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
-    assumeTrue(!isInMemoryDatabase());
+    assumeTrue(!isHSQLDatabase());
     String result = performRequest(queryName, "", DATABASE, expected);
     assertResultJson(queryName, result, 5);
   }
@@ -3302,13 +3299,24 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
-   * Check if current database is an in memory database
+   * Check if current database is in memory database
    *
-   * @return <code>true</code> if is memory database
+   * @return <code>true</code> if in memory database
    * @throws Exception Exception {@link Exception}
    */
   private boolean isInMemoryDatabase() throws Exception {
     List<String> validDatabases = Arrays.asList("hsqldb", "h2");
+    return validDatabases.contains(aweDatabaseContextHolder.getDatabaseType(dataSource));
+  }
+
+  /**
+   * Check if current database is HSQL database
+   *
+   * @return <code>true</code> if HSQL database
+   * @throws Exception Exception {@link Exception}
+   */
+  private boolean isHSQLDatabase() throws Exception {
+    List<String> validDatabases = Collections.singletonList("hsqldb");
     return validDatabases.contains(aweDatabaseContextHolder.getDatabaseType(dataSource));
   }
 
