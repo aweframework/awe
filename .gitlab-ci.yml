@@ -178,6 +178,16 @@ HSQL Flyway Test:
   variables:
     TEST_NAME: hsql-flyway
 
+H2 Flyway Test:
+  extends: .unit-testing
+  variables:
+    TEST_NAME: h2-flyway
+
+H2 Tests:
+  extends: .unit-testing
+  variables:
+    TEST_NAME: h2
+
 Oracle Flyway Test:
   extends: .unit-testing
   services:

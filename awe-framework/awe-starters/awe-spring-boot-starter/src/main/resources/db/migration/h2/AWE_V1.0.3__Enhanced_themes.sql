@@ -1,7 +1,7 @@
---------------------------------------------------------
+--  -----------------------------------------------------
 --  DDL for Table AweThmCol
 --  Themes table: List of available themes
---------------------------------------------------------
+-- ------------------------------------------------------
 CREATE TABLE IF NOT EXISTS AweThmCol (
     IdeThmCol int CONSTRAINT pk_AweThmCol PRIMARY KEY NOT NULL, -- Theme colorset key
     theme varchar(100) not NULL,                                -- Theme name
