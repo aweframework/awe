@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.2
+*13/01/2025*
+
+- Add context path to Azure redirect action. [MR #536](https://gitlab.com/aweframework/awe/-/merge_requests/536) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.1
 *09/01/2025*
 
