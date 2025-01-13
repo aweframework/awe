@@ -139,7 +139,7 @@ public class AccessService extends ServiceConfig {
    * @return do send redirect to Azure oauth portal
    */
   public ServiceData loginWithAzureEntraID() {
-    return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(AZURE_OAUTH2_AUTHORIZATION_URL));
+    return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(getRequest().getHttpRequest().getContextPath() + AZURE_OAUTH2_AUTHORIZATION_URL));
   }
 
   /**

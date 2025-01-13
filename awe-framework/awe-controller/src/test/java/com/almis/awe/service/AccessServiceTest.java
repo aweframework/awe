@@ -5,6 +5,7 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
@@ -22,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -86,6 +88,9 @@ class AccessServiceTest {
 
   @Mock
   AweElements aweElements;
+
+  @Mock
+  AweRequest aweRequest;
 
   @Mock
   AweUserDetailService aweUserDetailService;
@@ -185,6 +190,8 @@ class AccessServiceTest {
 
   @Test
   void loginWithAzureEntraID() {
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    when(aweRequest.getHttpRequest()).thenReturn(new MockHttpServletRequest());
     ServiceData serviceData = accessService.loginWithAzureEntraID();
     assertEquals(1, serviceData.getClientActionList().size());
     assertEquals(AZURE_OAUTH2_AUTHORIZATION_URL, serviceData.getClientActionList().get(0).getTarget());
