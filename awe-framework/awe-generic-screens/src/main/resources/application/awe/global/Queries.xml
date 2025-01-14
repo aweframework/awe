@@ -428,7 +428,7 @@
 
   <query id="userDetailsByProfile" cacheable="true">
     <table id="AwePro" alias="Pro" />
-    <field id="IdeThm" alias="IdeThm" />
+    <field id="IdeThm" table="Pro" alias="IdeThm" />
     <field id="Nam" table="UsrThm" alias="profileTheme" />
     <field id="ScrIni" alias="profileInitialScreen" />
     <join type="LEFT">
