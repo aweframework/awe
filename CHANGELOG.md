@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.3
+*15/01/2025*
+
+- Set context in azure redirection. [MR #537](https://gitlab.com/aweframework/awe/-/merge_requests/537) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.2
 *13/01/2025*
 
