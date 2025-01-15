@@ -38,6 +38,6 @@ public class AweOauth2AuthenticationSuccessHandler implements AuthenticationSucc
     response.setStatus(HttpServletResponse.SC_OK);
 
     // Redirect to user home
-    response.sendRedirect(targetRedirect);
+    response.sendRedirect(request.getContextPath() + targetRedirect);
   }
 }
