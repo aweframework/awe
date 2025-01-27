@@ -41,6 +41,7 @@ There are some kind of validation:
 | **maxlength**      | `Text` / `Textarea` / `Password` | Check if the text length is less than `value`             |  `validation="{maxlegth:`[value](#validation-values)`}"`  |
 | **minlength**      | `Text` / `Textarea` / `Password` | Check if the text length is bigger than `value`   | `validation="{minlength:`[value](#validation-values)`}"`             |
 | **checkAtLeast**   | `Checkbox` / `Button checkbox`   | Assure that there is at least `value` checked checkboxes in the group | `validation="{checkAtLeast:`[value](#validation-values)`}"`   |
+| **maxRepeat**      | `Grid columns`                        | Check whether element is repeated `value` times in its grid column                      | `validation="{maxRepeat:`[value](#validation-values)`}"`                                      |
 | **pattern**        | `Text` / `Textarea` / `Password` | Check if the text is equal  to the parameter             | `validation="{pattern:`[value](#validation-values)`}"`              |
  
 ### Validation values

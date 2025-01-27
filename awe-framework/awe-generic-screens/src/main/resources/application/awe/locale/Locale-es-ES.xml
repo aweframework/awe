@@ -1280,6 +1280,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Por favor, escriba un valor inferior o igual a {value2}"/>
   <locale name="VALIDATOR_MESSAGE_LESS_THAN" value="Por favor, introduzca un valor inferior a {valor2}"/>
   <locale name="VALIDATOR_MESSAGE_MAXLENGTH" value="Por favor, introduzca un valor de tamaño inferior a {value2} caracteres"/>
+  <locale name="VALIDATOR_MESSAGE_MAX_REPEAT" value="Por favor, introduzca el mismo valor un máximo de {value2} veces"/>
   <locale name="VALIDATOR_MESSAGE_MINLENGTH" value="Por favor, introduzca un valor de tamaño superior a {value2} caracteres"/>
   <locale name="VALIDATOR_MESSAGE_NOT_EQUAL" value="Por favor, escriba un valor diferente"/>
   <locale name="VALIDATOR_MESSAGE_NUMBER" value="Por favor, introduzca un número válido"/>

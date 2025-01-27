@@ -1026,6 +1026,20 @@ aweApplication.factory('AweUtilities',
           return -1;
         },
         /**
+         * Extract data from object-like
+         * @param {array | object | string | integer | boolean} value Value
+         * @returns {string | integer} Extracted value
+         */
+        getData: function (value) {
+          if (angular.isArray(value)) {
+            return value;
+          } else if (typeof value === "object") {
+            return value.value;
+          } else {
+            return value;
+          }
+        },
+        /**
          *
          * @param moveScroll
          * @param top

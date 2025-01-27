@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import moment from "moment";
+import _ from "lodash";
 
 // Validation rules service
 aweApplication.factory('ValidationRules',
@@ -36,7 +37,7 @@ aweApplication.factory('ValidationRules',
       };
       /**
        * Retrieve a value or null if it is not valid
-       * @param {Mixed} value
+       * @param {type} value
        * @param {Object} address
        * @return {Object} Group name
        */
@@ -63,6 +64,48 @@ aweApplication.factory('ValidationRules',
         }
         return requiredValue;
       };
+
+      /**
+       * Checks whether element is repeated n times in its grid column
+       * @param {Object} address Element address
+       * @param {Object} param Times the element is allowed to be repeated
+       * @returns {Number} Object with repetitions amount and limit allowed
+       */
+      function checkRepeatedElement(address, param) {
+        let columnAddress = {};
+
+        angular.forEach(address, function (value, key) {
+          if (key !== 'row') {
+            columnAddress[key] =  value;
+          }
+        }, columnAddress);
+        let values = {column: address.column, values: []};
+        let componentElements = $control.getAddressModel(columnAddress).values;
+        angular.forEach(componentElements, function (element) {
+          this.values.push(element[this.column]);
+        }, values);
+        let repeated = getElementRepetition(address, values.values.map(v => $utilities.getData(v)));
+        return repeated.repeats;
+      }
+
+      /**
+       * Get the object repetitions amount in a list
+       * @param {Object} addressElement Element address
+       * @param {Array} values Elements list
+       * @returns {Object} Object with object repetitions amount
+       */
+      function getElementRepetition(addressElement, values) {
+        let value = $control.getAddressModel(addressElement).selected;
+        console.info()
+        let repeated = {elem: value, repeats: 0};
+        angular.forEach(values, function (element) {
+          if (this.elem === element) {
+            this.repeats++;
+          }
+        }, repeated);
+        return repeated;
+      }
+
       /**
        * Retrieves an array list of elements with group name
        * @param {String} address Group id
@@ -125,6 +168,9 @@ aweApplication.factory('ValidationRules',
               case "required":
                 parameters.values.value1 = getRequiredValue(value, address);
                 break;
+              case "maxRepeat":
+                parameters.values.value1 = checkRepeatedElement(address, value);
+                break;
               case "checkAtLeast":
                 parameters.values.value1 = getObjectsSelectedInGroup(address).length;
                 parameters.values.value2 = !$utilities.isEmpty(parameters.values.value2) ? parseInt(parameters.values.value2, 10) : null;
@@ -140,10 +186,10 @@ aweApplication.factory('ValidationRules',
         return parameters;
       };
       /**
-       * Fornat a message with parameters
+       * Format a message with parameters
        * @param {type} message
        * @param {type} parameters
-       * @returns {unresolved}
+       * @returns {type}
        */
       let formatMessage = function (message, parameters) {
         let messageFormatted = $translate.instant(message || "");
@@ -158,8 +204,11 @@ aweApplication.factory('ValidationRules',
       };
       const $rules = {
         validate: function (ruleMethod, value, rule, address) {
-          let parameters = extractParameters(ruleMethod, value, rule, address);
-          return $rules[ruleMethod](parameters);
+          if (address?.row !== 'footer') {
+            let parameters = extractParameters(ruleMethod, value, rule, address);
+            return $rules[ruleMethod](parameters);
+          }
+          return null;
         },
         required: function (parameters) {
           let error = {
@@ -317,6 +366,13 @@ aweApplication.factory('ValidationRules',
             message: formatMessage(parameters.message || "VALIDATOR_MESSAGE_CHECK_AT_LEAST", parameters)
           };
           let passed = parameters.values.value1 >= parameters.values.value2;
+          return $utilities.isEmpty(parameters.values.value1) || $utilities.isEmpty(parameters.values.value2) || passed ? null : error;
+        },
+        maxRepeat: function (parameters) {
+          let error = {
+            message: formatMessage(parameters.message || "VALIDATOR_MESSAGE_MAX_REPEAT", parameters)
+          };
+          let passed = parameters.values.value1 <= parameters.values.value2;
           return $utilities.isEmpty(parameters.values.value1) || $utilities.isEmpty(parameters.values.value2) || passed ? null : error;
         },
         invalid: function (parameters) {
