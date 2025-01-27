@@ -1277,6 +1277,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Please enter a value lower or equal to {value2}"/>
   <locale name="VALIDATOR_MESSAGE_LESS_THAN" value="Please enter a value lower than {value2}"/>
   <locale name="VALIDATOR_MESSAGE_MAXLENGTH" value="Please enter a value size lower than {value2} characters"/>
+  <locale name="VALIDATOR_MESSAGE_MAX_REPEAT" value="Please enter the same value no more than {value2} time(s)"/>
   <locale name="VALIDATOR_MESSAGE_MINLENGTH" value="Please enter a value size higher than {value2} characters"/>
   <locale name="VALIDATOR_MESSAGE_NOT_EQUAL" value="Please enter a different value"/>
   <locale name="VALIDATOR_MESSAGE_NUMBER" value="Please enter a valid number"/>

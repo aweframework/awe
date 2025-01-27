@@ -1277,6 +1277,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Veuillez entrer une valeur inférieure ou égale à {value2}"/>
   <locale name="VALIDATOR_MESSAGE_LESS_THAN" value="Veuillez entrer une valeur inférieure à {value2}"/>
   <locale name="VALIDATOR_MESSAGE_MAXLENGTH" value="Veuillez entrer une valeur de taille inférieure à {value2} caractères"/>
+  <locale name="VALIDATOR_MESSAGE_MAX_REPEAT" value="Veuillez entrer une valeur la même valeur jusqu'à {value2} fois"/>
   <locale name="VALIDATOR_MESSAGE_MINLENGTH" value="Veuillez entrer une valeur de taille de plus que {value2} caractères"/>
   <locale name="VALIDATOR_MESSAGE_NOT_EQUAL" value="Veuillez saisir une valeur différente"/>
   <locale name="VALIDATOR_MESSAGE_NUMBER" value="Veuillez saisir un nombre valide"/>
