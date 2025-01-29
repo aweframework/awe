@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.4
+*29/01/2025*
+
+- Azure starter dependency is mandatory. [MR #538](https://gitlab.com/aweframework/awe/-/merge_requests/538) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.3
 *15/01/2025*
 

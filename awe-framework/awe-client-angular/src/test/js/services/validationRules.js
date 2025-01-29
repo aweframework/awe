@@ -363,6 +363,31 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
     testValidation("checkAtLeast", null, {value: "2"}, { message: 'VALIDATOR_MESSAGE_CHECK_AT_LEAST' });
   });
 
+  // Check at maxRepeat validation
+  it('should launch a maxRepeat validation KO', function() {
+    spyOn($control, "getAddressViewController").and.returnValue({Grid: {}});
+    spyOn($control, "getAddressModel").and.callFake((address) => ({values:[
+        {Col1: {value: 1.0}, Col2: {value: 10}},
+        {Col1: 1.0, Col2: {value: 11}}
+      ],
+      selected: 1.0
+    }));
+    let result = $rules.validate("maxRepeat", 1.0, 1, {view: "base", component: "Grid", column: "Col1", row: "1"});
+    expect(result).toEqual({ message: 'VALIDATOR_MESSAGE_MAX_REPEAT' });
+  });
+
+  it('should launch a maxRepeat validation OK', function() {
+    spyOn($control, "getAddressViewController").and.returnValue({Grid: {}});
+    spyOn($control, "getAddressModel").and.callFake((address) => ({values:[
+        {Col1: {value: 1.0}, Col2: {value: 10}},
+        {Col1: 2.0, Col2: {value: 11}}
+      ],
+      selected: 1.0
+    }));
+    let result = $rules.validate("maxRepeat", 1.0, 1, {view: "base", component: "Grid", column: "Col1", row: "1"});
+    expect(result).toEqual(null);
+  });
+
   // Invalid validation
   it('should launch a invalid validation not active', function() {
     testValidation("invalid", "test", "", {message: ""});
