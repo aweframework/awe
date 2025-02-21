@@ -1,5 +1,6 @@
 package com.almis.awe.model.component;
 
+import com.almis.awe.model.util.security.mapper.mapper.AuthenticateUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -54,12 +55,8 @@ public class AweSession implements Serializable {
    * @return Session user
    */
   public String getUser() {
-    String user = null;
     Authentication authentication = getAuthentication();
-    if (isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
-      user = authentication instanceof OAuth2AuthenticationToken ? StringUtils.substringBefore(((DefaultOAuth2User) authentication.getPrincipal()).getAttribute(PREFERRED_USERNAME), "@") : ((UserDetails) authentication.getPrincipal()).getUsername();
-    }
-    return user;
+    return AuthenticateUserMapper.getUserFromAuthentication(authentication);
   }
 
   /**

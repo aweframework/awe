@@ -77,6 +77,48 @@
     </answer>
   </action>
 
+  <action id="login-sso" format="JSON">
+    <call service="login-sso"/>
+    <answer type="ok">
+      <response>
+        <type>end-load</type>
+      </response>
+    </answer>
+    <answer type="warning">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+      <response>
+        <type>cancel</type>
+      </response>
+    </answer>
+    <answer type="error">
+      <response>
+        <type>end-load</type>
+      </response>
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+      <response>
+        <type>cancel</type>
+      </response>
+    </answer>
+  </action>
+
+
   <!-- AFTER LOGIN ACTION -->
   <action id="afterLogin" format="JSON">
     <call service="login"/>
@@ -119,10 +161,10 @@
     </answer>
   </action>
 
-  <!-- LOGOUT ACTION -->
-  <action id="logout" format="HTML">
-    <call service="logout" />
-  </action>
+<!--  &lt;!&ndash; LOGOUT ACTION &ndash;&gt;-->
+<!--  <action id="logout" format="HTML">-->
+<!--    <call service="logout" />-->
+<!--  </action>-->
 
 
   <!-- LOGOUT ACTION -->

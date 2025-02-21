@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.autoconfigure.constants.SecurityEndpoints;
 import com.almis.awe.component.AweHttpServletRequestWrapper;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
@@ -55,8 +56,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import java.io.IOException;
 import java.util.function.Supplier;
 
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 /**
  * Web security configuration class.
  * Used to configure security for web application.
@@ -71,9 +70,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @Slf4j
 public class WebSecurityConfig {
 
-  @Value("${session.cookie.name:JSESSIONID}")
-  private String cookieName;
-
+  // Autowired services
   private final ApplicationContext context;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
@@ -81,6 +78,12 @@ public class WebSecurityConfig {
   private final AweElements elements;
   private final ActionService actionService;
   private final ObjectMapper objectMapper;
+
+  // Constants
+  public static final SecurityEndpoints SECURITY_ENDPOINTS = new SecurityEndpoints();
+
+  @Value("${session.cookie.name:JSESSIONID}")
+  private String cookieName;
 
   /**
    * Web security config constructor.
@@ -120,55 +123,13 @@ public class WebSecurityConfig {
             ))
         .authorizeHttpRequests(requests -> requests
             // Web resources
-            .requestMatchers(
-                antMatcher("/css/**"),
-                antMatcher("/js/**"),
-                antMatcher("/fonts/**"),
-                antMatcher("/images/**"),
-                antMatcher("/locales/**"),
-                antMatcher("/error**"),
-                antMatcher("/websocket/**"),
-                antMatcher("/template/**"),
-                antMatcher("/settings"),
-                antMatcher("/locals-*/**")).permitAll()
+            .requestMatchers(SECURITY_ENDPOINTS.getWebResourcesRequestMatchers()).permitAll()
             // Public actions
-            .requestMatchers(
-                antMatcher("/action/login"),
-                antMatcher("/action/login-azure"),
-                antMatcher("/action/logout-redirect"),
-                antMatcher("/action/get-locals"),
-                antMatcher("/action/screen-data"),
-                antMatcher("/action/encrypt"),
-                antMatcher("/action/get-file"),
-                antMatcher("/action/file-info"),
-                antMatcher("/action/delete-file"),
-                antMatcher("/screen/public/**"),
-                antMatcher("/screen-data/**")).permitAll()
+            .requestMatchers(SECURITY_ENDPOINTS.getPublicActionsRequestMatchers()).permitAll()
             // File and upload controllers
-            .requestMatchers(
-                antMatcher("/file/text"),
-                antMatcher("/file/stream"),
-                antMatcher("/file/download"),
-                antMatcher("/file/upload"),
-                antMatcher("/file/delete")).permitAll()
+            .requestMatchers(SECURITY_ENDPOINTS.getFileRequestMatchers()).permitAll()
             // Public queries and maintains
-            .requestMatchers(
-                antMatcher("/action/data*/**"),
-                antMatcher("/action/control*/**"),
-                antMatcher("/action/update*/**"),
-                antMatcher("/action/control*/**"),
-                antMatcher("/action/unique*/**"),
-                antMatcher("/action/value*/**"),
-                antMatcher("/action/validate*/**"),
-                antMatcher("/action/subscribe*/**"),
-                antMatcher("/action/maintain*/**"),
-                antMatcher("/action/get-file-maintain/**"),
-                antMatcher("/file/stream/maintain/**"),
-                antMatcher("/file/download/maintain/**")).access(publicQueryMaintainAuthorization(elements))
-            // 2FA endpoint and OAuth2
-            .requestMatchers(
-                    antMatcher("/access/**")
-            ).authenticated()
+            .requestMatchers(SECURITY_ENDPOINTS.getAuthenticatedRequestMatchers()).access(publicQueryMaintainAuthorization(elements))
             // Any other request
             .anyRequest().authenticated()
         )
@@ -223,6 +184,7 @@ public class WebSecurityConfig {
   public PublicQueryMaintainAuthorization publicQueryMaintainAuthorization(AweElements elements) {
     return new PublicQueryMaintainAuthorization(elements);
   }
+
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

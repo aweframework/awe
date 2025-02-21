@@ -24,6 +24,9 @@
   <service id="login-azure">
     <java classname="com.almis.awe.service.AccessService" method="loginWithAzureEntraID" />
   </service>
+  <service id="login-sso">
+    <java classname="com.almis.awe.service.AccessService" method="loginWithKeyCloakSSO" />
+  </service>
   <service id="logout">
     <java classname="com.almis.awe.service.AccessService" method="logout" />
   </service>

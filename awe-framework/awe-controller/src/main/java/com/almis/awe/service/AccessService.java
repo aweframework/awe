@@ -23,12 +23,14 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 import static com.almis.awe.model.constant.AweConstants.*;
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
 /**
@@ -49,13 +51,7 @@ public class AccessService extends ServiceConfig {
   private final MaintainService maintainService;
 
   public static final String PROVISIONING_NEW_USER = "ProvisionNewUser";
-  public static final String SCREEN = "screen";
-  public static final String REDIRECT = "redirect";
-  public static final String CHANGE_LANGUAGE = "change-language";
-  public static final String CHANGE_THEME = "change-theme";
-  private static final String EMAIL = "email";
-  private static final String USERNAME = "userName";
-  private static final String PROFILE = "profile";
+  public static final String UPDATE_OAUTH_ROLE = "UpdateOauthUserProfile";
 
   @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
   private String jasyptAlgorithm;
@@ -143,15 +139,23 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
+   * SSO login redirection with KeyCloak
+   * @return do send redirect to Authentication server oauth portal
+   */
+  public ServiceData loginWithKeyCloakSSO() {
+    return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(getRequest().getHttpRequest().getContextPath() + KEYCLOAK_OAUTH2_AUTHORIZATION_URL));
+  }
+
+  /**
    * Manage Oauth success authentication
-   * @param oauth2User Oauth2 user info
+   * @param oAuth2Token Oauth2 token info
    * @return initial screen url for redirection
    * @throws AWException AWE exception
    */
-  public String onAuthenticationSuccess(DefaultOAuth2User oauth2User) throws AWException {
+  public String onAuthenticationSuccess(OAuth2AuthenticationToken oAuth2Token) throws AWException {
 
     // Get user details
-    AweUserDetails userDetails = getUserDetails(oauth2User);
+    AweUserDetails userDetails = getUserDetails(oAuth2Token);
 
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
@@ -166,13 +170,16 @@ public class AccessService extends ServiceConfig {
     return initialUrl;
   }
 
-  private AweUserDetails getUserDetails(DefaultOAuth2User oauth2User) throws AWException {
+  private AweUserDetails getUserDetails(OAuth2AuthenticationToken oauth2User) throws AWException {
     AweUserDetails userDetails;
-    String userEmail = oauth2User.getAttribute(PREFERRED_USERNAME);
-    // Get user info from email
-    userDetails = userDetailsService.loadUserByEmail(userEmail);
-
-    if (userDetails == null) {
+    String userName = oauth2User.getPrincipal().getAttribute(PREFERRED_USERNAME);
+    String roleOauth = userDetailsService.mapGrantedAuthorityProfile(oauth2User.getAuthorities());
+    try {
+      // Get user info from username
+      userDetails = userDetailsService.loadUserByUsername(userName);
+      // Check if role has been updated from OidcUser
+      checkUpdateRoleInOAuth(userDetails, roleOauth);
+    } catch (UsernameNotFoundException ex) {
       // User not exist, retrieve generic user info from role
       userDetails = userDetailsService.loadUserByRole(oauth2User);
       // If is enabled, provision new user
@@ -181,8 +188,19 @@ public class AccessService extends ServiceConfig {
     return userDetails;
   }
 
+  private void checkUpdateRoleInOAuth(AweUserDetails userDetails, String roleOAuth) throws AWException {
+    boolean changed = !userDetails.getProfileName().equalsIgnoreCase(roleOAuth);
+    if (changed && userDetailsService.existRole(roleOAuth)) {
+     // Update profile
+      ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+      parameters.put(USERNAME, userDetails.getUsername());
+      parameters.put(PROFILE, roleOAuth);
+      maintainService.launchPrivateMaintain(UPDATE_OAUTH_ROLE, parameters);
+    }
+  }
+
   private void autoProvisionUser(AweUserDetails userDetails) throws AWException {
-    if (securityConfigProperties.isAutoProvisionUser()) {
+    if (securityConfigProperties.getSso().isAutoProvisionUser()) {
       // Provision new user
       ObjectNode parameters = JsonNodeFactory.instance.objectNode();
       parameters.put(EMAIL, userDetails.getEmail());
@@ -277,7 +295,7 @@ public class AccessService extends ServiceConfig {
    * @return serviceData the result of the login
    */
   public ServiceData logout() {
-    // Return to home screen
+//     Return to home screen
     return new ServiceData()
       .addClientAction(new ClientAction(SCREEN)
         .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())

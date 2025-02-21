@@ -85,6 +85,20 @@
     </insert>
   </target>
 
+  <target name="UpdateOauthUserProfile">
+    <update>
+      <table id="ope"/>
+      <field id="IdePro" query="GetProfileId"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="userName"/>
+        </and>
+      </where>
+      <variable id="userName" type="STRING" name="userName"/>
+      <variable id="profile" type="STRING" name="profile"/>
+    </update>
+  </target>
+
   <target name="UsrUpd">
     <update>
       <table id="ope"/>

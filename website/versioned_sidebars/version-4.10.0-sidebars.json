@@ -8,7 +8,16 @@
         "intro",
         "purpose",
         "architecture",
-        "security"
+        {
+          "type": "category",
+          "label": "Security",
+          "collapsed": true,
+          "items": [
+            "security/protection-mechanism",
+            "security/security-authentication",
+            "security/authentication-sso"
+          ]
+        }
       ]
     },
     {

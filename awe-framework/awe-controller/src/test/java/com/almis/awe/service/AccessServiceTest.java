@@ -26,8 +26,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -40,6 +43,7 @@ import java.util.Map;
 import static com.almis.awe.model.constant.AweConstants.AZURE_OAUTH2_AUTHORIZATION_URL;
 import static com.almis.awe.model.constant.AweConstants.SESSION_INITIAL_URL;
 import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
+import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ROLE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -201,40 +205,70 @@ class AccessServiceTest {
   void givenOauth2Info_onAuthenticationSuccess_userAlreadyInDB() throws AWException {
     // Given
     Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
-    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    final String DUMMY_PROFILE = "DUMMY";
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap), new SimpleGrantedAuthority(DUMMY_PROFILE));
     DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
     Menu mockMenu = new Menu();
     mockMenu.setScreenContext("dummy");
     // When
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
-    when(aweUserDetailService.loadUserByEmail(anyString())).thenReturn(new AweUserDetails());
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName(DUMMY_PROFILE));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(DUMMY_PROFILE);
     when(menuService.getMenu()).thenReturn(mockMenu);
     // Then
-    String initialUrl = accessService.onAuthenticationSuccess(oAuth2User);
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
     //Asserts
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
   }
 
   @Test
-  void givenOauth2InfoWithRole_onAuthenticationSuccess_provisionNewUser() throws AWException {
+  void givenOauth2Info_onAuthenticationSuccess_userAlreadyInDB_profileUpdate() throws AWException {
     // Given
     Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
-    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    final String DUMMY_PROFILE = "DUMMY";
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap), new SimpleGrantedAuthority(DUMMY_PROFILE));
     DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+    // When
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName(DUMMY_PROFILE));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn("newRole");
+    when(aweUserDetailService.existRole(any())).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(mockMenu);
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+    //Asserts
+    verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
+    verify(maintainService, times(1)).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    assertNotNull(initialUrl);
+  }
+
+  @Test
+  void givenOauth2InfoWithRole_onAuthenticationSuccess_provisionNewUser_roleNotExit() throws AWException {
+    // Given
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    final String DUMMY_PROFILE = "DUMMY";
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap), new SimpleGrantedAuthority(DUMMY_PROFILE));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
     aweUserDetails.setEmail("foo@acme.com");
     Menu mockMenu = new Menu();
     mockMenu.setScreenContext("dummy");
 
     // When
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
-    when(aweUserDetailService.loadUserByEmail(anyString())).thenReturn(null);
-    when(aweUserDetailService.loadUserByRole(oAuth2User)).thenReturn(aweUserDetails);
-    when(securityConfigProperties.isAutoProvisionUser()).thenReturn(true);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenThrow(UsernameNotFoundException.class);
+    when(aweUserDetailService.loadUserByRole(oAuth2AuthenticationToken)).thenReturn(aweUserDetails);
+    when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(DUMMY_PROFILE);
     when(menuService.getMenu()).thenReturn(mockMenu);
     when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
     // Then
-    String initialUrl = accessService.onAuthenticationSuccess(oAuth2User);
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
     //Asserts
     verify(maintainService, times(1)).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), any(ObjectNode.class));
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());

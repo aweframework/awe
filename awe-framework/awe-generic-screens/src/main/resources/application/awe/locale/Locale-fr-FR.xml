@@ -37,6 +37,7 @@
   <locale name="BUTTON_HIDE_MENU" value="MASQUER LE MENU"/>
   <locale name="BUTTON_LIGHT_MODE" value="Mode lumière"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
+  <locale name="BUTTON_LOGIN_SSO" value="Login avec SSO"/>
   <locale name="BUTTON_LOGOUT" value="Sortir"/>
   <locale name="BUTTON_MODIFY" value="Modifier"/>
   <locale name="BUTTON_NEW" value="Nouveau"/>

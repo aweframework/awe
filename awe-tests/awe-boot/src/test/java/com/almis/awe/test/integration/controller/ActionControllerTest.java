@@ -131,7 +131,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(0, screenData.get("actions").size());
       assertEquals(0, screenData.get("messages").size());
       ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
-      assertEquals(5, screenDataComponents.size());
+      assertEquals(7, screenDataComponents.size());
       assertEquals("signin", screenData.get("screen").get("name").textValue());
 
       // Test all keys
@@ -142,7 +142,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       }
 
       logger.debug("-------------------------------------------");
-      logger.debug("There are " + screenDataComponents.size() + " component in the screen " + screenData.get("screen").get("name"));
+      logger.debug("There are {} component in the screen {}", screenDataComponents.size(), screenData.get("screen").get("name"));
       logger.debug("-------------------------------------------");
     }
 
