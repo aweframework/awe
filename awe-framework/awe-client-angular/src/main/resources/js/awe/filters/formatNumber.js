@@ -4,6 +4,12 @@ import "numeral/locales";
 
 // Translate multiple filter
 aweApplication.filter('formatNumber', ['AweSettings', ($settings) => (number, options) => {
-  numeral.locale($settings.getLanguage());
+  let language = "es";
+  const thousandsSeparator = $settings.get("numericOptions").aSep;
+  if (thousandsSeparator === ".") {
+    language = "en-gb";
+  }
+
+  numeral.locale(language);
   return numeral(number).format(options);
 }]);
