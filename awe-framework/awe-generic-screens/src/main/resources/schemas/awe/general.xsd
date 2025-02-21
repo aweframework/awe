@@ -161,6 +161,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="login" />
       <xs:enumeration value="login-azure" />
+      <xs:enumeration value="login-sso" />
       <xs:enumeration value="afterLogin" />
       <xs:enumeration value="logout" />
       <xs:enumeration value="screen" />

@@ -1,5 +1,6 @@
 package com.almis.awe.session;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.model.component.AweSession;
@@ -20,6 +21,7 @@ import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -36,6 +38,7 @@ public class AweSessionDetails extends ServiceConfig {
   private final AweConnectionTracker connectionTracker;
   private final BroadcastService broadcastService;
   private final SessionConfigProperties sessionConfigProperties;
+  private final BaseConfigProperties baseConfigProperties;
 
   /**
    * Autowired constructor
@@ -48,13 +51,14 @@ public class AweSessionDetails extends ServiceConfig {
    * @param sessionConfigProperties Session properties
    */
   public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
-                           AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
+                           AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties, BaseConfigProperties baseConfigProperties) {
     this.clientTracker = aweClientTracker;
     this.queryService = queryService;
     this.sessionService = sessionService;
     this.connectionTracker = connectionTracker;
     this.broadcastService = broadcastService;
     this.sessionConfigProperties = sessionConfigProperties;
+    this.baseConfigProperties = baseConfigProperties;
   }
 
   /**
@@ -89,10 +93,14 @@ public class AweSessionDetails extends ServiceConfig {
 
     // Send logout broadcast to other connections
     connectionTracker.getUserConnectionsFromSession(user, getSession().getSessionId())
-      .stream()
-      .filter(StringUtils::isNotBlank)
-      .filter(c -> !c.equalsIgnoreCase(getRequest().getToken()))
-      .forEach(c -> broadcastService.broadcastMessageToUID(c, new ClientAction("logout")));
+        .stream()
+        .filter(StringUtils::isNotBlank)
+        .filter(c -> !c.equalsIgnoreCase(getRequest().getToken()))
+        .forEach(c -> broadcastService.broadcastMessageToUID(c, new ClientAction(SCREEN)
+                .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
+                .addParameter(JSON_SCREEN, "/"),
+            new ClientAction(CHANGE_LANGUAGE).addParameter(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault()),
+            new ClientAction(CHANGE_THEME).addParameter(SESSION_THEME, baseConfigProperties.getTheme())));
 
     // Remove cometUID from user session
     connectionTracker.removeAllConnectionsFromUserSession(user, getSession().getSessionId());

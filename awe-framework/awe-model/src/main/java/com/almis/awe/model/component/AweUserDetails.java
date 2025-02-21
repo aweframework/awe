@@ -30,6 +30,7 @@ public class AweUserDetails implements UserDetails {
   @ToString.Exclude
   private String secret2fa;
   private String profile;
+  private String profileName;
   private String restrictions;
   private String theme;
   private String language;

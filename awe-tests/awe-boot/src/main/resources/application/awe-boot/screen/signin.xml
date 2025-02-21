@@ -50,6 +50,14 @@
               </dependency>
               <button-action type="server" server-action="login-azure"/>
             </button>
+            <!-- Login with SSO -->
+            <button id="ButLogInSSO" icon="sign-in" style="no-class btn btn-awe btn-dark signin-btn sign-in-sso-btn" label="BUTTON_LOGIN_SSO">
+              <dependency target-type="hide" initial="true" type="or">
+                <dependency-element id="sso-enabled" condition="eq" value="false"/>
+                <dependency-element id="sso-enabled" condition="is empty"/>
+              </dependency>
+              <button-action type="server" server-action="login-sso"/>
+            </button>
           </tag>
         </tag>
       </tag>
@@ -66,5 +74,6 @@
 
   <tag source="hidden">
     <criteria id="azure-enabled" component="text" property="spring.cloud.azure.active-directory.enabled"/>
+    <criteria id="sso-enabled" component="text" property="awe.security.sso.enabled"/>
   </tag>
 </screen>

@@ -12,12 +12,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 
 import java.util.*;
 import java.util.stream.Stream;
+
+import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.*;
 
 /**
  * AWE user detail service
@@ -66,36 +67,37 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
    * @param oAuth2User Oauth2User info
    * @return AWE user details
    */
-  public AweUserDetails loadUserByRole(DefaultOAuth2User oAuth2User) throws AWException {
+  public AweUserDetails loadUserByRole(OAuth2AuthenticationToken oAuth2User) throws AWException {
 
     // Get profile from authority grants oauth2 user info
-    String profile = mapGrantedAuthorityProfile(oAuth2User);
-    // Get email
-    String email = oAuth2User.getAttribute(PREFERRED_USERNAME);
+    String profile = mapGrantedAuthorityProfile(oAuth2User.getAuthorities());
+    // Get user info
+    String userName = oAuth2User.getPrincipal().getAttribute(PREFERRED_USERNAME);
+    String email = oAuth2User.getPrincipal().getAttribute(EMAIL);
+    String fullName = oAuth2User.getPrincipal().getAttribute(NAME);
 
-    if (!userRepository.existRole(profile)) {
+    if (!existRole(profile)) {
       log.warn("Profile {} from oauth information grant authority not exist in database. Using default application profile {}", profile, baseConfigProperties.getDefaultRole());
       profile = baseConfigProperties.getDefaultRole();
     }
     // Get user info
     User user = userRepository.findByRole(profile);
     user.setEmail(email);
-    user.setUsername(StringUtils.substringBefore(email, "@"));
-    user.setFullName(oAuth2User.getName());
+    user.setUsername(userName);
+    user.setFullName(fullName);
     user.setEnabled(true);
 
     // Build User details
     return getAweUserDetails(user);
   }
 
-  private String mapGrantedAuthorityProfile(DefaultOAuth2User oAuth2User) {
+  public String mapGrantedAuthorityProfile(Collection<GrantedAuthority> authorities) {
     // Get profile from grantedAuthority
-    return oAuth2User.getAuthorities().stream()
-        .findFirst()
+    String filterAuthorityPrefix = securityConfigProperties.getSso().getFilterAuthorityPrefix();
+    return authorities.stream()
         .map(GrantedAuthority::getAuthority)
-        .map(role -> Arrays.stream(StringUtils.split(role, "_"))
-            .skip(1).findFirst()
-            .orElse(baseConfigProperties.getDefaultRole()))
+        .filter(authority -> StringUtils.isEmpty(filterAuthorityPrefix) || authority.startsWith(filterAuthorityPrefix))
+        .findFirst()
         .orElse(baseConfigProperties.getDefaultRole());
   }
 
@@ -143,12 +145,14 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
         .setEnabled(user.isEnabled())
         .setCredentialsNonExpired(!checkExpiredPassword(user.getLastChangedPasswordDate()))
         .setAccountNonLocked(!user.isLocked())
-        .setAuthorities(getAuthorities(
-            Optional.ofNullable(user.getProfile())
+        .setAuthorities(getAuthorities(Optional.ofNullable(user.getProfileName())
                 .orElse(baseConfigProperties.getDefaultRole())))
         .setEnabled2fa(user.isEnable2fa())
         .setSecret2fa(user.getSecret2fa())
         .setProfile(Optional.ofNullable(user.getProfile())
+            .filter(StringUtils::isNotBlank)
+            .orElse(baseConfigProperties.getDefaultRole()))
+        .setProfileName(Optional.ofNullable(user.getProfileName())
             .filter(StringUtils::isNotBlank)
             .orElse(baseConfigProperties.getDefaultRole()))
         .setRestrictions(Stream.of(user.getUserRestriction(), user.getProfileRestriction())
@@ -163,5 +167,15 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
         .setInitialScreen(Stream.of(user.getUserInitialScreen(), user.getProfileInitialScreen())
             .filter(StringUtils::isNotBlank)
             .findFirst().orElse(baseConfigProperties.getScreen().getInitial()));
+  }
+
+  /**
+   * Verify if a profile exist in profile list
+   * @param profile Profile name
+   * @return true if profile exist
+   * @throws AWException AWE exception
+   */
+  public boolean existRole(String profile) throws AWException {
+    return userRepository.existRole(profile);
   }
 }

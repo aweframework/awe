@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public class AweConnectionTracker {
-  private ConcurrentMap<String, ConcurrentMap<String, ConnectionDetails>> connectedUsers = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, ConcurrentMap<String, ConnectionDetails>> connectedUsers = new ConcurrentHashMap<>();
 
   /**
    * Check if user is connected
@@ -22,7 +22,7 @@ public class AweConnectionTracker {
    * @return User is connected
    */
   public boolean isUserConnected(String user) {
-    return user != null && connectedUsers.containsKey(user);
+    return user != null && connectedUsers.containsKey(user) && !connectedUsers.get(user).isEmpty();
   }
 
   /**
@@ -57,11 +57,10 @@ public class AweConnectionTracker {
   public Set<String> getScreenConnections(String screen) {
     Set<String> connections = new HashSet<>();
     connectedUsers
-      .entrySet()
-      .forEach(e1 -> connections.addAll(e1.getValue().entrySet().stream()
-        .filter(e2 -> screen.equalsIgnoreCase(e2.getValue().getScreen()))
-        .map(Entry::getKey)
-        .collect(Collectors.toSet())));
+        .forEach((key, value) -> connections.addAll(value.entrySet().stream()
+            .filter(e2 -> screen.equalsIgnoreCase(e2.getValue().getScreen()))
+            .map(Entry::getKey)
+            .collect(Collectors.toSet())));
     return connections;
   }
 
@@ -147,7 +146,7 @@ public class AweConnectionTracker {
   /**
    * On screen change event
    *
-   * @param screenChangeEvent
+   * @param screenChangeEvent screen change event
    */
   @EventListener
   public void onScreenChange(ScreenChangeEvent screenChangeEvent) {
