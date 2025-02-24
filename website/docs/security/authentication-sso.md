@@ -46,6 +46,8 @@ spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SEC
 By default, if the user logged in the application with this  doesn't exist in database, it  will be provisioned by registering it by adding a new record in the user table.
 If you do not want this behavior, you can disable it setting false the configuration property `awe.security.auto-provision-use`.
 
+## Keycloak
+
 <img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
     alt="Keycloak new client 2"
     src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-client-2.png')}
