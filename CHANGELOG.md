@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.10.5
+*24/02/2025*
+
+- FormatNumber error when language is fr-FR. [MR #543](https://gitlab.com/aweframework/awe/-/merge_requests/543) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** New SSO integration with KeyCloak authentication server. [MR #542](https://gitlab.com/aweframework/awe/-/merge_requests/542) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.4
 *29/01/2025*
 
