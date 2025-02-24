@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
@@ -58,13 +59,14 @@ public class SessionConfig {
    * @param sessionService          Session service
    * @param connectionTracker       connection tracker
    * @param sessionConfigProperties Session properties
+   * @param baseConfigProperties    Base config properties
    * @return Session details bean
    */
   @Bean
   @ConditionalOnMissingBean
   public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
-                                             AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties) {
-    return new AweSessionDetails(aweClientTracker, queryService, sessionService, connectionTracker, broadcastService, sessionConfigProperties);
+                                             AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties, BaseConfigProperties baseConfigProperties) {
+    return new AweSessionDetails(aweClientTracker, queryService, sessionService, connectionTracker, broadcastService, sessionConfigProperties, baseConfigProperties);
   }
 
   /**
@@ -78,4 +80,13 @@ public class SessionConfig {
     return new MapSessionRepository(new ConcurrentHashMap<>());
   }
 
+  /**
+   * Http session event publisher
+   * @return session event publisher
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
+  }
 }

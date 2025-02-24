@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
@@ -132,9 +133,11 @@ class AweUserDetailServiceTest {
   void givenRole_loadUserByRole(boolean existRole) throws AWException {
     mockProperties();
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
     Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "test@acme.com");
     List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
     DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
     given(userDAO.findByRole(anyString())).willReturn(new User()
         .setUsername("test")
         .setPassword("test")
@@ -143,7 +146,7 @@ class AweUserDetailServiceTest {
         .setProfile("ADM")
         .setLocked(false));
     given(userDAO.existRole(anyString())).willReturn(existRole);
-    UserDetails details = userDetailsService.loadUserByRole(oAuth2User);
+    UserDetails details = userDetailsService.loadUserByRole(oAuth2AuthenticationToken);
     assertAll(
         () -> assertNotNull(details),
         () -> assertTrue(details.isCredentialsNonExpired()),
@@ -155,9 +158,11 @@ class AweUserDetailServiceTest {
   void givenNullRole_loadDefaultUserRole() throws AWException {
     mockProperties();
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
     Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "test@acme.com");
     List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
     DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
     given(userDAO.findByRole(anyString())).willReturn(new User()
         .setUsername("test")
         .setPassword("test")
@@ -166,7 +171,7 @@ class AweUserDetailServiceTest {
         .setProfile("ADM")
         .setLocked(false));
     given(userDAO.existRole(anyString())).willReturn(true);
-    UserDetails details = userDetailsService.loadUserByRole(oAuth2User);
+    UserDetails details = userDetailsService.loadUserByRole(oAuth2AuthenticationToken);
     assertAll(
         () -> assertNotNull(details),
         () -> assertTrue(details.isCredentialsNonExpired()),

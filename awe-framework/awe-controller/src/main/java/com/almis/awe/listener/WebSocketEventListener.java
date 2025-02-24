@@ -3,10 +3,12 @@ package com.almis.awe.listener;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.type.LaunchPhaseType;
+import com.almis.awe.model.util.security.mapper.mapper.AuthenticateUserMapper;
 import com.almis.awe.service.InitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -43,12 +45,11 @@ public class WebSocketEventListener {
   @EventListener
   public void onConnectEvent(SessionConnectEvent event) {
     StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-    Principal user = event.getUser();
-
-    log.debug("[WebSocket Connect Event] User: {}", Optional.ofNullable(user).map(Principal::getName).orElse("PUBLIC"));
+    String user = AuthenticateUserMapper.getUserFromAuthentication((Authentication) event.getUser());
+    log.debug("[WebSocket Connect Event] User: {}", user);
     if (user != null) {
       String token = Objects.requireNonNull(accessor.getNativeHeader(AweConstants.SESSION_CONNECTION_HEADER)).get(0);
-      connectionTracker.initializeUserConnections(user.getName(), token, (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("HTTP.SESSION.ID"));
+      connectionTracker.initializeUserConnections(user, token, (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("HTTP.SESSION.ID"));
     }
   }
 
@@ -70,9 +71,8 @@ public class WebSocketEventListener {
    */
   @EventListener
   public void onDisconnectEvent(SessionDisconnectEvent event) {
-    Principal user = event.getUser();
-
-    log.debug("[WebSocket Disconnect Event] User: {}", Optional.ofNullable(user).map(Principal::getName).orElse("PUBLIC"));
+    String user = AuthenticateUserMapper.getUserFromAuthentication((Authentication) event.getUser());
+    log.debug("[WebSocket Disconnect Event] User: {}", user);
     StompHeaderAccessor.wrap(event.getMessage());
 
     // Launch client end services

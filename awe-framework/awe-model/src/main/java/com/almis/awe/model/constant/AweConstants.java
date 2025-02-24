@@ -258,6 +258,15 @@ public class AweConstants {
   // Random algorithm
   public static final String RANDOM_ALGORITHM = "SHA1PRNG";
 
+  // Actions
+  public static final String SCREEN = "screen";
+  public static final String REDIRECT = "redirect";
+  public static final String CHANGE_LANGUAGE = "change-language";
+  public static final String CHANGE_THEME = "change-theme";
+  public static final String USERNAME = "userName";
+  public static final String PROFILE = "profile";
+
   // Oauth2 authentication url
   public static final String AZURE_OAUTH2_AUTHORIZATION_URL = "/oauth2/authorization/azure";
+  public static final String KEYCLOAK_OAUTH2_AUTHORIZATION_URL = "/oauth2/authorization/keycloak";
 }

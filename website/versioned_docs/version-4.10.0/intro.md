@@ -5,7 +5,7 @@ sidebar_label: Introduction
 slug: /
 ---
 
-<img alt="Almis" src={require('@docusaurus/useBaseUrl').default('img/awe_logo.png')} />
+<img style={{ width: "100%", margin: "5% 10% 5% 0%" }} alt="AWE logo" src={require('@docusaurus/useBaseUrl').default('img/awe_logo.png')} />
 
 AWE is a light-weight Java web framework. Allows you build web applications in the fastest way.
 

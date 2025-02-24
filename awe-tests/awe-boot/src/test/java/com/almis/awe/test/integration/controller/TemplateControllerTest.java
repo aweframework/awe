@@ -43,7 +43,7 @@ class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Error in template retrieval
    */
   private void testTemplate(String filePath, String templatePath, ResultMatcher statusResultMatcher) throws Exception {
-    String expected = readFileAsText(filePath).replaceAll("\\n|\\r\\n", System.getProperty("line.separator"));
+    String expected = readFileAsText(filePath).replaceAll("\\n|\\r\\n", System.lineSeparator());
     MvcResult result = mockMvc.perform(get(templatePath)
             .accept("text/html;charset=UTF-8")
             .with(csrf()))
@@ -51,7 +51,7 @@ class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
             .andExpect(content().encoding("UTF-8"))
             .andReturn();
 
-    assertEquals(expected, result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.getProperty("line.separator")));
+    assertEquals(expected, result.getResponse().getContentAsString().replaceAll("\\n|\\r\\n", System.lineSeparator()));
   }
 
   /**

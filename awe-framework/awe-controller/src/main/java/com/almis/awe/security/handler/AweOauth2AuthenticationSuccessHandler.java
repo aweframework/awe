@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 
@@ -24,12 +24,12 @@ public class AweOauth2AuthenticationSuccessHandler implements AuthenticationSucc
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
-    DefaultOAuth2User authUser = (DefaultOAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
     // Manage awe user details from oauth info
     String targetRedirect;
     try {
-      targetRedirect = accessService.onAuthenticationSuccess(authUser);
+      targetRedirect = accessService.onAuthenticationSuccess(oauth2Token);
     } catch (AWException ex) {
       throw new AWERuntimeException(ex);
     }

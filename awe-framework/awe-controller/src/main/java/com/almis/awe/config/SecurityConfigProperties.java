@@ -31,11 +31,6 @@ public class SecurityConfigProperties {
   private String jsonParameter = "p";
 
   /**
-   * Flag to enable auto provisioning users in oauth2 authentication process. Create new record in ope table with user
-   */
-  private boolean autoProvisionUser = true;
-
-  /**
    * Default restriction set (default should be the most restricted).
    * Default value general
    */
@@ -91,6 +86,34 @@ public class SecurityConfigProperties {
   @Valid
   private Ldap ldap = new Ldap();
 
+  @NestedConfigurationProperty
+  @Valid
+  private Sso sso = new Sso();
+
+  /**
+   * SSO authentication configuration properties
+   */
+  @Data
+  public static class Sso {
+    /**
+     * Enable SSO flow login
+     */
+    private boolean enabled = false;
+    /**
+     * Flag to enable auto provisioning users in oauth2 authentication process. Create new record in ope table with user
+     */
+    private boolean autoProvisionUser = true;
+    /**
+     * When Auto Launch is enabled, the login page will automatically
+     * redirect the user to the OAuth authorization url, to log in with OAuth
+     */
+    private boolean autoLaunch = false;
+    /**
+     * Used to filtering granted authorities in post authentication process
+     */
+    private String filterAuthorityPrefix;
+  }
+
   /**
    * Ldap authentication configuration properties
    */
@@ -99,7 +122,6 @@ public class SecurityConfigProperties {
     /**
      * Ldap user login property name.
      * Examples of filters:
-     *
      * In WINDOWS environment sAMAccountName={0}
      * In UNIX environment uid={0}
      */

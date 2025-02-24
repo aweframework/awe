@@ -27,6 +27,8 @@ public class User implements Serializable {
   private boolean enabled;
   // User profile (column Pro of AwePro table)
   private String profile;
+  // User profile (column Nam of AwePro table)
+  private String profileName;
   // Date of last login (l1_dat)
   private Date lastLogin;
   // Printer name (imp_nom)

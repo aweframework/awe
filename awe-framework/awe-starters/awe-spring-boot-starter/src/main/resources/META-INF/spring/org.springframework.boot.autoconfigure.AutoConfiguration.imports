@@ -9,6 +9,7 @@ com.almis.awe.autoconfigure.SessionConfig
 com.almis.awe.autoconfigure.SQLConfig
 com.almis.awe.autoconfigure.SecurityConfig
 com.almis.awe.autoconfigure.AzureOAuthConfig
+com.almis.awe.autoconfigure.SSOAuthConfig
 com.almis.awe.autoconfigure.AuthenticationConfig
 com.almis.awe.autoconfigure.WebSecurityConfig
 com.almis.awe.autoconfigure.SerializerConfig
