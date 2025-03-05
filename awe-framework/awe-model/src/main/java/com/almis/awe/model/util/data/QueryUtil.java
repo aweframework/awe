@@ -5,6 +5,8 @@ import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
+import com.almis.awe.model.component.PrototypeRequestBeanHolder;
+import com.almis.awe.model.component.RequestDataHolder;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
@@ -37,19 +39,19 @@ public class QueryUtil extends ServiceConfig {
   private final BaseConfigProperties baseConfigProperties;
   private final DatabaseConfigProperties databaseConfigProperties;
   private final ObjectMapper mapper;
-
-
+  private final PrototypeRequestBeanHolder prototypeRequestBeanHolder;
   /**
    * QueryUtil constructor
    *
-   * @param baseConfigProperties     Base config properties
-   * @param databaseConfigProperties Database config properties
-   * @param mapper                   Object mapper
+   * @param baseConfigProperties      Base config properties
+   * @param databaseConfigProperties  Database config properties
+   * @param mapper                    Object mapper
    */
-  public QueryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper) {
+  public QueryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper, PrototypeRequestBeanHolder prototypeRequestBeanHolder) {
     this.baseConfigProperties = baseConfigProperties;
     this.databaseConfigProperties = databaseConfigProperties;
     this.mapper = mapper;
+    this.prototypeRequestBeanHolder = prototypeRequestBeanHolder;
   }
 
   /**
@@ -157,12 +159,10 @@ public class QueryUtil extends ServiceConfig {
    * @return Add variable into variable map
    */
   private boolean allowVariable(Variable variable, JsonNode value) {
-    switch (ParameterType.valueOf(variable.getType())) {
-      case SYSTEM_DATE, SYSTEM_TIME, SYSTEM_TIMESTAMP:
-        return true;
-      default:
-        return !variable.isOptional() || value != null && !value.isNull();
-    }
+    return switch (ParameterType.valueOf(variable.getType())) {
+      case SYSTEM_DATE, SYSTEM_TIME, SYSTEM_TIMESTAMP -> true;
+      default -> !variable.isOptional() || value != null && !value.isNull();
+    };
   }
 
   /**
@@ -246,7 +246,15 @@ public class QueryUtil extends ServiceConfig {
    * @return Query parameter map
    */
   public ObjectNode getParameters() {
-    return getParameters(Optional.ofNullable(getRequest()).map(AweRequest::getParametersSafe).orElse(JsonNodeFactory.instance.objectNode()));
+    return getParameters(getParametersFromRequest());
+  }
+
+  private ObjectNode getParametersFromRequest() {
+    return Optional.ofNullable(getRequest())
+        .map(AweRequest::getParametersSafe)
+        .orElse(Optional.ofNullable(prototypeRequestBeanHolder.getPrototypeBean())
+            .map(RequestDataHolder::getRequestData)
+            .orElse(JsonNodeFactory.instance.objectNode()));
   }
 
   /**
@@ -441,13 +449,13 @@ public class QueryUtil extends ServiceConfig {
         // Retrieve string value as list
         ArrayNode valueList = nodeFactory.arrayNode();
         Arrays.stream(StringUtils.split(stringValue, ","))
-          .map(String::trim)
-          .forEach(valueList::add);
+            .map(String::trim)
+            .forEach(valueList::add);
 
         output = valueList;
         break;
       case STRING, STRINGB, STRINGL, STRINGR, STRING_ENCRYPT,
-        STRING_HASH_RIPEMD160, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
+           STRING_HASH_RIPEMD160, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
       default:
         output = getStringParameter(parameter, stringValue);
         break;
@@ -522,15 +530,7 @@ public class QueryUtil extends ServiceConfig {
    * @return Parameter
    */
   public JsonNode getRequestParameter(String name) {
-    try {
-      if (getRequest() == null) {
-        return null;
-      }
-      // Retrieve Json node
-      return getRequest().getParameter(name);
-    } catch (Exception exc) {
-      return null;
-    }
+    return getParametersFromRequest().get(name);
   }
 
   /**
@@ -539,9 +539,8 @@ public class QueryUtil extends ServiceConfig {
    * @param variable   Variable
    * @param parameters Parameters
    * @return isList
-   * @throws AWException AWE exception
    */
-  public boolean variableIsList(@NonNull Variable variable, ObjectNode parameters) throws AWException {
+  public boolean variableIsList(@NonNull Variable variable, ObjectNode parameters) {
     boolean list = false;
 
     if (variable.getName() != null) {
@@ -570,21 +569,12 @@ public class QueryUtil extends ServiceConfig {
       parameter = nodeFactory.nullNode();
     } else {
       try {
-        switch (type) {
-          case DOUBLE:
-            parameter = nodeFactory.numberNode(Double.parseDouble(value));
-            break;
-          case FLOAT:
-            parameter = nodeFactory.numberNode(Float.parseFloat(value));
-            break;
-          case LONG:
-            parameter = nodeFactory.numberNode(Long.parseLong(value));
-            break;
-          case INTEGER:
-          default:
-            parameter = nodeFactory.numberNode(Integer.parseInt(value));
-            break;
-        }
+        parameter = switch (type) {
+          case DOUBLE -> nodeFactory.numberNode(Double.parseDouble(value));
+          case FLOAT -> nodeFactory.numberNode(Float.parseFloat(value));
+          case LONG -> nodeFactory.numberNode(Long.parseLong(value));
+          default -> nodeFactory.numberNode(Integer.parseInt(value));
+        };
       } catch (NumberFormatException exc) {
         // If a parameter is an un parseable number, set it to NULL
         log.info(getLocale("INFO_MESSAGE_PARSING_NUMBER_NULL", name, value));
@@ -672,9 +662,9 @@ public class QueryUtil extends ServiceConfig {
    */
   public String getFullSQL(String sql, List<Object> parameters) {
     return parameters
-      .stream()
-      .map(this::formatParameter)
-      .reduce(sql, (fixed, binding) -> fixed.replaceFirst("\\?", Matcher.quoteReplacement(binding)));
+        .stream()
+        .map(this::formatParameter)
+        .reduce(sql, (fixed, binding) -> fixed.replaceFirst("\\?", Matcher.quoteReplacement(binding)));
   }
 
   /**

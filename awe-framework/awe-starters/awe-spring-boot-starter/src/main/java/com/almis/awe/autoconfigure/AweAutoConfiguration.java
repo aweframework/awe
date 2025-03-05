@@ -2,13 +2,9 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.ade.api.ADE;
 import com.almis.awe.component.AweLoggingFilter;
-import com.almis.awe.component.AweMDCTaskDecorator;
 import com.almis.awe.config.*;
 import com.almis.awe.dao.InitialLoadDao;
-import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.component.AweRequest;
-import com.almis.awe.model.component.AweSession;
-import com.almis.awe.model.component.XStreamSerializer;
+import com.almis.awe.model.component.*;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
@@ -120,6 +116,18 @@ public class AweAutoConfiguration {
     return new AweElements(context, baseConfigProperties, elementsDao);
   }
 
+
+  /**
+   * AWE request data holder
+   * @return Request data holder
+   */
+  @Bean
+  @Scope("prototype")
+  @ConditionalOnMissingBean
+  public RequestDataHolder requestDataHolder() {
+    return new RequestDataHolder();
+  }
+
   /**
    * Object mapper
    *
@@ -174,8 +182,18 @@ public class AweAutoConfiguration {
    */
   @Bean
   @ConditionalOnMissingBean
-  public QueryUtil queryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper) {
-    return new QueryUtil(baseConfigProperties, databaseConfigProperties, mapper);
+  public QueryUtil queryUtil(BaseConfigProperties baseConfigProperties, DatabaseConfigProperties databaseConfigProperties, ObjectMapper mapper, PrototypeRequestBeanHolder prototypeRequestBeanHolder) {
+    return new QueryUtil(baseConfigProperties, databaseConfigProperties, mapper, prototypeRequestBeanHolder);
+  }
+
+  /**
+   * PrototypeRequestBeanHolder prototype request bean holder
+   * @return request bean holder bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PrototypeRequestBeanHolder prototypeRequestBeanHolder(){
+    return new PrototypeRequestBeanHolder();
   }
 
   /**
@@ -678,15 +696,4 @@ public class AweAutoConfiguration {
   public AweLoggingFilter aweLoggingFilter(AweSession aweSession, BaseConfigProperties baseConfigProperties) {
     return new AweLoggingFilter(aweSession, baseConfigProperties);
   }
-
-  /**
-   * Awe MDC Task decorator
-   *
-   * @return awe MDC task decorator
-   */
-  @Bean
-  public AweMDCTaskDecorator aweMDCTaskDecorator() {
-    return new AweMDCTaskDecorator();
-  }
-
 }

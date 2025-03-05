@@ -60,7 +60,7 @@ public class AweElementsDao {
    * @param storage   Storage list
    * @param filePath  File path
    */
-  @Async("contextlessTaskExecutor")
+  @Async("contextLessTaskExecutor")
   public <T extends XMLFile, N extends XMLNode> Future<String> readXmlFilesAsync(Class<T> rootClass, Map<String, N> storage, String filePath) {
     return CompletableFuture.completedFuture(readXmlFiles(rootClass, storage, filePath));
   }
@@ -210,7 +210,7 @@ public class AweElementsDao {
    * @param path  Base directory path
    * @return Xml file object
    */
-  @Async("contextlessTaskExecutor")
+  @Async("contextLessTaskExecutor")
   public <T> Future<Map<String, T>> readModuleFolderXmlFile(Class<T> clazz, String path) {
     Path logPath = Paths.get(path);
     Map<String, T> storage = new ConcurrentHashMap<>();
@@ -284,7 +284,7 @@ public class AweElementsDao {
    *
    * @param basePath base path
    */
-  @Async("contextlessTaskExecutor")
+  @Async("contextLessTaskExecutor")
   public Future<Map<String, String>> readLocaleModuleAsync(String basePath) {
     // Create a local storage and read the locales from all modules
     Map<String, Global> localeLanguage = new ConcurrentHashMap<>();

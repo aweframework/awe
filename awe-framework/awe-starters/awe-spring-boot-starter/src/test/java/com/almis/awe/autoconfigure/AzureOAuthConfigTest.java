@@ -51,7 +51,8 @@ class AzureOAuthConfigTest {
               AdeAutoConfiguration.class,
               RestConfig.class,
               AadAutoConfiguration.class,
-              RestTemplateAutoConfiguration.class
+              RestTemplateAutoConfiguration.class,
+              TaskConfig.class
           )
       )
       .withUserConfiguration(BaseConfigProperties.class,
