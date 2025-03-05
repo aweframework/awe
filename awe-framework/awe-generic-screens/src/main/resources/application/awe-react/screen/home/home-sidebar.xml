@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : home.xml
+    Created on : 8 de febrero de 2010, 16:30
+    Author     : Pablo GARCIA
+    Description: New Home page (Menu and Report)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" onload="MgrUsrLogIn">
+
+  <!--
+  SAMPLE DEFAULT PARAMETER LOADING
+  target="SesPrm" -->
+
+  <!-- Center Zone: Show menu and reports -->
+  <tag source="center">
+    <tag type="div" id="page-home" style="expand" expandible="vertical">
+      <tag type="div" style="layout-container layout-static">
+        <tag type="div" style="layout-sidebar">
+          <tag type="div" style="sidebar-header">
+            <tag type="h1" style="application-logo">
+              <tag type="span" label="APP_CLIENT"/>
+            </tag>
+          </tag>
+          <tag type="div" style="layout-menu-container">
+            <menu-container id="MainMenu" style="vertical navigation"/>
+          </tag>
+        </tag>
+        <tag type="div" style="layout-content-wrapper" expandible="vertical">
+          <tag type="div" style="layout-topbar">
+            <tag type="div" style="topbar-start">
+              <info-button id="toggle-menu" title="BUTTON_TOGGLE_MENU" icon="mdi:menu">
+                <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
+              </info-button>
+              <tag type="h3" label="APP_NAME"/>
+            </tag>
+            <tag type="div" style="topbar-end">
+              <tag type="ul" style="navbar p-2">
+                <include target-screen="info-buttons" target-source="favourites"/>
+                <include target-screen="notification-panel" target-source="notification-panel"/>
+                <info-button id="help" icon="question-circle" style="nav-icon-btn-success">
+                  <button-action type="dialog" target="application-help-dialog" />
+                </info-button>
+                <include target-screen="info-buttons" target-source="siteModuleDatabase"/>
+                <info id="ButSetAutRef" icon="refresh" title="SCREEN_TEXT_REFRESH_SETTINGS"
+                      dropdown-style="dropdown-lg padding-xs-hr">
+                  <info-criteria id="RefreshTime" icon="clock-o" title="SCREEN_TEXT_REFRESH_TIME"
+                                 placeholder="SCREEN_TEXT_TIME_SECONDS" component="numeric" style="col-xs-12 no-label"
+                                 info-style="col-xs-10 no-padding-hr"/>
+                  <info-button id="ButPauseRefresh" title="BUTTON_PAUSE" icon="pause"
+                               info-style="navbar-form-awe col-xs-2 no-padding-hr" style="no-padding">
+                    <button-action type="remove-class" target="#ButSetAutRef .fa-refresh" target-action="fa-spin"/>
+                    <dependency target-type="show" initial="true">
+                      <dependency-element id="SetAutoload" condition="eq" value="1"/>
+                    </dependency>
+                  </info-button>
+                  <info-button id="ButPlayRefresh" title="BUTTON_PLAY" icon="play"
+                               info-style="navbar-form-awe col-xs-2 no-padding-hr" style="no-padding">
+                    <button-action type="add-class" target="#ButSetAutRef .fa-refresh" target-action="fa-spin"/>
+                    <dependency target-type="show" initial="true">
+                      <dependency-element id="SetAutoload" condition="eq" value="0"/>
+                    </dependency>
+                  </info-button>
+                </info>
+                <avatar id="ButUsrAct" icon="mdi:person_outline" initial-load="query" target-action="connectedUser" show-label="false">
+                  <include target-screen="notification-panel" target-source="user-settings"/>
+                  <include target-screen="info-buttons" target-source="themeModeSelector"/>
+                  <include target-screen="info-buttons" target-source="themeSelector"/>
+                  <include target-screen="info-buttons" target-source="languageSelector"/>
+                  <include target-screen="info-buttons" target-source="logout"/>
+                </avatar>
+              </tag>
+            </tag>
+          </tag>
+          <tag type="div" style="layout-content expand" expandible="vertical">
+            <view name="report" style="expand expandible-vertical"/>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+  <tag source="hidden">
+    <criteria id="SetAutoload" value="0" component="hidden">
+      <dependency source-type="value" target-type="input" value="0">
+        <dependency-element id="ButPauseRefresh" event="click"/>
+      </dependency>
+      <dependency source-type="value" target-type="input" value="1">
+        <dependency-element id="ButPlayRefresh" event="click"/>
+      </dependency>
+    </criteria>
+  </tag>
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="application-help-source"/>
+  </tag>
+</screen>
