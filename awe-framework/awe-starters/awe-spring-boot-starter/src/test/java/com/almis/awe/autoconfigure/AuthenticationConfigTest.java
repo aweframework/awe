@@ -23,6 +23,7 @@ class AuthenticationConfigTest {
             SerializerConfig.class,
             SecurityConfig.class,
             AuthenticationConfiguration.class,
+            TaskConfig.class,
             SessionConfig.class,
             WebsocketConfig.class,
             TotpAutoConfiguration.class,

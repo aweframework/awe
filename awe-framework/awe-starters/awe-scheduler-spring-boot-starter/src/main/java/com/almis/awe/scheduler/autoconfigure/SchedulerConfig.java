@@ -32,6 +32,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationEventPublisher;
@@ -83,6 +84,7 @@ public class SchedulerConfig {
    * @return rest template
    */
   @Bean
+  @ConditionalOnMissingBean
   public RestTemplate restTemplate() {
     return new RestTemplate();
   }

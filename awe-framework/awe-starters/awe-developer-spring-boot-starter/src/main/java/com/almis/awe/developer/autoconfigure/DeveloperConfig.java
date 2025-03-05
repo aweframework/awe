@@ -47,7 +47,7 @@ public class DeveloperConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public RestTemplate localeRestTemplate() {
+  public RestTemplate restTemplate() {
     return new RestTemplate();
   }
 
