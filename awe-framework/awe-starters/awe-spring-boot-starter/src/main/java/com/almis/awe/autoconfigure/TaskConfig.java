@@ -2,7 +2,10 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.autoconfigure.config.TaskConfigProperties;
 import com.almis.awe.component.AweMDCTaskDecorator;
+import com.almis.awe.model.component.PrototypeRequestBeanHolder;
+import com.almis.awe.model.component.RequestDataHolder;
 import com.almis.awe.executor.ContextAwarePoolExecutor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +45,7 @@ public class TaskConfig {
     executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
     executor.setThreadNamePrefix(properties.getThreadPrefix());
     executor.setTaskDecorator(aweMDCTaskDecorator);
+    executor.initialize();
     return executor;
   }
 
@@ -66,8 +70,8 @@ public class TaskConfig {
    * Returns the asynchronous executor task
    * @return Thread pool executor bean
    */
-  @Bean("contextlessTaskExecutor")
-  public ThreadPoolTaskExecutor getContextlessTaskExecutor() {
+  @Bean("contextLessTaskExecutor")
+  public ThreadPoolTaskExecutor getContextLessTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(properties.getSize());
     executor.setMaxPoolSize(properties.getMaxSize());
@@ -75,5 +79,16 @@ public class TaskConfig {
     executor.setAwaitTerminationSeconds((int) properties.getAwaitTermination().getSeconds());
     executor.setThreadNamePrefix(properties.getContextlessThreadPrefix());
     return executor;
+  }
+
+  /**
+   * Awe MDC Task decorator
+   * @param requestDataHolder request data holder
+   * @param prototypeRequestBeanHolder prototype request bean holder
+   * @return awe MDC task decorator
+   */
+  @Bean
+  public AweMDCTaskDecorator aweMDCTaskDecorator(ObjectProvider<RequestDataHolder> requestDataHolder, PrototypeRequestBeanHolder prototypeRequestBeanHolder) {
+    return new AweMDCTaskDecorator(requestDataHolder, prototypeRequestBeanHolder);
   }
 }
