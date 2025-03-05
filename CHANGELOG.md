@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.10.6
+*05/03/2025*
+
+- Add the screen templates for AWE-React. [MR #546](https://gitlab.com/aweframework/awe/-/merge_requests/546) (Pablo Javier García Mora)
+- Remove RestTemplate from beans. [MR #545](https://gitlab.com/aweframework/awe/-/merge_requests/545) (Pablo Javier García Mora)
+- Share request parameters for async threads. [MR #544](https://gitlab.com/aweframework/awe/-/merge_requests/544) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.5
 *24/02/2025*
 
