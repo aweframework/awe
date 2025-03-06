@@ -395,11 +395,19 @@ Chrome IT Scheduler:
     TEST_TAGS: SchedulerIT
     TEST_PORT: 6308
 
+gemnasium-maven-dependency_scanning:
+  stage: test
+  rules:
+    - <<: *if-default
+  dependencies: ["Build project"]
+  variables:
+    MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
+
 ##############################
 # Analysis stage
 ##############################
 
-Launch Sonar:
+.sonar:
   image: registry.gitlab.com/aweframework/docker-tools/sonar:latest
   stage: analysis
   needs:
@@ -425,7 +433,7 @@ Launch Sonar:
       paths:
         - .sonar/cache
   script:
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS $BRANCH_DECORATOR
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:
@@ -434,13 +442,20 @@ Launch Sonar:
   rules:
     - <<: *if-default
 
-gemnasium-maven-dependency_scanning:
-  stage: test
+Launch Sonar:
+  extends: .sonar
   rules:
-    - <<: *if-default
-  dependencies: ["Build project"]
+    - <<: *if-master
+    - <<: *if-develop
   variables:
-    MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
+    BRANCH_DECORATOR: "-Dsonar.branch.name=$CI_COMMIT_REF_NAME"
+
+Launch Sonar MR:
+  extends: .sonar
+  rules:
+    - <<: *if-merge-request
+  variables:
+    BRANCH_DECORATOR: "-Dsonar.pullrequest.key=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME -Dsonar.pullrequest.base=$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
 
 ##############################
 # Site stage
