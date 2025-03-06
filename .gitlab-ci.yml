@@ -407,7 +407,7 @@ gemnasium-maven-dependency_scanning:
 # Analysis stage
 ##############################
 
-.sonar:
+Launch Sonar:
   image: registry.gitlab.com/aweframework/docker-tools/sonar:latest
   stage: analysis
   needs:
@@ -433,7 +433,7 @@ gemnasium-maven-dependency_scanning:
       paths:
         - .sonar/cache
   script:
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS $BRANCH_DECORATOR
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:
@@ -441,21 +441,6 @@ gemnasium-maven-dependency_scanning:
     expire_in: 1 week
   rules:
     - <<: *if-default
-
-Launch Sonar:
-  extends: .sonar
-  rules:
-    - <<: *if-master
-    - <<: *if-develop
-  variables:
-    BRANCH_DECORATOR: "-Dsonar.branch.name=$CI_COMMIT_REF_NAME"
-
-Launch Sonar MR:
-  extends: .sonar
-  rules:
-    - <<: *if-merge-request
-  variables:
-    BRANCH_DECORATOR: "-Dsonar.pullrequest.key=$CI_MERGE_REQUEST_IID -Dsonar.pullrequest.branch=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME -Dsonar.pullrequest.base=$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
 
 ##############################
 # Site stage
