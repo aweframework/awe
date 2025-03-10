@@ -1,0 +1,32 @@
+.column-editor {
+  width: 100%;
+  text-align: left;
+  .p-inputnumber-input {
+    width: 100%;
+  }
+}
+
+.validation-tooltip.p-tooltip.p-tooltip-bottom {
+  .p-tooltip-arrow {
+    border-bottom-color: var(--red-500);
+  }
+  .p-tooltip-text {
+    background-color: var(--red-500);
+  }
+}
+
+.column-editor.p-invalid {
+  &::before {
+    content: "⚠";
+    font-size: 1.5em;
+    line-height: 1.4em;
+    position: absolute;
+    padding-left: 4px;
+  }
+
+  &:focus-within {
+    &::before {
+      content: "" !important;
+    }
+  }
+}

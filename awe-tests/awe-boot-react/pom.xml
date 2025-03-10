@@ -2,494 +2,533 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.almis.awe.clients</groupId>
-    <artifactId>awe-react</artifactId>
-    <version>1.0.6-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+    <parent>
+        <groupId>com.almis.awe.clients</groupId>
+        <artifactId>awe-react</artifactId>
+        <version>1.0.6-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <artifactId>test-react</artifactId>
-  <name>React Client Tests</name>
+    <artifactId>test-react</artifactId>
+    <name>React Client Tests</name>
 
-  <properties>
-    <!-- Application maven properties -->
-    <awe.react.version>${revision}</awe.react.version>
-    <java.version>17</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
+    <properties>
+        <!-- Application maven properties -->
+        <awe.react.version>${revision}</awe.react.version>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
-    <!-- Frontend configuration -->
-    <node.version>v18.19.0</node.version>
-    <yarn.version>v1.22.21</yarn.version>
+        <!-- Frontend configuration -->
+        <node.version>v18.19.0</node.version>
+        <yarn.version>v1.22.21</yarn.version>
 
-    <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
-    <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
-    <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
-    <sonar.exclusions>src/**</sonar.exclusions>
-    <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
-    <sonar.tests>${project.basedir}/src/test</sonar.tests>
-    <surefire.suite>**/AllTestsSuite.class</surefire.suite>
-    <failsafe.suite>**/AllTestsSuiteIT.class</failsafe.suite>
-    <browser>headless-chrome</browser>
-    <skip.main>false</skip.main>
-    <skip.selenium>true</skip.selenium>
-    <skip.junit>false</skip.junit>
+        <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
+        <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
+        <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
+        <sonar.exclusions>src/**</sonar.exclusions>
+        <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
+        <sonar.tests>${project.basedir}/src/test</sonar.tests>
+        <surefire.suite>**/AllTestsSuite.class</surefire.suite>
+        <failsafe.suite>**/AllTestsSuiteIT.class</failsafe.suite>
+        <browser>headless-chrome</browser>
+        <skip.main>false</skip.main>
+        <skip.selenium>true</skip.selenium>
+        <skip.junit>false</skip.junit>
 
-    <!-- Build properties -->
-    <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
-    <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
-    <build.environment>development</build.environment>
-    <plugin-spring-boot.version>3.1.2</plugin-spring-boot.version>
+        <!-- Build properties -->
+        <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
+        <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
+        <build.environment>development</build.environment>
+        <plugin-spring-boot.version>3.1.2</plugin-spring-boot.version>
 
-    <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
-  </properties>
+        <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
+    </properties>
 
-  <dependencies>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-
-    <!-- AWE -->
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe.clients</groupId>
-      <artifactId>awe-client-react</artifactId>
-      <version>${awe.react.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-builder-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-rest-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-notifier-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-scheduler-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-tools-spring-boot-starter</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-developer-spring-boot-starter</artifactId>
-    </dependency>
-
-    <!-- Kubernetes config -->
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
-    </dependency>
-
-    <!-- Google cloud integration -->
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>spring-cloud-gcp-starter</artifactId>
-    </dependency>
-
-    <!-- EHcache -->
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <classifier>jakarta</classifier>
-    </dependency>
-
-    <!-- Redis cache server -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.session</groupId>
-      <artifactId>spring-session-data-redis</artifactId>
-    </dependency>
-
-    <!--  Observability and metrics -->
-    <!--  prometheus -->
-    <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-registry-prometheus</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-tracing-bridge-otel</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-exporter-otlp</artifactId>
-    </dependency>
-
-    <!-- JDBC Drivers -->
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.mysql</groupId>
-      <artifactId>mysql-connector-j</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-
-    <!-- Flyway modules -->
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-mysql</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-sqlserver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-database-hsqldb</artifactId>
-    </dependency>
-
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>com.almis.awe</groupId>
-      <artifactId>awe-testing</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Lombok -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <version>6.0.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>jakarta.mail</groupId>
-      <artifactId>jakarta.mail-api</artifactId>
-      <version>2.1.2</version>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <finalName>awe-react</finalName>
-    <plugins>
-
-      <!-- AWE static resources -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>${plugin-dependency.version}</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <id>unpack awe-generic-screens schemas</id>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.almis.awe</groupId>
-                  <artifactId>awe-generic-screens</artifactId>
-                  <version>${awe.version}</version>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <includes>schemas/**,</includes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
-            <phase>generate-sources</phase>
-            <id>unpack awe-generic-screens docs</id>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.almis.awe</groupId>
-                  <artifactId>awe-generic-screens</artifactId>
-                  <version>${awe.version}</version>
-                  <outputDirectory>${project.build.frontend}</outputDirectory>
-                  <includes>docs/**</includes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
-            <phase>generate-resources</phase>
-            <id>unpack awe-client</id>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.almis.awe.clients</groupId>
-                  <artifactId>awe-client-react</artifactId>
-                  <version>${awe.react.version}</version>
-                  <outputDirectory>${project.build.frontend}</outputDirectory>
-                  <includes>images/**,css/**</includes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-          <execution>
-            <phase>generate-resources</phase>
-            <id>unpack awe-tools</id>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.almis.awe</groupId>
-                  <artifactId>awe-tools</artifactId>
-                  <version>${awe.version}</version>
-                  <outputDirectory>${project.build.frontend}</outputDirectory>
-                  <includes>images/**,css/**,js/**</includes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>${maven-deploy-plugin.version}</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-
-      <!-- Spring boot -->
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${plugin-spring-boot.version}</version>
-        <configuration>
-          <profiles>
-            <profile>gitlab-ci</profile>
-          </profiles>
-        </configuration>
-        <executions>
-          <execution>
-            <id>build-info</id>
-            <goals>
-              <goal>build-info</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>repackage</id>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>start-application</id>
-            <phase>integration-test</phase>
-            <configuration>
-              <skip>${skip.selenium}</skip>
-              <wait>1000</wait>
-              <maxAttempts>180</maxAttempts>
-            </configuration>
-            <goals>
-              <goal>start</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>stop-application</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-            <configuration>
-              <skip>${skip.selenium}</skip>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Xml validation -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>validate</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>validate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <validationSets>
-            <validationSet>
-              <dir>${check.xml.directory}/app/</dir>
-              <excludes>
-                <exclude>templates/**</exclude>
-              </excludes>
-              <validating>true</validating>
-            </validationSet>
-          </validationSets>
-          <catalogs>
-            <catalog>file:///${project.build.directory}/schemas/awe/catalog.xml</catalog>
-          </catalogs>
-        </configuration>
-      </plugin>
-
-      <!-- Frontend generation -->
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${maven-plugin-frontend.version}</version>
-      </plugin>
-
-      <!-- JUnit -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.1.2</version>
-        <configuration>
-          <skip>${skip.junit}</skip>
-          <groups>${test.tags}</groups>
-        </configuration>
-      </plugin>
-
-      <!-- Failsafe -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.1.2</version>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>integration-test</goal>
-            </goals>
-            <configuration>
-              <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-              <skip>${skip.selenium}</skip>
-              <systemPropertyVariables>
-                <failsafe.browser>${browser}</failsafe.browser>
-              </systemPropertyVariables>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
-  <profiles>
-
-    <!-- Integration report profile -->
-    <profile>
-      <id>generate-integration-report</id>
-      <activation>
-        <property>
-          <name>generateIntegrationReport</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <!-- Failsafe -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>integration-test</id>
-                <phase>integration-test</phase>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                  <skip>${skip.selenium}</skip>
-                  <systemPropertyVariables>
-                    <awe.test.browser>${browser}</awe.test.browser>
-                  </systemPropertyVariables>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-          </plugin>
-          <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>start-application</id>
-                <phase>integration-test</phase>
-                <configuration>
-                  <arguments>
-                    <argument>--integration-test</argument>
-                  </arguments>
-                  <wait>1000</wait>
-                  <maxAttempts>180</maxAttempts>
-                  <jvmArguments>${failsafe.argLine}</jvmArguments>
-                </configuration>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-application</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
-  <dependencyManagement>
     <dependencies>
-      <!-- Spring Cloud GCP -->
-      <dependency>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>spring-cloud-gcp-dependencies</artifactId>
-        <version>4.7.2</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- AWE -->
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-builder-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-rest-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-notifier-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-scheduler-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-tools-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-developer-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Kubernetes config -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
+        </dependency>
+
+        <!-- Google cloud integration -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter</artifactId>
+        </dependency>
+
+        <!-- EHcache -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <classifier>jakarta</classifier>
+        </dependency>
+
+        <!-- Redis cache server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
+        <!--  Observability and metrics -->
+        <!--  prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+
+        <!-- JDBC Drivers -->
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Flyway modules -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-sqlserver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-hsqldb</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>2.1.2</version>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
+
+    <build>
+        <finalName>awe-react</finalName>
+        <plugins>
+
+            <!-- AWE static resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${plugin-dependency.version}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <id>unpack awe-generic-screens schemas</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-generic-screens</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <includes>schemas/**,</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <id>unpack awe-generic-screens docs</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-generic-screens</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.frontend}</outputDirectory>
+                                    <includes>docs/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>unpack awe-tools</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-tools</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.frontend}</outputDirectory>
+                                    <includes>images/**,css/**,js/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <!-- Spring boot -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${plugin-spring-boot.version}</version>
+                <configuration>
+                    <profiles>
+                        <profile>gitlab-ci</profile>
+                    </profiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>start-application</id>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <skip>${skip.selenium}</skip>
+                            <wait>1000</wait>
+                            <maxAttempts>180</maxAttempts>
+                        </configuration>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-application</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.selenium}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Xml validation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>validate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <validationSets>
+                        <validationSet>
+                            <dir>${check.xml.directory}/app/</dir>
+                            <excludes>
+                                <exclude>templates/**</exclude>
+                            </excludes>
+                            <validating>true</validating>
+                        </validationSet>
+                    </validationSets>
+                    <catalogs>
+                        <catalog>file:///${project.build.directory}/schemas/awe/catalog.xml</catalog>
+                    </catalogs>
+                </configuration>
+            </plugin>
+
+            <!-- Frontend generation -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${maven-plugin-frontend.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <id>install node and yarn</id>
+                        <goals>
+                            <goal>install-node-and-yarn</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <yarnVersion>${yarn.version}</yarnVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>compile</phase>
+                        <id>yarn install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>compile</phase>
+                        <id>webpack</id>
+                        <goals>
+                            <goal>webpack</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>--config webpack.dev.js</arguments>
+                            <environmentVariables>
+                                <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JUnit -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <skip>${skip.junit}</skip>
+                    <groups>${test.tags}</groups>
+                </configuration>
+            </plugin>
+
+            <!-- Failsafe -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                            <skip>${skip.selenium}</skip>
+                            <systemPropertyVariables>
+                                <failsafe.browser>${browser}</failsafe.browser>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <!-- Integration report profile -->
+        <profile>
+            <id>generate-integration-report</id>
+            <activation>
+                <property>
+                    <name>generateIntegrationReport</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Failsafe -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <configuration>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                                    <skip>${skip.selenium}</skip>
+                                    <systemPropertyVariables>
+                                        <awe.test.browser>${browser}</awe.test.browser>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-application</id>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <arguments>
+                                        <argument>--integration-test</argument>
+                                    </arguments>
+                                    <wait>1000</wait>
+                                    <maxAttempts>180</maxAttempts>
+                                    <jvmArguments>${failsafe.argLine}</jvmArguments>
+                                </configuration>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-application</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>production</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${maven-plugin-frontend.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <id>webpack</id>
+                                <goals>
+                                    <goal>webpack</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>--config webpack.prod.js</arguments>
+                                    <environmentVariables>
+                                        <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+                                    </environmentVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud GCP -->
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>spring-cloud-gcp-dependencies</artifactId>
+                <version>4.7.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

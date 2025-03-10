@@ -1,0 +1,16 @@
+import './AweGridTest';
+import './AweTreeGridTest';
+import './AweMenuTest';
+import './AweViewTest';
+import './AwePivotTableTest';
+import './AweInfoButtonTest';
+import './AweInfoDropdownTest';
+import './AweAvatarTest';
+import './AweStepsTest';
+import './AweResizableTest';
+import './AweAccordionTest';
+import './AweChartTest';
+import './AweImageTest';
+import './AweLinkTest';
+import './AweVideoTest';
+import './AweWindowTest';

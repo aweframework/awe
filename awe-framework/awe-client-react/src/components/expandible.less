@@ -1,0 +1,108 @@
+/*
+    Created on : 26-mar-2014, 14:23:20
+    Author     : pgarcia
+*/
+
+// Flex
+.display-flex {
+  display: flex;
+}
+
+.flex(@attrs) {
+  flex: @attrs;
+  flex-shrink: 1;
+}
+
+// Flex direction
+.flex-direction(@attrs) {
+  flex-direction: @attrs;
+}
+
+// Flex order
+.flex-order(@attrs) {
+  order: @attrs;
+}
+
+// Flex align self
+.flex-align-self(@attrs) {
+  align-self: @attrs;
+}
+
+// Flex justify
+.flex-justify(@attrs) {
+  justify-content: @attrs;
+}
+
+// Flex basis
+.flex-basis(@attrs) {
+  flex-basis: @attrs;
+}
+
+// Expand vertically
+.expandible-vertical,
+.expandible-horizontal {
+  .display-flex;
+  .flex-basis(max-content);
+  > * {
+    .flex(none);
+  }
+  > .expand {
+    .flex(1);
+  }
+  > .expand-2x {
+    .flex(2);
+  }
+  > .expand-3x {
+    .flex(3);
+  }
+  > .expand-4x {
+    .flex(4);
+  }
+  > .expand-5x {
+    .flex(5);
+  }
+  > .expand-6x {
+    .flex(6);
+  }
+  > .expand-7x {
+    .flex(7);
+  }
+  > .expand-8x {
+    .flex(8);
+  }
+  > .expand-9x {
+    .flex(9);
+  }
+  > .expand-10x {
+    .flex(10);
+  }
+  > .expand-11x {
+    .flex(11);
+  }
+  > .expand-12x {
+    .flex(12);
+  }
+}
+
+// Expand vertically
+.expandible-vertical {
+  .flex-direction(column);
+}
+
+// Expand horizontally
+.expandible-horizontal {
+  .flex-direction(row);
+}
+
+// Inherit expandibility
+.expandible-inherit {
+  .display-flex;
+  .flex-direction(column);
+  > * {
+    .flex(1);
+  }
+}
+
+.scrollable {
+  overflow-y: auto;
+}

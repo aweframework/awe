@@ -18,6 +18,7 @@
         "@babel/plugin-transform-object-assign",
         "array-includes",
         "object-values-to-object-keys",
+        "@babel/plugin-syntax-dynamic-import",
         ["istanbul", {
           "exclude": [
             "**/node_modules/"
@@ -31,6 +32,7 @@
         "@babel/plugin-transform-object-assign",
         "array-includes",
         "object-values-to-object-keys",
+        "@babel/plugin-syntax-dynamic-import",
         ["istanbul", {
           "exclude": [
             "**/node_modules/"
