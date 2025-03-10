@@ -1,0 +1,36 @@
+.actions-zone, .stack, .action-stack {
+  position: absolute;
+  bottom: 0;
+}
+
+.actions-zone {
+  width: 100%;
+}
+
+.actions-zone .action-stack {
+  width: 200px;
+}
+
+.actions-zone .action-stack .p-tag {
+  display: block;
+  border: 2px solid var(--surface-a);
+}
+
+.actions-zone .stack.async-zone {
+  left: 0;
+}
+
+.actions-zone .stack.sync-zone {
+  right: 0;
+}
+
+.actions-zone .action {
+  display: block;
+  margin: 2px;
+  width: 196px;
+}
+
+.actions-zone .p-tag-header {
+  background: #666666;
+  color: white;
+}

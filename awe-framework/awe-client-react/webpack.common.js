@@ -1,0 +1,57 @@
+const path = require("path");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const GeneratePackageJsonPlugin = require('generate-package-json-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
+const PACKAGE = require('./package.json');
+
+const basePackage = {
+  ...PACKAGE,
+  "main": "./js/main.js",
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": undefined,
+}
+const nodeExternals = require('webpack-node-externals');
+
+module.exports = {
+  entry: {
+    main: path.join(__dirname, "src", "index.js")
+  },
+  output: {
+    filename: "js/[name].js",
+    path: path.resolve(__dirname, "dist"),
+    libraryTarget: 'commonjs2',
+    publicPath: '../',
+    clean: true
+  },
+  //target: 'node',
+  externalsPresets: { node: true },
+  externals: [nodeExternals()],
+  module: {
+    rules: [
+      {test: /\.(tsx|ts|jsx|js)$/, exclude: /node_modules/, use: {loader: 'babel-loader', options: {presets: ['@babel/preset-env', '@babel/preset-react']}}},
+      {test: /\.(le|c)ss$/, use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"]},
+      {test: /\.(jpg|gif|png|svg)$/, type: 'asset/resource', generator: { filename: 'images/[hash][ext][query]'}},
+      {test: /\.(ttf|eot|woff(2)?)(\?v=\d+\.\d+\.\d+)?$/, type: 'asset/resource', generator: {filename: "fonts/[hash][ext][query]"}},
+    ]
+  },
+  resolve: {
+    extensions: [".jsx", ".js", ".css", ".less", "*"]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "css/[name].css"
+    }),
+    new LodashModuleReplacementPlugin,
+    new GeneratePackageJsonPlugin(basePackage),
+    new CopyPlugin({
+      patterns: [
+        {from: "src/template.html", to: "[name][ext]"},
+        {from: "src/plugins", to: "plugins/[name][ext]"},
+        {from: "src/static", to: "static/"},
+      ]
+    })
+  ]
+};

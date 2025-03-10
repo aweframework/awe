@@ -1,0 +1,16 @@
+#page-home h1.application-logo {
+  background: url("../../images/logos/awe-logo2.svg") no-repeat center center;
+  background-size: contain;
+  height: 44px;
+  width: 200px;
+  margin: 0;
+}
+
+#page-home h1.application-logo span {
+  display: none;
+}
+
+#page-home ul.navbar {
+  margin: 0;
+  min-height: 4rem;
+}
