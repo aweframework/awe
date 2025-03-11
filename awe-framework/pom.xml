@@ -27,7 +27,8 @@
     <module>awe-testing</module>
     <module>awe-modules</module>
     <module>awe-starters</module>
-    <module>awe-boot-archetype</module>
+    <module>awe-boot-angular-archetype</module>
+    <module>awe-boot-react-archetype</module>
   </modules>
 
   <reporting>

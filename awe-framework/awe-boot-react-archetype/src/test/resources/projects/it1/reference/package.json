@@ -1,0 +1,52 @@
+{
+  "name": "test",
+  "version": "2.1-SNAPSHOT",
+  "description": "",
+  "main": "src/main/resources/webpack",
+  "license": "SEE LICENSE IN ./../LICENSE.md",
+  "scripts": {
+    "test-dev": "yarn install && webpack --config webpack.dev.js",
+    "test-prod": "yarn install && webpack --config webpack.prod.js"
+  },
+  "dependencies": {
+    "awe-react-client": "^1.0.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-transform-object-assign": "^7.8.3",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/types": "^7.26.9",
+    "@types/react": "^16.9.49",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-redux": "^7.1.33",
+    "babel-loader": "8.4.1",
+    "babel-plugin-array-includes": "^2.0.3",
+    "babel-plugin-istanbul": "7.0.0",
+    "babel-plugin-object-values-to-object-keys": "^1.0.2",
+    "babel-plugin-transform-object-entries": "^1.0.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "edge-launcher": "1.2.2",
+    "eslint": "^9.20.1",
+    "exports-loader": "^5.0.0",
+    "html-webpack-plugin": "^5.6.3",
+    "html-webpack-plugin-inject-thyme-leaf-tags": "^1.0.3",
+    "jsdoc": "4.0.4",
+    "jsdoc-webpack-plugin": "^0.3.0",
+    "less": "4.2.0",
+    "less-loader": "12.2.0",
+    "lodash-webpack-plugin": "0.11.6",
+    "mini-css-extract-plugin": "2.9.1",
+    "postcss": "8.4.47",
+    "postcss-loader": "8.1.1",
+    "source-map-loader": "^5.0.0",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-merge": "6.0.1",
+    "yarn": "^1.22.21"
+  }
+}
