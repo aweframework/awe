@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.0.6
+*11/03/2025*
+
+- Fix error when translating undefined label. [MR #75](https://gitlab.com/aweframework/awe-react/-/merge_requests/75) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.5
 *26/11/2024*
 
