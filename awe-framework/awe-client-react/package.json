@@ -1,13 +1,18 @@
 {
   "name": "awe-react-module",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "main.jsx",
   "scripts": {
     "test": "karma start",
     "react-client-dev": "yarn install && webpack --config webpack.dev.js",
     "react-client-prod": "yarn install && webpack --config webpack.prod.js"
   },
-  "keywords": ["AWE", "Framework", "React", "Client"],
+  "keywords": [
+    "AWE",
+    "Framework",
+    "React",
+    "Client"
+  ],
   "author": "Pablo Javier García Mora",
   "license": "ISC",
   "description": "AWE React client",
