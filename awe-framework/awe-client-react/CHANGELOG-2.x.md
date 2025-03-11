@@ -1,4 +1,7 @@
 
+# Changelog for AWE React 1.0.7
+*11/03/2025*
+
 # Changelog for AWE React 1.0.6
 *11/03/2025*
 
