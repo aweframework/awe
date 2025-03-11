@@ -22,7 +22,7 @@ Please visit us at [https://docs.aweframework.com](https://docs.aweframework.com
 
 ## Getting Started
 
-This is a multi module maven project. Import as maven project with your favorite IDE to contribute. If you want create your first AWE project, use maven archetype `awe-boot-archetype`.
+This is a multi module maven project. Import as maven project with your favorite IDE to contribute. If you want create your first AWE project, use maven archetype `awe-boot-angular-archetype`.
 
 ```
 mvn -B archetype:generate \

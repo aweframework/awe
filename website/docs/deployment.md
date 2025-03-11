@@ -11,7 +11,7 @@ This section covers some of the more common deployment scenarios.
 
 ## Deploying in Java Archive (JAR) as a standalone application
 
-Awe applications can easily be packaged into JAR files and deployed as standalone applications. This is done by the `spring-boot-maven-plugin`. The plugin is automatically added to pom.xml using `awe-boot-archetype` maven archetype.
+Awe applications can easily be packaged into JAR files and deployed as standalone applications. This is done by the `spring-boot-maven-plugin`. The plugin is automatically added to pom.xml using `awe-boot-angular-archetype` maven archetype.
 
 ```xml
 <build>
