@@ -395,6 +395,14 @@ Chrome IT Scheduler:
     TEST_TAGS: SchedulerIT
     TEST_PORT: 6308
 
+gemnasium-maven-dependency_scanning:
+  stage: test
+  rules:
+    - <<: *if-default
+  dependencies: ["Build project"]
+  variables:
+    MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
+
 ##############################
 # Analysis stage
 ##############################
@@ -433,14 +441,6 @@ Launch Sonar:
     expire_in: 1 week
   rules:
     - <<: *if-default
-
-gemnasium-maven-dependency_scanning:
-  stage: test
-  rules:
-    - <<: *if-default
-  dependencies: ["Build project"]
-  variables:
-    MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
 
 ##############################
 # Site stage
