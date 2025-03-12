@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.7
+*12/03/2025*
+
+- Add frontend documentation and a new awe-react archetype. [MR #547](https://gitlab.com/aweframework/awe/-/merge_requests/547) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.6
 *05/03/2025*
 
