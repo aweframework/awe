@@ -1,44 +1,10 @@
 import _ from "lodash";
 
-import {addLocale} from "primereact/api";
-
 /**
  * Date utility functions
  * @category Utilities
  * @namespace Dates
  */
-
-/**
- * Init date locales
- * @memberOf Dates
- */
-export function initDateLocales() {
-  addLocale('es', {
-    firstDayOfWeek: 1,
-    dayNames: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
-    dayNamesShort: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
-    dayNamesMin: ["D", "L", "M", "X", "J", "V", "S"],
-    monthNames: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
-    monthNamesShort: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-    today: 'Hoy',
-    clear: 'Limpiar',
-    dateFormat: 'dd/mm/yy',
-    weekHeader: 'Sm'
-  });
-
-  addLocale('fr', {
-    firstDayOfWeek: 1,
-    dayNames: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
-    dayNamesShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
-    dayNamesMin: ["D", "L", "M", "X", "J", "V", "S"],
-    monthNames: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-    monthNamesShort: ["Jan", "Feb", "Mar", "Avr", "Mai", "Jui", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"],
-    today: "Aujourd'hui",
-    clear: 'Nettoyer',
-    dateFormat: 'dd/mm/yy',
-    weekHeader: 'Sm'
-  });
-}
 
 /**
  * Transform string to date

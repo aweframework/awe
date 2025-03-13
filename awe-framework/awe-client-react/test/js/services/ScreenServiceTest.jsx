@@ -24,7 +24,7 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Launch screen action erasing the token
   it('should launch a screen action erasing the token', function() {
-    service.screen({parameters:{language:"es", theme:"clean", token: null}, context: "screen", target: "signin", reload: false}, props);
+    service.screen({parameters:{language:"es-ES", theme:"clean", token: null}, context: "screen", target: "signin", reload: false}, props);
     expect(historyList.length).toBe(1);
     expect(historyList[0]).toBe("/screen/signin");
 

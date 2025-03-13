@@ -3,7 +3,7 @@ import React from "react";
 import {renderWithProviders} from "../test-utils";
 import AweChart from "../../../src/components/AweChart";
 
-import "../../../src/i18n/highcharts";
+import "../../../src/i18n/i18n";
 
 describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
 
