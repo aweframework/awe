@@ -12,9 +12,8 @@ import HighchartsAccesibility from 'highcharts/modules/accessibility';
 import {bindMethods} from "../utilities";
 import _ from "lodash";
 
-import {getHighchartsLocale} from "../i18n/highcharts";
-
 import "./AweChart.less";
+import {localeOptions} from "primereact/api";
 
 /**
  * List of magnitudes
@@ -73,7 +72,7 @@ function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, a
   let fixedOptions = {
     backgroundColor: 'rgba(0, 0, 0, 0)',
     ...chartOptions,
-    lang: getHighchartsLocale(settings.language)
+    lang: localeOptions(settings.language)
   };
   // Chart title
   if (title) {
@@ -185,7 +184,7 @@ class AweChart extends AweComponent {
     bindMethods(this, ["afterChartCreated", "onAnimationEnd"]);
 
     // Set language
-    Highcharts.setOptions({lang: getHighchartsLocale(props.settings.language)});
+    Highcharts.setOptions({lang: localeOptions(props.settings.language)});
   }
 
   /**
@@ -221,7 +220,7 @@ class AweChart extends AweComponent {
     const {language} = this.props.settings;
     if (prevProps.settings.language !== language) {
       Highcharts.setOptions({
-        lang: getHighchartsLocale(language),
+        lang: localeOptions(language),
       });
       this.redraw = () => null;
     } else {

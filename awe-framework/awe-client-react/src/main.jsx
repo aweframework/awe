@@ -47,7 +47,7 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
         loadPath: `${getContextPath()}/locales/{{lng}}`
       },
       lng: settings.language,
-      fallbackLng: "en",
+      fallbackLng: "en-GB",
 
       interpolation: {
         escapeValue: false

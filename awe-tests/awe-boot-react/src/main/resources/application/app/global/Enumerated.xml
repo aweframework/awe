@@ -10,20 +10,6 @@
 
 <enumerated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd">
 
-  <!-- LANGUAGES -->
-  <group id="Lan">
-    <option label="ENUM_LAN_ES" value="es" />
-    <option label="ENUM_LAN_EN" value="en" />
-    <option label="ENUM_LAN_FR" value="fr" />
-  </group>
-
-  <!-- LANGUAGES -->
-  <group id="LanUsr">
-    <option label="ENUM_LAN_ES" value="ESP" />
-    <option label="ENUM_LAN_EN" value="ENG" />
-    <option label="ENUM_LAN_FR" value="FRA" />
-  </group>
-
   <!-- MATRIX TEST TYPE -->
   <group id="EnuAweSelMat">
     <option label="ENUM_MATRIX_STATIC" value="StaMat" />
