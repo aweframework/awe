@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.0.8
+*13/03/2025*
+
+- Allow to add locales from generated apps. [MR #77](https://gitlab.com/aweframework/awe-react/-/merge_requests/77) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.7
 *11/03/2025*
 
