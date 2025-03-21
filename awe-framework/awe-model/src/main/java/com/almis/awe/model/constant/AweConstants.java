@@ -259,6 +259,7 @@ public class AweConstants {
   public static final String RANDOM_ALGORITHM = "SHA1PRNG";
 
   // Actions
+  public static final String WAIT_ACTION = "wait";
   public static final String SCREEN = "screen";
   public static final String REDIRECT = "redirect";
   public static final String CHANGE_LANGUAGE = "change-language";

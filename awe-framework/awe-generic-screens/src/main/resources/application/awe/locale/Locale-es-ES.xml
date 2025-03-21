@@ -527,7 +527,7 @@
   <locale name="ERROR_MESSAGE_SEQUENCE_NOT_UPDATED" value="La secuencia {0} no ha podido ser actualizada"/>
   <locale name="ERROR_MESSAGE_SERVER_NOT_SUPPORTED" value="El servidor no es compatible"/>
   <locale name="ERROR_MESSAGE_SERVICE_NOT_FOUND" value="El servicio no ha sido definido"/>
-  <locale name="ERROR_MESSAGE_SESSION_EXPIRED" value="Tu conexión ha caducado. Por favor, inicie sesión de nuevo."/>
+  <locale name="ERROR_MESSAGE_SESSION_EXPIRED" value="Su conexión ha caducado. Por favor, inicie sesión de nuevo."/>
   <locale name="ERROR_MESSAGE_SET_SESSION_OBJECT" value="Ha habido un problema tratando de almacenar el objecto con clave -{0}- en la cache de sesión"/>
   <locale name="ERROR_MESSAGE_SET_SESSION_VARIABLE" value="Ha habido un problema tratando de almacenar el valor -{0}- en la variable de sesión -{1}-"/>
   <locale name="ERROR_MESSAGE_SINGLE_MAINTAIN" value="El mantenimiento de la sentencia individual ha fallado. [{0}]"/>

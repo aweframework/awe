@@ -11,8 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -91,9 +90,10 @@ public class ScreenDataController {
    * @param exc Exception to handle
    */
   @ExceptionHandler(AWESessionException.class)
-  public ResponseEntity<String> handleSession(AWESessionException exc) {
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public AWESessionException handleSession(AWESessionException exc) {
     log.error("Connection expired", exc);
-    return ResponseEntity.status(HttpStatusCode.valueOf(401)).body(exc.getMessage()) ;
+    return exc;
   }
 
   /**

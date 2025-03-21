@@ -40,6 +40,10 @@ aweApplication.factory('ServerData',
               .then(screenData => {
                 Storage.put("screenData-" + view, screenData.data);
                 return screenData.data.template;
+              })
+              .catch(function (response) {
+                const actions = $utilities.manageRestError({status: response?.status, title: response?.data?.title, message: response?.data?.message}, $log);
+                ActionController.addActionList(actions, false, {address: {view: "base"}});
               });
         },
         /**

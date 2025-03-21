@@ -197,7 +197,6 @@ aweApplication.factory('Ajax',
          */
         manageError: function (error, action) {
           let target = action.attr("callbackTarget");
-          let actions;
 
           // Finish call action (cancel)
           $actionController.closeAllActions();
@@ -209,58 +208,8 @@ aweApplication.factory('Ajax',
           }
 
           // Handle by error status. Define actions to manage errors
-          switch (error.status) {
-            case 401: // Unauthorized
-              actions = [{
-                type: 'end-load',
-                address: target
-              }, {
-                type: 'message',
-                parameters: {
-                  type: "error",
-                  title: error.data.error,
-                  message: error.data.message
-                }
-              }, {
-                type: "screen",
-                parameters: {
-                  screen: "/",
-                }
-              }];
-              // Log error output
-              $log.error("Session expired", error);
-              break;
-            case 403: // Forbidden
-              actions = [{
-                type: 'end-load',
-                address: target
-              }, {
-                type: 'message',
-                parameters: {
-                  type: "error",
-                  title: error.data.error,
-                  message: error.data.message
-                }
-              }];
-              // Log error output
-              $log.error("Forbidden access", error);
-              break;
-            case -1: // Disconnected
-            default:
-              actions = [{
-                type: 'end-load',
-                address: target
-              }, {
-                type: 'message',
-                parameters: {
-                  type: "error",
-                  title: "ERROR_TITLE_INVALID_CONNECTION",
-                  message: "ERROR_MESSAGE_INVALID_CONNECTION"
-                }
-              }];
-              // Log error output
-              $log.error("Connection has been lost with the server", error);
-          }
+          const actions = $utilities.manageRestError({status: error?.status, title: error?.data?.error, message: error?.data?.message}, $log, target);
+
           $actionController.addActionList(actions, false, {address: {view: "base"}});
         }
       };

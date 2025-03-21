@@ -141,7 +141,7 @@ class AweSessionDetailsTest {
     aweSessionDetails.onLogoutSuccess();
     verify(clientTracker, times(1)).removeObservers();
     verify(aweSession, times(9)).removeParameter(ArgumentMatchers.anyString());
-    verify(broadcastService, times(3)).broadcastMessageToUID(anyString(), any(ClientAction.class), any(ClientAction.class), any(ClientAction.class));
+    verify(broadcastService, times(3)).broadcastMessageToUID(anyString(), any(ClientAction.class), any(ClientAction.class), any(ClientAction.class), any(ClientAction.class));
     verify(clientTracker, times(1)).removeObservers();
   }
 }
