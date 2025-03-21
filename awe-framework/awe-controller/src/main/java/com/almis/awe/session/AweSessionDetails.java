@@ -93,14 +93,17 @@ public class AweSessionDetails extends ServiceConfig {
 
     // Send logout broadcast to other connections
     connectionTracker.getUserConnectionsFromSession(user, getSession().getSessionId())
-        .stream()
-        .filter(StringUtils::isNotBlank)
-        .filter(c -> !c.equalsIgnoreCase(getRequest().getToken()))
-        .forEach(c -> broadcastService.broadcastMessageToUID(c, new ClientAction(SCREEN)
-                .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
-                .addParameter(JSON_SCREEN, "/"),
-            new ClientAction(CHANGE_LANGUAGE).addParameter(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault()),
-            new ClientAction(CHANGE_THEME).addParameter(SESSION_THEME, baseConfigProperties.getTheme())));
+            .stream()
+            .filter(StringUtils::isNotBlank)
+            .filter(c -> !c.equalsIgnoreCase(getRequest().getToken()))
+            .forEach(c -> broadcastService.broadcastMessageToUID(c,
+                    new ClientAction(WAIT_ACTION)
+                            .addParameter("target", 1000),
+                    new ClientAction(SCREEN)
+                            .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
+                            .addParameter(JSON_SCREEN, "/"),
+                    new ClientAction(CHANGE_LANGUAGE).addParameter(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault()),
+                    new ClientAction(CHANGE_THEME).addParameter(SESSION_THEME, baseConfigProperties.getTheme())));
 
     // Remove cometUID from user session
     connectionTracker.removeAllConnectionsFromUserSession(user, getSession().getSessionId());

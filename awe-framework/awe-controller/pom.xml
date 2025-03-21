@@ -202,6 +202,10 @@
       <version>0.23.0</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.springframework.session</groupId>
+          <artifactId>spring-session-core</artifactId>
+      </dependency>
   </dependencies>
 
   <build>

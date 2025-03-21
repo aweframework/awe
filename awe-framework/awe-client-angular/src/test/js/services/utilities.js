@@ -105,4 +105,18 @@ describe('awe-framework/awe-client-angular/src/test/js/services/utilities.js', f
     // Assert
     expect(element.trigger).toHaveBeenCalledWith("scroll");
   });
+
+  it('should manage a rest error', function () {
+    const actions1 = $utilities.manageRestError({status: 401, title: "", message: ""}, {error: () => ""});
+    expect(actions1.length).toEqual(2);
+
+    const actions2 = $utilities.manageRestError({status: 403, title: "", message: ""}, {error: () => ""}, "tutu");
+    expect(actions2.length).toEqual(2);
+
+    const actions3 = $utilities.manageRestError({status: -1, title: "", message: ""}, {error: () => ""}, "tutu");
+    expect(actions3.length).toEqual(2);
+
+    const actions4 = $utilities.manageRestError({status: 401, title: "", message: ""}, {error: () => ""}, "tutu");
+    expect(actions4.length).toEqual(3);
+  });
 });

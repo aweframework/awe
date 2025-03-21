@@ -1054,6 +1054,60 @@ aweApplication.factory('AweUtilities',
               }});
             });
           }
+        },
+        /**
+         * Manage REST error
+         * @param error
+         * @param $log
+         * @param target
+         * @returns {[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title: string, message: string}}]|[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title, message}}]|[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title, message}},{type: string, parameters: {screen: string}}]}
+         */
+        manageRestError: function (error, $log, target = undefined) {
+          const endLoad = target ? [{
+            type: 'end-load',
+            address: target
+          }] : [];
+          switch (error.status) {
+            case 401: // Unauthorized
+              // Log error output
+              $log.error("Session expired", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.title,
+                  message: error.message
+                }
+              }, {
+                type: "screen",
+                parameters: {
+                  screen: "/",
+                }
+              }];
+            case 403: // Forbidden
+              // Log error output
+              $log.error("Forbidden access", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.title,
+                  message: error.message
+                }
+              }];
+            case -1: // Disconnected
+            default:
+              // Log error output
+              $log.error("Connection has been lost with the server", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: "ERROR_TITLE_INVALID_CONNECTION",
+                  message: "ERROR_MESSAGE_INVALID_CONNECTION"
+                }
+              }];
+          }
         }
       };
       return Utilities;

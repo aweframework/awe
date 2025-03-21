@@ -58,6 +58,14 @@
         <targetPath>${project.build.directory}/classes/templates</targetPath>
         <filtering>true</filtering>
       </resource>
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+        <targetPath>${project.build.directory}/classes/static</targetPath>
+        <includes>
+          <include>index.html</include>
+       </includes>
+        <filtering>true</filtering>
+      </resource>
     </resources>
 
     <plugins>
