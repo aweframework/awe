@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.8
+*24/03/2025*
+
+- Fix spring session issue with angular engine. [MR #548](https://gitlab.com/aweframework/awe/-/merge_requests/548) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.7
 *12/03/2025*
 

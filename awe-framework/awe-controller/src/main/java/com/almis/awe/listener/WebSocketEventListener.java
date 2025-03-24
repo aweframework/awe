@@ -13,7 +13,7 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.security.Principal;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,8 +49,13 @@ public class WebSocketEventListener {
     log.debug("[WebSocket Connect Event] User: {}", user);
     if (user != null) {
       String token = Objects.requireNonNull(accessor.getNativeHeader(AweConstants.SESSION_CONNECTION_HEADER)).get(0);
-      connectionTracker.initializeUserConnections(user, token, (String) Objects.requireNonNull(accessor.getSessionAttributes()).get("HTTP.SESSION.ID"));
+      connectionTracker.initializeUserConnections(user, token, getSessionId(accessor.getSessionAttributes()));
     }
+  }
+
+  private String getSessionId(Map<String, Object> sessionAttributes) {
+    return (String) Optional.ofNullable(sessionAttributes.get("SPRING.SESSION.ID"))
+            .orElse(sessionAttributes.get("HTTP.SESSION.ID"));
   }
 
   /**
