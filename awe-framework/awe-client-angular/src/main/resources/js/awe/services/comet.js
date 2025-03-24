@@ -117,6 +117,11 @@ aweApplication.factory('Comet',
                   console.warn("Session disconnected. Returning to signin screen", evn);
                   actionController.addActionList([
                     {
+                      type: "screen",
+                      async: true,
+                      silent: true,
+                    },
+                    {
                       type: "message",
                       async: true,
                       silent: true,
@@ -126,7 +131,6 @@ aweApplication.factory('Comet',
                         message: "ERROR_MESSAGE_SESSION_EXPIRED"
                       }
                     },
-                    {type: "logout"},
                   ], true, {});
                 }
                 break;
