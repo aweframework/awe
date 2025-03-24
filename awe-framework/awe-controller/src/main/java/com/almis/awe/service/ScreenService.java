@@ -80,7 +80,6 @@ public class ScreenService extends ServiceConfig {
     } catch (AWESessionException exc) {
       screenData = generateScreenDataError(exc);
       screenData.addError(exc);
-      screenData.addAction(new ClientAction("logout"));
     } catch (AWException exc) {
       screenData = generateScreenDataError(exc);
     }
