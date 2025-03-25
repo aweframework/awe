@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.9
+*25/03/2025*
+
+- Fix logout issue. [MR #549](https://gitlab.com/aweframework/awe/-/merge_requests/549) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.8
 *24/03/2025*
 
