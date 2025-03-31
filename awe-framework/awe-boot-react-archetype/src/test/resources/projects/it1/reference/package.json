@@ -9,7 +9,7 @@
     "test-prod": "yarn install && webpack --config webpack.prod.js"
   },
   "dependencies": {
-    "awe-react-client": "^1.0.7"
+    "awe-react-client": "^1.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.26.9",
