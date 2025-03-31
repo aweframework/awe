@@ -7,5 +7,6 @@
 <!--$Id$-->
 
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
+  <locale name="SCREEN_TEXT_INSERT_USER" value="Introduce tu usuario"/>
   <locale name="PARAMETER_SELECT_LANGUAGE" value="Seleccione un idioma"/>
 </locales>

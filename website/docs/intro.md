@@ -27,8 +27,9 @@ You must have Maven 3.x installed on your computer and **JDK 17** or higher
 
 ## Getting Started
 
-This is a multi module maven project. Import as maven project with your favorite IDE to contribute. If you want create your first AWE project, use maven archetype `awe-boot-angular-archetype` with version [![Version](https://img.shields.io/maven-central/v/com.almis.awe/awe-starter-parent.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.almis.awe%22%20AND%20a:%22awe-starter-parent%22)
+This is a multi-module maven project. Import as maven project with your favorite IDE to contribute. If you want to create your first AWE project, use maven archetype `awe-boot-angular-archetype` or `awe-boot-react-archetype` with version [![Version](https://img.shields.io/maven-central/v/com.almis.awe/awe-starter-parent.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.almis.awe%22%20AND%20a:%22awe-starter-parent%22)
 
+### AWE with AngularJS
 ```bash
 mvn -B archetype:generate \
  -DarchetypeGroupId=com.almis.awe \
@@ -37,6 +38,17 @@ mvn -B archetype:generate \
  -DgroupId=com.mycompany.app \
  -DartifactId=my-app \
  -Dversion=1.0-SNAPSHOT 
+```
+
+### AWE with ReactJS
+```bash
+mvn -B archetype:generate \
+ -DarchetypeGroupId=com.almis.awe \
+ -DarchetypeArtifactId=awe-boot-react-archetype \
+ -DarchetypeVersion=[Archetype version]
+ -DgroupId=com.mycompany.app \
+ -DartifactId=my-app \
+ -Dversion=1.0-SNAPSHOT
 ```
 
 ## Built With
