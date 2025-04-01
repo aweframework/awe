@@ -134,15 +134,17 @@
   <query id="QueryStaticVariableInField">
     <table id="AweModPro"/>
     <field id="IdeModPro"/>
-    <field variable="var"/>
+    <field variable="var" alias="FieldVar"/>
     <variable id="var" type="INTEGER" value="1"/>
+    <order-by field="IdeModPro" type="ASC"/>
   </query>
 
   <query id="QueryVariableInField">
     <table id="AweModPro"/>
     <field id="IdeModPro"/>
-    <field variable="var"/>
+    <field variable="var" alias="FieldVar"/>
     <variable id="var" type="INTEGER" name="variable"/>
+    <order-by field="IdeModPro" type="ASC"/>
   </query>
 
   <query id="SimpleGetAllNoAlias">
@@ -719,6 +721,7 @@
     <field id="Nam" alias="value"/>
     <field id="Act" alias="Act" table="a"/>
     <computed format="[Act]" alias="ActTxt" translate="Es1Es0"/>
+    <order-by field="Nam" type="DESC"/>
   </query>
 
   <query id="ComputedEvalString">
@@ -2772,7 +2775,7 @@
   <query id="testSum1">
     <table id="AweThm"/>
     <constant value="1" type="LONG" function="SUM" alias="sum1"/>
-    <constant value="1" type="LONG" function="SUM" alias="sum1"/>
+    <constant value="1" type="LONG" function="SUM" alias="sum2"/>
     <group-by field="Nam"/>
   </query>
 
@@ -3161,6 +3164,18 @@
     <table id="AwePro"/>
     <field id="Nam" alias="name"/>
     <field id="IdePro" alias="value"/>
+  </query>
+
+  <query id="test-data-pagination" managed-pagination="true">
+    <table id="HISAweDbs"/>
+    <field id="HISope" alias="name"/>
+    <field id="Als" alias="email"/>
+  </query>
+
+  <query id="test-data-pagination-no-managed" managed-pagination="false">
+    <table id="HISAweDbs"/>
+    <field id="HISope" alias="name"/>
+    <field id="Als" alias="email"/>
   </query>
 
 </queries>

@@ -703,7 +703,8 @@ public class DataListBuilder extends ServiceConfig {
       int endRow = (int) Math.min(page * max, rows.size());
 
       // Retrieve sublist
-      dataList.setRows(rows.subList(startRow, endRow));
+      //dataList.setRows(rows.subList(startRow, endRow));
+      dataList.setRows(rows.stream().skip(startRow).limit((long) endRow - startRow).toList());
     }
   }
 

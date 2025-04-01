@@ -303,7 +303,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseQueryVariableInField() throws Exception {
     String queryName = "QueryVariableInField";
     String variables = "\"variable\": 1";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"IdeModPro\":62,\"1\":1},{\"IdeModPro\":65,\"1\":1},{\"IdeModPro\":74,\"1\":1},{\"IdeModPro\":937,\"1\":1}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"FieldVar\":1,\"IdeModPro\":62,\"id\":1},{\"FieldVar\":1,\"IdeModPro\":65,\"id\":2},{\"FieldVar\":1,\"IdeModPro\":74,\"id\":3},{\"FieldVar\":1,\"IdeModPro\":937,\"id\":4}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     logger.debug(result);
@@ -319,7 +319,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseQueryStaticVariableInField() throws Exception {
     String queryName = "QueryStaticVariableInField";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"IdeModPro\":62,\"1\":1},{\"IdeModPro\":65,\"1\":1},{\"IdeModPro\":74,\"1\":1},{\"IdeModPro\":937,\"1\":1}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"FieldVar\":1,\"IdeModPro\":62,\"id\":1},{\"FieldVar\":1,\"IdeModPro\":65,\"id\":2},{\"FieldVar\":1,\"IdeModPro\":74,\"id\":3},{\"FieldVar\":1,\"IdeModPro\":937,\"id\":4}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertResultJson(queryName, result, 4);
@@ -1882,7 +1882,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseComputeAndTranslate() throws Exception {
     String queryName = "ComputeAndTranslate";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":1,\"value\":\"sunset\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":2,\"value\":\"sky\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":3,\"value\":\"eclipse\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":4,\"value\":\"grass\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":5,\"value\":\"sunny\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":6,\"value\":\"purple-hills\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":7,\"value\":\"frost\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":8,\"value\":\"fresh\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":9,\"value\":\"silver\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":10,\"value\":\"clean\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":11,\"value\":\"default\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":12,\"value\":\"adminflare\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":13,\"value\":\"dust\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":14,\"value\":\"white\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":15,\"value\":\"asphalt\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":16,\"value\":\"amazonia\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":1,\"value\":\"white\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":2,\"value\":\"sunset\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":3,\"value\":\"sunny\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":4,\"value\":\"sky\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":5,\"value\":\"silver\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":6,\"value\":\"purple-hills\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":7,\"value\":\"grass\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":8,\"value\":\"frost\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":9,\"value\":\"fresh\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":10,\"value\":\"eclipse\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":11,\"value\":\"dust\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":12,\"value\":\"default\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":13,\"value\":\"clean\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":14,\"value\":\"asphalt\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":15,\"value\":\"amazonia\"},{\"Act\":1,\"ActTxt\":\"Yes\",\"id\":16,\"value\":\"adminflare\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     logger.warn(result);
@@ -2678,6 +2678,36 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
+  void testDatabaseManagedPaginationSQL_ON() throws Exception {
+    String queryName = "test-data-pagination";
+    String variables = "\"page\": 5, \"max\": 50";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":120,\"page\":5,\"records\":6000,\"rows\":[{\"name\":\"test\",\"id\":1,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":2,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":3,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":4,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":5,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":6,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":7,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":8,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":9,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":10,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":11,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":12,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":13,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":14,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":15,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":16,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":17,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":18,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":19,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":20,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":21,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":22,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":23,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":24,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":25,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":26,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":27,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":28,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":29,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":30,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":31,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":32,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":33,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":34,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":35,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":36,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":37,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":38,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":39,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":40,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":41,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":42,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":43,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":44,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":45,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":46,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":47,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":48,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":49,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":50,\"email\":\"Theme test\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultServiceJson(queryName, result, 50, 5, 120, 6000);
+  }
+
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseManagedPaginationSQL_OFF() throws Exception {
+    String queryName = "test-data-pagination-no-managed";
+    String variables = "\"page\": 5, \"max\": 50";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":120,\"page\":5,\"records\":6000,\"rows\":[{\"name\":\"test\",\"id\":1,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":2,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":3,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":4,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":5,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":6,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":7,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":8,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":9,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":10,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":11,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":12,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":13,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":14,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":15,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":16,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":17,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":18,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":19,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":20,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":21,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":22,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":23,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":24,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":25,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":26,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":27,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":28,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":29,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":30,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":31,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":32,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":33,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":34,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":35,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":36,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":37,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":38,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":39,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":40,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":41,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":42,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":43,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":44,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":45,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":46,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":47,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":48,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":49,\"email\":\"Theme test\"},{\"name\":\"test\",\"id\":50,\"email\":\"Theme test\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultServiceJson(queryName, result, 50, 5, 120, 6000);
+  }
+
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
   void testRowNumber() throws Exception {
     assumeTrue(isInMemoryDatabase());
     testDatabaseRequest(
@@ -2788,7 +2818,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     testDatabaseRequest(
       "testSum1",
       "",
-      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"sum1\":1,\"id\":1},{\"sum1\":1,\"id\":2},{\"sum1\":1,\"id\":3},{\"sum1\":1,\"id\":4},{\"sum1\":1,\"id\":5},{\"sum1\":1,\"id\":6},{\"sum1\":1,\"id\":7},{\"sum1\":1,\"id\":8},{\"sum1\":1,\"id\":9},{\"sum1\":1,\"id\":10},{\"sum1\":1,\"id\":11},{\"sum1\":1,\"id\":12},{\"sum1\":1,\"id\":13},{\"sum1\":1,\"id\":14},{\"sum1\":1,\"id\":15},{\"sum1\":1,\"id\":16}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":16,\"rows\":[{\"sum1\":1,\"sum2\":1,\"id\":1},{\"sum1\":1,\"sum2\":1,\"id\":2},{\"sum1\":1,\"sum2\":1,\"id\":3},{\"sum1\":1,\"sum2\":1,\"id\":4},{\"sum1\":1,\"sum2\":1,\"id\":5},{\"sum1\":1,\"sum2\":1,\"id\":6},{\"sum1\":1,\"sum2\":1,\"id\":7},{\"sum1\":1,\"sum2\":1,\"id\":8},{\"sum1\":1,\"sum2\":1,\"id\":9},{\"sum1\":1,\"sum2\":1,\"id\":10},{\"sum1\":1,\"sum2\":1,\"id\":11},{\"sum1\":1,\"sum2\":1,\"id\":12},{\"sum1\":1,\"sum2\":1,\"id\":13},{\"sum1\":1,\"sum2\":1,\"id\":14},{\"sum1\":1,\"sum2\":1,\"id\":15},{\"sum1\":1,\"sum2\":1,\"id\":16}]}}},{\"type\":\"end-load\",\"parameters\":{}}]",
       16);
   }
 
