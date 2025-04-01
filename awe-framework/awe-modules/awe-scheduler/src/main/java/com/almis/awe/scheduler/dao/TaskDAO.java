@@ -39,13 +39,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -129,20 +129,7 @@ public class TaskDAO extends ServiceConfig {
    */
   @Async("schedulerTaskPool")
   public Future<Task> getTask(Integer taskId) throws AWException {
-    return getTask(taskId, null, null);
-  }
-
-  /**
-   * Load task from task id
-   *
-   * @param taskId     Task id
-   * @param launchType forced launch type
-   * @return Generated task
-   * @throws AWException Error retrieving task
-   */
-  @Async("schedulerTaskPool")
-  public Future<Task> getTask(Integer taskId, TaskLaunchType launchType) throws AWException {
-    return getTask(taskId, null, launchType);
+    return CompletableFuture.completedFuture(getTask(taskId, null));
   }
 
   /**
@@ -150,12 +137,10 @@ public class TaskDAO extends ServiceConfig {
    *
    * @param taskId     Task id
    * @param database   Database
-   * @param launchType forced launch type
    * @return Generated task
    * @throws AWException Error retrieving task
    */
-  @Async("schedulerTaskPool")
-  public Future<Task> getTask(Integer taskId, String database, TaskLaunchType launchType) throws AWException {
+  public Task getTask(Integer taskId, String database) throws AWException {
 
     // Retrieve task data
     ObjectNode parameters = queryUtil.getParameters(database, "1", "0");
@@ -184,7 +169,7 @@ public class TaskDAO extends ServiceConfig {
     }
 
     // Retrieve task
-    return new AsyncResult<>(taskBuilder.build());
+    return taskBuilder.build();
   }
 
   private Task generateTask(ServiceData taskParameters) throws AWException {
@@ -323,7 +308,6 @@ public class TaskDAO extends ServiceConfig {
    */
   public ServiceData purgeExecutionLogFiles(Integer taskId, Integer executions) throws AWException {
     ArrayNode executionsToPurge = JsonNodeFactory.instance.arrayNode();
-    String logPath = executionLogPath;
     DataList dataList = getExecutionsToPurge(taskId, executions).getDataList();
     List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
 
@@ -331,7 +315,7 @@ public class TaskDAO extends ServiceConfig {
       // Delete each task execution file
       try {
         executionsToPurge.add(taskExecution.getExecutionId());
-        Path logFilePath = getExecutionLogFilePath(logPath, taskId, taskExecution.getExecutionId());
+        Path logFilePath = getExecutionLogFilePath(executionLogPath, taskId, taskExecution.getExecutionId());
         if (logFilePath.toFile().exists()) {
           Files.delete(logFilePath);
         }
@@ -344,7 +328,7 @@ public class TaskDAO extends ServiceConfig {
     ObjectNode parameters = queryUtil.getParameters();
     parameters.set("executionId", executionsToPurge);
     parameters.put(TASK_ID, taskId);
-    if (executionsToPurge.size() > 0) {
+    if (!executionsToPurge.isEmpty()) {
       return maintainService.launchPrivateMaintain(PURGE_EXECUTION_LOGS, parameters);
     } else {
       return new ServiceData();
@@ -448,7 +432,7 @@ public class TaskDAO extends ServiceConfig {
   public ServiceData insertTask(Integer taskId) throws AWException {
     ServiceData serviceData = new ServiceData();
     try {
-      Task task = getTask(taskId).get();
+      Task task = getTask(taskId, null);
 
       // Clear file modification table from database
       if (TaskLaunchType.FILE_TRACKING.getValue().equals(task.getLaunchType())) {
@@ -467,10 +451,6 @@ public class TaskDAO extends ServiceConfig {
       serviceData
         .setTitle(getLocale(TITLE_SCHEDULER_NEW_TASK))
         .setMessage(getLocale(MESSAGE_SCHEDULER_NEW_TASK));
-
-    } catch (InterruptedException exc) {
-      Thread.currentThread().interrupt();
-      throw new AWException("Error inserting new task (interrupted): " + taskId, exc);
     } catch (Exception exc) {
       throw new AWException("Error inserting new task: " + taskId, exc);
     }
@@ -581,7 +561,6 @@ public class TaskDAO extends ServiceConfig {
     parameters.put(TASK_ID, taskId);
     ServiceData serviceData = queryService.launchPrivateQuery("getTaskExecutionList", parameters);
     long averageExecution = getAverageTime(taskId);
-    String logPath = executionLogPath;
 
     DataList dataList = serviceData.getDataList();
     for (Map<String, CellData> row : dataList.getRows()) {
@@ -594,7 +573,7 @@ public class TaskDAO extends ServiceConfig {
       CellData executionTime = row.get(TASK_EXECUTION_TIME);
       CellData launchType = row.get(TASK_LAUNCH_TYPE_LIST);
       CellData launchedBy = new CellData(getLaunchedByText(launchType.getStringValue(), row.get(TASK_LAUNCHED_BY_LIST).getStringValue()));
-      CellData executionLogPathCell = new CellData(getExecutionLogFileNode(logPath, taskId, executionId));
+      CellData executionLogPathCell = new CellData(getExecutionLogFileNode(executionLogPath, taskId, executionId));
       Date initialDate = row.get("ExeLstTim").getDateValue();
 
       if (TaskStatus.JOB_RUNNING.equals(TaskStatus.valueOf(status.getIntegerValue()))) {
@@ -747,7 +726,7 @@ public class TaskDAO extends ServiceConfig {
    */
   private void executeImmediateTask(Integer taskId, TriggerType triggerType, String launcher, TaskExecution parent) throws AWException {
     try {
-      Task task = getTask(taskId).get();
+      Task task = getTask(taskId, null);
       task.setLauncher(launcher);
       task.setParentExecution(parent);
 
@@ -765,9 +744,6 @@ public class TaskDAO extends ServiceConfig {
 
       // Schedule task
       addTaskToScheduler(task);
-    } catch (InterruptedException exc) {
-      Thread.currentThread().interrupt();
-      throw new AWException("Error launching immediate task (interrupted): " + taskId, exc);
     } catch (Exception exc) {
       throw new AWException("Error launching immediate task: " + taskId, exc);
     }
@@ -1015,7 +991,7 @@ public class TaskDAO extends ServiceConfig {
         // fill row data from scheduler parameters
         row.put(TASK_NEXT_EXECUTION, new CellData(nextTime != null ? DateUtil.dat2WebTimestamp(nextTime) : " - "));
       } else {
-        // Initialize job status to OK if its not currently running on the
+        // Initialize job status to OK if it's not currently running on the
         // scheduler
         row.put(TASK_STATUS, new CellData(TaskStatus.JOB_OK.getValue()));
 
@@ -1203,14 +1179,11 @@ public class TaskDAO extends ServiceConfig {
   private void updateParentStatus(TaskExecution execution) throws AWException {
     if (execution.getParentExecution() != null) {
       try {
-        Task parentTask = getTask(execution.getParentExecution().getTaskId()).get();
+        Task parentTask = getTask(execution.getParentExecution().getTaskId(), null);
         if (TaskStatus.JOB_ERROR.equals(TaskStatus.valueOf(execution.getStatus())) && parentTask.isSetTaskOnWarningIfDependencyError()) {
           changeStatus(parentTask, execution.getParentExecution(), TaskStatus.JOB_WARNING,
             getLocale(WARNING_MESSAGE_TASK_DEPENDENCY_ERROR, execution.getTaskId().toString(), execution.getExecutionId().toString()));
         }
-      } catch (InterruptedException exc) {
-        Thread.currentThread().interrupt();
-        throw new AWException("Error setting task status (interrupted)", exc);
       } catch (Exception exc) {
         throw new AWException("Error setting task status", exc);
       }
@@ -1227,16 +1200,12 @@ public class TaskDAO extends ServiceConfig {
    */
   private boolean checkDependencyExecution(Task task, TaskExecution execution) {
     // Check if the dependencies have to be launched
-    switch (TaskStatus.valueOf(execution.getStatus())) {
-      case JOB_OK:
-        return true;
-      case JOB_WARNING:
-        return task.isLaunchDependenciesOnWarning();
-      case JOB_ERROR:
-        return task.isLaunchDependenciesOnError();
-      default:
-        return false;
-    }
+      return switch (TaskStatus.valueOf(execution.getStatus())) {
+          case JOB_OK -> true;
+          case JOB_WARNING -> task.isLaunchDependenciesOnWarning();
+          case JOB_ERROR -> task.isLaunchDependenciesOnError();
+          default -> false;
+      };
   }
 
   /**
