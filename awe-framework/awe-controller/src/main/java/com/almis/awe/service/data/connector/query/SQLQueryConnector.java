@@ -116,7 +116,11 @@ public class SQLQueryConnector extends AbstractQueryConnector {
 
     // Get pagination
     long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong();
-    boolean paginate = query.isPaginationManaged() && (elementsPerPage > 0);
+
+    // Only manage pagination by default if there is no totalization and elements per page is greater than zero
+    boolean paginate = (query.getPaginationManaged() == null || query.isPaginationManaged()) &&
+            (query.getTotalizeList() == null || query.getTotalizeList().isEmpty()) &&
+            (elementsPerPage > 0);
 
     // Build query
     SQLQuery<Tuple> queryBuilt = builder.build();
