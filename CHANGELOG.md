@@ -1,4 +1,11 @@
 
+# Changelog for AWE 4.10.10
+*01/04/2025*
+
+- Fix sonar scheduler issues. [MR #552](https://gitlab.com/aweframework/awe/-/merge_requests/552) (Pablo Javier García Mora)
+- Error in awe-boot-react-archetype. [MR #551](https://gitlab.com/aweframework/awe/-/merge_requests/551) (Pablo Vidal Otero)
+- Change SQL managed-pagination attribute to be true by default. [MR #550](https://gitlab.com/aweframework/awe/-/merge_requests/550) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.9
 *25/03/2025*
 
