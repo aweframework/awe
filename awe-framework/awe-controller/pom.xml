@@ -67,6 +67,11 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
     </dependency>
+    <!-- Logback evaluator -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
     <!-- Email -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

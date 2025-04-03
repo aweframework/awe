@@ -73,11 +73,7 @@
       <defaultValue>anonymous</defaultValue>
     </discriminator>
     <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
-        <expression>
-          mdc.get("logUserName")!=null
-        </expression>
-      </evaluator>
+      <evaluator class="com.almis.awe.component.AweUserLogEvaluator"/>
       <OnMismatch>DENY</OnMismatch>
       <OnMatch>NEUTRAL</OnMatch>
     </filter>
