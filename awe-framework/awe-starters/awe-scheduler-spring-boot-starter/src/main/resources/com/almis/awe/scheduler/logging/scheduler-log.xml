@@ -39,11 +39,7 @@ Scheduler AWE module logback configuration provided for import
       <defaultValue>unknown</defaultValue>
     </discriminator>
     <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-      <evaluator class="ch.qos.logback.classic.boolex.JaninoEventEvaluator">
-        <expression>
-          mdc.get("logByTaskExecution")!=null
-        </expression>
-      </evaluator>
+      <evaluator class="com.almis.awe.scheduler.component.SchedulerTaskLogEvaluator"/>
       <OnMismatch>DENY</OnMismatch>
       <OnMatch>NEUTRAL</OnMatch>
     </filter>

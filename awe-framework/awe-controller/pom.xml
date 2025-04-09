@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.10.10</version>
+    <version>4.10.11</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -66,6 +66,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
+    </dependency>
+    <!-- Logback evaluator -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
     </dependency>
     <!-- Email -->
     <dependency>
