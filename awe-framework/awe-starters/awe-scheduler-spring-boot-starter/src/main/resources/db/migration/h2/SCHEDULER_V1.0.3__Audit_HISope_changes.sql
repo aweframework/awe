@@ -1,0 +1,9 @@
+-- ------------------------------------------------------
+--  UPDATE HISope columns IN audit tables
+-- ------------------------------------------------------
+ALTER TABLE HISAweSchCal ALTER COLUMN HISope SET DATA TYPE CHAR(100);
+ALTER TABLE HISAweSchCalDat ALTER COLUMN HISope SET DATA TYPE CHAR(100);
+ALTER TABLE HISAweSchSrv ALTER COLUMN HISope SET DATA TYPE CHAR(100);
+ALTER TABLE HISAweSchTsk ALTER COLUMN HISope SET DATA TYPE CHAR(100);
+ALTER TABLE HISAweSchTskLch ALTER COLUMN HISope SET DATA TYPE CHAR(100);
+ALTER TABLE HISAweSchTskPar ALTER COLUMN HISope SET DATA TYPE CHAR(100);
