@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.10.11
+*09/04/2025*
+
+- **[HAS IMPACTS]** Change HISope column in audit tables. [MR #554](https://gitlab.com/aweframework/awe/-/merge_requests/554) (Pablo Vidal Otero)
+- Update spring-boot version to 3.3.10. [MR #553](https://gitlab.com/aweframework/awe/-/merge_requests/553) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.10
 *01/04/2025*
 
