@@ -3032,12 +3032,15 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
   void testDatabaseGridsAndChartScreen() throws Exception {
+    setParameter("restriction", "administrator");
     MvcResult mvcResult = mockMvc.perform(post("/screen-data/grid-and-chart")
-        .with(csrf())
-        .content("{\"view\":\"report\"}")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON))
+                    .session(session)
+                    .with(csrf())
+                    .content("{\"view\":\"report\"}")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();

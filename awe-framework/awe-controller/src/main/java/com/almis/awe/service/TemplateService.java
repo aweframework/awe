@@ -233,7 +233,7 @@ public class TemplateService extends ServiceConfig {
     // Call generate method on all elements
     for (Element element : elementList) {
       Option option = (Option) element;
-      if (option.getLabel() != null) {
+      if (option.getLabel() != null && !option.isRestricted()) {
         // Generate option template
         templateList.add(templateDao.generateOptionHelpAsync(option, level, developers));
 
@@ -267,7 +267,7 @@ public class TemplateService extends ServiceConfig {
    * @throws AWException error generating taglist template
    */
   public TagList getTagList(String optionId, String tagListId) throws AWException {
-    Screen screen = menuService.getOptionScreen(optionId);
+    Screen screen = menuService.getAvailableOptionScreen(optionId);
     if (screen == null) {
       throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
     }
