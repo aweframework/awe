@@ -519,6 +519,8 @@
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="icon" type="xs:string" />
     <xs:attribute name="label" type="xs:string" />
+    <xs:attribute name="help" type="xs:string" />
+    <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="expandible" type="expandibleTypes" />
     <xs:attribute name="maximize" type="booleanEnum" />
   </xs:attributeGroup>
