@@ -13,6 +13,7 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
@@ -40,6 +41,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Action Controller Tests")
 @Tag("integration")
 class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
+
+  private static final String SESSION_ID = "16617f0d-97ee-4f6b-ad54-905d6ce3c328";
+  private MockHttpSession session;
+
+  /**
+   * Set parameter in session
+   *
+   * @param name  Parameter name
+   * @param value Parameter value
+   */
+  private void setParameter(String name, String value) throws Exception {
+    MvcResult mvcResult = mockMvc.perform(post(String.format("/session/set/%s", name))
+                    .with(csrf())
+                    .param("value", value)
+                    .session(session))
+            .andReturn();
+    mvcResult.getResponse().getContentAsString();
+  }
 
   /**
    * Test of launchAction method, of class ActionController.
@@ -429,16 +448,18 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
   class ScreenConfigurationTest {
 
     // Initialize parameters
-    private final String screenParameters = "{\"s\":\"e6144dad-6e67-499e-b74a-d1e600732e11\",\"option\":\"criteria-test-left\",\"view\":\"report\",\"TxtRea\":\"15:06:23\"}";
+    private final String screenParameters = "{\"s\":\"e6144dad-6e67-499e-b74a-d1e600732e11\",\"module\":\"Test\",\"option\":\"criteria-test-left\",\"view\":\"report\",\"TxtRea\":\"15:06:23\"}";
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() throws Exception {
       // Clean up
       cleanUp("CleanUpScreenConfiguration");
+      session =  new MockHttpSession(null, SESSION_ID);
+      setParameter("restriction", "administrator");
     }
 
     @AfterEach
-    public void clean() throws Exception {
+    void clean() throws Exception {
       // Clean up
       cleanUp("CleanUpScreenConfiguration");
     }
@@ -452,10 +473,11 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       String maintainName = "updateScreenConfiguration";
       String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"" + operation + "\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
       MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + maintainName)
-          .with(csrf())
-          .contentType(MediaType.APPLICATION_JSON)
-          .content("{\"module\":\"Test\",\"language\":\"en-GB\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrCnf\":1,\"GrdScrCnf.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrCnf\":[\"\"],\"IdeAweScrCnf.selected\":null,\"Scr\":[\"" + screen + "\"],\"Scr.selected\":null,\"IdeOpe\":[\"\"],\"IdeOpe.selected\":null,\"IdePro\":[\"\"],\"IdePro.selected\":null,\"Nam\":[\"" + component + "\"],\"Nam.selected\":null,\"Atr\":[\"" + attribute + "\"],\"Atr.selected\":null,\"Val\":[\"" + value + "\"],\"Val.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrCnf-id\":[\"new-row-1\"],\"GrdScrCnf-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
-          .accept(MediaType.APPLICATION_JSON))
+                      .session(session)
+                      .with(csrf())
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content("{\"module\":\"Test\",\"language\":\"en-GB\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrCnf\":1,\"GrdScrCnf.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrCnf\":[\"\"],\"IdeAweScrCnf.selected\":null,\"Scr\":[\"" + screen + "\"],\"Scr.selected\":null,\"IdeOpe\":[\"\"],\"IdeOpe.selected\":null,\"IdePro\":[\"\"],\"IdePro.selected\":null,\"Nam\":[\"" + component + "\"],\"Nam.selected\":null,\"Atr\":[\"" + attribute + "\"],\"Atr.selected\":null,\"Val\":[\"" + value + "\"],\"Val.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrCnf-id\":[\"new-row-1\"],\"GrdScrCnf-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
+                      .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().json(expected))
         .andReturn();
@@ -492,10 +514,11 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
 
       // Check screen
       mockMvc.perform(post("/screen-data/criteria-test-left")
-          .with(csrf())
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(screenParameters)
-          .accept(MediaType.APPLICATION_JSON))
+                      .session(session)
+                      .with(csrf())
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(screenParameters)
+                      .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.components[?(@.id == 'SelRea')].model.records", is(Collections.singletonList(1))))
         .andExpect(jsonPath("$.components[?(@.id == 'SelRea')].model.values[0].label", is(Collections.singletonList("ENUM_YES"))))
@@ -610,10 +633,11 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       addRestriction("INSERT", "CrtTstLeft", "Txt", "targetAction", "TestComponentInitialLoadValue");
 
       MvcResult mvcResult = mockMvc.perform(post("/screen-data/criteria-test-left")
-          .with(csrf())
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(screenParameters)
-          .accept(MediaType.APPLICATION_JSON))
+                      .session(session)
+                      .with(csrf())
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(screenParameters)
+                      .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.components[?(@.id == 'Txt')].controller.initialLoad", is(Collections.singletonList("value"))))
         .andExpect(jsonPath("$.components[?(@.id == 'Txt')].controller.targetAction", is(Collections.singletonList("TestComponentInitialLoadValue"))))
@@ -665,6 +689,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
     private void checkAttributeComponentMatcher(String componentId, String attribute, Matcher matcher) throws Exception {
       // Get screen action and check attribute
       MvcResult mvcResult = mockMvc.perform(post("/screen-data/criteria-test-left")
+                      .session(session)
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content(screenParameters)

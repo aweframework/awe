@@ -27,6 +27,7 @@ import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -196,7 +197,9 @@ public class MenuService extends ServiceConfig {
 
     // Apply restrictions if logged in
     if (getSession().isAuthenticated()) {
-      String module = getSession().getParameter(String.class, AweConstants.SESSION_MODULE);
+      String module = Optional.ofNullable(getRequest().getParameter(SESSION_MODULE))
+              .map(JsonNode::textValue)
+              .orElse(getSession().getParameter(String.class, AweConstants.SESSION_MODULE));
 
       // Apply module restrictions
       new ScreenRestrictionGenerator().applyModuleRestriction(module, restrictedMenu);
@@ -1132,7 +1135,7 @@ public class MenuService extends ServiceConfig {
    */
   private List<Option> getAllAvailableOptions() throws AWException {
     // Get options
-    Menu menu = getMenuWithRestrictions();
+    Menu menu = getMenuWithAllRestrictions();
     List<Option> optionList = menu.getElementsByType(Option.class);
 
     // Add public menu options if authenticated
