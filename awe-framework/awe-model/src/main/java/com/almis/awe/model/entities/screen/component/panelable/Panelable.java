@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import lombok.EqualsAndHashCode;
@@ -20,6 +22,7 @@ import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +48,15 @@ import java.util.Map;
 @JsonPropertyOrder(alphabetic = true)
 public abstract class Panelable extends AbstractCriteria {
 
+  @Serial
   private static final long serialVersionUID = 4769623059339446522L;
 
   @XStreamOmitField
   private Map<String, String> tabValues;
+
+  @XStreamAlias("orientation")
+  @XStreamAsAttribute
+  private String orientation;
 
   @JsonIgnore
   @Override

@@ -277,7 +277,7 @@
     <xs:attribute name="source" type="xs:string" />
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="type" type="xs:string" />
-    <xs:attribute name="expandible" type="expandibleTypes" />
+    <xs:attribute name="expandible" type="orientationEnum" />
   </xs:attributeGroup>
   
   <!-- Accordion Attributes -->
@@ -365,7 +365,7 @@
   <!-- Chart Legend Attributes -->
   <xs:attributeGroup name="chartLegendAttr">
     <xs:attribute name="enabled" type="booleanEnum" />
-    <xs:attribute name="layout" type="expandibleTypes" />
+    <xs:attribute name="layout" type="orientationEnum" />
     <xs:attribute name="label" type="xs:string" />
     <xs:attribute name="border-width" type="xs:string" />
     <xs:attribute name="align" type="alignEnum" />
@@ -426,7 +426,7 @@
     <xs:attribute name="type" type="xs:string" />
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="template" type="xs:string" />
-    <xs:attribute name="expandible" type="expandibleTypes" />
+    <xs:attribute name="expandible" type="orientationEnum" />
   </xs:attributeGroup>
 
   <!-- TagList Attributes -->
@@ -521,7 +521,7 @@
     <xs:attribute name="label" type="xs:string" />
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="expandible" type="expandibleTypes" />
+    <xs:attribute name="expandible" type="orientationEnum" />
     <xs:attribute name="maximize" type="booleanEnum" />
   </xs:attributeGroup>
 
@@ -531,7 +531,7 @@
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="icon" type="xs:string" />
     <xs:attribute name="label" type="xs:string" />
-    <xs:attribute name="expandible" type="expandibleTypes" />
+    <xs:attribute name="expandible" type="orientationEnum" />
     <xs:attribute name="directions" type="xs:string" />
   </xs:attributeGroup>
 
@@ -542,6 +542,7 @@
     <xs:attribute name="target-action" use="required" type="nameEnum" />
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="maximize" type="booleanEnum" />
+    <xs:attribute name="orientation" type="orientationEnum" />
   </xs:attributeGroup>
 
   <!-- Wizard Attributes -->
@@ -550,6 +551,7 @@
     <xs:attribute name="initial-load" use="required" type="initialLoadEnum" />
     <xs:attribute name="target-action" use="required" type="nameEnum" />
     <xs:attribute name="label" type="xs:string" />
+    <xs:attribute name="orientation" type="orientationEnum" />
   </xs:attributeGroup>
 
   <!-- Grid Attributes -->
@@ -721,7 +723,7 @@
   <!-- Menu Container Attributes -->
   <xs:attributeGroup name="menuContainerAttr">
     <xs:attribute name="id" type="xs:string" />
-    <xs:attribute name="type" type="menuContainerEnum" />
+    <xs:attribute name="type" type="orientationEnum" />
     <xs:attribute name="style" type="xs:string" />
   </xs:attributeGroup>
 
@@ -1406,8 +1408,8 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <!-- Menu Container Enumeration -->
-  <xs:simpleType name="menuContainerEnum">
+  <!-- Orientation Enumeration -->
+  <xs:simpleType name="orientationEnum">
     <xs:restriction base="xs:string">
       <xs:enumeration value="horizontal" />
       <xs:enumeration value="vertical" />
@@ -1439,14 +1441,6 @@
       <xs:enumeration value="float" />
       <xs:enumeration value="date" />
       <xs:enumeration value="boolean" />
-    </xs:restriction>
-  </xs:simpleType>
-
-  <!-- Expandible type Enumeration -->
-  <xs:simpleType name="expandibleTypes">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="vertical" />
-      <xs:enumeration value="horizontal" />
     </xs:restriction>
   </xs:simpleType>
 

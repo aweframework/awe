@@ -37,16 +37,17 @@ The wizard list is filled with the `value` and `label` fields of the query/enum 
 
 ### Wizard attributes
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| id          | **Required** | String    | Wizard identifier. For reference purposes |                                   |
-| label       | Optional     | String    | Wizard step text (without the number) | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| style       | Optional     | String    | Wizard CSS classes       |   |
-| initial-load | Optional   | String    | Server action call to load the wizard steps (launched at window generation) | `enum` (for [enumerated](enumerate-definition.md)), `query` (for [query call](query-definition.md)) |
-| target-action | Optional   | String    | Target to call on the server|                                                    |
-| size        | Optional     | String    | Wizard size              | `sm` (default), `md` or `lg`.                      |
-| help        | Optional     | String    | Help text for the criterion | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| help-image  | Optional     | String    | Help image for the criterion | This **must** be a image path |
+| Attribute     | Use          | Type      | Description                                                                 | Values                                                                                              |
+|---------------|--------------|-----------|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| id            | **Required** | String    | Wizard identifier. For reference purposes                                   |                                                                                                     |
+| label         | Optional     | String    | Wizard step text (without the number)                                       | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                          |
+| style         | Optional     | String    | Wizard CSS classes                                                          |                                                                                                     |
+| initial-load  | Optional     | String    | Server action call to load the wizard steps (launched at window generation) | `enum` (for [enumerated](enumerate-definition.md)), `query` (for [query call](query-definition.md)) |
+| target-action | Optional     | String    | Target to call on the server                                                |                                                                                                     |
+| size          | Optional     | String    | Wizard size                                                                 | `sm` (default), `md` or `lg`.                                                                       |
+| help          | Optional     | String    | Help text for the criterion                                                 | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                          |
+| help-image    | Optional     | String    | Help image for the criterion                                                | This **must** be a image path                                                                       |
+| orientation   | Optional     | String    | Wizard steps orientation                                                    | Default value is `vertical`                                                                         |
 
 ## Wizard panel structure
 
@@ -61,12 +62,12 @@ of the query/enumerated list set at `Wizard` element.
 
 ### Wizard panel attributes
 
-| Attribute   | Use          | Type      |  Description                |   Values                                           |
-| ----------- | ------------ |-----------|-----------------------------|----------------------------------------------------|
-| id          | **Required** | String    | Panel identifier. Must be the same as target values |                                   |
-| style       | Optional     | String    | Panel CSS classes       |   |
-| help        | Optional     | String    | Help text for the criterion | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| help-image  | Optional     | String    | Help image for the criterion | This **must** be a image path |
+| Attribute  | Use          | Type     | Description                                         | Values                                                                     |
+|------------|--------------|----------|-----------------------------------------------------|----------------------------------------------------------------------------|
+| id         | **Required** | String   | Panel identifier. Must be the same as target values |                                                                            |
+| style      | Optional     | String   | Panel CSS classes                                   |                                                                            |
+| help       | Optional     | String   | Help text for the criterion                         | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| help-image | Optional     | String   | Help image for the criterion                        | This **must** be a image path                                              |
 
 ## Examples
 
