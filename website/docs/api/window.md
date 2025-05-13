@@ -38,14 +38,16 @@ A window is a container with a title bar. It also can be maximized or restored, 
 
 ## Window attributes
 
-| Attribute  | Use      | Type    | Description                                    | Values                                                                     |
-|------------|----------|---------|------------------------------------------------|----------------------------------------------------------------------------|
-| id         | Optional | String  | Window identifier. For reference purposes      |                                                                            |
-| label      | Optional | String  | Window title                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| style      | Optional | String  | Window CSS classes                             | **Note:** Here you can use `expand` class to set the window as expandible  |
-| icon       | Optional | String  | Icon identifier                                | **Note:** You can check all iconsets at [icons](icons.md) screen           |
-| expandible | Optional | String  | How to [expand](layout.md) the window children | `vertical`, `horizontal`                                                   |
-| maximize   | Optional | Boolean | Whether to show the maximize icon or not       |                                                                            |
+| Attribute    | Use        | Type     | Description                                    | Values                                                                     |
+|--------------|------------|----------|------------------------------------------------|----------------------------------------------------------------------------|
+| id           | Optional   | String   | Window identifier. For reference purposes      |                                                                            |
+| label        | Optional   | String   | Window title                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| style        | Optional   | String   | Window CSS classes                             | **Note:** Here you can use `expand` class to set the window as expandible  |
+| icon         | Optional   | String   | Icon identifier                                | **Note:** You can check all iconsets at [icons](icons.md) screen           |
+| expandible   | Optional   | String   | How to [expand](layout.md) the window children | `vertical`, `horizontal`                                                   |
+| maximize     | Optional   | Boolean  | Whether to show the maximize icon or not       |                                                                            |
+| help         | Optional   | String   | Help text for the criterion                    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| help-image   | Optional   | String   | Help image for the criterion                   | This **must** be a image path                                              |
 
 ## Examples
 

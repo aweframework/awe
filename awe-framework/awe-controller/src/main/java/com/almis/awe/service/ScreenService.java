@@ -128,7 +128,7 @@ public class ScreenService extends ServiceConfig {
    * @throws AWException Error retrieving screen
    */
   private Screen getScreenFromOptionId(String optionId) throws AWException {
-    return optionId == null ? menuService.getDefaultScreen() : menuService.getOptionScreen(optionId);
+    return optionId == null ? menuService.getDefaultScreen() : menuService.getAvailableOptionScreen(optionId);
   }
 
   /**
