@@ -97,7 +97,13 @@ public abstract class ServiceConfig implements ApplicationContextAware {
    * @return Awe Session
    */
   public AweSession getSession() {
-    return getBean(AweSession.class);
+    try {
+      AweSession session = getBean(AweSession.class);
+      session.getUser();
+      return session;
+    } catch (Exception exc) {
+      return null;
+    }
   }
 
   /**
