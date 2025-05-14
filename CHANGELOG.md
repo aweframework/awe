@@ -1,4 +1,15 @@
 
+# Changelog for AWE 4.10.12
+*14/05/2025*
+
+- Report Scheduler (email). [MR #561](https://gitlab.com/aweframework/awe/-/merge_requests/561) (Pablo Javier García Mora)
+- Translate on computed fields inside compound fields is not working. [MR #560](https://gitlab.com/aweframework/awe/-/merge_requests/560) (Pablo Javier García Mora)
+- Create computed and compound only after filtering and pagination. [MR #559](https://gitlab.com/aweframework/awe/-/merge_requests/559) (Pablo Javier García Mora)
+- Computed fields are overwriting totalize labels. [MR #558](https://gitlab.com/aweframework/awe/-/merge_requests/558) (Pablo Javier García Mora)
+- Add orientation attribute to wizard component. [MR #557](https://gitlab.com/aweframework/awe/-/merge_requests/557) (Pablo Javier García Mora)
+- Add help and help-image attribute to window elements. [MR #556](https://gitlab.com/aweframework/awe/-/merge_requests/556) (Pablo Javier García Mora)
+- Fix menu-screen restrictions. [MR #555](https://gitlab.com/aweframework/awe/-/merge_requests/555) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.11
 *09/04/2025*
 
