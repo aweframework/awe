@@ -237,16 +237,30 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    * @throws AWException AWE exception
    */
   private void addFieldTransformations(OutputField field, DataListBuilder builder, Map<String, QueryParameter> variables) throws AWException {
+    boolean isComputedOrCompound = field instanceof Computed || field instanceof Compound;
+
     // Check transformations
-    if (field.isTransform()) {
+    if (field.isTransform() && !isComputedOrCompound) {
       TransformCellProcessor transformProcessor = new TransformCellProcessor(elements, field, numericService, encodeService);
       builder.addTransform(transformProcessor);
     }
 
     // Check translations
-    if (field.isTranslate()) {
+    if (field.isTranslate() && !isComputedOrCompound) {
       TranslateCellProcessor translateProcessor = new TranslateCellProcessor(elements, field, variables, elements.getEnumerated(field.getTranslate()));
       builder.addTranslate(translateProcessor);
+    }
+
+    // Check transformations
+    if (field.isTransform() && isComputedOrCompound) {
+      TransformCellProcessor transformProcessor = new TransformCellProcessor(elements, field, numericService, encodeService);
+      builder.addPostTransform(transformProcessor);
+    }
+
+    // Check translations
+    if (field.isTranslate() && isComputedOrCompound) {
+      TranslateCellProcessor translateProcessor = new TranslateCellProcessor(elements, field, variables, elements.getEnumerated(field.getTranslate()));
+      builder.addPostTranslate(translateProcessor);
     }
 
     // Check no print

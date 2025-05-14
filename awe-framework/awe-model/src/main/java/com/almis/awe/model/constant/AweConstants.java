@@ -110,6 +110,7 @@ public class AweConstants {
   public static final Pattern DATALIST_COMPUTED_WILDCARD = Pattern.compile("\\[([\\w]*)\\]");
   public static final String DATALIST_STRING_TYPE = "STRING";
   public static final String DATALIST_STYLE_FIELD = "_style_";
+  public static final String DATALIST_NEW_ADDED_ROW = "_new_added_";
   // Json
   public static final String JSON_LABEL_PARAMETER = "label";
   public static final String JSON_TEXT_PARAMETER = "text";
