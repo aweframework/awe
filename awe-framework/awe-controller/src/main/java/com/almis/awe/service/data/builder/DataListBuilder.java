@@ -790,8 +790,6 @@ public class DataListBuilder extends ServiceConfig {
   private void doPostProcess() throws AWException {
     AtomicInteger rowIndex = new AtomicInteger(1);
     for (Map<String, CellData> row : dataList.getRows()) {
-      boolean hasIdentifier = row.containsKey(DATALIST_IDENTIFIER);
-
       // Translate and transform on new added rows
       doEvaluate(row);
 
@@ -801,8 +799,8 @@ public class DataListBuilder extends ServiceConfig {
       }
 
       // Generate identifier only if not generated previously
-      if (identifier && !hasIdentifier) {
-        row.put(DATALIST_IDENTIFIER, new CellData(rowIndex.getAndIncrement()));
+      if (identifier) {
+        row.computeIfAbsent(DATALIST_IDENTIFIER, k -> new CellData(rowIndex.getAndIncrement()));
       }
     }
   }
