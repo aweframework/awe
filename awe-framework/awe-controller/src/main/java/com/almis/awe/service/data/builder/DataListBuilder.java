@@ -374,7 +374,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder sort(List<SortColumn> sortList) {
     this.sortList = sortList;
-    this.sort = true;
+    this.sort = sortList != null && !sortList.isEmpty();
     return this;
   }
 
@@ -402,7 +402,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder filter(List<FilterColumn> filterList) {
     this.filterList = filterList;
-    this.filter = true;
+    this.filter = filterList != null && !filterList.isEmpty();
     return this;
   }
 
@@ -414,7 +414,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder distinct(List<SortColumn> distinctList) {
     this.distinctList = distinctList;
-    this.distinct = true;
+    this.distinct = distinctList != null && !distinctList.isEmpty();
     return this;
   }
 
@@ -436,7 +436,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder totalize(List<TotalizeColumnProcessor> totalizeList) {
     this.totalizeList = totalizeList;
-    this.totalize = true;
+    this.totalize = totalizeList != null && !totalizeList.isEmpty();
     return this;
   }
 
@@ -500,28 +500,29 @@ public class DataListBuilder extends ServiceConfig {
    */
   private void transformData() throws AWException {
 
-    // Calculate computed and compounds
-    if (translate || transform || compute || compound) {
-      doEvaluate();
-    }
-
     // Filter the list
-    if (filter && filterList != null) {
+    if (filter) {
       doFilter();
     }
 
     // Get distinct values
-    if (distinct && distinctList != null) {
+    if (distinct) {
       doDistinct();
     }
 
     // Sort the final list
-    if (sort && sortList != null) {
+    if (sort) {
       doSort();
     }
 
     // Totalize
-    if (totalize && totalizeList != null) {
+    if (totalize) {
+      // Pre process fields before totalize
+      if (translate || transform || compute || compound) {
+        doPreProcess();
+      }
+
+      // Totalize
       doTotalize();
 
       // Update records (new records on totalize)
@@ -534,7 +535,7 @@ public class DataListBuilder extends ServiceConfig {
     }
 
     // Calculate transform, translate, identifiers and noPrints
-    if (postTransform || postTranslate || identifier || noPrint) {
+    if (translate || transform || compute || compound || identifier || noPrint) {
       doPostProcess();
     }
   }
@@ -748,30 +749,38 @@ public class DataListBuilder extends ServiceConfig {
   }
 
   /**
-   * Generate computes, data, compounds and identifiers
+   * Translate, transform, compute and compound before totalization
    */
-  private void doEvaluate() throws AWException {
+  private void doPreProcess() throws AWException {
     for (Map<String, CellData> row : dataList.getRows()) {
+      translateTransformComputeCompound(row);
+    }
+  }
 
-      // Transform data for this row
-      if (translate) {
-        doTranslates(row, translateList);
-      }
+  /**
+   * Apply translate, transform, compute and compounds
+   * @param row
+   * @throws AWException
+   */
+  private void translateTransformComputeCompound(Map<String, CellData> row) throws AWException {
+    // Translate rows
+    if (translate) {
+      doTranslates(row, translateList);
+    }
 
-      // Transform data for this row
-      if (transform) {
-        doTransforms(row, transformList);
-      }
+    // Transform rows
+    if (transform) {
+      doTransforms(row, transformList);
+    }
 
-      // Calculate computes for this row
-      if (compute) {
-        doComputes(row);
-      }
+    // Calculate computes for this row
+    if (compute) {
+      doComputes(row);
+    }
 
-      // Calculate compounds for this row
-      if (compound) {
-        doCompounds(row);
-      }
+    // Calculate compounds for this row
+    if (compound) {
+      doCompounds(row);
     }
   }
 
@@ -783,22 +792,12 @@ public class DataListBuilder extends ServiceConfig {
     for (Map<String, CellData> row : dataList.getRows()) {
       boolean hasIdentifier = row.containsKey(DATALIST_IDENTIFIER);
 
+      // Translate and transform on new added rows
+      doEvaluate(row);
+
       // Remove no print fields
       if (noPrint) {
         doNoPrint(row);
-      }
-
-      // Translate and transform on new added rows
-      doTranslateTransformNewAddedRows(row);
-
-      // Transform data for this row
-      if (postTranslate) {
-        doTranslates(row, postTranslateList);
-      }
-
-      // Transform data for this row
-      if (postTransform) {
-        doTransforms(row, postTransformList);
       }
 
       // Generate identifier only if not generated previously
@@ -809,26 +808,39 @@ public class DataListBuilder extends ServiceConfig {
   }
 
   /**
-   * Totalize and Translate new added rows
+   * Evaluate depending on new added rows
    * @param row New added row
    * @throws AWException
    */
-  private void doTranslateTransformNewAddedRows(Map<String, CellData> row) throws AWException {
-    boolean isTotalizeRow = row.containsKey(DATALIST_NEW_ADDED_ROW);
+  private void doEvaluate(Map<String, CellData> row) throws AWException {
+    boolean isNewAddedRow = row.containsKey(DATALIST_NEW_ADDED_ROW);
 
-    if (isTotalizeRow) {
-      // Translate totalized rows
+    if (isNewAddedRow) {
+      // Translate data for this row
       if (translate) {
         doTranslates(row, translateList);
       }
 
-      // Transform totalized rows
+      // Transform data for this row
       if (transform) {
         doTransforms(row, transformList);
       }
 
       // Remove new added flag
       row.remove(DATALIST_NEW_ADDED_ROW);
+    } else if (!totalize) {
+      // Translate rows
+      translateTransformComputeCompound(row);
+    }
+
+    // Translate data for this row on computed and compounds
+    if (postTranslate) {
+      doTranslates(row, postTranslateList);
+    }
+
+    // Transform data for this row on computed and compounds
+    if (postTransform) {
+      doTransforms(row, postTransformList);
     }
   }
 
