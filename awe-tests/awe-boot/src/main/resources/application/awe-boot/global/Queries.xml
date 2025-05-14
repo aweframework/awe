@@ -897,6 +897,27 @@
     <order-by field="IdeSitModDbs" type="DESC"/>
   </query>
 
+  <query id="TranslateAndTransformInsideComputedInsideCompounds" cacheable="true">
+    <table query="QrySitModDbsOrd" alias="TotLst"/>
+    <field id="IdeSitModDbs" table="TotLst" alias="IdeSitModDbs"/>
+    <field id="IdeSit" table="TotLst" alias="IdeSit"/>
+    <field id="NamSit" table="TotLst" alias="NamSit"/>
+    <field id="IdeMod" table="TotLst" alias="IdeMod"/>
+    <field id="NamMod" table="TotLst" alias="NamMod1" noprint="true"/>
+    <computed alias="NamMod" format="[NamMod1]"/>
+    <field id="IdeDbs" table="TotLst" alias="IdeDbs"/>
+    <field id="Als" table="TotLst" alias="Als" noprint="true"/>
+    <computed alias="Als3" format="[Als]"/>
+    <field id="Ord" table="TotLst" alias="Ord"/>
+    <field id="Ord" table="TotLst" alias="Ord3" transform="NUMBER" pattern="###,##0.00"/>
+    <compound alias="testCompound">
+      <computed alias="testComputedInsideCompoundWithTransform" format="[Ord]" eval="true" transform="NUMBER" pattern="###,##0.00"/>
+      <computed alias="testComputedInsideCompoundWithTranslate" format="1" translate="Es1Es0"/>
+    </compound>
+    <order-by field="IdeDbs" type="ASC"/>
+    <order-by field="IdeSitModDbs" type="DESC"/>
+  </query>
+
   <query id="VariableStringNull">
     <table id="AweThm"/>
     <field id="Nam" alias="value"/>

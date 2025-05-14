@@ -618,7 +618,7 @@ public class TaskDAO extends ServiceConfig {
     logFileNode.put(JSON_VALUE_PARAMETER, EncodeService.encodeSymmetric(executionLogFilePath.toString()));
     logFileNode.put(JSON_STYLE_PARAMETER, "no-btn");
     logFileNode.put(JSON_TITLE_PARAMETER, "SCHEDULER_SHOW_EXECUTION_LOG");
-    logFileNode.put(JSON_ICON_PARAMETER, "fa-file-text-o text-info");
+    logFileNode.put(JSON_ICON_PARAMETER, "file-text-o text-info");
     logFileNode.put(JSON_LABEL_PARAMETER, "");
     return logFileNode;
   }
