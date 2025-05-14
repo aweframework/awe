@@ -2,7 +2,6 @@ package com.almis.awe.service.data.processor;
 
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.queries.SqlField;
 import com.almis.awe.model.entities.queries.Totalize;
@@ -14,6 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.util.*;
+
+import static com.almis.awe.model.constant.AweConstants.DATALIST_NEW_ADDED_ROW;
+import static com.almis.awe.model.constant.AweConstants.DATALIST_STYLE_FIELD;
 
 /**
  * TransformCellProcessor class
@@ -164,11 +166,14 @@ public class TotalizeColumnProcessor implements ColumnProcessor {
 
     // Add style value
     if (totalize.getStyle() != null) {
-      newRow.put(AweConstants.DATALIST_STYLE_FIELD, new CellData(totalize.getStyle()));
+      newRow.put(DATALIST_STYLE_FIELD, new CellData(totalize.getStyle()));
     }
 
     // Add row ID
     newRow.put("id", new CellData("TOT-" + list.size()));
+
+    // Add new added flag
+    newRow.put(DATALIST_NEW_ADDED_ROW, new CellData(1));
 
     // Add row list
     list.add(newRow);

@@ -4,12 +4,13 @@
 package com.almis.awe.service.data.processor;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.almis.awe.model.constant.AweConstants.DATALIST_STYLE_FIELD;
 
 /**
  * TotalizeRowProcessor class
@@ -79,8 +80,8 @@ public class TotalizeRowProcessor implements RowProcessor {
     }
 
     // Add style value
-    if (row != null && !row.containsKey(AweConstants.DATALIST_STYLE_FIELD)) {
-      row.put(AweConstants.DATALIST_STYLE_FIELD, new CellData(""));
+    if (row != null && !row.containsKey(DATALIST_STYLE_FIELD)) {
+      row.put(DATALIST_STYLE_FIELD, new CellData(""));
     }
   }
 }

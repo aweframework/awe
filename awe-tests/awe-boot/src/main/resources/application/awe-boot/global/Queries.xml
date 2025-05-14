@@ -874,6 +874,29 @@
     <order-by field="IdeSitModDbs" type="DESC"/>
   </query>
 
+  <query id="TotalizeTotalSubtotalOfComputed" cacheable="true">
+    <table query="QrySitModDbsOrd" alias="TotLst"/>
+    <field id="IdeSitModDbs" table="TotLst" alias="IdeSitModDbs"/>
+    <field id="IdeSit" table="TotLst" alias="IdeSit"/>
+    <field id="NamSit" table="TotLst" alias="NamSit"/>
+    <field id="IdeMod" table="TotLst" alias="IdeMod"/>
+    <field id="NamMod" table="TotLst" alias="NamMod1" noprint="true"/>
+    <computed alias="NamMod" format="[NamMod1]"/>
+    <field id="IdeDbs" table="TotLst" alias="IdeDbs"/>
+    <field id="Als" table="TotLst" alias="Als" noprint="true"/>
+    <computed alias="Als3" format="[Als]"/>
+    <field id="Ord" table="TotLst" alias="Ord3" transform="NUMBER" pattern="###,##0.00"/>
+    <totalize function="SUM" label="Subtotal" field="NamMod" style="SUBTOTAL">
+      <totalize-field field="Ord3"/>
+      <totalize-by field="IdeMod"/>
+    </totalize>
+    <totalize function="SUM" label="Total" field="Als3" style="TOTAL">
+      <totalize-field field="Ord3"/>
+    </totalize>
+    <order-by field="IdeDbs" type="ASC"/>
+    <order-by field="IdeSitModDbs" type="DESC"/>
+  </query>
+
   <query id="VariableStringNull">
     <table id="AweThm"/>
     <field id="Nam" alias="value"/>
