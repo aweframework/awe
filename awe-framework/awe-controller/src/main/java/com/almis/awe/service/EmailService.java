@@ -13,6 +13,8 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -31,6 +33,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+
+import static com.almis.awe.model.constant.AweConstants.SESSION_USER;
 
 @Slf4j
 public class EmailService extends ServiceConfig {
@@ -65,7 +69,7 @@ public class EmailService extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
 
     // Get mail sender
-    JavaMailSender mailSender = getMailServer();
+    JavaMailSender mailSender = getMailServer(parameters);
 
     // Send email
     sendParsedEmail(parseEmail(getElements().getEmail(emailName).copy(), parameters), mailSender);
@@ -78,7 +82,7 @@ public class EmailService extends ServiceConfig {
 
   @Async("threadPoolTaskExecutor")
   public void sendEmail(ParsedEmail email) {
-    sendParsedEmail(email, getMailServer());
+    sendParsedEmail(email, getMailServer(JsonNodeFactory.instance.objectNode()));
   }
 
   /**
@@ -233,10 +237,13 @@ public class EmailService extends ServiceConfig {
    * Retrieve java mail server depending on user
    * @return Java Mail server
    */
-  private JavaMailSender getMailServer() {
-    String userName = Optional.ofNullable(getRequest().getParameterAsString("user"))
-      .orElse(Optional.ofNullable(getSession()).map(AweSession::getUser)
-        .orElse(null));
+  private JavaMailSender getMailServer(ObjectNode parameters) {
+    String userName = Optional.ofNullable(parameters.get(SESSION_USER))
+            .map(JsonNode::asText)
+            .orElse(Optional.ofNullable(getRequest())
+                    .map(r -> r.getParameterAsString(SESSION_USER))
+                    .orElse(Optional.ofNullable(getSession()).map(AweSession::getUser)
+                            .orElse(null)));
 
     if (userName != null) {
       User user = userDAO.findByUserName(userName);

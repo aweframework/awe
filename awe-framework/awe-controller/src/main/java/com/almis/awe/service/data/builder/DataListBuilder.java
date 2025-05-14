@@ -17,6 +17,7 @@ import com.querydsl.core.types.QTuple;
 import com.querydsl.core.types.dsl.SimpleOperation;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 
@@ -42,6 +43,8 @@ public class DataListBuilder extends ServiceConfig {
   private boolean compute = false;
   private boolean transform = false;
   private boolean translate = false;
+  private boolean postTransform = false;
+  private boolean postTranslate = false;
   private boolean compound = false;
   private boolean identifier = false;
   private boolean totalize = false;
@@ -59,6 +62,8 @@ public class DataListBuilder extends ServiceConfig {
   private List<ComputedColumnProcessor> computedList = null;
   private List<TransformCellProcessor> transformList = null;
   private List<TranslateCellProcessor> translateList = null;
+  private List<TransformCellProcessor> postTransformList = null;
+  private List<TranslateCellProcessor> postTranslateList = null;
   private List<CompoundColumnProcessor> compoundList = null;
   private List<String> noPrintList = null;
   private long max = -1;
@@ -208,6 +213,36 @@ public class DataListBuilder extends ServiceConfig {
   }
 
   /**
+   * Add a transform processor
+   *
+   * @param transform Transform processor
+   * @return DataListBuilder
+   */
+  public DataListBuilder addPostTransform(TransformCellProcessor transform) {
+    if (postTransformList == null) {
+      postTransformList = new ArrayList<>();
+    }
+    postTransformList.add(transform);
+    this.postTransform = true;
+    return this;
+  }
+
+  /**
+   * Add a translate processor
+   *
+   * @param translate Translate processor
+   * @return DataListBuilder
+   */
+  public DataListBuilder addPostTranslate(TranslateCellProcessor translate) {
+    if (postTranslateList == null) {
+      postTranslateList = new ArrayList<>();
+    }
+    postTranslateList.add(translate);
+    this.postTranslate = true;
+    return this;
+  }
+
+  /**
    * Add a no print field
    *
    * @param noPrint No print field alias
@@ -339,7 +374,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder sort(List<SortColumn> sortList) {
     this.sortList = sortList;
-    this.sort = true;
+    this.sort = sortList != null && !sortList.isEmpty();
     return this;
   }
 
@@ -367,7 +402,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder filter(List<FilterColumn> filterList) {
     this.filterList = filterList;
-    this.filter = true;
+    this.filter = filterList != null && !filterList.isEmpty();
     return this;
   }
 
@@ -379,7 +414,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder distinct(List<SortColumn> distinctList) {
     this.distinctList = distinctList;
-    this.distinct = true;
+    this.distinct = distinctList != null && !distinctList.isEmpty();
     return this;
   }
 
@@ -401,7 +436,7 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder totalize(List<TotalizeColumnProcessor> totalizeList) {
     this.totalizeList = totalizeList;
-    this.totalize = true;
+    this.totalize = totalizeList != null && !totalizeList.isEmpty();
     return this;
   }
 
@@ -466,22 +501,28 @@ public class DataListBuilder extends ServiceConfig {
   private void transformData() throws AWException {
 
     // Filter the list
-    if (filter && filterList != null) {
+    if (filter) {
       doFilter();
     }
 
     // Get distinct values
-    if (distinct && distinctList != null) {
+    if (distinct) {
       doDistinct();
     }
 
     // Sort the final list
-    if (sort && sortList != null) {
+    if (sort) {
       doSort();
     }
 
     // Totalize
-    if (totalize && totalizeList != null) {
+    if (totalize) {
+      // Pre process fields before totalize
+      if (translate || transform || compute || compound) {
+        doPreProcess();
+      }
+
+      // Totalize
       doTotalize();
 
       // Update records (new records on totalize)
@@ -493,9 +534,9 @@ public class DataListBuilder extends ServiceConfig {
       doPaginate();
     }
 
-    // Calculate computed, transform, compounds and identifiers
-    if (compute || transform || translate || compound || identifier || noPrint) {
-      doEvaluate();
+    // Calculate transform, translate, identifiers and noPrints
+    if (translate || transform || compute || compound || identifier || noPrint) {
+      doPostProcess();
     }
   }
 
@@ -703,36 +744,54 @@ public class DataListBuilder extends ServiceConfig {
       int endRow = (int) Math.min(page * max, rows.size());
 
       // Retrieve sublist
-      //dataList.setRows(rows.subList(startRow, endRow));
       dataList.setRows(rows.stream().skip(startRow).limit((long) endRow - startRow).toList());
     }
   }
 
   /**
-   * Generate computes, data, compounds and identifiers
+   * Translate, transform, compute and compound before totalization
    */
-  private void doEvaluate() throws AWException {
-    int rowIndex = 1;
+  private void doPreProcess() throws AWException {
     for (Map<String, CellData> row : dataList.getRows()) {
-      // Transform data for this row
-      if (translate) {
-        doTranslates(row);
-      }
+      translateTransformComputeCompound(row);
+    }
+  }
 
-      // Transform data for this row
-      if (transform) {
-        doTransforms(row);
-      }
+  /**
+   * Apply translate, transform, compute and compounds
+   * @param row
+   * @throws AWException
+   */
+  private void translateTransformComputeCompound(Map<String, CellData> row) throws AWException {
+    // Translate rows
+    if (translate) {
+      doTranslates(row, translateList);
+    }
 
-      // Calculate computes for this row
-      if (compute) {
-        doComputes(row);
-      }
+    // Transform rows
+    if (transform) {
+      doTransforms(row, transformList);
+    }
 
-      // Calculate compounds for this row
-      if (compound) {
-        doCompounds(row);
-      }
+    // Calculate computes for this row
+    if (compute) {
+      doComputes(row);
+    }
+
+    // Calculate compounds for this row
+    if (compound) {
+      doCompounds(row);
+    }
+  }
+
+  /**
+   * Translate, transform, noPrint and identifiers
+   */
+  private void doPostProcess() throws AWException {
+    AtomicInteger rowIndex = new AtomicInteger(1);
+    for (Map<String, CellData> row : dataList.getRows()) {
+      // Translate and transform on new added rows
+      doEvaluate(row);
 
       // Remove no print fields
       if (noPrint) {
@@ -740,9 +799,46 @@ public class DataListBuilder extends ServiceConfig {
       }
 
       // Generate identifier only if not generated previously
-      if (identifier && !row.containsKey(DATALIST_IDENTIFIER)) {
-        row.put(DATALIST_IDENTIFIER, new CellData(rowIndex++));
+      if (identifier) {
+        row.computeIfAbsent(DATALIST_IDENTIFIER, k -> new CellData(rowIndex.getAndIncrement()));
       }
+    }
+  }
+
+  /**
+   * Evaluate depending on new added rows
+   * @param row New added row
+   * @throws AWException
+   */
+  private void doEvaluate(Map<String, CellData> row) throws AWException {
+    boolean isNewAddedRow = row.containsKey(DATALIST_NEW_ADDED_ROW);
+
+    if (isNewAddedRow) {
+      // Translate data for this row
+      if (translate) {
+        doTranslates(row, translateList);
+      }
+
+      // Transform data for this row
+      if (transform) {
+        doTransforms(row, transformList);
+      }
+
+      // Remove new added flag
+      row.remove(DATALIST_NEW_ADDED_ROW);
+    } else if (!totalize) {
+      // Translate rows
+      translateTransformComputeCompound(row);
+    }
+
+    // Translate data for this row on computed and compounds
+    if (postTranslate) {
+      doTranslates(row, postTranslateList);
+    }
+
+    // Transform data for this row on computed and compounds
+    if (postTransform) {
+      doTransforms(row, postTransformList);
     }
   }
 
@@ -764,8 +860,8 @@ public class DataListBuilder extends ServiceConfig {
    *
    * @param row Row to process
    */
-  private void doTransforms(Map<String, CellData> row) throws AWException {
-    for (TransformCellProcessor processor : transformList) {
+  private void doTransforms(Map<String, CellData> row, List<TransformCellProcessor> list) throws AWException {
+    for (TransformCellProcessor processor : list) {
       // Process transform
       row.put(processor.getColumnIdentifier(), processor.process(row.get(processor.getColumnIdentifier())));
     }
@@ -776,8 +872,8 @@ public class DataListBuilder extends ServiceConfig {
    *
    * @param row Row to process
    */
-  private void doTranslates(Map<String, CellData> row) throws AWException {
-    for (TranslateCellProcessor processor : translateList) {
+  private void doTranslates(Map<String, CellData> row, List<TranslateCellProcessor> list) throws AWException {
+    for (TranslateCellProcessor processor : list) {
       // Process translate
       if (processor.getTranslateEnumerated() == null) {
         throw new AWException(getLocale("ERROR_MESSAGE_ENUMERATED_NOT_DEFINED", processor.getField().getTranslate()));

@@ -2084,6 +2084,36 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertQueryResultJson(queryName, result, 25);
   }
 
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseTotalizeTotalSubtotalOfComputed() throws Exception {
+    String queryName = "TotalizeTotalSubtotalOfComputed";
+    String variables = "";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":25,\"rows\":[{\"IdeSitModDbs\":2580,\"Als3\":\"aweora1\",\"_style_\":\"\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"1,00\",\"IdeMod\":916,\"IdeDbs\":6,\"NamMod\":\"Test\",\"id\":1},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"1,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-1\"},{\"IdeSitModDbs\":75,\"Als3\":\"aweora1\",\"_style_\":\"\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"1,00\",\"IdeMod\":28,\"IdeDbs\":6,\"NamMod\":\"Base\",\"id\":2},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"1,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-3\"},{\"IdeSitModDbs\":2579,\"Als3\":\"aweora2\",\"_style_\":\"\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"1,00\",\"IdeMod\":916,\"IdeDbs\":7,\"NamMod\":\"Test\",\"id\":3},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"1,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-5\"},{\"IdeSitModDbs\":60,\"Als3\":\"aweora2\",\"_style_\":\"\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"1,00\",\"IdeMod\":28,\"IdeDbs\":7,\"NamMod\":\"Base\",\"id\":4},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"1,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-7\"},{\"IdeSitModDbs\":2582,\"Als3\":\"awesqs1\",\"_style_\":\"\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"2,00\",\"IdeMod\":916,\"IdeDbs\":8,\"NamMod\":\"Test\",\"id\":5},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"2,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-9\"},{\"IdeSitModDbs\":76,\"Als3\":\"awesqs1\",\"_style_\":\"\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"2,00\",\"IdeMod\":28,\"IdeDbs\":8,\"NamMod\":\"Base\",\"id\":6},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"2,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-11\"},{\"IdeSitModDbs\":2584,\"Als3\":\"awesybase1\",\"_style_\":\"\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"3,00\",\"IdeMod\":916,\"IdeDbs\":9,\"NamMod\":\"Test\",\"id\":7},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"3,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-13\"},{\"IdeSitModDbs\":77,\"Als3\":\"awesybase1\",\"_style_\":\"\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"3,00\",\"IdeMod\":28,\"IdeDbs\":9,\"NamMod\":\"Base\",\"id\":8},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"3,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-15\"},{\"IdeSitModDbs\":2581,\"Als3\":\"awesqs2\",\"_style_\":\"\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"2,00\",\"IdeMod\":916,\"IdeDbs\":15,\"NamMod\":\"Test\",\"id\":9},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"2,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-17\"},{\"IdeSitModDbs\":78,\"Als3\":\"awesqs2\",\"_style_\":\"\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"2,00\",\"IdeMod\":28,\"IdeDbs\":15,\"NamMod\":\"Base\",\"id\":10},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"2,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-19\"},{\"IdeSitModDbs\":2583,\"Als3\":\"awesybase2\",\"_style_\":\"\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"3,00\",\"IdeMod\":916,\"IdeDbs\":16,\"NamMod\":\"Test\",\"id\":11},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"3,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-21\"},{\"IdeSitModDbs\":79,\"Als3\":\"awesybase2\",\"_style_\":\"\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"3,00\",\"IdeMod\":28,\"IdeDbs\":16,\"NamMod\":\"Base\",\"id\":12},{\"IdeSitModDbs\":null,\"_style_\":\"SUBTOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"3,00\",\"IdeMod\":null,\"IdeDbs\":null,\"NamMod\":\"Subtotal\",\"id\":\"TOT-23\"},{\"IdeSitModDbs\":null,\"Als3\":\"Total\",\"_style_\":\"TOTAL\",\"IdeSit\":null,\"NamSit\":null,\"Ord3\":\"24,00\",\"IdeMod\":null,\"IdeDbs\":null,\"id\":\"TOT-24\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertQueryResultJson(queryName, result, 25);
+  }
+
+  /**
+   * Test of launchAction method, of class ActionController.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseTranslateAndTransformInsideComputedInsideCompounds() throws Exception {
+    String queryName = "TranslateAndTransformInsideComputedInsideCompounds";
+    String variables = "";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"Ord\":1,\"IdeSitModDbs\":2580,\"Als3\":\"aweora1\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"1,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"1,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":916,\"IdeDbs\":6,\"NamMod\":\"Test\",\"id\":1},{\"Ord\":1,\"IdeSitModDbs\":75,\"Als3\":\"aweora1\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"1,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"1,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":28,\"IdeDbs\":6,\"NamMod\":\"Base\",\"id\":2},{\"Ord\":1,\"IdeSitModDbs\":2579,\"Als3\":\"aweora2\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"1,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"1,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":916,\"IdeDbs\":7,\"NamMod\":\"Test\",\"id\":3},{\"Ord\":1,\"IdeSitModDbs\":60,\"Als3\":\"aweora2\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"1,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"1,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":28,\"IdeDbs\":7,\"NamMod\":\"Base\",\"id\":4},{\"Ord\":2,\"IdeSitModDbs\":2582,\"Als3\":\"awesqs1\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"2,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"2,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":916,\"IdeDbs\":8,\"NamMod\":\"Test\",\"id\":5},{\"Ord\":2,\"IdeSitModDbs\":76,\"Als3\":\"awesqs1\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"2,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"2,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":28,\"IdeDbs\":8,\"NamMod\":\"Base\",\"id\":6},{\"Ord\":3,\"IdeSitModDbs\":2584,\"Als3\":\"awesybase1\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"3,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"3,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":916,\"IdeDbs\":9,\"NamMod\":\"Test\",\"id\":7},{\"Ord\":3,\"IdeSitModDbs\":77,\"Als3\":\"awesybase1\",\"IdeSit\":10,\"NamSit\":\"Madrid\",\"Ord3\":\"3,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"3,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":28,\"IdeDbs\":9,\"NamMod\":\"Base\",\"id\":8},{\"Ord\":2,\"IdeSitModDbs\":2581,\"Als3\":\"awesqs2\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"2,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"2,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":916,\"IdeDbs\":15,\"NamMod\":\"Test\",\"id\":9},{\"Ord\":2,\"IdeSitModDbs\":78,\"Als3\":\"awesqs2\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"2,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"2,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":28,\"IdeDbs\":15,\"NamMod\":\"Base\",\"id\":10},{\"Ord\":3,\"IdeSitModDbs\":2583,\"Als3\":\"awesybase2\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"3,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"3,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":916,\"IdeDbs\":16,\"NamMod\":\"Test\",\"id\":11},{\"Ord\":3,\"IdeSitModDbs\":79,\"Als3\":\"awesybase2\",\"IdeSit\":17,\"NamSit\":\"Onate\",\"Ord3\":\"3,00\",\"testCompound\":{\"testComputedInsideCompoundWithTransform\":\"3,00\",\"testComputedInsideCompoundWithTranslate\":\"Yes\"},\"IdeMod\":28,\"IdeDbs\":16,\"NamMod\":\"Base\",\"id\":12}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertQueryResultJson(queryName, result, 12);
+  }
+
   // *****************************************************************************************************************//
   // SORT TESTS
   // **************************************************************************************************************** //
@@ -3032,12 +3062,15 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
    * @throws Exception Test error
    */
   @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
   void testDatabaseGridsAndChartScreen() throws Exception {
+    setParameter("restriction", "administrator");
     MvcResult mvcResult = mockMvc.perform(post("/screen-data/grid-and-chart")
-        .with(csrf())
-        .content("{\"view\":\"report\"}")
-        .contentType(MediaType.APPLICATION_JSON)
-        .accept(MediaType.APPLICATION_JSON))
+                    .session(session)
+                    .with(csrf())
+                    .content("{\"view\":\"report\"}")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
