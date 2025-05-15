@@ -701,6 +701,6 @@ export function parseBoolean(value = "") {
  * @param t translate function
  * @return {string} Label translated
  */
-export function translateLabel(label = "", t) {
+export function translateLabel(label = "", t = (l) => l) {
   return label.split(" ").map(t).join(" ");
 }

@@ -18,7 +18,7 @@ export default class AweCriterionComponent extends AweComponent {
     const {attributes} = this.props;
     const {help, helpImage} = attributes;
     if (help || helpImage) {
-      return <i role="icon" className={`help-icon pi pi-question-circle`} />;
+      return <i role="note" className={`help-icon pi pi-question-circle`} />;
     }
     return null;
   }

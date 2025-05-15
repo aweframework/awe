@@ -11,7 +11,7 @@
         label="MENU_DASHBOARD" help="HELP_MENU_DASHBOARD">
     <tag source="center" expandible="vertical">
         <tag type="div" style="expand" expandible="horizontal">
-            <window label="PARAMETER_TEXT" icon="mdi:analytics" style="expand">
+            <window label="PARAMETER_TEXT" icon="mdi:analytics" style="expand" help="PARAMETER_TEXT">
                 <chart id="chart-analytics" label="PARAMETER_TEXT" type="column" initial-load="query"
                        target-action="QryEdiTst">
                     <chart-legend enabled="true"/>
