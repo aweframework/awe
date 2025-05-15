@@ -20,6 +20,17 @@ function isFinalOption(option, children) {
   return menuScreen || (actions.length > 0 && children === undefined)
 }
 
+function getSeparatorModel(option, t) {
+  const {name, label} = option;
+  return label ? {
+    key: name,
+    label: translateLabel(label, t),
+    className: "p-menuitem-separator",
+    display: true,
+    command: () => {}
+  } : {separator: true, display: false};
+}
+
 /**
  * Convert an option to item
  * @param {object} option Option data
@@ -30,10 +41,11 @@ function optionToItem(option, props) {
   const {t, deleteStack, addActionsTop, currentOption, disabled} = props;
   const {separator, name, label, icon, options, actions} = option;
   let children = optionsToItems(options, props);
-  return separator ? {separator: true} : {
+  return separator ? getSeparatorModel(option, t) : {
     name, disabled,
     key: name,
     label: translateLabel(label, t),
+    display: true,
     className: name + (name === currentOption.option ? " p-menuitem-active" : ""),
     icon: getIconCode(icon, "p-menuitem-icon"),
     ...(!isFinalOption(option, children) && children ? {items: children} : {}),
@@ -55,7 +67,7 @@ function optionsToItems(optionList, props) {
   const {module} = props;
   const moduleValue = (module.model.values.find(item => item.selected) || {}).value || null;
   let filtered = optionList
-    .filter(option => (moduleValue === option.module || !option.module) && option.visible && !option.restricted && !option.separator)
+    .filter(option => (moduleValue === option.module || !option.module) && option.visible && !option.restricted)
     .map(option => optionToItem(option, props));
 
   return filtered.length === 0 ? undefined : filtered;
@@ -135,10 +147,10 @@ class AweMenu extends Component {
     if (style.includes("vertical")) {
       return <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
         expandedKeys={expandedKeys} onExpandedKeysChange={this.onExpand}
-        model={optionsToItems(options, this.props)}/>;
+        model={optionsToItems(options, this.props).filter(o => o.display)}/>;
     } else {
       return <Menubar aria-disabled={disabled}
-        model={optionsToItems(options, this.props)}/>;
+        model={optionsToItems(options, this.props).filter(o => o.display)}/>;
     }
   }
 }
