@@ -46,8 +46,9 @@ class AweWindow extends Component {
       id={id}
       className={classes}
       header={this.getHeader()}
-      icons={this.getIcon()}
-      children={elementList.map((node, index) => Components(node, index))}/>
+      icons={this.getIcon()}>
+        {elementList.map((node, index) => Components(node, index))}
+      </Panel>
     </>;
   }
 }
@@ -60,7 +61,6 @@ AweWindow.propTypes = {
   icon: PropTypes.string,
   help: PropTypes.string,
   helpImage: PropTypes.string,
-  address: PropTypes.object,
   t: PropTypes.func.isRequired,
   elementList: PropTypes.array
 };
