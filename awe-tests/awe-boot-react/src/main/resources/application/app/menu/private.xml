@@ -12,6 +12,7 @@
   <option name="information" screen="info" invisible="true"/>
   <option module="Inf" name="information-restricted" screen="info" invisible="true"/>
   <option module="Inf Changed" name="information-restricted-changed" screen="info" invisible="true"/>
+  <option name="general" label="General" separator="true"/>
   <option name="tools" label="MENU_TOOLS" icon="wrench">
     <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
       <option name="new-site" screen="SitNew" invisible="true"/>
