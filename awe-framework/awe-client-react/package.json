@@ -50,7 +50,7 @@
     "react-router-dom": "^5.3.4",
     "react-transition-group": "4.4.5",
     "redux": "^5.0.1",
-    "redux-devtools-extension": "2.13.9",
+    "@redux-devtools/extension": "3.3.0",
     "redux-thunk": "^3.1.0",
     "validate-date": "2.1.0"
   },
