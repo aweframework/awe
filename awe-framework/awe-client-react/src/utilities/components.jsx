@@ -4,13 +4,14 @@ import {
   evaluateExpression,
   fetchAction,
   generateServerAction,
-  getCellModel,
   getCookie,
   getFirstDefinedAndNotNullValue,
-  isEmpty, translateLabel
+  isEmpty,
+  translateLabel
 } from "./index";
 import {getUID} from "../redux/actions/settings";
 import {formatNumber, getFirstDefinedValueAsNumber} from "./numbers";
+import {getGridData} from "./grid";
 
 /**
  * Upload status
@@ -524,87 +525,6 @@ function getTextData(values, t) {
     .filter(value => value.selected && !isEmpty(value.value))
     .map(value => t(getFirstDefinedAndNotNullValue(value.label, value.value, "")))
     .join(", ");
-}
-
-/**
- * Retrieve the grid data
- * @param {object} grid Grid data
- * @param {object} model Grid model
- * @param {object} props Properties
- * @param {boolean} forPrinting Data is for printing
- * @returns {object} model data
- * @memberOf Components
- */
-export function getGridData(grid, model, props, forPrinting) {
-  const {attributes} = grid;
-  const {values} = model;
-  const {sendAll, editable, multioperation, columnModel, id} = attributes;
-  const selected = values.filter((value) => value.selected);
-  const editing = values.filter((value) => (value.$row || {}).editing);
-  let sendable = values;
-  if (multioperation) {
-    sendable = values.filter((value) => (value.$row || {}).operation);
-  } else if (!sendAll) {
-    sendable = values.filter((value) => value.selected);
-  }
-  return {
-    ...(columnModel || [])
-      .filter(column => column.sendable)
-      .map(column => column.name)
-      .reduce((prevColumns, name) => ({
-        ...prevColumns,
-        [name]: sendable.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value),
-        [`${name}.selected`]: getDataDependingOnList(selected.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value)),
-        ...(editable || multioperation ? {[`${name}.editing`]: getDataDependingOnList(editing.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value))} : {})
-      }), {}),
-    ...forPrinting ? getGridPrintData(grid, model, props) : {},
-    [id]: sendable.map(value => value.id),
-    ...(editable || multioperation ? {[`${id}.editing`]: editing.map(value => value.id)} : {}),
-    ...(multioperation ? {[`${id}-RowTyp`]: sendable.map(value => (value.$row || {}).operation)} : {})
-  };
-}
-
-/**
- * Retrieve the grid print data
- * @param {object} grid Grid data
- * @param {object} model Grid model
- * @param {object} props Properties
- * @returns {object} model data
- * @memberOf Components
- */
-export function getGridPrintData(grid = {}, model = {}, props = {}) {
-  const {attributes} = grid;
-  const {values} = model;
-  const {id, columnModel = []} = attributes;
-  const {t} = props;
-  return {
-    ...columnModel
-      .filter(column => column.sendable)
-      .map(column => column.name)
-      .reduce((prevColumns, name) => ({
-        ...prevColumns,
-        [name]: values.map(value => {
-          const cellModel = getCellModel(value[name], columnModel.find(column => column.name === name));
-          return {...cellModel, label: t(cellModel.label)};
-        }),
-        [`${name}.selected`]: getDataDependingOnList(values.filter(row => row.selected).map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value))
-      }), {}),
-    [`${id}.data`]: {visibleColumns: columnModel.filter(column => !column.hidden).map(column => getVisibleColumnData(column, t))}
-  };
-}
-
-/**
- * Retrieve visible column data
- * @param {object} column Column
- * @param {function} t Translator
- * @return {object} Visible column data
- */
-function getVisibleColumnData(column, t) {
-  const {name, label, type, component, width, charlength, align} = column;
-  return {
-    name, type, component, width, charlength, align,
-    label: getVisibleTextData(label, t)
-  };
 }
 
 /**

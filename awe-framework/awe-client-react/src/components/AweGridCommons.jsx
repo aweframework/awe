@@ -244,7 +244,7 @@ export class AweGridCommons extends AweComponent {
     const {charlength, width, align} = column;
     return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"}
                    footerStyle={{textAlign: align, ...getWidthStyle(charlength, width)}}
-                   footer={calculateFooterValue(column, values)}/>;
+                   footer={calculateFooterValue(column, values)?.label}/>;
   }
 
   cellTemplate(rowData, column) {

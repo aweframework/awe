@@ -4,7 +4,14 @@ import {fromDate} from "./dates";
 import download from "downloadjs";
 import React from "react";
 import {Tooltip} from "primereact/tooltip";
-import {getVisibleTextData} from "./components";
+import {ComponentType, getVisibleTextData} from "./components";
+import {formatNumber} from "./numbers";
+const {
+  COMPONENT_NUMERIC,
+  COMPONENT_TIME,
+  COMPONENT_SUGGEST,
+  COMPONENT_SELECT,
+} = ComponentType;
 
 /**
  * Utilities functions
@@ -192,7 +199,7 @@ export function getCellModel(value = "", column= {}) {
   if (Array.isArray(value)) {
     return value.find(item => item.selected) || {value: null};
   } else if (_.isPlainObject(value)) {
-    return {...value};
+    return {value: null, ...value};
   } else if (colModel.values.length > 0) {
     return colModel.values.find(item => String(item.value) === String(value)) || {value: value, label: value};
   } else {
@@ -703,4 +710,26 @@ export function parseBoolean(value = "") {
  */
 export function translateLabel(label = "", t = (l) => l) {
   return label.split(" ").map(t).join(" ");
+}
+
+/**
+ * Retrieve translate function depending on
+ * @param attributes Attributes
+ * @param model Model
+ * @param t Translate text function
+ */
+export function getTranslateFunction(attributes, model, t = ((f) => f)) {
+  const {component, numberFormat} = attributes;
+  switch (component) {
+    case COMPONENT_NUMERIC:
+      return (v) => formatNumber(v, numberFormat);
+    case COMPONENT_TIME:
+      return (v) => v;
+    case COMPONENT_SUGGEST:
+      return () => model.label;
+    case COMPONENT_SELECT:
+      return () => t(model.label);
+    default:
+      return t;
+  }
 }

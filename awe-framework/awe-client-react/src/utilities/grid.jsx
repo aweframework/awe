@@ -1,5 +1,6 @@
-import {extractCellValue} from "./index";
+import {extractCellValue, getCellModel, getTranslateFunction} from "./index";
 import {formatNumber, isNumber} from "./numbers";
+import {getDataDependingOnList, getVisibleTextData} from "./components";
 
 /**
  * Grid utility functions
@@ -143,24 +144,31 @@ export function getWidth(charLength = null, width = null) {
  * Calculate footer value
  * @param {Object} column Column to calculate
  * @param {Object[]} values Value list
- * @return {string|null} Value formatted
+ * @return {object|null} Value formatted
  */
 export function calculateFooterValue(column, values) {
   const {summaryType, numberFormat, name} = column;
   const extractCellValues = list => list.map(row => parseFloat(extractCellValue(row[name]))).filter(isNumber);
+  const result = {value: null, label: ""};
 
   switch (summaryType) {
     case "sum":
-      return formatNumber(extractCellValues(values).reduce((prev, current) => current + prev, 0), numberFormat);
+      result.value = extractCellValues(values).reduce((prev, current) => current + prev, 0);
+      break;
     case "avg":
-      return formatNumber(values.length > 0 ? extractCellValues(values).reduce((prev, current) => current + prev, 0) / values.length : null, numberFormat);
+      result.value = values.length > 0 ? extractCellValues(values).reduce((prev, current) => current + prev, 0) / values.length : null;
+      break;
     case "max":
-      return formatNumber(extractCellValues(values).reduce((prev, current) => Math.max(prev, current), null), numberFormat);
+      result.value = extractCellValues(values).reduce((prev, current) => Math.max(prev, current), null);
+      break;
     case "min":
-      return formatNumber(extractCellValues(values).reduce((prev, current) => prev === null ? current : Math.min(prev, current), null), numberFormat);
+      result.value = extractCellValues(values).reduce((prev, current) => prev === null ? current : Math.min(prev, current), null);
+      break;
     default:
-      return null;
+      return result;
   }
+  result.label = formatNumber(result.value, numberFormat);
+  return result;
 }
 
 /**
@@ -183,4 +191,118 @@ export function getRow(grid, rowId) {
  */
 export function getColumnDefinition(grid, columnName) {
   return grid?.attributes?.columnModel?.find(column => column.name === columnName);
+}
+
+/**
+ * Retrieve the grid data
+ * @param {object} grid Grid data
+ * @param {object} model Grid model
+ * @param {object} props Properties
+ * @param {boolean} forPrinting Data is for printing
+ * @returns {object} model data
+ * @memberOf Components
+ */
+export function getGridData(grid, model, props, forPrinting) {
+  const {attributes} = grid;
+  const {values} = model;
+  const {sendAll, editable, multioperation, columnModel, id} = attributes;
+  const selected = values.filter((value) => value.selected);
+  const editing = values.filter((value) => (value.$row || {}).editing);
+  let sendable = values;
+  if (multioperation) {
+    sendable = values.filter((value) => (value.$row || {}).operation);
+  } else if (!sendAll) {
+    sendable = values.filter((value) => value.selected);
+  }
+  return {
+    ...(columnModel || [])
+      .filter(column => column.sendable)
+      .map(column => column.name)
+      .reduce((prevColumns, name) => ({
+        ...prevColumns,
+        [name]: sendable.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value),
+        [`${name}.selected`]: getDataDependingOnList(selected.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value)),
+        ...(editable || multioperation ? {[`${name}.editing`]: getDataDependingOnList(editing.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value))} : {})
+      }), {}),
+    ...forPrinting ? getGridPrintData(grid, model, props) : {},
+    [id]: sendable.map(value => value.id),
+    ...(editable || multioperation ? {[`${id}.editing`]: editing.map(value => value.id)} : {}),
+    ...(multioperation ? {[`${id}-RowTyp`]: sendable.map(value => (value.$row || {}).operation)} : {})
+  };
+}
+
+/**
+ * Retrieve the grid print data
+ * @param {object} grid Grid data
+ * @param {object} model Grid model
+ * @param {object} props Properties
+ * @returns {object} model data
+ * @memberOf Components
+ */
+export function getGridPrintData(grid = {}, model = {}, props = {}) {
+  const {attributes} = grid;
+  const {values} = model;
+  const {id, columnModel = [], showTotals = false} = attributes;
+  const {t} = props;
+  const visibleColumns = columnModel.filter(column => !column.hidden);
+  return {
+    ...columnModel
+      .filter(column => column.sendable)
+      .map(column => column.name)
+      .reduce((prevColumns, name) => ({
+        ...prevColumns,
+        [name]: values.map(value => {
+          const attr = columnModel.find(column => column.name === name);
+          const cellModel = getCellModel(value[name], attr);
+          return cellModel.value;
+        }),
+        [`${name}.data`]: values.map(value => {
+          const attr = columnModel.find(column => column.name === name);
+          const cellModel = getCellModel(value[name], attr);
+          return getCellModelForPrinting(cellModel, attr, t);
+        }),
+        [`${name}.selected`]: getDataDependingOnList(values.filter(row => row.selected).map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value))
+      }), {}),
+    [`${id}.data`]: {
+      visibleColumns: visibleColumns.map(column => getVisibleColumnData(column, t)),
+      ...(showTotals ? {footer: getFooterData(visibleColumns, values)} : {})
+    }
+  };
+}
+
+/**
+ * Retrieve cell model formatted
+ * @param cellModel Cell Model
+ * @param attributes Attributes
+ * @param t Translate function
+ */
+function getCellModelForPrinting(cellModel, attributes, t) {
+  const translate = getTranslateFunction(attributes, cellModel, t);
+  const extraAttributes = { label: translate(cellModel.value) };
+
+  return {...cellModel, ...extraAttributes};
+}
+
+/**
+ * Retrieve footer data if show totals
+ * @param columnModel Visible columns
+ * @param values Grid values
+ * @returns {object} footer data
+ */
+function getFooterData(columnModel, values) {
+  return columnModel.reduce((all, column) => ({...all, [column.name]: calculateFooterValue(column, values)}), {});
+}
+
+/**
+ * Retrieve visible column data
+ * @param {object} column Column
+ * @param {function} t Translator
+ * @return {object} Visible column data
+ */
+function getVisibleColumnData(column, t) {
+  const {name, label, type, component, width, charlength, align} = column;
+  return {
+    name, type, component, width, charlength, align,
+    label: getVisibleTextData(label, t)
+  };
 }

@@ -422,8 +422,9 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     let data = getComponentData(grid, props, true);
     //console.info(data);
     expect(data).toEqual({
-      Col1: [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      Col1: ["Value11","Value12"],
       "Col1.selected": "Value11",
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
       "grid.data": {
         visibleColumns: [
           {
@@ -466,7 +467,8 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     let data = getFormValuesForPrinting({...props, components: {grid, pivotTable, numeric, checkbox, time}});
     //console.info(data);
     expect(data).toEqual({
-      Col1: [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      Col1: ["Value11", "Value12"],
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
       "Col1.selected": "Value11",
       "grid.data": {visibleColumns: [
           {
@@ -510,7 +512,8 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     let data = getFormValuesForPrinting({...props, components: {grid, pivotTable, grid2: {...grid}, numeric, checkbox, time}});
     //console.info(data);
     expect(data).toEqual({
-      Col1: [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      Col1: ["Value11", "Value12"],
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
       "Col1.selected": "Value11",
       "grid.data": {visibleColumns: [
           {

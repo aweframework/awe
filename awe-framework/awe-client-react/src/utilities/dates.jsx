@@ -27,7 +27,7 @@ export function toDate(date) {
  * @memberOf Dates
  */
 export function fromDate(date) {
-  return date ? date.toLocaleDateString("es") : null;
+  return date ? date.toLocaleDateString("fr-FR") : null;
 }
 
 /**
@@ -37,7 +37,7 @@ export function fromDate(date) {
  * @memberOf Dates
  */
 export function fromTime(date) {
-  return date ? date.toLocaleTimeString("es") : null;
+  return date ? date.toLocaleTimeString("fr-FR") : null;
 }
 
 /**
@@ -96,14 +96,13 @@ export function getDisabledDates(availableDates) {
  * @memberOf Dates
  */
 export function getMaxDate(availableDates) {
-  let maxDate = _.last(availableDates);
+  let maxDate = toDate(_.last(availableDates));
   if (maxDate) {
     let nextDate = new Date(maxDate.getTime());
     nextDate.setDate(nextDate.getDate() + 1);
     return nextDate;
   }
   return null;
-
 }
 
 /**
@@ -113,6 +112,6 @@ export function getMaxDate(availableDates) {
  * @memberOf Dates
  */
 export function getMinDate(availableDates) {
-  let minDate = _.head(availableDates);
+  let minDate = toDate(_.head(availableDates));
   return minDate ? new Date(minDate.getTime()) : null;
 }
