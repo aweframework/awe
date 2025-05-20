@@ -53,7 +53,7 @@ class ColumnSuggest extends Component {
   }
 
   suggest(event) {
-    suggest(this, event.query);
+    suggest(this, event, event.query);
   }
 
   render() {
