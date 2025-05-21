@@ -1,4 +1,13 @@
 
+# Changelog for AWE React 1.0.9
+*21/05/2025*
+
+- Generate a vertical wizard steps. [MR #83](https://gitlab.com/aweframework/awe-react/-/merge_requests/83) (Pablo Javier García Mora)
+- Suggest component in a grid column doesn't work. [MR #82](https://gitlab.com/aweframework/awe-react/-/merge_requests/82) (Pablo Javier García Mora)
+- Display option-separator labels. [MR #81](https://gitlab.com/aweframework/awe-react/-/merge_requests/81) (Pablo Javier García Mora)
+- Add help and help-image to windows. [MR #80](https://gitlab.com/aweframework/awe-react/-/merge_requests/80) (Pablo Javier García Mora)
+- Pick last AWE version. [MR #79](https://gitlab.com/aweframework/awe-react/-/merge_requests/79) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.8
 *13/03/2025*
 
