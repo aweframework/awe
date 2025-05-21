@@ -1,6 +1,6 @@
 {
   "name": "awe-react-client",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "main.jsx",
   "scripts": {
     "test": "karma start",
@@ -17,6 +17,7 @@
   "license": "ISC",
   "description": "AWE React client",
   "dependencies": {
+    "@redux-devtools/extension": "3.3.0",
     "@reduxjs/toolkit": "1.9.5",
     "@stomp/stompjs": "7.0.0",
     "animate.css": "4.1.1",
@@ -50,7 +51,6 @@
     "react-router-dom": "^5.3.4",
     "react-transition-group": "4.4.5",
     "redux": "^5.0.1",
-    "@redux-devtools/extension": "3.3.0",
     "redux-thunk": "^3.1.0",
     "validate-date": "2.1.0"
   },
