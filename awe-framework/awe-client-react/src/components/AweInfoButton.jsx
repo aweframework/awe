@@ -2,7 +2,7 @@ import React from "react";
 import {Button} from "primereact/button";
 import {AweComponent, connectComponent} from "./AweComponent";
 import {classNames} from "../utilities/components";
-import {getHelpTooltipNode, getIconCode} from "../utilities";
+import {getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 
 class AweInfoButton extends AweComponent {
 
@@ -36,7 +36,7 @@ class AweInfoButton extends AweComponent {
         className={classes}
         icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}
         disabled={this.props.disabled || disabled}
-        label={t(label)}
+        label={translateLabel(label, t)}
         iconPos={"left"}
         onClick={this.onClick}
         data-pr-position={"bottom"}

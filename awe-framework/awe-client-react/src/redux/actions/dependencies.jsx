@@ -11,23 +11,22 @@ import {
 import {addActionsTop} from "./actions";
 import {
   asArray,
-  compareEqualValues,
   componentValue,
   formule,
   generateAddress,
-  generateServerAction,
+  generateServerAction
+} from "../../utilities";
+import {getDependencyComponentId, getTriggerId} from "../../utilities/components";
+import {
   getCellAttribute,
   getCellValue,
   getEditingRow,
   getEditingRowIndex,
   getExistingIndex,
-  getFirstDefinedAndNotNullValue,
-  getRowIndex,
-  getSelectedRowIndex,
-  isEmpty
-} from "../../utilities";
-import {getDependencyComponentId, getTriggerId} from "../../utilities/components";
-import {getGridIdentifier} from "../../utilities/grid";
+  getGridIdentifier, getRowIndex,
+  getSelectedRowIndex
+} from "../../utilities/grid";
+import {compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty} from "../../utilities/general";
 
 /**
  * Manage action list

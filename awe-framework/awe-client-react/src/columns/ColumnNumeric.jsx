@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {withTranslation} from "react-i18next";
 import {InputNumber} from "primereact/inputnumber";
 import {translateNumberFormat} from "../utilities/numbers";
-import {formatMessage} from "../utilities";
+import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 class ColumnNumeric extends Component {
@@ -29,7 +29,7 @@ class ColumnNumeric extends Component {
         <InputNumber
         value={data.value}
         mode="decimal"
-        placeholder={t(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         required={required}
         disabled={readonly}
         locale={locale}

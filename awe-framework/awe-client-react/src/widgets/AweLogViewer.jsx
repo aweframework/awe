@@ -1,10 +1,11 @@
 import React from "react";
 import {LazyLog} from 'react-lazylog';
-import {bindMethods, fetchAction, getIconCode, isEmpty} from "../utilities";
+import {bindMethods, fetchAction, getIconCode} from "../utilities";
 import {getFormValues} from "../utilities/components";
 import {Button} from "primereact/button";
 import "./AweLogViewer.less";
 import {AweWidget, connectWidget} from "./AweWidget";
+import {isEmpty} from "../utilities/general";
 
 /**
  * AWE Log Viewer component

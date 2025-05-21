@@ -3,10 +3,10 @@ import {
   fetchFile,
   generateServerAction,
   getComponentValue,
-  getFirstDefinedAndNotNullValue,
   getRestUrl
 } from "../utilities";
 import i18n from "../i18n/i18n";
+import {getFirstDefinedAndNotNullValue} from "../utilities/general";
 
 let downloadIdentifier = 0;
 

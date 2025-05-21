@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {withTranslation} from "react-i18next";
 import {AutoComplete} from "primereact/autocomplete";
-import {bindMethods, formatMessage} from "../utilities";
+import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {classNames, suggest} from "../utilities/components";
 
 class ColumnSuggest extends Component {
@@ -63,7 +63,7 @@ class ColumnSuggest extends Component {
     return <AutoComplete
       ref={el => this.autocomplete = el}
       value={this.state.suggest}
-      placeholder={t(placeholder || label) + (required ? " *" : "")}
+      placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
       required={validationRules.required || required}
       disabled={data?.readonly || readonly}
       onChange={this.onChange}

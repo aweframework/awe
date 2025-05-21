@@ -5,7 +5,7 @@ import {OverlayPanel} from "primereact/overlaypanel";
 import {classNames, clickDropdown} from "../utilities/components";
 
 import "./AweInfoDropdown.less";
-import {getIconCode} from "../utilities";
+import {getIconCode, translateLabel} from "../utilities";
 import {Components} from "../utilities/structure";
 
 class AweInfoDropdown extends AweComponent {
@@ -36,7 +36,7 @@ class AweInfoDropdown extends AweComponent {
           className={classes}
           icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}
           disabled={this.props.disabled || disabled}
-          label={t(computedLabel)}
+          label={translateLabel(computedLabel, t)}
           iconPos={"left"}
           onClick={this.onClick}
         />

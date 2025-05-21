@@ -18,14 +18,6 @@ import {addActionsTop} from "../redux/actions/actions";
 class SubViewContainer extends AweView {
 
   /**
-   * Create the container
-   * @param {object} props Container properties
-   */
-  constructor(props) {
-    super(props);
-  }
-
-  /**
    * Component was mounted
    */
   componentDidMount() {

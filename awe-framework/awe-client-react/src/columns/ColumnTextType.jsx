@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import {InputText} from 'primereact/inputtext';
-import {bindMethods, formatMessage, isEmpty} from "../utilities";
+import {bindMethods, formatMessage} from "../utilities";
 import {classNames} from "../utilities/components";
+import {isEmpty} from "../utilities/general";
 
 export default class ColumnTextType extends Component {
 

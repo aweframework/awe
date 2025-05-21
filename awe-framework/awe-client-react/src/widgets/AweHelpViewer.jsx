@@ -1,8 +1,9 @@
 import React from "react";
-import {bindMethods, fetchHtml, getRestUrl, isEmpty, translateLabel} from "../utilities";
+import {bindMethods, fetchHtml, getRestUrl, translateLabel} from "../utilities";
 import {AweWidget, connectWidget} from "./AweWidget";
 import "./AweHelpViewer.less";
 import {Skeleton} from "primereact/skeleton";
+import {isEmpty} from "../utilities/general";
 
 /**
  * AWE Help Viewer component

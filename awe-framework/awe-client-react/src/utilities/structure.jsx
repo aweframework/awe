@@ -1,10 +1,11 @@
 import React from 'react';
 import {ComponentList, IGNORE_COMPONENT_LIST} from "../components/AweComponents";
 import {CriteriaList} from "../criteria/AweCriteria";
-import {extractCellModel, getFirstDefinedAndNotNullValue} from "./index";
 import {getComponentId} from "./components";
 import {Editor, Static} from "../columns/AweColumns";
 import parse from "html-react-parser";
+import {extractCellModel} from "./grid";
+import {getFirstDefinedAndNotNullValue} from "./general";
 
 /**
  * Get component

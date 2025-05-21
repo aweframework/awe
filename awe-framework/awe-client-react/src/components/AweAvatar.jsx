@@ -2,12 +2,13 @@ import React from "react";
 import {AweComponent, connectComponent} from "./AweComponent";
 import {OverlayPanel} from "primereact/overlaypanel";
 import {classNames, clickDropdown} from "../utilities/components";
-import {getFirstDefinedValue, getIconCode} from "../utilities";
+import {getIconCode, translateLabel} from "../utilities";
 
 import "./AweAvatar.less";
 import {Avatar} from "primereact/avatar";
 import {Badge} from "primereact/badge";
 import {Components} from "../utilities/structure";
+import {getFirstDefinedValue} from "../utilities/general";
 
 class AweAvatar extends AweComponent {
 
@@ -37,7 +38,7 @@ class AweAvatar extends AweComponent {
     let computedIcon = getFirstDefinedValue(values?.[0]?.icon, icon);
     let computedUnit = getFirstDefinedValue(values?.[0]?.unit, unit);
     let unitBadge = computedUnit && <Badge value={computedUnit}/>;
-    let labelSpan = showLabel && <span className={"avatar-name"} >{t(computedLabel)}</span>;
+    let labelSpan = showLabel && <span className={"avatar-name"} >{translateLabel(computedLabel, t)}</span>;
     let dropdown = actions.length === 0 && elementList.length > 0 && <OverlayPanel ref={(el) => this.op = el} dismissable className={"info-dropdown"}>
       {elementList.map((node, index) => Components(node, index))}
     </OverlayPanel>;
@@ -52,7 +53,7 @@ class AweAvatar extends AweComponent {
           icon={!computedImage && getIconCode(computedIcon, "p-button-icon p-c p-button-icon-left")}
           disabled={this.props.disabled || disabled}
           label={!computedImage && !computedIcon && (computedLabel || "").charAt(0).toUpperCase()}
-          title={t(computedLabel)}>
+          title={translateLabel(computedLabel, t)}>
           {unitBadge}
         </Avatar>
         {labelSpan}

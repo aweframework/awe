@@ -1,7 +1,7 @@
 import React from "react";
 import {connectComponent} from "./AweComponent";
 import {Accordion, AccordionTab} from "primereact/accordion";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {AwePanelableComponent} from "./AwePanelableComponent";
 import {Components} from "../utilities/structure";
 
@@ -52,7 +52,7 @@ class AweAccordionComponent extends AwePanelableComponent {
     const {t} = this.props;
     const {label} = node;
     if (label) {
-      return <span className={"window-header"}>{t(label)}</span>
+      return <span className={"window-header"}>{translateLabel(label, t)}</span>
     }
     return null;
   }

@@ -1,6 +1,7 @@
 import {validateComponent} from "../../../../src/redux/reducers/validation";
 import {parseValidationRules} from "../../../../src/utilities/components";
-import {isEmpty} from "../../../../src/utilities";
+
+import {isEmpty} from "../../../../src/utilities/general";
 
 function launchTest(state, validation, values, expected) {
   let validationRules = parseValidationRules(validation, state.components.component.address);

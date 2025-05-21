@@ -1,4 +1,4 @@
-import {getFirstDefinedAndNotNullValue, isEmpty} from "./index";
+import {getFirstDefinedAndNotNullValue, isEmpty} from "./general";
 
 /**
  * Number utility functions

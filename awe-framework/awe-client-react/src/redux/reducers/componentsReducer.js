@@ -31,13 +31,14 @@ import {
   VALIDATE_ROW,
 } from '../actions/components';
 
-import {getGridIdentifier} from "../../utilities/grid";
+import {extractCellModel, extractCellValue, getCellModel, getGridIdentifier} from "../../utilities/grid";
 
 import {getUID} from "../actions/settings";
 import _ from 'lodash';
 import {validateComponent, validateRow} from "./validation";
-import {asArray, extractCellModel, extractCellValue, getCellModel, getFirstDefinedValue} from "../../utilities";
+import {asArray} from "../../utilities";
 import {ComponentAddressType, getAddressType, getComponentId} from "../../utilities/components";
+import {getFirstDefinedValue} from "../../utilities/general";
 
 const {STATUS_DEFINED, STATUS_INITIALIZED} = ComponentStatus;
 const {ADDRESS_CELL, ADDRESS_COMPONENT} = ComponentAddressType;

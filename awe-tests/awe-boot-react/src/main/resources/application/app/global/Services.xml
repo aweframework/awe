@@ -416,4 +416,8 @@
     </java>
   </service>
 
+  <service id="wizardSteps">
+    <java classname="com.almis.awe.test.service.DummyService" method="wizardSteps"/>
+  </service>
+
 </services>
