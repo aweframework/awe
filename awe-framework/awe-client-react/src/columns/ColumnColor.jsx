@@ -3,7 +3,7 @@ import {InputText} from "primereact/inputtext";
 import {fromColor, toColor} from "../utilities/color";
 import {OverlayPanel} from "primereact/overlaypanel";
 import {ColorPicker} from "primereact/colorpicker";
-import {bindMethods, formatMessage} from "../utilities";
+import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 class ColumnColor extends Component {
@@ -50,7 +50,7 @@ class ColumnColor extends Component {
       <InputText
         value={toColor(value)}
         className={classNames(style, {[`p-inputtext-${size}`]: size, "p-invalid": data?.error})}
-        placeholder={t(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         onChange={this.onChange}
         onBlur={this.onBlur}
         required={required}

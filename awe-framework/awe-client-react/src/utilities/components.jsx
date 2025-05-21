@@ -5,13 +5,12 @@ import {
   fetchAction,
   generateServerAction,
   getCookie,
-  getFirstDefinedAndNotNullValue,
-  isEmpty,
   translateLabel
 } from "./index";
 import {getUID} from "../redux/actions/settings";
 import {formatNumber, getFirstDefinedValueAsNumber} from "./numbers";
 import {getGridData} from "./grid";
+import {getFirstDefinedAndNotNullValue, isEmpty} from "./general";
 
 /**
  * Upload status

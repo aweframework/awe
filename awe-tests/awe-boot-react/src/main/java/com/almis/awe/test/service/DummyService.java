@@ -579,4 +579,17 @@ public class DummyService extends ServiceConfig {
     DataListUtil.addColumn(dataList, "amount", List.of(amounts));
     return serviceData.setDataList(dataList);
   }
+
+  public ServiceData wizardSteps() throws AWException {
+    ServiceData serviceData = new ServiceData();
+
+    // Fill serviceData with dataList
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "value", Arrays.asList("WizardStep1", "WizardStep2", "WizardStep3", "WizardStep4"));
+    DataListUtil.addColumn(dataList, "label", Arrays.asList("ENUM_STEP_1", "ENUM_STEP_2", "ENUM_STEP_3", "ENUM_STEP_4"));
+    DataListUtil.addColumn(dataList, "title", Arrays.asList("SCREEN_TEXT_STEP 1", "SCREEN_TEXT_STEP 2", "SCREEN_TEXT_STEP 3", "SCREEN_TEXT_STEP 4"));
+    DataListUtil.addColumn(dataList, "icon", Arrays.asList("fa:home", "mdi:auto_fix_high", "mdi:add_a_photo", "mdi:landscape"));
+
+    return serviceData.setDataList(dataList);
+  }
 }

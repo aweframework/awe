@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {withTranslation} from "react-i18next";
 import {Calendar} from "primereact/calendar";
 import {fromDate, toDate} from "../utilities/dates";
-import {formatMessage} from "../utilities";
+import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 class ColumnDate extends Component {
@@ -26,7 +26,7 @@ class ColumnDate extends Component {
     const classes = classNames("column-editor", {"p-invalid": data?.error});
     return <Calendar
       value={toDate(data.value)}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       required={required}
       disabled={readonly}
       className={classes}

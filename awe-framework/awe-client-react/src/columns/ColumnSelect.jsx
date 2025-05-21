@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {withTranslation} from "react-i18next";
 import {Dropdown} from "primereact/dropdown";
-import {formatMessage} from "../utilities";
+import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 class ColumnSelect extends Component {
@@ -37,10 +37,10 @@ class ColumnSelect extends Component {
     const classes = classNames("column-editor", {"p-invalid": data?.error});
     return <Dropdown
         value={this.state.value}
-        placeholder={t(placeholder || label) + (required ? " *" : "")}
+        placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
         required={required}
         disabled={readonly}
-        options={model.values.map(value => ({...value, label: t(value.label)}))}
+        options={model.values.map(value => ({...value, label: translateLabel(value.label, t)}))}
         onChange={this.onChange}
         showClear={optional}
         className={classes}

@@ -7,7 +7,7 @@ import {
   generateMessageAction,
   getContextPath,
   getRestUrl,
-  getSizeString
+  getSizeString, translateLabel
 } from "../utilities";
 import {ProgressBar} from "primereact/progressbar";
 import {Button} from "primereact/button";
@@ -71,7 +71,7 @@ class ColumnUploader extends Component {
       <InputText
         className={classNames({"hidden": status === UPLOADING})}
         value={this.getValue()}
-        placeholder={t(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         disabled={readonly}
         readOnly={true}
         tooltip={formatMessage(data?.error, t)}

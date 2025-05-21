@@ -127,6 +127,7 @@
     <option name="dynamic-subscreen" label="MENU_TEST_DYNAMIC_SUB_SCREEN" invisible="true"
             dynamic-screen="true" dynamic-screen-service="dynamicSubScreen"/>
     <option name="wizard-test" label="MENU_TEST_WIZARD" screen="wizard" icon="magic"/>
+    <option name="wizard-vertical" label="MENU_TEST_WIZARD vertical" screen="wizard-vertical" icon="mdi:auto_fix_high"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>
     <option name="pivot-test" label="MENU_TEST_PIVOT" screen="pivot-test" icon="table"/>

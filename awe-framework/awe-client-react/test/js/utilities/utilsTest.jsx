@@ -1,9 +1,6 @@
 import {
-  extractCellModel,
-  extractCellValue,
   fetchHtml,
   fetchJson,
-  getCellValue,
   getContextPath,
   getHelpTooltipNode,
   getSizeString
@@ -11,6 +8,7 @@ import {
 import {waitFor} from "@testing-library/react";
 import {Tooltip} from "primereact/tooltip";
 import React from "react";
+import {extractCellModel, extractCellValue, getCellValue} from "../../../src/utilities/grid";
 
 describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
   it('should extract a cell value from array', () => {

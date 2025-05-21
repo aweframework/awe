@@ -1,6 +1,8 @@
-import {extractCellValue, getCellModel, getTranslateFunction} from "./index";
+import _ from "lodash";
+import {getTranslateFunction} from "./index";
 import {formatNumber, isNumber} from "./numbers";
 import {getDataDependingOnList, getVisibleTextData} from "./components";
+import {isEmpty} from "./general";
 
 /**
  * Grid utility functions
@@ -50,6 +52,146 @@ export const OperationIcon = {
   "INSERT": "pi pi-user-plus text-success",
   "UPDATE": "pi pi-user-edit text-info",
   "DELETE": "pi pi-user-minus text-danger"
+}
+
+/**
+ * Retrieve cell attribute
+ * @param {Object} model
+ * @param {String} attribute
+ * @return {*} value
+ * @memberOf Utilities
+ */
+export function getCellAttribute(model, attribute) {
+  return _.isPlainObject(model) && model != null ? model[attribute] : model;
+}
+
+/**
+ * Get cell
+ * @param {array} values Values
+ * @param {number} rowIndex Row index
+ * @param {string} columnId Column id
+ * @memberOf Utilities
+ */
+export function getCell(values, rowIndex, columnId) {
+  return rowIndex !== -1 ? values[rowIndex][columnId] || null : null;
+}
+
+/**
+ * Get cell value
+ * @param {mixed} cell Cell to extract
+ * @return {mixed} Cell value
+ * @memberOf Utilities
+ */
+export function extractCellValue(cell) {
+  if (Array.isArray(cell)) {
+    return cell
+      .filter(data => data.selected)
+      .map(data => data.value).join(", ");
+  } else if (_.isPlainObject(cell)) {
+    return cell.value;
+  } else {
+    return cell;
+  }
+}
+
+/**
+ * Get cell model
+ * @param {mixed} cell Cell to extract
+ * @return {object} Cell model
+ * @memberOf Utilities
+ */
+export function extractCellModel(cell) {
+  if (Array.isArray(cell)) {
+    return cell.reduce((prev, data) => data.selected ? data : prev, {value: null});
+  } else if (_.isPlainObject(cell)) {
+    return cell;
+  } else {
+    return {value: cell};
+  }
+}
+
+/**
+ * Get cell value
+ * @param values
+ * @param rowIndex
+ * @param columnId
+ * @memberOf Utilities
+ */
+export function getCellValue(values, rowIndex, columnId) {
+  return extractCellValue(getCell(values, rowIndex, columnId));
+}
+
+/**
+ * Get cell model
+ * @param {mixed} value Value
+ * @param {object} column Column definition
+ * @returns {Object}
+ * @memberOf Utilities
+ */
+export function getCellModel(value = "", column = {}) {
+  let colModel = column?.model || {values: []};
+  if (Array.isArray(value)) {
+    return value.find(item => item.selected) || {value: null};
+  } else if (_.isPlainObject(value)) {
+    return {value: null, ...value};
+  } else if (colModel.values.length > 0) {
+    return colModel.values.find(item => String(item.value) === String(value)) || {value: value, label: value};
+  } else {
+    return {value: value, label: value};
+  }
+}
+
+/**
+ * Get row index
+ * @param {array} values Values
+ * @param {number|string} rowId Row id
+ * @returns {number} Row index
+ * @memberOf Utilities
+ */
+export function getRowIndex(values, rowId) {
+  return values.findIndex(row => String(row.id) === String(rowId));
+}
+
+/**
+ * Get selected row index
+ * @param {array} values Values
+ * @returns {number} Row index
+ * @memberOf Utilities
+ */
+export function getSelectedRowIndex(values) {
+  return values.findIndex(row => row.selected);
+}
+
+/**
+ * Get editing row index
+ * @param {array} values Values
+ * @returns {number} Row index
+ * @memberOf Utilities
+ */
+export function getEditingRowIndex(values) {
+  return values.findIndex(row => row.$row?.editing);
+}
+
+/**
+ * Get existing index in a list of indexes
+ * @param values Index values
+ * @returns {number} Existing index
+ */
+export function getExistingIndex(values) {
+  let value = values
+    .filter(v => typeof v === 'number')
+    .filter(v => v > -1)[0]
+  return isEmpty(value) ? -1 : value;
+}
+
+/**
+ * Get editing row
+ * @param {array} values Values
+ * @returns {object} Found row or empty object
+ * @memberOf Utilities
+ */
+export function getEditingRow(values) {
+  return values.find(row => row.$row?.editing) || {};
 }
 
 /**
@@ -207,10 +349,10 @@ export function getGridData(grid, model, props, forPrinting) {
   const {values} = model;
   const {sendAll, editable, multioperation, columnModel, id} = attributes;
   const selected = values.filter((value) => value.selected);
-  const editing = values.filter((value) => (value.$row || {}).editing);
+  const editing = values.filter((value) => value?.$row?.editing);
   let sendable = values;
   if (multioperation) {
-    sendable = values.filter((value) => (value.$row || {}).operation);
+    sendable = values.filter((value) => value?.$row?.operation);
   } else if (!sendAll) {
     sendable = values.filter((value) => value.selected);
   }
@@ -227,7 +369,7 @@ export function getGridData(grid, model, props, forPrinting) {
     ...forPrinting ? getGridPrintData(grid, model, props) : {},
     [id]: sendable.map(value => value.id),
     ...(editable || multioperation ? {[`${id}.editing`]: editing.map(value => value.id)} : {}),
-    ...(multioperation ? {[`${id}-RowTyp`]: sendable.map(value => (value.$row || {}).operation)} : {})
+    ...(multioperation ? {[`${id}-RowTyp`]: sendable.map(value => value?.$row?.operation)} : {})
   };
 }
 

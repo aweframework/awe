@@ -2,7 +2,7 @@ import React from "react";
 import {Button} from "primereact/button";
 import {AweComponent, connectComponent} from "./AweComponent";
 import {ButtonTypes} from "../redux/actions/components";
-import {bindMethods, getHelpTooltipNode, getIconCode} from "../utilities";
+import {bindMethods, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 const {BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL} = ButtonTypes;
@@ -78,7 +78,7 @@ class AweButton extends AweComponent {
         className={classes}
         icon={getIconCode(icon, classNames("p-button-icon", "p-c",  "p-button-icon-left", {[`text-${size}`]: size}), )}
         disabled={this.props.disabled || disabled}
-        label={t(label)}
+        label={translateLabel(label, t)}
         iconPos={"left"}
         onClick={this.onClick}
         data-pr-position={"bottom"}

@@ -2,7 +2,9 @@ import React from "react";
 import {AweComponent, connectComponent} from "./AweComponent";
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
-import {bindMethods, extractCellValue, isEmpty} from "../utilities";
+import {bindMethods} from "../utilities";
+import {extractCellValue} from "../utilities/grid";
+import {isEmpty} from "../utilities/general";
 
 /**
  * AWE Pivot Table component

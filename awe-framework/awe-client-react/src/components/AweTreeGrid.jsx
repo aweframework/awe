@@ -2,7 +2,7 @@ import React from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
 import {connectComponent} from "./AweComponent";
-import {bindMethods, generateServerAction, isEmpty} from "../utilities";
+import {bindMethods, generateServerAction} from "../utilities";
 import {getWidthStyle} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import {Columns} from "../utilities/structure";
@@ -13,6 +13,7 @@ import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
 import {Ripple} from "primereact/ripple";
 import _ from "lodash";
+import {isEmpty} from "../utilities/general";
 
 /**
  * AWE Grid component
@@ -149,7 +150,7 @@ class AweTreeGrid extends AweGridCommons {
             addActionsTop,
             address: {...address, column, row: rowData.data[treeId]},
             t, settings
-          }, rowData.data[column], (rowData.$row || {}).editing)
+          }, rowData.data[column], rowData?.$row?.editing)
         }
       </div>;
     } else {

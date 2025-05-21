@@ -3,14 +3,59 @@ import {connectComponent} from "./AweComponent";
 import {Steps} from "primereact/steps";
 import {AwePanelableComponent} from "./AwePanelableComponent";
 import {Components} from "../utilities/structure";
+import './AweSteps.less';
+import {getIconCode, translateLabel} from "../utilities";
 
 class AweSteps extends AwePanelableComponent {
 
-  render() {
-    const {model, t, disabled, elementList = []} = this.props;
+  titleRenderer(title) {
+    const {t} = this.props;
+    return title ? <span className={`p-steps-supertitle`}>{translateLabel(title, t)}</span> : null;
+  }
+
+  labelRenderer(label) {
+    const {t} = this.props;
+    return label ? <span className={`p-steps-title`}>{translateLabel(label, t)}</span> : null;
+  }
+
+  iconRenderer(icon, number) {
+    return icon ? getIconCode(icon) : number;
+  }
+
+  itemRenderer(item, itemIndex) {
+
     const activeIndex = this.getActiveIndex();
-    return <div className={"p-steps-container expand expandible-vertical"}>
-      <Steps model={model.values.map((item, index) => ({label: t(item.label), icon: item.icon, disabled: disabled || index > activeIndex }))}
+    let icon = item.icon;
+    let stepClass = "p-step-pending";
+
+    if (activeIndex === itemIndex) {
+      stepClass = "p-step-current";
+    } else if (activeIndex > itemIndex) {
+      stepClass = "p-step-completed";
+      icon = "pi:check";
+    }
+
+    return (
+      <a href="#" className={`p-menuitem-link ${stepClass}`} onClick={() => this.onChange(itemIndex)} tabIndex={-1}>
+        <span className="p-steps-number">{this.iconRenderer(icon, itemIndex + 1)}</span>
+        <div className={`p-steps-text`}>
+          {this.titleRenderer(item.title)}
+          {this.labelRenderer(item.label)}
+        </div>
+      </a>
+    );
+  };
+
+  render() {
+    const {model, disabled, orientation = "horizontal", elementList = []} = this.props;
+    const activeIndex = this.getActiveIndex();
+    const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
+    return <div className={`p-steps-container expand expandible-${expandible} orientation-${orientation}`}>
+      <Steps model={model.values.map((item, index) => ({
+        ...item,
+        disabled: disabled || index > activeIndex,
+        template: (item) => this.itemRenderer(item, index)
+      }))}
              activeIndex={activeIndex}
              onSelect={this.onChange}
              readOnly={false}

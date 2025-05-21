@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {withTranslation} from "react-i18next";
 import {Calendar} from "primereact/calendar";
-import {bindMethods, formatMessage} from "../utilities";
+import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {
   fromDate,
   getAvailableDates,
@@ -58,7 +58,7 @@ class ColumnFilteredDate extends Component {
     const classes = classNames("column-editor", {"p-invalid": data?.error});
     return <Calendar
       value={toDate(data.value)}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       required={required}
       readOnlyInput={readonly}
       className={classes}

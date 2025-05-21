@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {Badge} from 'primereact/badge';
 import {withTranslation} from "react-i18next";
-import {bindMethods, getIconCode} from "../utilities";
+import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import "./ColumnTextView.less";
 import {classNames, getVisibleTextData} from "../utilities/components";
 import PropTypes from "prop-types";
@@ -42,7 +42,7 @@ class ColumnTextView extends Component {
     return <button className={classes} title={t(title || label)} onClick={this.onClick} onKeyDown={this.onKeyDown}>
       <span className={"text-view-icon"}>{getIconCode(icon, "fa-fw")}</span>
       <span className={"text-view-text"} style={{textAlign: align}}>{getVisibleTextData(label || value, t)}</span>
-      {unit && <Badge value={t(unit)} severity="secondary" style={{justifyContent: "center"}}/>}
+      {unit && <Badge value={translateLabel(unit, t)} severity="secondary" style={{justifyContent: "center"}}/>}
     </button>;
   }
 }

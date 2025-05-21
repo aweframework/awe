@@ -6,6 +6,8 @@ import React from "react";
 import {Tooltip} from "primereact/tooltip";
 import {ComponentType, getVisibleTextData} from "./components";
 import {formatNumber} from "./numbers";
+import {isEmpty} from "./general";
+
 const {
   COMPONENT_NUMERIC,
   COMPONENT_TIME,
@@ -30,52 +32,6 @@ export function combineActions() {
     .reduce((allActions, actions) => ({...allActions, ...actions}), {});
 }
 
-/**
- * Compare if two values are equal
- * @param {type} value1
- * @param {type} value2
- * @returns {Boolean}
- * @memberOf Utilities
- */
-export function compareEqualValues(value1, value2) {
-  let equals;
-  if (typeof value1 === typeof value2) {
-    equals = value1 === value2;
-  } else {
-    equals = (isEmpty(value1) && isEmpty(value2)) ||
-      String(value1) === String(value2);
-  }
-  return equals;
-}
-
-
-/**
- * Get first defined value
- * @returns {*}
- * @memberOf Utilities
- */
-export function getFirstDefinedValue() {
-  return getFirstDefined(arguments, [undefined]);
-}
-
-/**
- * Get first defined value and not null
- * @returns {*}
- * @memberOf Utilities
- */
-export function getFirstDefinedAndNotNullValue() {
-  return getFirstDefined(arguments, [undefined, null]);
-}
-
-/**
- * Get first defined value
- * @param {array} values Values to check
- * @param {array} exclude Excluded values
- * @return {*}
- */
-function getFirstDefined(values, exclude) {
-  return [...values].reduce((items, item) => exclude.includes(items) ? item : items, undefined);
-}
 
 /**
  * Get REST url
@@ -118,146 +74,6 @@ export function asArray(value) {
  */
 export function componentValue(list) {
   return list.reduce((items, item) => items == null ? item : [...asArray(items), item], null);
-}
-
-/**
- * Retrieve cell attribute
- * @param {Object} model
- * @param {String} attribute
- * @return {*} value
- * @memberOf Utilities
- */
-export function getCellAttribute(model, attribute) {
-  return _.isPlainObject(model) && model != null ? model[attribute] : model;
-}
-
-/**
- * Get cell
- * @param {array} values Values
- * @param {number} rowIndex Row index
- * @param {string} columnId Column id
- * @memberOf Utilities
- */
-export function getCell(values, rowIndex, columnId) {
-  return rowIndex !== -1 ? values[rowIndex][columnId] || null : null;
-}
-
-/**
- * Get cell value
- * @param {mixed} cell Cell to extract
- * @return {mixed} Cell value
- * @memberOf Utilities
- */
-export function extractCellValue(cell) {
-  if (Array.isArray(cell)) {
-    return cell
-      .filter(data => data.selected)
-      .map(data => data.value).join(", ");
-  } else if (_.isPlainObject(cell)) {
-    return cell.value;
-  } else {
-    return cell;
-  }
-}
-
-/**
- * Get cell model
- * @param {mixed} cell Cell to extract
- * @return {object} Cell model
- * @memberOf Utilities
- */
-export function extractCellModel(cell) {
-  if (Array.isArray(cell)) {
-    return cell.reduce((prev, data) => data.selected ? data : prev, {value: null});
-  } else if (_.isPlainObject(cell)) {
-    return cell;
-  } else {
-    return {value: cell};
-  }
-}
-
-/**
- * Get cell value
- * @param values
- * @param rowIndex
- * @param columnId
- * @memberOf Utilities
- */
-export function getCellValue(values, rowIndex, columnId) {
-  return extractCellValue(getCell(values, rowIndex, columnId));
-}
-
-/**
- * Get cell model
- * @param {mixed} value Value
- * @param {object} column Column definition
- * @returns {Object}
- * @memberOf Utilities
- */
-export function getCellModel(value = "", column= {}) {
-  let colModel = column?.model || {values: []};
-  if (Array.isArray(value)) {
-    return value.find(item => item.selected) || {value: null};
-  } else if (_.isPlainObject(value)) {
-    return {value: null, ...value};
-  } else if (colModel.values.length > 0) {
-    return colModel.values.find(item => String(item.value) === String(value)) || {value: value, label: value};
-  } else {
-    return {value: value, label: value};
-  }
-}
-
-/**
- * Get row index
- * @param {array} values Values
- * @param {number|string} rowId Row id
- * @returns {number} Row index
- * @memberOf Utilities
- */
-export function getRowIndex(values, rowId) {
-  return values.findIndex(row => String(row.id) === String(rowId));
-}
-
-/**
- * Get selected row index
- * @param {array} values Values
- * @returns {number} Row index
- * @memberOf Utilities
- */
-export function getSelectedRowIndex(values) {
-  return values.findIndex(row => row.selected);
-}
-
-/**
- * Get editing row index
- * @param {array} values Values
- * @returns {number} Row index
- * @memberOf Utilities
- */
-export function getEditingRowIndex(values) {
-  return values.findIndex(row => row.$row?.editing);
-}
-
-/**
- * Get existing index in a list of indexes
- * @param values Index values
- * @returns {number} Existing index
- */
-export function getExistingIndex(values) {
-  let value = values
-    .filter(v => typeof v === 'number')
-    .filter(v => v > -1)[0]
-  return isEmpty(value) ? -1 : value;
-}
-
-/**
- * Get editing row
- * @param {array} values Values
- * @returns {object} Found row or empty object
- * @memberOf Utilities
- */
-export function getEditingRow(values) {
-  return values.find(row => row.$row?.editing) || {};
 }
 
 /**
@@ -330,16 +146,6 @@ export function formatMessage(error, t) {
   } else {
     return undefined;
   }
-}
-
-/**
- * Returns true if a variable is null or empty
- * @param {Object} n Variable to test
- * @return {boolean} String is null or undefined
- * @memberOf Utilities
- */
-export function isEmpty(n) {
-  return n === null || n === undefined || String(n).trim() === ""
 }
 
 /**

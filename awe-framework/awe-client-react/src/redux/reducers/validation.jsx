@@ -1,15 +1,14 @@
 // Retrieve default settings
 import {
-  extractCellValue,
-  getCellModel,
   getComponentValue,
   getGroupSelectedValues,
-  getSelectedValues,
-  isEmpty
+  getSelectedValues
 } from "../../utilities";
 import {toDate} from "../../utilities/dates";
 import validateDate from "validate-date";
 import {getComponentId} from "../../utilities/components";
+import {extractCellValue, getCellModel} from "../../utilities/grid";
+import {isEmpty} from "../../utilities/general";
 
 const patterns = {
   TEXT: /^[A-Za-z]+$/,

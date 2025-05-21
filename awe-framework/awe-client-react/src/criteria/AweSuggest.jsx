@@ -5,6 +5,7 @@ import {AutoComplete} from "primereact/autocomplete";
 import "./AweSuggest.less";
 import AweSuggestComponent from "./AweSuggestComponent";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweSuggest extends AweSuggestComponent {
 
@@ -15,7 +16,7 @@ class AweSuggest extends AweSuggestComponent {
       ref={el => this.autocomplete = el}
       id={address.component}
       value={Array.isArray(this.state.suggest) ? this.state.suggest[0] || null : this.state.suggest}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       required={required}
       disabled={readonly}
       onChange={this.onChange}

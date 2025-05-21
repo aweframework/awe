@@ -1,6 +1,7 @@
 import React from "react";
 import {AweComponent, connectComponent} from "./AweComponent";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweImage extends AweComponent {
 
@@ -14,7 +15,7 @@ class AweImage extends AweComponent {
           src={url}
           alt={alternateUrl}
           className={classes}
-          title={t(title)}/>;
+          title={translateLabel(title, t)}/>;
   }
 }
 

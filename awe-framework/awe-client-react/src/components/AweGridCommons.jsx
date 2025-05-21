@@ -3,11 +3,12 @@ import {Column} from "primereact/column";
 import {AweComponent} from "./AweComponent";
 import {Columns} from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
-import {bindMethods, getIconCode, isEmpty} from "../utilities";
+import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import {calculateFooterValue, getGridIdentifier, getWidthStyle, OperationIcon} from "../utilities/grid";
 import "./AweGridCommons.less";
 import AweButton from "./AweButton";
 import {ContextMenu} from "primereact/contextmenu";
+import {isEmpty} from "../utilities/general";
 
 /**
  * Map contextMenu
@@ -164,8 +165,8 @@ export class AweGridCommons extends AweComponent {
                                     bodyStyle={getWidthStyle(null, null, '32px')}
                                     style={{textAlign: "center"}}
                                     footer={null}
-                                    body={rowData => <i role={(rowData.$row || {}).operation}
-                                                        className={OperationIcon[(rowData.$row || {}).operation]}/>}/> : null;
+                                    body={rowData => <i role={rowData?.$row?.operation}
+                                                        className={OperationIcon[rowData?.$row?.operation]}/>}/> : null;
   }
 
   columnTemplate(col, rowSpan) {
@@ -173,7 +174,7 @@ export class AweGridCommons extends AweComponent {
     const {enableFilters = false} = attributes;
     const {name, sortField, label, charlength, width, sortable} = col;
 
-    return <Column key={name} field={sortField || name} header={t(label)}
+    return <Column key={name} field={sortField || name} header={translateLabel(label, t)}
                    style={{textAlign: "center", ...getWidthStyle(charlength, width)}}
                    sortable={sortable} rowSpan={rowSpan} filter={enableFilters}/>;
   }
@@ -184,7 +185,7 @@ export class AweGridCommons extends AweComponent {
     return <Column
       key={startColumnName}
       field={startColumnName}
-      header={t(label)}
+      header={translateLabel(label, t)}
       style={{textAlign: "center"}}
       colSpan={numberOfColumns}
     />;

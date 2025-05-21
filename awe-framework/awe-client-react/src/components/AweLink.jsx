@@ -1,6 +1,7 @@
 import React from "react";
 import {AweComponent, connectComponent} from "./AweComponent";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweLink extends AweComponent {
 
@@ -14,7 +15,7 @@ class AweLink extends AweComponent {
           href={url}
           target={"_blank"}
           className={classes}
-          title={t(title)}>
+          title={translateLabel(title, t)}>
       <span className={"link-text"}>{t(label)}</span>
     </a>;
   }

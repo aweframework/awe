@@ -1,5 +1,5 @@
-import {extractCellValue, generateMessageAction, getActionAddress, getComponent} from "../../utilities";
-import {getGridIdentifier, getRow, OperationType, RowPositionType} from "../../utilities/grid";
+import {generateMessageAction, getActionAddress, getComponent} from "../../utilities";
+import {extractCellValue, getGridIdentifier, getRow, OperationType, RowPositionType} from "../../utilities/grid";
 
 const {BEFORE, AFTER, FIRST, LAST, CHILD} = RowPositionType;
 const {INSERT, UPDATE, DELETE} = OperationType;

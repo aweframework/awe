@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {withTranslation} from "react-i18next";
 import {Button} from "primereact/button";
 import {ButtonTypes} from "../redux/actions/components";
-import {bindMethods, getIconCode} from "../utilities";
+import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 const {BUTTON_RESET} = ButtonTypes;
@@ -40,7 +40,7 @@ class ColumnButton extends Component {
       className={classes}
       icon={getIconCode(data.icon || icon, "p-button-icon p-c")}
       disabled={disabled}
-      label={label ? t(label) : null}
+      label={label ? translateLabel(label, t) : null}
       iconPos={"left"}
       onClick={this.onClick}
     />;

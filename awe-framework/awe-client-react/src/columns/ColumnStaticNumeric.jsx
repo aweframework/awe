@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {formatNumber} from "../utilities/numbers";
-import {extractCellValue} from "../utilities";
+
+import {extractCellValue} from "../utilities/grid";
 
 export default class ColumnStaticNumeric extends Component {
 

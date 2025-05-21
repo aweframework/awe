@@ -14,8 +14,8 @@
       <button-action type="dialog" target="HlpOpt"/>
     </button>
   </tag>
-  <tag source="center">
-    <wizard id="wizardTest" initial-load="query" target-action="wizardSteps">
+  <tag source="center" expandible="horizontal">
+    <wizard id="wizardTest" initial-load="query" target-action="wizardSteps" orientation="vertical">
       <wizard-panel id="WizardStep1">
         <tag type="div" style="expand" expandible="vertical">
           <tag type="div" style="panel-body expand">
