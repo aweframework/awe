@@ -36,7 +36,7 @@ class AweSteps extends AwePanelableComponent {
     }
 
     return (
-      <button className={`p-menuitem-link ${stepClass}`} onClick={() => this.onChange(itemIndex)} tabIndex={-1}>
+      <button className={`p-menuitem-link ${stepClass}`} onClick={() => this.onChange({index: itemIndex})} tabIndex={-1}>
         <span className="p-steps-number">{this.iconRenderer(icon, itemIndex + 1)}</span>
         <div className={`p-steps-text`}>
           {this.titleRenderer(item.title)}
