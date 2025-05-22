@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.0.11
+*22/05/2025*
+
+- Fix onChange parameters on wizard step click. [MR #86](https://gitlab.com/aweframework/awe-react/-/merge_requests/86) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.10
 *22/05/2025*
 
