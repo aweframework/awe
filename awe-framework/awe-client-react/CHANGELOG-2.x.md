@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.0.10
+*22/05/2025*
+
+- Fix wizard navigation issues. [MR #85](https://gitlab.com/aweframework/awe-react/-/merge_requests/85) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.9
 *21/05/2025*
 
