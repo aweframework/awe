@@ -1171,6 +1171,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_SEL_DAT" value="Select date"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Printer selection"/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Put file name without any extension"/>
+  <locale name="SCREEN_TEXT_SELECTED" value="Selected"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servers"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Settings"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>

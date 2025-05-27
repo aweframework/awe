@@ -1171,6 +1171,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_SEL_DAT" value="Sélectionnez la date"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Printer selection"/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Mettre de nom de fichier sans extension"/>
+  <locale name="SCREEN_TEXT_SELECTED" value="Choisi"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Les serveurs"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Réglages"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
