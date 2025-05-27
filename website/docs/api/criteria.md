@@ -233,14 +233,14 @@ It works in a similar way of a multiselect criterion, but is more intuitive
 
 To fill the picklist the component uses the following columns in a query:
 
-| Attribute  | Use          | Type    | Description         | Values                                                                                                            |
-|------------|--------------|---------|---------------------|-------------------------------------------------------------------------------------------------------------------|
-| value      | **Required** | String  | Element identifier  | Element value (value sent to server)                                                                              |
-| label      | **Required** | String  | Element title       | Element title  **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                         |
-| label      | Optional     | String  | Element description | Element description  **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                   |
-| unit       | Optional     | String  | Element unit text   | Text shown on the right of the element **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| icon       | Optional     | String  | Element icon        | Icon shown on the left of the description **Note:** You can check all iconsets at [icons](icons.md) screen        |
-| image      | Optional     | String  | Element image       | URL to image shown on the left of the element                                                                     |
+| Attribute   | Use          | Type    | Description         | Values                                                                                                            |
+|-------------|--------------|---------|---------------------|-------------------------------------------------------------------------------------------------------------------|
+| value       | **Required** | String  | Element identifier  | Element value (value sent to server)                                                                              |
+| label       | **Required** | String  | Element title       | Element title  **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                         |
+| description | Optional     | String  | Element description | Element description  **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                   |
+| unit        | Optional     | String  | Element unit text   | Text shown on the right of the element **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+| icon        | Optional     | String  | Element icon        | Icon shown on the left of the description **Note:** You can check all iconsets at [icons](icons.md) screen        |
+| image       | Optional     | String  | Element image       | URL to image shown on the left of the element                                                                     |
 
 > **Note**: Picklist is only available in the new `AWE React` engine
 
