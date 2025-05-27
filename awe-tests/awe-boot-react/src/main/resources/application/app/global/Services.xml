@@ -420,4 +420,8 @@
     <java classname="com.almis.awe.test.service.DummyService" method="wizardSteps"/>
   </service>
 
+  <service id="carousel">
+    <java classname="com.almis.awe.test.service.DummyService" method="carousel"/>
+  </service>
+
 </services>
