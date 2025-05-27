@@ -3001,7 +3001,8 @@
     <variable value="currentYear" type="STRING" id="years" />
   </query>
 
-  <query id="wizardSteps" service="wizardSteps">
-  </query>
+  <query id="wizardSteps" service="wizardSteps"/>
+
+  <query id="carousel" service="carousel"/>
 
 </queries>

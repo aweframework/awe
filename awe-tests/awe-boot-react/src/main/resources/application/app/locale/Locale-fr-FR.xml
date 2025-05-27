@@ -72,6 +72,7 @@
   <locale name="MENU_TEST" value="Test"/>
   <locale name="MENU_TEST_ACCORDIONS" value="Accordéons"/>
   <locale name="MENU_TEST_BUTTONS" value="Boutons"/>
+  <locale name="MENU_TEST_CAROUSEL" value="Carousel"/>
   <locale name="MENU_TEST_CHART_DYNAMIC_SERIES" value="Série dynamique"/>
   <locale name="MENU_TEST_CHARTS" value="Graphiques"/>
   <locale name="MENU_TEST_CRITERIA" value="Critères"/>
