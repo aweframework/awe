@@ -8470,4 +8470,28 @@
     border-color: #d9d8d9;
   }
 }
+
+.p-steps-container .p-steps .p-steps-item .p-menuitem-link .p-steps-text .p-steps-supertitle {
+  color: var(--gray-500)
+}
+
+.p-steps-container .p-steps .p-steps-item .p-menuitem-link.p-step-completed .p-steps-number {
+  background: var(--primary-color);
+  color: var(--surface-a);
+}
+
+.p-steps-container .p-steps .p-steps-item .p-menuitem-link.p-step-completed .p-steps-text .p-steps-title {
+  font-weight: bold;
+}
+
+.p-steps-container .p-steps .p-steps-item .p-menuitem-link.p-step-current .p-steps-number {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  background: var(--surface-a);
+}
+
+.p-steps-container.orientation-vertical .p-steps .p-steps-item:before {
+  border-right: 1px solid var(--surface-d);
+}
+
 /* Customizations to the designer theme should be defined here */

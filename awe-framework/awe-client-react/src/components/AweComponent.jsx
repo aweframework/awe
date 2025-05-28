@@ -14,7 +14,6 @@ import {
   afterSaveRow,
   keepModel,
   updateAttributes,
-  updateComponent,
   updateModel,
   updateModelWithDependencies,
   updateMultipleComponentsWithDependencies,
@@ -86,7 +85,6 @@ function mapStateToProps(state, ownProps) {
  * @returns {function} connect method
  */
 export const connectComponent = (component)=> connect(mapStateToProps, {
-  updateComponent,
   updateAttributes,
   updateSpecificAttributes,
   updateModel,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Document   : Locale-EN
+  Document   : Locale-en-GB
   Description: Application Locales
 -->
 
@@ -114,6 +114,7 @@
   <locale name="PARAMETER_NUMERIC" value="Numeric"/>
   <locale name="PARAMETER_NUMERIC_READONLY" value="Numeric (read)"/>
   <locale name="PARAMETER_OTHER" value="Other"/>
+  <locale name="PARAMETER_PICKLIST" value="Picklist"/>
   <locale name="PARAMETER_PRESSED_BUTTON" value="Pressed button"/>
   <locale name="PARAMETER_RADIO_1" value="Radio Button 1"/>
   <locale name="PARAMETER_RADIO_2" value="Radio Button 2"/>

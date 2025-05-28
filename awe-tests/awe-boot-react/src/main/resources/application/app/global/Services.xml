@@ -424,4 +424,8 @@
     <java classname="com.almis.awe.test.service.DummyService" method="carousel"/>
   </service>
 
+  <service id="picklist">
+    <java classname="com.almis.awe.test.service.DummyService" method="picklist"/>
+  </service>
+
 </services>

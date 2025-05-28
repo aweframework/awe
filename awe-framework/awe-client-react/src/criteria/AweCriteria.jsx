@@ -18,6 +18,7 @@ import AweButtonCheckbox from "./AweButtonCheckbox";
 import AweButtonRadio from "./AweButtonRadio";
 import AweInputUploader from "./AweInputUploader";
 import AweInputEditor from "./AweInputEditor";
+import AwePicklist from "./AwePicklist";
 
 export const CriteriaList = {
   "hidden": AweInputHidden,
@@ -39,5 +40,6 @@ export const CriteriaList = {
   "button-checkbox": AweButtonCheckbox,
   "button-radio": AweButtonRadio,
   "uploader": AweInputUploader,
-  "markdown-editor": AweInputEditor
+  "markdown-editor": AweInputEditor,
+  "picklist": AwePicklist
 };

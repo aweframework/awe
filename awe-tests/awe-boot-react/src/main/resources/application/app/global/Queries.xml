@@ -3005,4 +3005,6 @@
 
   <query id="carousel" service="carousel"/>
 
+  <query id="picklist" service="picklist"/>
+
 </queries>

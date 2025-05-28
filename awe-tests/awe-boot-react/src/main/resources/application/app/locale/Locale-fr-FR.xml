@@ -114,6 +114,7 @@
   <locale name="PARAMETER_NUMERIC" value="Numérique"/>
   <locale name="PARAMETER_NUMERIC_READONLY" value="Numérique (lecture)"/>
   <locale name="PARAMETER_OTHER" value="Autre"/>
+  <locale name="PARAMETER_PICKLIST" value="Sélecteur"/>
   <locale name="PARAMETER_PRESSED_BUTTON" value="Bouton enfoncé"/>
   <locale name="PARAMETER_RADIO_1" value="Bouton Radio 1"/>
   <locale name="PARAMETER_RADIO_2" value="Bouton Radio 2"/>

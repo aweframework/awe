@@ -321,9 +321,10 @@
             <dependency-element id="TxtVal"/>
           </dependency>
         </criteria>
-        <avatar id="prueba-avatar" icon="mdi:person_outline" label="prueba" image="images/flags/MOD.svg" show-label="true" size="lg">
+        <avatar id="prueba-avatar" style="col-xs-6 col-sm-3 col-lg-2" icon="mdi:person_outline" label="prueba" image="images/flags/MOD.svg" show-label="true" size="lg">
           <button-action type="validate" />
         </avatar>
+        <criteria label="PARAMETER_PICKLIST" style="col-xs-12 col-sm-6" id="picklist" variable="picklist" component="picklist" initial-load="query" target-action="picklist"/>
       </tag>
     </window>
   </tag>

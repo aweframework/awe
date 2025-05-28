@@ -31,7 +31,7 @@ class AweAvatar extends AweComponent {
     const {t, elementList, attributes, model, actions} = this.props;
     const {values = []} = model;
     const {style, icon, disabled, label, size, unit, image, showLabel = true} = attributes;
-    const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", {[`p-button-${size}`]: size}, style);
+    const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", {[`p-button-${size}`]: size});
 
     let computedLabel = getFirstDefinedValue(values?.[0]?.label, label);
     let computedImage = getFirstDefinedValue(values?.[0]?.image, image);
@@ -43,7 +43,7 @@ class AweAvatar extends AweComponent {
       {elementList.map((node, index) => Components(node, index))}
     </OverlayPanel>;
     return <>
-      <div className="avatar-component p-overlay-badge" onClick={this.onClick} role="button" onKeyDown={this.onClick}>
+      <div className={`avatar-component p-overlay-badge ${style}`} onClick={this.onClick} role="button" onKeyDown={this.onClick}>
         <Avatar
           id={this.props.address.component}
           type="button"
