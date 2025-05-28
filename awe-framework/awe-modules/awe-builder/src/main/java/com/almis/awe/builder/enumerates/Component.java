@@ -27,7 +27,8 @@ public enum Component {
   TEXT_VIEW("text-view"),
   TEXTAREA("textarea"),
   TIME("time"),
-  UPLOADER("uploader");
+  UPLOADER("uploader"),
+  PICKLIST("picklist");
   
   private final String value;
 

@@ -1174,6 +1174,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_SEL_DAT" value="Seleccione una fecha"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Selección de impresora"/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Poner nombre de archivo sin la extensión"/>
+  <locale name="SCREEN_TEXT_SELECTED" value="Seleccionados"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servidores"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Opciones"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>

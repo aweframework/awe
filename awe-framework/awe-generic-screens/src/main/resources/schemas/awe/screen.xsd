@@ -551,6 +551,7 @@
     <xs:attribute name="initial-load" use="required" type="initialLoadEnum" />
     <xs:attribute name="target-action" use="required" type="nameEnum" />
     <xs:attribute name="label" type="xs:string" />
+    <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="orientation" type="orientationEnum" />
   </xs:attributeGroup>
 
@@ -1348,6 +1349,7 @@
       <xs:enumeration value="suggest" />
       <xs:enumeration value="suggest-multiple" />
       <xs:enumeration value="select-multiple" />
+      <xs:enumeration value="picklist" />
       <xs:enumeration value="date" />
       <xs:enumeration value="time" />
       <xs:enumeration value="filtered-calendar" />

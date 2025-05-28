@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.13
+*28/05/2025*
+
+- Add a new picklist component similar to select-multiple. [MR #562](https://gitlab.com/aweframework/awe/-/merge_requests/562) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.12
 *14/05/2025*
 
