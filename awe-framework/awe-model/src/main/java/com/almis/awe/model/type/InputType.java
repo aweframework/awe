@@ -43,5 +43,6 @@ public enum InputType {
   ACCORDION,
   WIZARD,
   GRID,
+  PICKLIST,
   OTHER
 }
