@@ -2,7 +2,7 @@ import React from "react";
 import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
 import {Calendar} from "primereact/calendar";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {fromDate, getAvailableDates, getDisabledDates, getMaxDate, getMinDate, toDate} from "../utilities/dates";
 
@@ -31,7 +31,7 @@ class AweInputFilteredDate extends AweTextComponent {
       id={address.component}
       value={toDate(this.getValue())}
       className={classes}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}
       dateFormat="dd/mm/yy"
       disabledDates={getDisabledDates(availableDates)}

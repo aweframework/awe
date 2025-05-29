@@ -1,6 +1,6 @@
 import React from "react";
 import {AweView} from "../components/AweView";
-import {checkActions, combineActions} from "../utilities";
+import {checkActions, combineActions, translateLabel} from "../utilities";
 import FormService from "../services/FormService";
 import ScreenService from "../services/ScreenService";
 import MessageService from "../services/MessageService";
@@ -129,7 +129,7 @@ class ViewContainer extends AweView {
     const {t} = this.props;
     return <div className={"expand expandible-vertical"}>
       <Helmet>
-        <title>{t(this.state.screen.title)}</title>
+        <title>{translateLabel(this.state.screen.title, t)}</title>
       </Helmet>
       {Templates(this.state.structure)}
     </div>;

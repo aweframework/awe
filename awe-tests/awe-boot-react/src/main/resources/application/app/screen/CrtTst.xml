@@ -218,6 +218,13 @@
             </dependency>
           </criteria>
         </tag>-->
+        <tag type="div" style="flex col-xs-12 col-sm-6">
+          <criteria label="PARAMETER_CHECKBOX 1" id="Switch31" group="SwitchVa" variable="Switch31" component="checkbox" style="switch col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" />
+          <criteria label="PARAMETER_CHECKBOX 2" id="Switch32" group="SwitchVa" variable="Switch32" component="checkbox" style="switch col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}"/>
+          <criteria label="PARAMETER_CHECKBOX_3" id="Switch33" group="SwitchVa" variable="Switch33" component="checkbox" style="switch col-xs-6 col-sm-4 col-lg-2 no-label" readonly="true" />
+          <criteria label="PARAMETER_CHECKBOX 4" id="Switch34" group="SwitchVa" variable="Switch34" component="checkbox" style="switch col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" />
+          <criteria label="PARAMETER_CHECKBOX 5" id="Switch35" group="SwitchVa" variable="Switch35" component="checkbox" style="switch col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" checked="true" />
+        </tag>
         <criteria label="PARAMETER_NUMERIC" icon="dollar" id="Unt" variable="Unt" component="numeric" value="-123456.1" style="col-xs-12 col-sm-6 col-lg-4" number-format="{vMin: '-999999', mDec: 2, aPad:true}">
           <dependency source-type="launcher" target-type="unit" target-action="Sel">
             <dependency-element id="Sel" condition="ne" value="-1" />

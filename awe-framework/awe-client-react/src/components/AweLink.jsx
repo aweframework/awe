@@ -16,7 +16,7 @@ class AweLink extends AweComponent {
           target={"_blank"}
           className={classes}
           title={translateLabel(title, t)}>
-      <span className={"link-text"}>{t(label)}</span>
+      <span className={"link-text"}>{translateLabel(label, t)}</span>
     </a>;
   }
 }

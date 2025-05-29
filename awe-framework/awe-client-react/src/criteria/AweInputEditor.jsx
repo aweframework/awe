@@ -3,6 +3,7 @@ import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
 import {Editor} from "primereact/editor";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweInputEditor extends AweTextComponent {
 
@@ -40,7 +41,7 @@ class AweInputEditor extends AweTextComponent {
       style={{height: "100%", minHeight:"4rem"}}
       value={this.getValue()}
       className={classes}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onTextChange={this.onChange}
       required={required}
       disabled={readonly}

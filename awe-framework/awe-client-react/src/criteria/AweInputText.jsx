@@ -3,6 +3,7 @@ import {InputText} from 'primereact/inputtext';
 import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweInputText extends AweTextComponent {
 
@@ -20,7 +21,7 @@ class AweInputText extends AweTextComponent {
       id={address.component}
       value={this.state.value}
       className={classes}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}
       onBlur={this.onBlur}
       onKeyDown={e => e.key === "Enter" && this.onSubmit()}

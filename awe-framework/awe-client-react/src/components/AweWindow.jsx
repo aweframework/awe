@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Panel} from 'primereact/panel';
 import {withTranslation} from 'react-i18next';
 import "./AweWindow.less";
-import {bindMethods, getHelpTooltipNode, getIconCode} from "../utilities";
+import {bindMethods, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import PropTypes from "prop-types";
@@ -33,7 +33,7 @@ class AweWindow extends Component {
 
   getHeader() {
     const {label, t, id} = this.props;
-    return <div className={`help-target-${id}`}>{t(label)} {this.getHelpIcon()}</div>
+    return <div className={`help-target-${id}`}>{translateLabel(label, t)} {this.getHelpIcon()}</div>
   }
 
   render() {

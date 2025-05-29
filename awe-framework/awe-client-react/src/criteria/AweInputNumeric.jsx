@@ -2,7 +2,7 @@ import React from "react";
 import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
 import {InputNumber} from "primereact/inputnumber";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {formatNumber, translateNumberFormat} from "../utilities/numbers";
 import {classNames} from "../utilities/components";
 
@@ -61,7 +61,7 @@ class AweInputNumeric extends AweTextComponent {
       id={address.component}
       value={value}
       className={classes}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       required={required}
       disabled={readonly}
       mode="decimal"

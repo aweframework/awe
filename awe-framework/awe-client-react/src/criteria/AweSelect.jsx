@@ -2,7 +2,7 @@ import React from "react";
 import {connectComponent} from "../components/AweComponent";
 import {Dropdown} from "primereact/dropdown";
 import AweCriterionComponent from "./AweCriterionComponent";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 class AweSelect extends AweCriterionComponent {
@@ -35,12 +35,12 @@ class AweSelect extends AweCriterionComponent {
       ref={el => this.dropdown = el}
       id={address.component}
       value={this.getValue()}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}
       required={required}
       disabled={readonly}
       className={classes}
-      options={model.values.map(value => ({...value, label: t(value.label)}))}
+      options={model.values.map(value => ({...value, label: translateLabel(value.label, t)}))}
       showClear={optional}
       filter={model.values.length > 5}
       filterBy="label"

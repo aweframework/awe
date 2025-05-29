@@ -3,6 +3,7 @@ import {connectComponent} from "../components/AweComponent";
 import {AutoComplete} from "primereact/autocomplete";
 import AweSuggestComponent from "./AweSuggestComponent";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweSuggestMultiple extends AweSuggestComponent {
 
@@ -31,7 +32,7 @@ class AweSuggestMultiple extends AweSuggestComponent {
       ref={el => this.autocomplete = el}
       id={address.component}
       value={suggest.map(item => ({...item, label: item.label || item.value}))}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       required={required}
       disabled={readonly}
       onChange={this.onChange}

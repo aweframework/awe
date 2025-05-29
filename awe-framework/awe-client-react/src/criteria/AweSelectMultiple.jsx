@@ -1,7 +1,7 @@
 import React from "react";
 import {connectComponent} from "../components/AweComponent";
 import AweCriterionComponent from "./AweCriterionComponent";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {MultiSelect} from "primereact/multiselect";
 import {classNames} from "../utilities/components";
 
@@ -34,7 +34,7 @@ class AweSelectMultiple extends AweCriterionComponent {
 
   getValue() {
     const {t, model} = this.props;
-    return model.values.filter(item => item.selected).map(item => ({code: item.value, name: t(item.label)}));
+    return model.values.filter(item => item.selected).map(item => ({code: item.value, name: translateLabel(item.label, t)}));
   }
 
   selectedItemsTemplate(option) {
@@ -55,7 +55,7 @@ class AweSelectMultiple extends AweCriterionComponent {
       id={address.component}
       inputid={address.component}
       value={this.getValue()}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}
       required={required}
       disabled={readonly}
@@ -64,7 +64,7 @@ class AweSelectMultiple extends AweCriterionComponent {
       selectedItemTemplate={this.selectedItemsTemplate}
       filter
       optionLabel="name"
-      options={model.values.map(item => ({code: item.value, name: t(item.label)}))}
+      options={model.values.map(item => ({code: item.value, name: translateLabel(item.label, t)}))}
       showClear={optional}
     />;
   }

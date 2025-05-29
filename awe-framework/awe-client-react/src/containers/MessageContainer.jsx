@@ -9,6 +9,7 @@ import {Button} from "primereact/button";
 import {withTranslation} from "react-i18next";
 import {Toast} from "primereact/toast";
 import PropTypes from "prop-types";
+import {translateLabel} from "../utilities";
 
 /**
  * Message container
@@ -121,10 +122,10 @@ class MessageContainer extends Component {
     const {title, message, visible} = this.state.confirm || {visible: false};
     return <>
       <Toast ref={(el) => this.messages = el} onClick={this.onClick} onRemove={this.onRemove} position={settings.messagePosition}/>
-      <Dialog visible={visible} header={t(title)} footer={this.confirmFooter()} focusOnShow={false}
+      <Dialog visible={visible} header={translateLabel(title, t)} footer={this.confirmFooter()} focusOnShow={false}
               modal={true} closable={false} closeOnEscape={false} onHide={this.onHideConfirm}>
         <i className="pi pi-exclamation-triangle m-3 text-center text-warning" style={{fontSize: '8rem'}}/>
-        <span>{t(message)}</span>
+        <span>{translateLabel(message, t)}</span>
       </Dialog>
     </>;
   }

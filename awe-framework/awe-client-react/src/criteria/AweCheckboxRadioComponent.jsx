@@ -1,5 +1,5 @@
 import AweCriterionComponent from "./AweCriterionComponent";
-import {bindMethods, getIconCode} from "../utilities";
+import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import React from "react";
 import {classNames} from "../utilities/components";
 
@@ -45,7 +45,7 @@ export default class AweCheckboxRadioComponent extends AweCriterionComponent {
     const {icon, label, style} = option;
     const {size} = attributes;
     const iconTemplate = getIconCode(icon);
-    const labelTemplate = label ? <span>{t(label)}</span> : null;
+    const labelTemplate = label ? <span>{translateLabel(label, t)}</span> : null;
     return <span className={classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style)}>
       {iconTemplate}
       {labelTemplate}

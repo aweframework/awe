@@ -8,6 +8,7 @@ import {Helmet} from "react-helmet";
 import Templates from "../templates";
 import {updateViewComponentsWithDependencies} from "../redux/actions/components";
 import {addActionsTop} from "../redux/actions/actions";
+import {translateLabel} from "../utilities";
 
 /**
  * SubView container
@@ -36,7 +37,7 @@ class SubViewContainer extends AweView {
     const {t} = this.props;
     return <div className={"expand expandible-vertical"}>
       <Helmet>
-        <title>{t(this.state.screen.title)}</title>
+        <title>{translateLabel(this.state.screen.title, t)}</title>
       </Helmet>
       {Templates(this.state.structure)}
     </div>;

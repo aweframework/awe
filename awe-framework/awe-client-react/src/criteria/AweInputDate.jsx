@@ -2,7 +2,7 @@ import React from "react";
 import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
 import {Calendar} from "primereact/calendar";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {fromDate, toDate} from "../utilities/dates";
 import {classNames} from "../utilities/components";
 
@@ -30,7 +30,7 @@ class AweInputDate extends AweTextComponent {
       id={address.component}
       value={this.getValue()}
       className={classes}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}
       dateFormat="dd/mm/yy"
       required={required}

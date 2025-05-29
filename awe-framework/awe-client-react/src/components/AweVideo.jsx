@@ -2,7 +2,7 @@ import React from "react";
 import {AweComponent, connectComponent} from "./AweComponent";
 import {classNames} from "../utilities/components";
 import ReactPlayer from 'react-player';
-import {parseBoolean} from "../utilities";
+import {parseBoolean, translateLabel} from "../utilities";
 
 class AweVideo extends AweComponent {
 
@@ -21,7 +21,7 @@ class AweVideo extends AweComponent {
           loop={loop}
           width={"100%"}
           height={"100%"}
-          title={t(title)}/>;
+          title={translateLabel(title, t)}/>;
   }
 }
 
