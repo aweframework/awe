@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 1.1.0
+*29/05/2025*
+
+- Add a new checkbox criterion as a switch. [MR #89](https://gitlab.com/aweframework/awe-react/-/merge_requests/89) (Pablo Javier García Mora)
+- Add a new carousel widget which allows to view videos and pdf files. [MR #87](https://gitlab.com/aweframework/awe-react/-/merge_requests/87) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.0.11
 *22/05/2025*
 
