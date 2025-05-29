@@ -9,7 +9,7 @@ import HighchartsNoData from "highcharts/modules/no-data-to-display.src";
 import HighchartsExporting from "highcharts/modules/exporting.src";
 import HighchartsReact from 'highcharts-react-official';
 import HighchartsAccesibility from 'highcharts/modules/accessibility';
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import _ from "lodash";
 
 import "./AweChart.less";
@@ -76,17 +76,17 @@ function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, a
   };
   // Chart title
   if (title) {
-    fixedOptions.title.text = t(title.text);
+    fixedOptions.title.text = translateLabel(title.text, t);
   }
 
   // Chart subtitle
   if (subtitle) {
-    fixedOptions.subtitle.text = t(subtitle.text);
+    fixedOptions.subtitle.text = translateLabel(subtitle.text, t);
   }
 
   // Chart legend
   if (legend && "title" in legend) {
-    fixedOptions.legend.title.text = t(legend.title.text);
+    fixedOptions.legend.title.text = translateLabel(legend.title.text, t);
   }
 
   // Chart xAxis
@@ -97,14 +97,14 @@ function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, a
 
   (series || []).forEach((serie, index) => {
     // Translate serie name
-    serie.name && (fixedOptions.series[index].name = t(serie.name));
+    serie.name && (fixedOptions.series[index].name = translateLabel(serie.name, t));
     serie.data = getSerieData(serie, model);
   });
 
   if (drilldown && drilldown.series) {
     (drilldown.series || []).forEach((serie, index) => {
       // Translate drilldown serie name
-      serie.name && (fixedOptions.drilldown.series[index].name = t(serie.name));
+      serie.name && (fixedOptions.drilldown.series[index].name = translateLabel(serie.name, t));
       serie.data = getSerieData(serie, model);
     });
 
@@ -148,7 +148,7 @@ function getSerieData(serie, model) {
  */
 function translateAxis(axis, t) {
   (axis || []).forEach(item => {
-    item.title && (item.title.text = t(item.title.text));
+    item.title && (item.title.text = translateLabel(item.title.text, t));
     item.labels && item.labels.formatter && (item.labels.formatter = FORMATTERS[item.labels.formatter])
   });
 }

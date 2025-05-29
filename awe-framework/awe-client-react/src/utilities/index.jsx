@@ -490,7 +490,7 @@ export function addEventListenerTimeout(node, event, fn, fnTimeout, timeout) {
  * @returns {JSX.Element}
  */
 export function getHelpTooltipNode(help, helpImage, t, target) {
-  const imageNode = helpImage ? <img src={t(helpImage)} alt={t(help)}/> : null;
+  const imageNode = helpImage ? <img src={translateLabel(helpImage, t)} alt={translateLabel(help, t)}/> : null;
   if (help || helpImage) {
     return <Tooltip target={target}>
       {getVisibleTextData(help, t)}

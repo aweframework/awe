@@ -1,7 +1,7 @@
 import React from "react";
 import {connectComponent} from "../components/AweComponent";
 import {ColorPicker} from "primereact/colorpicker";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {InputText} from "primereact/inputtext";
 import {OverlayPanel} from "primereact/overlaypanel";
 import AweTextComponent from "./AweTextComponent";
@@ -41,7 +41,7 @@ class AweInputColor extends AweTextComponent {
         id={address.component}
         value={toColor(this.state.value)}
         className={classes}
-        placeholder={t(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         onChange={this.onChange}
         onBlur={this.onBlur}
         onKeyPress={e => e.key === "Enter" && this.onSubmit()}

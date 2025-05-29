@@ -39,7 +39,7 @@ class ColumnTextView extends Component {
     const icon = data.icon || this.props.icon || undefined;
     const unit = data.unit || this.props.unit || null;
     const classes = classNames("text-view", style);
-    return <button className={classes} title={t(title || label)} onClick={this.onClick} onKeyDown={this.onKeyDown}>
+    return <button className={classes} title={translateLabel(title || label, t)} onClick={this.onClick} onKeyDown={this.onKeyDown}>
       <span className={"text-view-icon"}>{getIconCode(icon, "fa-fw")}</span>
       <span className={"text-view-text"} style={{textAlign: align}}>{getVisibleTextData(label || value, t)}</span>
       {unit && <Badge value={translateLabel(unit, t)} severity="secondary" style={{justifyContent: "center"}}/>}

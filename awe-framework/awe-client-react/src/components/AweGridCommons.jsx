@@ -21,7 +21,7 @@ function mapContextMenu(contextMenu, props) {
   return (contextMenu || [])
     .map(option => components[option.id].attributes)
     .map(option => ({
-      label: t(option.label),
+      label: translateLabel(option.label, t),
       icon: getIconCode(option.icon, "p-menuitem-icon"),
       disabled: option.disabled,
       visible: option.visible,

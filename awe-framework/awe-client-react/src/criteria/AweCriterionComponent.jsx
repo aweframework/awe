@@ -1,7 +1,7 @@
 import React from "react";
 import {AweComponent} from "../components/AweComponent";
 import "./AweCriterionComponent.less";
-import {bindMethods, formatMessage, getHelpTooltipNode, getIconCode} from "../utilities";
+import {bindMethods, formatMessage, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 
 export default class AweCriterionComponent extends AweComponent {
@@ -33,7 +33,7 @@ export default class AweCriterionComponent extends AweComponent {
                data-pr-position="bottom"
                data-pr-at="left+6 bottom"
                style={{...(help || helpImage ? {cursor: "pointer"} : {})}}
-               data-pr-showdelay={settings.helpTimeout}>{this.getHelpIcon()}{t(label)}</label>
+               data-pr-showdelay={settings.helpTimeout}>{this.getHelpIcon()}{translateLabel(label, t)}</label>
       </>;
     } else if ((style || "").includes("no-label")) {
       return null;
@@ -51,7 +51,7 @@ export default class AweCriterionComponent extends AweComponent {
     const {t, attributes} = this.props;
     const {unit, size} = attributes;
     if (unit) {
-      return <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}>{t(unit)}</span>;
+      return <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}>{translateLabel(unit, t)}</span>;
     }
 
     return null;

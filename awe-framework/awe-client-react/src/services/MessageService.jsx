@@ -1,4 +1,5 @@
 import {MessageType} from "../redux/actions/messages";
+import {translateLabel} from "../utilities";
 
 const {MESSAGE_OK, MESSAGE_WARNING, MESSAGE_ERROR, MESSAGE_WRONG} = MessageType;
 
@@ -97,8 +98,8 @@ class MessageService {
 
     props.addMessage({
       severity: getMessageType(type),
-      summary: t(title),
-      detail: t(message),
+      summary: translateLabel(title, t),
+      detail: translateLabel(message, t),
       sticky: life === 0,
       action: action,
       life,

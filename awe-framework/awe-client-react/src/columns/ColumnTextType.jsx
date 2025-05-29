@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {InputText} from 'primereact/inputtext';
-import {bindMethods, formatMessage} from "../utilities";
+import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {isEmpty} from "../utilities/general";
 
@@ -47,7 +47,7 @@ export default class ColumnTextType extends Component {
       <InputText
         value={value}
         type={this.columnType}
-        placeholder={t(placeholder || label) + (required ? " *" : "")}
+        placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
         required={required}
         disabled={readonly}
         className={classNames("col-12", classes)}

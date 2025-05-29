@@ -3,6 +3,7 @@ import {connectComponent} from "../components/AweComponent";
 import {RadioButton} from "primereact/radiobutton";
 import AweCheckboxRadioComponent from "./AweCheckboxRadioComponent";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweInputRadio extends AweCheckboxRadioComponent {
 
@@ -15,13 +16,13 @@ class AweInputRadio extends AweCheckboxRadioComponent {
         inputid={address.component}
         name={group}
         checked={this.getChecked()}
-        placeholder={t(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         onChange={this.onChange}
         required={required}
         disabled={readonly}
         className={classes}
       />
-      <label htmlFor={address.component}>{t(label)}</label>
+      <label htmlFor={address.component}>{translateLabel(label, t)}</label>
     </div>;
   }
 }

@@ -2,7 +2,14 @@ import React from "react";
 import {InputText} from 'primereact/inputtext';
 import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
-import {bindMethods, generateMessageAction, getContextPath, getRestUrl, getSizeString} from "../utilities";
+import {
+  bindMethods,
+  generateMessageAction,
+  getContextPath,
+  getRestUrl,
+  getSizeString,
+  translateLabel
+} from "../utilities";
 import {ProgressBar} from "primereact/progressbar";
 import {Button} from "primereact/button";
 import {FileUpload} from "primereact/fileupload";
@@ -64,7 +71,7 @@ class AweInputUploader extends AweTextComponent {
       <InputText
         className={classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style, {[`hidden`]: status === UPLOADING})}
         value={this.getValue()}
-        placeholder={t(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         disabled={readonly}
         readOnly={true}
       />

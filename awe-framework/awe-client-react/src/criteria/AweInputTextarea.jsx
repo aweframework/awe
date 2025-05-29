@@ -3,6 +3,7 @@ import {connectComponent} from "../components/AweComponent";
 import AweTextComponent from "./AweTextComponent";
 import {InputTextarea} from "primereact/inputtextarea";
 import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
 
 class AweInputTextarea extends AweTextComponent {
 
@@ -30,7 +31,7 @@ class AweInputTextarea extends AweTextComponent {
       id={address.component}
       value={this.state.value}
       className={classes}
-      placeholder={t(placeholder)}
+      placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}
       onBlur={this.onBlur}
       required={required}

@@ -1,6 +1,6 @@
 import React from "react";
 import {connectComponent} from "../components/AweComponent";
-import {bindMethods, getIconCode} from "../utilities";
+import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import AweCriterionComponent from "./AweCriterionComponent";
 import {classNames, getVisibleTextData} from "../utilities/components";
 
@@ -25,7 +25,7 @@ class AweInputTextView extends AweCriterionComponent {
     const {t, attributes} = this.props;
     const {unit} = attributes;
     if (unit) {
-      return <span className="p-tag ml-auto">{t(unit)}</span>;
+      return <span className="p-tag ml-auto">{translateLabel(unit, t)}</span>;
     }
 
     return null;

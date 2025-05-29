@@ -23,12 +23,33 @@ describe('awe-react-client/test/js/criteria/AweInputCheckboxTest.jsx', () => {
           required: false
         },
         specificAttributes: {sort: []}
+      },
+      switch: {
+        address: {component: 'switch', view: 'report'},
+        model: {values: [{label: 'test', value: '1', selected: true}]},
+        attributes: {
+          placeholder: "placeholder",
+          readonly: false,
+          label: "test",
+          style: "switch",
+        },
+        validationRules: {
+          required: false
+        },
+        specificAttributes: {sort: []}
       }
     }
   };
 
   it('renders Awe Input Checkbox component', () => {
     renderWithProviders(<AweInputCheckbox id="checkbox"/>, {preloadedState});
+
+    // check
+    expect(screen.findByText("test")).not.toBeNull();
+  });
+
+  it('renders Awe Input Checkbox component as a switch', () => {
+    renderWithProviders(<AweInputCheckbox id="switch"/>, {preloadedState});
 
     // check
     expect(screen.findByText("test")).not.toBeNull();

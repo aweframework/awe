@@ -3,6 +3,7 @@ import {connectComponent} from "./AweComponent";
 import {TabMenu} from "primereact/tabmenu";
 import {AwePanelableComponent} from "./AwePanelableComponent";
 import {Components} from "../utilities/structure";
+import {translateLabel} from "../utilities";
 
 class AweTabs extends AwePanelableComponent {
 
@@ -12,7 +13,7 @@ class AweTabs extends AwePanelableComponent {
     return <>
       <TabMenu id={id} model={model.values.map((item, index) => ({
         ...item,
-        label: t(item.label),
+        label: translateLabel(item.label, t),
         disabled,
         className: [item.style || "",  "label-" + item.label].join(" ")
       }))}

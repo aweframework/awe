@@ -3,6 +3,7 @@ import {withTranslation} from 'react-i18next';
 import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import parse from 'html-react-parser';
+import {translateLabel} from "../utilities";
 
 class Tag extends Component {
 
@@ -13,8 +14,8 @@ class Tag extends Component {
     return React.createElement(type || "div", {
       id: id,
       className: classes,
-      ...(elementList.length > 0 ? {children: [parse(t(label) || ""), value].concat(elementList.map((node, index) => Components(node, index)))} :
-        {children: [parse(t(label) || ""), value]})
+      ...(elementList.length > 0 ? {children: [parse(translateLabel(label, t) || ""), value].concat(elementList.map((node, index) => Components(node, index)))} :
+        {children: [parse(translateLabel(label, t) || ""), value]})
     });
   }
 }
