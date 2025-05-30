@@ -1,6 +1,6 @@
 import React from "react";
 import {AweComponent, connectComponent} from "./AweComponent";
-import {bindMethods} from "../utilities";
+import {bindMethods, translateLabel} from "../utilities";
 import {classNames, parseValidationRules} from "../utilities/components";
 import {Components} from "../utilities/structure";
 
@@ -84,7 +84,7 @@ class AweTagList extends AweComponent {
     return React.createElement(type || "div", {
       id: id,
       className: classes,
-      children: [translateLabel(label, t)].concat((elementList || []).map((node, index) => Components(node, index)))
+      ...[translateLabel(label, t)].concat((elementList || []).map((node, index) => Components(node, index)))
     });
   }
 }
