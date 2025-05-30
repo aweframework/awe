@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.1.1
+*30/05/2025*
+
+- Fix bug in AweTagList. [MR #90](https://gitlab.com/aweframework/awe-react/-/merge_requests/90) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.0
 *29/05/2025*
 
