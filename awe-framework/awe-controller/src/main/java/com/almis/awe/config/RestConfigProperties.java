@@ -32,11 +32,17 @@ public class RestConfigProperties {
   @DurationUnit(ChronoUnit.MILLIS)
   private Duration connectionTimeout = Duration.ofMillis(5000);
   /**
-   * Connection request timeout in millis.
-   * Default value 5s
+   * Timeout for waiting for a connection from the connection manager.
+   * Default value 5 seconds
    */
   @DurationUnit(ChronoUnit.MILLIS)
   private Duration connectionRequestTimeout = Duration.ofMillis(5000);
+
+  /**
+   * Response timeout in millis that covers the entire request-response cycle
+   */
+  @DurationUnit(ChronoUnit.MILLIS)
+  public Duration responseTimeout = Duration.ofMillis(5000);
 
   /**
    * Map with rest service info used by AWE microservice and REST connector.
