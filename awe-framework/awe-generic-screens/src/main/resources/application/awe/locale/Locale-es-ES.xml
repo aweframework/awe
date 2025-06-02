@@ -441,7 +441,7 @@
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="Ha habido un problema al lanzar la inicialización del motor de documentos"/>
   <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="El código de autenticación del segundo factor no es válido, verifique su aplicación de autenticación o envíe un mensaje al gestor de la aplicación para restablecer su cuenta."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="Los argumentos introducidos son inválidos"/>
-  <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Ha habido un problema a la hora de realizar la conexión"/>
+  <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Ha habido un problema a la hora de realizar la conexión ejecutando [{0}]"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="Las credenciales introducidas para el usuario -{0}- no son válidas"/>
   <locale name="ERROR_MESSAGE_INVALID_DATABASE_ARGUMENTS" value="Los siguientes argumentos de la conexión a base de datos no son correctos [Tipo:{0}, Alias:{1}, Url: {2}]"/>
   <locale name="ERROR_MESSAGE_INVALID_DATASOURCE" value="No existe el datasource seleccionado: {0}"/>
