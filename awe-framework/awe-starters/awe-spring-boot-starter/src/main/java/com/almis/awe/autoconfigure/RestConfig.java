@@ -1,16 +1,18 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.RestConfigProperties;
+import com.almis.awe.exception.AWERuntimeException;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.io.HttpClientConnectionManager;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.client5.http.ssl.TrustAllStrategy;
-import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.util.TimeValue;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,9 +20,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
 import javax.net.ssl.SSLContext;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,33 +46,55 @@ public class RestConfig {
    * @return Client http request factory
    */
   @Bean
-  public ClientHttpRequestFactory httpComponentsClientHttpRequestFactory() throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-    // Customize timeouts
-    final RequestConfig defaultRequestConfig = RequestConfig.custom()
-            .setConnectionRequestTimeout(properties.getConnectionTimeout().toMillis(), TimeUnit.MILLISECONDS)
-            .setResponseTimeout(properties.getConnectionRequestTimeout().toMillis(), TimeUnit.MILLISECONDS)
-            .build();
+  public ClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
+    // Configure ConnectionConfig for connection timeouts
+    ConnectionConfig connectionConfig = ConnectionConfig.custom()
+        .setConnectTimeout(properties.getConnectionTimeout().toMillis(), TimeUnit.MILLISECONDS)
+        .build();
+
+    // Configurar RequestConfig para otros timeouts
+    RequestConfig requestConfig = RequestConfig.custom()
+        .setConnectionRequestTimeout(properties.getConnectionRequestTimeout().toMillis(), TimeUnit.MILLISECONDS)
+        .setResponseTimeout(properties.getResponseTimeout().toMillis(), TimeUnit.MILLISECONDS)
+        .build();
+
+    // Configurar SSL context (trust all)
+    SSLContext sslContext;
+    try {
+      sslContext = SSLContextBuilder.create()
+          .loadTrustMaterial(TrustAllStrategy.INSTANCE)
+          .build();
+    } catch (Exception ex) {
+      throw new AWERuntimeException("Error configuring SSL context", ex);
+    }
+
     // Configure cookies store
     final BasicCookieStore defaultCookieStore = new BasicCookieStore();
-    // Configure SSL context (trust all)
-    final SSLContext sslcontext = SSLContexts.custom()
-            .loadTrustMaterial(null, new TrustAllStrategy()).build();
-    final SSLConnectionSocketFactory sslSocketFactory = SSLConnectionSocketFactoryBuilder.create()
-            .setSslContext(sslcontext).build();
-    // Configure connection manager
-    final HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
-            .setSSLSocketFactory(sslSocketFactory).build();
-
-    // Http client
-    CloseableHttpClient httpClient = HttpClients.custom()
-            .setDefaultCookieStore(defaultCookieStore)
-            .setDefaultRequestConfig(defaultRequestConfig)
-            .setConnectionManager(connectionManager)
-            .evictExpiredConnections()
+    
+    // Configurar connection manager con ConnectionConfig
+    PoolingHttpClientConnectionManager connectionManager =
+        PoolingHttpClientConnectionManagerBuilder.create()
+            .setDefaultConnectionConfig(connectionConfig)
+            .setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
+                .setSslContext(sslContext)
+                .build())
+            .setMaxConnTotal(100)
+            .setMaxConnPerRoute(20)
             .build();
 
+    // Crear CloseableHttpClient
+    CloseableHttpClient httpClient = HttpClients.custom()
+        .setConnectionManager(connectionManager)
+        .setDefaultRequestConfig(requestConfig)
+        .evictExpiredConnections()
+        .evictIdleConnections(TimeValue.ofSeconds(30))
+        .setDefaultCookieStore(defaultCookieStore)
+        .build();
+
+    // Crear HttpComponentsClientHttpRequestFactory
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
     requestFactory.setHttpClient(httpClient);
+
     return requestFactory;
   }
 }

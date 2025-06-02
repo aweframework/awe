@@ -438,7 +438,7 @@
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="There has been a problem launching document engine initialization"/>
   <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="Le code d&amp;#39;authentification du deuxième facteur n&amp;#39;est pas valide, veuillez vérifier votre application d&amp;#39;authentification ou envoyer un message au responsable de l&amp;#39;application pour réinitialiser votre compte."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="Les arguments introduits sont invalides"/>
-  <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Probleme a la connexion"/>
+  <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Un problème est survenu lors de la tentative de connexion lors du lancement [{0}]"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="Les informations d&apos;identification saisies par l&apos;utilisateur -{0}- ne sont pas valides"/>
   <locale name="ERROR_MESSAGE_INVALID_DATABASE_ARGUMENTS" value="The selected arguments of database connections are no valid. [Type:{0}, Alias:{1}, Url: {2}]"/>
   <locale name="ERROR_MESSAGE_INVALID_DATASOURCE" value="La source de données sélectionnée n&apos;existe pas: {0}"/>

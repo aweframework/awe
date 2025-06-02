@@ -159,7 +159,7 @@ public class MaintainService extends ServiceConfig {
   public ServiceData launchMaintain(String maintainId, ObjectNode parameters, DatabaseConnection databaseConnection, boolean keepAliveConnection) throws AWException {
     // Check if database connection is defined
     if (databaseConnection == null || databaseConnection.getConnection() == null) {
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_INVALID_CONNECTION"));
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_INVALID_CONNECTION", maintainId));
     }
 
     return launchMaintain(prepareMaintain(maintainId, true), parameters, databaseConnection, keepAliveConnection);
@@ -226,7 +226,7 @@ public class MaintainService extends ServiceConfig {
   public ServiceData launchPrivateMaintain(String maintainId, ObjectNode parameters, DatabaseConnection databaseConnection, boolean keepAliveConnection) throws AWException {
     // Check if database connection is defined
     if (databaseConnection == null || databaseConnection.getConnection() == null) {
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_INVALID_CONNECTION"));
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale("ERROR_MESSAGE_INVALID_CONNECTION", maintainId));
     }
 
     return launchMaintain(prepareMaintain(maintainId, false), parameters, databaseConnection, keepAliveConnection);
