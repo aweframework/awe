@@ -49,6 +49,6 @@ export default class AweCheckboxRadioComponent extends AweCriterionComponent {
     return <span className={classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style)}>
       {iconTemplate}
       {labelTemplate}
-    </span>
+    </span>;
   }
 }
