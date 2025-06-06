@@ -36,8 +36,8 @@ function getComponent(element, view) {
   return [];
 }
 
-function findComponents(elementList, view) {
-  return elementList.reduce((components, element) => [...components, ...getComponent(element, view), ...findComponents(element.elementList, view)], []);
+function findComponents(view, elementList = []) {
+  return elementList.reduce((components, element) => [...components, ...getComponent(element, view), ...findComponents(view, element.elementList)], []);
 }
 
 class AweTagList extends AweComponent {
@@ -51,7 +51,7 @@ class AweTagList extends AweComponent {
   reloadElements() {
     const {model, elementList, address} = this.props;
     const fixedElements = model.values.map(row => generateTagListRow(elementList, row)).flat();
-    const components = findComponents(fixedElements, address.view);
+    const components = findComponents(address.view, fixedElements);
     this.props.updateMultipleComponentsWithDependencies(components);
     this.setState({elementList: fixedElements, components});
   }

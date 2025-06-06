@@ -18,7 +18,7 @@
     <wizard id="wizardTest" initial-load="query" target-action="wizardSteps" orientation="vertical">
       <wizard-panel id="WizardStep1">
         <tag type="div" style="expand" expandible="vertical">
-          <tag type="div" style="panel-body expand">
+          <tag type="div" style="panel-body">
             <tag type="div" style="row">
               <tag-list type="div" style="text-lg" initial-load="query" target-action="ConUsr" autoload="true">
                 <tag>
@@ -37,6 +37,9 @@
                       style="col-xs-6 col-sm-4 col-md-2"/>
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu" validation="required"
                       style="col-xs-6 col-sm-4 col-md-2"/>
+          </tag>
+          <tag type="div" style="expand" expandible="vertical">
+            <video id="preview" src="https://www.youtube.com/watch?v=aqz-KE-bpKQ" controls="true" style="expand" autoplay="true"/>
           </tag>
           <tag type="div" style="panel-footer">
             <tag type="div" style="pull-right">
