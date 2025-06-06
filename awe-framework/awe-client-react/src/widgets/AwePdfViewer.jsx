@@ -33,7 +33,7 @@ class AwePdfViewer extends AweWidget {
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
       }
     }).then(response => response.blob())
-      .then(blob => this.setState({pdf: window.URL.createObjectURL(blob)}))
+      .then(blob => this.setState({pdf: window.URL.createObjectURL(blob)}));
   }
 
   getPdfTemplate(pdf) {
@@ -62,7 +62,7 @@ class AwePdfViewer extends AweWidget {
     const {pdf} = this.state;
     return <div id={address.component} className={classNames("pdf-viewer", "expand", style)}>
       {this.getPdfTemplate(pdf)}
-    </div>
+    </div>;
   }
 }
 
