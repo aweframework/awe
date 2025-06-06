@@ -81,11 +81,8 @@ class AweTagList extends AweComponent {
     const {elementList} = this.state;
     const classes = classNames({[`expandible-${expand}`]: expand}, style);
 
-    return React.createElement(type || "div", {
-      id: id,
-      className: classes,
-      ...[translateLabel(label, t)].concat((elementList || []).map((node, index) => Components(node, index)))
-    });
+    return React.createElement(type || "div", {id: id, className: classes},
+      [translateLabel(label, t)].concat((elementList || []).map((node, index) => Components(node, index))));
   }
 }
 
