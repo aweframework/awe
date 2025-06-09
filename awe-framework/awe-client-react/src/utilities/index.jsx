@@ -515,7 +515,7 @@ export function parseBoolean(value = "") {
  * @return {string} Label translated
  */
 export function translateLabel(label = "", t = (l) => l) {
-  return label.split(" ").map(t).join(" ");
+  return (label || "").split(" ").map(t).join(" ");
 }
 
 /**
