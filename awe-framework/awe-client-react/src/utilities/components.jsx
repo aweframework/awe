@@ -59,7 +59,8 @@ export const ComponentType = {
   COMPONENT_SPARKLINE: 'sparkline',
   COMPONENT_DIALOG: 'dialog',
   COMPONENT_ACCORDION: 'accordion',
-  COMPONENT_WIZARD: 'wizard'
+  COMPONENT_WIZARD: 'wizard',
+  COMPONENT_PICKLIST: 'picklist',
 };
 
 /**
@@ -82,6 +83,9 @@ const {
   COMPONENT_CHECKBOX,
   COMPONENT_NUMERIC,
   COMPONENT_TIME,
+  COMPONENT_PICKLIST,
+  COMPONENT_SELECT_MULTIPLE,
+  COMPONENT_SUGGEST_MULTIPLE,
   COMPONENT_OTHER
 } = ComponentType;
 const {ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT, ADDRESS_VIEW, ADDRESS_INVALID} = ComponentAddressType;
@@ -481,6 +485,24 @@ export function getCriterionData(criterion, model, props, forPrinting) {
 }
 
 /**
+ * Retrieve the criterion data as list
+ * @param {Object} criterion Criterion data
+ * @param {Object} model Criterion model
+ * @param {Object} props Properties
+ * @param {boolean} forPrinting Data is for printing
+ * @returns {object} model data
+ * @memberOf Components
+ */
+export function getCriterionDataAsList(criterion, model, props, forPrinting) {
+  const {attributes = {}} = criterion;
+  const value = getSelectedValues(model);
+  return {
+    ...(value !== null ? {[attributes.id]: value} : {}),
+    ...forPrinting ? getCriterionPrintData(criterion, model, props) : {},
+  };
+}
+
+/**
  * Retrieve the criterion print data
  * @param {object} criterion Criterion data
  * @param {object} model Criterion model
@@ -588,6 +610,10 @@ export function getComponentData(component, props, forPrinting, model = "model")
   switch (attributes.component || "") {
     case COMPONENT_GRID:
       return getGridData(component, component[model], props, forPrinting);
+    case COMPONENT_PICKLIST:
+    case COMPONENT_SELECT_MULTIPLE:
+    case COMPONENT_SUGGEST_MULTIPLE:
+      return getCriterionDataAsList(component, component[model], props, forPrinting);
     case COMPONENT_TAB:
       return getTabData(component, component[model], props, forPrinting);
     case COMPONENT_CHECKBOX:

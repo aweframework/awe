@@ -30,6 +30,9 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     }
   }, {"type": "end-load", "parameters": {}}]);
   let component;
+  let picklist1;
+  let picklist2;
+  let picklist3;
   let abortController;
   let grid;
   let pivotTable;
@@ -90,6 +93,24 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       model: {values: [{"value": 1, label: "Value1", selected: true}]},
       storedModel: {values: [{"value": 1, label: "Value1", selected: true}]},
       attributes: {id: "criterion", component: "text", checkEmpty: true}
+    };
+    picklist1 = {
+      address: {component: "picklist1", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: true}]},
+      storedModel: {values: [{"value": 1, label: "Value1", selected: true}]},
+      attributes: {id: "picklist1", component: "picklist", checkEmpty: true}
+    };
+    picklist2 = {
+      address: {component: "picklist2", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: false}]},
+      storedModel: {values: [{"value": 1, label: "Value1"}]},
+      attributes: {id: "picklist2", component: "picklist", checkEmpty: true}
+    };
+    picklist3 = {
+      address: {component: "picklist3", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: true}, {"value": 2, label: "Value2", selected: true}, {"value": 3, label: "Value3"}, {"value": 4, label: "Value4", selected: true}]},
+      storedModel: {values: [{"value": 1, label: "Value1", selected: true}, {"value": 2, label: "Value2", selected: true}, {"value": 3, label: "Value3"}, {"value": 4, label: "Value4", selected: true}]},
+      attributes: {id: "picklist3", component: "picklist", checkEmpty: true}
     };
     numeric = {
       address: {component: "numeric", view: "report"},
@@ -563,6 +584,20 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     let data = getComponentData(criterion, props, false);
     //console.info(data);
     expect(data).toEqual({criterion: 1});
+  });
+
+  it('should get picklist data as list', () => {
+    let data = getComponentData(picklist1, props, false);
+    //console.info(data);
+    expect(data).toEqual({ picklist1: [ 1 ] });
+
+    data = getComponentData(picklist2, props, false);
+    //console.info(data);
+    expect(data).toEqual({ picklist2: [] });
+
+    data = getComponentData(picklist3, props, false);
+    //console.info(data);
+    expect(data).toEqual({ picklist3: [ 1, 2, 4 ] });
   });
 
   it('should get criterion data for printing', () => {
