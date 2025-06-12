@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 1.1.4
+*12/06/2025*
+
+- In criteria with multiple selection, retrieve always a list of elements. [MR #94](https://gitlab.com/aweframework/awe-react/-/merge_requests/94) (Pablo Javier García Mora)
+- Column icon component doesn't show all types of icons. [MR #93](https://gitlab.com/aweframework/awe-react/-/merge_requests/93) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.3
 *06/06/2025*
 
