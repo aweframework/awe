@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.1.5
+*17/06/2025*
+
+- Realizar varias correcciones de bugs. [MR #95](https://gitlab.com/aweframework/awe-react/-/merge_requests/95) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.4
 *12/06/2025*
 
