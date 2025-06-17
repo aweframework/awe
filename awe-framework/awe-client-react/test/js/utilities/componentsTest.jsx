@@ -49,7 +49,9 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       suggesting: false,
       props: {
         serverAction: "serverAction", targetAction: "targetAction", settings: DEFAULT_SETTINGS, strict: true,
-        keepModel: jasmine.createSpy("keepModel")
+        keepModel: jasmine.createSpy("keepModel"),
+        address: {},
+        addActionsTop: jasmine.createSpy("addActionsTop"),
       },
       autocomplete: {
         hide: jasmine.createSpy("hide")
@@ -299,7 +301,7 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       status: 200,
       ok: true,
       statusText: 'HTTP/1.1 200 OK',
-      json: () => [{type: 'fill', parameters: {datalist: {}}}]
+      json: () => [{type: 'message'}]
     }));
 
     // Define setState

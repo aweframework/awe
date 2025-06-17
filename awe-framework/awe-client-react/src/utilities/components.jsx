@@ -11,6 +11,7 @@ import {getUID} from "../redux/actions/settings";
 import {formatNumber, getFirstDefinedValueAsNumber} from "./numbers";
 import {getGridData} from "./grid";
 import {getFirstDefinedAndNotNullValue, isEmpty} from "./general";
+import {addActionsTop} from "../redux/actions/actions";
 
 /**
  * Upload status
@@ -148,7 +149,7 @@ export function parseValidationRules(validationRules, address) {
  * @memberOf Components
  */
 export function suggest(component, event, text) {
-  const {targetAction, settings, strict = true, serverAction = "data"} = component.props;
+  const {targetAction, settings, strict = true, serverAction = "data", addActionsTop, address} = component.props;
   const {type} = event;
 
   if (type === "init") {
@@ -177,7 +178,7 @@ export function suggest(component, event, text) {
       .then(response => {
         component.suggesting = false;
         if (!signal.aborted) {
-          const datalist = manageFillAction(response);
+          const datalist = manageFillAction(response, addActionsTop, address);
           component.setState({suggestions: _.uniqBy([...(datalist.rows || []), ...suggestions], "label")});
         }
       })
@@ -205,7 +206,7 @@ export function initialSuggest(component, suggest) {
   // Fetch server action
   fetchAction(serverAction, (checkTarget || targetAction), {suggest, max: 0}, settings.token)
     .then(response => {
-      const datalist = manageFillAction(response);
+      const datalist = manageFillAction(response, addActionsTop, address);
       const selectedItems = [...(datalist.rows || [])]
         .filter(item => String(item.value) === String(suggest))
         .map(item => ({...item, selected: true}));
@@ -218,12 +219,15 @@ export function initialSuggest(component, suggest) {
 /**
  * Manage a fill action in response
  * @param {object} response Response
+ * @param {function} addActionsTop Add actions top
+ * @param {object} address Component address
  * @return {object} datalist
  * @memberOf Components
  */
-function manageFillAction(response) {
+function manageFillAction(response, addActionsTop, address) {
   let fillAction = response.filter(action => action.type === "fill").shift() || {};
   const {datalist} = fillAction.parameters || {datalist: {rows: []}};
+  addActionsTop(response.filter(action => action.type !== "fill").map(action => ({...action, address: address})));
   return datalist;
 }
 

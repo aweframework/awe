@@ -12,7 +12,7 @@ class ColumnSuggest extends Component {
 
     // Bind events
     this.suggesting = false;
-    bindMethods(this, ["onChange", "onSelect", "onKeyPress", "onClear", "suggest"]);
+    bindMethods(this, ["onChange", "onSelect", "onClear", "suggest"]);
     this.abortController = new AbortController();
   }
 
@@ -46,12 +46,6 @@ class ColumnSuggest extends Component {
     updateModelWithDependencies(address, {values: []});
   }
 
-  onKeyPress(e) {
-    if (e.code === "Space" && e.target.value === "") {
-      this.autocomplete.onDropdownClick();
-    }
-  }
-
   suggest(event) {
     suggest(this, event, event.query);
   }
@@ -69,7 +63,7 @@ class ColumnSuggest extends Component {
       onChange={this.onChange}
       onSelect={this.onSelect}
       onClear={this.onClear}
-      onKeyPress={this.onKeyPress}
+      dropdown
       delay={timeout || 300}
       field="label"
       suggestions={this.state.suggestions}

@@ -1,3 +1,22 @@
 .p-autocomplete-loader {
   z-index: 1;
 }
+
+.p-autocomplete .p-autocomplete-dropdown {
+  background: transparent;
+  color: var(--text-color-secondary);
+  width: 30px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-width: 0 1px 0 0;
+  border-color: var(--form-border-color);
+  margin-right: -30px;
+  position: relative;
+  left: -35px;
+  z-index: 1;
+
+  &:enabled:hover, &:enabled:focus {
+    background: transparent;
+    color: var(--text-color-secondary);
+  }
+}
