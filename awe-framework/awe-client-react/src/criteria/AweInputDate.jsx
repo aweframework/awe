@@ -28,7 +28,7 @@ class AweInputDate extends AweTextComponent {
 
     return <Calendar
       id={address.component}
-      value={this.getValue()}
+      value={toDate(this.getValue())}
       className={classes}
       placeholder={translateLabel(placeholder, t)}
       onChange={this.onChange}

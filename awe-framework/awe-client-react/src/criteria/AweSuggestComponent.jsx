@@ -14,7 +14,7 @@ class AweSuggestComponent extends AweCriterionComponent {
     };
 
     // Bind events
-    bindMethods(this, ["onChange", "onSelect", "onClear", "onKeyPress", "suggest", "getComponent"]);
+    bindMethods(this, ["onChange", "onSelect", "onClear", "suggest", "getComponent"]);
 
     this.suggesting = false;
     this.abortController = new AbortController();
@@ -65,12 +65,6 @@ class AweSuggestComponent extends AweCriterionComponent {
   onSelect(e) {
     const {address, updateModelWithDependencies} = this.props;
     updateModelWithDependencies(address, {values: [e.value].flat().map(item => ({...item, selected: true}))});
-  }
-
-  onKeyPress(e) {
-    if (e.code === "Space" && e.target.value === "") {
-      this.autocomplete.onDropdownClick();
-    }
   }
 
   suggest(event) {

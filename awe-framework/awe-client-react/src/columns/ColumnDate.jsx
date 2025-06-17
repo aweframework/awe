@@ -32,7 +32,7 @@ class ColumnDate extends Component {
       className={classes}
       inputStyle={{textAlign: align || "center"}}
       showButtonBar
-      dateFormat="dd/MM/yy"
+      dateFormat="dd/mm/yy"
       onChange={this.onChange}
       locale={settings.language}
       tooltip={formatMessage(data?.error, t)}

@@ -22,7 +22,7 @@ class AweSuggest extends AweSuggestComponent {
       onChange={this.onChange}
       onSelect={this.onSelect}
       onClear={this.onClear}
-      onKeyPress={this.onKeyPress}
+      dropdown
       delay={timeout || 300}
       field="label"
       suggestions={this.state.suggestions}
