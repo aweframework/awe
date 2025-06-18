@@ -74,7 +74,7 @@ export default class AweCriterionComponent extends AweComponent {
 
     // Component classes
     const classes = classNames("field", {invisible, "hidden": !visible, "p-disabled": readonly,
-      "required": validationRules?.required, "col-12": !style}, style);
+      "required": validationRules?.required, "w-full" : !style}, style);
 
     // Paint component
     return <div className={classes} criterion-id={address.component}>
