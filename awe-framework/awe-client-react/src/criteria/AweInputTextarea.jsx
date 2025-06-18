@@ -25,7 +25,7 @@ class AweInputTextarea extends AweTextComponent {
   getComponent(style) {
     const {t, address, attributes} = this.props;
     const {placeholder, required, readonly, size} = attributes;
-    const classes = classNames("col-12", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style);
+    const classes = classNames("w-full", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style);
 
     return <InputTextarea
       id={address.component}

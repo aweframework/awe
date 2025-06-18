@@ -50,7 +50,7 @@ export default class ColumnTextType extends Component {
         placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
         required={required}
         disabled={readonly}
-        className={classNames("col-12", classes)}
+        className={classNames("w-full", classes)}
         onChange={this.onChange}
         onBlur={this.onBlur}
         onKeyDown={this.onKeyDown}
