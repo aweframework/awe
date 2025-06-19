@@ -1,8 +1,8 @@
 package com.almis.awe.builder.screen;
 
+import com.almis.awe.builder.enumerates.*;
 import com.almis.awe.builder.enumerates.ChartAxis;
 import com.almis.awe.builder.enumerates.Component;
-import com.almis.awe.builder.enumerates.*;
 import com.almis.awe.builder.screen.accordion.AccordionBuilder;
 import com.almis.awe.builder.screen.accordion.AccordionItemBuilder;
 import com.almis.awe.builder.screen.button.ButtonActionBuilder;
@@ -30,8 +30,8 @@ import com.almis.awe.builder.screen.wizard.WizardBuilder;
 import com.almis.awe.builder.screen.wizard.WizardPanelBuilder;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.entities.screen.View;
 import com.almis.awe.model.entities.screen.*;
+import com.almis.awe.model.entities.screen.View;
 import com.almis.awe.model.entities.screen.component.*;
 import com.almis.awe.model.entities.screen.component.action.ButtonAction;
 import com.almis.awe.model.entities.screen.component.action.Dependency;
@@ -1106,6 +1106,54 @@ class ScreenBuilderTest {
     assertEquals("http://server/image.png", ((Image) screen.getElementList().get(0).getElementList().get(0)).getUrl());
     assertEquals("http://server/alt-image.png", ((Image) screen.getElementList().get(0).getElementList().get(0)).getAlternateUrl());
     assertEquals("image-style", (screen.getElementList().get(0).getElementList().get(0)).getStyle());
+  }
+
+  /**
+   * Build a single screen with an video
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addVideo() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+            .setId(UUID.randomUUID().toString())
+            .addTag(new TagBuilder()
+                    .setSource("center")
+                    .setLabel("LABEL")
+                    .setStyle("expand")
+                    .setType("div")
+                    .addVideo(new VideoBuilder()
+                            .setSrc("http://server/video.mp4")
+                            .setControls("true")
+                            .setStyle("video-style")));
+
+    Screen screen = builder.build();
+    assertEquals("http://server/video.mp4", ((Video) screen.getElementList().get(0).getElementList().get(0)).getSrc());
+    assertEquals("true", ((Video) screen.getElementList().get(0).getElementList().get(0)).getControls());
+    assertEquals("video-style", (screen.getElementList().get(0).getElementList().get(0)).getStyle());
+  }
+
+  /**
+   * Build a single screen with an link
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addLink() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+            .setId(UUID.randomUUID().toString())
+            .addTag(new TagBuilder()
+                    .setSource("center")
+                    .setLabel("LABEL")
+                    .setStyle("expand")
+                    .setType("div")
+                    .addLink(new LinkBuilder()
+                            .setUrl("http://server/page.html")
+                            .setStyle("link-style")));
+
+    Screen screen = builder.build();
+    assertEquals("http://server/page.html", ((Link) screen.getElementList().get(0).getElementList().get(0)).getUrl());
+    assertEquals("link-style", (screen.getElementList().get(0).getElementList().get(0)).getStyle());
   }
 
   /**

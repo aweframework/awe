@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.10.15
+*19/06/2025*
+
+- Add a builder for Video, Image, Link and Frame. [MR #566](https://gitlab.com/aweframework/awe/-/merge_requests/566) (Pablo Javier García Mora)
+- Add orientation to WizardBuilder. [MR #565](https://gitlab.com/aweframework/awe/-/merge_requests/565) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.14
 *02/06/2025*
 

@@ -22,7 +22,7 @@
                         validation="required" printable="false"/>
               <criteria label="ENUM_EML_DST_USR" id="UsrPrn" variable="UsrPrn" component="suggest-multiple" server-action="data" style="col-xs-12" target-action="ActUsrEmlSug" printable="false">
                 <dependency target-type="set-required" initial="true">
-                  <dependency-element id="ActPrn" condition="eq" value="0" />
+                  <dependency-element id="ActPrn" condition="eq" value="MAIL" />
                 </dependency>
               </criteria>
             </tag>
