@@ -274,4 +274,26 @@ public abstract class AbstractTagBuilder<T, I extends Element> extends AbstractE
     addAllElements(imageBuilder);
     return (T) this;
   }
+
+  /**
+   * Add link
+   *
+   * @param linkBuilder
+   * @return
+   */
+  public T addLink(LinkBuilder... linkBuilder) {
+    addAllElements(linkBuilder);
+    return (T) this;
+  }
+
+  /**
+   * Add video
+   *
+   * @param videoBuilder
+   * @return
+   */
+  public T addVideo(VideoBuilder... videoBuilder) {
+    addAllElements(videoBuilder);
+    return (T) this;
+  }
 }
