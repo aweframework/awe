@@ -266,4 +266,38 @@ public class TagListBuilder extends AbstractComponentBuilder<TagListBuilder, Tag
     addAllElements(wizardBuilder);
     return this;
   }
+
+
+  /**
+   * Add image
+   *
+   * @param imageBuilder
+   * @return
+   */
+  public TagListBuilder addImage(ImageBuilder... imageBuilder) {
+    addAllElements(imageBuilder);
+    return this;
+  }
+
+  /**
+   * Add link
+   *
+   * @param linkBuilder
+   * @return
+   */
+  public TagListBuilder addLink(LinkBuilder... linkBuilder) {
+    addAllElements(linkBuilder);
+    return this;
+  }
+
+  /**
+   * Add video
+   *
+   * @param videoBuilder
+   * @return
+   */
+  public TagListBuilder addVideo(VideoBuilder... videoBuilder) {
+    addAllElements(videoBuilder);
+    return this;
+  }
 }
