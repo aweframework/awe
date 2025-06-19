@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -46,6 +47,7 @@ import java.util.Map;
 @XStreamInclude({Accordion.class, Tab.class, Wizard.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder(alphabetic = true)
+@Accessors(chain = true)
 public abstract class Panelable extends AbstractCriteria {
 
   @Serial

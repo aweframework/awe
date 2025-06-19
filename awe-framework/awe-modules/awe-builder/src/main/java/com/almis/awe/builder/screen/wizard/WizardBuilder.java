@@ -16,9 +16,12 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class WizardBuilder extends AbstractComponentBuilder<WizardBuilder, Wizard> {
 
+  private String orientation;
+
   @Override
   public Wizard build() {
-    return build(new Wizard());
+    return build((Wizard) new Wizard()
+            .setOrientation(getOrientation()));
   }
 
   /**
