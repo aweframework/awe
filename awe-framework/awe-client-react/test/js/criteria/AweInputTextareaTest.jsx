@@ -16,6 +16,7 @@ describe('awe-react-client/test/js/criteria/AweInputTextareaTest.jsx', () => {
         model: {values: [{label: 'test', value: 'test', selected: true}]},
         attributes: {
           placeholder: "placeholder",
+          areaRows: 5,
           readonly: false,
           helpImage: "test"
         },

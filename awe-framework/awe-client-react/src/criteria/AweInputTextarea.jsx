@@ -24,7 +24,7 @@ class AweInputTextarea extends AweTextComponent {
 
   getComponent(style) {
     const {t, address, attributes} = this.props;
-    const {placeholder, required, readonly, size} = attributes;
+    const {placeholder, required, readonly, size, areaRows} = attributes;
     const classes = classNames("w-full", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style);
 
     return <InputTextarea
@@ -36,6 +36,7 @@ class AweInputTextarea extends AweTextComponent {
       onBlur={this.onBlur}
       required={required}
       disabled={readonly}
+      rows={areaRows}
     />;
   }
 }
