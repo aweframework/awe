@@ -27,5 +27,6 @@ public class SessionConfigProperties {
     this.parameter.put("module", "ModNamByOpeSel");
     this.parameter.put("site", "SitNamByOpeSel");
     this.parameter.put("database", "DbsAlsBySitModSel");
+    this.parameter.put("themeMode", "getUserThemeMode");
   }
 }

@@ -462,9 +462,9 @@ public class BaseConfigProperties {
   public static class Component {
     /**
      * Component size
-     * Default value sm (Small)
+     * Default value md (Medium)
      */
-    private ComponentSize size = ComponentSize.SM;
+    private ComponentSize size = ComponentSize.MD;
     /**
      * Suffix of data parameter send from client
      * Default value .data

@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
+import _ from "lodash";
 
 function getResolutionType(width) {
   if (width <= 640) {

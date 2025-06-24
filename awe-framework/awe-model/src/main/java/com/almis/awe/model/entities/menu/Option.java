@@ -80,6 +80,11 @@ public class Option extends AbstractAction {
   @XStreamAsAttribute
   private String dynamicScreenService;
 
+  // Option is expanded
+  @XStreamAlias("expanded")
+  @XStreamAsAttribute
+  private Boolean expanded;
+
   // Option is restricted
   @XStreamOmitField
   private boolean restricted;
@@ -178,6 +183,16 @@ public class Option extends AbstractAction {
   @JsonGetter("menuScreen")
   public boolean isMenuScreen() {
     return Optional.ofNullable(getMenuScreen()).orElse(false);
+  }
+
+  /**
+   * Returns if option is expanded or not
+   *
+   * @return Option is expanded
+   */
+  @JsonGetter("expanded")
+  public boolean isExpanded() {
+    return Optional.ofNullable(getExpanded()).orElse(false);
   }
 
   /**

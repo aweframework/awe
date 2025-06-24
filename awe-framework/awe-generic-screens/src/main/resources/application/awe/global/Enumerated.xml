@@ -155,7 +155,7 @@
     <option label="ENUM_SCR_ATR_VALUE" value="value" />
     <option label="ENUM_SCR_ATR_SESSION" value="session" />
     <option label="ENUM_SCR_ATR_VARIABLE" value="variable" />
-    <option label="ENUM_SCR_ATR_COMPONENT" value="component" />
+    <option label="ENUM_SCR_ATR_COMPONENT" value="componentType" />
     <option label="ENUM_SCR_ATR_INITLOAD" value="initialLoad" />
     <option label="ENUM_SCR_ATR_FORMAT" value="format" />
     <option label="ENUM_SCR_ATR_NUMFORMAT" value="numberFormat" />

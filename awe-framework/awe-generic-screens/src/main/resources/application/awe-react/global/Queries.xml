@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Queries.xml
+    Created on : 11 de marzo de 2010, 11:03
+    Author     : Pablo GARCIA
+    Description: AWE Queries File
+-->
+
+<queries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queries.xsd">
+  <!-- Elements of screen suggest (Service java getScreenElementList) -->
+  <query id="getScreenElementList" service="getScreenElementList" cacheable="true">
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="screenName" type="STRING" name="Scr.editing" />
+    <variable id="element" type="STRING" name="suggest" />
+  </query>
+</queries>

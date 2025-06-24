@@ -1,4 +1,14 @@
 
+# Changelog for AWE 4.10.16
+*24/06/2025*
+
+- Add support to expanded options. [MR #572](https://gitlab.com/aweframework/awe/-/merge_requests/572) (Pablo Vidal Otero)
+- Add dark/ligh mode query session parameter. [MR #571](https://gitlab.com/aweframework/awe/-/merge_requests/571) (Pablo Vidal Otero)
+- Allow symbols like dash in screen subfolders. [MR #570](https://gitlab.com/aweframework/awe/-/merge_requests/570) (Pablo Javier García Mora)
+- Set MD as default component size. [MR #569](https://gitlab.com/aweframework/awe/-/merge_requests/569) (Pablo Vidal Otero)
+- Fix issues found with Sonar. [MR #568](https://gitlab.com/aweframework/awe/-/merge_requests/568) (Pablo Javier García Mora)
+- The screen configuration is not applied to React structure. [MR #567](https://gitlab.com/aweframework/awe/-/merge_requests/567) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.15
 *19/06/2025*
 
