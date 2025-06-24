@@ -155,4 +155,97 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
       done();
     });
   });
+
+  it('initializes a menu with an expanded option', function(done) {
+    $rootScope.firstLoad = true;
+    // Remove minimize class from body
+    $("body").removeClass("mmc");
+
+    // Create a controller with options, one of which has expanded=true
+    let controllerWithOptions = {
+      id: "menuId",
+      style: "vertical",
+      options: [
+        {
+          id: "option1",
+          name: "option1",
+          label: "Option 1",
+          visible: true,
+          expanded: true,
+          options: [
+            {
+              id: "suboption1",
+              name: "suboption1",
+              label: "Sub Option 1",
+              visible: true
+            }
+          ]
+        },
+        {
+          id: "option2",
+          name: "option2",
+          label: "Option 2",
+          visible: true
+        }
+      ]
+    };
+
+    // Spy on storage
+    spyOn($storage, "get").and.returnValue({'base': {}});
+    spyOn($control, "checkComponent").and.returnValue(true);
+    spyOn($control, "getAddressController").and.returnValue(controllerWithOptions);
+
+    // Compile a piece of HTML containing the directive
+    let element = $compile("<awe-menu menu-id='menuId'></awe-menu>")($rootScope);
+    $rootScope.$digest();
+
+    launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [], components: [{
+            id: "menuId", controller: controllerWithOptions, model: model}], screen: {name: "TEST"}, messages: []}}}, () => {
+      // Close all actions
+      $actionController.closeAllActions();
+
+      // Usar setTimeout para asegurar que el DOM se actualice completamente
+      setTimeout(() => {
+        // Múltiples ciclos de digest para asegurar que todas las directivas se rendericen
+        $rootScope.$digest();
+        $rootScope.$digest();
+
+        // Esperar un poco más para Chrome headless
+        setTimeout(() => {
+          // Buscar el elemento de manera más específica
+          let optionElement = element.find("awe-option[option-name='option1']");
+
+          // Si no se encuentra, intentar con otros selectores
+          if (optionElement.length === 0) {
+            optionElement = element.find("li.awe-option").filter(function() {
+              return $(this).find("a[name='option1']").length > 0;
+            });
+          }
+
+          // Fallback adicional
+          if (optionElement.length === 0) {
+            optionElement = element.find("li.mm-dropdown-root").first();
+          }
+
+          // Debug information más detallada para Chrome
+          console.log("Full element HTML:", element[0].outerHTML);
+          console.log("Found awe-option elements:", element.find("awe-option").length);
+          console.log("Found li elements:", element.find("li").length);
+          console.log("Body classes:", $("body").attr('class'));
+
+          // Verificaciones
+          expect(optionElement.length).toBeGreaterThan(0);
+          if (optionElement.length > 0) {
+            // Verificar que el elemento tiene la clase 'open' o 'mmc-dropdown-open'
+            let hasOpenClass = optionElement.hasClass("open") || optionElement.hasClass("mmc-dropdown-open");
+            console.log("Option element classes:", optionElement.attr('class'));
+            console.log("Has open class:", hasOpenClass);
+            expect(hasOpenClass).toBe(true);
+          }
+
+          done();
+          }, 100); // Tiempo adicional para Chrome headless
+        }, 50);
+    });
+  });
 });

@@ -64,6 +64,7 @@
     <xs:attribute name="menu-screen" type="booleanEnum"/>
     <xs:attribute name="dynamic-screen" type="booleanEnum"/>
     <xs:attribute name="dynamic-screen-service" type="xs:string"/>
+    <xs:attribute name="expanded" type="booleanEnum"/>
     <xs:attribute name="type" type="buttonActionEnum"/>
     <xs:attribute name="server-action" type="serverActionEnum"/>
     <xs:attribute name="target-action" type="xs:string"/>
