@@ -17,7 +17,16 @@ export default class ColumnTextType extends Component {
   }
 
   onChange(e) {
-    this.setState({value: e.target.value, writing: true});
+    if (document.activeElement !== e.target) {
+      this.storeChange();
+    } else {
+      this.setState({value: e.target.value, writing: true});
+    }
+  }
+
+  getValue() {
+    const {data = {}} = this.props;
+    return data.value;
   }
 
   onKeyDown(e) {
@@ -37,6 +46,19 @@ export default class ColumnTextType extends Component {
       updateModelWithDependencies(address, {values: value});
     }
     this.setState({writing: false});
+  }
+
+  /**
+   * Component was updated
+   * @param {object} _prevProps Previous props
+   * @param {object} _prevState Previous state
+   * @param {object} _snapshot Current snapshot
+   */
+  componentDidUpdate(_prevProps, _prevState, _snapshot) {
+    let newValue = this.getValue();
+    if (newValue !== this.state.value && !this.state.writing) {
+      this.setState({value: newValue});
+    }
   }
 
   render() {

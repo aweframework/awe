@@ -1,5 +1,6 @@
 package com.almis.awe.test.service;
 
+import com.almis.awe.builder.client.grid.UpdateCellActionBuilder;
 import com.almis.awe.builder.enumerates.Action;
 import com.almis.awe.builder.screen.ScreenBuilder;
 import com.almis.awe.builder.screen.TagBuilder;
@@ -8,9 +9,11 @@ import com.almis.awe.builder.screen.button.ButtonBuilder;
 import com.almis.awe.builder.screen.criteria.HiddenCriteriaBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
+import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
@@ -613,5 +616,10 @@ public class DummyService extends ServiceConfig {
 
 
     return new ServiceData().setDataList(dataList);
+  }
+
+  public ServiceData updateCell() throws AWException {
+    // Fill serviceData with dataList
+    return new ServiceData().addClientAction(new UpdateCellActionBuilder(new ComponentAddress("report", "GrdEdi", "3", "Txt"), new CellData("Prueba de texto")).build());
   }
 }

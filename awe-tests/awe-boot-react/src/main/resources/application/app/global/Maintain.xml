@@ -831,4 +831,8 @@
     </serve>
   </target>
 
+  <target name="updateCell">
+    <serve service="updateCell"/>
+  </target>
+
 </maintain>
