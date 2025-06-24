@@ -176,11 +176,7 @@ public class ScreenService extends ServiceConfig {
    * @return Screen data
    */
   public ScreenData getScreenData(String optionId, boolean generateTemplate) throws AWException {
-      ScreenData screenData = generateScreenData(optionId, generateTemplate);
-      if (!generateTemplate) {
-        screenData.setStructure(getScreenFromOptionId(optionId));
-      }
-      return screenData;
+      return generateScreenData(optionId, generateTemplate);
   }
 
   /**
@@ -233,6 +229,8 @@ public class ScreenService extends ServiceConfig {
     if (generateTemplate) {
       // Add template to screen data
       addTemplateToScreenData(screen, data, getRequest().getParameterAsString("view"), optionId);
+    } else {
+      data.setStructure(screen);
     }
 
     return data;
