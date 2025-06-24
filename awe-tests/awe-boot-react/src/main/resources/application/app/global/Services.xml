@@ -428,4 +428,9 @@
     <java classname="com.almis.awe.test.service.DummyService" method="picklist"/>
   </service>
 
+  <service id="updateCell">
+    <java classname="com.almis.awe.test.service.DummyService" method="updateCell"/>
+  </service>
+
+
 </services>

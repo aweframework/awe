@@ -10,6 +10,9 @@
       <button-action type="validate" />
       <button-action type="dialog" target="PrnOpt" />
     </button>
+    <button label="BUTTON_TEST_DEPENDENCIES" icon="print" id="ButTstDep">
+      <button-action type="server" server-action="maintain-silent" target-action="updateCell"/>
+    </button>
     <button button-type="button" label="BUTTON_RELOAD" icon="refresh" id="ButRef">
       <!--<button-action type="server" server-action="data" target-action="QryEdiTst" target="GrdMus" /> -->
       <button-action type="filter" target="GrdMus" />
@@ -90,7 +93,11 @@
       </tabcontainer>
       <tabcontainer id="EdiMat">
         <grid id="GrdEdi" style="expand grid-bordered" editable="true" initial-load="query" server-action="data" target-action="QryEdiTst" max="10" show-totals="true" send-all="true">
-          <column label="PARAMETER_TEXT" name="Txt" sort-field="Txt" align="left" component="text" charlength="14" />
+          <column label="PARAMETER_TEXT" name="Txt" sort-field="Txt" align="left" component="text" charlength="14">
+            <dependency source-type="criteria-value" target-type="input" target-action="test">
+              <dependency-element id="GrdEdi" column="Tar" attribute="selectedRowValue" alias="test" />
+            </dependency>
+          </column>
           <column label="COLUMN_NUMERIC" name="Num" sort-field="Num" align="right" component="numeric" number-format="{vMin: '-999999', mDec: 2, aSign:' EUR', pSign:'s', aPad:true}"
             value="-123456.1" charlength="16" formatter="number" summary-type="sum">
             <dependency source-type="criteria-value" target-type="input" target-action="CpyNum2">

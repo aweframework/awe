@@ -51,4 +51,5 @@
     <option label="PARAMETER_RADIO_1" value="Radio4" />
     <option label="PARAMETER_RADIO_1" value="Radio5" />
   </group>
+
 </enumerated>

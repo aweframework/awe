@@ -4,3 +4,4 @@ import './ColumnButtonTest';
 import './ColumnUploaderTest';
 import './ColumnColorTest';
 import './ColumnTextViewTest';
+import './ColumnTextTest';
