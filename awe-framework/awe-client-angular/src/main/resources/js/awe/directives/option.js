@@ -45,6 +45,15 @@ aweApplication.directive('aweOption',
               scope.opened = false;
               scope.active = false;
 
+              // Check if the option should be expanded initially (only for vertical menus)
+              if (scope.controller && scope.controller.expanded && scope.menuType === "vertical") {
+                scope.opened = true;
+                if (!scope.selectedOption.opened) {
+                  scope.selectedOption.opened = {};
+                }
+                scope.selectedOption.opened[scope.optionName] = scope.firstLevel;
+              }
+
               /**
                * Check if option is opened
                */
