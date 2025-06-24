@@ -179,7 +179,7 @@ public class QueueBuilder extends AbstractQueryBuilder {
     // Check if queue exists
     if (queue == null) {
       throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_QUEUE"),
-        getLocale("ERROR_MESSAGE_QUEUE_NOT_FOUND", queue.getId()));
+        getLocale("ERROR_MESSAGE_QUEUE_NOT_FOUND", ""));
     }
 
     // Waits for response
