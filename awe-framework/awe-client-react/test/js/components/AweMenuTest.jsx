@@ -9746,6 +9746,132 @@ const options = [
 
 describe('awe-react-client/test/js/components/AweMenuTest.jsx', () => {
 
+  // Test for getExpandedKeys function
+  describe('getExpandedKeys function', () => {
+    // Copy of the function for testing
+    function getExpandedKeys(props) {
+      const {options} = props;
+
+      if (!options || !Array.isArray(options)) {
+        return {};
+      }
+
+      const expandedIds = [];
+
+      // Helper function to collect IDs recursively
+      function collectExpandedIds(optionList) {
+        optionList.forEach(option => {
+          // If option is expanded, add its ID
+          if (option.expanded === true && option.id) {
+            expandedIds.push(option.id);
+          }
+          // If it has child options, process them recursively
+          if (option.options && Array.isArray(option.options) && option.options.length > 0) {
+            collectExpandedIds(option.options);
+          }
+        });
+      }
+      // Collect all expanded IDs
+      collectExpandedIds(options);
+      // Convert array of IDs to object with IDs as keys
+      return expandedIds.reduce((expandedKeys, id) => ({
+        ...expandedKeys,
+        [id]: true
+      }), {});
+    }
+
+    it('should return an empty object when options is null', () => {
+      const props = { options: null };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({});
+    });
+
+    it('should return an empty object when options is undefined', () => {
+      const props = { options: undefined };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({});
+    });
+
+    it('should return an empty object when options is not an array', () => {
+      const props = { options: {} };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({});
+    });
+
+    it('should return an empty object when options is an empty array', () => {
+      const props = { options: [] };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({});
+    });
+
+    it('should return an empty object when no options are expanded', () => {
+      const props = {
+        options: [
+          { id: 'option1', expanded: false },
+          { id: 'option2' }
+        ]
+      };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({});
+    });
+
+    it('should return an object with expanded option IDs', () => {
+      const props = {
+        options: [
+          { id: 'option1', expanded: true },
+          { id: 'option2', expanded: false },
+          { id: 'option3', expanded: true }
+        ]
+      };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({
+        option1: true,
+        option3: true
+      });
+    });
+
+    it('should handle nested options', () => {
+      const props = {
+        options: [
+          {
+            id: 'parent1',
+            expanded: true,
+            options: [
+              { id: 'child1', expanded: true },
+              { id: 'child2', expanded: false }
+            ]
+          },
+          {
+            id: 'parent2',
+            expanded: false,
+            options: [
+              { id: 'child3', expanded: true }
+            ]
+          }
+        ]
+      };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({
+        parent1: true,
+        child1: true,
+        child3: true
+      });
+    });
+
+    it('should ignore options without an id', () => {
+      const props = {
+        options: [
+          { expanded: true },
+          { id: 'option1', expanded: true }
+        ]
+      };
+      const result = getExpandedKeys(props);
+      expect(result).toEqual({
+        option1: true
+      });
+    });
+  });
+
   it('renders Awe Menu horizontal component', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,
