@@ -32,6 +32,34 @@ function getSeparatorModel(option, t) {
 }
 
 /**
+ * Retrieves menu options with expanded attribute set to true
+ * @param {object} option Component properties
+ * @returns {object} Map of expanded option IDs
+ */
+function findExpandedKeys(option) {
+  const {options} = option;
+  return options
+      // Filter only arrays with elements
+      .filter(optionList => optionList.options?.length)
+      // Flat map to get all options and their children
+      .flatMap(o => [
+        // Check if the current option is expanded
+        ...(o.expanded === true ? [o.id] : []),
+        // Recursively check child options
+        ...(findExpandedKeys(o))
+      ]);
+}
+
+function getExpandedKeys(optionList) {
+  // Reduce to object with ids as keys
+  return findExpandedKeys(optionList)
+      .reduce((expandedKeys, id) => ({
+        ...expandedKeys,
+        [id]: true
+      }), {})
+}
+
+/**
  * Convert an option to item
  * @param {object} option Option data
  * @param {object} props Properties
@@ -136,7 +164,7 @@ class AweMenu extends Component {
    * Component was mounted
    */
   componentDidMount() {
-    const expandedKeys = {};
+    const expandedKeys = getExpandedKeys(this.props);
     this.onUpdateBreadcrumbs(this.props);
     this.setState({expandedKeys});
   }
