@@ -3,12 +3,13 @@ import {withTranslation} from "react-i18next";
 import {AutoComplete} from "primereact/autocomplete";
 import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {classNames, suggest} from "../utilities/components";
+import PropTypes from "prop-types";
 
 class ColumnSuggest extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {suggest: props.data.label || "", suggestions: [...props.model.values, props.data]};
+    this.state = {suggest: {...props.data, label: props.data?.label || props.data?.value || ""}, suggestions: [...(props.data?.value !== null ? [{...props.data, label: props.data?.label || props.data?.value || ""}] : [])]};
 
     // Bind events
     this.suggesting = false;
@@ -23,7 +24,7 @@ class ColumnSuggest extends Component {
     const {suggestions} = this.state;
     const {data} = this.props;
     let found = (suggestions.find(suggestion => String(suggestion.value) === String(data.value)) || {});
-    this.setState({suggest: found.label});
+    this.setState({suggest: {...found, label: found.label || found.value || ""}});
   }
 
   onSelect(e) {
@@ -77,5 +78,17 @@ class ColumnSuggest extends Component {
     />;
   }
 }
+
+ColumnSuggest.propTypes = {
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  placeholder: PropTypes.string,
+  label: PropTypes.string,
+  required: PropTypes.string,
+  readonly: PropTypes.string,
+  timeout: PropTypes.string,
+  t: PropTypes.func.isRequired,
+  updateModelWithDependencies: PropTypes.func.isRequired,
+};
 
 export default withTranslation()(ColumnSuggest);
