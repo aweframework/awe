@@ -3007,4 +3007,22 @@
 
   <query id="picklist" service="picklist"/>
 
+  <query id="initial-load-user">
+    <table id="ope"/>
+    <field id="l1_nom" alias="value"/>
+    <field id="OpeNam" alias="label"/>
+  </query>
+
+  <query id="load-layout">
+    <table id="ope"/>
+    <field id="l1_nom" alias="value"/>
+    <field id="OpeNam" alias="label"/>
+    <compound alias="testSuggest">
+      <computed alias="value" format="[value]"/>
+      <computed alias="label" format="[label]"/>
+    </compound>
+    <computed alias="testSelect" format="[value]"/>
+    <field id="l1_dat" alias="testDate" transform="DATE" function="TRUNCDATE"/>
+  </query>
+
 </queries>

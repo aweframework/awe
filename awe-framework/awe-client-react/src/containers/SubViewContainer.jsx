@@ -26,7 +26,7 @@ class SubViewContainer extends AweView {
   }
 
   getOptionId() {
-    return this.props.match.params.subScreenId || null
+    return this.props.match.params.subScreenId || null;
   }
 
   clearView() {
@@ -48,7 +48,7 @@ function mapStateToProps(state) {
   return {
     components: state.components,
     settings: state.settings
-  }
+  };
 }
 
 // Connect redux store updates

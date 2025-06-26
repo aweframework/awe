@@ -2,13 +2,31 @@ import {
   checkModelIsEmpty,
   checkModelIsUnchanged,
   checkModelIsUpdated,
+  classNames, clickDropdown,
   deleteFile,
+  fixController,
+  fixModel,
+  fixSelectedModel,
+  getAddressType,
+  getCheckboxData,
   getComponentData,
+  getComponentId,
+  getCriterionData,
+  getCriterionDataAsList,
+  getCriterionPrintData,
+  getDataDependingOnList,
+  getDependencyComponentId,
   getFormValues,
   getFormValuesForPrinting,
   getInitialFileData,
   getSelectedValues,
+  getSpecificAttributes,
+  getTabData,
+  getTabPrintData,
+  getTriggerId,
+  getVisibleTextData,
   initialSuggest,
+  inspectComponentStructure,
   parseRule,
   parseValidationRules,
   suggest,
@@ -690,4 +708,559 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       components: { grid, pivotTable, numeric, criterion, tab, checkbox }
     })).toEqual(false);
   });
+
+  // Tests for getDataDependingOnList
+  it('should get data depending on list length - empty list', () => {
+    expect(getDataDependingOnList([])).toEqual(null);
+  });
+
+  it('should get data depending on list length - single item', () => {
+    expect(getDataDependingOnList([5])).toEqual(5);
+  });
+
+  it('should get data depending on list length - multiple items', () => {
+    expect(getDataDependingOnList([1, 2, 3])).toEqual([1, 2, 3]);
+  });
+
+  // Tests for classNames
+  it('should join class names from strings', () => {
+    expect(classNames('class1', 'class2')).toEqual('class1 class2');
+  });
+
+  it('should join class names from numbers', () => {
+    expect(classNames(1, 2)).toEqual('1 2');
+  });
+
+  it('should join class names from arrays', () => {
+    expect(classNames(['class1', 'class2'])).toEqual('class1 class2');
+  });
+
+  it('should join class names from objects', () => {
+    expect(classNames({ class1: true, class2: false, class3: true })).toEqual('class1 class3');
+  });
+
+  it('should join class names from mixed types', () => {
+    expect(classNames('class1', 2, ['class3', 'class4'], { class5: true, class6: false })).toEqual('class1 2 class3 class4 class5');
+  });
+
+  it('should handle empty or falsy values in classNames', () => {
+    expect(classNames('', null, undefined, false, 0)).toEqual('0');
+  });
+
+  // Tests for getAddressType
+  it('should identify cell address type', () => {
+    expect(getAddressType({ view: 'view1', component: 'comp1', column: 'col1', row: 'row1' })).toEqual('cell');
+  });
+
+  it('should identify column address type', () => {
+    expect(getAddressType({ view: 'view1', component: 'comp1', column: 'col1' })).toEqual('column');
+  });
+
+  it('should identify component address type', () => {
+    expect(getAddressType({ view: 'view1', component: 'comp1' })).toEqual('component');
+  });
+
+  it('should identify view address type', () => {
+    expect(getAddressType({ view: 'view1' })).toEqual('view');
+  });
+
+  it('should identify invalid address type', () => {
+    expect(getAddressType({})).toEqual('invalid');
+    expect(getAddressType(null)).toEqual('invalid');
+    expect(getAddressType('string')).toEqual('invalid');
+  });
+
+  // Tests for getComponentId
+  it('should get component id for cell address', () => {
+    expect(getComponentId({view: "report", component: 'comp1', row: 'row1', column: 'col1' })).toEqual('comp1-row1-col1');
+  });
+
+  it('should get component id for column address', () => {
+    expect(getComponentId({view: "report",  component: 'comp1', column: 'col1' })).toEqual('comp1-col1');
+  });
+
+  it('should get component id for component address', () => {
+    expect(getComponentId({view: "report",  component: 'comp1' })).toEqual('comp1');
+  });
+
+  it('should return null for invalid address', () => {
+    expect(getComponentId({})).toEqual(null);
+  });
+
+  // Tests for getDependencyComponentId
+  it('should get dependency component id with all parameters', () => {
+    expect(getDependencyComponentId(
+      {view: "report",  component: 'comp1' },
+      {view: "report",  column: 'col1', row: 'row1', index: 'idx1' }
+    )).toEqual('comp1-col1-row1-idx1');
+  });
+
+  it('should get dependency component id with some parameters', () => {
+    expect(getDependencyComponentId(
+      {view: "report",  component: 'comp1' },
+      {view: "report",  column: 'col1' }
+    )).toEqual('comp1-col1');
+  });
+
+  it('should get dependency component id with no parameters', () => {
+    expect(getDependencyComponentId(
+      {view: "report",  component: 'comp1' },
+      {}
+    )).toEqual('comp1');
+  });
+
+  // Tests for getTriggerId
+  it('should get trigger id with alias', () => {
+    const trigger = { id: 'trigger1', alias: 'aliasName' };
+    const dependency = { address: { view: 'view1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('aliasName');
+  });
+
+  it('should get trigger id without alias', () => {
+    const trigger = { id: 'trigger1', event: 'click' };
+    const dependency = { address: { view: 'view1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('trigger1-click');
+  });
+
+  it('should get trigger id with column', () => {
+    const trigger = { id: 'trigger1', column1: 'col1' };
+    const dependency = { address: { view: 'view1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('trigger1-col1');
+  });
+
+  it('should get trigger id with row', () => {
+    const trigger = { id: 'trigger1' };
+    const dependency = { address: { view: 'view1', row: 'row1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('trigger1');
+  });
+
+  // Tests for fixSelectedModel
+  it('should fix selected model with object', () => {
+    const selected = { value: 'test' };
+    expect(fixSelectedModel(selected)).toEqual(selected);
+  });
+
+  it('should fix selected model with string', () => {
+    expect(fixSelectedModel('test')).toEqual({ value: 'test' });
+  });
+
+  it('should fix selected model with number', () => {
+    expect(fixSelectedModel(123)).toEqual({ value: '123' });
+  });
+
+  // Tests for fixModel
+  it('should fix model for grid', () => {
+    const model = {
+      selected: [1, 2],
+      values: [
+        { id: '1', name: 'Item 1' },
+        { id: '2', name: 'Item 2' },
+        { id: '3', name: 'Item 3' }
+      ]
+    };
+
+    const result = fixModel(model, true);
+    expect(result.values[0].selected).toBe(true);
+    expect(result.values[1].selected).toBe(true);
+    expect(result.values[2].selected).toBe(false);
+  });
+
+  it('should fix model for non-grid', () => {
+    const model = {
+      selected: [{ value: '1' }, '2'],
+      values: [
+        { value: '1', label: 'Item 1' },
+        { value: '2', label: 'Item 2' },
+        { value: '3', label: 'Item 3' }
+      ]
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values[0].selected).toBe(true);
+    expect(result.values[1].selected).toBe(true);
+    expect(result.values[2].selected).toBe(false);
+  });
+
+  it('should fix model with empty values but selected items', () => {
+    const model = {
+      selected: [{ value: '1', label: 'Item 1' }],
+      values: []
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values.length).toBe(1);
+    expect(result.values[0]).toEqual({ value: '1', label: 'Item 1', selected: true });
+  });
+
+  // Tests for getSpecificAttributes
+  it('should get specific attributes with default values', () => {
+    const controller = { max: 10 };
+    const settings = { recordsPerPage: 20 };
+
+    expect(getSpecificAttributes(controller, false, settings)).toEqual({
+      max: 10,
+      rows: 10,
+      sort: [],
+      page: 1,
+      first: 0
+    });
+  });
+
+  it('should get specific attributes with loadAll', () => {
+    const controller = { max: 10, loadAll: true };
+    const settings = { recordsPerPage: 20 };
+
+    expect(getSpecificAttributes(controller, false, settings)).toEqual({
+      max: 0,
+      rows: 10,
+      sort: [],
+      page: 1,
+      first: 0
+    });
+  });
+
+  it('should get specific attributes with settings fallback', () => {
+    const controller = {};
+    const settings = { recordsPerPage: 20 };
+
+    expect(getSpecificAttributes(controller, false, settings)).toEqual({
+      max: 20,
+      rows: 20,
+      sort: [],
+      page: 1,
+      first: 0
+    });
+  });
+
+  // Tests for fixController
+  it('should fix controller for non-grid', () => {
+    const controller = {
+      numberFormat: "{ vMin: '-999999', mDec: 1 }",
+      size: 'medium'
+    };
+    const settings = {
+      numericOptions: { aSep: ',' },
+      defaultComponentSize: 'small'
+    };
+
+    const result = fixController(controller, false, settings);
+    expect(result.numberFormat).toEqual({ aSep: ',', vMin: '-999999', mDec: 1 });
+    expect(result.size).toEqual('medium');
+  });
+
+  // Tests for inspectComponentStructure
+  it('should inspect component structure', () => {
+    const element = {
+      id: 'parent',
+      elementType: 'Container',
+      elementList: [
+        { id: 'child1', elementType: 'Button' },
+        { id: 'child2', elementType: 'Input' }
+      ]
+    };
+
+    const result = inspectComponentStructure(element, [], {});
+    expect(Object.keys(result).length).toBe(3);
+    expect(result.parent).toEqual(['parent']);
+    expect(result.child1).toEqual(['parent', 'child1']);
+    expect(result.child2).toEqual(['parent', 'child2']);
+  });
+
+  it('should handle Dialog in component structure', () => {
+    const element = {
+      id: 'parent',
+      elementType: 'Container',
+      elementList: [
+        { 
+          id: 'dialog', 
+          elementType: 'Dialog',
+          elementList: [
+            { id: 'dialogChild', elementType: 'Button' }
+          ]
+        }
+      ]
+    };
+
+    const result = inspectComponentStructure(element, ['context'], {});
+    expect(result.parent).toEqual(['context', 'parent']);
+    expect(result.dialog).toEqual(['dialog']);
+    expect(result.dialogChild).toEqual(['dialog', 'dialogChild']);
+  });
+
+  it('should handle TreeGrid in component structure', () => {
+    const element = {
+      id: 'grid',
+      elementType: 'Grid',
+      treegrid: true
+    };
+
+    const result = inspectComponentStructure(element, [], {});
+    expect(element.elementType).toEqual('TreeGrid');
+    expect(result.grid).toEqual(['grid']);
+  });
+
+  // Tests for getVisibleTextData
+  it('should get visible text data', () => {
+    const t = (text) => `Translated: ${text}`;
+    expect(getVisibleTextData('Hello', t)).toEqual('Translated: Hello');
+  });
+
+  // Tests for getCriterionPrintData
+  it('should get criterion print data for numeric', () => {
+    const criterion = {
+      attributes: {
+        id: 'numCriterion',
+        component: 'numeric',
+        numberFormat: { mDec: 2 }
+      }
+    };
+    const model = {
+      values: [
+        { value: 123.45, selected: true }
+      ]
+    };
+    const props = { t: (text) => text };
+
+    const result = getCriterionPrintData(criterion, model, props);
+    expect('numCriterion.data' in result).toBeTrue();
+    expect('text' in result['numCriterion.data']).toBeTrue();
+  });
+
+  it('should get criterion print data for time', () => {
+    const criterion = {
+      attributes: {
+        id: 'timeCriterion',
+        component: 'time'
+      }
+    };
+    const model = {
+      values: [
+        { value: '12:34:56', selected: true }
+      ]
+    };
+    const props = { t: (text) => text };
+
+    const result = getCriterionPrintData(criterion, model, props);
+    expect('timeCriterion.data' in result).toBeTrue();
+    expect(result['timeCriterion.data'].text).toEqual('12:34:56');
+  });
+
+  it('should get criterion print data for default component', () => {
+    const criterion = {
+      attributes: {
+        id: 'defaultCriterion',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', label: 'Label 1', selected: true },
+        { value: 'value2', label: 'Label 2', selected: true }
+      ]
+    };
+    const props = { t: (text) => `T: ${text}` };
+
+    const result = getCriterionPrintData(criterion, model, props);
+    expect('defaultCriterion.data' in result).toBeTrue();
+    expect('text' in result['defaultCriterion.data']).toBeTrue();
+  });
+
+  // Tests for getCheckboxData
+  it('should get checkbox data', () => {
+    const checkbox = {
+      attributes: {
+        id: 'checkboxId',
+        component: 'checkbox'
+      }
+    };
+    const model = {
+      values: [
+        { value: 1, selected: true }
+      ]
+    };
+
+    const result = getCheckboxData(checkbox, model, {}, false);
+    expect(result).toEqual({ checkboxId: 1 });
+  });
+
+  it('should get checkbox data with multiple selected values', () => {
+    const checkbox = {
+      attributes: {
+        id: 'checkboxId',
+        component: 'checkbox'
+      }
+    };
+    const model = {
+      values: [
+        { value: 1, selected: true },
+        { value: 2, selected: true }
+      ]
+    };
+
+    const result = getCheckboxData(checkbox, model, {}, false);
+    expect(result).toEqual({ checkboxId: [1, 2] });
+  });
+
+  it('should get checkbox data with no selected values', () => {
+    const checkbox = {
+      attributes: {
+        id: 'checkboxId',
+        component: 'checkbox'
+      }
+    };
+    const model = {
+      values: [
+        { value: 1, selected: false }
+      ]
+    };
+
+    const result = getCheckboxData(checkbox, model, {}, false);
+    expect(result).toEqual({ checkboxId: 0 });
+  });
+
+  // Tests for getCriterionData
+  it('should get criterion data', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: true }
+      ]
+    };
+
+    const result = getCriterionData(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: 'value1' });
+  });
+
+  it('should get criterion data with multiple selected values', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: true },
+        { value: 'value2', selected: true }
+      ]
+    };
+
+    const result = getCriterionData(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: ['value1', 'value2'] });
+  });
+
+  it('should get criterion data with no selected values', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: false }
+      ]
+    };
+
+    const result = getCriterionData(criterion, model, {}, false);
+    expect(result).toEqual({});
+  });
+
+  // Tests for getCriterionDataAsList
+  it('should get criterion data as list', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'picklist'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: true },
+        { value: 'value2', selected: false },
+        { value: 'value3', selected: true }
+      ]
+    };
+
+    const result = getCriterionDataAsList(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: ['value1', 'value3'] });
+  });
+
+  it('should get criterion data as list with no selected values', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'picklist'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: false },
+        { value: 'value2', selected: false }
+      ]
+    };
+
+    const result = getCriterionDataAsList(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: [] });
+  });
+
+  // Tests for clickDropdown
+  it('should handle click on dropdown', () => {
+    const dropdown = {
+      toggle: jasmine.createSpy('toggle')
+    };
+
+    const dropdownProps = {
+      address: { component: 'dropdown1', view: 'view1' },
+      addActionsTop: jasmine.createSpy('addActionsTop'),
+      updateModelWithDependencies: jasmine.createSpy('updateModelWithDependencies'),
+      actions: [
+        { type: 'action1', parameters: {} },
+        { type: 'action2', parameters: {} }
+      ]
+    };
+
+    const event = { target: {} };
+
+    clickDropdown(event, dropdownProps, dropdown);
+
+    expect(dropdown.toggle).toHaveBeenCalledWith(event);
+    expect(dropdownProps.updateModelWithDependencies).toHaveBeenCalledWith(
+      dropdownProps.address, 
+      { event: 'click' }
+    );
+    expect(dropdownProps.addActionsTop).toHaveBeenCalledWith([
+      { ...dropdownProps.actions[0], address: dropdownProps.address },
+      { ...dropdownProps.actions[1], address: dropdownProps.address }
+    ]);
+  });
+
+  // Test for getTabPrintData
+  it('should get tab print data', () => {
+    const tab = {
+      attributes: {
+        id: 'tabId'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'tab1', label: 'Tab 1', selected: true },
+        { value: 'tab2', label: 'Tab 2', selected: false }
+      ]
+    };
+    const props = {
+      t: (text) => `Translated: ${text}`
+    };
+
+    const result = getTabPrintData(tab, model, props);
+    expect('tabId.data' in result).toBeTrue();
+    expect(result['tabId.data'].text).toBe('Translated: Tab 1');
+    expect('all' in result['tabId.data']).toBeTrue();
+    expect(result['tabId.data'].all).toEqual(model.values);
+  }); //X
 });

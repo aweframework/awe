@@ -6,14 +6,15 @@
     Author     : Pablo GARCIA
     Description: Login screen
 -->
-<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="layout" help="HELP_layout">
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window"
+        label="layout" help="HELP_layout" target="load-layout">
   <tag source="center">
     <window label="SCREEN_TEXT_USER" maximize="true" icon="camera-retro">
       <tag type="div" style="panel-body expand-maximize">
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="cod_usr" validation="required" readonly="true" style="col-xs-6 col-sm-4 col-md-2" value="Hola, Adios" />
-        <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="epa" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
-        <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
-        <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="lala" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
+        <criteria placeholder="SCREEN_TEXT_USER" component="suggest" icon="user" id="testSuggest" target-action="TstUsrSug" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
+        <criteria placeholder="SCREEN_TEXT_USER" component="select" icon="user" id="testSelect" initial-load="query" target-action="initial-load-user" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
+        <criteria placeholder="SCREEN_TEXT_USER" component="date" icon="calendar" id="testDate" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
         <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="prueba" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
         <criteria placeholder="SCREEN_TEXT_PASS" component="password" icon="key" id="pwd_usr" validation="required" style="col-xs-6 col-sm-4 col-md-2" />
       </tag>
