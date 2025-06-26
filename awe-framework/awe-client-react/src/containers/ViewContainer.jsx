@@ -101,7 +101,7 @@ class ViewContainer extends AweView {
   }
 
   getOptionId() {
-    return this.props.match.params.screenId || null
+    return this.props.match.params.screenId || null;
   }
 
   clearView() {
@@ -146,7 +146,7 @@ function mapStateToProps(state) {
       ...state.actions.sync[state.actions.sync.length - 1].filter(a => a.status === STATUS_RUNNING),
       ...state.actions.async.filter(a => a.status === STATUS_RUNNING)
     ]
-  }
+  };
 }
 
 // Connect redux store updates

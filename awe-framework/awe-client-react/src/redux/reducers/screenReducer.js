@@ -19,13 +19,13 @@ export function screen(state = InitialState, action = {}) {
       return {
         ...state,
         ...action.data
-      }
+      };
     case SET_SCREEN_VIEW:
       return {
         ...state,
         view: action.view,
         [action.view]: action.data
-      }
+      };
     case UPDATE_SCREEN_VIEW:
       return {
         ...state,
@@ -33,18 +33,18 @@ export function screen(state = InitialState, action = {}) {
           ...state[action.view],
           ...action.data
         }
-      }
+      };
     case CLEAR_SCREEN_VIEW:
       return {
         ...state,
         [action.view]: {}
-      }
+      };
     case CLEAR_ALL_VIEWS:
       return {
         ...state,
         base: {},
         report: {}
-      }
+      };
     case UPDATE_BREADCRUMBS:
       return {
         ...state,
@@ -52,8 +52,8 @@ export function screen(state = InitialState, action = {}) {
           items: [].concat(action.items),
           option: action.option
         }
-      }
+      };
     default:
-      return state
+      return state;
   }
 }

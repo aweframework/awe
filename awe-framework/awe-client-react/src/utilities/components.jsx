@@ -636,20 +636,31 @@ export function getComponentData(component, props, forPrinting, model = "model")
  * @return {object} Model fixed
  */
 export function fixModel(model, isGrid) {
-  let selected = asArray(model.selected).map(value => String(value));
+  let selected = asArray(model.selected).map(value => fixSelectedModel(value));
+  const selectedValues = selected.map(value => value.value);
   let values = model.values;
   if (isGrid) {
-    values = values.map(value => ({...value, selected: selected.includes(String(value.id))}));
+    values = values.map(value => ({...value, selected: selectedValues.includes(String(value.id))}));
   } else {
-    values = values.map(value => ({...value, selected: selected.includes(String(value.value))}));
+    values = values.map(value => ({...value, selected: selectedValues.includes(String(value.value))}));
     if (selected.length > 0 && values.length === 0) {
-      values = selected.map(value => ({selected: true, value: value}));
+      values = selected.map(value => ({...value, selected: true}));
     }
   }
   return {
     ...model,
     values: values
   };
+}
+
+export function fixSelectedModel(selected) {
+  if (typeof selected === "object") {
+    return selected;
+  } else if (typeof selected === "string") {
+    return {value: selected};
+  } else {
+    return {value: String(selected)};
+  }
 }
 
 /**

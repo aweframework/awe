@@ -65,8 +65,8 @@ export class AweView extends Component {
 
     // Store components
     updateViewComponentsWithDependencies(this.state.view, response.components.reduce((list = {}, component = {}) => {
-      const isGrid = "columnModel" in component.controller
-      const address = {view: this.state.view, component: component.id}
+      const isGrid = "columnModel" in component.controller;
+      const address = {view: this.state.view, component: component.id};
       const model = fixModel(component.model, isGrid);
       const controller = fixController(component.controller, isGrid, settings);
       const specificAttributes = getSpecificAttributes(component.controller, isGrid, settings);

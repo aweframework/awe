@@ -38,10 +38,6 @@ body {
   padding: 1rem;
 }
 
-.hidden {
-  display: none !important;
-}
-
 /* Text colors */
 .text-primary { color: var(--cyan-800); }
 .text-default { color: var(--surface-600); }

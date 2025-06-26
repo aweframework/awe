@@ -35,9 +35,9 @@ function RouteWithSubRoutes(route) {
     <Route path={route.path} render={props => {
       if (route.reloadCurrentScreen) {
         route.props.updateSettings({reloadCurrentScreen: false});
-        return <Redirect to={route.initialURL} />
+        return <Redirect to={route.initialURL} />;
       } else {
-        return <ViewContainer {...props}/>
+        return <ViewContainer {...props}/>;
       }
     }}/>
   );

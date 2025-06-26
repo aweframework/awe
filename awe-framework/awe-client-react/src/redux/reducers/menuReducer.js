@@ -109,6 +109,6 @@ export function menu(state = InitialState, action = {}) {
         selected: {}
       };
     default:
-      return state
+      return state;
   }
 }

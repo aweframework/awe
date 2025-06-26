@@ -12,8 +12,8 @@ export function settings(state = DEFAULT_SETTINGS, action = {}) {
       return {
         ...state,
         ...action.payload
-      }
+      };
     default:
-      return state
+      return state;
   }
 }
