@@ -1,4 +1,15 @@
 
+# Changelog for AWE React 1.1.6
+*26/06/2025*
+
+- Add support to initial expanded menu options. [MR #102](https://gitlab.com/aweframework/awe-react/-/merge_requests/102) (Pablo Vidal Otero)
+- Error filling select and suggest criteria from screen target. [MR #101](https://gitlab.com/aweframework/awe-react/-/merge_requests/101) (Pablo Javier García Mora)
+- Textarea component doesn´t get row attribute. [MR #100](https://gitlab.com/aweframework/awe-react/-/merge_requests/100) (Pablo Vidal Otero)
+- Fix initial load on grid column suggest components. [MR #99](https://gitlab.com/aweframework/awe-react/-/merge_requests/99) (Pablo Javier García Mora)
+- UpdateCell is not working with text-type components on grids. [MR #98](https://gitlab.com/aweframework/awe-react/-/merge_requests/98) (Pablo Javier García Mora)
+- Fix column dropdown. [MR #97](https://gitlab.com/aweframework/awe-react/-/merge_requests/97) (Pablo Javier García Mora)
+- Fix suggest dropdown style in firefox. [MR #96](https://gitlab.com/aweframework/awe-react/-/merge_requests/96) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.5
 *17/06/2025*
 
