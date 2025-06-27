@@ -121,6 +121,8 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | button           | Component which allows the user to click a button which launches a set of `button-action`                   |
 | progress         | Progress column component. Useful for showing a progress bar in a column. (Work in progress)                |
 | sparkline        | Sparkline column component. Useful for showing a sparkline chart in a column. (Work in progress)            |
+| link             | HTML Link component. Opens an URL in a new page                                                             |
+
 
 ### Specific row style
 
