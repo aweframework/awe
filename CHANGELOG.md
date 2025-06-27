@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.17
+*27/06/2025*
+
+- Add link as column component. [MR #573](https://gitlab.com/aweframework/awe/-/merge_requests/573) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.16
 *24/06/2025*
 
