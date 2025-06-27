@@ -52,9 +52,9 @@ class ColumnSuggest extends Component {
   }
 
   render() {
-    const {t, placeholder, label, required, readonly, timeout, data} = this.props;
+    const {t, placeholder, label, required, readonly, timeout, data, style} = this.props;
     const {validationRules = {}} = data;
-    const classes = classNames("column-editor", {"p-invalid": data?.error});
+    const classes = classNames("column-editor", {"p-invalid": data?.error}, style, data?.style);
     return <AutoComplete
       ref={el => this.autocomplete = el}
       value={this.state.suggest}

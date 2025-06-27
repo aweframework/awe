@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {Ripple} from "primereact/ripple";
+import PropTypes from "prop-types";
 
 class ColumnRowEditor extends Component {
 
@@ -33,5 +34,12 @@ class ColumnRowEditor extends Component {
     }
   }
 }
+
+ColumnRowEditor.propTypes = {
+  editRow: PropTypes.func.isRequired,
+  saveRow: PropTypes.func.isRequired,
+  cancelRow: PropTypes.func.isRequired,
+  rowData: PropTypes.object.isRequired
+};
 
 export default ColumnRowEditor;

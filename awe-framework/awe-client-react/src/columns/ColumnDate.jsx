@@ -4,6 +4,7 @@ import {Calendar} from "primereact/calendar";
 import {fromDate, toDate} from "../utilities/dates";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 class ColumnDate extends Component {
 
@@ -22,8 +23,8 @@ class ColumnDate extends Component {
   }
 
   render() {
-    const {t, placeholder, required, readonly, data, align, settings} = this.props;
-    const classes = classNames("column-editor", {"p-invalid": data?.error});
+    const {t, placeholder, required, readonly, data, align, settings, style} = this.props;
+    const classes = classNames(style, data.style, "column-editor", {"p-invalid": data?.error});
     return <Calendar
       value={toDate(data.value)}
       placeholder={translateLabel(placeholder, t)}
@@ -40,5 +41,18 @@ class ColumnDate extends Component {
     />;
   }
 }
+
+ColumnDate.propTypes = {
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+  align: PropTypes.string,
+  settings: PropTypes.object,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string
+};
 
 export default withTranslation()(ColumnDate);

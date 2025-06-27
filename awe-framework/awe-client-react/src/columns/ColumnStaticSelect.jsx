@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {translateLabel} from "../utilities";
+import PropTypes from "prop-types";
 
 export default class ColumnStaticSelect extends Component {
 
@@ -10,3 +11,10 @@ export default class ColumnStaticSelect extends Component {
     return <span className="p-cell-text white-space-nowrap p-text-truncate" title={visibleValue}>{visibleValue}</span>;
   }
 }
+
+ColumnStaticSelect.propTypes = {
+  data: PropTypes.object.isRequired,
+  model: PropTypes.object,
+  t: PropTypes.func.isRequired,
+  label: PropTypes.string,
+};

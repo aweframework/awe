@@ -34,11 +34,11 @@ class ColumnTextView extends Component {
   }
 
   render() {
-    const {t, data, align} = this.props;
-    const {style, title, label, value} = data;
+    const {t, data, align, style} = this.props;
+    const {title, label, value} = data;
     const icon = data.icon || this.props.icon || undefined;
     const unit = data.unit || this.props.unit || null;
-    const classes = classNames("text-view", style);
+    const classes = classNames("text-view", style, data?.style);
     return <button className={classes} title={translateLabel(title || label, t)} onClick={this.onClick} onKeyDown={this.onKeyDown}>
       <span className={"text-view-icon"}>{getIconCode(icon, "fa-fw")}</span>
       <span className={"text-view-text"} style={{textAlign: align}}>{getVisibleTextData(label || value, t)}</span>
@@ -53,6 +53,8 @@ ColumnTextView.propTypes = {
   align: PropTypes.string,
   icon: PropTypes.string,
   actions: PropTypes.array,
+  style: PropTypes.string,
+  unit: PropTypes.string,
   t: PropTypes.func.isRequired,
   updateModelWithDependencies: PropTypes.func.isRequired,
   addActionsTop: PropTypes.func.isRequired

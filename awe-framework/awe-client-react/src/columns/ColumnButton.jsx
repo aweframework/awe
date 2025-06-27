@@ -4,6 +4,7 @@ import {Button} from "primereact/button";
 import {ButtonTypes} from "../redux/actions/components";
 import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 const {BUTTON_RESET} = ButtonTypes;
 
@@ -17,7 +18,7 @@ class ColumnButton extends Component {
   }
 
   onClick() {
-    const {actions, addActionsTop, updateModelWithDependencies, updateModel, buttonType, address} = this.props;
+    const {actions, addActionsTop, updateModelWithDependencies, buttonType, address} = this.props;
     // Change click event
     updateModelWithDependencies(address, {event: "click"});
 
@@ -30,9 +31,9 @@ class ColumnButton extends Component {
   }
 
   render() {
-    const {t, data, address, disabled, icon} = this.props;
-    const {style, label} = data;
-    const classes = classNames('p-button-sm', 'p-1', style);
+    const {t, data, address, disabled, icon, style} = this.props;
+    const {label} = data;
+    const classes = classNames('p-button-sm', 'p-1', style, data?.style);
 
     return <Button
       id={address.component}
@@ -46,5 +47,19 @@ class ColumnButton extends Component {
     />;
   }
 }
+
+ColumnButton.propTypes = {
+  actions: PropTypes.array,
+  addActionsTop: PropTypes.func.isRequired,
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  buttonType: PropTypes.string.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  disabled: PropTypes.bool,
+  icon: PropTypes.string,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string
+};
+
 
 export default withTranslation()(ColumnButton);

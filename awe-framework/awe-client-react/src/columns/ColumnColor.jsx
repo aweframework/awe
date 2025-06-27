@@ -5,6 +5,7 @@ import {OverlayPanel} from "primereact/overlaypanel";
 import {ColorPicker} from "primereact/colorpicker";
 import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 class ColumnColor extends Component {
 
@@ -42,14 +43,14 @@ class ColumnColor extends Component {
   }
 
   render() {
-    const {t, placeholder, required, readonly, size, style, data} = this.props;
+    const {t, placeholder, required, readonly, style, data} = this.props;
     const {value} = this.state;
-    const classes = classNames("p-inputgroup", "column-editor", {"p-invalid": data?.error});
+    const classes = classNames(style, data.style, "p-inputgroup", "column-editor", {"p-invalid": data?.error});
 
     return <div className={classes}>
       <InputText
         value={toColor(value)}
-        className={classNames(style, {[`p-inputtext-${size}`]: size, "p-invalid": data?.error})}
+        className={classes}
         placeholder={translateLabel(placeholder, t)}
         onChange={this.onChange}
         onBlur={this.onBlur}
@@ -74,5 +75,16 @@ class ColumnColor extends Component {
     </div>;
   }
 }
+
+ColumnColor.propTypes = {
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string
+};
 
 export default ColumnColor;
