@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.1.7
+*27/06/2025*
+
+- Add link as column component. [MR #103](https://gitlab.com/aweframework/awe-react/-/merge_requests/103) (Pablo Vidal Otero)
+
 # Changelog for AWE React 1.1.6
 *26/06/2025*
 
