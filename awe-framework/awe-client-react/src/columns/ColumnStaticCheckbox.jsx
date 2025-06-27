@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {InputSwitch} from "primereact/inputswitch";
+import PropTypes from "prop-types";
 
 export default class ColumnStaticCheckbox extends Component {
 
@@ -11,3 +12,7 @@ export default class ColumnStaticCheckbox extends Component {
     />;
   }
 }
+
+ColumnStaticCheckbox.propTypes = {
+  data: PropTypes.object.isRequired,
+};

@@ -5,3 +5,7 @@ import './ColumnUploaderTest';
 import './ColumnColorTest';
 import './ColumnTextViewTest';
 import './ColumnTextTest';
+import './ColumnLinkTest';
+import './ColumnImageTest';
+import './ColumnProgressTest';
+import './ColumnStaticColorTest';

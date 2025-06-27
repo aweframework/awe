@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {getSizeString} from "../utilities";
+import PropTypes from "prop-types";
 
 export default class ColumnStaticUploader extends Component {
 
@@ -9,3 +10,7 @@ export default class ColumnStaticUploader extends Component {
     return <span>{value && `${label} (${getSizeString(size)})`}</span>;
   }
 }
+
+ColumnStaticUploader.propTypes = {
+  data: PropTypes.object.isRequired,
+};

@@ -111,6 +111,7 @@
   <locale name="PARAMETER_KEY" value="Key"/>
   <locale name="PARAMETER_KEY_VALUE" value="Key Value"/>
   <locale name="PARAMETER_LEVEL" value="Level"/>
+  <locale name="PARAMETER_LINK" value="Link"/>
   <locale name="PARAMETER_NUMERIC" value="Numeric"/>
   <locale name="PARAMETER_NUMERIC_READONLY" value="Numeric (read)"/>
   <locale name="PARAMETER_OTHER" value="Other"/>

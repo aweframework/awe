@@ -11,6 +11,7 @@ import {
   toDate
 } from "../utilities/dates";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 class ColumnFilteredDate extends Component {
 
@@ -53,9 +54,9 @@ class ColumnFilteredDate extends Component {
   }
 
   render() {
-    const {t, placeholder, required, readonly, data, align, settings} = this.props;
+    const {t, placeholder, required, readonly, data, align, settings, style} = this.props;
     const {disabledDates, minDate, maxDate} = this.state;
-    const classes = classNames("column-editor", {"p-invalid": data?.error});
+    const classes = classNames(style, data?.style, "column-editor", {"p-invalid": data?.error});
     return <Calendar
       value={toDate(data.value)}
       placeholder={translateLabel(placeholder, t)}
@@ -75,5 +76,19 @@ class ColumnFilteredDate extends Component {
     />;
   }
 }
+
+ColumnFilteredDate.propTypes = {
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  model: PropTypes.object,
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+  align: PropTypes.string,
+  settings: PropTypes.object,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string
+};
 
 export default withTranslation()(ColumnFilteredDate);

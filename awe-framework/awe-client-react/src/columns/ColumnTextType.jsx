@@ -3,6 +3,7 @@ import {InputText} from 'primereact/inputtext';
 import {bindMethods, formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {isEmpty} from "../utilities/general";
+import PropTypes from "prop-types";
 
 export default class ColumnTextType extends Component {
 
@@ -62,10 +63,10 @@ export default class ColumnTextType extends Component {
   }
 
   render() {
-    const {t, placeholder, label, required, readonly, data} = this.props;
+    const {t, placeholder, label, required, readonly, data, style} = this.props;
     const {value} = this.state;
-    const classes = classNames({"p-invalid": data?.error});
-    return <div className={classNames("column-editor", classes)}>
+    const classes = classNames(style, data?.style, {"p-invalid": data?.error});
+    return <div className={"column-editor"}>
       <InputText
         value={value}
         type={this.columnType}
@@ -82,3 +83,15 @@ export default class ColumnTextType extends Component {
     </div>;
   }
 }
+
+ColumnTextType.propTypes = {
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string,
+  label: PropTypes.string,
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+};

@@ -4,6 +4,7 @@ import {InputNumber} from "primereact/inputnumber";
 import {translateNumberFormat} from "../utilities/numbers";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 class ColumnNumeric extends Component {
 
@@ -22,10 +23,10 @@ class ColumnNumeric extends Component {
   }
 
   render() {
-    const {t, placeholder, required, readonly, data, numberFormat, align} = this.props;
+    const {t, placeholder, required, readonly, data, numberFormat, align, style} = this.props;
     const {maxFractionDigits, minFractionDigits, min, max, suffix, locale} = translateNumberFormat(numberFormat);
-    const classes = classNames({"p-invalid": data?.error});
-    return <div className={classNames(classes, "column-editor")}>
+    const classes = classNames(style, data?.style, {"p-invalid": data?.error});
+    return <div className={"column-editor"}>
         <InputNumber
         value={data.value}
         mode="decimal"
@@ -47,5 +48,18 @@ class ColumnNumeric extends Component {
     </div>;
   }
 }
+
+ColumnNumeric.propTypes = {
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  numberFormat: PropTypes.object,
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+  align: PropTypes.string,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string
+};
 
 export default withTranslation()(ColumnNumeric);

@@ -3,6 +3,7 @@ import {withTranslation} from "react-i18next";
 import {Dropdown} from "primereact/dropdown";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 class ColumnSelect extends Component {
 
@@ -33,8 +34,8 @@ class ColumnSelect extends Component {
   }
 
   render() {
-    const {t, placeholder, label, required, readonly, optional, model, data} = this.props;
-    const classes = classNames("column-editor", {"p-invalid": data?.error});
+    const {t, placeholder, label, required, readonly, optional, model, data, style} = this.props;
+    const classes = classNames("column-editor", {"p-invalid": data?.error}, style, data?.style);
     return <Dropdown
         value={this.state.value}
         placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
@@ -50,5 +51,19 @@ class ColumnSelect extends Component {
       />;
   }
 }
+
+ColumnSelect.propTypes = {
+  updateModelWithDependencies: PropTypes.func.isRequired,
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  model: PropTypes.object,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string,
+  label: PropTypes.string,
+  optional: PropTypes.bool,
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+};
 
 export default withTranslation()(ColumnSelect);

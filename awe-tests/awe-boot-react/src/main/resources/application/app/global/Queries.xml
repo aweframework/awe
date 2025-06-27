@@ -1573,6 +1573,7 @@
     <field id="Act" alias="Sel1"/>
     <field id="Nam" alias="Tar"/>
     <field id="Nam" alias="Tar1"/>
+    <constant alias="Link" value="https://www.google.es"/>
     <computed format="" alias="Upl"/>
     <computed format="" alias="Upl1"/>
     <computed alias="ChkBox" format="Math.random() > 0.5 ? 1 : 0" eval="true"/>

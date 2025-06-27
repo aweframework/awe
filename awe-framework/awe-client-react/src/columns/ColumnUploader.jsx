@@ -13,6 +13,7 @@ import {ProgressBar} from "primereact/progressbar";
 import {Button} from "primereact/button";
 import {FileUpload} from "primereact/fileupload";
 import {classNames, deleteFile, getInitialFileData, uploadFile, UploadStatus} from "../utilities/components";
+import PropTypes from "prop-types";
 
 const {INITIAL, UPLOADING, UPLOADED} = UploadStatus;
 
@@ -63,10 +64,10 @@ class ColumnUploader extends Component {
   }
 
   render() {
-    const {t, address, placeholder, readonly, settings, data} = this.props;
+    const {t, address, placeholder, readonly, settings, data, style} = this.props;
     const {uploadMaxSize} = settings;
     const {progress, status} = this.state;
-    const classes = classNames("p-inputgroup", "column-editor", {"p-invalid": data?.error});
+    const classes = classNames("p-inputgroup", "column-editor", {"p-invalid": data?.error}, style, data?.style);
     return <div className={classes}>
       <InputText
         className={classNames({"hidden": status === UPLOADING})}
@@ -108,5 +109,17 @@ class ColumnUploader extends Component {
     </div>;
   }
 }
+
+ColumnUploader.propTypes = {
+  address: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  t: PropTypes.func.isRequired,
+  style: PropTypes.string,
+  label: PropTypes.string,
+  readonly: PropTypes.bool,
+  placeholder: PropTypes.string,
+  settings: PropTypes.object,
+  addActionsTop: PropTypes.func.isRequired,
+};
 
 export default withTranslation()(ColumnUploader);
