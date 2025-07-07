@@ -1,5 +1,6 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.autoconfigure.config.WebsocketStompConfigProperties;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.listener.WebSocketEventListener;
@@ -7,12 +8,16 @@ import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.InitService;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.session.Session;
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
 import org.springframework.web.context.annotation.SessionScope;
@@ -25,34 +30,56 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
  * @author mvelez
  */
 @Configuration
-@EnableConfigurationProperties(BaseConfigProperties.class)
+@EnableConfigurationProperties({BaseConfigProperties.class, WebsocketStompConfigProperties.class})
 @EnableWebSocketMessageBroker
+@Slf4j
 public class WebsocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> {
 
   // Autowired components
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
+  private final WebsocketStompConfigProperties websocketStompConfigProperties;
 
   /**
    * Websocket config constructor
    *
-   * @param baseConfigProperties     Base configuration properties
-   * @param securityConfigProperties Security configuration properties
+   * @param baseConfigProperties           Base configuration properties
+   * @param securityConfigProperties       Security configuration properties
+   * @param websocketStompConfigProperties Websocket STOMP configuration properties
    */
-  public WebsocketConfig(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties) {
+  public WebsocketConfig(BaseConfigProperties baseConfigProperties, SecurityConfigProperties securityConfigProperties, 
+                         WebsocketStompConfigProperties websocketStompConfigProperties) {
     this.baseConfigProperties = baseConfigProperties;
     this.securityConfigProperties = securityConfigProperties;
+    this.websocketStompConfigProperties = websocketStompConfigProperties;
   }
 
   /**
    * Configures the message broker.
    *
-   * @param config Message broker registry
+   * @param messageBrokerRegistry Message broker registry
    */
   @Override
-  public void configureMessageBroker(MessageBrokerRegistry config) {
-    config.enableSimpleBroker("/topic", "/queue");
-    config.setApplicationDestinationPrefixes("/" + baseConfigProperties.getAcronym());
+  public void configureMessageBroker(@NotNull MessageBrokerRegistry messageBrokerRegistry) {
+    if (websocketStompConfigProperties.isEnableStompBrokerRelay()) {
+      messageBrokerRegistry.enableStompBrokerRelay(
+              websocketStompConfigProperties.getDestinationPrefixes().toArray(new String[0]))
+          .setRelayHost(websocketStompConfigProperties.getRelayHost())
+          .setRelayPort(websocketStompConfigProperties.getRelayPort())
+          .setClientLogin(websocketStompConfigProperties.getClientLogin())
+          .setClientPasscode(websocketStompConfigProperties.getClientPasscode())
+          .setSystemLogin(websocketStompConfigProperties.getSystemLogin())
+          .setSystemPasscode(websocketStompConfigProperties.getSystemPasscode())
+          .setTaskScheduler(heartBeatScheduler());
+      log.info("✓ WebSocket configured with STOMP Broker Relay");
+    } else {
+      // Simple broker
+      messageBrokerRegistry.enableSimpleBroker(
+              websocketStompConfigProperties.getDestinationPrefixes().toArray(new String[0]))
+          .setTaskScheduler(heartBeatScheduler());
+      log.info("✓ WebSocket configured with Simple Broker");
+    }
+    messageBrokerRegistry.setApplicationDestinationPrefixes("/" + baseConfigProperties.getAcronym());
   }
 
   /**
@@ -88,10 +115,12 @@ public class WebsocketConfig extends AbstractSessionWebSocketMessageBrokerConfig
     return new AweConnectionTracker();
   }
 
-  /////////////////////////////////////////////
-  // SERVICES
-  /////////////////////////////////////////////
+  @Bean
+  public TaskScheduler heartBeatScheduler() {
+    return new ThreadPoolTaskScheduler();
+  }
 
+  // SERVICES
   /**
    * Broadcast service
    *
@@ -105,9 +134,7 @@ public class WebsocketConfig extends AbstractSessionWebSocketMessageBrokerConfig
     return new BroadcastService(brokerMessagingTemplate, connectionTracker);
   }
 
-  /////////////////////////////////////////////
   // EVENTS
-  /////////////////////////////////////////////
 
   /**
    * Websocket events

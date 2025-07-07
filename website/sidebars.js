@@ -54,6 +54,7 @@ module.exports = {
                         'properties',
                         'application-options',
                         'session',
+                        'websockets',
                         'logging',
                     ],
                 },
