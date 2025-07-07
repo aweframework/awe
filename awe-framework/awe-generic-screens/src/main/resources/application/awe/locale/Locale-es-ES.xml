@@ -371,6 +371,7 @@
   <locale name="ERROR_MESSAGE_CLOSE_SESSION" value="Ha habido un problema cerrando la sesión. Por favor, inténtelo de nuevo"/>
   <locale name="ERROR_MESSAGE_CLOSE_STREAM" value="Ha habido un problema tratando de cerrar el archivo {0}"/>
   <locale name="ERROR_MESSAGE_CLOSING_CONNECTION" value="Ha habido un problema durante el cierre de la conexión a la Base de Datos"/>
+  <locale name="ERROR_MESSAGE_CONNECTION_LOST" value="El servidor ha cortado la conexión"/>
   <locale name="ERROR_MESSAGE_CONNECTION_MICROSERVICE" value="Ha habido un problema tratando de conectarse al microservicio - {0}"/>
   <locale name="ERROR_MESSAGE_CONTENT_TYPE_NOT_FOUND" value="Tipo de contenido no encontrado"/>
   <locale name="ERROR_MESSAGE_DATABASE_DISABLED" value="Compruebe la configuración de la conexión de la base de datos"/>
@@ -566,6 +567,7 @@
   <locale name="ERROR_TITLE_CLASS_NOT_DEFINED" value="Clase no definida"/>
   <locale name="ERROR_TITLE_CLOSE_SESSION" value="Error cerrando la sesión"/>
   <locale name="ERROR_TITLE_CLOSING_CONNECTION" value="Error en el cierre de conexión"/>
+  <locale name="ERROR_TITLE_CONNECTION_LOST" value="Conexión perdida"/>
   <locale name="ERROR_TITLE_CONTENT_TYPE" value="Error generando el tipo de contenido"/>
   <locale name="ERROR_TITLE_CRITERIA_VALIDATION" value="Error validando el criterio"/>
   <locale name="ERROR_TITLE_DATABASE_DISABLED" value="Conector BBDD no activo"/>

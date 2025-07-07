@@ -368,6 +368,7 @@
   <locale name="ERROR_MESSAGE_CLOSE_SESSION" value="There has been a problem trying to close the session. Please try again."/>
   <locale name="ERROR_MESSAGE_CLOSE_STREAM" value="There has been a problem trying to close the file {0}"/>
   <locale name="ERROR_MESSAGE_CLOSING_CONNECTION" value="There was a problem trying to close the database connection"/>
+  <locale name="ERROR_MESSAGE_CONNECTION_LOST" value="The server has closed remotely the connection"/>
   <locale name="ERROR_MESSAGE_CONNECTION_MICROSERVICE" value="There was a problem trying to connect to the microservice - {0}"/>
   <locale name="ERROR_MESSAGE_CONTENT_TYPE_NOT_FOUND" value="Content type not found"/>
   <locale name="ERROR_MESSAGE_DATABASE_DISABLED" value="Check database connection configuration"/>
@@ -563,6 +564,7 @@
   <locale name="ERROR_TITLE_CLASS_NOT_DEFINED" value="Class not defined"/>
   <locale name="ERROR_TITLE_CLOSE_SESSION" value="Error closing the session"/>
   <locale name="ERROR_TITLE_CLOSING_CONNECTION" value="Error closing connection"/>
+  <locale name="ERROR_TITLE_CONNECTION_LOST" value="Connection lost"/>
   <locale name="ERROR_TITLE_CONTENT_TYPE" value="Error generating content type"/>
   <locale name="ERROR_TITLE_CRITERIA_VALIDATION" value="Error validating criteria"/>
   <locale name="ERROR_TITLE_DATABASE_DISABLED" value="Database connector not enabled"/>

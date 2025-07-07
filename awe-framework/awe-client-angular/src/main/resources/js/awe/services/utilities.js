@@ -1095,6 +1095,17 @@ aweApplication.factory('AweUtilities',
                   message: error.message
                 }
               }];
+            case 504: // Gateway timeout
+              // Log error output
+              $log.error("Gateway timeout", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.title,
+                  message: error.message
+                }
+              }];
             case -1: // Disconnected
             default:
               // Log error output
@@ -1103,8 +1114,8 @@ aweApplication.factory('AweUtilities',
                 type: 'message',
                 parameters: {
                   type: "error",
-                  title: "ERROR_TITLE_INVALID_CONNECTION",
-                  message: "ERROR_MESSAGE_INVALID_CONNECTION"
+                  title: "ERROR_TITLE_CONNECTION_LOST",
+                  message: "ERROR_MESSAGE_CONNECTION_LOST"
                 }
               }];
           }
