@@ -109,8 +109,8 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | filtered-date    | Filtered date column component. See [filtered date criterion](criteria.md#filtered-date-criterion)          |
 | select           | Select column component. See [select criterion](criteria.md#select-criterion)                               |
 | suggest          | Suggest column component. See [suggest criterion](criteria.md#suggest-criterion)                            |
-| select-multiple  | Select multiple column component. See [select multiple criterion](criteria.md#select-multiple-criterion)    |
-| suggest-multiple | Suggest multiple column component. See [suggest multiple criterion](criteria.md#suggest-multiple-criterion) |
+| select-multiple  | Select multiple column component. See [select multiple criterion](criteria.md#multiple-select-criterion)    |
+| suggest-multiple | Suggest multiple column component. See [suggest multiple criterion](criteria.md#multiple-suggest-criterion) |
 | checkbox         | Checkbox column component. See [checkbox criterion](criteria.md#checkbox-criterion)                         |
 | color            | Color column component. See [color criterion](criteria.md#color-criterion)                                  |
 | uploader         | Uploader column component. See [uploader criterion](criteria.md#uploader-criterion)                         |

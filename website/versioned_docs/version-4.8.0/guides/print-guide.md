@@ -61,7 +61,7 @@ For AWE 3.2 and upper versions, the printing engine prints the content of the sc
 This can be a issue in some cases. For example, if a grid pagination is delegated to the server-side (load-all="false"). This is meant to retrieve 30 rows of the entire query to the client to avoid performance issues. How to solve this problem if we want to print all the results of the query? There are two options:
 
 1. Change pagination to local-pagination (load-all="true"). This is meant to retrieve all the query results to the client, so we can print all. 
-:::caution
+:::warning
 In some cases, this will lead to a serious performance issue. Specially if the query returns a big amount of rows. It has to be taken into consideration.
 :::
 

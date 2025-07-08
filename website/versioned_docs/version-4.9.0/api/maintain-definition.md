@@ -62,8 +62,8 @@ For easier development of maintain, not all elements are required.
 | [multiple](#multiple)           | Optional      | Yes                 | Is used to do multiples operations (insert, delete or update) in database at **once **      |
 | [commit](#commit)               | Optional      | Yes                 | Is used to do commit in database and store the changes                                      |
 | [serve](#service-maintain)      | Optional      | Yes                 | Is used to do operations with services (Java or Web services)                               |
-| [queue](#queue)                 | Optional      | Yes                 | Is used to do operations with queues                                                        |
-| [send-email](#send-email)       | Optional      | Yes                 | Send an e-mails                                                                             |
+| [queue](#queue-maintain)                 | Optional      | Yes                 | Is used to do operations with queues                                                        |
+| [send-email](#email-maintain)       | Optional      | Yes                 | Send an e-mails                                                                             |
 | [retrieve-data](#retrieve-data) | Optional      | Yes                 | Retrieve data from SQL, services, enumerated or queues                                      |
 | [table](#table-element)         | Optional      | No                  | Describes the table over the changes are done                                               |
 | [where](#where-element)         | Optional      | No                  | Defines the conditions that must be met to perform the operation. Is the `where` sql clause |
@@ -152,7 +152,7 @@ The *constant* element has the following attributes:
 | function | Optional | String | To apply sql function to field|The possible values are defined in [field functions](query-definition.md#field-functions) |
 | cast  | Optional | String | Change the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE` |
 | value | Required | String | A static value to be used as field value |  |
-| type | Optional | String | Type of the value | The possible values are available [here](#variable-types) |
+| type | Optional | String | Type of the value | The possible values are available [here](query-definition.md#variable-types)  |
 
 #### Operation element
 

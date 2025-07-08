@@ -48,13 +48,13 @@ SQL Extractor is a tool to execute SQL queries directly over the application dat
 
 ### Save query strings in files.
 
-Choose file name without extension. SQL Extractor will save it in .txt for you. We can only save a query per file. This file will be automatically created in your home directory. "c:/users/{user}/aweFiles/"
+Choose file name without extension. SQL Extractor will save it in .txt for you. We can only save a query per file. This file will be automatically created in your home directory. "c:/users/\{user}/aweFiles/"
 
 <img alt="save_query" src={require('@docusaurus/useBaseUrl').default('img/save_query.png')} />
 
 ### Load querie strings from file to relaunch it.
 
-Load files from your home directory "c:/users/{user}/aweFiles/"
+Load files from your home directory "c:/users/\{user}/aweFiles/"
 
 <img alt="load_query" src={require('@docusaurus/useBaseUrl').default('img/load_query.png')} />
 

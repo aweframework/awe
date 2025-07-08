@@ -1,9 +1,8 @@
 ---
 title: Notification module
-author: Pablo García
-author_title: Senior Software Engineer @ Almis
-author_url: https://gitlab.com/pablo.garcia.almis
-author_image_url: https://gitlab.com/uploads/-/system/user/avatar/3234791/avatar.png?width=400
+authors:
+  - pgarcia
+slug: /2021-01-01-notification-module
 tags: [awe, notificación, subscripción, novedad]
 ---
 
@@ -11,6 +10,8 @@ tags: [awe, notificación, subscripción, novedad]
 alt="AWE security"
 src={require('@docusaurus/useBaseUrl').default('img/undraw_notifications.svg')}
 />
+
+{/* truncate */}
 
 `AWE Framework` now has a new _module_: **Notification module**.
 

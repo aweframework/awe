@@ -7,6 +7,10 @@ module.exports = {
 	favicon: 'icon/favicon.ico',
 	organizationName: 'aweframework',
 	projectName: 'awe',
+	markdown: {
+		mermaid: true,
+	},
+	themes: ['@docusaurus/theme-mermaid'],
 	themeConfig: {
 		docs: {
 			sidebar: {
@@ -39,17 +43,12 @@ module.exports = {
 					type: 'doc',
 					docId: 'training/awe-101',
 					position: 'left',
-					label: 'Training',
-					activeSidebarClassName: 'navbar__link--active',
+					label: 'Training'
 				},
 				{
 					to: 'blog',
 					label: 'Blog',
 					position: 'left'
-				},
-				{
-					href: 'https://forum.aweframework.com/',
-					label: 'Forum', position: 'left'
 				},
 				{
 					alt: 'Gitlab repository',
@@ -81,11 +80,7 @@ module.exports = {
 						{
 							label: 'Stack Overflow',
 							href: 'https://stackoverflow.com/questions/tagged/awe',
-						},
-						{
-							label: 'Forum',
-							href: 'https://forum.aweframework.com/',
-						},
+						}
 					],
 				},
 				{
@@ -113,7 +108,7 @@ module.exports = {
 		colorMode: {
 			defaultMode: 'dark',
 			disableSwitch: false,
-			respectPrefersColorScheme: true,
+			respectPrefersColorScheme: false,
 		},
 		prism: {
 			additionalLanguages: ['java'],

@@ -35,7 +35,7 @@ See [series](#serie-element) for more information in XML structure.
 
 * **Tooltip:** When hovering over a series or a point on the chart you can get a tooltip that describes the values on that perticular part of the chart.
 
-See [tooltip](#tooltip) for more information in XML structure.
+See [tooltip](#tooltip-element) for more information in XML structure.
 
 * **Legend:** The legend show the data series in the graph and allows for enabling and disabling one or more series.
 
@@ -119,7 +119,7 @@ Axis element has the following attributes:
 | Attribute   | Use      | Type      |  Description                    |   Values                                           |
 | ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
 | label | Optional | String | Is the name of axis | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| label-format | Optional | String | A format string for the axis label | Defaults to {value} Ex.: Add unit to axis `label-format = "{value} ºC"` |
+| label-format | Optional | String | A format string for the axis label | Defaults to \{value} Ex.: Add unit to axis `label-format = "{value} ºC"` |
 | formatter-function | Optional | String | Javascript function to format axis labels. | **Note:** See [this](#axis-function-formatter) for more info. |
 | label-rotation | Optional | Number | Rotation of the labels in degrees | Defaults to 0  |
 | type | Optional | String | The type of axis. | Can be one of "linear", "logarithmic", "datetime" or "category". Defaults to linear |

@@ -1,9 +1,7 @@
 ---
 title: AWE get Spring Boot 3
-author: Pablo Vidal
-author_title: Senior Software Engineer @ Almis
-author_url: https://gitlab.com/limkin
-author_image_url: https://gitlab.com/uploads/-/system/user/avatar/3234812/avatar.png?width=400
+authors:
+  - pvidal
 tags: [awe, spring, spring boot 3, novedad]
 ---
 
@@ -11,6 +9,8 @@ tags: [awe, spring, spring boot 3, novedad]
     alt="Spring Boot 3" 
     src={require('@docusaurus/useBaseUrl').default('img/blog/spring-boot-3.png')}
 />
+
+{/* truncate */}
 
 The AWE framework team is pleased to announce that starting with version 4.7.1, 
 AWE will use the Spring Boot 3 and Spring 6 version as a base image. 

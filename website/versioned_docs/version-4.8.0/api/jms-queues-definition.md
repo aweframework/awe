@@ -82,6 +82,10 @@ The `request-message` element has the following attributes:
 | type | **Required** | String | Message type to send/receive | `MAP` (send a set of name-value pairs) or `TEXT` (sent a text info)    |
 | selector | Optional | String | Set a a selector to filter the message consumption | **Ex.:** `selector="EUR"` It will consume only messages whose header `"JMSType=EUR"`    |
 
+### response-message-element
+
+### message-parameter-element
+
 ## **Synchronous messages**
 
 ### **Send and receive data**
