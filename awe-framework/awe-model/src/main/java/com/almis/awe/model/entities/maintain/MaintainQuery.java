@@ -41,6 +41,11 @@ public abstract class MaintainQuery extends Query {
   @XStreamAsAttribute
   private Boolean batch;
 
+  // Launch as batch
+  @XStreamAlias("batch-size")
+  @XStreamAsAttribute
+  private Integer batchSize;
+
   // Variable index
   @XStreamOmitField
   private Integer variableIndex;
@@ -73,6 +78,7 @@ public abstract class MaintainQuery extends Query {
             "type='" + getMaintainType() + '\'' +
             ", auditTable='" + auditTable + '\'' +
             ", batch=" + batch +
+            ", batchSize=" + batchSize +
             ", variableIndex=" + variableIndex +
             ", operationId='" + operationId + '\'' +
             '}';
