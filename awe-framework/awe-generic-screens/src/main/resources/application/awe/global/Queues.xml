@@ -8,10 +8,6 @@
 -->
 
 <queues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queues.xsd">
-    <queue id="asd">
-        <response-message destination="" type="" >
-            <message-parameter id="" type=""
-        </response-message>
-    </queue>
+
 </queues>
 

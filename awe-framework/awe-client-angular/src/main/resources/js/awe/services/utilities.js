@@ -1095,17 +1095,6 @@ aweApplication.factory('AweUtilities',
                   message: error.message
                 }
               }];
-            case 413: // Request entity too large
-              // Log error output
-              $log.error("Request entity too large", error);
-              return [...endLoad, {
-                type: 'message',
-                parameters: {
-                  type: "error",
-                  title: error.title,
-                  message: error.message
-                }
-              }];
             case 504: // Gateway timeout
               // Log error output
               $log.error("Gateway timeout", error);
