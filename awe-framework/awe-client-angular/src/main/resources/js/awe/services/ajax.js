@@ -208,7 +208,7 @@ aweApplication.factory('Ajax',
           }
 
           // Handle by error status. Define actions to manage errors
-          const actions = $utilities.manageRestError({status: error?.status, title: error?.data?.error, message: error?.data?.message}, $log, target);
+          const actions = $utilities.manageRestError({status: error?.status, title: error?.data?.error, message: error?.data?.message}, target);
 
           $actionController.addActionList(actions, false, {address: {view: "base"}});
         }

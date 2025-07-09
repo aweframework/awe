@@ -107,16 +107,22 @@ describe('awe-framework/awe-client-angular/src/test/js/services/utilities.js', f
   });
 
   it('should manage a rest error', function () {
-    const actions1 = $utilities.manageRestError({status: 401, title: "", message: ""}, {error: () => ""});
+    const actions1 = $utilities.manageRestError({status: 401, title: "", message: ""});
     expect(actions1.length).toEqual(2);
 
-    const actions2 = $utilities.manageRestError({status: 403, title: "", message: ""}, {error: () => ""}, "tutu");
+    const actions2 = $utilities.manageRestError({status: 403, title: "", message: ""}, "tutu");
     expect(actions2.length).toEqual(2);
 
-    const actions3 = $utilities.manageRestError({status: -1, title: "", message: ""}, {error: () => ""}, "tutu");
+    const actions3 = $utilities.manageRestError({status: -1, title: "", message: ""}, "tutu");
     expect(actions3.length).toEqual(2);
 
-    const actions4 = $utilities.manageRestError({status: 401, title: "", message: ""}, {error: () => ""}, "tutu");
+    const actions4 = $utilities.manageRestError({status: 401, title: "", message: ""}, "tutu");
     expect(actions4.length).toEqual(3);
+
+    const actions5 = $utilities.manageRestError({status: 413, title: "", message: ""});
+    expect(actions5.length).toEqual(1);
+
+    const actions6 = $utilities.manageRestError({status: 504, title: "", message: ""}, "tutu");
+    expect(actions6.length).toEqual(2);
   });
 });

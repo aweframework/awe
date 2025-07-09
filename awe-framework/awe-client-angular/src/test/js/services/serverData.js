@@ -1,5 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/serverData.js', function() {
-  let $injector, $serverData, $storage, $connection, $log;
+  let $injector, $serverData, $storage, $connection, $log, $actionController;
   let originalTimeout;
 
   // Mock module
@@ -11,6 +11,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/serverData.js', 
       $serverData = $injector.get('ServerData');
       $storage = $injector.get('Storage');
       $connection = $injector.get('Connection');
+      $actionController = $injector.get('ActionController');
       $log = $injector.get('$log');
     }]);
 
@@ -37,5 +38,16 @@ describe('awe-framework/awe-client-angular/src/test/js/services/serverData.js', 
     spyOn($connection, "getRawUrl").and.returnValue("");
     expect($serverData.getTemplateUrl("option", "view")).toBe("/template/screen/view/option");
     expect($serverData.getTemplateUrl("", "view")).toBe("/template/screen");
+  });
+
+  it('should get screen data', async function() {
+    spyOn($actionController, "addActionList");
+    spyOn($connection, "post").and.returnValue(Promise.reject({
+      status: 500,
+      data: { title: "Internal Error", message: "Something went wrong" }
+    }));
+
+    await $serverData.getScreenData("option", "view");
+    expect($actionController.addActionList).toHaveBeenCalled();
   });
 });

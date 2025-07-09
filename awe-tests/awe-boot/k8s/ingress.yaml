@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: awe-boot-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m # To allow uploading files from uploader criteria
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120" # Gateway timeout config in seconds (Error 504)
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: awe-boot-service
+                port:
+                  number: 8080
