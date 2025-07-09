@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -304,12 +305,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
   private AbstractSQLClause<?> launchBatchOperation(int index, AbstractSQLClause<?> previousQuery, SQLMaintainBuilder builder, ServiceData maintainOut, MaintainQuery query, boolean addIndex, boolean isAudit) throws AWException {
     long rowsUpdated;
     AbstractSQLClause<?> queryBuilt;
+    int maxBatchSize = Optional.ofNullable(query.getBatchSize()).orElse(databaseConfigProperties.getBatchMax());
 
     // Batch block
     MaintainType maintainType = isAudit ? MaintainType.AUDIT : query.getMaintainType();
 
     // If this is the first operation of the batch, generate the initial definition
-    if (index % databaseConfigProperties.getBatchMax() == 0) {
+    if (index % maxBatchSize == 0) {
       builder.setAudit(isAudit)
         .setOperation(MaintainBuildOperation.BATCH_INITIAL_DEFINITION);
 
@@ -337,7 +339,7 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     addBatch(queryBuilt, maintainType);
 
     // If this is the last operation of the batch, launch it
-    if ((index + 1) % databaseConfigProperties.getBatchMax() == 0) {
+    if ((index + 1) % maxBatchSize == 0) {
       // Launch as single operation
       rowsUpdated = launchAsSingleOperation(queryBuilt, index, isAudit, query.getOperationId(), builder.getVariables());
       maintainOut.addResultDetails(new MaintainResultDetails(maintainType, rowsUpdated, builder.getVariables()));

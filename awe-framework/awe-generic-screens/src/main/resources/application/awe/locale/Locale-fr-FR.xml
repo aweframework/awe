@@ -368,6 +368,7 @@
   <locale name="ERROR_MESSAGE_CLOSE_SESSION" value="Ha habido un problema cerrando la sesión"/>
   <locale name="ERROR_MESSAGE_CLOSE_STREAM" value="Il y a eu un problème en essayant de fermer le fichier {0}"/>
   <locale name="ERROR_MESSAGE_CLOSING_CONNECTION" value="Probleme dans la fermeture d&apos;une connexion a BBDD"/>
+  <locale name="ERROR_MESSAGE_CONNECTION_LOST" value="Le serveur a fermé la connexion à distance"/>
   <locale name="ERROR_MESSAGE_CONNECTION_MICROSERVICE" value="Il y a eu un problème en essayant de connecter au microservice - {0}"/>
   <locale name="ERROR_MESSAGE_CONTENT_TYPE_NOT_FOUND" value="Type de contenue non trouve"/>
   <locale name="ERROR_MESSAGE_DATABASE_DISABLED" value="Vérifiez les paramètres de connexion de la base de données"/>
@@ -563,6 +564,7 @@
   <locale name="ERROR_TITLE_CLASS_NOT_DEFINED" value="Classe non definie"/>
   <locale name="ERROR_TITLE_CLOSE_SESSION" value="Error cerrando la sesión"/>
   <locale name="ERROR_TITLE_CLOSING_CONNECTION" value="Erreur dans la fermeture de connexion"/>
+  <locale name="ERROR_TITLE_CONNECTION_LOST" value="Connexion perdue"/>
   <locale name="ERROR_TITLE_CONTENT_TYPE" value="Erreur generant un type de contenu"/>
   <locale name="ERROR_TITLE_CRITERIA_VALIDATION" value="Erreur validant un fichier"/>
   <locale name="ERROR_TITLE_DATABASE_DISABLED" value="Connecteur de la base des données pas actif"/>

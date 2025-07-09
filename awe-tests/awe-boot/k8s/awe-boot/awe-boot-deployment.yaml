@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.gitlab.com/app: aweframework-awe
+    app.gitlab.com/env: staging
+    version: 4.10.18-SNAPSHOT
+  labels:
+    app: awe-boot
+    env: staging
+  name: awe-boot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: awe-boot
+      env: staging
+  template:
+    metadata:
+      annotations:
+        app.gitlab.com/app: aweframework-awe
+        app.gitlab.com/env: staging
+        version: 4.10.18-SNAPSHOT
+      labels:
+        app: awe-boot
+        env: staging
+    spec:
+      serviceAccountName: awe-boot-sa
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: cloud
+            - name: SPRING_APPLICATION_NAME
+              value: awe-boot
+          image: awe-boot:4.10.18-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          name: awe-boot
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 256Mi

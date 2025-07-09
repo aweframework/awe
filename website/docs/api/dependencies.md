@@ -5,7 +5,7 @@ title: Dependencies
 
 Each component (criterion, grid, chart, etc) can have some dependencies inside affecting its behaviour and contents. A dependency can be launched depending on component conditions or events.
 
-:::caution
+:::warning
 The element must have the component attribute to make it work. If the element does not have the component attribute, the dependency system won´t work properly.
 :::
 

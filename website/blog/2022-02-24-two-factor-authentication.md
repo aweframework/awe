@@ -1,9 +1,7 @@
 ---
 title: Two-factor authentication
-author: Pablo García
-author_title: Senior Software Engineer @ Almis
-author_url: https://gitlab.com/pablo.garcia.almis
-author_image_url: https://gitlab.com/uploads/-/system/user/avatar/3234791/avatar.png?width=400
+authors:
+  - pgarcia
 tags: [awe, 2fa, seguridad, novedad]
 ---
 
@@ -11,6 +9,8 @@ tags: [awe, 2fa, seguridad, novedad]
     alt="TOTP Code" 
     src={require('@docusaurus/useBaseUrl').default('img/totp-code.png')}
 />
+
+{/* truncate */}
 
 We have added a new security function to our framework: **Two-factor authentication**.
 

@@ -12,6 +12,7 @@
   <tag source="hidden">
     <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
     <message id="UniMsg" title="WARNING_TITLE_DUPLICATED_USER" message="WARNING_MESSAGE_DUPLICATED_USER"/>
+    <criteria component="hidden" id="hidden-criterion" value="0"/>
   </tag>
   <tag source="buttons">
     <button button-type="button" label="BUTTON_BACK" icon="mdi:arrow_back" id="ButBck" help="HELP_BACK_BUTTON">
@@ -63,7 +64,7 @@
           </dependency>
         </criteria>
         <criteria label="PARAMETER_NUMERIC_READONLY" id="NumRea" variable="NumRea" component="numeric" style="col-xs-6 col-sm-3 col-lg-2" value="123456789123456.78945" readonly="true" number-format="{vMin: '-999999999999.99999', vMax: '999999999999999.99999'}" />
-        <criteria label="PARAMETER_DATE" id="Cal" variable="Cal" component="date" style="col-xs-6 col-sm-3 col-lg-2" validation="{le:{criterion:'CalReq',type:'date'}}" show-weekends="false" show-future-dates="false" />
+        <criteria label="PARAMETER_DATE" id="Cal" variable="Cal" component="date" style="col-xs-6 col-sm-3 col-lg-2" validation="{le:{criterion:'CalReq',type:'date'}}" show-weekends="false" show-future-dates="false"/>
         <criteria label="PARAMETER_DATE" id="CalReq" variable="CalReq" component="date" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true,ge:{criterion:'Cal',type:'date'}}">
           <dependency initial="true">
             <dependency-element id="CalReq" />
@@ -98,6 +99,9 @@
         <criteria label="PARAMETER_SUGGEST" id="Sug" variable="Sug" component="suggest" style="col-xs-6 col-sm-3 col-lg-2" server-action="data" target-action="TstUsrSugDelay" timeout="500" check-initial="false">
           <dependency source-type="launcher" target-type="input" target-action="TxtMgr" initial="true">
             <dependency-element id="Txt" condition="eq" value="test" alias="TxtMgr"/>
+          </dependency>
+          <dependency target-type="set-readonly" initial="true">
+            <dependency-element id="hidden-criterion" condition="eq" value="1"/>
           </dependency>
         </criteria>
         <criteria label="PARAMETER_SUGGEST" id="SugReq" variable="SugReq" component="suggest" style="col-xs-6 col-sm-3 col-lg-2" server-action="data" target-action="TstUsrSugDelay" validation="required" check-initial="true" value="test">

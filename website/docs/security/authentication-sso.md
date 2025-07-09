@@ -53,11 +53,11 @@ If you do not want this behavior, you can disable it setting false the configura
     src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-client-2.png')}
 />
 
-Configure the client by setting the Root URL, Web origins, Admin URL to the hostname (https://{hostname}).
+Configure the client by setting the Root URL, Web origins, Admin URL to the hostname (https://\{hostname}).
 
-Also you can set Home URL to /applications path and Valid Post logout redirect URIs to "https://{hostname}/applications".
+Also you can set Home URL to /applications path and Valid Post logout redirect URIs to "https://\{hostname}/applications".
 
-The Valid Redirect URIs should be set to https://{hostname}/auth/callback (you can also set the less secure https://{hostname}/* for testing/development purposes, but it's not recommended in production).
+The Valid Redirect URIs should be set to https://\{hostname}/auth/callback (you can also set the less secure https://\{hostname}/* for testing/development purposes, but it's not recommended in production).
 
 <img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
     alt="Keycloak new client 3"

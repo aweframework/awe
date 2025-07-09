@@ -25,12 +25,13 @@
     }
   }
 
-  .select2-container-disabled,
-  .select2-container-disabled>a,
-  .select2-container-disabled>ul {
+  .select2-container.select2-container-disabled,
+  .select2-container.select2-container-disabled>a.select2-choice,
+  .select2-container.select2-container-disabled>ul {
     cursor:not-allowed !important;
-    border-color: @border-color;
-    background-color: @panel-background-color;
+    border-color: @disabled-border-color;
+    background-color: @disabled-color;
+    color: @disabled-text-color;
   }
 
   .control-label:after {

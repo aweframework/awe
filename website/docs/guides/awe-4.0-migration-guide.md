@@ -780,7 +780,7 @@ public FileData stringToFileData(String fileStringEncoded)
 Awe has a new service connector layer to make requests to `microservices` and `rest` services.
 See [services](/api/service-definition.md) doc.
 
-:::caution
+:::warning
 **Note:** To migrate the existing web services in the applications that used with `AWE 3`, you have to take into account
 the following points:
 :::

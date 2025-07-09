@@ -53,24 +53,24 @@ The simple maintain structure is the next one:
 
 For easier development of maintain, not all elements are required.
 
-| Element     | Use      | Multiples instances    | Description                                        |
-| ----------- | ---------|------------------------|----------------------------------------------------|
-| [target](#target-element) | **Required** | No | It describe the name of operation  |
-| [insert](#insert) | Optional | Yes | Is used to do insert operations in database  |
-| [update](#update) | Optional | Yes | Is used to do update operations in database  |
-| [delete](#delete) | Optional | Yes | Is used to do delete operations in database  |
-| [multiple](#multiple)| Optional | Yes | Is used to do multiples operations (insert, delete or update) in database at **once **|
-| [commit](#commit)| Optional | Yes | Is used to do commit in database and store the changes  |
-| [serve](#service-maintain)| Optional | Yes | Is used to do operations with services (Java or Web services) |
-| [queue](#queue)| Optional | Yes | Is used to do operations with queues  |
-| [send-email](#send-email)| Optional | Yes | Send an e-mails  |
-| [retrieve-data](#retrieve-data)| Optional | Yes | Retrieve data from SQL, services, enumerated or queues |
-| [table](#table-element)| Optional | No | Describes the table over the changes are done  |
-| [where](#where-element)| Optional | No | Defines the conditions that must be met to perform the operation. Is the `where` sql clause  |
-| [field](#field-element)| Optional | Yes|  It describes the **columns** of table over operate it  |
-| [constant](#constant-element)| Optional | Yes| Constant field to update the table |
-| [operation](#operation-element)| Optional | Yes| Operation field to update the table  |
-| [variable](#variable-element)| Optional | Yes | Are parameters passed to maintains |
+| Element                         | Use      | Multiples instances    | Description                                        |
+|---------------------------------| ---------|------------------------|----------------------------------------------------|
+| [target](#target-element)       | **Required** | No | It describe the name of operation  |
+| [insert](#insert)               | Optional | Yes | Is used to do insert operations in database  |
+| [update](#update)               | Optional | Yes | Is used to do update operations in database  |
+| [delete](#delete)               | Optional | Yes | Is used to do delete operations in database  |
+| [multiple](#multiple)           | Optional | Yes | Is used to do multiples operations (insert, delete or update) in database at **once **|
+| [commit](#commit)               | Optional | Yes | Is used to do commit in database and store the changes  |
+| [serve](#service-maintain)      | Optional | Yes | Is used to do operations with services (Java or Web services) |
+| [queue](#queue-maintain)        | Optional | Yes | Is used to do operations with queues  |
+| [send-email](#email-maintain)   | Optional | Yes | Send an e-mails  |
+| [retrieve-data](#retrieve-data) | Optional | Yes | Retrieve data from SQL, services, enumerated or queues |
+| [table](#table-element)         | Optional | No | Describes the table over the changes are done  |
+| [where](#where-element)         | Optional | No | Defines the conditions that must be met to perform the operation. Is the `where` sql clause  |
+| [field](#field-element)         | Optional | Yes|  It describes the **columns** of table over operate it  |
+| [constant](#constant-element)   | Optional | Yes| Constant field to update the table |
+| [operation](#operation-element) | Optional | Yes| Operation field to update the table  |
+| [variable](#variable-element)   | Optional | Yes | Are parameters passed to maintains |
 
 #### Target element
 
@@ -145,14 +145,14 @@ Field element in maintains has the following attributes:
 
 The *constant* element has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Name of field |  **Note:** Is the real column name of table in data base            |
-| table | Optional | String | Table name of field |  |
-| function | Optional | String | To apply sql function to field|The possible values are defined in [field functions](query-definition.md#field-functions) |
-| cast  | Optional | String | Change the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE` |
-| value | Required | String | A static value to be used as field value |  |
-| type | Optional | String | Type of the value | The possible values are available [here](#variable-types) |
+| Attribute   | Use      | Type      |  Description                    | Values                                                                                    |
+| ----------- | ---------|-----------|---------------------------------|-------------------------------------------------------------------------------------------|
+| id | **Required** | String | Name of field | **Note:** Is the real column name of table in data base                                   |
+| table | Optional | String | Table name of field |                                                                                           |
+| function | Optional | String | To apply sql function to field| The possible values are defined in [field functions](query-definition.md#field-functions) |
+| cast  | Optional | String | Change the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                 |
+| value | Required | String | A static value to be used as field value |                                                                                           |
+| type | Optional | String | Type of the value | The possible values are available [here](query-definition.md#variable-types)              |
 
 #### Operation element
 

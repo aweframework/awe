@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: awe-boot
+data:
+  application.properties: |-
+    info.app.name=Awe Boot Application
+    info.app.description=This is an awe application example
+    # Redis key prefix
+    spring.cache.redis.key-prefix=awe-boot::
+    spring.session.redis.namespace=awe-boot:session
+    spring.data.redis.host=redis-service
+    spring.data.redis.port=6379
+    # Websocket Broker config
+    awe.websocket.stomp.enable-stomp-broker-relay=true
+    awe.websocket.stomp.relay-host=rabbitmq-service
+    awe.websocket.stomp.client-login=guest
+    awe.websocket.stomp.client-passcode=guest
+    awe.websocket.stomp.system-login=guest
+    awe.websocket.stomp.system-passcode=guest
+    # File manager
+    awe.application.filemanager.base-path=/

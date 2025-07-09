@@ -1,0 +1,15 @@
+pgarcia:
+  name: Pablo Javier García
+  title: Senior Software Engineer AWE at Almis
+  url: https://gitlab.com/pablo.garcia.almis
+  image_url: https://gitlab.com/uploads/-/system/user/avatar/3234791/avatar.png?width=400
+  page: true
+
+pvidal:
+  name: Pablo Vidal Otero
+  title: Senior Software Engineer AWE at Almis
+  url: https://gitlab.com/Limkin
+  image_url: https://gitlab.com/uploads/-/system/user/avatar/3234812/avatar.png?width=400
+  page: true
+  socials:
+    github: limkinZero

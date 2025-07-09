@@ -84,7 +84,7 @@ The xml structure of navigation bar component is the following:
 | `title`      | Optional | String | Static text show when over criteria  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `info-style` | Optional | String | Css style of info-criteria container | Ex.: `info-style="form-group"`                                             |
 
-> **Note:** `info-criteria` element has the same attributes as `criteria` element. You can see more info [here](criteria.md#criteria-attributes).
+> **Note:** `info-criteria` element has the same attributes as `criteria` element. You can see more info [here](criteria.md#criteria-structure).
 
 ### avatar attributes
 

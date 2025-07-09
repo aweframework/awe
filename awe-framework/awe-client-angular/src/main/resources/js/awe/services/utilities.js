@@ -1058,11 +1058,10 @@ aweApplication.factory('AweUtilities',
         /**
          * Manage REST error
          * @param error
-         * @param $log
          * @param target
          * @returns {[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title: string, message: string}}]|[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title, message}}]|[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title, message}},{type: string, parameters: {screen: string}}]}
          */
-        manageRestError: function (error, $log, target = undefined) {
+        manageRestError: function (error, target = undefined) {
           const endLoad = target ? [{
             type: 'end-load',
             address: target
@@ -1095,6 +1094,28 @@ aweApplication.factory('AweUtilities',
                   message: error.message
                 }
               }];
+            case 504: // Gateway timeout
+              // Log error output
+              $log.error("Gateway timeout", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.title,
+                  message: error.message
+                }
+              }];
+            case 413: // Entity too large
+              // Log error output
+              $log.error("Entity too large", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: error.title,
+                  message: error.message
+                }
+              }];
             case -1: // Disconnected
             default:
               // Log error output
@@ -1103,8 +1124,8 @@ aweApplication.factory('AweUtilities',
                 type: 'message',
                 parameters: {
                   type: "error",
-                  title: "ERROR_TITLE_INVALID_CONNECTION",
-                  message: "ERROR_MESSAGE_INVALID_CONNECTION"
+                  title: "ERROR_TITLE_CONNECTION_LOST",
+                  message: "ERROR_MESSAGE_CONNECTION_LOST"
                 }
               }];
           }

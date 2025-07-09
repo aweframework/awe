@@ -79,6 +79,7 @@
     <xs:attribute name="multiple" type="multipleRestriction"/>
     <xs:attribute name="audit" type="xs:string"/>
     <xs:attribute name="batch" type="booleanEnum"/>
+    <xs:attribute name="batch-size" type="xs:integer"/>
     <xs:attribute name="label" type="xs:string"/>
   </xs:attributeGroup>
 

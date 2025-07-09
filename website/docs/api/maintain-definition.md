@@ -62,8 +62,8 @@ For easier development of maintain, not all elements are required.
 | [multiple](#multiple)           | Optional      | Yes                 | Is used to do multiples operations (insert, delete or update) in database at **once **      |
 | [commit](#commit)               | Optional      | Yes                 | Is used to do commit in database and store the changes                                      |
 | [serve](#service-maintain)      | Optional      | Yes                 | Is used to do operations with services (Java or Web services)                               |
-| [queue](#queue)                 | Optional      | Yes                 | Is used to do operations with queues                                                        |
-| [send-email](#send-email)       | Optional      | Yes                 | Send an e-mails                                                                             |
+| [queue](#queue-maintain)                 | Optional      | Yes                 | Is used to do operations with queues                                                        |
+| [send-email](#email-maintain)       | Optional      | Yes                 | Send an e-mails                                                                             |
 | [retrieve-data](#retrieve-data) | Optional      | Yes                 | Retrieve data from SQL, services, enumerated or queues                                      |
 | [table](#table-element)         | Optional      | No                  | Describes the table over the changes are done                                               |
 | [where](#where-element)         | Optional      | No                  | Defines the conditions that must be met to perform the operation. Is the `where` sql clause |
@@ -76,21 +76,21 @@ For easier development of maintain, not all elements are required.
 
 Target element has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| name | **Required** | String | Maintain identifier                   | **Note:**  The name name must be unique            |
-| public| Optional | Boolean |To set a query as launchable out of session (without being logged) | By default is `false`|                 
-| label | Optional  | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
-| exclusive| Optional  | Boolean | To restrict the concurrently execution  of target | set this attribute to `true` if you don't want the target to be executed concurrently (some users at the same time)|
+| Attribute | Use          | Type    | Description                                                        | Values                                                                                                              |
+|-----------|--------------|---------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| name      | **Required** | String  | Maintain identifier                                                | **Note:**  The name name must be unique                                                                             |
+| public    | Optional     | Boolean | To set a query as launchable out of session (without being logged) | By default is `false`                                                                                               |                 
+| label     | Optional     | String  | Is used to set the output message after executing maintenance      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                          | 
+| exclusive | Optional     | Boolean | To restrict the concurrently execution  of target                  | set this attribute to `true` if you don't want the target to be executed concurrently (some users at the same time) |
 
 #### Table element
 
 Table element has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Name of table | **Note:** Is the real table name in data base            |
-| schema | Optional | String | Use to set user owner of table | **Note:** Is the real schema (user) of table in data base         |
+| Attribute | Use          | Type    | Description                    | Values                                                    |
+|-----------|--------------|---------|--------------------------------|-----------------------------------------------------------|
+| id        | **Required** | String  | Name of table                  | **Note:** Is the real table name in data base             |
+| schema    | Optional     | String  | Use to set user owner of table | **Note:** Is the real schema (user) of table in data base |
 
 #### Where element
 
@@ -128,31 +128,31 @@ Filter element behaviour is the same as [query filter element](./query-definitio
 
 Field element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Name of field |  **Note:** Is the real column name of table in data base            |
-| table | Optional | String | Table name of field |  |
-| alias | Optional | String | Alias of field. It used to describe the field |  |
-| sequence | Optional | String | Name of sequence to insert from `AweKey table`| **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
-| key | Optional | Boolean | If field is a table key, this value must be set as `true` | **Note:** Only apply in `multiple` maintains |
-| audit | Optional | Boolean | **ONLY** record this field on the audit table. **Note:** If this attribute is set to `true` this field will **NOT** be recorded on the table | Default value is `false` |
-| variable | Optional | String | Used to set the input field with one variable value |  |
-| query | Optional | String | Is the query identifier to do a subquery  | **Note:** The query id must exist |
-| function | Optional | String | To apply sql function to field|The possible values are defined in [field functions](query-definition.md#field-functions) |
-| cast  | Optional | String | Change the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE` |
+| Attribute | Use          | Type    | Description                                                                                                                                  | Values                                                                                                                                              |
+|-----------|--------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| id        | **Required** | String  | Name of field                                                                                                                                | **Note:** Is the real column name of table in data base                                                                                             |
+| table     | Optional     | String  | Table name of field                                                                                                                          |                                                                                                                                                     |
+| alias     | Optional     | String  | Alias of field. It used to describe the field                                                                                                |                                                                                                                                                     |
+| sequence  | Optional     | String  | Name of sequence to insert from `AweKey table`                                                                                               | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
+| key       | Optional     | Boolean | If field is a table key, this value must be set as `true`                                                                                    | **Note:** Only apply in `multiple` maintains                                                                                                        |
+| audit     | Optional     | Boolean | **ONLY** record this field on the audit table. **Note:** If this attribute is set to `true` this field will **NOT** be recorded on the table | Default value is `false`                                                                                                                            |
+| variable  | Optional     | String  | Used to set the input field with one variable value                                                                                          |                                                                                                                                                     |
+| query     | Optional     | String  | Is the query identifier to do a subquery                                                                                                     | **Note:** The query id must exist                                                                                                                   |
+| function  | Optional     | String  | To apply sql function to field                                                                                                               | The possible values are defined in [field functions](query-definition.md#field-functions)                                                           |
+| cast      | Optional     | String  | Change the field format                                                                                                                      | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                                                                           |
 
 #### Constant element
 
 The *constant* element has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Name of field |  **Note:** Is the real column name of table in data base            |
-| table | Optional | String | Table name of field |  |
-| function | Optional | String | To apply sql function to field|The possible values are defined in [field functions](query-definition.md#field-functions) |
-| cast  | Optional | String | Change the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE` |
-| value | Required | String | A static value to be used as field value |  |
-| type | Optional | String | Type of the value | The possible values are available [here](#variable-types) |
+| Attribute | Use          | Type   | Description                              | Values                                                                                    |
+|-----------|--------------|--------|------------------------------------------|-------------------------------------------------------------------------------------------|
+| id        | **Required** | String | Name of field                            | **Note:** Is the real column name of table in data base                                   |
+| table     | Optional     | String | Table name of field                      |                                                                                           |
+| function  | Optional     | String | To apply sql function to field           | The possible values are defined in [field functions](query-definition.md#field-functions) |
+| cast      | Optional     | String | Change the field format                  | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                 |
+| value     | Required     | String | A static value to be used as field value |                                                                                           |
+| type      | Optional     | String | Type of the value                        | The possible values are available [here](query-definition.md#variable-types)                                  |
 
 #### Operation element
 
@@ -166,27 +166,27 @@ The *operation* element allows to define operation between fields and will be re
 </field>
 ```
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Name of field |  **Note:** Is the real column name of table in data base            |
-| table | Optional | String | Table name of field |  |
-| operator    | Required | String    | Operator of the operation       | See [operator attribute](query-definition.md#operator-attribute)      |
-| function | Optional | String | To apply sql function to field|The possible values are defined in [field functions](query-definition.md#field-functions) |
-| cast  | Optional | String | Change the field format | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE` |
+| Attribute | Use          | Type    | Description                    | Values                                                                                    |
+|-----------|--------------|---------|--------------------------------|-------------------------------------------------------------------------------------------|
+| id        | **Required** | String  | Name of field                  | **Note:** Is the real column name of table in data base                                   |
+| table     | Optional     | String  | Table name of field            |                                                                                           |
+| operator  | Required     | String  | Operator of the operation      | See [operator attribute](query-definition.md#operator-attribute)                          |
+| function  | Optional     | String  | To apply sql function to field | The possible values are defined in [field functions](query-definition.md#field-functions) |
+| cast      | Optional     | String  | Change the field format        | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                 |
 
 #### Variable element
 
 Variable element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required** | String | Is the identifier name of variable | **Note**: The id must be unique |
-| type | **Required** | String | Describe the type of variable |  Can be __STRING__, __INTEGER__, etc. |
-| name | Optional | String | Name of a variable | The variable is the name of a criterion defined in the screen |
-| optional | Optional  | Boolean | Setting this attribute to `true` will avoid an error in case of variable value can't be retrieved | Default value is `false` |
-| value | Optional  | String | Value |           |
-| property | Optional  | String | Name of property |           |
-| session| Optional  | String | Name of session variable |        |
+| Attribute | Use          | Type     | Description                                                                                       | Values                                                        |
+|-----------|--------------|----------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| id        | **Required** | String   | Is the identifier name of variable                                                                | **Note**: The id must be unique                               |
+| type      | **Required** | String   | Describe the type of variable                                                                     | Can be __STRING__, __INTEGER__, etc.                          |
+| name      | Optional     | String   | Name of a variable                                                                                | The variable is the name of a criterion defined in the screen |
+| optional  | Optional     | Boolean  | Setting this attribute to `true` will avoid an error in case of variable value can't be retrieved | Default value is `false`                                      |
+| value     | Optional     | String   | Value                                                                                             |                                                               |
+| property  | Optional     | String   | Name of property                                                                                  |                                                               |
+| session   | Optional     | String   | Name of session variable                                                                          |                                                               |
 
 ## **Sql maintain**
 
@@ -194,12 +194,15 @@ Variable element in maintains has the following attributes:
 
 Insert element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| multiple| Optional | Boolean| If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`         |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
-| audit | Optional | String | The name of the audit table where audit values are going to be stored  | **Note:** Audit table must exist        |
-| query | Optional | String | Name of a query to retrieve data from an [INSERT INTO SELECT](#insert-into-select) statement  | **Note:** audit table will not be considered for INSERT INTO SELECT statements |
+| Attribute  | Use       | Type    | Description                                                                                                                                                                              | Values                                                                         |
+|------------|-----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| multiple   | Optional  | Boolean | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                     |
+| label      | Optional  | String  | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)     | 
+| audit      | Optional  | String  | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                               |
+| query      | Optional  | String  | Name of a query to retrieve data from an [INSERT INTO SELECT](#insert-into-select) statement                                                                                             | **Note:** audit table will not be considered for INSERT INTO SELECT statements |
+| batch      | Optional  | Boolean | Do the operation in batch chunks                                                                                                                                                         | Default value is `false`                                                       |
+| batch-size | Optional  | Integer | Batch chunk size                                                                                                                                                                         | Default value is the defined in properties                                     |
+
 
 >**Note:** You can view `field` element information [here](#field-element)
 
@@ -308,11 +311,13 @@ INSERT INTO test (Nam, Ord) SELECT DISTINCT KeyNam, Act FROM AweKey
 
 Update element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| multiple| Optional | Boolean| If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`         |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
-| audit | Optional | String | The name of the audit table where audit values are going to be stored  | **Note:** Audit table must exist |
+| Attribute  | Use       | Type     | Description                                                                                                                                                                              | Values                                                                     |
+|------------|-----------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| multiple   | Optional  | Boolean  | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                 |
+| label      | Optional  | String   | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| audit      | Optional  | String   | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                           |
+| batch      | Optional  | Boolean  | Do the operation in batch chunks                                                                                                                                                         | Default value is `false`                                                   |
+| batch-size | Optional  | Integer  | Batch chunk size                                                                                                                                                                         | Default value is the defined in properties                                 |
 
 >**Note:** You can view `where` element information [here](#where-element)
 
@@ -404,11 +409,13 @@ The update maintain structure is the next one:
 
 Delete element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| multiple| Optional | Boolean| If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`         |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
-| audit | Optional | String | The name of the audit table where audit values are going to be stored  | **Note:** Audit table must exist        |
+| Attribute  | Use       | Type    | Description                                                                                                                                                                              | Values                                                                     |
+|------------|-----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| multiple   | Optional  | Boolean | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                 |
+| label      | Optional  | String  | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| audit      | Optional  | String  | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                           |
+| batch      | Optional  | Boolean | Do the operation in batch chunks                                                                                                                                                         | Default value is `false`                                                   |
+| batch-size | Optional  | Integer | Batch chunk size                                                                                                                                                                         | Default value is the defined in properties                                 |
 
 >**Note:** You can view `where` element information [here](#where-element)
 
@@ -474,11 +481,11 @@ The `multiple` maintains are used in `Grid` widget to perform sql operations.
 
 Multiple element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| grid | **Required**| String | Is the grid name where operations are performed |   |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
-| audit | Optional | String | The name of the audit table where audit values are going to be stored  | **Note:** Audit table must exist |
+| Attribute | Use          | Type    | Description                                                           | Values                                                                     |
+|-----------|--------------|---------|-----------------------------------------------------------------------|----------------------------------------------------------------------------|
+| grid      | **Required** | String  | Is the grid name where operations are performed                       |                                                                            |
+| label     | Optional     | String  | Is used to set the output message after executing maintenance         | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| audit     | Optional     | String  | The name of the audit table where audit values are going to be stored | **Note:** Audit table must exist                                           |
 
 > **IMPORTANT:** It must exist one field with attribute `key="true"` to indicate which field is the table key
 
@@ -598,10 +605,10 @@ Service maintain has the following xml structure:
 
 Serve element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| service | **Required**| String | Service indentifier | **Note:** The service id must exist in `Services.xml` file  |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| Attribute | Use          | Type    | Description                                                   | Values                                                                      |
+|-----------|--------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
+| service   | **Required** | String  | Service indentifier                                           | **Note:** The service id must exist in `Services.xml` file                  |
+| label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
 #### **Service maintain examples**
 
@@ -644,10 +651,10 @@ Queue maintain has the following xml structure:
 
 Queue element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| name | **Required**| String | Queue indentifier | **Note:** The queue id must exist in `Queues.xml` file  |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| Attribute | Use          | Type     | Description                                                   | Values                                                                      |
+|-----------|--------------|----------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
+| name      | **Required** | String   | Queue indentifier                                             | **Note:** The queue id must exist in `Queues.xml` file                      |
+| label     | Optional     | String   | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
 #### **Queue maintain examples**
 
@@ -680,10 +687,10 @@ Email maintain has the following xml structure:
 
 Email element in maintains has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| id | **Required**| String | Email indentifier | **Note:** The email id must exist in `Email.xml` file  |
-| label | Optional | String | Is used to set the output message after executing maintenance  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
+| Attribute | Use          | Type    | Description                                                   | Values                                                                      |
+|-----------|--------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
+| id        | **Required** | String  | Email indentifier                                             | **Note:** The email id must exist in `Email.xml` file                       |
+| label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
 #### **Email maintain examples**
 
@@ -710,9 +717,9 @@ Include target has the following xml structure:
 
 Include target has the following attributes:
 
-| Attribute   | Use      | Type      |  Description                    |   Values                                           |
-| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
-| name | **Required**| String | Target identifier | **Note:** The target name must exist in `Maintain.xml` file  |
+| Attribute | Use           | Type     | Description        | Values                                                        |
+|-----------|---------------|----------|--------------------|---------------------------------------------------------------|
+| name      | **Required**  | String   | Target identifier  | **Note:** The target name must exist in `Maintain.xml` file   |
 
 #### **Include target examples**
 
