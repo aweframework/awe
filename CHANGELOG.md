@@ -1,4 +1,13 @@
 
+# Changelog for AWE 4.10.18
+*09/07/2025*
+
+- Select and suggest readonly format is not visible. [MR #578](https://gitlab.com/aweframework/awe/-/merge_requests/578) (Pablo Javier García Mora)
+- Add error management to uploader. [MR #577](https://gitlab.com/aweframework/awe/-/merge_requests/577) (Pablo Javier García Mora)
+- Be able to setup batch size by maintain, not only by properties. [MR #576](https://gitlab.com/aweframework/awe/-/merge_requests/576) (Pablo Javier García Mora)
+- Add a heartbeat to websocket to keep it open. [MR #575](https://gitlab.com/aweframework/awe/-/merge_requests/575) (Pablo Vidal Otero)
+- Rest messages management is not returning the right messages on disconnect. [MR #574](https://gitlab.com/aweframework/awe/-/merge_requests/574) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.17
 *27/06/2025*
 
