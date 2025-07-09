@@ -166,7 +166,10 @@ aweApplication.factory('Uploader',
                 function() {
                 },
                 // On error
-                function() {
+                function(e) {
+                  // Send error message
+                  const actions = $utilities.manageRestError({status: e.status, title: e.statusText, message: ""});
+                  $actionController.addActionList(actions, false, {address: {view: "base"}});
                   component.onReset();
                 },
                 // On progress
@@ -211,7 +214,7 @@ aweApplication.factory('Uploader',
               let  parameters = {
                 filename: component.model.selected,
                 destination: destination
-              }
+              };
 
               // Generate url parameter
               let  fileData = ServerData.getFileData("download", parameters);

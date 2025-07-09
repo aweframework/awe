@@ -4,6 +4,7 @@ module.exports = {
 	url: 'https://docs.aweframework.com',
 	baseUrl: '/',
 	onBrokenLinks: 'throw',
+	onBrokenAnchors: 'warn',
 	favicon: 'icon/favicon.ico',
 	organizationName: 'aweframework',
 	projectName: 'awe',
