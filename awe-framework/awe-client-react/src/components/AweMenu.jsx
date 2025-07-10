@@ -138,7 +138,7 @@ class AweMenu extends Component {
   }
 
   onExpand(expandedKeys) {
-    this.setState({...this.state, expandedKeys})
+    this.setState(prevState => ({...prevState, expandedKeys}));
   }
 
   onUpdateBreadcrumbs(props) {
