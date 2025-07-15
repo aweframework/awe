@@ -133,7 +133,7 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
                     <tag type="div" style="col-xs-12 col-sm-4 col-lg-3 no-padding">
                       <criteria id="CrtLitLanFroTxt" label="PARAMETER_FROM" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language"/>
                       <criteria id="CrtLitLanToTxt" label="PARAMETER_TO" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language">
-                        <dependency source-type="formule" target-type="input" formule="'[selectedLanguageTxt]'.toLowerCase()">
+                        <dependency source-type="criteria-value" target-type="input" target-action="selectedLanguageTxt">
                           <dependency-element id="GrdTraLit" column="idio" attribute="selectedRowValue" alias="selectedLanguageTxt"/>
                           <dependency-element id="GrdTraLit" attribute="selectedRows" condition="eq" value="1" />
                           <dependency-element id="GrdTraLit" event="select-row" />
@@ -160,7 +160,7 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
                     <tag type="div" style="col-xs-12 col-sm-4 col-lg-3 no-padding">
                       <criteria id="CrtLitLanFroMrk" label="PARAMETER_FROM" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language"/>
                       <criteria id="CrtLitLanToMrk" label="PARAMETER_TO" style="col-xs-12" component="select" initial-load="enum" target-action="Lan" session="language">
-                        <dependency source-type="formule" target-type="input" formule="'[selectedLanguageMrk]'.toLowerCase()">
+                        <dependency source-type="criteria-value" target-type="input" target-action="selectedLanguageMrk">
                           <dependency-element id="GrdTraLit" column="idio" attribute="selectedRowValue" alias="selectedLanguageMrk"/>
                           <dependency-element id="GrdTraLit" attribute="selectedRows" condition="eq" value="1" />
                           <dependency-element id="GrdTraLit" event="select-row" />
