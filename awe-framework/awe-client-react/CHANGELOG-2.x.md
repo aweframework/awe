@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 1.1.8
+*15/07/2025*
+
+- Allow tabs to work in vertical orientation. [MR #105](https://gitlab.com/aweframework/awe-react/-/merge_requests/105) (Pablo Javier García Mora)
+- Pick last AWE version. [MR #104](https://gitlab.com/aweframework/awe-react/-/merge_requests/104) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.7
 *27/06/2025*
 
