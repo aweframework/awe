@@ -7,6 +7,7 @@ import './AweInfoButtonTest';
 import './AweInfoDropdownTest';
 import './AweAvatarTest';
 import './AweStepsTest';
+import './AweTabsTest';
 import './AweResizableTest';
 import './AweAccordionTest';
 import './AweChartTest';

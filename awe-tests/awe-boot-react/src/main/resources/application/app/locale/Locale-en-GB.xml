@@ -64,6 +64,7 @@
   <locale name="HELP_SCREEN_TITLE_CRITERIA_TEST" value="Criteria test"/>
   <locale name="HELP_SCREEN_TITLE_MATRIX_TEST" value="Matrix test"/>
   <locale name="HELP_SCREEN_TITLE_WIZARD" value="Wizard testing screen"/>
+  <locale name="HELP_SCREEN_TITLE_WIZARD_VERTICAL" value="Vertical wizard testing screen"/>
   <locale name="HELP_SEARCH_ADD_SERIE_BUTTON" value="Add series to chart"/>
   <locale name="HELP_SEARCH_REMOVE_SERIE_BUTTON" value="Remove serie of chart"/>
   <locale name="HELP_SEARCH_REPLACE_SERIE_BUTTON" value="Replace all series in a chart"/>
@@ -90,7 +91,9 @@
   <locale name="MENU_TEST_NO_SCREEN" value="No screen"/>
   <locale name="MENU_TEST_PIVOT" value="Pivot table"/>
   <locale name="MENU_TEST_QUEUES" value="Message queues"/>
+  <locale name="MENU_TEST_TABS_VERTICAL" value="Vertical Tabs"/>
   <locale name="MENU_TEST_WIZARD" value="Wizard"/>
+  <locale name="MENU_TEST_WIZARD_VERTICAL" value="Vertical wizard"/>
   <locale name="PARAMETER_AGE" value="Age"/>
   <locale name="PARAMETER_CHECKBOX" value="Checkbox"/>
   <locale name="PARAMETER_CHECKBOX_1" value="Checkbox 1 EN"/>
@@ -168,5 +171,8 @@
   <locale name="SCREEN_TITLE_CHART_TEST" value="Chart tests"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Criteria test"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Matrix test"/>
+  <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Vertical tabs"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Wizard"/>
+  <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Vertical wizard"/>
+  <locale name="TEXT_NEW" value="NEW!"/>
 </locales>

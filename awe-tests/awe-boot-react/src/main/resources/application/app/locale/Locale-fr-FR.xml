@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Document   : Locale-FR
+  Document   : Locale-fr-FR
   Description: Application Locales
 -->
 
@@ -64,6 +64,7 @@
   <locale name="HELP_SCREEN_TITLE_CRITERIA_TEST" value="Controle des critères"/>
   <locale name="HELP_SCREEN_TITLE_MATRIX_TEST" value="Controle des matrices"/>
   <locale name="HELP_SCREEN_TITLE_WIZARD" value="Assistant"/>
+  <locale name="HELP_SCREEN_TITLE_WIZARD_VERTICAL" value="Assistant vertical"/>
   <locale name="HELP_SEARCH_ADD_SERIE_BUTTON" value="Ajouter série de graphique"/>
   <locale name="HELP_SEARCH_REMOVE_SERIE_BUTTON" value="Retirer série de graphique"/>
   <locale name="HELP_SEARCH_REPLACE_SERIE_BUTTON" value="Remplacer toutes les séries dans un graphique"/>
@@ -90,7 +91,9 @@
   <locale name="MENU_TEST_NO_SCREEN" value="Pas d&apos;écran"/>
   <locale name="MENU_TEST_PIVOT" value="Tableau croisé dynamique"/>
   <locale name="MENU_TEST_QUEUES" value="Queues de messages"/>
+  <locale name="MENU_TEST_TABS_VERTICAL" value="Onglets verticaux"/>
   <locale name="MENU_TEST_WIZARD" value="Assistant"/>
+  <locale name="MENU_TEST_WIZARD_VERTICAL" value="Assistant vertical"/>
   <locale name="PARAMETER_AGE" value="Âge"/>
   <locale name="PARAMETER_CHECKBOX" value="Checkbox"/>
   <locale name="PARAMETER_CHECKBOX_1" value="Checkbox 1 FR"/>
@@ -168,5 +171,8 @@
   <locale name="SCREEN_TITLE_CHART_TEST" value="Controle des graphiques"/>
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Controle des critères"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Controle des matrices"/>
+  <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Onglets verticaux"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Assistant"/>
+  <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Assistant vertical"/>
+  <locale name="TEXT_NEW" value="NOUVEAU!"/>
 </locales>
