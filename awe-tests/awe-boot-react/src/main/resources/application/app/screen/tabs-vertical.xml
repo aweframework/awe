@@ -8,15 +8,15 @@
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
-        template="window" label="SCREEN_TITLE_WIZARD_VERTICAL" help="HELP_SCREEN_TITLE_WIZARD_VERTICAL">
+        template="window" label="SCREEN_TITLE_TABS_VERTICAL" help="HELP_SCREEN_TITLE_TABS_VERTICAL">
   <tag source="buttons">
     <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
       <button-action type="dialog" target="HlpOpt"/>
     </button>
   </tag>
   <tag source="center" expandible="horizontal">
-    <wizard id="wizardTest" initial-load="query" target-action="wizardSteps" orientation="vertical">
-      <wizard-panel id="WizardStep1">
+    <tab id="tabTest" initial-load="query" target-action="wizardSteps" orientation="vertical">
+      <tabcontainer id="WizardStep1">
         <tag type="div" style="expand" expandible="vertical">
           <tag type="div" style="panel-body">
             <tag type="div" style="row">
@@ -41,20 +41,9 @@
           <tag type="div" style="expand" expandible="vertical">
             <video id="preview" src="https://www.youtube.com/watch?v=aqz-KE-bpKQ" controls="true" style="expand" autoplay="true"/>
           </tag>
-          <tag type="div" style="panel-footer">
-            <tag type="div" style="pull-right">
-              <button label="BUTTON_LAST" icon="arrow-circle-o-right" id="LastStep2">
-                <button-action type="last-step" target="wizardTest"/>
-              </button>
-              <button label="BUTTON_NEXT" icon="chevron-circle-right" id="FwStep2" style="btn-primary">
-                <button-action type="validate" target="WizardStep1"/>
-                <button-action type="next-step" target="wizardTest"/>
-              </button>
-            </tag>
-          </tag>
         </tag>
-      </wizard-panel>
-      <wizard-panel id="WizardStep2">
+      </tabcontainer>
+      <tabcontainer id="WizardStep2">
         <tag type="div" style="expand" expandible="vertical">
           <tag type="div" style="panel-body expand" expandible="vertical">
             <tag type="div">
@@ -72,20 +61,9 @@
               </accordion>
             </tag>
           </tag>
-          <tag type="div" style="panel-footer">
-            <tag type="div" style="pull-right">
-              <button label="BUTTON_PREVIOUS" icon="chevron-circle-left" id="BkStep1">
-                <button-action type="prev-step" target="wizardTest"/>
-              </button>
-              <button label="BUTTON_NEXT" icon="chevron-circle-right" id="FwStep3" style="btn-primary">
-                <button-action type="validate" target="WizardStep2"/>
-                <button-action type="next-step" target="wizardTest"/>
-              </button>
-            </tag>
-          </tag>
         </tag>
-      </wizard-panel>
-      <wizard-panel id="WizardStep3">
+      </tabcontainer>
+      <tabcontainer id="WizardStep3">
         <tag type="div" style="expand" expandible="vertical">
           <tag type="div" style="panel-body expand">
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="cod_usr12" validation="required"
@@ -95,23 +73,9 @@
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu12" validation="required"
                       style="col-xs-6 col-sm-4 col-md-2"/>
           </tag>
-          <tag type="div" style="panel-footer">
-            <tag type="div" style="pull-right">
-              <button label="BUTTON_NTH" icon="arrow-circle-o-left" id="NthStep">
-                <button-action type="nth-step" target="wizardTest" value="WizardStep2"/>
-              </button>
-              <button label="BUTTON_PREVIOUS" icon="chevron-circle-left" id="BkStep2">
-                <button-action type="prev-step" target="wizardTest"/>
-              </button>
-              <button label="BUTTON_NEXT" icon="chevron-circle-right" id="FwStep4" style="btn-primary">
-                <button-action type="validate" target="WizardStep3"/>
-                <button-action type="next-step" target="wizardTest"/>
-              </button>
-            </tag>
-          </tag>
         </tag>
-      </wizard-panel>
-      <wizard-panel id="WizardStep4">
+      </tabcontainer>
+      <tabcontainer id="WizardStep4">
         <tag type="div" style="expand" expandible="vertical">
           <tag type="div" style="panel-body expand">
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="cod_usr121" validation="required"
@@ -121,23 +85,9 @@
             <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu121" validation="required"
                       style="col-xs-6 col-sm-4 col-md-2"/>
           </tag>
-          <tag type="div" style="panel-footer">
-            <tag type="div" style="pull-right">
-              <button label="BUTTON_FIRST" icon="arrow-circle-o-left" id="FirstStep2">
-                <button-action type="first-step" target="wizardTest"/>
-              </button>
-              <button label="BUTTON_PREVIOUS" icon="chevron-circle-left" id="BkStep3">
-                <button-action type="prev-step" target="wizardTest"/>
-              </button>
-              <button label="BUTTON_FINISH" icon="check" id="Finish" style="btn-primary">
-                <button-action type="validate" target="WizardStep4"/>
-                <button-action type="server" server-action="refresh-menu"/>
-              </button>
-            </tag>
-          </tag>
         </tag>
-      </wizard-panel>
-    </wizard>
+      </tabcontainer>
+    </tab>
   </tag>
   <tag source="modal">
     <include target-screen="screen-help" target-source="center"/>

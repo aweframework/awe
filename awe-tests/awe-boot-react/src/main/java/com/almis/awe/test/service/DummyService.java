@@ -583,18 +583,19 @@ public class DummyService extends ServiceConfig {
     return serviceData.setDataList(dataList);
   }
 
-  public ServiceData wizardSteps() throws AWException {
+  public ServiceData wizardSteps() {
     // Fill serviceData with dataList
     DataList dataList = new DataList();
     DataListUtil.addColumn(dataList, "value", Arrays.asList("WizardStep1", "WizardStep2", "WizardStep3", "WizardStep4"));
     DataListUtil.addColumn(dataList, "label", Arrays.asList("ENUM_STEP_1", "ENUM_STEP_2", "ENUM_STEP_3", "ENUM_STEP_4"));
     DataListUtil.addColumn(dataList, "title", Arrays.asList("SCREEN_TEXT_STEP 1", "SCREEN_TEXT_STEP 2", "SCREEN_TEXT_STEP 3", "SCREEN_TEXT_STEP 4"));
     DataListUtil.addColumn(dataList, "icon", Arrays.asList("fa:home", "mdi:auto_fix_high", "mdi:add_a_photo", "mdi:landscape"));
+    DataListUtil.addColumn(dataList, "unit", Arrays.asList("", "", "TEXT_NEW", "TEXT_NEW"));
 
     return new ServiceData().setDataList(dataList);
   }
 
-  public ServiceData carousel() throws AWException {
+  public ServiceData carousel() {
     // Fill serviceData with dataList
     DataList dataList = new DataList();
     DataListUtil.addColumn(dataList, "url", Arrays.asList("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", "https://www.orimi.com/pdf-test.pdf", "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",  "https://picsum.photos/640/480"));
@@ -604,7 +605,7 @@ public class DummyService extends ServiceConfig {
     return new ServiceData().setDataList(dataList);
   }
 
-  public ServiceData picklist() throws AWException {
+  public ServiceData picklist() {
     // Fill serviceData with dataList
     DataList dataList = new DataList();
     DataListUtil.addColumn(dataList, "value", Arrays.asList("1", "2", "3", "4"));
@@ -613,7 +614,6 @@ public class DummyService extends ServiceConfig {
     DataListUtil.addColumn(dataList, "icon", Arrays.asList("fa:home", "mdi:auto_fix_high", "mdi:add_a_photo", "mdi:landscape"));
     DataListUtil.addColumn(dataList, "image", Arrays.asList("https://picsum.photos/56/38", "https://picsum.photos/56/38", "https://picsum.photos/56/38", "https://picsum.photos/56/38"));
     DataListUtil.addColumn(dataList, "unit", Arrays.asList("123€", "25€", "33€", "19€"));
-
 
     return new ServiceData().setDataList(dataList);
   }
