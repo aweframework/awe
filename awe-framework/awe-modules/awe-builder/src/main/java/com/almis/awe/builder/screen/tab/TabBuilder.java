@@ -17,6 +17,7 @@ import lombok.experimental.Accessors;
 public class TabBuilder extends AbstractComponentBuilder<TabBuilder, Tab> {
 
   private Boolean maximize;
+  private String orientation;
 
   @Override
   public Tab build() {
@@ -25,8 +26,9 @@ public class TabBuilder extends AbstractComponentBuilder<TabBuilder, Tab> {
 
   @Override
   public Tab build(Tab tab) {
-    return super.build(tab)
-      .setMaximize(getMaximize());
+    return super.build((Tab) tab
+      .setMaximize(getMaximize())
+      .setOrientation(getOrientation()));
   }
 
   /**
