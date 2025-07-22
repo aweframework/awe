@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.10.19
+*22/07/2025*
+
+- Add orientation attribute to TabBuilder. [MR #580](https://gitlab.com/aweframework/awe/-/merge_requests/580) (Pablo Javier García Mora)
+- Fix awe-developer language issue with new language codes. [MR #579](https://gitlab.com/aweframework/awe/-/merge_requests/579) (Pablo Javier García Mora)
+
 # Changelog for AWE 4.10.18
 *09/07/2025*
 
