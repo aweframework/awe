@@ -6,6 +6,7 @@ import {Components} from "../utilities/structure";
 import {getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import "./AweTabs.less";
+import {Badge} from "primereact/badge";
 
 class AweTabs extends AwePanelableComponent {
 
@@ -25,7 +26,7 @@ class AweTabs extends AwePanelableComponent {
 
   unitRenderer(unit) {
     const {t} = this.props;
-    return unit ? <span className="p-tab-unit p-badge">{translateLabel(unit, t)}</span> : null;
+    return unit ? <Badge className="p-tab-unit" value={translateLabel(unit, t)}></Badge> : null;
   }
 
   itemRenderer(item, itemIndex) {
