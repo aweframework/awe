@@ -175,4 +175,6 @@
   <locale name="SCREEN_TITLE_WIZARD" value="Assistant"/>
   <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Assistant vertical"/>
   <locale name="TEXT_NEW" value="NOUVEAU!"/>
+  <locale name="WARNING_MESSAGE_LOGOUT" value="Vous êtes sur le point de vous déconnecter de l'application. Êtes-vous sûr?"/>
+  <locale name="WARNING_TITLE_LOGOUT" value="Se déconnecter de l'application"/>
 </locales>

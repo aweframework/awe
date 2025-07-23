@@ -106,7 +106,9 @@
         </info-criteria>
     </tag>
     <tag source="logout">
+        <message id="confirm-logout" title="WARNING_TITLE_LOGOUT" message="WARNING_MESSAGE_LOGOUT"/>
         <info-button id="ButLogOut" icon="sign-out" title="BUTTON_LOGOUT" label="BUTTON_LOGOUT" style="col-xs-12">
+            <button-action type="confirm" target="confirm-logout"/>
             <button-action type="logout"/>
         </info-button>
     </tag>
