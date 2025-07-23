@@ -45,6 +45,7 @@ export function messages(state = InitialState, action = {}) {
       return {
         ...state,
         defined: {
+          ...state.defined,
           [action.view]: {
             ...action.data
           }
