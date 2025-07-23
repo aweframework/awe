@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 1.1.9
+*23/07/2025*
+
+- View messages are deleted when another view messages are updated. [MR #107](https://gitlab.com/aweframework/awe-react/-/merge_requests/107) (Pablo Javier García Mora)
+- Fix vertical Tabs to put badges as components instead of classes. [MR #106](https://gitlab.com/aweframework/awe-react/-/merge_requests/106) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.8
 *15/07/2025*
 
