@@ -8,7 +8,9 @@ export class AwePanelableComponent extends AweComponent {
   }
 
   getActiveIndex() {
-    return this.props.model.values.findIndex(item => item.selected);
+    const {model = {}} = this.props;
+    const {values = []} = model;
+    return values.findIndex(item => item.selected);
   }
 
   /**
@@ -16,9 +18,10 @@ export class AwePanelableComponent extends AweComponent {
    */
   componentDidMount() {
     super.componentDidMount();
-    const {model, updateModelWithDependencies, address} = this.props;
+    const {updateModelWithDependencies = fn => fn, address = {}, model = {}} = this.props;
+    const {values = []} = model;
     this.getActiveIndex() < 0 && updateModelWithDependencies(address, {
-      values: model.values.map((item, index) => ({
+      values: values.map((item, index) => ({
         ...item,
         selected: index === 0
       }))
@@ -26,9 +29,10 @@ export class AwePanelableComponent extends AweComponent {
   }
 
   onChange(e) {
-    const {address, model, updateModelWithDependencies} = this.props;
+    const {updateModelWithDependencies = fn => fn, address = {}, model = {}} = this.props;
+    const {values = []} = model;
     updateModelWithDependencies(address, {
-      values: model.values.map((item, index) => ({
+      values: values.map((item, index) => ({
         ...item,
         selected: index === e.index
       }))
