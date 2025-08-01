@@ -11,6 +11,7 @@ import com.almis.awe.security.handler.AweOauth2AuthenticationSuccessHandler;
 import com.almis.awe.security.multitenant.MultiTenantClientRegistrationRepository;
 import com.almis.awe.security.multitenant.MultiTenantOAuth2AuthenticationEntryPoint;
 import com.almis.awe.service.AccessService;
+import com.almis.awe.service.ErrorPageService;
 import com.almis.awe.session.AweSessionDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -50,6 +51,7 @@ public class SSOAuthConfig {
   private final AweSessionDetails sessionDetails;
   private final SecurityConfigProperties securityConfigProperties;
   private final PublicQueryMaintainAuthorization publicQueryMaintainAuthorization;
+  private final ErrorPageService errorPageService;
 
   // Optional Autowired dependencies
   private final MultiTenantOAuth2Config multiTenantConfig;
@@ -66,15 +68,17 @@ public class SSOAuthConfig {
    * @param securityConfigProperties Security configuration properties for the application.
    * @param publicQueryMaintainAuthorization Authorization handler for public query maintenance.
    * @param multiTenantConfig Optional multi-tenant OAuth2 configuration.
+   * @param errorPageService Error page generate service.
    * @param multiTenantFilter Optional multi-tenant filter for tenant-level request handling.
    */
-  public SSOAuthConfig(AccessService accessService, AweSessionDetails sessionDetails, SecurityConfigProperties securityConfigProperties, PublicQueryMaintainAuthorization publicQueryMaintainAuthorization,
+  public SSOAuthConfig(AccessService accessService, AweSessionDetails sessionDetails, SecurityConfigProperties securityConfigProperties, PublicQueryMaintainAuthorization publicQueryMaintainAuthorization, ErrorPageService errorPageService,
 											 Optional<MultiTenantOAuth2Config> multiTenantConfig,
 											 Optional<MultiTenantFilter> multiTenantFilter) {
     this.accessService = accessService;
     this.sessionDetails = sessionDetails;
     this.securityConfigProperties = securityConfigProperties;
     this.publicQueryMaintainAuthorization = publicQueryMaintainAuthorization;
+		this.errorPageService = errorPageService;
 		this.multiTenantConfig = multiTenantConfig.orElse(null);
     this.multiTenantFilter = multiTenantFilter.orElse(null);
   }
@@ -236,6 +240,6 @@ public class SSOAuthConfig {
   @Bean
   @ConditionalOnMissingBean
   public AweOauth2AuthenticationFailureHandler authFailureHandler() {
-    return new AweOauth2AuthenticationFailureHandler();
+    return new AweOauth2AuthenticationFailureHandler(errorPageService);
   }
 }

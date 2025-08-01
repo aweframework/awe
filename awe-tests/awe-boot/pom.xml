@@ -370,6 +370,24 @@
             </configuration>
           </execution>
           <execution>
+            <phase>generate-sources</phase>
+            <id>unpack awe-generic-screens templates</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.almis.awe</groupId>
+                  <artifactId>awe-generic-screens</artifactId>
+                  <version>${awe.version}</version>
+                  <outputDirectory>${project.build.frontend}</outputDirectory>
+                  <includes>templates/**,</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
             <phase>generate-resources</phase>
             <id>unpack awe-client-angular</id>
             <goals>

@@ -6,6 +6,7 @@ import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import com.almis.awe.security.multitenant.MultiTenantClientRegistrationRepository;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.AccessService;
+import com.almis.awe.service.ErrorPageService;
 import com.almis.awe.session.AweSessionDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,9 @@ class SSOAuthConfigTest {
   private AweSessionDetails sessionDetails;
 
   @Mock
+  private ErrorPageService errorPageService;
+
+  @Mock
   private PublicQueryMaintainAuthorization publicQueryMaintainAuthorization;
 
   private SSOAuthConfig ssoAuthConfig;
@@ -55,6 +59,7 @@ class SSOAuthConfigTest {
         sessionDetails,
         securityConfigProperties,
         publicQueryMaintainAuthorization,
+        errorPageService,
         Optional.of(multiTenantConfig),
         Optional.of(multiTenantFilter)
     );
@@ -306,18 +311,24 @@ class SSOAuthConfigTest {
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
     org.mockito.Mockito.when(response.getWriter()).thenReturn(writer);
+    
+    // Mock ErrorPageService to return a valid HTML response
+    String mockHtmlResponse = "<html><body><h1>Authentication Error</h1><p>OAuth2 login failed</p></body></html>";
+    org.mockito.Mockito.when(errorPageService.generateErrorPageFromTemplate(
+        com.almis.awe.model.type.ErrorTypology.AUTHENTICATION, null, "OAuth2 login failed"))
+        .thenReturn(mockHtmlResponse);
 
     // When
     handler.onAuthenticationFailure(request, response, exception);
 
     // Then
     org.mockito.Mockito.verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    org.mockito.Mockito.verify(response).setContentType("application/json");
+    org.mockito.Mockito.verify(response).setContentType("text/html; charset=UTF-8");
 
     writer.flush();
-    String jsonResponse = stringWriter.toString();
-    assertTrue(jsonResponse.contains("OAuth2 login failed"));
-    assertTrue(jsonResponse.contains("\"error\""));
+    String htmlResponse = stringWriter.toString();
+    assertTrue(htmlResponse.contains("OAuth2 login failed"));
+    assertTrue(htmlResponse.contains("Authentication Error"));
   }
 
   @Test
@@ -332,17 +343,23 @@ class SSOAuthConfigTest {
     StringWriter stringWriter = new StringWriter();
     PrintWriter writer = new PrintWriter(stringWriter);
     org.mockito.Mockito.when(response.getWriter()).thenReturn(writer);
+    
+    // Mock ErrorPageService to return a valid HTML response for null message
+    String mockHtmlResponse = "<html><body><h1>Authentication Error</h1><p>Unknown authentication error</p></body></html>";
+    org.mockito.Mockito.when(errorPageService.generateErrorPageFromTemplate(
+        com.almis.awe.model.type.ErrorTypology.AUTHENTICATION, null, null))
+        .thenReturn(mockHtmlResponse);
 
     // When
     handler.onAuthenticationFailure(request, response, exception);
 
     // Then
     org.mockito.Mockito.verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    org.mockito.Mockito.verify(response).setContentType("application/json");
+    org.mockito.Mockito.verify(response).setContentType("text/html; charset=UTF-8");
 
     writer.flush();
-    String jsonResponse = stringWriter.toString();
-    assertTrue(jsonResponse.contains("\"error\""));
-    assertTrue(jsonResponse.contains("null"));
+    String htmlResponse = stringWriter.toString();
+    assertTrue(htmlResponse.contains("Authentication Error"));
+    assertTrue(htmlResponse.contains("Unknown authentication error"));
   }
 }
