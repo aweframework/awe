@@ -263,7 +263,7 @@ export function uploadFile(component, uploader) {
   // Set form data
   uploader.formData.set("address", JSON.stringify(address));
   uploader.formData.set(uploadIdentifier, getUID());
-  uploader.formData.set("destination", destination || null);
+  uploader.formData.set("destination", destination || "");
 
   // Change uploader state
   component.setState({status: UPLOADING});
