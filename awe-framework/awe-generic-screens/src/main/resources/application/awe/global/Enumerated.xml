@@ -297,4 +297,17 @@
     <option label="false" value="A" />
     <option label="true" value="" />
   </group>
+
+  <!-- ERROR TYPOLOGIES -->
+  <group id="ErrorTypology">
+    <option label="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="AUTHENTICATION" />
+    <option label="ENUM_ERROR_TYPOLOGY_DATA_ACCESS" value="DATA_ACCESS" />
+    <option label="ENUM_ERROR_TYPOLOGY_AUTHORIZATION" value="AUTHORIZATION" />
+    <option label="ENUM_ERROR_TYPOLOGY_VALIDATION" value="VALIDATION" />
+    <option label="ENUM_ERROR_TYPOLOGY_SYSTEM" value="SYSTEM" />
+    <option label="ENUM_ERROR_TYPOLOGY_NETWORK" value="NETWORK" />
+    <option label="ENUM_ERROR_TYPOLOGY_FILE_RESOURCE" value="FILE_RESOURCE" />
+    <option label="ENUM_ERROR_TYPOLOGY_CONFIGURATION" value="CONFIGURATION" />
+    <option label="ENUM_ERROR_TYPOLOGY_UNKNOWN" value="UNKNOWN" />
+  </group>
 </enumerated>

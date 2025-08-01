@@ -35,6 +35,7 @@
   <locale name="BUTTON_EXPORT" value="Exportar"/>
   <locale name="BUTTON_FINISH" value="Terminar"/>
   <locale name="BUTTON_HIDE_MENU" value="OCULTAR MENU"/>
+  <locale name="BUTTON_HOME" value="Inicio"/>
   <locale name="BUTTON_LIGHT_MODE" value="Modo claro"/>
   <locale name="BUTTON_LOGIN" value="Acceder"/>
   <locale name="BUTTON_LOGIN_SSO" value="Acceder con SSO"/>
@@ -351,6 +352,15 @@
   <locale name="ENUM_TOT_STL" value="Estilo de subtotales"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Si"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Autenticación"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_DATA_ACCESS" value="Acceso a datos"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_AUTHORIZATION" value="Autorización"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_VALIDATION" value="Validación"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_SYSTEM" value="Sistema"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_NETWORK" value="Red"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_FILE_RESOURCE" value="Archivo/Recurso"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_CONFIGURATION" value="Configuración"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_UNKNOWN" value="Desconocido"/>
   <locale name="ERROR_COMETUUID_PARSE" value="Error al parsear el cometUUID"/>
   <locale name="ERROR_GENERATING_AREA_CHART" value="Error generando el diagrama de area"/>
   <locale name="ERROR_GENERATING_BAR_CHART" value="Error generando el diagrama de barras"/>
@@ -1142,6 +1152,9 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_CRITERIA" value="Criterios"/>
   <locale name="SCREEN_TEXT_CURRENCY" value="Divisa de referencia"/>
   <locale name="SCREEN_TEXT_DATA" value="Datos"/>
+  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Error de {0}"/>
+  <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Error desconocido"/>
+  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="No se pudo completar el proceso de {0}:"/>
   <locale name="SCREEN_TEXT_DATE" value="Fecha del sistema"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filtros"/>
