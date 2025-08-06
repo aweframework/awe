@@ -323,23 +323,23 @@ aweApplication.directive('aweForm',
          * @param {object} action
          */
         logout: function (action) {
-          // Close following actions
+          // Close the following actions
           $actionController.deleteStack();
 
           // Close connection
-          $connection.disconnect();
+          $connection.disconnect().then(() => {
+            // Zombie action (to accept server actions)
+            action.attr("alive", true);
 
-          // Zombie action (to accept server actions)
-          action.attr("alive", true);
+            // Launch a logout server action
+            let  parameters = {};
+            parameters[$settings.get("serverActionKey")] = "logout";
+            action.attr("parameters", parameters);
+            FormActions.server(action);
 
-          // Launch a logout server action
-          let  parameters = {};
-          parameters[$settings.get("serverActionKey")] = "logout";
-          action.attr("parameters", parameters);
-          FormActions.server(action);
-
-          // Destroy all views
-          Control.destroyAllViews();
+            // Destroy all views
+            Control.destroyAllViews();
+          });
         },
         /**
          * Check if model has been modified

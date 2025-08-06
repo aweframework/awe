@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 
 class AzureOAuthConfigTest {
@@ -65,6 +66,7 @@ class AzureOAuthConfigTest {
           "awe.application.module-list=awe"
       )
       .withBean(NoOpCacheManager.class)
+      .withBean(SpringTemplateEngine.class)
       .withBean(AadClientRegistrationRepository.class, aadAuthenticationProperties);
 
   @Test

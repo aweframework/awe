@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : logout-sso.xml
+    Created on : 04 de Agosto de 2025, 16:30
+    Author     : Pablo VIDAL
+    Description: Logout sso confirmation
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="SCREEN_TITLE_SESSION_CLOSED">
+    <tag source="center">
+        <tag type="div" style="sso-logout-screen fullScreen">
+            <tag type="div" id="page-sso-logout-bg" style="fullScreen">
+                <!-- sso background overlay -->
+                <tag type="div" style="sso-overlay fullScreen" />
+                <tag type="div" style="sso-pattern fullScreen" />
+            </tag>
+            <tag type="div" style="awe-sso-logout sso-logout-container">
+
+                <!-- Top side -->
+                <tag type="div" style="sso-logout-header">
+                    <tag type="h1">
+                        <tag type="span" label="APP_CLIENT"/>
+                    </tag>
+                    <tag type="div" style="slogan" label="APP_NAME" />
+                </tag>
+
+                <!-- Bottom side -->
+                <tag type="div" style="sso-logout-form">
+                    <tag type="div">
+                        <tag type="span" label="SCREEN_TITLE_SESSION_CLOSED"/>
+                    </tag>
+                    <tag type="div" style="sso-logout-text">
+                        <tag type="span" label="SCREEN_TITLE_LOGOUT_SSO"/>
+                    </tag>
+                    <tag type="div" style="sso-logout-with">
+                        <tag type="div" style="sso-logout-actions">
+                            <button button-type="submit" label="BUTTON_LOGIN_AGAIN" style="no-class btn btn-primary sso-logout-btn" icon="sign-in" id="ButReLoginSSO">
+                                <button-action type="server" server-action="login-sso"/>
+                            </button>
+                        </tag>
+                    </tag>
+                </tag>
+            </tag>
+        </tag>
+    </tag>
+</screen>

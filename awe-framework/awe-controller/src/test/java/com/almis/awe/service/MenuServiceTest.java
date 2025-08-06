@@ -343,7 +343,7 @@ class MenuServiceTest {
     verify(maintainService, times(1)).launchPrivateMaintain(anyString(), any(ObjectNode.class));
   }
 
-  private void changeOptionRestriction() throws AWException {
+  private void changeOptionRestriction() {
     // Arrange
     when(context.getBean(MaintainService.class)).thenReturn(maintainService);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);

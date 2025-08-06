@@ -1,8 +1,10 @@
 package com.almis.awe.session;
 
-import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.SessionConfigProperties;
+import com.almis.awe.exception.AWERuntimeException;
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.constant.AweConstants;
@@ -10,13 +12,16 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
+import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -38,28 +43,33 @@ public class AweSessionDetails extends ServiceConfig {
   private final AweConnectionTracker connectionTracker;
   private final BroadcastService broadcastService;
   private final SessionConfigProperties sessionConfigProperties;
-  private final BaseConfigProperties baseConfigProperties;
+  private final SecurityConfigProperties securityConfigProperties;
+  private final MenuService menuService;
 
   /**
    * Autowired constructor
    *
-   * @param aweClientTracker        awe client tracker
-   * @param queryService            query service
-   * @param sessionService          session service
-   * @param connectionTracker       connection tracker
-   * @param broadcastService        Broadcasting service
-   * @param sessionConfigProperties Session properties
+   * @param aweClientTracker         awe client tracker
+   * @param queryService             query service
+   * @param sessionService           session service
+   * @param connectionTracker        connection tracker
+   * @param broadcastService         Broadcasting service
+   * @param menuService              Menu service
+   * @param sessionConfigProperties  Session properties
+   * @param securityConfigProperties Security properties
    */
+  @Autowired
   public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
-                           AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties, BaseConfigProperties baseConfigProperties) {
+													 AweConnectionTracker connectionTracker, BroadcastService broadcastService,  MenuService menuService, SessionConfigProperties sessionConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.clientTracker = aweClientTracker;
     this.queryService = queryService;
     this.sessionService = sessionService;
     this.connectionTracker = connectionTracker;
     this.broadcastService = broadcastService;
+    this.menuService = menuService;
     this.sessionConfigProperties = sessionConfigProperties;
-    this.baseConfigProperties = baseConfigProperties;
-  }
+		this.securityConfigProperties = securityConfigProperties;
+	}
 
   /**
    * Manage login success
@@ -96,14 +106,8 @@ public class AweSessionDetails extends ServiceConfig {
             .stream()
             .filter(StringUtils::isNotBlank)
             .filter(c -> !c.equalsIgnoreCase(getRequest().getToken()))
-            .forEach(c -> broadcastService.broadcastMessageToUID(c,
-                    new ClientAction(WAIT_ACTION)
-                            .addParameter("target", 1000),
-                    new ClientAction(SCREEN)
-                            .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
-                            .addParameter(JSON_SCREEN, "/"),
-                    new ClientAction(CHANGE_LANGUAGE).addParameter(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault()),
-                    new ClientAction(CHANGE_THEME).addParameter(SESSION_THEME, baseConfigProperties.getTheme())));
+            .forEach(c -> broadcastService.broadcastMessageToUID(c, createLogoutRedirectAction())
+            );
 
     // Remove cometUID from user session
     connectionTracker.removeAllConnectionsFromUserSession(user, getSession().getSessionId());
@@ -165,5 +169,35 @@ public class AweSessionDetails extends ServiceConfig {
     session.setParameter(SESSION_RESTRICTION, userDetails.getRestrictions());
     session.setParameter(SESSION_INITIAL_SCREEN, userDetails.getInitialScreen());
     session.setParameter(SESSION_TOKEN, getRequest().getToken());
+  }
+
+  /**
+   * Creates and returns a {@link ClientAction} object configured to handle logout redirection.
+   * The configuration varies based on the system's SSO (Single Sign-On) settings.
+   * <p>
+   * If SSO is enabled and auto-launch is configured, the action will redirect to a specific
+   * logout SSO target and set the appropriate screen context from the public menu.
+   * If SSO is not enabled or auto-launch is not configured, the action will redirect to the root URL.
+   *
+   * @return a configured {@link ClientAction} object for logout redirection
+   */
+  public ClientAction createLogoutRedirectAction() {
+
+    try {
+      ClientAction screenActionBuilder = new ClientAction(SCREEN)
+          .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID());
+
+      if (securityConfigProperties.getSso().isEnabled() && securityConfigProperties.getSso().isAutoLaunch()) {
+        Menu menu = menuService.getMenu(PUBLIC_MENU);
+        screenActionBuilder.setContext(menu.getScreenContext());
+        screenActionBuilder.setTarget("logout-sso");
+      } else {
+        screenActionBuilder.setTarget("/");
+      }
+      return screenActionBuilder;
+
+    } catch (AWException exc) {
+      throw new AWERuntimeException(exc);
+    }
   }
 }

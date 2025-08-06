@@ -2,6 +2,7 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.ade.autoconfigure.AdeAutoConfiguration;
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.MultiTenantOAuth2Config;
 import com.almis.awe.config.SecurityConfigProperties;
 import dev.samstevens.totp.spring.autoconfigure.TotpAutoConfiguration;
 import org.assertj.core.api.Assertions;
@@ -13,6 +14,7 @@ import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @ExtendWith(SpringExtension.class)
 class AuthenticationConfigTest {
@@ -31,11 +33,12 @@ class AuthenticationConfigTest {
             AdeAutoConfiguration.class,
             RestConfig.class)
     )
-    .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class)
+    .withUserConfiguration(BaseConfigProperties.class, SecurityConfigProperties.class, MultiTenantOAuth2Config.class)
     .withPropertyValues("awe.application.module-list=awe",
       "spring.cache.type=NONE",
       "awe.database.enabled=false")
     .withBean(NoOpCacheManager.class)
+    .withBean(SpringTemplateEngine.class)
     .withBean(DefaultConversionService.class);
 
   @Test

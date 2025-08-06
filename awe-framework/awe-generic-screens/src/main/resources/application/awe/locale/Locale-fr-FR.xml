@@ -39,6 +39,7 @@
   <locale name="BUTTON_LIGHT_MODE" value="Mode lumière"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
   <locale name="BUTTON_LOGIN_SSO" value="Login avec SSO"/>
+  <locale name="BUTTON_LOGIN_AGAIN" value="Se Connecter à Nouveau"/>
   <locale name="BUTTON_LOGOUT" value="Sortir"/>
   <locale name="BUTTON_MODIFY" value="Modifier"/>
   <locale name="BUTTON_NEW" value="Nouveau"/>
@@ -535,6 +536,7 @@
   <locale name="ERROR_MESSAGE_SEQUENCE_NOT_UPDATED" value="La séquence {0} n&apos;a pas été mis à jour"/>
   <locale name="ERROR_MESSAGE_SERVER_NOT_SUPPORTED" value="The server is not compatible"/>
   <locale name="ERROR_MESSAGE_SERVICE_NOT_FOUND" value="Le service n&apos;a pas ete defini"/>
+  <locale name="ERROR_MESSAGE_SESSION_CLOSED" value="Votre session a été fermée. Vous connecter à nouveau s&apos;il vous plaît."/>
   <locale name="ERROR_MESSAGE_SESSION_EXPIRED" value="Votre connexion a expiré. Vous connecter à nouveau s&apos;il vous plaît."/>
   <locale name="ERROR_MESSAGE_SET_SESSION_OBJECT" value="Il ya eu un problème en essayant de stocker l&apos;objet avec la touche - {0} - dans le cache de session"/>
   <locale name="ERROR_MESSAGE_SET_SESSION_VARIABLE" value="Il y a eu un problème en essayant de conserver la valeur - {0} - dans la variable de session - {1} -"/>
@@ -1228,6 +1230,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_LOG" value="Messages de log"/>
   <locale name="SCREEN_TITLE_LOG_VIW" value="Consultation d&apos;un message de log"/>
   <locale name="SCREEN_TITLE_LOGIN" value="Acces a l&apos;application"/>
+  <locale name="SCREEN_TITLE_LOGOUT_SSO" value="Votre session a été fermée avec succès"/>
   <locale name="SCREEN_TITLE_MDL" value="Gestión de modules"/>
   <locale name="SCREEN_TITLE_MDL_NEW" value="Insertion de module"/>
   <locale name="SCREEN_TITLE_MDL_UPD" value="Modification de module"/>
@@ -1254,6 +1257,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_REP_UPD" value="Modification de rapport assigne"/>
   <locale name="SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Accès à l&apos;écran"/>
+  <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Fermée"/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>

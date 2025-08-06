@@ -1138,11 +1138,9 @@ public class MenuService extends ServiceConfig {
     Menu menu = getMenuWithAllRestrictions();
     List<Option> optionList = menu.getElementsByType(Option.class);
 
-    // Add public menu options if authenticated
-    if (getSession().isAuthenticated()) {
-      menu = getMenuWithRestrictions(AweConstants.PUBLIC_MENU);
-      optionList.addAll(menu.getElementsByType(Option.class));
-    }
+    // Add public menu options
+    menu = getMenuWithRestrictions(AweConstants.PUBLIC_MENU);
+    optionList.addAll(menu.getElementsByType(Option.class));
 
     return filterRestrictedOptions(optionList);
   }

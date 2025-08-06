@@ -1,11 +1,13 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.service.BroadcastService;
+import com.almis.awe.service.MenuService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import com.almis.awe.session.AweSessionDetails;
@@ -51,22 +53,27 @@ public class SessionConfig {
     return new SessionService();
   }
 
+
   /**
-   * Session details
+   * Creates an {@link AweSessionDetails} bean if no other bean of the same type is present.
+   * This configuration class method specifies all required dependencies for constructing
+   * an instance of {@link AweSessionDetails}.
    *
-   * @param aweClientTracker        Awe Client tracker
-   * @param queryService            Query service
-   * @param sessionService          Session service
-   * @param connectionTracker       connection tracker
-   * @param sessionConfigProperties Session properties
-   * @param baseConfigProperties    Base config properties
-   * @return Session details bean
+   * @param aweClientTracker         Tracks client-specific session information.
+   * @param queryService             Service for executing and managing queries.
+   * @param sessionService           Service for session-specific operations.
+   * @param connectionTracker        Tracks user session connections.
+   * @param broadcastService         Service responsible for broadcasting messages to clients.
+   * @param menuService              Handles menu-related operations.
+   * @param sessionConfigProperties  Configuration properties specific to session management.
+   * @param securityConfigProperties Configuration properties for security and SSO details.
+   * @return A fully initialized {@link AweSessionDetails} instance.
    */
   @Bean
   @ConditionalOnMissingBean
   public AweSessionDetails aweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
-                                             AweConnectionTracker connectionTracker, BroadcastService broadcastService, SessionConfigProperties sessionConfigProperties, BaseConfigProperties baseConfigProperties) {
-    return new AweSessionDetails(aweClientTracker, queryService, sessionService, connectionTracker, broadcastService, sessionConfigProperties, baseConfigProperties);
+                                             AweConnectionTracker connectionTracker, BroadcastService broadcastService, MenuService menuService, SessionConfigProperties sessionConfigProperties, SecurityConfigProperties securityConfigProperties) {
+    return new AweSessionDetails(aweClientTracker, queryService, sessionService, connectionTracker, broadcastService, menuService, sessionConfigProperties, securityConfigProperties);
   }
 
   /**
