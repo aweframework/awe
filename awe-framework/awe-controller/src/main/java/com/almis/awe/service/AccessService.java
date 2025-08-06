@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -110,7 +111,7 @@ public class AccessService extends ServiceConfig {
     // Get user details
     AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
-    // Go to corresponding screen depending on second authentication factor
+    // Go to the corresponding screen depending on the second authentication factor
     switch (totpConfigProperties.getEnabled()) {
       case OPTIONAL:
         if (userDetails.isEnabled2fa()) {
@@ -175,14 +176,14 @@ public class AccessService extends ServiceConfig {
     String userName = oauth2User.getPrincipal().getAttribute(PREFERRED_USERNAME);
     String roleOauth = userDetailsService.mapGrantedAuthorityProfile(oauth2User.getAuthorities());
     try {
-      // Get user info from username
+      // Get user info from the username
       userDetails = userDetailsService.loadUserByUsername(userName);
-      // Check if role has been updated from OidcUser
+      // Check if the role has been updated from OidcUser
       checkUpdateRoleInOAuth(userDetails, roleOauth);
     } catch (UsernameNotFoundException ex) {
       // User not exist, retrieve generic user info from role
       userDetails = userDetailsService.loadUserByRole(oauth2User);
-      // If is enabled, provision new user
+      // If is enabled, provision a new user
       autoProvisionUser(userDetails);
     }
     return userDetails;
@@ -242,7 +243,7 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Go to second factor authentication screen
+   * Go to the second factor authentication screen
    *
    * @param userDetails User details
    * @return Service data
@@ -259,7 +260,7 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Go to second factor authentication screen
+   * Go to the second factor authentication screen
    *
    * @param userDetails User details
    * @return Service data
@@ -290,24 +291,23 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Performs the logout action
+   * Logs out the current user and prepares the necessary client actions for logout behavior.
+   * <p>
+   * The method determines the redirect screen based on the SSO configuration and prepares
+   * client actions such as screen redirection, language change, and theme change.
    *
-   * @return serviceData the result of the login
+   * @return a ServiceData object containing client actions to handle the logout process.
    */
   public ServiceData logout() {
-//     Return to home screen
-    return new ServiceData()
-      .addClientAction(new ClientAction(SCREEN)
-        .addParameter(SESSION_CONNECTION_TOKEN, UUID.randomUUID())
-        .addParameter(JSON_SCREEN, "/"))
-      .addClientAction(new ClientAction(CHANGE_LANGUAGE)
-        .addParameter(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault()))
-      .addClientAction(new ClientAction(CHANGE_THEME)
-        .addParameter(SESSION_THEME, baseConfigProperties.getTheme()));
+
+    // Get the logout screen to redirect
+    ClientAction screenActionBuilder = sessionDetails.createLogoutRedirectAction();
+
+    return new ServiceData().addClientAction(screenActionBuilder);
   }
 
   /**
-   * Check if user is authenticated
+   * Check if the user is authenticated
    *
    * @return User is authenticated
    * @throws AWException Error checking authentication
@@ -317,19 +317,19 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Get profile restriction list
+   * Get a profile restriction list
    *
    * @return Profile restriction file list
    */
   public ServiceData getProfileNameFileList() {
-    // Get profiles file list
+    // Get the profile file list
     ServiceData serviceData = new ServiceData();
     DataList dataList = new DataList();
 
     Set<String> profileList = getElements().getProfileList();
     for (String profile : profileList) {
       Map<String, CellData> row = new HashMap<>();
-      // Set screen name
+      // Set the screen name
       row.put(AweConstants.JSON_VALUE_PARAMETER, new CellData(profile));
 
       // Store screen label
@@ -351,7 +351,7 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Encrypts a text parameter with algorithm RipEmd160
+   * Encrypts a text parameter with the algorithm RipEmd160
    *
    * @param textToEncrypt text to encrypt
    * @param phraseKey     phrase key
@@ -369,7 +369,7 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-   * Encrypts a text parameter with algorithm RipEmd160
+   * Encrypts a text parameter with the algorithm RipEmd160
    *
    * @param textToEncrypt text to encrypt
    * @param phraseKey     phrase key
@@ -380,6 +380,18 @@ public class AccessService extends ServiceConfig {
     String key = Optional.ofNullable(phraseKey).filter(StringUtils::isNotBlank).orElse(securityConfigProperties.getMasterKey());
 
     // Get encode bean
+    PooledPBEStringEncryptor encryptor = getPooledPBEStringEncryptor(key);
+
+    // Encode the text
+    String textEncrypted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
+    DataList dataList = new DataList();
+    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
+    return new ServiceData()
+      .setDataList(dataList);
+  }
+
+  @NotNull
+  private PooledPBEStringEncryptor getPooledPBEStringEncryptor(String key) {
     SimpleStringPBEConfig config = new SimpleStringPBEConfig();
     config.setPassword(key);
     config.setAlgorithm(jasyptAlgorithm);
@@ -390,12 +402,6 @@ public class AccessService extends ServiceConfig {
     config.setStringOutputType(jasyptStringOutputType);
     PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
     encryptor.setConfig(config);
-
-    // Encode the text
-    String textEncrypted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
-    DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
-    return new ServiceData()
-      .setDataList(dataList);
+    return encryptor;
   }
 }

@@ -39,6 +39,7 @@
   <locale name="BUTTON_LIGHT_MODE" value="Light mode"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
   <locale name="BUTTON_LOGIN_SSO" value="Login with SSO"/>
+  <locale name="BUTTON_LOGIN_AGAIN" value="Login again"/>
   <locale name="BUTTON_LOGOUT" value="Logout"/>
   <locale name="BUTTON_MODIFY" value="Modify"/>
   <locale name="BUTTON_NEW" value="New"/>
@@ -535,6 +536,7 @@
   <locale name="ERROR_MESSAGE_SEQUENCE_NOT_UPDATED" value="The sequence {0} could not be updated"/>
   <locale name="ERROR_MESSAGE_SERVER_NOT_SUPPORTED" value="The server is not compatible"/>
   <locale name="ERROR_MESSAGE_SERVICE_NOT_FOUND" value="Service has not been defined"/>
+  <locale name="ERROR_MESSAGE_SESSION_CLOSED" value="Your connection has been closed. You must login again."/>
   <locale name="ERROR_MESSAGE_SESSION_EXPIRED" value="Your connection has expired. You must login again."/>
   <locale name="ERROR_MESSAGE_SET_SESSION_OBJECT" value="There has been a problem trying to store the object with key - {0} - in the session cache"/>
   <locale name="ERROR_MESSAGE_SET_SESSION_VARIABLE" value="There has been a problem trying to store the value -{0}- into the session variable -{1}-"/>
@@ -1228,6 +1230,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_LOG" value="Log messages"/>
   <locale name="SCREEN_TITLE_LOG_VIW" value="View log message"/>
   <locale name="SCREEN_TITLE_LOGIN" value="Application login"/>
+  <locale name="SCREEN_TITLE_LOGOUT_SSO" value="Your session has been successfully closed"/>
   <locale name="SCREEN_TITLE_MDL" value="Module management"/>
   <locale name="SCREEN_TITLE_MDL_NEW" value="New module"/>
   <locale name="SCREEN_TITLE_MDL_UPD" value="Update module"/>
@@ -1254,6 +1257,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_REP_UPD" value="Update report assignation"/>
   <locale name="SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Screen access"/>
+  <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Closed"/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>

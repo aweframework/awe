@@ -82,6 +82,9 @@ aweApplication.factory('Comet',
         disconnect: function () {
           if ($comet.isConnected()) {
             return $comet._disconnect();
+          } else {
+            // Devolver una promesa resuelta cuando no está conectado
+            return $utilities.q.resolve();
           }
         },
         /**
@@ -127,8 +130,8 @@ aweApplication.factory('Comet',
                       silent: true,
                       parameters: {
                         type: "warn",
-                        title: "ERROR_TITLE_SESSION_EXPIRED",
-                        message: "ERROR_MESSAGE_SESSION_EXPIRED"
+                        title: "ERROR_TITLE_SESSION_CLOSED",
+                        message: "ERROR_MESSAGE_SESSION_CLOSED"
                       }
                     },
                   ], true, {});

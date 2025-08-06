@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.Map;
 /**
  * Multi-tenant configuration using Spring Security's native OAuth2ClientProperties
  */
-@Component
 @ConfigurationProperties(prefix = "awe.security.sso.multitenant")
 @Data
 @Slf4j

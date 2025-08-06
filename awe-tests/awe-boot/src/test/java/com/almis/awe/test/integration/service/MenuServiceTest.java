@@ -51,33 +51,33 @@ class MenuServiceTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
-   * Check available public screen list
+   * Check available the public screen list
    *
    * @throws Exception Test failed
    */
   @Test
   void getAvailablePublicScreenList() throws Exception {
-    assertEquals(10, menuService.getAvailableScreenList("").getDataList().getRecords());
-    assertEquals(1, menuService.getAvailableScreenList("si").getDataList().getRecords());
+    assertEquals(11, menuService.getAvailableScreenList("").getDataList().getRecords());
+    assertEquals(2, menuService.getAvailableScreenList("si").getDataList().getRecords());
   }
 
   /**
-   * Check available private screen list
+   * Check available the private screen list
    *
    * @throws Exception Test failed
    */
   @Test
   @WithMockUser(username = "test", password = "test")
   void getAvailablePrivateScreenList() throws Exception {
-    assertEquals(30, menuService.getAvailableScreenList("").getDataList().getRecords());
+    assertEquals(31, menuService.getAvailableScreenList("").getDataList().getRecords());
   }
 
   /**
-   * Check all screen list
+   * Check all screen lists
    */
   @Test
   @WithMockUser(username = "test", password = "test")
   void getAllScreenList() {
-    assertEquals(127, menuService.getAllScreenList("").getDataList().getRecords());
+    assertEquals(128, menuService.getAllScreenList("").getDataList().getRecords());
   }
 }

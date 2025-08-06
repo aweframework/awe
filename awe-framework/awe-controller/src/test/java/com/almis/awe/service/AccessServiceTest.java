@@ -9,6 +9,7 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
 import com.almis.awe.service.user.AweUserDetailService;
@@ -40,12 +41,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static com.almis.awe.model.constant.AweConstants.AZURE_OAUTH2_AUTHORIZATION_URL;
-import static com.almis.awe.model.constant.AweConstants.SESSION_INITIAL_URL;
+import static com.almis.awe.model.constant.AweConstants.*;
 import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
 import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ROLE;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -152,9 +151,52 @@ class AccessServiceTest {
   }
 
   @Test
-  void logout() {
+  void logout_shouldCallCreateLogoutRedirectActionAndReturnCorrectClientActions() {
+    // Given
+    ClientAction mockLogoutAction = new ClientAction("screen")
+        .setTarget("logout-sso")
+        .setContext("public-context")
+        .addParameter("connectionToken", "mock-uuid");
+    when(aweSessionDetails.createLogoutRedirectAction()).thenReturn(mockLogoutAction);
+    
+    // When
     ServiceData serviceData = accessService.logout();
-    assertEquals(3, serviceData.getClientActionList().size());
+    
+    // Then
+    assertEquals(1, serviceData.getClientActionList().size());
+    
+    // Verify the logout redirect action is called
+    verify(aweSessionDetails, times(1)).createLogoutRedirectAction();
+    
+    // Verify client actions are properly configured for SSO with auto-launch
+    ClientAction clientAction = serviceData.getClientActionList().get(0);
+    assertEquals("screen", clientAction.getType());
+    assertEquals("logout-sso", clientAction.getTarget());
+    assertEquals("public-context", clientAction.getContext());
+  }
+
+  @Test
+  void logout_shouldCallCreateLogoutRedirectActionWithoutSSO_AndReturnCorrectClientActions() {
+    // Given - SSO disabled or auto-launch disabled
+    ClientAction mockLogoutAction = new ClientAction("screen")
+        .setTarget("/")
+        .addParameter("connectionToken", "mock-uuid");
+    when(aweSessionDetails.createLogoutRedirectAction()).thenReturn(mockLogoutAction);
+    
+    // When
+    ServiceData serviceData = accessService.logout();
+    
+    // Then
+    assertEquals(1, serviceData.getClientActionList().size());
+    
+    // Verify the logout redirect action is called
+    verify(aweSessionDetails, times(1)).createLogoutRedirectAction();
+    
+    // Verify client actions are properly configured for non-SSO
+    ClientAction clientAction = serviceData.getClientActionList().get(0);
+    assertEquals("screen", clientAction.getType());
+    assertEquals("/", clientAction.getTarget());
+    assertNull(clientAction.getContext());
   }
 
   @Test
@@ -173,6 +215,7 @@ class AccessServiceTest {
 
   @Test
   void encryptText() throws Exception {
+    when(encodeService.encryptRipEmd160WithPhraseKey("test", "4W3M42T3RK3Y%$ED")).thenReturn("encrypted-text");
     ServiceData serviceData = accessService.encryptText("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
   }
@@ -199,6 +242,15 @@ class AccessServiceTest {
     ServiceData serviceData = accessService.loginWithAzureEntraID();
     assertEquals(1, serviceData.getClientActionList().size());
     assertEquals(AZURE_OAUTH2_AUTHORIZATION_URL, serviceData.getClientActionList().get(0).getTarget());
+  }
+
+  @Test
+  void loginWithKeyCloakSSO_shouldRedirectToKeyCloakAuthorizationUrl() {
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    when(aweRequest.getHttpRequest()).thenReturn(new MockHttpServletRequest());
+    ServiceData serviceData = accessService.loginWithKeyCloakSSO();
+    assertEquals(1, serviceData.getClientActionList().size());
+    assertEquals(KEYCLOAK_OAUTH2_AUTHORIZATION_URL, serviceData.getClientActionList().get(0).getTarget());
   }
 
   @Test

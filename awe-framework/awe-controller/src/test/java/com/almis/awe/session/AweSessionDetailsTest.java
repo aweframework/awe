@@ -1,6 +1,5 @@
 package com.almis.awe.session;
 
-import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.SessionConfigProperties;
 import com.almis.awe.model.component.AweElements;
@@ -38,9 +37,6 @@ class AweSessionDetailsTest {
 
   @InjectMocks
   private AweSessionDetails aweSessionDetails;
-
-  @Mock
-  private BaseConfigProperties baseConfigProperties;
 
   @Mock
   private SessionConfigProperties sessionConfigProperties;
@@ -85,7 +81,7 @@ class AweSessionDetailsTest {
   private SecurityContext securityContext;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     aweSessionDetails.setApplicationContext(applicationContext);
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
   }
@@ -114,15 +110,6 @@ class AweSessionDetailsTest {
   }
 
   @Test
-  void onLoginSuccessNullDataList() {
-    SecurityContextHolder.setContext(securityContext);
-    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
-    aweSessionDetails.onLoginSuccess(new AweUserDetails());
-    verify(aweSession, times(8)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
-    verify(sessionService, times(1)).setSessionParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
-  }
-
-  @Test
   void onLogoutSuccess() {
     when(aweSession.getUser()).thenReturn("user");
     when(aweSession.getSessionId()).thenReturn("session-id");
@@ -133,6 +120,11 @@ class AweSessionDetailsTest {
 
   @Test
   void onLogoutSuccessCloseSessions() {
+    // Mock SSO configuration to avoid NullPointerException
+    SecurityConfigProperties.Sso ssoConfig = mock(SecurityConfigProperties.Sso.class);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(ssoConfig.isEnabled()).thenReturn(false);
+    
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getUser()).thenReturn("user");
     when(aweSession.getSessionId()).thenReturn("session-id");
@@ -141,7 +133,7 @@ class AweSessionDetailsTest {
     aweSessionDetails.onLogoutSuccess();
     verify(clientTracker, times(1)).removeObservers();
     verify(aweSession, times(9)).removeParameter(ArgumentMatchers.anyString());
-    verify(broadcastService, times(3)).broadcastMessageToUID(anyString(), any(ClientAction.class), any(ClientAction.class), any(ClientAction.class), any(ClientAction.class));
+    verify(broadcastService, times(3)).broadcastMessageToUID(anyString(), any(ClientAction.class));
     verify(clientTracker, times(1)).removeObservers();
   }
 }

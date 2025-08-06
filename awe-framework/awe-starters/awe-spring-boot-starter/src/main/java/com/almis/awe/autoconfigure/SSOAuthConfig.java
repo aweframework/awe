@@ -52,10 +52,8 @@ public class SSOAuthConfig {
   private final SecurityConfigProperties securityConfigProperties;
   private final PublicQueryMaintainAuthorization publicQueryMaintainAuthorization;
   private final ErrorPageService errorPageService;
-
-  // Optional Autowired dependencies
   private final MultiTenantOAuth2Config multiTenantConfig;
-  private final MultiTenantFilter multiTenantFilter;
+
 
   // Constants
   public static final SecurityEndpoints SECURITY_ENDPOINTS = new SecurityEndpoints();
@@ -67,21 +65,17 @@ public class SSOAuthConfig {
    * @param sessionDetails Session details containing context and session-specific data.
    * @param securityConfigProperties Security configuration properties for the application.
    * @param publicQueryMaintainAuthorization Authorization handler for public query maintenance.
-   * @param multiTenantConfig Optional multi-tenant OAuth2 configuration.
    * @param errorPageService Error page generate service.
-   * @param multiTenantFilter Optional multi-tenant filter for tenant-level request handling.
+   * @param multiTenantConfig Multitenant configuration.
    */
-  public SSOAuthConfig(AccessService accessService, AweSessionDetails sessionDetails, SecurityConfigProperties securityConfigProperties, PublicQueryMaintainAuthorization publicQueryMaintainAuthorization, ErrorPageService errorPageService,
-											 Optional<MultiTenantOAuth2Config> multiTenantConfig,
-											 Optional<MultiTenantFilter> multiTenantFilter) {
+  public SSOAuthConfig(AccessService accessService, AweSessionDetails sessionDetails, SecurityConfigProperties securityConfigProperties, PublicQueryMaintainAuthorization publicQueryMaintainAuthorization, ErrorPageService errorPageService, MultiTenantOAuth2Config multiTenantConfig) {
     this.accessService = accessService;
     this.sessionDetails = sessionDetails;
     this.securityConfigProperties = securityConfigProperties;
     this.publicQueryMaintainAuthorization = publicQueryMaintainAuthorization;
 		this.errorPageService = errorPageService;
-		this.multiTenantConfig = multiTenantConfig.orElse(null);
-    this.multiTenantFilter = multiTenantFilter.orElse(null);
-  }
+		this.multiTenantConfig = multiTenantConfig;
+	}
 
   /**
    * Configures the security filter chain for handling HTTP requests, OAuth2 login, and logout.
@@ -93,14 +87,16 @@ public class SSOAuthConfig {
   @Bean
   public SecurityFilterChain oauth2FilterChain(HttpSecurity http) throws Exception {
 
+    boolean autoLaunch = securityConfigProperties.getSso().isAutoLaunch();
+
     // Add multi-tenant filter if enabled
     if (multiTenantConfig != null && multiTenantConfig.isEnabled()) {
       log.info("Multi-tenant support is enabled. Adding multi-tenant filter");
-      http.addFilterBefore(multiTenantFilter, BasicAuthenticationFilter.class);
+      http.addFilterBefore(multiTenantFilter(multiTenantConfig), BasicAuthenticationFilter.class);
     }
 
     // Skip the native app login screen
-    if (!securityConfigProperties.getSso().isAutoLaunch()) {
+    if (!autoLaunch) {
       http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/").permitAll());
     }
     // Configures authorization rules for different endpoints
@@ -118,7 +114,7 @@ public class SSOAuthConfig {
         )
         // Configures OAuth2 login settings
         .oauth2Login(oauth2 -> {
-              if (!securityConfigProperties.getSso().isAutoLaunch()) {
+              if (!autoLaunch) {
                 oauth2.loginPage("/");
               }
               // Handle after successful login
@@ -126,7 +122,7 @@ public class SSOAuthConfig {
               // Configure multi-tenant client registration repository if enabled
               if (multiTenantConfig != null && multiTenantConfig.isEnabled()) {
                 log.debug("Configuring OAuth2 login with multi-tenant client registration repository");
-                oauth2.clientRegistrationRepository(clientRegistrationRepository());
+                oauth2.clientRegistrationRepository(clientRegistrationRepository(multiTenantConfig));
               }
               oauth2.failureHandler(authFailureHandler());
             }
@@ -142,6 +138,9 @@ public class SSOAuthConfig {
         .logout(logout -> logout
             .logoutUrl("/action/logout")
             .addLogoutHandler(new AweLogoutHandler(sessionDetails))
+            .invalidateHttpSession(true)
+            .clearAuthentication(true)
+            .deleteCookies("JSESSIONID")
         );
 
     // CSRF config
@@ -151,7 +150,7 @@ public class SSOAuthConfig {
     }
 
     // Configure exception handling
-    if (multiTenantConfig != null && multiTenantConfig.isEnabled() && securityConfigProperties.getSso().isAutoLaunch()) {
+    if (multiTenantConfig != null && multiTenantConfig.isEnabled() && autoLaunch) {
       log.debug("Configuring OAuth2 entrypoint with multi-tenant to handle auto-launch authentication flow");
       http.exceptionHandling(exceptions ->
           exceptions.authenticationEntryPoint(
@@ -174,7 +173,7 @@ public class SSOAuthConfig {
    */
   @Bean
   @ConditionalOnProperty(prefix = "awe.security.sso.multitenant", name = "enabled", havingValue = "true")
-  public ClientRegistrationRepository clientRegistrationRepository() {
+  public ClientRegistrationRepository clientRegistrationRepository(MultiTenantOAuth2Config multiTenantConfig) {
     log.info("Configuring multi-tenant OAuth2 client registration repository");
     return new MultiTenantClientRegistrationRepository(multiTenantConfig);
   }
@@ -241,5 +240,12 @@ public class SSOAuthConfig {
   @ConditionalOnMissingBean
   public AweOauth2AuthenticationFailureHandler authFailureHandler() {
     return new AweOauth2AuthenticationFailureHandler(errorPageService);
+  }
+
+  @Bean
+  @ConditionalOnProperty(prefix = "awe.security.sso.multitenant", name = "enabled", havingValue = "true")
+  @ConditionalOnMissingBean
+  public MultiTenantFilter multiTenantFilter(MultiTenantOAuth2Config multiTenantConfig) {
+    return new MultiTenantFilter(multiTenantConfig);
   }
 }

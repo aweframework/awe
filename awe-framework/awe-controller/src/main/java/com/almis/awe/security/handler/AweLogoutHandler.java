@@ -28,8 +28,6 @@ public class AweLogoutHandler extends SecurityContextLogoutHandler {
   @Override
   public void logout(HttpServletRequest httpServletRequest, HttpServletResponse response, Authentication authentication) {
     if (!response.isCommitted()) {
-      setClearAuthentication(true);
-      setInvalidateHttpSession(true);
       sessionDetails.onLogoutSuccess();
       try {
         httpServletRequest.getRequestDispatcher("/action/logout-redirect").forward(httpServletRequest, response);
