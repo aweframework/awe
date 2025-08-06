@@ -315,7 +315,7 @@ public class CellData implements Comparable<CellData>, Copyable {
     } else {
       return switch (getType()) {
         // Get object value
-        case DOUBLE, FLOAT, INTEGER, LONG, DECIMAL, JSON, OBJECT -> getObjectValue();
+        case DOUBLE, FLOAT, INTEGER, LONG, DECIMAL, JSON, OBJECT, BOOLEAN -> getObjectValue();
         // Get json value as null
         case NULL -> null;
         // Get json value as string
