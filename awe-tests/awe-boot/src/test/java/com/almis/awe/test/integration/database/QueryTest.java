@@ -1511,7 +1511,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseTransformBoolean() throws Exception {
     String queryName = "TransformBoolean";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"boolean2\":\"false\",\"boolean3\":\"true\",\"boolean1\":\"true\",\"id\":1,\"boolean4\":\"false\"},{\"boolean2\":\"false\",\"boolean3\":\"true\",\"boolean1\":\"true\",\"id\":2,\"boolean4\":\"false\"},{\"boolean2\":\"false\",\"boolean3\":\"true\",\"boolean1\":\"true\",\"id\":3,\"boolean4\":\"false\"},{\"boolean2\":\"false\",\"boolean3\":\"true\",\"boolean1\":\"true\",\"id\":4,\"boolean4\":\"false\"},{\"boolean2\":\"false\",\"boolean3\":\"true\",\"boolean1\":\"true\",\"id\":5,\"boolean4\":\"false\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":5,\"rows\":[{\"boolean2\":false,\"boolean3\":true,\"boolean1\":true,\"id\":1,\"boolean4\":false},{\"boolean2\":false,\"boolean3\":true,\"boolean1\":true,\"id\":2,\"boolean4\":false},{\"boolean2\":false,\"boolean3\":true,\"boolean1\":true,\"id\":3,\"boolean4\":false},{\"boolean2\":false,\"boolean3\":true,\"boolean1\":true,\"id\":4,\"boolean4\":false},{\"boolean2\":false,\"boolean3\":true,\"boolean1\":true,\"id\":5,\"boolean4\":false}]}}},{\"type\":\"end-load\",\"parameters\":{}}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertQueryResultJson(queryName, result, 5);

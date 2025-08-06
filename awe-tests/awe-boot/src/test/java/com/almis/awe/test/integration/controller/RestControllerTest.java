@@ -305,7 +305,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     @Tag(value = "CIDatabase")
     void testPostmanRestApi() throws Exception {
-      doRestTest("TestPostmanRestApi", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"acceptLanguage\":\"\",\"acceptEncoding\":\"gzip, x-gzip, deflate, br\",\"cookie\":\"\",\"method\":\"GET\",\"gzipped\":\"true\",\"postmanToken\":\"\",\"id\":1,\"cacheControl\":\"\",\"accept\":\"application/json, application/*+json\"}]}}},{\"type\":\"end-load\"}]");
+      doRestTest("TestPostmanRestApi", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"acceptLanguage\":\"\",\"acceptEncoding\":\"gzip, x-gzip, deflate, br\",\"cookie\":\"\",\"method\":\"GET\",\"gzipped\":true,\"postmanToken\":\"\",\"id\":1,\"cacheControl\":\"\",\"accept\":\"application/json, application/*+json\"}]}}},{\"type\":\"end-load\"}]");
     }
 
     /**
