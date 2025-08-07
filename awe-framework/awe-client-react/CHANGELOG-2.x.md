@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 1.1.10
+*07/08/2025*
+
+- Add redirect action on ScreenService. [MR #110](https://gitlab.com/aweframework/awe-react/-/merge_requests/110) (Pablo Vidal Otero)
+- Change default destination to  instead of null. [MR #109](https://gitlab.com/aweframework/awe-react/-/merge_requests/109) (Pablo Javier García Mora)
+- Fix panelable component issues when view has changed. [MR #108](https://gitlab.com/aweframework/awe-react/-/merge_requests/108) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.9
 *23/07/2025*
 
