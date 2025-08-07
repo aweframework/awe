@@ -111,17 +111,12 @@ public class MicroserviceConnector extends AbstractRestConnector {
    */
   private Object getParameter(RestParameter restParameter, Map<String, Object> variableList) {
 
-    switch (restParameter.getType()) {
-      case SESSION:
-        return getSession().getParameter(restParameter.getValue());
-      case VARIABLE:
-        return variableList.get(restParameter.getValue());
-      case REQUEST:
-        return queryUtil.getRequestParameter(restParameter.getValue());
-      case VALUE:
-      default:
-        return restParameter.getValue();
-    }
+      return switch (restParameter.getType()) {
+          case SESSION -> getSession().getParameter(restParameter.getValue());
+          case VARIABLE -> variableList.get(restParameter.getValue());
+          case REQUEST -> getRequest() != null ? queryUtil.getRequestParameter(restParameter.getValue()) : variableList.get(restParameter.getValue());
+          default -> restParameter.getValue();
+      };
   }
 
   /**

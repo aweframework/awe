@@ -1,6 +1,7 @@
 package com.almis.awe.autoconfigure;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.MultiTenantOAuth2Config;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.dao.UserDAOImpl;
@@ -34,7 +35,7 @@ import java.util.Map;
  */
 @Configuration
 @Import(AweAutoConfiguration.class)
-@EnableConfigurationProperties(SecurityConfigProperties.class)
+@EnableConfigurationProperties({SecurityConfigProperties.class, MultiTenantOAuth2Config.class})
 public class AuthenticationConfig {
 
   // Timeout for Ldap socket connect

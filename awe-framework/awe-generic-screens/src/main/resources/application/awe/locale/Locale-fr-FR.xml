@@ -35,9 +35,11 @@
   <locale name="BUTTON_EXPORT" value="Exporter"/>
   <locale name="BUTTON_FINISH" value="Finir"/>
   <locale name="BUTTON_HIDE_MENU" value="MASQUER LE MENU"/>
+  <locale name="BUTTON_HOME" value="Home"/>
   <locale name="BUTTON_LIGHT_MODE" value="Mode lumière"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
   <locale name="BUTTON_LOGIN_SSO" value="Login avec SSO"/>
+  <locale name="BUTTON_LOGIN_AGAIN" value="Se Connecter à Nouveau"/>
   <locale name="BUTTON_LOGOUT" value="Sortir"/>
   <locale name="BUTTON_MODIFY" value="Modifier"/>
   <locale name="BUTTON_NEW" value="Nouveau"/>
@@ -348,6 +350,15 @@
   <locale name="ENUM_TOT_STL" value="Total style"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Oui"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Authentification"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_DATA_ACCESS" value="Accès aux données"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_AUTHORIZATION" value="Autorisation"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_VALIDATION" value="Validation"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_SYSTEM" value="Système"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_NETWORK" value="Réseau"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_FILE_RESOURCE" value="Fichier/Ressource"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_CONFIGURATION" value="Configuration"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_UNKNOWN" value="Inconnu"/>
   <locale name="ERROR_COMETUUID_PARSE" value="Le cometUUID n&apos;a pas pu être analysé"/>
   <locale name="ERROR_GENERATING_AREA_CHART" value="Erreur générant le graphique des régions"/>
   <locale name="ERROR_GENERATING_BAR_CHART" value="Erreur générant l&apos;histogramme"/>
@@ -525,6 +536,7 @@
   <locale name="ERROR_MESSAGE_SEQUENCE_NOT_UPDATED" value="La séquence {0} n&apos;a pas été mis à jour"/>
   <locale name="ERROR_MESSAGE_SERVER_NOT_SUPPORTED" value="The server is not compatible"/>
   <locale name="ERROR_MESSAGE_SERVICE_NOT_FOUND" value="Le service n&apos;a pas ete defini"/>
+  <locale name="ERROR_MESSAGE_SESSION_CLOSED" value="Votre session a été fermée. Vous connecter à nouveau s&apos;il vous plaît."/>
   <locale name="ERROR_MESSAGE_SESSION_EXPIRED" value="Votre connexion a expiré. Vous connecter à nouveau s&apos;il vous plaît."/>
   <locale name="ERROR_MESSAGE_SET_SESSION_OBJECT" value="Il ya eu un problème en essayant de stocker l&apos;objet avec la touche - {0} - dans le cache de session"/>
   <locale name="ERROR_MESSAGE_SET_SESSION_VARIABLE" value="Il y a eu un problème en essayant de conserver la valeur - {0} - dans la variable de session - {1} -"/>
@@ -1141,6 +1153,9 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_DATA" value="Donnees"/>
   <locale name="SCREEN_TEXT_DATE" value="Date du systeme"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
+  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Erreur de {0}"/>
+  <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Erreur inconnue"/>
+  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="Le processus {0} n&apos;a pas pu être terminé :"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Les filtres"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="Première"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Dernier"/>
@@ -1215,6 +1230,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_LOG" value="Messages de log"/>
   <locale name="SCREEN_TITLE_LOG_VIW" value="Consultation d&apos;un message de log"/>
   <locale name="SCREEN_TITLE_LOGIN" value="Acces a l&apos;application"/>
+  <locale name="SCREEN_TITLE_LOGOUT_SSO" value="Votre session a été fermée avec succès"/>
   <locale name="SCREEN_TITLE_MDL" value="Gestión de modules"/>
   <locale name="SCREEN_TITLE_MDL_NEW" value="Insertion de module"/>
   <locale name="SCREEN_TITLE_MDL_UPD" value="Modification de module"/>
@@ -1241,6 +1257,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_REP_UPD" value="Modification de rapport assigne"/>
   <locale name="SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Accès à l&apos;écran"/>
+  <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Fermée"/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>

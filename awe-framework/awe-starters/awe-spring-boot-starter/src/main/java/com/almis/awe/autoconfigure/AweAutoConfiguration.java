@@ -42,6 +42,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 /**
  * AWE Autoconfiguration
@@ -695,5 +696,19 @@ public class AweAutoConfiguration {
   @Bean
   public AweLoggingFilter aweLoggingFilter(AweSession aweSession, BaseConfigProperties baseConfigProperties) {
     return new AweLoggingFilter(aweSession, baseConfigProperties);
+  }
+
+
+  /**
+   * Creates and provides a bean for the {@code ErrorPageService}, responsible for generating
+   * error pages using Thymeleaf templates.
+   *
+   * @param springTemplateEngine the SpringTemplateEngine used to render HTML templates for error pages
+   * @return an instance of {@code ErrorPageService} to handle error page generation
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ErrorPageService errorPageService(SpringTemplateEngine springTemplateEngine) {
+    return new ErrorPageService(springTemplateEngine);
   }
 }

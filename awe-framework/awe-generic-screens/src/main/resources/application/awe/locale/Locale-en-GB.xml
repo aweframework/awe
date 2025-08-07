@@ -35,9 +35,11 @@
   <locale name="BUTTON_EXPORT" value="Export"/>
   <locale name="BUTTON_FINISH" value="Finish"/>
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
+  <locale name="BUTTON_HOME" value="Home"/>
   <locale name="BUTTON_LIGHT_MODE" value="Light mode"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
   <locale name="BUTTON_LOGIN_SSO" value="Login with SSO"/>
+  <locale name="BUTTON_LOGIN_AGAIN" value="Login again"/>
   <locale name="BUTTON_LOGOUT" value="Logout"/>
   <locale name="BUTTON_MODIFY" value="Modify"/>
   <locale name="BUTTON_NEW" value="New"/>
@@ -348,6 +350,15 @@
   <locale name="ENUM_TOT_STL" value="Total style"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Yes"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Authentication"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_DATA_ACCESS" value="Data Access"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_AUTHORIZATION" value="Authorization"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_VALIDATION" value="Validation"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_SYSTEM" value="System"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_NETWORK" value="Network"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_FILE_RESOURCE" value="File/Resource"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_CONFIGURATION" value="Configuration"/>
+  <locale name="ENUM_ERROR_TYPOLOGY_UNKNOWN" value="Unknown"/>
   <locale name="ERROR_COMETUUID_PARSE" value="The cometUUID could not be parsed"/>
   <locale name="ERROR_GENERATING_AREA_CHART" value="Error generating area chart"/>
   <locale name="ERROR_GENERATING_BAR_CHART" value="Error generating bar chart"/>
@@ -525,6 +536,7 @@
   <locale name="ERROR_MESSAGE_SEQUENCE_NOT_UPDATED" value="The sequence {0} could not be updated"/>
   <locale name="ERROR_MESSAGE_SERVER_NOT_SUPPORTED" value="The server is not compatible"/>
   <locale name="ERROR_MESSAGE_SERVICE_NOT_FOUND" value="Service has not been defined"/>
+  <locale name="ERROR_MESSAGE_SESSION_CLOSED" value="Your connection has been closed. You must login again."/>
   <locale name="ERROR_MESSAGE_SESSION_EXPIRED" value="Your connection has expired. You must login again."/>
   <locale name="ERROR_MESSAGE_SET_SESSION_OBJECT" value="There has been a problem trying to store the object with key - {0} - in the session cache"/>
   <locale name="ERROR_MESSAGE_SET_SESSION_VARIABLE" value="There has been a problem trying to store the value -{0}- into the session variable -{1}-"/>
@@ -1141,6 +1153,9 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_DATA" value="Data"/>
   <locale name="SCREEN_TEXT_DATE" value="System date"/>
   <locale name="SCREEN_TEXT_DBS" value="Database"/>
+  <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Unknown error"/>
+  <locale name="SCREEN_TEXT_ERROR_TITLE" value="{0} error"/>
+  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="The {0} process could not be completed:"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filters"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="First"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Last"/>
@@ -1215,6 +1230,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_LOG" value="Log messages"/>
   <locale name="SCREEN_TITLE_LOG_VIW" value="View log message"/>
   <locale name="SCREEN_TITLE_LOGIN" value="Application login"/>
+  <locale name="SCREEN_TITLE_LOGOUT_SSO" value="Your session has been successfully closed"/>
   <locale name="SCREEN_TITLE_MDL" value="Module management"/>
   <locale name="SCREEN_TITLE_MDL_NEW" value="New module"/>
   <locale name="SCREEN_TITLE_MDL_UPD" value="Update module"/>
@@ -1241,6 +1257,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_REP_UPD" value="Update report assignation"/>
   <locale name="SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Screen access"/>
+  <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Closed"/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>

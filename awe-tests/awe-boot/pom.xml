@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.10.19</version>
+    <version>4.10.20</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -365,6 +365,24 @@
                   <version>${awe.version}</version>
                   <outputDirectory>${project.build.frontend}</outputDirectory>
                   <includes>docs/**</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>generate-sources</phase>
+            <id>unpack awe-generic-screens templates</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.almis.awe</groupId>
+                  <artifactId>awe-generic-screens</artifactId>
+                  <version>${awe.version}</version>
+                  <outputDirectory>${project.build.frontend}</outputDirectory>
+                  <includes>templates/**,</includes>
                 </artifactItem>
               </artifactItems>
             </configuration>
