@@ -37,7 +37,8 @@ class ScreenService {
       "toggle-class": this.toggleClass.bind(this),
       "print": this.screenPrint.bind(this),
       "close-window": this.closeWindow.bind(this),
-      "logout": this.logout.bind(this)
+      "logout": this.logout.bind(this),
+      "redirect": this.redirect.bind(this),
     }
   }
 
@@ -273,6 +274,27 @@ class ScreenService {
       {type: "disconnectWebsocket"},
       generateServerAction({}, "logout", "", {}, false, false, props.settings)
     ]);
+  }
+
+  /**
+   * Redirect to a new URL
+   * @param {object} action Action received
+   * @param {object} props Properties
+   */
+  redirect(action, props) {
+    const {target, parameters = {}} = action;
+    const {newWindow = false} = parameters;
+
+    if (newWindow) {
+      // Open url in new window
+      window.open(target, "_blank");
+    } else {
+      // Redirect browser
+      window.open(target, "_self");
+    }
+
+    // Close action
+    props.acceptAction(action);
   }
 }
 

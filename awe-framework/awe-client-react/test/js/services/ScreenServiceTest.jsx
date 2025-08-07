@@ -14,12 +14,12 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
     props = {updateSettings:jasmine.createSpy('updateSettings'), acceptAction: jasmine.createSpy('accept'), history: history, settings: {
       targetActionKey: "targetAction"
       }};
-  })
+  });
 
   // Get all screen actions
   it('should get all screen actions', function() {
     let actions = service.getActions();
-    expect(Object.keys(actions).length).toBe(14);
+    expect(Object.keys(actions).length).toBe(15);
   });
 
   // Launch screen action erasing the token
@@ -219,6 +219,27 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
     // Uninstall clock
     jasmine.clock().uninstall();
+  });
+
+  // Redirect action
+  it('should redirect in a new window', function() {
+    spyOn(window, "open").and.returnValue(true);
+
+    service.redirect({target: "url", parameters:{newWindow: true}}, props);
+
+    // Spies
+    expect(window.open).toHaveBeenCalled();
+  });
+
+  // Redirect action in the current window
+  it('should redirect in the current window', function() {
+    spyOn(window, "open").and.returnValue(true);
+
+    // Call the redirect method with newWindow set to false
+    service.redirect({target: "test-url", parameters:{newWindow: false}}, props);
+
+    // Verify window.location.href was set correctly
+    expect(window.open).toHaveBeenCalled();
   });
 
 });

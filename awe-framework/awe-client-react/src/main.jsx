@@ -26,6 +26,7 @@ import './assets/css/layout.css';
 import './assets/css/pages/signin.css';
 import './assets/css/pages/home.css';
 import './assets/css/pages/error-pages.css';
+import './assets/css/pages/sso-logout.css';
 
 import AweApp from './components/AweApp';
 import {DEFAULT_SETTINGS, updateSettings} from "./redux/actions/settings";

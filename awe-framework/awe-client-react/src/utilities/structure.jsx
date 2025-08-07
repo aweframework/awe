@@ -8,6 +8,28 @@ import {extractCellModel} from "./grid";
 import {getFirstDefinedAndNotNullValue} from "./general";
 
 /**
+ * Retrieves the first element from the provided list that matches the specified source.
+ *
+ * @param {string} source - The source value to match against the elements.
+ * @param {Array.<Object>} elements - An array of objects where each object contains a `source` property.
+ * @return {Object|undefined} The first object in the array with a `source` property matching the given source,
+ * or undefined if no match is found.
+ */
+export function getSource(source, elements) {
+  return elements.find(n => n.source === source) || {elementList: []};
+}
+
+/**
+ * Retrieves a list of child components from the provided node.
+ *
+ * @param {Object} node - The source node containing an element list.
+ * @return {Array|null} Returns an array of child components generated from the node's element list, or null if the node is falsy.
+ */
+export function getSourceChildren(node= {elementList: []}) {
+  return node ? node.elementList.map((child, index) => Components(child, index)) : null;
+}
+
+/**
  * Get component
  * @param node
  * @param index
