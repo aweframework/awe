@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.1.11
+*07/08/2025*
+
+- Allow initializing criteria with only a values array with selected attribute. [MR #111](https://gitlab.com/aweframework/awe-react/-/merge_requests/111) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.10
 *07/08/2025*
 
