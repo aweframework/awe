@@ -6,3 +6,4 @@ import './components';
 import './containers';
 import './utilities';
 import './widgets';
+import './templates';

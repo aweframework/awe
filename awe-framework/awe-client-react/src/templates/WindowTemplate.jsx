@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Components} from "../utilities/structure";
+import {getSource, getSourceChildren} from "../utilities/structure";
 import {BreadCrumb} from "primereact/breadcrumb";
 
 import "./WindowTemplate.css";
@@ -10,26 +10,23 @@ class WindowTemplate extends Component {
 
   constructor(props) {
     super(props);
-
-    this.getSource = this.getSource.bind(this);
-  }
-
-  getSource(source) {
-    let node = this.props.elementList.find(n => n.source === source);
-    return node ? node.elementList.map((child, index) => Components(child, index)) : null;
   }
 
   render() {
     const {breadcrumbs} = this.props;
-    const home = {icon: 'pi pi-home'}
+    const home = {icon: 'pi pi-home'};
+    const sourceCenter = getSource("center", this.props.elementList);
+    const sourceModal = getSource("modal", this.props.elementList);
+    const sourceHidden = getSource("hidden", this.props.elementList);
+    const sourceButtons = getSource("buttons", this.props.elementList);
 
     return (
       <div className={"expand expandible-vertical animate__animated animate__fadeIn"} style={{position: "relative"}}>
-        <div className={"window-buttons"}>{this.getSource("buttons")}</div>
+        <div className={`window-buttons  ${sourceButtons.style}`}>{getSourceChildren(sourceButtons)}</div>
         <BreadCrumb model={breadcrumbs.items} home={home}/>
-        <div className={"expand expandible-vertical"}>{this.getSource("center")}</div>
-        <div style={{position: 'absolute'}}>{this.getSource("modal")}</div>
-        <div style={{display: 'none'}}>{this.getSource("hidden")}</div>
+        <div className={`expand expandible-vertical ${sourceCenter.style}`}>{getSourceChildren(sourceCenter)}</div>
+        <div style={{position: 'absolute'}} className={sourceModal.style}>{getSourceChildren(sourceModal)}</div>
+        <div style={{display: 'none'}}>{getSourceChildren(sourceHidden)}</div>
       </div>
     );
   }
