@@ -637,8 +637,10 @@ export function getComponentData(component, props, forPrinting, model = "model")
  */
 export function fixModel(model, isGrid) {
   let selected = asArray(model.selected).map(value => fixSelectedModel(value));
-  const selectedValues = selected.map(value => value.value);
   let values = model.values;
+  const selectedValues = [...selected.map(value => value.value), ...values
+    .filter(value => value.selected)
+    .map(value => isGrid ? value.id : value.value)];
   if (isGrid) {
     values = values.map(value => ({...value, selected: selectedValues.includes(String(value.id))}));
   } else {
