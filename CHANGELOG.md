@@ -1,13 +1,4 @@
 
-# Changelog for AWE 4.10.20
-*07/08/2025*
-
-- When request is not available, retrieve variable parameter instead of checking request parameter on REST requests. [MR #585](https://gitlab.com/aweframework/awe/-/merge_requests/585) (Pablo Javier García Mora)
-- CellData should retrieve objectValue when type is BOOLEAN. [MR #584](https://gitlab.com/aweframework/awe/-/merge_requests/584) (Pablo Javier García Mora)
-- **[HAS IMPACTS]** Manage logout screen redirect in SSO. [MR #583](https://gitlab.com/aweframework/awe/-/merge_requests/583) (Pablo Vidal Otero)
-- **[HAS IMPACTS]** Improve oauth error handler. [MR #582](https://gitlab.com/aweframework/awe/-/merge_requests/582) (Pablo Vidal Otero)
-- Multi tenant SSO authentication. [MR #581](https://gitlab.com/aweframework/awe/-/merge_requests/581) (Pablo Vidal Otero)
-
 # Changelog for AWE 4.10.19
 *22/07/2025*
 
