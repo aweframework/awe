@@ -9,6 +9,7 @@ import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +17,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.*;
@@ -63,7 +65,7 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
   }
 
   /**
-   * Get user info from profile. If user authentication hasn't granted authorities, it recovers from the default profile
+   * Get user info from the profile. If user authentication hasn't granted authorities, it recovers from the default profile
    * @param oAuth2User Oauth2User info
    * @return AWE user details
    */
@@ -85,20 +87,57 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
     user.setEmail(email);
     user.setUsername(userName);
     user.setFullName(fullName);
+    user.setProfileName(profile);
     user.setEnabled(true);
 
     // Build User details
     return getAweUserDetails(user);
   }
 
+  /**
+   * Maps a collection of granted authorities to a user profile identifier.
+   * If the collection is null or empty, the default role is returned.
+   * If a filter authority prefix is specified, only authorities matching the prefix are considered.
+   * The authority prefix is removed from the authority string before returning the mapped profile.
+   *
+   * @param authorities a collection of granted authorities which represent user permissions
+   * @return a string representing the user profile or the default role if no valid authority is found
+   */
   public String mapGrantedAuthorityProfile(Collection<GrantedAuthority> authorities) {
+    // Validate authority
+    if (authorities == null || authorities.isEmpty()) {
+      return baseConfigProperties.getDefaultRole();
+    }
+
     // Get profile from grantedAuthority
     String filterAuthorityPrefix = securityConfigProperties.getSso().getFilterAuthorityPrefix();
+
+    if (log.isDebugEnabled()) {
+    log.debug("Mapping authorities {} with prefix {}", authorities.stream().map(GrantedAuthority::getAuthority).toList(),
+        filterAuthorityPrefix);
+    }
     return authorities.stream()
         .map(GrantedAuthority::getAuthority)
-        .filter(authority -> StringUtils.isEmpty(filterAuthorityPrefix) || authority.startsWith(filterAuthorityPrefix))
+        .filter(Objects::nonNull) // Filtrar null authorities
+        .filter(authority -> StringUtils.isEmpty(filterAuthorityPrefix) ||
+            authority.startsWith(filterAuthorityPrefix))
         .findFirst()
+        .map(mapAuthority(filterAuthorityPrefix))
         .orElse(baseConfigProperties.getDefaultRole());
+  }
+
+  @NotNull
+  private Function<String, String> mapAuthority(String filterAuthorityPrefix) {
+    return authority -> {
+      if (StringUtils.isEmpty(filterAuthorityPrefix)) {
+        return authority; // Without prefix, return full authority
+      }
+      // Check authority length is not below
+      if (authority.length() <= filterAuthorityPrefix.length()) {
+        return baseConfigProperties.getDefaultRole();
+      }
+      return authority.substring(filterAuthorityPrefix.length());
+    };
   }
 
   /**
@@ -170,9 +209,9 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
   }
 
   /**
-   * Verify if a profile exist in profile list
+   * Verify if a profile exists in a profile list
    * @param profile Profile name
-   * @return true if profile exist
+   * @return true if profile exists
    * @throws AWException AWE exception
    */
   public boolean existRole(String profile) throws AWException {
