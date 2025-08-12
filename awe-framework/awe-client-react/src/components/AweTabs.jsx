@@ -44,7 +44,7 @@ class AweTabs extends AwePanelableComponent {
 
   render() {
     const activeIndex = this.getActiveIndex();
-    const {id, model, disabled, orientation = "horizontal", elementList = []} = this.props;
+    const {id, disabled, model = {values: []},orientation = "horizontal", elementList = []} = this.props;
     const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
     const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
     return <div className={className}>
@@ -55,7 +55,9 @@ class AweTabs extends AwePanelableComponent {
       }))}
                activeIndex={activeIndex}
                onTabChange={this.onChange}/>
-      {elementList.filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
+      {elementList
+        .filter(item => item.elementType === "TabContainer")
+        .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
     </div>;
   }
 }
