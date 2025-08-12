@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.1.12
+*12/08/2025*
+
+- Filter TabContainer in AweTabs to avoid issues when dependencies are defined in first place. [MR #112](https://gitlab.com/aweframework/awe-react/-/merge_requests/112) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.11
 *07/08/2025*
 
