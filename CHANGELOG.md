@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.10.21
+*21/08/2025*
+
+- Fix oauth2 filter prefix. [MR #586](https://gitlab.com/aweframework/awe/-/merge_requests/586) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.20
 *07/08/2025*
 

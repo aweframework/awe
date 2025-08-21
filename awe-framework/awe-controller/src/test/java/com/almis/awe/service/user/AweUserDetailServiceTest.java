@@ -108,6 +108,45 @@ class AweUserDetailServiceTest {
     assertEquals(expectedValue, userDetailsService.getAuthorities("DUMMY"));
   }
 
+  @Test
+  void testMapGrantedAuthorityProfile_withAuthoritiesAndPrefix() {
+    SecurityConfigProperties.Sso ssoProperties = new SecurityConfigProperties.Sso();
+    ssoProperties.setFilterAuthorityPrefix("ROLE_");
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_MANAGER"));
+    when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
+    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals("MANAGER", result);
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withEmptyAuthorities_returnDefaultRole() {
+    List<GrantedAuthority> authorities = Collections.emptyList();
+    when(baseConfigProperties.getDefaultRole()).thenReturn("operator");
+    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals("operator", result);
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withNullPrefixFilter_returnFullRole() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setFilterAuthorityPrefix(null);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals("ROLE_ADMIN", result);
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withHighPrefixFilter_returnDefaultRole() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    when(baseConfigProperties.getDefaultRole()).thenReturn("operator");
+    ssoConfig.setFilterAuthorityPrefix("ROLE_ADMINS");
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals("operator", result);
+  }
+
 
   @Test
   void loadUserByEmail() {
