@@ -72,7 +72,7 @@ public class MicroserviceConnector extends AbstractRestConnector {
     // Add specific parameters to the microservice call
     addDefinedParameters(microservice, paramsMapFromRequest);
 
-    // Create request to microservice
+    // Create the request to microservice
     try {
       outData = doRequest(urlBuilder.toString(), microservice, paramsMapFromRequest);
     } catch (RestClientException exc) {
@@ -114,7 +114,16 @@ public class MicroserviceConnector extends AbstractRestConnector {
       return switch (restParameter.getType()) {
           case SESSION -> getSession().getParameter(restParameter.getValue());
           case VARIABLE -> variableList.get(restParameter.getValue());
-          case REQUEST -> getRequest() != null ? queryUtil.getRequestParameter(restParameter.getValue()) : variableList.get(restParameter.getValue());
+          case REQUEST -> {
+						if (getRequest() != null) {
+							var paramList = getRequest().getParameterList();
+							if (paramList != null && paramList.has(restParameter.getValue())) {
+								yield queryUtil.getRequestParameter(restParameter.getValue());
+							}
+						}
+						// Used to retrieve variables from the request. Useful for microservices called from scheduler
+						yield variableList.get(restParameter.getValue());
+					}
           default -> restParameter.getValue();
       };
   }
