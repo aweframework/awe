@@ -1,7 +1,9 @@
 package com.almis.awe.autoconfigure;
 
+import com.almis.awe.security.handler.AweOauth2AuthenticationFailureHandler;
 import com.almis.awe.security.handler.AweOauth2AuthenticationSuccessHandler;
 import com.almis.awe.service.AccessService;
+import com.almis.awe.service.ErrorPageService;
 import com.azure.spring.cloud.autoconfigure.implementation.aad.security.AadWebApplicationHttpSecurityConfigurer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -24,13 +26,16 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class AzureOAuthConfig {
 
   private final AccessService accessService;
+	private final ErrorPageService errorPageService;
 
-  @Value("${spring.cloud.azure.active-directory.redirect-uri-template:/login/oauth2/code/}")
+
+	@Value("${spring.cloud.azure.active-directory.redirect-uri-template:/login/oauth2/code/}")
   private String azureRedirectUriTemplate;
 
-  public AzureOAuthConfig(AccessService accessService) {
+  public AzureOAuthConfig(AccessService accessService, ErrorPageService errorPageService) {
     this.accessService = accessService;
-  }
+		this.errorPageService = errorPageService;
+	}
 
   @Bean
   @ConditionalOnProperty(prefix = "spring.cloud.azure.active-directory", name = "enabled", havingValue = "true")
@@ -49,7 +54,7 @@ public class AzureOAuthConfig {
             .loginPage(AZURE_OAUTH2_AUTHORIZATION_URL)
             .loginProcessingUrl(azureRedirectUriTemplate)
             .successHandler(authSuccessHandler())
-            .failureUrl("/oauth2/authorization/azure/error")
+						.failureHandler(authFailureHandler())
         ).build();
   }
 
@@ -58,4 +63,16 @@ public class AzureOAuthConfig {
   public AweOauth2AuthenticationSuccessHandler authSuccessHandler() {
     return new AweOauth2AuthenticationSuccessHandler(accessService);
   }
+
+	/**
+	 * Creates an instance of AweOauth2AuthenticationFailureHandler, which is responsible
+	 * for handling authentication failures during an OAuth2 login process.
+	 *
+	 * @return an instance of AweOauth2AuthenticationFailureHandler to manage OAuth2 authentication failures
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public AweOauth2AuthenticationFailureHandler authFailureHandler() {
+		return new AweOauth2AuthenticationFailureHandler(errorPageService);
+	}
 }
