@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.10.22
+*01/09/2025*
+
+- Improve authentication error handling in Azure SSO. [MR #588](https://gitlab.com/aweframework/awe/-/merge_requests/588) (Pablo Vidal Otero)
+- Improve handle microservice request parameter. [MR #587](https://gitlab.com/aweframework/awe/-/merge_requests/587) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.21
 *21/08/2025*
 
