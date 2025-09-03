@@ -10,7 +10,7 @@ class AweSelectMultiple extends AweCriterionComponent {
   constructor(props) {
     super(props);
     this.state = {selected: []};
-    bindMethods(this, ["getComponent", "getValue", "onChange", "selectedItemsTemplate"])
+    bindMethods(this, ["getComponent", "getValue", "onChange"]);
   }
 
   /**
@@ -37,15 +37,6 @@ class AweSelectMultiple extends AweCriterionComponent {
     return model.values.filter(item => item.selected).map(item => ({code: item.value, name: translateLabel(item.label, t)}));
   }
 
-  selectedItemsTemplate(option) {
-    const {placeholder} = this.props.attributes;
-    if (option) {
-      return <span>{option.name || option.code}</span>;
-    }
-    return placeholder || <>&nbsp;</>;
-  }
-
-
   getComponent(style) {
     const {t, address, attributes, model} = this.props;
     const {placeholder, required, readonly, optional, size} = attributes;
@@ -60,8 +51,8 @@ class AweSelectMultiple extends AweCriterionComponent {
       required={required}
       disabled={readonly}
       className={classes}
+      display="chip"
       resetFilterOnHide={true}
-      selectedItemTemplate={this.selectedItemsTemplate}
       filter
       optionLabel="name"
       options={model.values.map(item => ({code: item.value, name: translateLabel(item.label, t)}))}
