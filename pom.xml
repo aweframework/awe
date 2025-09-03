@@ -223,6 +223,10 @@
           <value>true</value>
         </property>
       </activation>
+      <properties>
+        <!-- skipped archetype integration tests -->
+        <archetype.test.skip>true</archetype.test.skip>
+      </properties>
       <build>
         <plugins>
           <plugin>

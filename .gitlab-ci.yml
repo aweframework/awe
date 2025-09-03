@@ -656,7 +656,7 @@ Notify new release:
   rules:
     - <<: *if-tag
       when: delayed
-      start_in: 1 hour
+      start_in: 20 minutes
 
 Generate gitlab release:
   stage: release

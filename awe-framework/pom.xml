@@ -9,7 +9,9 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <groupId>com.almis.awe</groupId>
   <artifactId>awe-framework</artifactId>
+  <version>4.10.25-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>AWE Framework (V${project.version})</name>
   <description>AWE Framework Build</description>
