@@ -1,4 +1,7 @@
 
+# Changelog for AWE 4.10.24
+*03/09/2025*
+
 # Changelog for AWE 4.10.23
 *03/09/2025*
 
