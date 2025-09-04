@@ -163,7 +163,7 @@
           </dependency>
         </criteria>
         <criteria label="PARAMETER_SELECT_MULTIPLE" id="SelMul" variable="SelMul" component="select-multiple" style="col-xs-12 col-sm-6 col-lg-4" initial-load="query" target-action="UsrEmlLst" timeout="1000" placeholder="Placeholder"/>
-        <criteria label="PARAMETER_SELECT_MULTIPLE" id="SelMulReq" variable="SelMulReq" component="select-multiple" style="col-xs-12 col-sm-6 col-lg-4" initial-load="query" target-action="UsrEmlLst" validation="required" strict="false">
+        <criteria label="PARAMETER_SELECT_MULTIPLE" id="SelMulReq" variable="SelMulReq" component="select-multiple" style="col-xs-12 col-sm-6 col-lg-4" initial-load="query" target-action="UsrEmlLstSel" validation="required" strict="false">
           <dependency target-type="set-optional" initial="true">
             <dependency-element id="Txt" condition="gt" value="1"/>
           </dependency>

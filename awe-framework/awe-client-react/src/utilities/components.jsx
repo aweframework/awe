@@ -640,7 +640,10 @@ export function fixModel(model, isGrid) {
   let values = model.values;
   const selectedValues = [...selected.map(value => value?.value), ...values
     .filter(value => value.selected)
-    .map(value => isGrid ? value?.id : value?.value)];
+    .map(value => isGrid ? value?.id : value?.value)
+    .filter(value => value !== undefined && value !== null)
+    .map(value => String(value))
+  ];
   if (isGrid) {
     values = values.map(value => ({...value, selected: selectedValues.includes(String(value.id))}));
   } else {
