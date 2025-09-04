@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 1.1.13
+*04/09/2025*
+
+- Check selected values as string in both sides. [MR #114](https://gitlab.com/aweframework/awe-react/-/merge_requests/114) (Pablo Javier García Mora)
+- Display multiselect items as chips. [MR #113](https://gitlab.com/aweframework/awe-react/-/merge_requests/113) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.12
 *12/08/2025*
 
