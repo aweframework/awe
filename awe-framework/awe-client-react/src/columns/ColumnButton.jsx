@@ -6,7 +6,7 @@ import {bindMethods, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
 
-const {BUTTON_RESET} = ButtonTypes;
+const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
 
 class ColumnButton extends Component {
 
@@ -18,7 +18,7 @@ class ColumnButton extends Component {
   }
 
   onClick() {
-    const {actions, addActionsTop, updateModelWithDependencies, buttonType, address} = this.props;
+    const {actions, addActionsTop, updateModelWithDependencies, address, buttonType = BUTTON_NORMAL} = this.props;
     // Change click event
     updateModelWithDependencies(address, {event: "click"});
 
@@ -32,8 +32,8 @@ class ColumnButton extends Component {
 
   render() {
     const {t, data, address, disabled, icon, style} = this.props;
-    const {label} = data;
-    const classes = classNames('p-button-sm', 'p-1', style, data?.style);
+    const {label, visible = true} = data;
+    const classes = classNames('p-button-sm', 'p-1', style, data?.style, {"hidden": !visible});
 
     return <Button
       id={address.component}
@@ -52,7 +52,7 @@ ColumnButton.propTypes = {
   actions: PropTypes.array,
   addActionsTop: PropTypes.func.isRequired,
   updateModelWithDependencies: PropTypes.func.isRequired,
-  buttonType: PropTypes.string.isRequired,
+  buttonType: PropTypes.string,
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   disabled: PropTypes.bool,

@@ -51,5 +51,15 @@ function getFirstDefined(values, exclude) {
  * @memberOf Utilities
  */
 export function isEmpty(n) {
-  return n === null || n === undefined || String(n).trim() === ""
+  return n === null || n === undefined || String(n).trim() === "";
+}
+
+/**
+ * Returns true if a variable is null or empty
+ * @param {Object} n Variable to test
+ * @return {boolean} String is null or undefined
+ * @memberOf Utilities
+ */
+export function isEmptyCell(n) {
+  return isEmpty(n) || (typeof n === "object" && isEmpty(n.value));
 }
