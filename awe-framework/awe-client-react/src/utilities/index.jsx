@@ -539,3 +539,20 @@ export function getTranslateFunction(attributes, model, t = ((f) => f)) {
       return t;
   }
 }
+
+/**
+ * Updates a specific element in an array by merging the existing element
+ * with the provided updates without mutating the original array.
+ *
+ * @param {Array} array - The array containing the element to be updated.
+ * @param {number} index - The index of the element to be updated.
+ * @param {Object} updates - An object containing the properties to be merged with the specified element.
+ * @return {Array} A new array with the updated element.
+ */
+export function updateArrayElement(array, index, updates) {
+  return [
+    ...array.slice(0, index),
+    { ...array[index], ...updates },
+    ...array.slice(index + 1)
+  ];
+}

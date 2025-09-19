@@ -26,7 +26,7 @@ import {
   getGridIdentifier, getRowIndex,
   getSelectedRowIndex
 } from "../../utilities/grid";
-import {compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty} from "../../utilities/general";
+import {compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell} from "../../utilities/general";
 
 /**
  * Manage action list
@@ -215,13 +215,13 @@ function getAttribute(trigger, state) {
       return Math.min(getEditingRowIndex(component.model.values) + 1, component.model.values.length);
 
     case "hasDataColumn":
-      return component.model.values.filter(row => !isEmpty(row[trigger.address.column])).length > 0;
+      return component.model.values.filter(row => !isEmptyCell(row[trigger.address.column])).length > 0;
 
     case "emptyDataColumn":
-      return component.model.values.filter(row => !isEmpty(row[trigger.address.column])).length === 0;
+      return component.model.values.filter(row => !isEmptyCell(row[trigger.address.column])).length === 0;
 
     case "fullDataColumn":
-      return component.model.values.filter(row => !isEmpty(row[trigger.address.column])).length === component.model.values.length;
+      return component.model.values.filter(row => !isEmptyCell(row[trigger.address.column])).length === component.model.values.length;
 
     case "currentRowValue":
       return getCellValue(component.model.values, getRowIndex(component.model.values, trigger.address.row), trigger.address.column);
@@ -449,29 +449,6 @@ function retrieveQuerySource(result, target, dependency, component, state, dispa
 }
 
 /**
- * Generate a grid action
- * @param {object} dependency Dependency
- * @param {object} address Component address
- * @param {string} name Action name
- * @param {string} attribute Action attribute
- * @param {*} value Action value
- */
-function generateGridAction(dependency, address, name, attribute, value) {
-  return {
-    addActions: [{
-      type: name,
-      address,
-      parameters: {[attribute]: value, columns: [address.column]},
-      target: address.component,
-      silent: true,
-      async: true,
-      context: "",
-      view: address.view
-    }]
-  };
-}
-
-/**
  * Apply target type
  * @param {object} dependency Dependency
  * @param {object} component Component
@@ -482,6 +459,7 @@ function applyTarget(dependency, component, value, result) {
   let target = getFirstDefinedAndNotNullValue(dependency.target, "none");
   const {address} = dependency;
   const {launch} = result;
+  const {row, ...addressWithoutRow} = address;
 
   // Launch can be false only on not filtered cases
   switch (`${target}-${launch}`) {
@@ -498,11 +476,7 @@ function applyTarget(dependency, component, value, result) {
       return {updateAttributes: {address, data: {[target]: value}}};
 
     case "label-true":
-      if ("column" in dependency) {
-        return generateGridAction(dependency, address, "change-column-label", "label", value);
-      } else {
-        return {updateAttributes: {address, data: {[target]: value}}};
-      }
+      return {updateAttributes: {address, data: {[target]: value}}};
 
     case "chart-options-true":
       return {updateAttributes: {address, data: {chartOptions: value}}};
@@ -542,12 +516,12 @@ function applyTarget(dependency, component, value, result) {
       return {updateAttributes: {address, data: {visible: !launch}}};
 
     case "show-column-true":
-    case "hide-column-false":
-      return generateGridAction(dependency, address, "toggle-columns-visibility", "show", true);
-
     case "show-column-false":
+      return {updateAttributes: {address: addressWithoutRow, data: {hidden: !launch}}};
+
+    case "hide-column-false":
     case "hide-column-true":
-      return generateGridAction(dependency, address, "toggle-columns-visibility", "show", false);
+      return {updateAttributes: {address: addressWithoutRow, data: {hidden: launch}}};
 
     case "set-visible-true":
     case "set-visible-false":
@@ -703,7 +677,7 @@ function getColumnDependencies(dependency, column, component) {
     return values.map(row => ({
       ...dependency,
       address: {...component.address, column: column.id, row: row[gridId]},
-      target: ["show", "hide"].includes(dependency.target) ? dependency.target + "-column" : dependency.target
+      target: dependency.target
     }));
   } else {
     return [{
