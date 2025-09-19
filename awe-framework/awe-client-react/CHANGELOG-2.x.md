@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 1.1.14
+*19/09/2025*
+
+- Improve dependencies to use updateAttributes for label and hidden attributes in columns. [MR #115](https://gitlab.com/aweframework/awe-react/-/merge_requests/115) (Pablo Javier García Mora)
+
 # Changelog for AWE React 1.1.13
 *04/09/2025*
 
