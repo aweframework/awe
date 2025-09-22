@@ -10,6 +10,10 @@ AWE uses [Flyway](https://flywaydb.org/) as default tool for database script ver
 
 Aside from using it internally to manage the `AWE database model`, you can manage your own scripts or use any other external tool.
 
+:::info Looking for supported databases?
+See the visual overview with copy‑paste snippets in the [Supported databases](supported-databases.md) page.
+:::
+
 # **Get started**
 
 To automatically run Flyway database migrations on AWE startup, add `spring.flyway.enabled=true` properties in your configuration. Typically, migrations are from scripts in the form `<MODULE>_V<VERSION>__<NAME>.sql` (with `<VERSION>` an underscore-separated version, such as ‘1.1’ or ‘2_1’).
@@ -24,7 +28,7 @@ By default, they are located in the folder `classpath:db/migration/{vendor}`, bu
 spring.flyway.locations=classpath:db/migration/{vendor},filesystem:/opt/migration
 ```
 
-Rather than using `db/migration`, the preceding configuration sets the folder to use according to the type of the database (such as db/migration/mysql for MySQL). The list of supported databases is available in `DatabaseDriver`.
+Rather than using `db/migration`, the preceding configuration sets the folder to use according to the type of the database (such as db/migration/mysql for MySQL). See the list of supported databases and vendor keys in the [Supported databases](supported-databases.md) page.
 
 AWE framework customizes the *Flyway migration process* to manage multiple modules. By default, the initial module is called *AWE* but you can add the modules you need to run scripts. For example, if you need to use `AWE scheduler module` and you have that sql scripts in your applications, you need configure like this:
 
