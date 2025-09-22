@@ -227,6 +227,28 @@ MySQL Tests:
   services:
     - mysql
 
+PostgreSQL Flyway Test:
+  extends: .unit-testing
+  variables:
+    POSTGRES_DB: "awetestdb"
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
+    TEST_NAME: postgresql-flyway
+  services:
+    - name: postgres:17
+      alias: postgres
+
+PostgreSQL Tests:
+  extends: .unit-testing
+  variables:
+    POSTGRES_DB: "awetestdb"
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
+    TEST_NAME: postgresql
+  services:
+    - name: postgres:17
+      alias: postgres
+
 SQL Server Flyway Test:
   extends: .unit-testing
   image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest
