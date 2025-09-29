@@ -48,6 +48,7 @@ module.exports = {
                                 'rest',
                                 'scheduler',
                                 'notifier',
+                                'supported-databases',
                                 'database-migration',
                             ]
                         },

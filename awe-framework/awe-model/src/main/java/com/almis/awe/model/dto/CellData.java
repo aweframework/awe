@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Optional;
 
 import static com.almis.awe.model.type.CellDataType.*;
 
@@ -115,7 +116,7 @@ public class CellData implements Comparable<CellData>, Copyable {
    */
   @JsonIgnore
   public String getStringValue() {
-    return stringValue.trim();
+    return Optional.ofNullable(stringValue).orElse("").trim();
   }
 
   /**
@@ -127,15 +128,15 @@ public class CellData implements Comparable<CellData>, Copyable {
   public Double getDoubleValue() {
     return switch (getType()) {
       // Get value as double
-      case DOUBLE -> (Double) getObjectValue();
+      case DOUBLE -> Optional.ofNullable(getObjectValue()).map(Double.class::cast).orElse(null);
       // Get float value as double
-      case FLOAT -> ((Float) getObjectValue()).doubleValue();
+      case FLOAT -> Optional.ofNullable(getObjectValue()).map(Float.class::cast).map(Float::doubleValue).orElse(null);
       // Get integer value as double
-      case INTEGER -> ((Integer) getObjectValue()).doubleValue();
+      case INTEGER -> Optional.ofNullable(getObjectValue()).map(Integer.class::cast).map(Integer::doubleValue).orElse(null);
       // Get long value as double
-      case LONG -> ((Long) getObjectValue()).doubleValue();
+      case LONG -> Optional.ofNullable(getObjectValue()).map(Long.class::cast).map(Long::doubleValue).orElse(null);
       // Get long value as double
-      case DECIMAL -> ((BigDecimal) getObjectValue()).doubleValue();
+      case DECIMAL -> Optional.ofNullable(getObjectValue()).map(BigDecimal.class::cast).map(BigDecimal::doubleValue).orElse(null);
       // If defaulted, set to null
       default -> null;
     };
@@ -150,17 +151,17 @@ public class CellData implements Comparable<CellData>, Copyable {
   public Integer getIntegerValue() {
     return switch (getType()) {
       // Get value as double
-      case DOUBLE -> ((Double) getObjectValue()).intValue();
+      case DOUBLE -> Optional.ofNullable(getObjectValue()).map(Double.class::cast).map(Double::intValue).orElse(null);
       // Get float value as double
-      case FLOAT -> ((Float) getObjectValue()).intValue();
+      case FLOAT -> Optional.ofNullable(getObjectValue()).map(Float.class::cast).map(Float::intValue).orElse(null);
       // Get integer value as double
-      case INTEGER -> (Integer) getObjectValue();
+      case INTEGER -> Optional.ofNullable(getObjectValue()).map(Integer.class::cast).orElse(null);
       // Get long value as double
-      case LONG -> ((Long) getObjectValue()).intValue();
+      case LONG -> Optional.ofNullable(getObjectValue()).map(Long.class::cast).map(Long::intValue).orElse(null);
       // Get long value as double
-      case DECIMAL -> ((BigDecimal) getObjectValue()).intValue();
+      case DECIMAL -> Optional.ofNullable(getObjectValue()).map(BigDecimal.class::cast).map(BigDecimal::intValue).orElse(null);
       // Get integer value from json node
-      case JSON -> ((JsonNode) getObjectValue()).intValue();
+      case JSON -> Optional.ofNullable(getObjectValue()).map(JsonNode.class::cast).map(JsonNode::intValue).orElse(null);
       // If default, set to null
       default -> null;
     };
