@@ -1,4 +1,12 @@
 
+# Changelog for AWE 4.11.0
+*29/09/2025*
+
+- Add support for PostgreSQL database. [MR #590](https://gitlab.com/aweframework/awe/-/merge_requests/590) (Pablo Vidal Otero)
+- getDoubleValue of cellData throws NullPointerException if value is null. [MR #589](https://gitlab.com/aweframework/awe/-/merge_requests/589) (Pablo Javier García Mora)
+- HISAweSchTsk nulls inserts problem. [MR #541](https://gitlab.com/aweframework/awe/-/merge_requests/541) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Añadir la funcionalidad maxRepeat de AWE 3. [MR #539](https://gitlab.com/aweframework/awe/-/merge_requests/539) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.10.24
 *03/09/2025*
 
