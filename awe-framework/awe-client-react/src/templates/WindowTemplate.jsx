@@ -22,8 +22,10 @@ class WindowTemplate extends Component {
 
     return (
       <div className={"expand expandible-vertical animate__animated animate__fadeIn"} style={{position: "relative"}}>
-        <div className={`window-buttons  ${sourceButtons.style}`}>{getSourceChildren(sourceButtons)}</div>
-        <BreadCrumb model={breadcrumbs.items} home={home}/>
+        <div className="breadcrumb-buttons">
+            <BreadCrumb model={breadcrumbs.items} home={home}/>
+            <div className={`window-buttons pull-right ${sourceButtons.style}`}>{getSourceChildren(sourceButtons)}</div>
+        </div>
         <div className={`expand expandible-vertical ${sourceCenter.style}`}>{getSourceChildren(sourceCenter)}</div>
         <div style={{position: 'absolute'}} className={sourceModal.style}>{getSourceChildren(sourceModal)}</div>
         <div style={{display: 'none'}}>{getSourceChildren(sourceHidden)}</div>
