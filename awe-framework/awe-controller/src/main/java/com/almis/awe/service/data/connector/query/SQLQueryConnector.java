@@ -130,25 +130,25 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     }
 
     // Get query preparation time
-    String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
     LogUtil.checkpoint(timeLapse);
 
     List<Tuple> results;
     long records;
-    try {
-      if (paginate) {
-        long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong();
-        queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
-      }
 
-      // Launch query
-      List<Tuple> allResults = queryBuilt.fetch();
+		if (paginate) {
+			long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong();
+			queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
+		}
+		String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
+		try {
+			// Launch query
+			List<Tuple> allResults = queryBuilt.fetch();
       if (paginate) {
         records = queryFactory.select(SQLExpressions.all).from(queryCount, new PathBuilder<>(Object.class, "R")).fetchCount();
       } else {
         records = allResults.size();
       }
-      results = allResults;
+			results = allResults;
     } catch (Exception exc) {
       throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
     }
