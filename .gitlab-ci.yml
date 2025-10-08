@@ -437,6 +437,7 @@ Launch Sonar:
     - job: Oracle Tests
     - job: SQL Server Tests
     - job: MySQL Tests
+    - job: PostgreSQL Tests
     - job: Frontend UT
     - job: Firefox IT Application and Integration
     - job: Firefox IT CRUD Criteria and Matrix
