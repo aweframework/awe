@@ -19,7 +19,7 @@
   </tag>
   <tag source="center">
     <window style="expand" label="SCREEN_TEXT_CRITERIA" icon="filter">
-      <tag type="div" style="expand panel-body">
+      <tag type="div" style="panel-body">
         <criteria label="PARAMETER_TEXT" component="text" id="CrtTxt" server-action="data" style="col-xs-12 col-sm-6 col-lg-4" />
         <criteria label="PARAMETER_PHRASEKEY" component="text" id="CrtPhr" server-action="data" style="col-xs-12 col-sm-6 col-lg-6" />
         <criteria label="PARAMETER_ENCRYPT" component="text" id="CrtEnc" server-action="data" style="col-xs-12 col-sm-6 col-lg-4" readonly="true" />

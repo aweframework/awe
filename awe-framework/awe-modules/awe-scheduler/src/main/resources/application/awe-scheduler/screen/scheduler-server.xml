@@ -77,11 +77,9 @@
   -->
   <tag source="center">
     <window style="static criteria" label="SCREEN_TEXT_FILTERS" icon="filter">
-      <tag type="div" style="panel-body static">
-        <tag type="div">
-          <criteria label="PARAMETER_NAME" component="suggest" id="CrtSrv" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="SchSrvSug"/>
-          <criteria label="PARAMETER_ACTIVE" component="select" initial-load="enum" target-action="Es1Es0" id="CrtAct" style="col-xs-12 col-sm-4 col-lg-2" optional="true"/>
-        </tag>
+      <tag type="div" style="panel-body">
+        <criteria label="PARAMETER_NAME" component="suggest" id="CrtSrv" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="SchSrvSug"/>
+        <criteria label="PARAMETER_ACTIVE" component="select" initial-load="enum" target-action="Es1Es0" id="CrtAct" style="col-xs-12 col-sm-4 col-lg-2" optional="true"/>
       </tag>
       <tag type="div" style="panel-footer">
         <tag type="div" style="pull-right">
