@@ -5,13 +5,13 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-parent</artifactId>
-    <version>4.11.1-SNAPSHOT</version>
+    <version>4.11.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-framework</artifactId>
-  <version>4.11.1-SNAPSHOT</version>
+  <version>4.11.1</version>
   <packaging>pom</packaging>
   <name>AWE Framework (V${project.version})</name>
   <description>AWE Framework Build</description>
