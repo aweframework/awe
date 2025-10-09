@@ -1,91 +1,61 @@
-import React, {Component, createRef} from "react";
-import {connect} from "react-redux";
-import {bindMethods} from "../utilities";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import {useSelector} from "react-redux";
 
 /**
- * AWE Grid Container component
- * @extends Component
+ * AWE Grid Container component (functional)
  * @category Components
  * @subcategory Grid
  */
-class AweGridContainer extends Component {
+function AweGridContainer(props) {
+  const { onKeyCancelRow, onKeySaveRow, onContextMenu: onContextMenuProp, children } = props;
+  const containerRef = useRef(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const screenSize = useSelector(state => state.size);
 
-  /**
-   * Create a grid container
-   * @param {object} props Grid properties
-   */
-  constructor(props) {
-    super(props);
-
-    this.containerRef = createRef();
-    this.state = {containerHeight: 0};
-
-    bindMethods(this, ["checkKey", "contextMenu"]);
-  }
-
-  checkKey(e) {
-    const {onKeyCancelRow, onKeySaveRow} = this.props;
+  const checkKey = useCallback((e) => {
     switch (e.key) {
       case "Escape":
-        onKeyCancelRow();
+        onKeyCancelRow && onKeyCancelRow();
         break;
       case "Enter":
         document.body.focus();
-        setTimeout(onKeySaveRow, 100);
+        setTimeout(() => onKeySaveRow && onKeySaveRow(), 100);
         break;
       default:
-        // do nothing
         break;
     }
-  }
+  }, [onKeyCancelRow, onKeySaveRow]);
 
-  contextMenu(e) {
-    const {onContextMenu} = this.props;
-    onContextMenu({originalEvent: e, data: null, index: -1});
-  }
+  const contextMenu = useCallback((e) => {
+    onContextMenuProp && onContextMenuProp({ originalEvent: e, data: null, index: -1 });
+  }, [onContextMenuProp]);
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    this.setState({
-      containerHeight: this.containerRef?.current?.clientHeight || 0
-    });
-  }
+  useEffect(() => {
+    setContainerHeight(containerRef?.current?.clientHeight || 0);
+  }, []);
 
-  /**
-   * Component was updated
-   * @param {object} _prevProps Previous props
-   * @param {object} _prevState Previous state
-   * @param {object} _snapshot Current snapshot
-   */
-  componentDidUpdate(_prevProps, _prevState, _snapshot) {
-    const {containerHeight} = this.state;
+  useEffect(() => {
+    setContainerHeight(undefined);
+  }, [screenSize?.height, screenSize?.current]);
+
+  useEffect(() => {
     if (containerHeight === undefined) {
-      this.setState({containerHeight: this.containerRef?.current?.clientHeight});
+      setContainerHeight(containerRef?.current?.clientHeight);
     }
-  }
+  }, [containerHeight]);
 
-  shouldComponentUpdate(nextProps, _nextState, _nextContext) {
-    const {screenSize} = this.props;
-    if (screenSize?.height !== nextProps.screenSize?.height || screenSize?.current !== nextProps.screenSize?.current) {
-      this.setState({containerHeight: undefined});
-    }
-    return true;
-  }
-
-  /**
-   * Render component
-   * @returns {JSX.Element} Rendered component
-   */
-  render() {
-    const {containerHeight = 0} = this.state;
-    return <div className="grid-container expand expandible-vertical" ref={this.containerRef}>
-      <div className="grid-contents expand expandible-vertical" role="grid-container" /*style={{height: `${containerHeight}px`}}*/ onKeyDown={this.checkKey} onContextMenu={this.contextMenu}>
-        {this.props.children}
+  return (
+    <div className="grid-container expand expandible-vertical" ref={containerRef}>
+      <div
+        className="grid-contents expand expandible-vertical"
+        role="grid-container"
+        onKeyDown={checkKey}
+        onContextMenu={contextMenu}
+      >
+        {children}
       </div>
-    </div>;
-  }
+    </div>
+  );
 }
 
-export default connect(state => ({screenSize: state.screen.size}), {})(AweGridContainer);
+export default AweGridContainer;

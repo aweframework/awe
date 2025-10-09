@@ -1,5 +1,5 @@
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
-import {cleanup, screen} from "@testing-library/react";
+import {act, cleanup, screen} from "@testing-library/react";
 import React from "react";
 import {renderWithProviders} from "../test-utils";
 import AweInputUploader from "../../../src/criteria/AweInputUploader";
@@ -73,14 +73,16 @@ describe('awe-react-client/test/js/criteria/AweInputUploaderTest.jsx', () => {
   it('renders Awe Input Uploader component and deletes a file', () => {
     renderWithProviders(<AweInputUploader id="uploader"/>, {preloadedState});
 
+    const clearButton = screen.getByText("BUTTON_CLEAR");
+
     // check
-    expect(screen.getByText("BUTTON_CLEAR")).toBeDefined();
+    expect(clearButton).toBeDefined();
 
     // click on delete file
-    screen.getByText("BUTTON_CLEAR").click();
+    act(() => clearButton.click());
 
     // check button clear
-    expect(screen.getByText("BUTTON_CLEAR").parentElement).toHaveClass("hidden");
+    expect(clearButton.parentElement).toHaveClass("hidden");
   });
 
 });

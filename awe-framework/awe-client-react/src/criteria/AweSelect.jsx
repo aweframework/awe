@@ -1,51 +1,35 @@
-import React from "react";
-import {connectComponent} from "../components/AweComponent";
+import React, {useCallback, useRef} from "react";
 import {Dropdown} from "primereact/dropdown";
-import AweCriterionComponent from "./AweCriterionComponent";
-import {bindMethods, translateLabel} from "../utilities";
+import {translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
+import AweCriterion from "./AweCriterion";
+import {useSelect} from "../hooks/useSelect";
 
-class AweSelect extends AweCriterionComponent {
+function AweSelect(props) {
 
-  constructor(props) {
-    super(props);
+  const { id } = props;
+  const {t, ref, address, attributes, validationRules, options, selected, onChange} =
+    useSelect({id, multiple: false});
 
-    bindMethods(this, ["getComponent", "getValue", "onChange"])
-  }
-
-  onChange(e) {
-    const {address, model, updateModelWithDependencies} = this.props;
-    updateModelWithDependencies(address, {
-      values: model.values.map(d => ({
-        ...d,
-        selected: d.value === e.target.value
-      }))
-    });
-  }
-
-  getValue() {
-    return this.props.model.values.filter(v => v.selected).map(v => v.value)[0] || null;
-  }
-
-  getComponent(style) {
-    const {t, address, attributes, model} = this.props;
-    const {placeholder, required, readonly, optional, size} = attributes;
-    const classes = classNames(style, {[`text-${size}`]: size, [`p-inputtext-${size}`]: size});
-    return <Dropdown
-      ref={el => this.dropdown = el}
+  const {placeholder, required, readonly, optional, size, error} = attributes;
+  const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
+      <Dropdown
+      ref={ref}
       id={address.component}
-      value={this.getValue()}
+      value={selected}
       placeholder={translateLabel(placeholder, t)}
-      onChange={this.onChange}
+      onChange={onChange}
       required={required}
       disabled={readonly}
       className={classes}
-      options={model.values.map(value => ({...value, label: translateLabel(value.label, t)}))}
+      invalid={error}
+      options={options}
       showClear={optional}
-      filter={model.values.length > 5}
+      filter={options.length > 5}
       filterBy="label"
-    />;
-  }
+    />
+  </AweCriterion>;
 }
 
-export default connectComponent(AweSelect);
+export default AweSelect;

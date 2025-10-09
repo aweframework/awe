@@ -21,15 +21,15 @@ function AweCarousel({id, style = ""}) {
   const [items, setItems] = useState([]);
   const videoTemplate = (item) => {
     return <ReactPlayer url={item.url} controls />
-  }
+  };
 
   const pdfTemplate = (item) => {
     return <PDFObject url={item.url} height={"100%"} style={{height: "100%"}}/>
-  }
+  };
 
   const imageTemplate = (item) => {
     return <Image src={item.url} preview alt={translateLabel(item.title, t)}/>
-  }
+  };
 
   const valueTemplate = (item) => {
     let template;
@@ -49,7 +49,7 @@ function AweCarousel({id, style = ""}) {
       {item.description && <div className={"p-carousel-item-description"}>{translateLabel(item.description, t)}</div>}
       {template}
     </div>;
-  }
+  };
 
   useEffect(() => {
     setItems(model.values);

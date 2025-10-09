@@ -1,7 +1,6 @@
-import React, {Component} from "react";
-import {withTranslation} from "react-i18next";
+import React, {useCallback, useEffect, useState} from "react";
 import {Calendar} from "primereact/calendar";
-import {bindMethods, formatMessage, translateLabel} from "../utilities";
+import {formatMessage, translateLabel} from "../utilities";
 import {
   fromDate,
   getAvailableDates,
@@ -12,73 +11,57 @@ import {
 } from "../utilities/dates";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
+import {useDispatch, useSelector} from "react-redux";
+import {updateModelWithDependencies} from "../redux/thunks/components";
 
-class ColumnFilteredDate extends Component {
+function ColumnFilteredDate(props) {
+  const { placeholder, required, readonly, data, align, style, address, model } = props;
+  const settings = useSelector(state => state.settings);
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
 
-  constructor(props) {
-    super(props);
-    this.state = {disabledDates:[], maxDate: null, minDate: null};
-    // Bind events
-    bindMethods(this, ["onChange", "updateDisabledDates"]);
-  }
+  const [disabledDates, setDisabledDates] = useState([]);
+  const [maxDate, setMaxDate] = useState(null);
+  const [minDate, setMinDate] = useState(null);
 
-  onChange(e) {
-    const {address, updateModelWithDependencies, data} = this.props;
+  const onChange = useCallback((e) => {
     if (data.value !== e.value) {
-      updateModelWithDependencies(address, {values: fromDate(e.value)});
+      dispatch(updateModelWithDependencies(address, { values: fromDate(e.value) }));
     }
-  }
+  }, [data, address, dispatch]);
 
-  updateDisabledDates() {
-    const availableDates = getAvailableDates(this.props.model.values);
-    this.setState({disabledDates: getDisabledDates(availableDates), maxDate: getMaxDate(availableDates), minDate: getMinDate(availableDates)});
-  }
+  useEffect(() => {
+    const availableDates = getAvailableDates(model?.values);
+    setDisabledDates(getDisabledDates(availableDates));
+    setMaxDate(getMaxDate(availableDates));
+    setMinDate(getMinDate(availableDates));
+  }, [model?.values]);
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    this.updateDisabledDates();
-  }
+  const classes = classNames(style, data?.style, "column-editor", { "p-invalid": data?.error });
 
-  /**
-   * Component was updated
-   * @param {object} prevProps Previous props
-   * @param {object} prevState Previous state
-   * @param {object} snapshot Current snapshot
-   */
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!_.isEqual(prevProps.model.values, this.props.model.values)) {
-      this.updateDisabledDates();
-    }
-  }
-
-  render() {
-    const {t, placeholder, required, readonly, data, align, settings, style} = this.props;
-    const {disabledDates, minDate, maxDate} = this.state;
-    const classes = classNames(style, data?.style, "column-editor", {"p-invalid": data?.error});
-    return <Calendar
+  return (
+    <Calendar
       value={toDate(data.value)}
       placeholder={translateLabel(placeholder, t)}
       required={required}
       readOnlyInput={readonly}
       className={classes}
-      inputStyle={{textAlign: align || "center"}}
+      inputStyle={{ textAlign: align || "center" }}
       showButtonBar
       disabledDates={disabledDates}
       maxDate={maxDate}
       minDate={minDate}
       dateFormat="dd/mm/yy"
-      onChange={this.onChange}
+      onChange={onChange}
       locale={settings.language}
       tooltip={formatMessage(data?.error, t)}
-      tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
-    />;
-  }
+      tooltipOptions={{ position: "bottom", className: "validation-tooltip" }}
+    />
+  );
 }
 
 ColumnFilteredDate.propTypes = {
-  updateModelWithDependencies: PropTypes.func.isRequired,
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   model: PropTypes.object,
@@ -86,9 +69,7 @@ ColumnFilteredDate.propTypes = {
   required: PropTypes.bool,
   placeholder: PropTypes.string,
   align: PropTypes.string,
-  settings: PropTypes.object,
-  t: PropTypes.func.isRequired,
   style: PropTypes.string
 };
 
-export default withTranslation()(ColumnFilteredDate);
+export default ColumnFilteredDate;

@@ -1,11 +1,12 @@
-import {fireEvent, render, screen} from '@testing-library/react';
+import {fireEvent, screen} from '@testing-library/react';
 
 import {Columns} from "../../../src/utilities/structure";
+import {renderWithProviders} from "../test-utils";
 
 describe('awe-react-client/test/js/columns/ColumnUploaderTest.jsx', () => {
 
   it('renders Column Uploader component', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'uploader',
       model: {values: []},
       numberFormat: {},
@@ -22,7 +23,7 @@ describe('awe-react-client/test/js/columns/ColumnUploaderTest.jsx', () => {
   });
 
   it('renders Column Uploader component and deletes a file', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'uploader',
       model: {values: [{label: 'test', value: 'test', selected: true}]},
       numberFormat: {},

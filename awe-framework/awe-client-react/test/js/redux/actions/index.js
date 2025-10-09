@@ -1,1 +1,2 @@
 import './dependenciesTest';
+import './advancedDependenciesTest';

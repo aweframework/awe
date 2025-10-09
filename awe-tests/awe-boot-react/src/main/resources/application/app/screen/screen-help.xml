@@ -18,7 +18,7 @@
   <tag source="application-help-source">
     <dialog id="application-help-dialog" modal="true" style="modal-lg expand" label="SCREEN_HELP" icon="question-circle" help="HELP_SCREEN_HELP">
       <tag type="div" style="modal-body scrollable expand">
-        <widget type="help-viewer" id="applicationHelpViewer"/>
+        <widget type="help-viewer" id="applicationHelpViewer" />
       </tag>
       <tag type="div" style="modal-footer">
         <tag type="div" style="pull-right">

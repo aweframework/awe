@@ -1,11 +1,10 @@
-import {render} from '@testing-library/react';
-
 import {Columns} from "../../../src/utilities/structure";
+import {renderWithProviders} from "../test-utils";
 
 describe('awe-react-client/test/js/columns/ColumnImageTest.jsx', () => {
 
   it('renders Column Image component', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'image',
       model: {values: []},
       numberFormat: {},

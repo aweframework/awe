@@ -1,6 +1,3 @@
-/*
- * action types
- */
 export const ADD_ACTION = 'ADD_ACTION';
 export const REMOVE_ACTION = 'REMOVE_ACTION';
 export const ADD_ACTIONS = 'ADD_ACTIONS';

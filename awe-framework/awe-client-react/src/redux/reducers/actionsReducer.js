@@ -18,6 +18,12 @@ import {
 
 const {STATUS_INITIAL, STATUS_STARTED, STATUS_RUNNING, STATUS_ACCEPTED, STATUS_REJECTED, STATUS_ABORTED} = ActionStatus;
 
+const InitialState = {
+  running: false,
+  sync: [[]],
+  async: []
+};
+
 /**
  * Add a sync action
  * @param {object} state Current state
@@ -84,8 +90,8 @@ function addAction(state, action) {
 function removeAction(state, action) {
   return runNext({
     ...state,
-    sync: state.sync.map((stack) => stack.filter(a => a.id !== action.id)),
-    async: state.async.filter(a => a.id !== action.id)
+    sync: [...state.sync.map((stack) => [...stack.filter(a => a.id !== action?.id)])],
+    async: [...state.async.filter(a => a.id !== action?.id)]
   });
 }
 
@@ -102,7 +108,7 @@ function deleteStack(state) {
       ...state.sync.slice(0, currentStackIndex),
       []
     ]
-  })
+  });
 }
 
 /**
@@ -134,9 +140,9 @@ function changeActionAttribute(state, actionId, data) {
     ...state,
     sync: [
       ...state.sync.slice(0, currentStackIndex),
-      currentStack.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))
+      [...currentStack.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))]
     ],
-    async: state.async.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))
+    async: [...state.async.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))]
   };
 }
 
@@ -203,12 +209,6 @@ function getId() {
   return currentId++;
 }
 
-const InitialState = {
-  running: false,
-  sync: [[]],
-  async: []
-};
-
 /**
  * Actions reducer
  * @param state Previous state
@@ -218,6 +218,9 @@ const InitialState = {
 export function actions(state = InitialState, action = {}) {
   let currentStackIndex;
   let currentStack
+  let previousStackIndex;
+  let previousStack;
+
   switch (action.type) {
     case ADD_ACTION:
       return addAction(state, action.payload);
@@ -258,8 +261,8 @@ export function actions(state = InitialState, action = {}) {
         ]
       });
     case REMOVE_STACK:
-      let previousStackIndex = Math.max(state.sync.length - 2, 0);
-      let previousStack = state.sync[previousStackIndex];
+      previousStackIndex = Math.max(state.sync.length - 2, 0);
+      previousStack = state.sync[previousStackIndex];
       currentStackIndex = Math.max(state.sync.length - 1, 0);
       currentStack = state.sync[currentStackIndex];
       if (currentStackIndex === 0) return state;

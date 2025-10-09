@@ -1,50 +1,43 @@
-import React, {Component} from "react";
+import React from "react";
 import {Badge} from 'primereact/badge';
-import {withTranslation} from "react-i18next";
-import {bindMethods, getIconCode, translateLabel} from "../utilities";
+import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
+import {getIconCode, getVisibleTextData, translateLabel} from "../utilities";
 import "./ColumnTextView.less";
-import {classNames, getVisibleTextData} from "../utilities/components";
+import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
+import {addActionsTop} from "../redux/actions/actions";
 
-class ColumnTextView extends Component {
+function ColumnTextView(props) {
+  const { data, align, icon: propIcon, unit: propUnit, address, actions = [] } = props;
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const updateModelWithDependencies = (addr, payload) => dispatch(updateThunk(addr, payload));
 
-  constructor(props) {
-    super(props);
+  const {style, title, label, value} = data;
+  const icon = data.icon || propIcon || undefined;
+  const unit = data.unit || propUnit || null;
+  const classes = classNames("text-view", style);
 
-    // Bind events
-    bindMethods(this, ["onClick", "onKeyDown", "onAction"]);
-  }
-
-  onClick() {
-    this.onAction("click");
-  }
-
-  onKeyDown() {
-    this.onAction("keyDown");
-  }
-
-  onAction(event) {
-    const {address, updateModelWithDependencies, actions, addActionsTop} = this.props;
+  const onAction = (event) => {
     // Change event
     updateModelWithDependencies(address, {event});
-
     if (actions.length > 0) {
-      addActionsTop(actions.map(action => ({...action, address: {...address}})));
+      dispatch(addActionsTop(actions.map(action => ({...action, address: {...address}}))));
     }
-  }
+  };
 
-  render() {
-    const {t, data, align, style} = this.props;
-    const {title, label, value} = data;
-    const icon = data.icon || this.props.icon || undefined;
-    const unit = data.unit || this.props.unit || null;
-    const classes = classNames("text-view", style, data?.style);
-    return <button className={classes} title={translateLabel(title || label, t)} onClick={this.onClick} onKeyDown={this.onKeyDown}>
+  const onClick = () => onAction("click");
+  const onKeyDown = () => onAction("keyDown");
+
+  return (
+    <button className={classes} title={translateLabel(title || label, t)} onClick={onClick} onKeyDown={onKeyDown}>
       <span className={"text-view-icon"}>{getIconCode(icon, "fa-fw")}</span>
       <span className={"text-view-text"} style={{textAlign: align}}>{getVisibleTextData(label || value, t)}</span>
       {unit && <Badge value={translateLabel(unit, t)} severity="secondary" style={{justifyContent: "center"}}/>}
-    </button>;
-  }
+    </button>
+  );
 }
 
 ColumnTextView.propTypes = {
@@ -55,9 +48,6 @@ ColumnTextView.propTypes = {
   actions: PropTypes.array,
   style: PropTypes.string,
   unit: PropTypes.string,
-  t: PropTypes.func.isRequired,
-  updateModelWithDependencies: PropTypes.func.isRequired,
-  addActionsTop: PropTypes.func.isRequired
 };
 
-export default withTranslation()(ColumnTextView);
+export default ColumnTextView;

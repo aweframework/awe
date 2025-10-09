@@ -1,11 +1,7 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {PrimeReactProvider} from 'primereact/api';
 
-import {configureStore} from '@reduxjs/toolkit';
-import createRootReducer from "./redux/reducers";
-import {history} from "./redux/store";
-import {thunk} from "redux-thunk";
-import {render} from "react-dom";
+import ReactDOM from "react-dom/client";
 
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
@@ -31,17 +27,31 @@ import './assets/css/pages/sso-logout.css';
 import AweApp from './components/AweApp';
 import {DEFAULT_SETTINGS, updateSettings} from "./redux/actions/settings";
 import {fetchJson, getContextPath} from "./utilities";
+import {Provider} from "react-redux";
+import {BrowserRouter, useNavigate} from "react-router-dom";
+import { createStore, setNavigateFn } from "./redux/store";
 
-const store = configureStore({
-  preloadedState: {settings: DEFAULT_SETTINGS},
-  reducer: createRootReducer(history),
-  devTools: true,
-  middleware: [thunk]
-});
+const store = createStore();
 
+const AppWithStore = (props) => {
+  const { settings } = props;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigateFn(navigate);
+    store.dispatch(updateSettings(settings));
+  }, []);
+
+  return (
+    <Provider store={store}>
+      <AweApp/>
+    </Provider>
+  );
+};
+
+// Init application
 fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
   .then((settings) => {
-    store.dispatch(updateSettings(settings));
     i18n.init({
       //debug: true,
       backend: {
@@ -54,11 +64,15 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
         escapeValue: false
       }
     }).then(() => {
-      // Initialise application
-      const value = { ripple: true };
-      render(
-        <PrimeReactProvider value={value}><AweApp store={store} settings={settings}/></PrimeReactProvider>,
-        document.getElementById('root')
-      );
-    });
+      const value = {ripple: true};
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(
+        <BrowserRouter>
+          <PrimeReactProvider value={value}>
+            <AppWithStore settings={settings}/>
+          </PrimeReactProvider>
+        </BrowserRouter>);
+    })
   });
+
+

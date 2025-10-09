@@ -1,49 +1,57 @@
 import React from "react";
 import {Button} from "primereact/button";
-import {AweComponent, connectComponent} from "./AweComponent";
 import {classNames} from "../utilities/components";
 import {getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
+import PropTypes from "prop-types";
+import {useDispatch, useSelector} from "react-redux";
+import {useTranslation} from "react-i18next";
+import {updateModelWithDependencies} from "../redux/thunks/components";
+import {addActionsTop} from "../redux/actions/actions";
 
-class AweInfoButton extends AweComponent {
+function AweInfoButton(props) {
 
-  constructor(props) {
-    super(props);
+  const {id} = props;
+  const { address, attributes = {}, actions, globalDisabled, settings } = useSelector(state => ({
+    address: state.components[id]?.address,
+    model: state.components[id]?.model,
+    attributes: state.components[id]?.attributes,
+    actions: state.components[id]?.actions,
+    globalDisabled: state.actions.running,
+    settings: state.settings
+  }));
+  const { t } = useTranslation();
+  const {style, icon, disabled, label, size, visible, help, helpImage} = attributes;
+  const dispatch = useDispatch();
 
-    // Bind events
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick() {
-    const {addActionsTop, updateModelWithDependencies, updateModel, actions, address} = this.props;
-
+  const onClick = () => {
     // Change click event
-    updateModelWithDependencies(address, {event: "click"});
+    dispatch(updateModelWithDependencies(address, {event: "click"}));
 
     // Send actions to action container
-    addActionsTop(actions.map(action => ({...action, address})));
-  }
+    dispatch(addActionsTop(actions.map(action => ({...action, address}))));
+  };
 
-  render() {
-    const {t, attributes, settings, address} = this.props;
-    const {style, icon, disabled, label, size, visible, help, helpImage} = attributes;
-    const classes = classNames(`help-info-button-${address.component}`, "p-button-rounded", "p-button-text", "p-button-secondary", {"hidden": !visible, [`p-button-${size}`]: size}, style);
+  const classes = classNames(`help-info-button-${address.component}`, "p-button-rounded", "p-button-text", "p-button-secondary", {"hidden": !visible, [`p-button-${size}`]: size}, style);
 
-    return <span className="p-overlay-badge">
-        { getHelpTooltipNode(help, helpImage, t, `.help-info-button-${address.component}`) }
-        <Button
-        id={address.component}
-        type="button"
-        className={classes}
-        icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}
-        disabled={this.props.disabled || disabled}
-        label={translateLabel(label, t)}
-        iconPos={"left"}
-        onClick={this.onClick}
-        data-pr-position={"bottom"}
-        data-pr-showdelay={settings.helpTimeout}
-        />
-      </span>;
-      }
-      }
+  return (<span className="p-overlay-badge">
+      { getHelpTooltipNode(help, helpImage, t, `.help-info-button-${address.component}`) }
+      <Button
+      id={address.component}
+      type="button"
+      className={classes}
+      icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}
+      disabled={globalDisabled || disabled}
+      label={translateLabel(label, t)}
+      iconPos={"left"}
+      onClick={onClick}
+      data-pr-position={"bottom"}
+      data-pr-showdelay={settings.helpTimeout}
+      />
+    </span>);
+}
 
-      export default connectComponent(AweInfoButton);
+AweInfoButton.propTypes = {
+  id: PropTypes.string
+};
+
+export default AweInfoButton;

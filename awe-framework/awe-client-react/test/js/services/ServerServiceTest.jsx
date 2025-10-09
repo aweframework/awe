@@ -1,18 +1,29 @@
-import ServerService from "../../../src/services/ServerService";
+import React from 'react';
+import useServerService from "../../../src/services/ServerService";
+import {renderWithProviders} from "../test-utils";
+import {waitFor} from "@testing-library/react";
 
 describe('awe-react-client/test/js/services/ServerServiceTest.jsx', function () {
-  const service = new ServerService();
+  let service;
   let props;
+  let store;
+  let dispatchSpy;
+
+  function TestHarness() {
+    service = useServerService();
+    return null;
+  }
 
   beforeEach(function () {
+    const rendered = renderWithProviders(<TestHarness />, {spyDispatch: true});
+    store = rendered.store;
     props = {
-      updateSettings:jasmine.createSpy('updateSettings'),
-      settings: {},
-      addActionsTop: jasmine.createSpy('addActionsTop')};
-  })
+      settings: {}
+    };
+    dispatchSpy = store.dispatch;
+  });
 
-  it('should launch a server call', function(done) {
-    props.acceptAction = () => done();
+  it('should launch a server call', async function () {
     spyOn(window, "fetch").and.returnValue(Promise.resolve({
       headers: {
         get: () => 'application/json;charset=UTF-8'
@@ -21,8 +32,11 @@ describe('awe-react-client/test/js/services/ServerServiceTest.jsx', function () 
       ok: true,
       json: () => Promise.resolve([])
     }));
-    let actions = service.callServer({parameters: {}, target: "", address: {}}, [], props);
-    expect(Object.keys(actions).length).toBe(0);
+
+    await service.callServer({parameters: {}, target: "", address: {}}, [], props);
+    await waitFor(() => {
+      expect(dispatchSpy).toHaveBeenCalled();
+    });
   });
 
 });

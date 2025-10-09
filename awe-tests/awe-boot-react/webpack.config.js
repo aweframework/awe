@@ -36,7 +36,9 @@ module.exports = {
     new ThymeLeafPlugin(),
     new CopyPlugin({
       patterns: [
-        {from: path.resolve("node_modules/awe-react-client/static")}
+        {from: path.resolve("node_modules/awe-react-client/static")},
+        {from: path.resolve("node_modules/awe-react-client/help.stg"),
+            to: path.resolve(__dirname, 'target', 'classes', 'templates', "awe")}
       ]
     })
   ]

@@ -1,44 +1,41 @@
-import React, {Component} from "react";
-import {Redirect, Route, Switch} from "react-router-dom";
-import {ConnectedRouter} from "connected-react-router";
-import {history} from "../redux/store";
+import React, {useEffect} from "react";
 import ViewContainer from "../containers/ViewContainer";
+import { Routes, Route } from 'react-router-dom';
+import SubViewContainer from "../containers/SubViewContainer";
+import {useDispatch, useSelector} from "react-redux";
+import {updateSettings} from "../redux/actions/settings";
+import { navigationActions } from "../redux/actions/navigation";
 
 const routes = [
-  {path: "/screen/public/:screenId"},
-  {path: "/screen/private/:screenId"},
+  {path: "/screen/public/:screenId", subroutes: [{path: ":subScreenId"}]},
+  {path: "/screen/private/:screenId", subroutes: [{path: ":subScreenId"}]},
   {path: "/screen/:screenId"},
   {path: ""},
 ];
 
-/**
- * View component
- * @extends React.Component
- * @category Components
- */
-export class View extends Component {
+function View(props) {
+  const dispatch = useDispatch();
+  const {settings} = useSelector((state) => ({settings: state.settings}));
+  const {initialURL, reloadCurrentScreen} = settings;
 
-  render() {
-    return (
-      <ConnectedRouter history={history}>
-        <Switch>
-          {routes.map((route, i) => (
-            <RouteWithSubRoutes key={"View" + i} {...route} reloadCurrentScreen={this.props.reloadCurrentScreen} initialURL={this.props.initialURL} props={this.props}/>
-          ))}
-        </Switch>
-      </ConnectedRouter>);
-  }
-}
+  useEffect(() => {
+    if (reloadCurrentScreen) {
+      dispatch(updateSettings({reloadCurrentScreen: false}));
+      dispatch(navigationActions.navigateTo(initialURL));
+    }
+  }, [reloadCurrentScreen]);
 
-function RouteWithSubRoutes(route) {
   return (
-    <Route path={route.path} render={props => {
-      if (route.reloadCurrentScreen) {
-        route.props.updateSettings({reloadCurrentScreen: false});
-        return <Redirect to={route.initialURL} />;
-      } else {
-        return <ViewContainer {...props}/>;
-      }
-    }}/>
+      <Routes>
+        {routes.map((route, i) => (
+          <Route key={"View" + i} path={route.path} element={<ViewContainer {...props} />}>
+          {(route.subroutes || []).map((subRoute, j) => (
+            <Route key={"SubView" + j} path={subRoute.path} element={<SubViewContainer {...props} />}/>
+          ))}
+          </Route>
+        ))}
+      </Routes>
   );
 }
+
+export default View;

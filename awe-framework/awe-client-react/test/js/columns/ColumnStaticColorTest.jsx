@@ -1,11 +1,11 @@
-import {render} from '@testing-library/react';
-
 import {Columns} from "../../../src/utilities/structure";
+import {renderWithProviders} from "../test-utils";
+import {screen} from '@testing-library/react';
 
 describe('awe-react-client/test/js/columns/ColumnStaticColorTest.jsx', () => {
 
   it('renders Column Static Color component', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'color',
       model: {values: []},
       numberFormat: {},
@@ -15,9 +15,9 @@ describe('awe-react-client/test/js/columns/ColumnStaticColorTest.jsx', () => {
       address: {component: 'color', view: 'report', column: 'column', row: 'row'},
       t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "#abcdef"}, false));
 
-    // fails
-    expect(document.querySelector("div")).not.toBeNull();
+    // should render a color swatch span for static color
+    expect(screen.getByText("#abcdef")).toBeDefined();
   });
 });

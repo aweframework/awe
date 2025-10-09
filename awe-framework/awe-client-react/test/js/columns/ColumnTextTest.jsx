@@ -1,8 +1,9 @@
 import React from 'react';
-import {render, fireEvent, screen, cleanup} from '@testing-library/react';
-import ColumnText from '../../../src/columns/ColumnText'; // Ajusta el path si es necesario
+import {fireEvent, screen, cleanup} from '@testing-library/react';
+import ColumnText from '../../../src/columns/ColumnText';
+import {renderWithProviders} from "../test-utils"; // Ajusta el path si es necesario
 
-describe('ColumnTextType', () => {
+describe('awe-react-client/test/js/columns/ColumnTextTest.jsx', () => {
   let props;
 
   beforeEach(() => {
@@ -32,14 +33,14 @@ describe('ColumnTextType', () => {
   });
 
   it('renderiza el input con valor inicial', () => {
-    render(<ColumnText {...props} />);
+    renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     expect(input).not.toBeNull();
     expect(input.required).toBeTrue();
   });
 
   it('llama a updateModelWithDependencies al hacer blur tras cambio', () => {
-    render(<ColumnText {...props} />);
+    renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     input.focus();
     fireEvent.change(input, {target: {value: 'nuevo valor'}});
@@ -49,7 +50,7 @@ describe('ColumnTextType', () => {
   });
 
   it('almacena valor al pulsar Enter', () => {
-    render(<ColumnText {...props} />);
+    renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     input.focus();
     fireEvent.change(input, {target: {value: 'nuevo valor 2'}});
@@ -59,7 +60,7 @@ describe('ColumnTextType', () => {
   });
 
   it('no actualiza modelo si no ha cambiado el valor', () => {
-    render(<ColumnText {...props} />);
+    renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     input.focus();
     fireEvent.blur(input);
@@ -68,7 +69,7 @@ describe('ColumnTextType', () => {
   });
 
   it('actualiza el valor desde props si cambia externamente y no se está escribiendo', () => {
-    const {rerender} = render(<ColumnText {...props} />);
+    const {rerender} = renderWithProviders(<ColumnText {...props} />);
     expect(screen.getByDisplayValue('initial')).not.toBeNull();
 
     props.data.value = 'externo';
@@ -78,7 +79,7 @@ describe('ColumnTextType', () => {
   });
 
   it('no sobrescribe valor si se está escribiendo', () => {
-    const {rerender} = render(<ColumnText {...props} />);
+    const {rerender} = renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     input.focus();
     fireEvent.change(input, {target: {value: 'escribiendo...'}});
@@ -91,14 +92,14 @@ describe('ColumnTextType', () => {
 
   it('no rompe si hay error', () => {
     props.data.error = 'Campo obligatorio';
-    render(<ColumnText {...props} />);
+    renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     expect(input).not.toBeNull();
   });
 
   it('desactiva el input si es readonly', () => {
     props.readonly = true;
-    render(<ColumnText {...props} />);
+    renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     expect(input.disabled).toBeTrue();
   });

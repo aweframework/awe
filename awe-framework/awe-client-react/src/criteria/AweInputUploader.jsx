@@ -1,9 +1,6 @@
-import React from "react";
+import React, {useCallback, useEffect} from "react";
 import {InputText} from 'primereact/inputtext';
-import {connectComponent} from "../components/AweComponent";
-import AweTextComponent from "./AweTextComponent";
 import {
-  bindMethods,
   generateMessageAction,
   getContextPath,
   getRestUrl,
@@ -14,97 +11,89 @@ import {ProgressBar} from "primereact/progressbar";
 import {Button} from "primereact/button";
 import {FileUpload} from "primereact/fileupload";
 import "./AweInputUploader.less";
-import {classNames, deleteFile, getInitialFileData, uploadFile, UploadStatus} from "../utilities/components";
+import {classNames, UploadStatus} from "../utilities/components";
+import useUpload from "../hooks/useUpload";
+import AweCriterion from "./AweCriterion";
+import {useDispatch} from "react-redux";
+import {useTranslation} from "react-i18next";
+import {addActionsTop} from "../redux/actions/actions";
+import useText from "../hooks/useText";
 
 const {INITIAL, UPLOADING, UPLOADED} = UploadStatus;
 
-class AweInputUploader extends AweTextComponent {
+function AweInputUploader(props) {
+  const { id } = props;
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const { address, model = { values: [] }, attributes = {}, validationRules = {}, settings } = useText(id);
 
-  constructor(props) {
-    super(props);
-    bindMethods(this, ["getComponent", "onStartUpload", "onDelete", "onProgress", "onError", "onUpload"]);
-    this.state = {progress: 0};
-  }
+  const upload = useUpload({ address, destination: attributes?.destination });
+  const { status, setStatus, progress, setProgress, getInitialFileData, uploadFile, deleteFile } = upload;
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    super.componentDidMount();
-    getInitialFileData(this, this.props.model.values.filter(v => v.selected).map(v => v.value).join(""));
-  }
+  useEffect(() => {
+    getInitialFileData((model.values || []).filter(v => v.selected).map(v => v.value).join(""));
+  }, []);
 
-  getValue() {
-    return this.props.model.values.filter(v => v.selected).map(v => `${v.label} (${getSizeString(v.size)})`.trim()).join(", ");
-  }
+  const getValue = useCallback(() => {
+    return (model.values || [])
+      .filter(v => v.selected)
+      .map(v => `${v.label} (${getSizeString(v.size)})`.trim())
+      .join(", ");
+  }, [model.values]);
 
-  onStartUpload(e) {
-    uploadFile(this, e);
-  }
+  const onStartUpload = useCallback((e) => uploadFile(e), []);
+  const onDelete = useCallback(() => deleteFile((model.values || []).filter(v => v.selected).map(v => v.value).join("")), [model.values]);
+  const onProgress = useCallback((e) => {
+    const { loaded, total } = e.originalEvent || {};
+    if (total) setProgress(Math.floor(loaded / total * 100));
+  }, []);
+  const onError = useCallback((e) => {
+    dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_FILE_UPLOAD', t), JSON.parse(e.xhr.response).message)]));
+    setStatus(INITIAL);
+  }, []);
+  const onUpload = useCallback(() => setStatus(UPLOADED), []);
 
-  onDelete() {
-    deleteFile(this, this.props.model.values.filter(v => v.selected).map(v => v.value).join(""));
-  }
+  const { placeholder, readonly, size, error } = attributes;
+  const { uploadMaxSize = 0 } = settings || {};
 
-  onProgress(e) {
-    const {loaded, total} = e.originalEvent;
-    this.setState({progress: Math.floor(loaded / total * 100)});
-  }
-
-  onUpload() {
-    this.setState({status: UPLOADED});
-  }
-
-  onError(e) {
-    const {t, addActionsTop} = this.props;
-    addActionsTop([generateMessageAction("error", t('ERROR_TITLE_FILE_UPLOAD'), JSON.parse(e.xhr.response).message)]);
-    this.setState({status: INITIAL});
-  }
-
-  getComponent(style) {
-    const {t, address, attributes, settings} = this.props;
-    const {placeholder, readonly, size} = attributes;
-    const {uploadMaxSize} = settings;
-    const {status} = this.state;
-
-    return <>
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <InputText
-        className={classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style, {[`hidden`]: status === UPLOADING})}
-        value={this.getValue()}
+        className={classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status === UPLOADING, "p-invalid": error })}
+        value={getValue()}
         placeholder={translateLabel(placeholder, t)}
         disabled={readonly}
         readOnly={true}
       />
-      {status === UPLOADING && <ProgressBar
-        style={{width: "100%"}}
-        className={"mt-2"}
-        value={this.state.progress || 0}/>}
+      {status === UPLOADING && (
+        <ProgressBar style={{ width: "100%" }} className={"mt-2"} value={progress || 0} />
+      )}
       <FileUpload
         auto
-        className={classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style, {[`hidden`]: status !== INITIAL})}
-        id={address.component}
+        className={classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== INITIAL, "p-invalid": error })}
+        id={address?.component}
         mode="basic"
         name="file"
         url={getContextPath() + getRestUrl("file", "upload")}
-        maxFileSize={uploadMaxSize * 1024 * 1024}
-        onBeforeSend={this.onStartUpload}
-        onProgress={this.onProgress}
-        onError={this.onError}
-        onUpload={this.onUpload}
+        maxFileSize={(uploadMaxSize || 0) * 1024 * 1024}
+        onBeforeSend={onStartUpload}
+        onProgress={onProgress}
+        onError={onError}
+        onUpload={onUpload}
         disabled={readonly}
         withcredentials={"true"}
-        chooseLabel={t("BUTTON_CHOOSE")}
+        chooseLabel={translateLabel("BUTTON_CHOOSE", t)}
       />
       <Button
-        className={classNames("p-button-secondary", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style, {[`hidden`]: status !== UPLOADED})}
+        className={classNames("p-button-secondary", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== UPLOADED, "p-invalid": error })}
         type="button"
         icon={"pi pi-times"}
-        label={t("BUTTON_CLEAR")}
-        onClick={this.onDelete}
+        label={translateLabel("BUTTON_CLEAR", t)}
+        onClick={onDelete}
         disabled={readonly}
       />
-    </>;
-  }
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputUploader);
+export default AweInputUploader;

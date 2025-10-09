@@ -1,44 +1,32 @@
-import React, {Component} from "react";
+import React from "react";
 import {getSource, getSourceChildren} from "../utilities/structure";
 import {BreadCrumb} from "primereact/breadcrumb";
 
 import "./WindowTemplate.css";
-import {connect} from "react-redux";
-import {withTranslation} from "react-i18next";
+import {useSelector} from "react-redux";
 
-class WindowTemplate extends Component {
+function WindowTemplate(props) {
 
-  constructor(props) {
-    super(props);
-  }
+  const { elementList = [] } = props;
+  const { breadcrumbs } = useSelector(state => ({breadcrumbs: state.menu.breadcrumbs}));
+  const home = {icon: 'pi pi-home'};
+  const sourceCenter = getSource("center", elementList);
+  const sourceModal = getSource("modal", elementList);
+  const sourceHidden = getSource("hidden", elementList);
+  const sourceButtons = getSource("buttons", elementList);
 
-  render() {
-    const {breadcrumbs} = this.props;
-    const home = {icon: 'pi pi-home'};
-    const sourceCenter = getSource("center", this.props.elementList);
-    const sourceModal = getSource("modal", this.props.elementList);
-    const sourceHidden = getSource("hidden", this.props.elementList);
-    const sourceButtons = getSource("buttons", this.props.elementList);
-
-    return (
-      <div className={"expand expandible-vertical animate__animated animate__fadeIn"} style={{position: "relative"}}>
-        <div className="breadcrumb-buttons">
-            <BreadCrumb model={breadcrumbs.items} home={home}/>
-            <div className={`window-buttons pull-right ${sourceButtons.style}`}>{getSourceChildren(sourceButtons)}</div>
-        </div>
-        <div className={`expand expandible-vertical ${sourceCenter.style}`}>{getSourceChildren(sourceCenter)}</div>
-        <div style={{position: 'absolute'}} className={sourceModal.style}>{getSourceChildren(sourceModal)}</div>
-        <div style={{display: 'none'}}>{getSourceChildren(sourceHidden)}</div>
+  return (
+    <div className={"expand expandible-vertical animate__animated animate__fadeIn"} style={{position: "relative"}}>
+      <div className="breadcrumb-buttons p-breadcrumb-container">
+        <BreadCrumb model={breadcrumbs.items} home={home}/>
+        <div className={`window-buttons ${sourceButtons?.style ?? ""}`}>{getSourceChildren(sourceButtons)}</div>
       </div>
-    );
-  }
-}
-
-function mapStateToProps(state) {
-  return {
-    breadcrumbs: state.screen.breadcrumbs
-  };
+      <div className={`expand expandible-vertical ${sourceCenter?.style ?? ""}`}>{getSourceChildren(sourceCenter)}</div>
+      <div style={{position: 'absolute'}} className={sourceModal?.style ?? ""}>{getSourceChildren(sourceModal)}</div>
+      <div style={{display: 'none'}}>{getSourceChildren(sourceHidden)}</div>
+    </div>
+  );
 }
 
 // Connect redux store updates
-export default connect(mapStateToProps, null)(withTranslation()(WindowTemplate));
+export default WindowTemplate;

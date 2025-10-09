@@ -1,11 +1,10 @@
-import {render} from '@testing-library/react';
-
 import {Columns} from "../../../src/utilities/structure";
+import {renderWithProviders} from "../test-utils";
 
 describe('awe-react-client/test/js/columns/ColumnTextViewTest.jsx', () => {
 
   it('renders Column Text View component', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'text-view',
       model: {values: []},
       numberFormat: {},

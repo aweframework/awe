@@ -1,68 +1,68 @@
-import React from "react";
-import {connectComponent} from "../components/AweComponent";
+import React, {useCallback, useRef} from "react";
 import {ColorPicker} from "primereact/colorpicker";
-import {bindMethods, translateLabel} from "../utilities";
+import {translateLabel} from "../utilities";
 import {InputText} from "primereact/inputtext";
 import {OverlayPanel} from "primereact/overlaypanel";
-import AweTextComponent from "./AweTextComponent";
 import {classNames} from "../utilities/components";
 
 import "./AweInputColor.less";
 import {fromColor, toColor} from "../utilities/color";
+import AweCriterion from "./AweCriterion";
+import useText from "../hooks/useText";
+import {useTranslation} from "react-i18next";
 
-class AweInputColor extends AweTextComponent {
+function AweInputColor(props) {
+  const { id } = props;
+  const { t } = useTranslation();
+  const { address, attributes = {}, validationRules = {}, value, onChange, onBlur, onSubmit } = useText(id);
+  const overlayRef = useRef(null);
 
-  constructor(props) {
-    super(props);
-    bindMethods(this, ["getComponent", "getValue", "onShowColor", "onShowColorKey"])
-  }
+  const { placeholder, required, readonly, size } = attributes;
+  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size });
 
-  onShowColor(e) {
-    if (!this.props.attributes.readonly) {
-      this.overlay.toggle(e);
+  const onPickerChange = useCallback((e) => {
+    onChange({ target: { value: toColor(e.target.value) } });
+  }, [onChange]);
+
+  const onToggleOverlay = useCallback((e) => {
+    if (!readonly) {
+      overlayRef.current?.toggle(e);
     }
-  }
+  }, [readonly]);
 
-  onShowColorKey(e) {
-    _.debounce(() => this.onShowColor(e), 100);
-  }
-
-  onChange(e) {
-    super.onChange({target:{value: toColor(e.target.value)}});
-  }
-
-  getComponent(style) {
-    const {t, address, attributes} = this.props;
-    const {placeholder, required, readonly, size} = attributes;
-    const classes = classNames(style, {[`text-${size}`]: size, [`p-inputtext-${size}`]: size});
-
-    return <>
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <InputText
-        id={address.component}
-        value={toColor(this.state.value)}
+        id={address?.component}
+        value={toColor(value)}
         className={classes}
         placeholder={translateLabel(placeholder, t)}
-        onChange={this.onChange}
-        onBlur={this.onBlur}
-        onKeyPress={e => e.key === "Enter" && this.onSubmit()}
+        onChange={onChange}
+        onBlur={onBlur}
+        onKeyPress={e => e.key === "Enter" && onSubmit()}
         required={required}
         disabled={readonly}
       />
       <span className="p-inputgroup-addon">
-        <button className={classNames("colorpicker", {"no-color": !this.state.value, [`colorpicker-${size}`]: size})}
-              style={{backgroundColor: toColor(this.state.value)}} onClick={this.onShowColor} onKeyDown={this.onShowColorKey}/>
-        <OverlayPanel ref={(el) => this.overlay = el} dismissable appendTo={document.body} onHide={this.onBlur}>
+        <button
+          type="button"
+          className={classNames("colorpicker", { "no-color": !value, [`colorpicker-${size}`]: size })}
+          style={{ backgroundColor: toColor(value) }}
+          onClick={onToggleOverlay}
+          onKeyDown={onToggleOverlay}
+        />
+        <OverlayPanel ref={overlayRef} dismissable appendTo={document.body} onHide={onBlur}>
           <ColorPicker
             inline
-            value={fromColor(this.state.value)}
+            value={fromColor(value)}
             disabled={readonly}
-            onChange={this.onChange}
+            onChange={onPickerChange}
             format="hex"
           />
         </OverlayPanel>
       </span>
-    </>;
-  }
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputColor);
+export default AweInputColor;

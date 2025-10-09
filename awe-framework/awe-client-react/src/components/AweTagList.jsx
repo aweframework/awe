@@ -1,8 +1,10 @@
-import React from "react";
-import {AweComponent, connectComponent} from "./AweComponent";
-import {bindMethods, translateLabel} from "../utilities";
+import React, {useEffect, useState} from "react";
+import {translateLabel} from "../utilities";
 import {classNames, parseValidationRules} from "../utilities/components";
 import {Components} from "../utilities/structure";
+import {useTranslation} from "react-i18next";
+import {updateMultipleComponentsWithDependencies} from "../redux/thunks/components";
+import {useDispatch, useSelector} from "react-redux";
 
 function generateTagListRow(elements, row) {
   let template = JSON.stringify(elements);
@@ -40,50 +42,37 @@ function findComponents(view, elementList = []) {
   return elementList.reduce((components, element) => [...components, ...getComponent(element, view), ...findComponents(view, element.elementList)], []);
 }
 
-class AweTagList extends AweComponent {
+function AweTagList(props) {
 
-  constructor(props) {
-    super(props);
-    this.state = {};
-    bindMethods(this, ["reloadElements"]);
-  }
+  const {type, id, style, label, expand} = props;
+  const [elementList, setElementList] = useState([]);
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { address, model } = useSelector(state => ({
+    address: state.components[id]?.address,
+    model: state.components[id]?.model
+  }));
 
-  reloadElements() {
-    const {model, elementList, address} = this.props;
+  const reloadElements = () => {
     const fixedElements = model.values.map(row => generateTagListRow(elementList, row)).flat();
     const components = findComponents(address.view, fixedElements);
-    this.props.updateMultipleComponentsWithDependencies(components);
-    this.setState({elementList: fixedElements, components});
-  }
+    dispatch(updateMultipleComponentsWithDependencies(components));
+    setElementList(fixedElements);
+  };
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    super.componentDidMount();
-    this.reloadElements();
-  }
+  // Initialize on mount or model changes
+  useEffect(() => {
+    reloadElements();
+  }, [model.values]);
 
-  /**
-   * Component was updated
-   * @param {object} prevProps Previous props
-   * @param {object} prevState Previous state
-   * @param {object} snapshot Current snapshot
-   */
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!_.isEqual(prevProps.model.values, this.props.model.values)) {
-      this.reloadElements();
-    }
-  }
 
-  render() {
-    const {t, type, id, style, label, expand} = this.props;
-    const {elementList} = this.state;
-    const classes = classNames({[`expandible-${expand}`]: expand}, style);
+  const classes = classNames({[`expandible-${expand}`]: expand}, style);
 
-    return React.createElement(type || "div", {id: id, className: classes},
-      [translateLabel(label, t)].concat((elementList || []).map((node, index) => Components(node, index))));
-  }
+  return React.createElement(type || "div", {
+    id: id,
+    className: classes,
+    children: [...[translateLabel(label, t)], ...((elementList || []).map((node, index) => Components(node, index)))]
+  });
 }
 
-export default connectComponent(AweTagList);
+export default AweTagList;

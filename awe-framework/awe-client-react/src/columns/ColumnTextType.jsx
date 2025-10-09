@@ -1,87 +1,67 @@
-import React, {Component} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {InputText} from 'primereact/inputtext';
-import {bindMethods, formatMessage, translateLabel} from "../utilities";
+import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {isEmpty} from "../utilities/general";
 import PropTypes from "prop-types";
 
-export default class ColumnTextType extends Component {
+function ColumnTextType(props) {
+  const { t, placeholder, label, required, readonly, data, style, inputType, address, updateModelWithDependencies } = props;
 
-  constructor(props, columnType) {
-    super(props);
+  const [value, setValue] = useState(isEmpty(data?.value) ? "" : data.value);
+  const [writing, setWriting] = useState(false);
 
-    // Bind events
-    bindMethods(this, ["onChange", "onBlur", "storeChange", "onKeyDown"]);
-
-    this.columnType = columnType;
-    this.state = {value: isEmpty(this.props.data.value) ? "" : this.props.data.value};
-  }
-
-  onChange(e) {
-    if (document.activeElement !== e.target) {
-      this.storeChange();
-    } else {
-      this.setState({value: e.target.value, writing: true});
-    }
-  }
-
-  getValue() {
-    const {data = {}} = this.props;
-    return data.value;
-  }
-
-  onKeyDown(e) {
-    if (e.key === "Enter") {
-      this.storeChange();
-    }
-  }
-
-  onBlur() {
-    this.storeChange();
-  }
-
-  storeChange() {
-    const {value} = this.state;
-    const {address, updateModelWithDependencies, data} = this.props;
+  const storeChange = useCallback(() => {
     if (data.value !== value) {
-      updateModelWithDependencies(address, {values: value});
+      updateModelWithDependencies(address, { values: value });
     }
-    this.setState({writing: false});
-  }
+    setWriting(false);
+  }, [address, data.value, updateModelWithDependencies, value]);
 
-  /**
-   * Component was updated
-   * @param {object} _prevProps Previous props
-   * @param {object} _prevState Previous state
-   * @param {object} _snapshot Current snapshot
-   */
-  componentDidUpdate(_prevProps, _prevState, _snapshot) {
-    let newValue = this.getValue();
-    if (newValue !== this.state.value && !this.state.writing) {
-      this.setState({value: newValue});
+  const onChange = useCallback((e) => {
+    if (document.activeElement !== e.target) {
+      storeChange();
+    } else {
+      setValue(e.target.value);
+      setWriting(true);
     }
-  }
+  }, [storeChange]);
 
-  render() {
-    const {t, placeholder, label, required, readonly, data, style} = this.props;
-    const {value} = this.state;
-    const classes = classNames(style, data?.style, {"p-invalid": data?.error});
-    return <div className={"column-editor"}>
-      <InputText
-        value={value}
-        type={this.columnType}
-        placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
-        required={required}
-        disabled={readonly}
-        className={classNames("w-full", classes)}
-        onChange={this.onChange}
-        onBlur={this.onBlur}
-        onKeyDown={this.onKeyDown}
-        tooltip={formatMessage(data?.error, t)}
-        tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
-      />
-    </div>;
-  }
+  const onKeyDown = useCallback((e) => {
+    if (e.key === "Enter") {
+      storeChange();
+    }
+  }, [storeChange]);
+
+  const onBlur = useCallback(() => {
+    storeChange();
+  }, [storeChange]);
+
+  // Sync local state from external data when not writing
+  useEffect(() => {
+    const newValue = data?.value;
+    if (!writing && newValue !== value) {
+      setValue(isEmpty(newValue) ? "" : newValue);
+    }
+  }, [data?.value, writing, value]);
+
+  const classes = classNames(style, data?.style, {"p-invalid": data?.error});
+
+  return <div className={"column-editor"}>
+    <InputText
+      value={value}
+      type={inputType || "text"}
+      placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
+      required={required}
+      disabled={readonly}
+      className={classNames("w-full", classes)}
+      onChange={onChange}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      tooltip={formatMessage(data?.error, t)}
+      tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
+    />
+  </div>;
 }
 
 ColumnTextType.propTypes = {
@@ -94,4 +74,7 @@ ColumnTextType.propTypes = {
   readonly: PropTypes.bool,
   required: PropTypes.bool,
   placeholder: PropTypes.string,
+  inputType: PropTypes.string,
 };
+
+export default ColumnTextType;

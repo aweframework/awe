@@ -2459,11 +2459,14 @@
   color: var(--primary-color-text);
   border-color: var(--hover-color); }
 
-.p-breadcrumb {
+.p-breadcrumb-container {
   background: var(--surface-f);
-  border: 1px solid var(--surface-d);
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  padding: 1rem; }
+}
+.p-breadcrumb {
+  border: 0;
+}
 .p-breadcrumb ul li .p-menuitem-link {
   transition: box-shadow 0.2s;
   border-radius: 3px; }

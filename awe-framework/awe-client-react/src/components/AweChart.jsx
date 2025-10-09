@@ -1,5 +1,4 @@
-import React from "react";
-import {AweComponent, connectComponent} from "./AweComponent";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import Highcharts from 'highcharts/highstock';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import HighchartsDrilldown from 'highcharts/modules/drilldown';
@@ -9,11 +8,15 @@ import HighchartsNoData from "highcharts/modules/no-data-to-display.src";
 import HighchartsExporting from "highcharts/modules/exporting.src";
 import HighchartsReact from 'highcharts-react-official';
 import HighchartsAccesibility from 'highcharts/modules/accessibility';
-import {bindMethods, translateLabel} from "../utilities";
+import {translateLabel} from "../utilities";
+import {useTranslation} from "react-i18next";
 import _ from "lodash";
 
 import "./AweChart.less";
 import {localeOptions} from "primereact/api";
+import {produce} from "immer";
+import {useSelector} from "react-redux";
+import PropTypes from "prop-types";
 
 /**
  * List of magnitudes
@@ -67,62 +70,68 @@ const FORMATTERS = {
  * @memberOf AweChart
  */
 function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, animating) {
-  const {title, subtitle, legend, series, drilldown} = chartOptions;
+  return produce(chartOptions, draft => {
+    const {title, subtitle, legend, series, drilldown} = draft;
 
-  let fixedOptions = {
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    ...chartOptions,
-    lang: localeOptions(settings.language)
-  };
-  // Chart title
-  if (title) {
-    fixedOptions.title.text = translateLabel(title.text, t);
-  }
+    // Set initial attributes
+    draft.backgroundColor = draft.backgroundColor || 'rgba(0, 0, 0, 0)';
+    draft.lang = localeOptions(settings.language);
 
-  // Chart subtitle
-  if (subtitle) {
-    fixedOptions.subtitle.text = translateLabel(subtitle.text, t);
-  }
+    // Chart title
+    if (title) {
+      draft.title.text = translateLabel(title.text, t);
+    }
 
-  // Chart legend
-  if (legend && "title" in legend) {
-    fixedOptions.legend.title.text = translateLabel(legend.title.text, t);
-  }
+    // Chart subtitle
+    if (subtitle) {
+      draft.subtitle.text = translateLabel(subtitle.text, t);
+    }
 
-  // Chart xAxis
-  translateAxis(fixedOptions.xAxis, t);
+    // Chart legend
+    if (legend && "title" in legend) {
+      draft.legend.title.text = translateLabel(legend.title.text, t);
+    }
 
-  // Chart yAxis
-  translateAxis(fixedOptions.yAxis, t);
+    // Chart axis
+    draft.xAxis = translateAxis(draft.xAxis, t);
+    draft.yAxis = translateAxis(draft.yAxis, t);
 
-  (series || []).forEach((serie, index) => {
-    // Translate serie name
-    serie.name && (fixedOptions.series[index].name = translateLabel(serie.name, t));
-    serie.data = getSerieData(serie, model);
+    draft.series = (series || []).map(serie => ({
+      ...serie,
+      name: serie.name ? translateLabel(serie.name, t) : serie.name,
+      data: [...getSerieData(serie, model)],
+    }));
+
+    if (drilldown && drilldown.series) {
+      draft.drilldown = {
+        ...draft.drilldown,
+        series: drilldown.series.map(serie => ({
+          ...serie,
+          name: serie.name ? translateLabel(serie.name, t) : serie.name,
+          data: [...getSerieData(serie, model)],
+        }))
+      };
+
+      // Disabled allow point selection in Pies
+      if (draft.plotOptions.pie) {
+        draft.plotOptions.pie.allowPointSelect = false;
+      }
+
+      // Animation end
+      const plotOptions = (draft.plotOptions || {});
+      if (animating) {
+        draft.plotOptions = {
+          ...plotOptions,
+          series: {...(plotOptions.series || {}), events: {afterAnimate: onAnimationEnd}}
+        };
+      } else {
+        draft.plotOptions = {
+          ...plotOptions,
+          series: {...(plotOptions.series || {}), events: {afterAnimate: () => null}}
+        };
+      }
+    }
   });
-
-  if (drilldown && drilldown.series) {
-    (drilldown.series || []).forEach((serie, index) => {
-      // Translate drilldown serie name
-      serie.name && (fixedOptions.drilldown.series[index].name = translateLabel(serie.name, t));
-      serie.data = getSerieData(serie, model);
-    });
-
-    // Disabled allow point selection in Pies
-    if (fixedOptions.plotOptions.pie) {
-      fixedOptions.plotOptions.pie.allowPointSelect = false;
-    }
-
-    // Animation end
-    const plotOptions = (fixedOptions.plotOptions || {});
-    if (animating) {
-      fixedOptions.plotOptions = {...plotOptions, series: {...(plotOptions.series || {}), events: { afterAnimate: onAnimationEnd}}};
-    } else {
-      fixedOptions.plotOptions = {...plotOptions, series: {...(plotOptions.series || {}), events: { afterAnimate: () => null}}};
-    }
-  }
-
-  return fixedOptions;
 }
 
 /**
@@ -142,36 +151,32 @@ function getSerieData(serie, model) {
 
 /**
  * Translate axis values
- * @param axis Axis
+ * @param axisArray Axis
  * @param t Translator
  * @memberOf AweChart
  */
-function translateAxis(axis, t) {
-  (axis || []).forEach(item => {
-    item.title && (item.title.text = translateLabel(item.title.text, t));
-    item.labels && item.labels.formatter && (item.labels.formatter = FORMATTERS[item.labels.formatter])
-  });
+function translateAxis(axisArray, t) {
+  return (axisArray || []).map(axis => ({
+    ...axis,
+    title: axis.title?.text
+      ? {...axis.title, text: translateLabel(axis.title.text, t)}
+      : axis.title,
+    labels: axis.labels?.formatter
+      ? {...axis.labels, formatter: FORMATTERS[axis.labels.formatter]}
+      : axis.labels,
+  }));
 }
 
 /**
- * AWE Chart component
- * @extends AweComponent
+ * AWE Chart component (functional)
  * @category Components
  * @subcategory Chart
  */
-class AweChart extends AweComponent {
-
-  /**
-   * Create a chart
-   * @param {object} props Chart properties
-   */
-  constructor(props) {
-    super(props);
-
-    this.state = { animating: props.model.values.length > 0 };
-    this.redraw = () => null;
-
-    // Activate modules
+// Synchronous one-time module initialization (before any render/mount)
+let __AWE_CHART_MODULES_INITIALIZED__ = (typeof __AWE_CHART_MODULES_INITIALIZED__ !== 'undefined') ? __AWE_CHART_MODULES_INITIALIZED__ : false;
+let __AWE_CHART_CURRENT_LANG__ = (typeof __AWE_CHART_CURRENT_LANG__ !== 'undefined') ? __AWE_CHART_CURRENT_LANG__ : null;
+function ensureModulesInit() {
+  if (!__AWE_CHART_MODULES_INITIALIZED__) {
     Highcharts3D(Highcharts);
     HighchartsDrilldown(Highcharts);
     HighchartsMore(Highcharts);
@@ -179,73 +184,82 @@ class AweChart extends AweComponent {
     HighchartsBoost(Highcharts);
     HighchartsExporting(Highcharts);
     HighchartsAccesibility(Highcharts);
-
-    // Bind methods
-    bindMethods(this, ["afterChartCreated", "onAnimationEnd"]);
-
-    // Set language
-    Highcharts.setOptions({lang: localeOptions(props.settings.language)});
+    __AWE_CHART_MODULES_INITIALIZED__ = true;
   }
-
-  /**
-   * Chart was created
-   * @param {object} chart Chart
-   */
-  afterChartCreated(chart) {
-    this.chart = chart;
-    this.redraw = _.debounce(() => this.active && this.chart.reflow(), 50);
-    this.active = true;
-  }
-
-  componentWillUnmount() {
-    this.active = false;
-    this.redraw = () => null;
-  }
-
-  /**
-   * Chart animation finished
-   */
-  onAnimationEnd() {
-    // Hack to avoid double animation on start
-    setTimeout(() => this.setState({animating: false}), 500);
-  }
-
-  /**
-   * Component was updated
-   * @param {object} prevProps Previous props
-   * @param {object} prevState Previous state
-   * @param {object} snapshot Current snapshot
-   */
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const {language} = this.props.settings;
-    if (prevProps.settings.language !== language) {
-      Highcharts.setOptions({
-        lang: localeOptions(language),
-      });
-      this.redraw = () => null;
-    } else {
-      this.redraw();
-    }
-  }
-
-  /**
-   * Render component
-   * @returns {JSX.Element} Rendered component
-   */
-  render() {
-    const {t, attributes, model, id, settings} = this.props;
-    const {animating} = this.state;
-    return <div className={"awe-chart expand highcharts-dark"} id={id}>
-      <HighchartsReact
-        key={settings.language}
-        highcharts={Highcharts}
-        options={processChartOptions(attributes.chartModel, model.values, t, settings, this.onAnimationEnd, animating)}
-        callback={this.afterChartCreated}
-        allowChartUpdate={ !animating }
-        containerProps={{style: {position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}}
-      />
-    </div>;
+}
+function ensureLanguage(lang) {
+  if (__AWE_CHART_CURRENT_LANG__ !== lang) {
+    Highcharts.setOptions({ lang: localeOptions(lang) });
+    __AWE_CHART_CURRENT_LANG__ = lang;
   }
 }
 
-export default connectComponent(AweChart);
+function AweChart(props) {
+  const { id } = props;
+  const { settings, model = { values: [] }, attributes = {} } = useSelector(state => ({
+    address: state.components[id]?.address,
+    model: state.components[id]?.model,
+    attributes: state.components[id]?.attributes,
+    settings: state.settings
+  }));
+  const [animating, setAnimating] = useState((model?.values || []).length > 0);
+  const chartRef = useRef(null);
+  const activeRef = useRef(false);
+  const redrawRef = useRef(() => {});
+  const { t, i18n } = useTranslation();
+
+  // Make sure Highcharts modules are ready before first render
+  ensureModulesInit();
+  // Ensure initial language is applied synchronously too (before mount)
+  ensureLanguage(i18n.language);
+
+  // Update language when app language changes (runtime changes)
+  useEffect(() => {
+    ensureLanguage(i18n.language);
+    // force redraw callback to be reset
+    redrawRef.current = () => {};
+  }, [i18n.language]);
+
+  const afterChartCreated = useCallback((chart) => {
+    chartRef.current = chart;
+    redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
+    activeRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      activeRef.current = false;
+      redrawRef.current = () => {};
+    };
+  }, []);
+
+  const onAnimationEnd = useCallback(() => {
+    setTimeout(() => setAnimating(false), 500);
+  }, []);
+
+  // Redraw on updates
+  useEffect(() => {
+    redrawRef.current();
+  });
+
+  const chartOptions = JSON.parse(JSON.stringify(
+    processChartOptions(attributes.chartModel, model.values, t, {...settings, language: i18n.language}, onAnimationEnd, animating)
+  ));
+
+  return <div className={"awe-chart expand highcharts-dark"} id={id}>
+    <HighchartsReact
+      key={i18n.language}
+      highcharts={Highcharts}
+      options={chartOptions}
+      callback={afterChartCreated}
+      allowChartUpdate={!animating}
+      containerProps={{style: {position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}}
+    />
+  </div>;
+}
+
+AweChart.propTypes = {
+  id: PropTypes.string
+};
+
+export default AweChart;

@@ -9,3 +9,5 @@ import './ColumnLinkTest';
 import './ColumnImageTest';
 import './ColumnProgressTest';
 import './ColumnStaticColorTest';
+import './ColumnSelectTest';
+import './ColumnTimeTest';

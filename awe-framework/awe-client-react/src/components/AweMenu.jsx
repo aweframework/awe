@@ -1,14 +1,14 @@
-import React, {Component} from "react";
-import {withTranslation} from 'react-i18next';
+import React, {useEffect, useMemo, useState} from "react";
+import {useTranslation} from 'react-i18next';
 import {Menubar} from "primereact/menubar";
 import {PanelMenu} from "primereact/panelmenu";
-import {connect} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {addActionsTop, deleteStack} from "../redux/actions/actions";
-import {updateBreadcrumbs} from "../redux/actions/screen";
+import {updateBreadcrumbs} from "../redux/actions/menu";
 import PropTypes from 'prop-types';
 
 import "./AweMenu.css";
-import {bindMethods, getIconCode, translateLabel} from "../utilities";
+import {getIconCode, translateLabel} from "../utilities";
 
 /**
  * Check if option has children or is a final option
@@ -113,7 +113,7 @@ function generateBreadcrumbs(optionList, breadcrumbs, props) {
     .map((option) => {
       const {name, label, options} = option;
       let translated = translateLabel(label || currentOption.title, t);
-      let newBreadcrumbs = breadcrumbs.concat({label: translated, name: name});
+      let newBreadcrumbs = [...breadcrumbs, {label: translated, name: name}];
       if (name === currentOption.option) {
         return newBreadcrumbs;
       } else if (options.length === 0) {
@@ -126,103 +126,63 @@ function generateBreadcrumbs(optionList, breadcrumbs, props) {
     .reduce((old, current) => current != null ? current : old, null);
 }
 
-class AweMenu extends Component {
+function AweMenu(props) {
+  const { id, style = "horizontal" } = props;
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { options, breadcrumbs, currentOption, disabled, module } = useSelector(state => ({
+    options: state.menu.options,
+    breadcrumbs: state.menu.breadcrumbs || {},
+    currentOption: state.view.report || {},
+    disabled: state.actions.running,
+    module: state.components['module'] || { model: { values: [] } }
+  }));
 
-  /**
-   * Create a grid
-   * @param {object} props Grid properties
-   */
-  constructor(props) {
-    super(props);
-    bindMethods(this, ["onExpand"]);
-  }
+  const [expandedKeys, setExpandedKeys] = useState({});
 
-  onExpand(expandedKeys) {
-    this.setState(prevState => ({...prevState, expandedKeys}));
-  }
+  const helperProps = useMemo(() => ({
+    t,
+    currentOption,
+    disabled,
+    module,
+    addActionsTop: (actions) => dispatch(addActionsTop(actions)),
+    deleteStack: () => dispatch(deleteStack()),
+  }), [t, currentOption, disabled, module, dispatch]);
 
-  onUpdateBreadcrumbs(props) {
-    const {currentOption, breadcrumbs, updateBreadcrumbs, options} = props;
-    if (currentOption.option && breadcrumbs.option !== currentOption.option) {
-      // Update breadcrumbs
-      updateBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], props) || []);
+  // Initialize expanded keys and breadcrumbs on mount
+  useEffect(() => {
+    const initialExpanded = getExpandedKeys({ options });
+    setExpandedKeys(initialExpanded);
+    // initial breadcrumbs
+    if (currentOption?.option) {
+      dispatch(updateBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []));
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-
-  /**
-   * Component was updated
-   * @param {object} prevProps Previous props
-   * @param {object} prevState Previous state
-   * @param {object} snapshot Current snapshot
-   */
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    this.onUpdateBreadcrumbs(this.props);
-  }
-
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    const expandedKeys = getExpandedKeys(this.props);
-    this.onUpdateBreadcrumbs(this.props);
-    this.setState({expandedKeys});
-  }
-
-  render() {
-    const {options, disabled = false, style = "horizontal"} = this.props;
-    const {expandedKeys = []} = this.state || {};
-    if (style.includes("vertical")) {
-      return <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
-        expandedKeys={expandedKeys} onExpandedKeysChange={this.onExpand}
-        model={optionsToItems(options, this.props).filter(o => o.display)}/>;
-    } else {
-      return <Menubar aria-disabled={disabled}
-        model={optionsToItems(options, this.props).filter(o => o.display)}/>;
+  // Update breadcrumbs when current option changes
+  useEffect(() => {
+    if (currentOption?.option && breadcrumbs?.option !== currentOption.option) {
+      dispatch(updateBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []));
     }
+  }, [currentOption?.option, breadcrumbs?.option, options, helperProps, dispatch]);
+
+  const onExpand = (ek) => setExpandedKeys(ek);
+
+  const model = (optionsToItems(options, helperProps) || []).filter(o => o.display);
+
+  if (style.includes("vertical")) {
+    return <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
+                      expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
+                      model={model}/>;
+  } else {
+    return <Menubar aria-disabled={disabled} model={model}/>;
   }
 }
 
 AweMenu.propTypes = {
   id: PropTypes.string.isRequired,
-  style: PropTypes.string,
-  status: PropTypes.object,
-  options: PropTypes.array.isRequired,
-  breadcrumbs: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-  currentOption: PropTypes.object.isRequired,
-  disabled: PropTypes.bool.isRequired,
-  module: PropTypes.object
+  style: PropTypes.string
 };
 
-/**
- * Map state to props
- * @param state State
- * @param ownProps Properties
- * @returns {object} Properties to map
- */
-function mapStateToProps(state, ownProps) {
-  const {id, style} = ownProps;
-  return {
-    id,
-    style,
-    status: state.menu.status,
-    options: state.menu.options,
-    breadcrumbs: state.screen.breadcrumbs || [],
-    currentOption: state.screen.report || {},
-    disabled: state.actions.running,
-    module: state.components['module'] || {model: {values: []}},
-  };
-}
-
-/**
- * Connect component to redux store
- * @param component Component to connect
- * @returns {function} connect method
- */
-const connectComponent = (component) => connect(mapStateToProps, {
-  addActionsTop,
-  deleteStack,
-  updateBreadcrumbs
-})(withTranslation()(component));
-
-export default connectComponent(AweMenu);
+export default AweMenu;

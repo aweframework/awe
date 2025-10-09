@@ -1,4 +1,45 @@
 /**
+ * Component type
+ */
+
+export const ComponentType = {
+  COMPONENT_GRID: 'grid',
+  COMPONENT_OTHER: 'other',
+  COMPONENT_TEXT: 'text',
+  COMPONENT_TEXTAREA: 'textarea',
+  COMPONENT_NUMERIC: 'numeric',
+  COMPONENT_SELECT: 'select',
+  COMPONENT_SELECT_MULTIPLE: 'select-multiple',
+  COMPONENT_SUGGEST: 'suggest',
+  COMPONENT_SUGGEST_MULTIPLE: 'suggest-multiple',
+  COMPONENT_DATE: 'date',
+  COMPONENT_FILTERED_CALENDAR: 'filtered-calendar',
+  COMPONENT_TIME: 'time',
+  COMPONENT_HIDDEN: 'hidden',
+  COMPONENT_PASSWORD: 'password',
+  COMPONENT_FILE: 'file',
+  COMPONENT_CHECKBOX: 'checkbox',
+  COMPONENT_RADIO: 'radio',
+  COMPONENT_BUTTON_CHECKBOX: 'button-checkbox',
+  COMPONENT_BUTTON_RADIO: 'button-radio',
+  COMPONENT_TAB: 'tab',
+  COMPONENT_UPLOADER: 'uploader',
+  COMPONENT_COLOR: 'color',
+  COMPONENT_TEXT_VIEW: 'text-view',
+  COMPONENT_WYSIWYG: 'wysiwyg',
+  COMPONENT_MARKDOWN_EDITOR: 'markdown-editor',
+  COMPONENT_ICON: 'icon',
+  COMPONENT_IMAGE: 'image',
+  COMPONENT_VIDEO: 'video',
+  COMPONENT_PROGRESS: 'progress',
+  COMPONENT_SPARKLINE: 'sparkline',
+  COMPONENT_DIALOG: 'dialog',
+  COMPONENT_ACCORDION: 'accordion',
+  COMPONENT_WIZARD: 'wizard',
+  COMPONENT_PICKLIST: 'picklist',
+};
+
+/**
  * Compare if two values are equal
  * @param {type} value1
  * @param {type} value2

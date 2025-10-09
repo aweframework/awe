@@ -1,34 +1,34 @@
 import React from "react";
-import {InputText} from 'primereact/inputtext';
-import {connectComponent} from "../components/AweComponent";
-import AweTextComponent from "./AweTextComponent";
-import {classNames} from "../utilities/components";
-import {translateLabel} from "../utilities";
+import { InputText } from 'primereact/inputtext';
+import { classNames } from "../utilities/components";
+import { translateLabel } from "../utilities";
+import { useTranslation } from "react-i18next";
+import AweCriterion from "./AweCriterion";
+import useText from "../hooks/useText";
 
-class AweInputText extends AweTextComponent {
+function AweInputText(props) {
+  const { id } = props;
+  const { t } = useTranslation();
+  const { address, attributes, validationRules, value, onChange, onBlur, onSubmit } = useText(id);
 
-  constructor(props) {
-    super(props);
+  const { placeholder, required, readonly, size, error } = attributes;
+  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
-    this.getComponent = this.getComponent.bind(this);
-  }
-
-  getComponent(style) {
-    const {t, address, attributes} = this.props;
-    const {placeholder, required, readonly, size} = attributes;
-    const classes = classNames(style, {[`text-${size}`]: size, [`p-inputtext-${size}`]: size});
-    return <InputText
-      id={address.component}
-      value={this.state.value}
-      className={classes}
-      placeholder={translateLabel(placeholder, t)}
-      onChange={this.onChange}
-      onBlur={this.onBlur}
-      onKeyDown={e => e.key === "Enter" && this.onSubmit()}
-      required={required}
-      disabled={readonly}
-    />;
-  }
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
+      <InputText
+        id={address?.component}
+        value={value}
+        className={classes}
+        placeholder={translateLabel(placeholder, t)}
+        onChange={onChange}
+        onBlur={onBlur}
+        onKeyDown={e => e.key === "Enter" && onSubmit()}
+        required={required}
+        disabled={readonly}
+      />
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputText);
+export default AweInputText;

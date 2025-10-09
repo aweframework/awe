@@ -1,35 +1,27 @@
 import React from "react";
-import {connectComponent} from "../components/AweComponent";
 import {SelectButton} from "primereact/selectbutton";
-import AweCheckboxRadioComponent from "./AweCheckboxRadioComponent";
+import useCheckboxRadio from "../hooks/useCheckboxRadio";
+import AweCriterion from "./AweCriterion";
+import classNames from "classnames";
 
-class AweButtonRadio extends AweCheckboxRadioComponent {
+function AweButtonRadio(props) {
+  const { id } = props;
+  const { address, model, attributes, validationRules, getValue, itemTemplate, onChangeButtonRadio } = useCheckboxRadio(id);
 
-  constructor(props) {
-    super(props);
-  }
-
-  onChange(e) {
-    const {address, model, updateModelWithDependencies} = this.props;
-    updateModelWithDependencies(address, {
-      values: model.values.map(item => ({
-        ...item,
-        selected: e.value === item.value
-      }))
-    });
-  }
-
-  getComponent(style) {
-    const {address, model, attributes} = this.props;
-    return <SelectButton
-      inputid={address.component}
-      value={this.getValue()[0] || null}
-      options={model.values}
-      onChange={this.onChange}
-      itemTemplate={o => this.itemTemplate(o, attributes)}
-      className={style}
-    />;
-  }
+  const { size, error = false } = attributes;
+  const classes = classNames({ [`text-${size}`]: size, "p-invalid": error });
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false}>
+      <SelectButton
+        inputid={address?.component}
+        value={getValue()[0] || null}
+        options={model.values}
+        onChange={onChangeButtonRadio}
+        itemTemplate={itemTemplate}
+        className={classes}
+      />
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweButtonRadio);
+export default AweButtonRadio;

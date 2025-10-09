@@ -1,44 +1,35 @@
 import React from "react";
-import {connectComponent} from "../components/AweComponent";
-import AweTextComponent from "./AweTextComponent";
-import {InputTextarea} from "primereact/inputtextarea";
-import {classNames} from "../utilities/components";
-import {translateLabel} from "../utilities";
+import { InputTextarea } from "primereact/inputtextarea";
+import { classNames } from "../utilities/components";
+import { translateLabel } from "../utilities";
+import { useTranslation } from "react-i18next";
+import AweCriterion from "./AweCriterion";
+import useText from "../hooks/useText";
 
-class AweInputTextarea extends AweTextComponent {
+function AweInputTextarea(props) {
+  const { id } = props;
+  const { t } = useTranslation();
+  const { address, attributes, validationRules, value, onChange, onBlur } = useText(id);
 
-  constructor(props) {
-    super(props);
-    this.groupClass = "";
+  const { placeholder, required, readonly, size, areaRows, error } = attributes;
+  const classes = classNames("w-full", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
-    this.getComponent = this.getComponent.bind(this);
-  }
-
-  getIcon() {
-    return null;
-  }
-
-  getUnit() {
-    return null;
-  }
-
-  getComponent(style) {
-    const {t, address, attributes} = this.props;
-    const {placeholder, required, readonly, size, areaRows} = attributes;
-    const classes = classNames("w-full", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style);
-
-    return <InputTextarea
-      id={address.component}
-      value={this.state.value}
-      className={classes}
-      placeholder={translateLabel(placeholder, t)}
-      onChange={this.onChange}
-      onBlur={this.onBlur}
-      required={required}
-      disabled={readonly}
-      rows={areaRows}
-    />;
-  }
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
+                  groupClass="" generateIcon={false} generateUnit={false}>
+      <InputTextarea
+        id={address?.component}
+        value={value}
+        className={classes}
+        placeholder={translateLabel(placeholder, t)}
+        onChange={onChange}
+        onBlur={onBlur}
+        required={required}
+        disabled={readonly}
+        rows={areaRows}
+      />
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputTextarea);
+export default AweInputTextarea;
