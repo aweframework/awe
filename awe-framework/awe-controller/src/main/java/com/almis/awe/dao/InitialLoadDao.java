@@ -5,8 +5,8 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.service.QueryService;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import static com.almis.awe.model.type.LoadType.ENUM;
@@ -46,9 +46,9 @@ public class InitialLoadDao {
   public Future<ServiceData> launchInitialLoad(AweThreadInitialization initializationData) throws AWException {
     try {
       if (ENUM.equals(initializationData.getInitialLoadType())) {
-        return new AsyncResult<>(queryService.launchEnumQuery(initializationData.getTarget()));
+        return CompletableFuture.completedFuture(queryService.launchEnumQuery(initializationData.getTarget()));
       } else {
-        return new AsyncResult<>(queryService.launchPrivateQuery(initializationData.getTarget(), initializationData.getParameters()));
+        return CompletableFuture.completedFuture(queryService.launchPrivateQuery(initializationData.getTarget(), initializationData.getParameters()));
       }
     } catch (AWException exc) {
       throw exc;

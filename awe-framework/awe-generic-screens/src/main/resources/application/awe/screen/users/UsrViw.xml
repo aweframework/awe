@@ -17,7 +17,7 @@
   </tag>
   <tag source="center">
     <window style="expand" label="SCREEN_TEXT_DATA" icon="eye">
-      <tag type="div" style="panel-body expand">
+      <tag type="div" style="panel-body">
         <criteria label="PARAMETER_NAME" id="Nam" component="text" variable="Nam" readonly="true" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_EMAIL" id="Eml" component="text" variable="Eml" readonly="true" style="col-xs-12 col-sm-12 col-lg-6" />
         <criteria label="PARAMETER_USER" id="Nom" component="text" variable="Nom" readonly="true" style="col-xs-6 col-sm-6 col-lg-3" />
