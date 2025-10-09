@@ -18,4 +18,4 @@ This development adds the possibility to enable an extra authentication factor b
 enter the application. We have also added the possibility to force all the users to activate this second factor to improve
 access security.
 
-To see more information about this new functionality, you can read about it on [this link](/docs/security#two-factor-authentication-2fa)
+To see more information about this new functionality, you can read about it on [this link](/docs/security/security-authentication#two-factor-authentication-2fa)

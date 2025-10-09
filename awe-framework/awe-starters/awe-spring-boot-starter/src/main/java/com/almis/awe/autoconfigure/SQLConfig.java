@@ -101,6 +101,17 @@ public class SQLConfig {
     return getConfiguration(new FixedSQLServerTemplates());
   }
 
+	/**
+	 * PostgreSQL database configuration
+	 *
+	 * @return PostgreSQL database configuration bean
+	 */
+	@Bean
+	@Scope("prototype")
+	public Configuration postgresqlDatabaseConfiguration() {
+		return getConfiguration(PostgreSQLTemplates.builder().build());
+	}
+
   /**
    * Sybase database configuration
    *

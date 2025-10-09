@@ -435,8 +435,13 @@ Launch Sonar:
   needs:
     - job: All UT
     - job: Oracle Tests
+    - job: Oracle Flyway Test
     - job: SQL Server Tests
+    - job: SQL Server Flyway Test
     - job: MySQL Tests
+    - job: MySQL Flyway Test
+    - job: PostgreSQL Tests
+    - job: PostgreSQL Flyway Test
     - job: Frontend UT
     - job: Firefox IT Application and Integration
     - job: Firefox IT CRUD Criteria and Matrix

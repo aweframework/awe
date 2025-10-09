@@ -20,11 +20,9 @@
   </tag>
   <tag source="center">
     <window style="expand expandable-vertical" label="SCREEN_TEXT_CRITERIA" icon="list">
-      <tag type="div" style="panel-body expand">
-        <tag type="div" style="row">
-          <criteria icon="user" label="PARAMETER_USER" component="suggest" id="MsgTar" server-action="data" target-action="UsrNamSug" style="col-xs-12 col-sm-offset-1 col-sm-3 col-lg-offset-1 col-lg-3" />
-        </tag>
-        <criteria label="PARAMETER_MESSAGE" id="MsgDes" component="textarea" area-rows="10" style="col-xs-12 col-sm-offset-1 col-sm-6 col-lg-offset-1 col-lg-6" />
+      <tag type="div" style="panel-body">
+        <criteria icon="user" label="PARAMETER_USER" component="suggest" id="MsgTar" server-action="data" target-action="UsrNamSug" style="col-xs-12 col-lg-3" />
+        <criteria label="PARAMETER_MESSAGE" id="MsgDes" component="textarea" area-rows="10" style="col-xs-12" />
       </tag>
     </window>
   </tag>
