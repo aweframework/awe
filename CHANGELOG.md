@@ -1,4 +1,10 @@
 
+# Changelog for AWE 4.11.1
+*09/10/2025*
+
+- Fix some screens to make them useful in react engine. [MR #593](https://gitlab.com/aweframework/awe/-/merge_requests/593) (Pablo Javier García Mora)
+- Improve log sql queries. [MR #591](https://gitlab.com/aweframework/awe/-/merge_requests/591) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.11.0
 *29/09/2025*
 
