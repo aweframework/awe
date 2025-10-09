@@ -15,32 +15,32 @@ export const MessageType = {
   MESSAGE_ERROR: 'error',
   MESSAGE_INFO: 'info',
   MESSAGE_WRONG: 'wrong'
-}
+};
 
 /*
  * action creators
  */
 
 export function addMessage(data) {
-  return {type: ADD_MESSAGE, data}
+  return {type: ADD_MESSAGE, data};
 }
 
 export function showMessages(data) {
-  return {type: SHOW_MESSAGES, data}
+  return {type: SHOW_MESSAGES, data};
 }
 
 export function removeMessage(data) {
-  return {type: REMOVE_MESSAGE, data}
+  return {type: REMOVE_MESSAGE, data};
 }
 
 export function updateMessages(view, data) {
-  return {type: UPDATE_MESSAGES, view, data}
+  return {type: UPDATE_MESSAGES, view, data};
 }
 
 export function confirmMessage(data) {
-  return {type: CONFIRM_MESSAGE, data}
+  return {type: CONFIRM_MESSAGE, data};
 }
 
 export function removeConfirm() {
-  return {type: REMOVE_CONFIRM}
+  return {type: REMOVE_CONFIRM};
 }

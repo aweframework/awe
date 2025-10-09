@@ -1,47 +1,60 @@
-import React from "react";
-import {connectComponent} from "../components/AweComponent";
+import React, {useCallback} from "react";
+import {useTranslation} from "react-i18next";
 import {Checkbox} from "primereact/checkbox";
-import AweCheckboxRadioComponent from "./AweCheckboxRadioComponent";
 import {classNames} from "../utilities/components";
 import {InputSwitch} from "primereact/inputswitch";
 import {translateLabel} from "../utilities";
+import useCheckboxRadio from "../hooks/useCheckboxRadio";
+import AweCriterion from "./AweCriterion";
 
-class AweInputCheckbox extends AweCheckboxRadioComponent {
+function AweInputCheckbox(props) {
+  const { id } = props;
+  const { t } = useTranslation();
+  const { address, attributes, validationRules, getChecked, onChangeCheckbox } = useCheckboxRadio(id);
 
-  getComponent(errorStyle = "") {
-    const {t, address, attributes} = this.props;
-    const {style = ""} = attributes;
-    const {placeholder, required, readonly, label, size} = attributes;
-    const isSwitch = style.includes("switch");
-    const classes = classNames(errorStyle, {[`text-${size}`]: size, [`p-inputtext-${size}`]: size});
-    if (isSwitch) {
-      return <div className="field-checkbox">
-        <InputSwitch
-          inputid={address.component}
-          checked={this.getChecked()}
-          placeholder={translateLabel(placeholder, t)}
-          onChange={(e) => this.onChange({target: {...e.target, checked: e.target.value}})}
-          required={required}
-          disabled={readonly}
-          className={classes}
-        />
-        <label htmlFor={address.component}>{translateLabel(label, t)}</label>
-      </div>;
-    } else {
-      return <div className="field-checkbox">
-        <Checkbox
-          inputid={address.component}
-          checked={this.getChecked()}
-          placeholder={translateLabel(placeholder, t)}
-          onChange={this.onChange}
-          required={required}
-          disabled={readonly}
-          className={classes}
-        />
-        <label htmlFor={address.component}>{translateLabel(label, t)}</label>
-      </div>;
-    }
+  const { style = "", placeholder, required, readonly, label, size, error = false } = attributes;
+  const isSwitch = (style || "").includes("switch");
+  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+
+  const onChangeSwitch = useCallback((e) => {
+    onChangeCheckbox({ target: { ...e.target, checked: e.target.value } });
+  }, [onChangeCheckbox]);
+
+  if (isSwitch) {
+    return (
+      <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false}>
+        <div className="field-checkbox">
+          <InputSwitch
+            inputId={address?.component}
+            checked={getChecked()}
+            placeholder={translateLabel(placeholder, t)}
+            onChange={onChangeSwitch}
+            required={required}
+            disabled={readonly}
+            className={classes}
+          />
+          <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
+        </div>
+      </AweCriterion>
+    );
   }
+
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false}>
+      <div className="field-checkbox">
+        <Checkbox
+          inputId={address?.component}
+          checked={getChecked()}
+          placeholder={translateLabel(placeholder, t)}
+          onChange={onChangeCheckbox}
+          required={required}
+          disabled={readonly}
+          className={classes}
+        />
+        <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
+      </div>
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputCheckbox);
+export default AweInputCheckbox;

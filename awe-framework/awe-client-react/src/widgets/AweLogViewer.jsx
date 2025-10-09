@@ -1,117 +1,68 @@
-import React from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {LazyLog} from 'react-lazylog';
-import {bindMethods, fetchAction, getIconCode} from "../utilities";
-import {getFormValues} from "../utilities/components";
+import {getIconCode} from "../utilities";
 import {Button} from "primereact/button";
 import "./AweLogViewer.less";
-import {AweWidget, connectWidget} from "./AweWidget";
-import {isEmpty} from "../utilities/general";
+import {useDispatch, useSelector} from "react-redux";
+import {updateAttributes} from "../redux/actions/components";
+import {fetchLogAction} from "../redux/thunks/files";
 
 /**
  * AWE Log Viewer component
- * @extends AweWidget
  * @category Widgets
  */
-class AweLogViewer extends AweWidget {
+function AweLogViewer(props) {
 
-  constructor(props) {
-    super(props);
-    this.state = {offset: 1, text: " ", showLoadingDots: true};
-    this.loadingTimeout = null;
-    this.lastAutorefresh = props.attributes.autorefresh;
-    bindMethods(this, ["fetchLog", "updateLog", "toggleAutoRefresh", "checkAutoRefresh"]);
-  }
-
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    setTimeout(this.fetchLog, 100);
-  }
-
-  /**
-   * Component will be unmounted
-   */
-  componentWillUnmount() {
-    clearTimeout(this.loadingTimeout);
-  }
-
-  /**
-   * Component was updated
-   * @param {object} prevProps Previous props
-   * @param {object} prevState Previous state
-   * @param {object} snapshot Current snapshot
-   */
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.attributes.autorefresh !== this.props.attributes.autorefresh) {
-      this.checkAutoRefresh();
-    }
-  }
-
-  /**
-   * Call for log delta
-   */
-  fetchLog() {
-    const {serverAction, targetAction, settings} = this.props;
-    fetchAction(serverAction, targetAction, {...getFormValues(this.props), offset: this.state.offset}, settings.token)
-      .then(this.updateLog)
-      .catch((reason) => console.error("Error reading log file:", reason));
-  }
-
-  /**
-   * Update log data from actions
-   * @param {object[]} actions Action list
-   */
-  updateLog(actions = []) {
-    const {offset = 1, text = " "} = this.state;
-    const newLines = actions.filter(a => a.type === "log-delta").map(a => a.parameters.log).flat();
-    this.setState({offset: offset + newLines.length, text: (isEmpty(text.trim()) ? "" : text + "\n") + newLines.join("\n")});
-    this.checkAutoRefresh();
-  }
+  const {id} = props;
+  const address = useSelector(state => state.components[id]?.address);
+  const autorefresh = useSelector(state => state.components[id]?.attributes?.autorefresh);
+  const serverAction = useSelector(state => state.components[id]?.attributes?.serverAction);
+  const targetAction = useSelector(state => state.components[id]?.attributes?.targetAction);
+  const dispatch = useDispatch();
+  const [offset, setOffset] = useState(1);
+  const [logText, setLogText] = useState(" ");
+  const [showLoadingDots, setShowLoadingDots] = useState(true);
+  const loadingTimeout = useRef(null);
+  const lastAutorefresh = useRef(autorefresh);
 
   /**
    * Check if autorefresh must be active or not
    */
-  checkAutoRefresh() {
-    const {autorefresh} = this.props.attributes;
+  const checkAutoRefresh = useCallback(() => {
     if (autorefresh) {
-      this.loadingTimeout = setTimeout(() => this.fetchLog(), autorefresh * 1000);
-      this.lastAutorefresh = autorefresh;
-      this.setState({showLoadingDots: true});
+      clearInterval(loadingTimeout.current);
+      loadingTimeout.current = setInterval(() => dispatch(fetchLogAction(serverAction, targetAction, offset, setLogText, setOffset)), autorefresh * 1000);
+      lastAutorefresh.current = autorefresh;
+      setShowLoadingDots(true);
     } else {
-      this.setState({showLoadingDots: false});
+      clearInterval(loadingTimeout.current);
+      setShowLoadingDots(false);
     }
-  }
+  }, [autorefresh, serverAction, targetAction, offset]);
 
   /**
    * Turn on/off autorefresh on log viewer
    */
-  toggleAutoRefresh() {
-    const {updateAttributes, address} = this.props;
-    clearTimeout(this.loadingTimeout);
-    updateAttributes(address, {autorefresh: this.state.showLoadingDots ? 0 : this.lastAutorefresh});
-  }
+  const toggleAutoRefresh = () => {
+    dispatch(updateAttributes(address, {autorefresh: showLoadingDots ? 0 : lastAutorefresh.current}));
+  };
 
-  /**
-   * Render component
-   * @returns {JSX.Element} Rendered component
-   */
-  render() {
-    const {id} = this.props;
-    const {text, offset, showLoadingDots} = this.state;
-    return <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id}>
-      <Button data-testid="autoload-button"
-              className={"p-button-text p-button-rounded log-button-autoload"}
-              icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
-              onClick={this.toggleAutoRefresh}/>
-      <LazyLog text={text} scrollToLine={offset} enableSearch caseInsensitive selectableLines extraLines={1}/>
-      <div className={"log-loading-dots " + (!showLoadingDots ? "hidden" : "")}>
-        {getIconCode("circle", "fa-fw fade1 animation-dot")}
-        {getIconCode("circle", "fa-fw fade2 animation-dot")}
-        {getIconCode("circle", "fa-fw fade3 animation-dot")}
-      </div>
-    </div>;
-  }
+  useEffect(() => {
+    checkAutoRefresh();
+  }, [autorefresh, offset]);
+
+  return <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id}>
+    <Button data-testid="autoload-button"
+            className={"p-button-text p-button-rounded log-button-autoload"}
+            icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
+            onClick={toggleAutoRefresh}/>
+    <LazyLog text={logText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1}/>
+    <div className={"log-loading-dots " + (!showLoadingDots ? "hidden" : "")}>
+      {getIconCode("circle", "fa-fw fade1 animation-dot")}
+      {getIconCode("circle", "fa-fw fade2 animation-dot")}
+      {getIconCode("circle", "fa-fw fade3 animation-dot")}
+    </div>
+  </div>;
 }
 
-export default connectWidget(AweLogViewer);
+export default AweLogViewer;

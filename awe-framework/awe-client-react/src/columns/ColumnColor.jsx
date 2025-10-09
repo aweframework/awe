@@ -1,89 +1,104 @@
-import React, {Component} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {InputText} from "primereact/inputtext";
 import {fromColor, toColor} from "../utilities/color";
 import {OverlayPanel} from "primereact/overlaypanel";
 import {ColorPicker} from "primereact/colorpicker";
-import {bindMethods, formatMessage, translateLabel} from "../utilities";
+import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
+import {updateModelWithDependencies} from "../redux/thunks/components";
+import debounce from "lodash/debounce";
 
-class ColumnColor extends Component {
+function ColumnColor(props) {
+  const {placeholder, required, readonly, style, data, address} = props;
+  const {t} = useTranslation();
+  const dispatch = useDispatch();
 
-  constructor(props) {
-    super(props);
+  const [value, setValue] = useState(fromColor(data.value));
+  const overlayRef = useRef(null);
 
-    // Bind events
-    bindMethods(this, ["onChange", "onBlur", "onShowColor", "onShowColorKey"]);
+  // Sync local state when external value changes
+  useEffect(() => {
+    setValue(fromColor(data.value));
+  }, [data.value]);
 
-    this.state = {value: fromColor(this.props.data.value)};
-  }
+  // Text input change: update local state; dispatch on blur for text edits
+  const onChangeText = useCallback((e) => {
+    const newVal = e?.target?.value ?? "";
+    setValue(newVal);
+  }, []);
 
-  onChange(e) {
-    this.setState({value: e.target.value, writing: true});
-  }
-
-  onBlur() {
-    const {value} = this.state;
-    const {address, updateModelWithDependencies, data} = this.props;
-    const color = toColor(value);
+  const dispatchIfChanged = useCallback((hexNoHash) => {
+    const color = toColor(hexNoHash);
     if (data.value !== color) {
-      updateModelWithDependencies(address, {values: color});
+      dispatch(updateModelWithDependencies(address, {values: color}));
     }
-    this.setState({writing: false});
-  }
+  }, [data.value, address, dispatch]);
 
-  onShowColor(e) {
-    if (!this.props.readonly) {
-      this.overlay.toggle(e);
+  const onBlur = useCallback(() => {
+    dispatchIfChanged(value);
+  }, [value, dispatchIfChanged]);
+
+  const onShowColor = useCallback((e) => {
+    if (!readonly && overlayRef.current) {
+      overlayRef.current.toggle(e);
     }
-  }
+  }, [readonly]);
 
-  onShowColorKey(e) {
-    _.debounce(() => this.onShowColor(e), 100);
-  }
+  const onShowColorDebounced = useMemo(() => debounce((e) => onShowColor(e), 100), [onShowColor]);
 
-  render() {
-    const {t, placeholder, required, readonly, style, data} = this.props;
-    const {value} = this.state;
-    const classes = classNames(style, data.style, "p-inputgroup", "column-editor", {"p-invalid": data?.error});
+  useEffect(() => () => { onShowColorDebounced.cancel && onShowColorDebounced.cancel(); }, [onShowColorDebounced]);
 
-    return <div className={classes}>
-      <InputText
-        value={toColor(value)}
-        className={classes}
-        placeholder={translateLabel(placeholder, t)}
-        onChange={this.onChange}
-        onBlur={this.onBlur}
-        required={required}
-        disabled={readonly}
-        tooltip={formatMessage(data?.error, t)}
-        tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
-      />
-      <span className="p-inputgroup-addon">
+  const onShowColorKey = useCallback((e) => {
+    if (e && e.persist) { e.persist(); }
+    onShowColorDebounced(e);
+  }, [onShowColorDebounced]);
+
+  // ColorPicker change: update local state and dispatch immediately
+  const onChangePicker = useCallback((e) => {
+    const newVal = (e && (e.value ?? e.target?.value)) ?? "";
+    setValue(newVal);
+    dispatchIfChanged(newVal);
+  }, [dispatchIfChanged]);
+
+  const classes = classNames(style, data.style, "p-inputgroup", "column-editor", {"p-invalid": data?.error});
+
+  return <div className={classes}>
+    <InputText
+      value={toColor(value)}
+      className={classes}
+      placeholder={translateLabel(placeholder, t)}
+      onChange={onChangeText}
+      onBlur={onBlur}
+      required={required}
+      disabled={readonly}
+      tooltip={formatMessage(data?.error, t)}
+      tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
+    />
+    <span className="p-inputgroup-addon">
         <button className={"colorpicker " + (value ? "" : "no-color")}
-              style={{backgroundColor: toColor(value)}} onClick={this.onShowColor} onKeyDown={this.onShowColorKey}/>
-        <OverlayPanel ref={(el) => this.overlay = el} dismissable appendTo={document.body} onHide={this.onBlur}>
+                style={{backgroundColor: toColor(value)}} onClick={onShowColor} onKeyDown={onShowColorKey}/>
+        <OverlayPanel ref={overlayRef} dismissable appendTo={document.body} onHide={onBlur}>
           <ColorPicker
             inline
             value={fromColor(value)}
             disabled={readonly}
-            onChange={this.onChange}
+            onChange={onChangePicker}
             format="hex"
           />
         </OverlayPanel>
       </span>
-    </div>;
-  }
+  </div>;
 }
 
 ColumnColor.propTypes = {
-  updateModelWithDependencies: PropTypes.func.isRequired,
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
   readonly: PropTypes.bool,
   required: PropTypes.bool,
   placeholder: PropTypes.string,
-  t: PropTypes.func.isRequired,
   style: PropTypes.string
 };
 

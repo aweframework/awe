@@ -2,6 +2,7 @@ import React from 'react';
 import {cleanup, screen, waitFor} from '@testing-library/react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
+import "../i18nForTests";
 import AweHelpViewer from "../../../src/widgets/AweHelpViewer";
 
 describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
@@ -38,7 +39,9 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
 
     renderWithProviders(<AweHelpViewer id="helpViewer"/>, {preloadedState});
 
-    await waitFor(() => expect(screen.findByText("palabras a traducir")).toBeDefined());
+    expect(await screen.findByText("palabras a traducir")).toBeDefined();
+    console.info("1.-", await screen.findByText("palabras a traducir"));
+
   });
 
   it('renders AWE Help Viewer widget with error on help retrieval', async () => {
@@ -53,7 +56,9 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
 
     renderWithProviders(<AweHelpViewer id="helpViewer"/>, {preloadedState});
 
-    await waitFor(() => expect(screen.findByRole("alert")).toBeDefined());
+    expect(await screen.findByRole("alert")).toBeDefined();
+    console.info("2.-", await screen.findByText("Error leyendo ayuda"));
+
   });
 
   it('renders AWE Help Viewer widget without option', async () => {
@@ -78,6 +83,7 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
 
     renderWithProviders(<AweHelpViewer id="helpViewer"/>, {preloadedState: preloadedState2});
 
-    await waitFor(() => expect( screen.findByText("palabras a traducir")).toBeDefined());
+    expect(await screen.findByText("palabras a traducir")).toBeDefined();
+    console.info("3.-", await screen.findByText("palabras a traducir"));
   });
 });

@@ -5027,11 +5027,13 @@
   .p-fileupload.p-fileupload-advanced .p-message {
     margin-top: 0;
   }
-  .p-breadcrumb {
+  .p-breadcrumb-container {
     background: #ffffff;
-    border: 1px solid #c8c8c8;
+    border: 1px solid var(--surface-border);
     border-radius: 3px;
-    padding: 1rem;
+  }
+  .p-breadcrumb {
+    border: 0;
   }
   .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link {
     transition: background-color 0.2s, box-shadow 0.2s;

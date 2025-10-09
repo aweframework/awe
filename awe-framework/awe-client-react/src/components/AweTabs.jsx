@@ -1,65 +1,68 @@
 import React from "react";
-import {connectComponent} from "./AweComponent";
 import {TabMenu} from "primereact/tabmenu";
-import {AwePanelableComponent} from "./AwePanelableComponent";
 import {Components} from "../utilities/structure";
 import {getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import "./AweTabs.less";
 import {Badge} from "primereact/badge";
+import {useTranslation} from "react-i18next";
+import {usePanelable} from "../hooks/usePanelable";
+import {useSelector} from "react-redux";
+import PropTypes from "prop-types";
+import AweWindow from "./AweWindow";
 
-class AweTabs extends AwePanelableComponent {
+function AweTabs(props) {
+  const {id, elementList = []} = props;
+  const { model = {values: []}, address, attributes = {}, globalDisabled } = useSelector(state => ({
+    model: state.components[id]?.model,
+    address: state.components[id]?.address,
+    attributes: state.components[id]?.attributes,
+    globalDisabled: state.actions.running
+  }));
+  const { t } = useTranslation();
+  const { values, activeIndex, selectIndex } = usePanelable(model, address);
 
-  titleRenderer(title) {
-    const {t} = this.props;
-    return title ? <span className={`p-tab-supertitle`}>{translateLabel(title, t)}</span> : null;
-  }
+  const titleRenderer = (title) => title ? <span className={`p-tab-supertitle`}>{translateLabel(title, t)}</span> : null;
+  const labelRenderer = (label) => label ? <span className={`p-tab-title`}>{translateLabel(label, t)}</span> : null;
+  const iconRenderer = (icon) => icon ? <span className="p-tab-icon">{getIconCode(icon)}</span> : null;
+  const unitRenderer = (unit) => unit ? <Badge className="p-tab-unit" value={translateLabel(unit, t)}></Badge> : null;
 
-  labelRenderer(label) {
-    const {t} = this.props;
-    return label ? <span className={`p-tab-title`}>{translateLabel(label, t)}</span> : null;
-  }
-
-  iconRenderer(icon) {
-    return icon ? <span className="p-tab-icon">{getIconCode(icon)}</span> : null;
-  }
-
-  unitRenderer(unit) {
-    const {t} = this.props;
-    return unit ? <Badge className="p-tab-unit" value={translateLabel(unit, t)}></Badge> : null;
-  }
-
-  itemRenderer(item, itemIndex) {
-    return (
-      <button className={`p-menuitem-link`} onClick={() => this.onChange({index: itemIndex})} tabIndex={-1}>
-        {this.iconRenderer(item.icon)}
-        <div className={`p-tab-text`}>
-          {this.titleRenderer(item.title)}
-          {this.labelRenderer(item.label)}
-        </div>
-        {this.unitRenderer(item.unit)}
-      </button>
-    );
+  const onChange = (e) => {
+    const {index} = e;
+    selectIndex(index);
   };
 
-  render() {
-    const activeIndex = this.getActiveIndex();
-    const {id, disabled, model = {values: []},orientation = "horizontal", elementList = []} = this.props;
-    const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
-    const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
-    return <div className={className}>
-      <TabMenu id={id} model={model.values.map((item, index) => ({
-        ...item,
-        disabled,
-        template: (item) => this.itemRenderer(item, index)
-      }))}
-               activeIndex={activeIndex}
-               onTabChange={this.onChange}/>
-      {elementList
-        .filter(item => item.elementType === "TabContainer")
-        .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
-    </div>;
-  }
+  const itemRenderer = (item, itemIndex) => (
+    <button className={`p-menuitem-link`} onClick={() => onChange({index: itemIndex})} tabIndex={-1}>
+      {iconRenderer(item.icon)}
+      <div className={`p-tab-text`}>
+        {titleRenderer(item.title)}
+        {labelRenderer(item.label)}
+      </div>
+      {unitRenderer(item.unit)}
+    </button>
+  );
+
+  const { disabled, orientation = "horizontal" } = attributes;
+  const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
+  const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
+  return <div className={className}>
+    <TabMenu id={id} model={values.map((item, index) => ({
+      ...item,
+      disabled: globalDisabled || disabled,
+      template: (item) => itemRenderer(item, index)
+    }))}
+             activeIndex={activeIndex}
+             onTabChange={onChange}/>
+    {elementList
+      .filter(item => item.elementType === "TabContainer")
+      .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
+  </div>;
 }
 
-export default connectComponent(AweTabs);
+AweTabs.propTypes = {
+  id: PropTypes.string,
+  elementList: PropTypes.array
+};
+
+export default AweTabs;

@@ -1,41 +1,34 @@
-import React from "react";
-import {AweComponent, connectComponent} from "../components/AweComponent";
-import {bindMethods, getIconCode, translateLabel} from "../utilities";
+import React, {useCallback} from "react";
+import {getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {PickList} from "primereact/picklist";
 import "./AwePicklist.less";
+import {useTranslation} from "react-i18next";
+import {useDispatch, useSelector} from "react-redux";
+import {updateModelWithDependencies} from "../redux/thunks/components";
 
-class AwePicklist extends AweComponent {
+function AwePicklist(props) {
 
-  constructor(props) {
-    super(props);
-    bindMethods(this, ["getValue", "onChange", "itemTemplate"])
-  }
+  const { id } = props;
+  const { t } = useTranslation();
+  const { address, attributes = {}, model = { values: [] }} = useSelector(state => ({
+    address: state.components[id]?.address,
+    attributes: state.components[id]?.attributes || {},
+    model: state.components[id]?.model || { values: [] }
+  }));
+  const dispatch = useDispatch();
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    super.componentDidMount();
-  }
-
-  onChange(e) {
-    const {address, updateModelWithDependencies} = this.props;
-    updateModelWithDependencies(address, {
+  const onChange = useCallback((e) => {
+    dispatch(updateModelWithDependencies(address, {
       values: [
         ...e.source.map(v => ({...v, selected: false})),
         ...e.target.map(v => ({...v, selected: true}))
       ]
-    });
-  }
+    }));
+  }, [address]);
 
-  getValue() {
-    const {model} = this.props;
-    return model.values.filter(item => item.selected);
-  }
-
-  itemTemplate(item) {
-    const {t} = this.props;
+  const itemTemplate = (item) => {
+    const {t} = props;
     return (
       <div className="flex flex-wrap p-2 align-items-center gap-3">
         {item.image && <img className="picklist-image" src={item.image} alt={translateLabel(item.label, t)} />}
@@ -49,28 +42,26 @@ class AwePicklist extends AweComponent {
         {item.unit && <span className="picklist-unit">{item.unit}</span>}
       </div>
     );
-  }
+  };
 
-  render() {
-    const {t, attributes, model, address} = this.props;
-    const {label, style} = attributes;
-    const classes = classNames(style);
 
-    // Paint component
-    return <div className={classes} criterion-id={address.component}>
-      <PickList
-        dataKey="value"
-        source={model.values.filter(v => !v.selected)}
-        target={model.values.filter(v => v.selected)}
-        onChange={this.onChange}
-        showSourceControls={false}
-        showTargetControls={false}
-        sourceHeader={translateLabel(label, t)}
-        targetHeader={translateLabel("SCREEN_TEXT_SELECTED", t)}
-        itemTemplate={this.itemTemplate}
-      />
-    </div>;
-  }
+  const {label, style} = attributes;
+  const classes = classNames(style);
+
+  // Paint component
+  return <div className={classes} criterion-id={address.component}>
+    <PickList
+      dataKey="value"
+      source={model.values.filter(v => !v.selected)}
+      target={model.values.filter(v => v.selected)}
+      onChange={onChange}
+      showSourceControls={false}
+      showTargetControls={false}
+      sourceHeader={translateLabel(label, t)}
+      targetHeader={translateLabel("SCREEN_TEXT_SELECTED", t)}
+      itemTemplate={itemTemplate}
+    />
+  </div>;
 }
 
-export default connectComponent(AwePicklist);
+export default AwePicklist;

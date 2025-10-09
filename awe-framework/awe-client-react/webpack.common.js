@@ -49,6 +49,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {from: "src/template.html", to: "[name][ext]"},
+        {from: "src/help.stg", to: "[name][ext]"},
         {from: "src/plugins", to: "plugins/[name][ext]"},
         {from: "src/static", to: "static/"},
       ]

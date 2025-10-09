@@ -2,7 +2,6 @@
  * action types
  */
 
-import {checkDependencies, initializeDependencies} from "./dependencies";
 import {addActionsTop} from "./actions";
 
 export const CLEAR_COMPONENTS = 'CLEAR_COMPONENTS';
@@ -19,6 +18,8 @@ export const UPDATE_VALIDATION = 'UPDATE_VALIDATION';
 export const UPDATE_MULTIPLE_VALIDATION = 'UPDATE_MULTIPLE_VALIDATION';
 export const UPDATE_MULTIPLE_COMPONENTS = 'UPDATE_MULTIPLE_COMPONENTS';
 export const UPDATE_MULTIPLE_MODELS = 'UPDATE_MULTIPLE_MODELS';
+export const UPDATE_COLUMN_ATTRIBUTES = 'UPDATE_COLUMN_ATTRIBUTES';
+export const UPDATE_MULTIPLE_COLUMN_ATTRIBUTES = 'UPDATE_MULTIPLE_COLUMN_ATTRIBUTES';
 
 // Keep, restore & reset actions
 export const KEEP_VALIDATION = 'KEEP_VALIDATION';
@@ -70,15 +71,7 @@ export function clearAllComponents() {
   return {type: CLEAR_ALL_COMPONENTS};
 }
 
-export function updateViewComponentsWithDependencies(view, data) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(updateViewComponents(view, data));
 
-    // Dispatch calculate dependencies
-    initializeDependencies(view, getState(), dispatch);
-  };
-}
 
 export function updateViewComponents(view, data) {
   return {type: UPDATE_VIEW_COMPONENTS, view, data};
@@ -88,28 +81,8 @@ export function updateComponent(address, data) {
   return {type: UPDATE_COMPONENT, address, data};
 }
 
-export function updateMultipleComponentsWithDependencies(componentList) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(updateMultipleComponents(componentList));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-  };
-}
-
 export function updateMultipleComponents(componentList) {
   return {type: UPDATE_MULTIPLE_COMPONENTS, componentList};
-}
-
-export function updateMultipleModelsWithDependencies(data) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(updateMultipleModels(data));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-  };
 }
 
 export function updateMultipleModels(componentList) {
@@ -132,21 +105,6 @@ export function updateMultipleAttributes(componentList) {
   return {type: UPDATE_MULTIPLE_ATTRIBUTES, componentList};
 }
 
-export function updateModelWithDependencies(address, data) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(updateModel(address, data));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-
-    // Restore event attribute if defined
-    if ("event" in data) {
-      dispatch(updateModel(address, {event: ""}));
-    }
-  };
-}
-
 export function updateModel(address, data) {
   return {type: UPDATE_MODEL, address, data};
 }
@@ -161,6 +119,14 @@ export function updateValidation(address, data) {
 
 export function updateMultipleValidation(componentList) {
   return {type: UPDATE_MULTIPLE_VALIDATION, componentList};
+}
+
+export function updateColumnAttributes(address, data) {
+  return {type: UPDATE_COLUMN_ATTRIBUTES, address, data};
+}
+
+export function updateMultipleColumnAttributes(componentList) {
+  return {type: UPDATE_MULTIPLE_COLUMN_ATTRIBUTES, componentList};
 }
 
 export function keepValidation(address, data) {
@@ -195,88 +161,20 @@ export function restoreMultipleAttributes(componentList) {
   return {type: RESTORE_MULTIPLE_ATTRIBUTES, componentList};
 }
 
-export function restoreModelWithDependencies(address, data) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(restoreModel(address, data));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-  };
-}
-
 export function restoreModel(address, data) {
   return {type: RESTORE_MODEL, address, data};
-}
-
-export function restoreMultipleModelWithDependencies(componentList) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(restoreMultipleModel(componentList));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-  };
 }
 
 export function restoreMultipleModel(componentList) {
   return {type: RESTORE_MULTIPLE_MODEL, componentList};
 }
 
-export function resetModelWithDependencies(address, data) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(resetModel(address, data));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-  };
-}
-
 export function resetModel(address, data) {
   return {type: RESET_MODEL, address, data};
 }
 
-export function resetMultipleModelWithDependencies(componentList) {
-  return (dispatch, getState) => {
-    // Update the model first
-    dispatch(resetMultipleModel(componentList));
-
-    // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
-  };
-}
-
 export function resetMultipleModel(componentList) {
   return {type: RESET_MULTIPLE_MODEL, componentList};
-}
-
-export function validateComponents(componentList) {
-  return (dispatch, getState) => {
-    const {settings} = getState();
-
-    dispatch({
-      type: VALIDATE_COMPONENTS,
-      settings: settings,
-      componentList,
-    });
-
-    dispatch(addActionsTop([{type: "verify-validation", parameters: {}}]));
-  };
-}
-
-export function validateRow(address) {
-  return (dispatch, getState) => {
-    const {settings} = getState();
-
-    dispatch({
-      type: VALIDATE_ROW,
-      settings: settings,
-      address,
-    });
-
-    dispatch(addActionsTop([{type: "verify-row-validation", address, parameters: {}}]));
-  };
 }
 
 export function afterSaveRow(address, data) {

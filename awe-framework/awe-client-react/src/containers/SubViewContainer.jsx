@@ -1,61 +1,47 @@
-import React from "react";
-import {AweView} from "../components/AweView";
-import {connect} from "react-redux";
-import {updateMessages} from "../redux/actions/messages";
-import {clearScreenView, setScreenView} from "../redux/actions/screen";
-import {withTranslation} from "react-i18next";
+import React, {useEffect, useRef} from "react";
+import {useTranslation} from "react-i18next";
 import {Helmet} from "react-helmet";
 import Templates from "../templates";
-import {updateViewComponentsWithDependencies} from "../redux/actions/components";
-import {addActionsTop} from "../redux/actions/actions";
+import {useParams} from "react-router-dom";
+import {loadScreen} from "../redux/thunks/screen";
+import {useDispatch, useSelector} from "react-redux";
+import {ProgressSpinner} from "primereact/progressspinner";
+import {clearView} from "../redux/actions/view";
+
+const VIEW = "report";
 import {translateLabel} from "../utilities";
 
 /**
- * SubView container
- * @extends AweView
+ * View container (funcional)
  * @category Containers
  * @subcategory View
  */
-class SubViewContainer extends AweView {
+function SubViewContainer() {
+  const {subScreenId} = useParams();
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const prevScreenId = useRef(null);
+  const {view} = useSelector((state) => ({view: state.view[VIEW]}));
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    this.setState({view: "report"});
-  }
+  useEffect(() => {
+    if (prevScreenId.current !== subScreenId) {
+      dispatch(loadScreen(VIEW, subScreenId, t));
+    }
+    prevScreenId.current = subScreenId;
+    return () => {
+      dispatch(clearView(VIEW));
+    };
+  }, [subScreenId]);
 
-  getOptionId() {
-    return this.props.match.params.subScreenId || null;
-  }
-
-  clearView() {
-    this.props.clearScreenView(this.state.view);
-  }
-
-  getComponentRender() {
-    const {t} = this.props;
-    return <div className={"expand expandible-vertical"}>
+  return view.loading ?
+    <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center"/></div> : (
+    <div className={"expand expandible-vertical"}>
       <Helmet>
-        <title>{translateLabel(this.state.screen.title, t)}</title>
+        <title>{translateLabel(view.title, t)}</title>
       </Helmet>
-      {Templates(this.state.structure)}
-    </div>;
-  }
+      {Templates(view.structure)}
+    </div>
+  );
 }
 
-function mapStateToProps(state) {
-  return {
-    components: state.components,
-    settings: state.settings
-  };
-}
-
-// Connect redux store updates
-export default connect(mapStateToProps, {
-  updateViewComponentsWithDependencies,
-  updateMessages,
-  setScreenView,
-  clearScreenView,
-  addActionsTop
-})(withTranslation()(SubViewContainer));
+export default SubViewContainer;

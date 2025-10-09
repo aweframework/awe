@@ -7,3 +7,4 @@ import './containers';
 import './utilities';
 import './widgets';
 import './templates';
+import './hooks';

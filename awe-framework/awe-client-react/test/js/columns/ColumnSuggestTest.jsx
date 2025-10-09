@@ -1,11 +1,12 @@
-import {render, screen} from '@testing-library/react';
+import {screen} from '@testing-library/react';
 
 import {Columns} from "../../../src/utilities/structure";
+import {renderWithProviders} from "../test-utils";
 
 describe('awe-react-client/test/js/columns/ColumnSuggestTest.jsx', () => {
 
   it('renders Column Suggest component', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'suggest',
       model: {values: []},
       numberFormat: {},

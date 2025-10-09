@@ -1,45 +1,30 @@
-import React, {Component} from "react";
+import React, {useCallback} from "react";
 import {InputSwitch} from "primereact/inputswitch";
 import {formatMessage} from "../utilities";
-import PropTypes from "prop-types";
+import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
+import {updateModelWithDependencies} from "../redux/thunks/components";
 
-class ColumnCheckbox extends Component {
+function ColumnCheckbox(props) {
+  const {required, readonly, data, address} = props;
+  const {t} = useTranslation();
+  const dispatch = useDispatch();
 
-  constructor(props) {
-    super(props);
-
-    // Bind events
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange(e) {
-    const {address, updateModelWithDependencies, data} = this.props;
+  const onChange = useCallback((e) => {
     const translatedValue = e.target.value ? 1 : 0;
     if (data.value !== translatedValue) {
-      updateModelWithDependencies(address, {values: translatedValue});
+      dispatch(updateModelWithDependencies(address, {values: translatedValue}));
     }
-  }
+  }, [data]);
 
-  render() {
-    const {t, required, readonly, data} = this.props;
-    return <InputSwitch
-      checked={!!data.value}
-      required={required}
-      disabled={readonly}
-      onChange={this.onChange}
-      tooltip={formatMessage(data?.error, t)}
-      tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
-    />;
-  }
+  return <InputSwitch
+    checked={!!data.value}
+    required={required}
+    disabled={readonly}
+    onChange={onChange}
+    tooltip={formatMessage(data?.error, t)}
+    tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
+  />;
 }
-
-ColumnCheckbox.propTypes = {
-  updateModelWithDependencies: PropTypes.func.isRequired,
-  address: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
-  required: PropTypes.bool,
-  readonly: PropTypes.bool,
-  t: PropTypes.func.isRequired
-};
 
 export default ColumnCheckbox;

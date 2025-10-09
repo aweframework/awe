@@ -113,5 +113,5 @@ export const DEFAULT_SETTINGS = {
  * action creators
  */
 export function updateSettings(payload) {
-  return { type: UPDATE_SETTINGS, payload }
+  return { type: UPDATE_SETTINGS, payload };
 }

@@ -1,27 +1,30 @@
 import React from "react";
-import {AweComponent, connectComponent} from "./AweComponent";
 import {classNames} from "../utilities/components";
 import ReactPlayer from 'react-player';
 import {parseBoolean, translateLabel} from "../utilities";
 import "./AweVideo.less";
+import {useSelector} from "react-redux";
+import {useTranslation} from "react-i18next";
 
-class AweVideo extends AweComponent {
+function AweVideo(props) {
+  const { id } = props;
+  const { address = {}, attributes = {} } = useSelector(state => ({
+    address: state.components[id]?.address,
+    attributes: state.components[id]?.attributes
+  }));
+  const { t } = useTranslation();
+  const {src, loop, autoplay = false, poster, controls = true, style, title} = attributes;
+  const classes = classNames(style, "video-player");
 
-  render() {
-    const {t, attributes, address} = this.props;
-    const {src, loop, autoplay, poster, controls = "true", style, title} = attributes;
-    const classes = classNames(style, "video-player");
-
-    return <ReactPlayer
-          className={classes}
-          id={address.component}
-          url={src}
-          controls={parseBoolean(controls)}
-          light={poster}
-          playing={autoplay}
-          loop={loop}
-          title={translateLabel(title, t)}/>;
-  }
+  return <ReactPlayer
+        className={classes}
+        id={address.component}
+        url={src}
+        controls={parseBoolean(controls)}
+        light={poster}
+        playing={parseBoolean(autoplay)}
+        loop={loop}
+        title={translateLabel(title, t)}/>;
 }
 
-export default connectComponent(AweVideo);
+export default AweVideo;

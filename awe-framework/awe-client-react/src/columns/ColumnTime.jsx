@@ -1,31 +1,29 @@
-import React, {Component} from "react";
-import {withTranslation} from "react-i18next";
+import React from "react";
+import {useTranslation} from "react-i18next";
+import {useDispatch, useSelector} from "react-redux";
 import {Calendar} from "primereact/calendar";
 import {fromTime, toTime} from "../utilities/dates";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 
-class ColumnTime extends Component {
+function ColumnTime(props) {
+  const { placeholder, required, readonly, data, align, style, address } = props;
+  const settings = useSelector(state => state.settings);
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const updateModelWithDependencies = (addr, payload) => dispatch(updateThunk(addr, payload));
 
-  constructor(props) {
-    super(props);
-
-    // Bind events
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange(e) {
-    const {address, updateModelWithDependencies, data} = this.props;
+  const onChange = (e) => {
     if (data.value !== e.value) {
       updateModelWithDependencies(address, {values: fromTime(e.value)});
     }
-  }
+  };
 
-  render() {
-    const {t, placeholder, required, readonly, data, align, settings, style} = this.props;
-    const classes = classNames("column-editor", {"p-invalid": data?.error}, style, data?.style);
-    return <Calendar
+  const classes = classNames("column-editor", {"p-invalid": data?.error}, style, data?.style);
+  return (
+    <Calendar
       value={toTime(data.value)}
       placeholder={translateLabel(placeholder, t)}
       required={required}
@@ -34,25 +32,22 @@ class ColumnTime extends Component {
       inputStyle={{textAlign: align || "center"}}
       timeOnly
       showSeconds
-      onChange={this.onChange}
+      onChange={onChange}
       locale={settings.language}
       tooltip={formatMessage(data?.error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
-    />;
-  }
+    />
+  );
 }
 
 ColumnTime.propTypes = {
-  updateModelWithDependencies: PropTypes.func.isRequired,
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
-  t: PropTypes.func.isRequired,
   style: PropTypes.string,
   readonly: PropTypes.bool,
   required: PropTypes.bool,
   placeholder: PropTypes.string,
-  settings: PropTypes.object,
   align: PropTypes.string,
 };
 
-export default withTranslation()(ColumnTime);
+export default ColumnTime;

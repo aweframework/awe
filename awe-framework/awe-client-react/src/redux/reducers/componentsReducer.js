@@ -46,6 +46,7 @@ const {ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT} = ComponentAddressType;
 const memoizedGetComponentId = _.memoize(getComponentId);
 const memoizedGetGridIdentifier = _.memoize(getGridIdentifier);
 
+const InitialState = {};
 /**
  * Check if component is a grid or not
  * @param {Object} component
@@ -139,7 +140,7 @@ function updateAttributeColumn(state = {}, address = {}, data = {}) {
   const component = address.component;
   const {attributes} = state[component];
   const {columnModel = []} = attributes;
-  
+
   const columnMap = new Map(columnModel.map((col, index) => [col.name, index]));
   const columnIndex = columnMap.get(address.column);
 
@@ -1083,7 +1084,7 @@ function afterSaveRow(state, component) {
 /**
  * Components reducer
  */
-export function components(state = {}, action = {}) {
+export function components(state = InitialState, action = {}) {
   switch (action.type) {
     case CLEAR_COMPONENTS:
       // Remove the current view components

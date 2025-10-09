@@ -5147,11 +5147,13 @@
   .p-fileupload.p-fileupload-advanced .p-message {
     margin-top: 0;
   }
-  .p-breadcrumb {
+  .p-breadcrumb-container {
     background: var(--surface-100);
-    border: 1px solid var(--surface-d);
+    border: 1px solid var(--surface-border);
     border-radius: 6px;
-    padding: 1.3rem;
+  }
+  .p-breadcrumb {
+    border: 0;
   }
   .p-breadcrumb .p-breadcrumb-list li .p-menuitem-link {
     transition: box-shadow 0.2s;

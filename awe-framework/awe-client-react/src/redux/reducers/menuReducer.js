@@ -1,13 +1,18 @@
 import {
   CLEAR_MENU,
   SELECT_OPTION,
-  UPDATE_ALL_OPTIONS,
+  UPDATE_ALL_OPTIONS, UPDATE_BREADCRUMBS,
   UPDATE_MENU,
   UPDATE_OPTION,
   UPDATE_OPTIONS,
   UPDATE_STATUS
 } from '../actions/menu';
 
+const InitialState ={
+  options: [],
+  breadcrumbs: {},
+  status: { minimized: false, animating: false, resolution: "desktop" }
+};
 /**
  * Check if option is valid or not
  */
@@ -54,11 +59,6 @@ function updateAllOptions(options = [], data = {}) {
     options: updateAllOptions(option.options, data)
   }));
 }
-
-const InitialState = {
-  options: [],
-  status: { minimized: false, animating: false, resolution: "desktop" }
-};
 
 /**
  * Menu reducer
@@ -108,6 +108,14 @@ export function menu(state = InitialState, action = {}) {
         options: [],
         selected: {}
       };
+    case UPDATE_BREADCRUMBS:
+      return {
+        ...state,
+        breadcrumbs: {
+          items: [...action.items],
+          option: action.option
+        }
+      }
     default:
       return state;
   }

@@ -1,68 +1,57 @@
-import React, {Component} from "react";
+import React from "react";
 import {Panel} from 'primereact/panel';
-import {withTranslation} from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import "./AweWindow.less";
-import {bindMethods, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
+import {getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import PropTypes from "prop-types";
 
-class AweWindow extends Component {
+function AweWindow(props) {
+  const {id, style, help, helpImage, label, icon, elementList = []} = props;
+  const { t } = useTranslation();
 
-  constructor(props) {
-    super(props);
-    bindMethods(this, ["getIcon"]);
-  }
-
-  getIcon() {
-    const {icon} = this.props;
+  const getIcon = () => {
     if (icon) {
-      return getIconCode(icon, "fa-fw")
+      return getIconCode(icon, "fa-fw");
     }
     return null;
-  }
+  };
 
-  getHelpIcon() {
-    const {help, helpImage} = this.props;
+  const getHelpIcon = () => {
     if (help || helpImage) {
       return <i role="note" className={`help-icon pi pi-question-circle`} />;
     } else {
       return null;
     }
-  }
+  };
 
-  getHeader() {
-    const {label, t, id} = this.props;
-    return <div className={`help-target-${id}`}>{translateLabel(label, t)} {this.getHelpIcon()}</div>
-  }
+  const getHeader = () => {
+    return <div className={`help-target-${id}`}>{translateLabel(label, t)} {getHelpIcon()}</div>;
+  };
 
-  render() {
-    const {style, expand, id, help, helpImage, t, elementList = []} = this.props;
-    const classes = classNames("m-2", `expandible-${expand || "vertical"}`, style);
+  const classes = classNames("m-2", `expandible-vertical`, style);
 
-    return <>
-      {getHelpTooltipNode(help, helpImage, t,`.help-target-${id}`)}
-      <Panel
+  return <>
+    {getHelpTooltipNode(help, helpImage, t,`.help-target-${id}`)}
+    <Panel
       id={id}
       className={classes}
-      header={this.getHeader()}
-      icons={this.getIcon()}>
-        {elementList.map((node, index) => Components(node, index))}
-      </Panel>
-    </>;
-  }
+      header={getHeader()}
+      icons={getIcon()}>
+      {elementList.map((node, index) => Components(node, index))}
+    </Panel>
+  </>;
 }
 
 AweWindow.propTypes = {
   id: PropTypes.string,
   style: PropTypes.string,
-  expand: PropTypes.string,
   label: PropTypes.string,
   icon: PropTypes.string,
   help: PropTypes.string,
   helpImage: PropTypes.string,
-  t: PropTypes.func.isRequired,
   elementList: PropTypes.array
 };
 
-export default withTranslation()(AweWindow);
+export default AweWindow;

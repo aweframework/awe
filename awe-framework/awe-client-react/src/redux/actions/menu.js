@@ -9,6 +9,7 @@ export const UPDATE_ALL_OPTIONS = 'UPDATE_ALL_OPTIONS';
 export const UPDATE_STATUS = 'UPDATE_STATUS';
 export const SELECT_OPTION = 'SELECT_OPTION';
 export const CLEAR_MENU = 'CLEAR_MENU';
+export const UPDATE_BREADCRUMBS = 'UPDATE_BREADCRUMBS';
 
 /*
  * action creators
@@ -40,4 +41,8 @@ export function selectOption(data) {
 
 export function clearMenu() {
   return { type: CLEAR_MENU }
+}
+
+export function updateBreadcrumbs(option, items) {
+  return { type: UPDATE_BREADCRUMBS, option, items };
 }

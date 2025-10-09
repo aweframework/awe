@@ -1,63 +1,48 @@
-import React from "react";
-import {connectComponent} from "../components/AweComponent";
-import {bindMethods, getIconCode, translateLabel} from "../utilities";
-import AweCriterionComponent from "./AweCriterionComponent";
-import {classNames, getVisibleTextData} from "../utilities/components";
+import React, {useCallback} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useTranslation} from "react-i18next";
+import {getIconCode, getVisibleTextData, translateLabel} from "../utilities";
+import {classNames} from "../utilities/components";
+import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
+import {addActionsTop} from "../redux/actions/actions";
+import AweCriterion from "./AweCriterion";
 
-class AweInputTextView extends AweCriterionComponent {
+function AweInputTextView(props) {
+  const { id } = props;
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const { address, model = { values: [] }, attributes = {}, validationRules = {}, actions = [] } = useSelector(state => ({
+    address: state.components[id]?.address,
+    model: state.components[id]?.model || { values: [] },
+    attributes: state.components[id]?.attributes || {},
+    actions: state.components[id]?.actions || []
+  }));
 
-  constructor(props) {
-    super(props);
-    this.groupClass = "flex p-2";
-    bindMethods(this, ["getComponent", "onClick", "onKeyDown", "onAction"]);
-  }
-
-  getIcon() {
-    const {icon, size} = this.props.attributes;
-    if (icon) {
-      return getIconCode(icon, classNames("fa-fw", {[`text-${size}`]: size}));
-    }
-
-    return null;
-  }
-
-  getUnit() {
-    const {t, attributes} = this.props;
-    const {unit} = attributes;
-    if (unit) {
-      return <span className="p-tag ml-auto">{translateLabel(unit, t)}</span>;
-    }
-
-    return null;
-  }
-
-  onClick() {
-    this.onAction("click");
-  }
-
-  onKeyDown() {
-    this.onAction("keyDown")
-  }
-
-  onAction(event) {
-    const {address, updateModelWithDependencies, actions, addActionsTop} = this.props;
-    // Change event
-    updateModelWithDependencies(address, {event});
-
+  const onAction = useCallback((event) => {
+    dispatch(updateThunk(address, { event }));
     if (actions.length > 0) {
-      addActionsTop(actions.map(action => ({...action, address: {...address}})));
+      dispatch(addActionsTop(actions.map(action => ({ ...action, address: { ...address } }))));
     }
-  }
+  }, [dispatch, address, actions]);
 
-  getComponent(style) {
-    const {t, model, attributes} = this.props;
-    const {placeholder, size} = attributes;
-    const {values} = model;
-    const textToShow = (values[0] || {}).label || (values[0] || {}).value || placeholder;
-    const classes = classNames("text-view", {[`text-${size}`]: size}, style);
+  const onClick = useCallback(() => onAction("click"), [onAction]);
+  const onKeyDown = useCallback(() => onAction("keyDown"), [onAction]);
 
-    return <button className={classes} tabIndex={0} onClick={this.onClick} onKeyDown={this.onKeyDown}>{getVisibleTextData(textToShow, t)}</button>;
-  }
+  const { placeholder, size, icon, unit } = attributes;
+  const { values = [] } = model;
+  const textToShow = (values[0] || {}).label || (values[0] || {}).value || placeholder;
+  const classes = classNames("text-view", { [`text-${size}`]: size });
+  const unitNode = unit ? <span className="p-tag ml-auto">{translateLabel(unit, t)}</span> : null;
+  const iconNode = icon ? getIconCode(icon, classNames("fa-fw", { [`text-${size}`]: size })) : null;
+
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
+                  groupClass="flex p-2" generateIcon={false} generateUnit={false}>
+      {iconNode}
+      <button className={classes} tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}>{getVisibleTextData(textToShow, t)}</button>
+      {unitNode}
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputTextView);
+export default AweInputTextView;

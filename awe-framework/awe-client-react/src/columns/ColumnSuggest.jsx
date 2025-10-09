@@ -1,94 +1,62 @@
-import React, {Component} from "react";
-import {withTranslation} from "react-i18next";
+import React, {useEffect, useMemo, useRef, useState} from "react";
+import {useTranslation} from "react-i18next";
 import {AutoComplete} from "primereact/autocomplete";
-import {bindMethods, formatMessage, translateLabel} from "../utilities";
-import {classNames, suggest} from "../utilities/components";
-import PropTypes from "prop-types";
+import {formatMessage, translateLabel} from "../utilities";
+import {classNames} from "../utilities/components";
+import useSuggest from "../hooks/useSuggest";
+import {getCellSuggestData} from "../utilities/grid";
 
-class ColumnSuggest extends Component {
+function ColumnSuggest(props) {
 
-  constructor(props) {
-    super(props);
-    this.state = {suggest: {...props.data, label: props.data?.label || props.data?.value || ""}, suggestions: [...(props.data?.value !== null ? [{...props.data, label: props.data?.label || props.data?.value || ""}] : [])]};
+  const { placeholder, label, required, readonly, model, data, timeout } = props;
+  const {validationRules = props.validationRules || {}} = data;
+  const classes = classNames("column-editor", {"p-invalid": data?.error});
+  const {t} = useTranslation();
+  const autocompleteRef = useRef(null);
+  const columnModel = useMemo(() => getCellSuggestData(model, data), [model, data]);
+  const [suggestions, setSuggestions] = useState(columnModel);
+  const [value, setValue] = useState({});
 
-    // Bind events
-    this.suggesting = false;
-    bindMethods(this, ["onChange", "onSelect", "onClear", "suggest"]);
-    this.abortController = new AbortController();
-  }
+  const {onChange, onClear, onKeyPress, onSuggest, initialSuggest} = useSuggest(autocompleteRef, setSuggestions, value, setValue, props);
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    const {suggestions} = this.state;
-    const {data} = this.props;
-    let found = (suggestions.find(suggestion => String(suggestion.value) === String(data.value)) || {});
-    this.setState({suggest: {...found, label: found.label || found.value || ""}});
-  }
+  // Change model values if updated
+  useEffect(() => {
+    const fixedValues = columnModel
+      .map(item => ({...item, label: item.label || item.value, needsInit: !("label" in item)}))
+      .find(item => item.selected) || {};
+    setValue(fixedValues);
+  }, [columnModel]);
 
-  onSelect(e) {
-    const {address, updateModelWithDependencies, data} = this.props;
-    if (data.value !== e.value.value) {
-      updateModelWithDependencies(address, {values: e.value});
+  // Initial suggest
+  useEffect(() => {
+    const {checkTarget, targetAction} = props;
+    if ((checkTarget || targetAction) && value?.needsInit) {
+      initialSuggest(value.value)
+        .then(() => setValue(prev => ({...prev, needsInit: false})));
     }
-  }
+  }, [value]);
 
-  onChange(e) {
-    if (this.state.suggest !== e.value) {
-      this.setState({suggest: e.value});
-    }
-  }
-
-  onClear() {
-    const {address, updateModelWithDependencies} = this.props;
-
-    // Clear suggest
-    updateModelWithDependencies(address, {values: []});
-  }
-
-  suggest(event) {
-    suggest(this, event, event.query);
-  }
-
-  render() {
-    const {t, placeholder, label, required, readonly, timeout, data, style} = this.props;
-    const {validationRules = {}} = data;
-    const classes = classNames("column-editor", {"p-invalid": data?.error}, style, data?.style);
-    return <AutoComplete
-      ref={el => this.autocomplete = el}
-      value={this.state.suggest}
-      placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
-      required={validationRules.required || required}
-      disabled={data?.readonly || readonly}
-      onChange={this.onChange}
-      onSelect={this.onSelect}
-      onClear={this.onClear}
-      dropdown
-      delay={timeout || 300}
-      field="label"
-      suggestions={this.state.suggestions}
-      completeMethod={this.suggest}
-      className={classes}
-      inputClassName={classes}
-      appendTo={document.body}
-      tooltip={formatMessage(data?.error, t)}
-      tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
-      forceSelection={true}
-    />;
-  }
+  return <AutoComplete
+    ref={autocompleteRef}
+    value={value}
+    placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
+    required={validationRules.required || required}
+    disabled={data?.readonly || readonly}
+    onChange={onChange}
+    onClear={onClear}
+    onKeyDown={onKeyPress}
+    delay={timeout || 300}
+    field="label"
+    invalid={data?.error}
+    suggestions={suggestions}
+    completeMethod={onSuggest}
+    className={classes}
+    inputClassName={classes}
+    appendTo={document.body}
+    tooltip={formatMessage(data?.error, t)}
+    tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
+    forceSelection={true}
+  />;
 }
 
-ColumnSuggest.propTypes = {
-  address: PropTypes.object.isRequired,
-  data: PropTypes.object.isRequired,
-  placeholder: PropTypes.string,
-  label: PropTypes.string,
-  required: PropTypes.bool,
-  readonly: PropTypes.bool,
-  timeout: PropTypes.string,
-  t: PropTypes.func.isRequired,
-  updateModelWithDependencies: PropTypes.func.isRequired,
-};
-
-export default withTranslation()(ColumnSuggest);
+export default ColumnSuggest;

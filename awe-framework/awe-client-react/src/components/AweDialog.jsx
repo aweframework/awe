@@ -1,29 +1,46 @@
-import React from "react";
+import React, {useCallback} from "react";
 import {Dialog} from 'primereact/dialog';
-import {AweComponent, connectComponent} from "./AweComponent";
 import {Components} from "../utilities/structure";
 import {translateLabel} from "../utilities";
+import {useTranslation} from "react-i18next";
+import {useDispatch, useSelector} from "react-redux";
+import {addActionsTop} from "../redux/actions/actions";
+import PropTypes from "prop-types";
 
-class AweDialog extends AweComponent {
+function AweDialog(props) {
+  const { id, elementList = [] } = props;
+  const { address, attributes } = useSelector(state => ({
+    address: state.components[id]?.address,
+    attributes: state.components[id]?.attributes
+  }));
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { style, label } = attributes;
 
-  constructor(props) {
-    super(props);
-    this.hide = this.hide.bind(this);
-  }
+  const hide = useCallback(() => {
+    if (attributes.isShowing) {
+      dispatch(addActionsTop([{ address, type: "close" }]));
+    }
+  }, [dispatch, attributes?.isShowing, address]);
 
-  hide() {
-    this.props.attributes.isShowing && this.props.addActionsTop([{address: this.props.address, type: "close"}]);
-  }
-
-  render() {
-    const {t, id, style, label, elementList, attributes} = this.props;
-    return (
-      <Dialog id={id} className={style} style={{minWidth:"40vw", maxWidth: "90vw"}} header={translateLabel(label, t)} visible={attributes.isShowing} onHide={this.hide}
-              focusOnShow={false}>
-        {elementList.map((node, index) => Components(node, index))}
-      </Dialog>
-    );
-  }
+  return (
+    <Dialog
+      id={id}
+      className={style}
+      style={{ minWidth: "40vw", maxWidth: "90vw" }}
+      header={translateLabel(label, t)}
+      visible={attributes?.isShowing}
+      onHide={hide}
+      focusOnShow={false}
+    >
+      {elementList.map((node, index) => Components(node, index))}
+    </Dialog>
+  );
 }
 
-export default connectComponent(AweDialog);
+AweDialog.propTypes = {
+  id: PropTypes.string,
+  elementList: PropTypes.array
+};
+
+export default AweDialog;

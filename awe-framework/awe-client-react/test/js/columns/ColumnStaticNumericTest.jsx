@@ -1,11 +1,12 @@
-import {render, screen} from '@testing-library/react';
+import {screen} from '@testing-library/react';
 
 import {Columns} from "../../../src/utilities/structure";
+import {renderWithProviders} from "../test-utils";
 
 describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
 
   it('renders Column Static Numeric component', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'numeric',
       numberFormat: {},
       updateModelWithDependencies: jasmine.createSpy("updateModel"),
@@ -21,7 +22,7 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
   });
 
   it('renders Column Static Numeric component with suffix', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'numeric',
       numberFormat: {aSign: ' EUR'},
       updateModelWithDependencies: jasmine.createSpy("updateModel"),
@@ -37,7 +38,7 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
   });
 
   it('renders Column Static Numeric component with empty value', () => {
-    render(Columns({
+    renderWithProviders(Columns({
       component: 'numeric',
       numberFormat: {aSign: ' EUR'},
       updateModelWithDependencies: jasmine.createSpy("updateModel"),

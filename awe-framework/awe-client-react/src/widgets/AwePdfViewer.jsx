@@ -1,42 +1,36 @@
-import React from "react";
-import {AweWidget, connectWidget} from "./AweWidget";
-import {getContextPath, getCookie, getRestUrl} from "../utilities";
-import {classNames, getFormValues} from "../utilities/components";
+import React, {useCallback, useEffect, useState} from "react";
+import {classNames} from "../utilities/components";
 import {PDFObject} from 'react-pdfobject';
 import "./AwePdfViewer.less";
 import {Skeleton} from "primereact/skeleton";
+import {useDispatch, useSelector} from "react-redux";
+import {useTranslation} from "react-i18next";
+import {fetchPdfAction} from "../redux/thunks/files";
 
 /**
  * AWE PDF viewer component
- * @extends AweWidget
  * @category Widgets
  */
-class AwePdfViewer extends AweWidget {
+function AwePdfViewer(props) {
 
-  constructor(props) {
-    super(props);
-  }
+  const {id} = props;
+  const { address, attributes = {}, settings = {}, components = {} } = useSelector(state => ({
+    address: state.components[id]?.address,
+    attributes: state.components[id]?.attributes,
+    context: state.components[id]?.context || {},
+    settings: state.settings,
+    components: state.components
+  }));
+  const { t } = useTranslation();
+  const [pdf, setPdf] = useState(null);
+  const dispatch = useDispatch();
 
-  componentDidMount() {
-    const {attributes, settings} = this.props;
+  useEffect(() => {
     const {targetAction} = attributes;
-    const {token} = settings;
+    dispatch(fetchPdfAction(targetAction, setPdf));
+  }, []);
 
-    // Get PDF file
-    fetch(`${getContextPath()}${getRestUrl("file", "stream", "maintain", targetAction)}`, {
-      method: 'POST',
-      body: JSON.stringify(getFormValues(this.props)),
-      headers: {
-        "Accept": "*/*",
-        "Authorization": token,
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
-      }
-    }).then(response => response.blob())
-      .then(blob => this.setState({pdf: window.URL.createObjectURL(blob)}));
-  }
-
-  getPdfTemplate(pdf) {
+  const getPdfTemplate = useCallback((pdf) => {
     if (pdf) {
       return <PDFObject url={pdf}/>;
     } else {
@@ -50,20 +44,12 @@ class AwePdfViewer extends AweWidget {
         </div>
       </li>;
     }
-  }
+  }, []);
 
-  /**
-   * Render component
-   * @returns {JSX.Element} Rendered component
-   */
-  render() {
-    const {attributes, address} = this.props;
-    const {style} = attributes;
-    const {pdf} = this.state;
-    return <div id={address.component} className={classNames("pdf-viewer", "expand", style)}>
-      {this.getPdfTemplate(pdf)}
-    </div>;
-  }
+  const {style} = attributes;
+  return <div id={address.component} className={classNames("pdf-viewer", "expand", style)}>
+    {getPdfTemplate(pdf)}
+  </div>;
 }
 
-export default connectWidget(AwePdfViewer);
+export default AwePdfViewer;

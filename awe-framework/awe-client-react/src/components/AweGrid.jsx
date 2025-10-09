@@ -1,212 +1,183 @@
-import React from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {connectComponent} from "./AweComponent";
-import {bindMethods} from "../utilities";
 import {getWidthStyle} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
-import {AweGridCommons} from "./AweGridCommons";
 import "./AweGrid.less";
 import {classNames} from "../utilities/components";
+import {useDispatch} from "react-redux";
+import {addActionsTop} from "../redux/actions/actions";
+import {useGrid} from "../hooks/useGrid";
 
-/**
- * AWE Grid component
- * @extends AweGridCommons
- * @category Components
- * @subcategory Grid
- */
-class AweGrid extends AweGridCommons {
+function AweGrid(props) {
+  const { id } = props;
+  const dispatch = useDispatch();
+  const [rowsPerPageOptions, setRowsPerPageOptions] = useState([]);
 
-  /**
-   * Create a grid
-   * @param {object} props Grid properties
-   */
-  constructor(props) {
-    super(props);
+  const {
+    address,
+    attributes,
+    model,
+    specificAttributes,
+    settings,
+    editRow,
+    saveRow,
+    cancelRow,
+    filterRow,
+    onSelect,
+    onContextMenu,
+    contextMenuTemplate,
+    columnTemplate,
+    headerColumnTemplate,
+    footerColumnTemplate,
+    cellTemplate,
+    buttonsTemplate,
+    preColumnTemplates,
+    postColumnTemplates,
+    getHeader
+  } = useGrid(id);
 
-    bindMethods(this, ["onPage", "onSort", "onFilter", "onRowDoubleClick", "findRowByIndex",
-      "headerTemplate", "footerTemplate", "rowClassName"]);
-  }
+  const onRowDoubleClick = useCallback((event) => {
+    const index = event.index;
+    const rowId = model.values[index]?.id;
+    if (rowId != null) editRow(rowId);
+  }, [model.values, editRow]);
 
-  onRowDoubleClick(event) {
-    return this.editRow(this.findRowByIndex(event.index));
-  }
+  const onPage = useCallback((event) => {
+    const { loadAll } = attributes;
+    const { first, rows, page } = event;
+    filterRow({ type: "change-page", address, parameters: { page: page + 1, first, rows, max: loadAll ? 0 : rows } });
+  }, [attributes, address, filterRow]);
 
-  findRowByIndex(rowIndex) {
-    const {model} = this.props;
-    return model.values[rowIndex].id;
-  }
+  const onSort = useCallback((event) => {
+    const { multiSortMeta } = event;
+    filterRow({ type: "change-sort", address, parameters: { sort: multiSortMeta.map(s => ({ id: s.field, order: s.order, direction: s.order > 0 ? "asc" : "desc" })) } });
+  }, [address, filterRow]);
 
-  onPage(event) {
-    const {address, attributes} = this.props;
-    const {loadAll} = attributes;
-    const {first, rows, page} = event;
-    this.filterRow({type: "change-page", address, parameters: {page: page + 1, first, rows, max: loadAll ? 0 : rows}});
-  }
-
-  onSort(event) {
-    const {address} = this.props;
-    const {multiSortMeta} = event;
-    this.filterRow({type: "change-sort", address, parameters: {sort: multiSortMeta.map(s => ({
-      id: s.field,
-      order: s.order,
-      direction: s.order > 0 ? "asc" : "desc"
-    }))}});
-  }
-
-  onFilter(event) {
-    const {address, addActionsTop, model} = this.props;
-    const {filters} = event;
-    const {values} = model;
+  const onFilter = useCallback((event) => {
+    const { filters } = event;
+    const values = model.values || [];
     const editingRow = values.find(row => row.$row?.editing);
-    const cancelRowAction = editingRow ? [{type:"cancel-row", address}] : [];
-    addActionsTop([...cancelRowAction, {type:"change-filter", address, parameters: {filters}}]);
-  }
+    const cancelRowAction = editingRow ? [{ type: "cancel-row", address }] : [];
+    dispatch(addActionsTop([...cancelRowAction, { type: "change-filter", address, parameters: { filters } }]));
+  }, [dispatch, model.values, address]);
 
-  headerTemplate() {
-    const {attributes} = this.props;
-    const {headerModel, columnModel} = attributes;
+  // Initialize rowsPerPageOptions when attributes change (mimic componentDidMount logic)
+  useEffect(() => {
+    const { pagerValues = [], max = 20 } = attributes;
+    const pager = pagerValues.length > 0 ? pagerValues : [10, 20, 30];
+    const set = new Set([...pager, max].filter(v => typeof v === 'number'));
+    setRowsPerPageOptions(Array.from(set).sort((a, b) => a - b));
+  }, [attributes.pagerValues, attributes.max]);
+
+  // Scroll to save button when present
+  useEffect(() => {
+    const element = document.querySelector(".p-row-editor-save");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+
+  const headerTemplate = useCallback(() => {
+    const { headerModel = [], columnModel = [] } = attributes;
     const visibleColumns = columnModel.filter(col => !col.hidden);
     if (headerModel.length > 0) {
-      const header = this.getHeader();
+      const header = getHeader();
       return <ColumnGroup>
         <Row>
-          {this.preColumnTemplates("header", 2)}
-          {header.columns.map(col => col.startColumnName ? this.headerColumnTemplate(col) : this.columnTemplate(col, 2))}
-          {this.postColumnTemplates("header", 2)}
+          {preColumnTemplates("header", 2, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers })}
+          {header.columns.map(col => col.startColumnName ? headerColumnTemplate(col) : columnTemplate(col, 2, attributes.enableFilters))}
+          {postColumnTemplates("header", 2, false, attributes.editable, attributes.multioperation)}
         </Row>
         <Row>
-          {header.grouped.map(col => this.columnTemplate(col, 1))}
+          {header.grouped.map(col => columnTemplate(col, 1, attributes.enableFilters))}
         </Row>
       </ColumnGroup>;
     } else {
       return <ColumnGroup>
         <Row>
-          {this.preColumnTemplates("header", 1)}
-          {visibleColumns.map(col => this.columnTemplate(col, 1))}
-          {this.postColumnTemplates("header", 1)}
+          {preColumnTemplates("header", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers })}
+          {visibleColumns.map(col => columnTemplate(col, 1, attributes.enableFilters))}
+          {postColumnTemplates("header", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
-  }
+  }, [attributes, model, address, preColumnTemplates, headerColumnTemplate, columnTemplate, postColumnTemplates]);
 
-  footerTemplate() {
-    const {attributes} = this.props;
-    const {columnModel, showTotals} = attributes;
+  const footerTemplate = useCallback(() => {
+    const { columnModel = [], showTotals } = attributes;
     const visibleColumns = columnModel.filter(col => !col.hidden);
     if (showTotals) {
       return <ColumnGroup>
         <Row>
-          {this.preColumnTemplates("footer", 1)}
-          {visibleColumns.map(col => this.footerColumnTemplate(col))}
-          {this.postColumnTemplates("footer", 1, false)}
+          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect })}
+          {visibleColumns.map(col => footerColumnTemplate(col))}
+          {postColumnTemplates("footer", 1, false, attributes.editable, attributes.multioperation)}
         </Row>
       </ColumnGroup>;
     }
     return null;
-  }
+  }, [attributes, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
 
-  rowClassName(data) {
-    return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
-  }
+  const rowClassName = useCallback((data) => [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" "), []);
 
-  /**
-   * Component was mounted
-   */
-  componentDidMount() {
-    super.componentDidMount();
-    const {attributes, settings} = this.props;
-    const {pagerValues = []} = attributes;
-    const max = attributes.max || settings.recordsPerPage;
-    const pager = pagerValues.length > 0 ? pagerValues : [10, 20, 30];
-    this.setState({
-      rowsPerPageOptions: [..._.union([...pager, max]).sort(Number)]
-    });
-  }
+  const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible } = attributes;
+  const { records = 0, values = [] } = model;
+  const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
+  const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
+  const selectedValues = values.filter(item => item.selected);
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const element = document.querySelector(".p-row-editor-save");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }
-
-  /**
-   * Check if component should update
-   * @param nextProps Next properties
-   * @param _nextState Next state
-   * @param _nextContext Next context
-   * @returns {boolean} Component should update
-   */
-  shouldComponentUpdate(nextProps, _nextState, _nextContext) {
-    return !nextProps.disabled;
-  }
-
-  /**
-   * Render component
-   * @returns {JSX.Element} Rendered component
-   */
-  render() {
-    const {attributes, model, specificAttributes} = this.props;
-    const {style, headerModel, columnModel, multiselect, disablePagination, max, loadAll, visible} = attributes;
-    const {records = 0, values = []} = model;
-    const {rowsPerPageOptions} = this.state;
-    const {filters, first = 0, rows = max, sort = []} = specificAttributes;
-    const classes = classNames("p-datatable-sm", "expand", style, {"hidden": !visible});
-    const selectedValues = values.filter(item => item.selected);
-
-    return <AweGridContainer onKeyCancelRow={this.cancelRow} onKeySaveRow={this.saveRow} onContextMenu={this.onContextMenu}>
-      <DataTable
-        selection={selectedValues}
-        selectionMode={multiselect ? null : "single"}
-        onSelectionChange={this.onSelect} onRowDoubleClick={this.onRowDoubleClick}
-        onContextMenu={this.onContextMenu}
-        contextMenuSelection={selectedValues}
-        onContextMenuSelectionChange={this.onSelect}
-        id={this.props.address.component}
-        value={values} className={classes}
-        headerColumnGroup={this.headerTemplate()}
-        footerColumnGroup={this.footerTemplate()}
-        rowClassName={this.rowClassName}
-        dataKey="id"
-        emptyMessage={""}
-        paginator lazy={!loadAll}
-        paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
-        first={first} rows={rows} paginatorLeft={this.buttonsTemplate()} onPage={this.onPage}
-        paginatorRight={<span>&nbsp;</span>} totalRecords={records} rowsPerPageOptions={rowsPerPageOptions}
-        resizableColumns={headerModel.length === 0} columnResizeMode="fit"
-        scrollable scrollHeight={"flex"}
-        editMode="row"
-        sortMode="multiple" removableSort
-        multiSortMeta={sort.map(item => ({field: item.id, order: item.direction === "asc" ? 1 : -1}))}
-        onSort={this.onSort}
-        onFilter={this.onFilter}
-        filters={filters} filterDisplay={"menu"}
-      >
-        {this.preColumnTemplates("cell", 1)}
-        {
-          columnModel.filter(col => !col.hidden)
-            .map(col => {
-              const {name, sortField, align, charlength = null, width = null} = col;
-              return <Column
-                key={name}
-                columnKey={name}
-                field={sortField || name}
-                sortField={sortField || name}
-                body={rowData => this.cellTemplate(rowData, name)}
-                bodyClassName={`p-cell-editing ${name}`}
-                style={{...getWidthStyle(charlength, width)}}
-                bodyStyle={{textAlign: align, justifyContent: align}}
-              />;
-            })
-        }
-        {this.postColumnTemplates("cell", 1, true)}
-      </DataTable>
-      { this.contextMenuTemplate() }
-    </AweGridContainer>;
-  }
+  return <AweGridContainer onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onContextMenu={onContextMenu}>
+    <DataTable
+      selection={selectedValues}
+      selectionMode={multiselect ? null : "single"}
+      onSelectionChange={onSelect} onRowDoubleClick={onRowDoubleClick}
+      onContextMenu={onContextMenu}
+      contextMenuSelection={selectedValues}
+      onContextMenuSelectionChange={onSelect}
+      id={address?.component}
+      value={values} className={classes}
+      headerColumnGroup={headerTemplate()}
+      footerColumnGroup={footerTemplate()}
+      rowClassName={rowClassName}
+      dataKey="id"
+      emptyMessage={""}
+      paginator lazy={!loadAll}
+      paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
+      first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={onPage}
+      paginatorRight={<span>&nbsp;</span>} totalRecords={records} rowsPerPageOptions={rowsPerPageOptions}
+      resizableColumns={headerModel.length === 0} columnResizeMode="fit"
+      scrollable scrollHeight={"flex"}
+      editMode="row"
+      sortMode="multiple" removableSort
+      multiSortMeta={sort.map(item => ({ field: item.id, order: item.direction === "asc" ? 1 : -1 }))}
+      onSort={onSort}
+      onFilter={onFilter}
+      filters={filters} filterDisplay={"menu"}
+    >
+      {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}
+      {
+        columnModel.filter(col => !col.hidden)
+          .map(col => {
+            const { name, sortField, align, charlength = null, width = null } = col;
+            return <Column
+              key={name}
+              columnKey={name}
+              field={sortField || name}
+              sortField={sortField || name}
+              body={rowData => cellTemplate(rowData, name)}
+              bodyClassName={`p-cell-editing ${name}`}
+              style={{ ...getWidthStyle(charlength, width) }}
+              bodyStyle={{ textAlign: align, justifyContent: align }}
+            />;
+          })
+      }
+      {postColumnTemplates("cell", 1, true, attributes.editable, attributes.multioperation)}
+    </DataTable>
+    {contextMenuTemplate()}
+  </AweGridContainer>;
 }
 
-export default connectComponent(AweGrid);
+export default AweGrid;

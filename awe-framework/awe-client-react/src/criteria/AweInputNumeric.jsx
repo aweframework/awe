@@ -1,91 +1,88 @@
-import React from "react";
-import {connectComponent} from "../components/AweComponent";
-import AweTextComponent from "./AweTextComponent";
+import React, {useCallback, useMemo, useState} from "react";
 import {InputNumber} from "primereact/inputnumber";
-import {bindMethods, translateLabel} from "../utilities";
+import {translateLabel} from "../utilities";
 import {formatNumber, translateNumberFormat} from "../utilities/numbers";
 import {classNames} from "../utilities/components";
 
 import "./AweInputNumeric.less";
 import {Slider} from "primereact/slider";
+import AweCriterion from "./AweCriterion";
+import useText from "../hooks/useText";
+import {useDispatch} from "react-redux";
+import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 
+function AweInputNumeric(props) {
+  const { id } = props;
+  const dispatch = useDispatch();
+  const { address, attributes = {}, validationRules = {}, value: valueFromModel } = useText(id);
 
-class AweInputNumeric extends AweTextComponent {
+  const [sliding, setSliding] = useState(false);
+  const [number, setNumber] = useState(Number(valueFromModel));
 
-  constructor(props) {
-    super(props);
-    this.groupClass = props.attributes.showSlider ? "" : this.groupClass;
-    bindMethods(this, ["getComponent", "onChange", "onSlide"]);
-  }
+  const { placeholder, required, readonly, numberFormat, size, align, icon, unit, error = false, showSlider = false } = attributes;
+  const classes = classNames({ "with-icon": icon, "with-unit": unit, "with-slider": showSlider, [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
-  onSlide(e) {
-    const {readonly} = this.props.attributes;
+  const nf = useMemo(() => translateNumberFormat(numberFormat), [numberFormat]);
+
+  const currentValue = sliding ? number : (valueFromModel === "" || valueFromModel == null ? null : Number(valueFromModel));
+
+  const commit = useCallback((val) => {
+    const v = val == null || val === "" ? null : Number(val);
+    dispatch(updateThunk(address, {
+      values: [{ value: v, label: formatNumber(v, numberFormat), selected: true }]
+    }));
+  }, [dispatch, address, numberFormat]);
+
+  const onValueChange = useCallback((e) => {
+    const v = sliding ? number : e.value;
+    if (v !== (valueFromModel == null ? null : Number(valueFromModel))) {
+      commit(v);
+      setSliding(false);
+    }
+  }, [sliding, number, valueFromModel, commit]);
+
+  const onSlide = useCallback((e) => {
     if (!readonly) {
-      this.setState({number: Number(e.value), sliding: true});
-      e.originalEvent.type === "click" && this.onChange(e);
+      setNumber(Number(e.value));
+      setSliding(true);
+      if (e.originalEvent?.type === "click") onValueChange(e);
     }
-  }
+  }, [readonly, onValueChange]);
 
-  getIcon() {
-    return this.props.attributes.showSlider ? null : super.getIcon();
-  }
-
-  getUnit() {
-    return this.props.attributes.showSlider ? null : super.getUnit();
-  }
-
-  onChange(e) {
-    const value = this.state.sliding ? this.state.number : e.value;
-    if (value !== Number(this.getValue())) {
-      const {address, updateModelWithDependencies, attributes = {}} = this.props;
-      updateModelWithDependencies(address, {
-        values: [{
-          value: value,
-          label: formatNumber(value, attributes.numberFormat),
-          selected: true
-        }]
-      });
-
-      this.setState({sliding: false});
-    }
-  }
-
-  getComponent(style) {
-    const {t, address, attributes} = this.props;
-    const {placeholder, required, readonly, numberFormat, size, align, icon, unit, showSlider = false} = attributes;
-    const {maxFractionDigits, minFractionDigits, min, max, suffix, locale, step} = translateNumberFormat(numberFormat);
-    const value = this.state.sliding ? this.state.number : this.getValue();
-    const classes = classNames({"with-icon": icon, "with-unit": unit, "with-slider": showSlider,
-      [`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style);
-    return <><InputNumber
-      id={address.component}
-      value={value}
-      className={classes}
-      placeholder={translateLabel(placeholder, t)}
-      required={required}
-      disabled={readonly}
-      mode="decimal"
-      locale={locale}
-      maxFractionDigits={maxFractionDigits}
-      minFractionDigits={minFractionDigits}
-      min={min}
-      max={max}
-      suffix={suffix}
-      onValueChange={this.onChange}
-      inputStyle={{textAlign: align || "right"}}
-      onKeyPress={e => e.key === "Enter" && this.onSubmit()}
-    />
-      {showSlider ? <Slider
-        value={Number(value)}
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} groupClass={showSlider ? "" : "p-inputgroup"}
+      generateIcon={!showSlider} generateUnit={!showSlider}>
+      <InputNumber
+        id={address?.component}
+        value={currentValue}
+        className={classes}
+        placeholder={translateLabel(placeholder)}
+        required={required}
         disabled={readonly}
-        min={min}
-        max={max}
-        step={step}
-        onChange={this.onSlide}
-        onSlideEnd={this.onChange}
-      /> : null}
-    </>;
-  }
+        mode="decimal"
+        locale={nf.locale}
+        maxFractionDigits={nf.maxFractionDigits}
+        minFractionDigits={nf.minFractionDigits}
+        min={nf.min}
+        max={nf.max}
+        suffix={nf.suffix}
+        onValueChange={onValueChange}
+        inputStyle={{ textAlign: align || "right" }}
+        onKeyDown={e => e.key === "Enter" && commit(currentValue)}
+      />
+      {showSlider ? (
+        <Slider
+          value={Number(currentValue || 0)}
+          disabled={readonly}
+          min={nf.min}
+          max={nf.max}
+          step={nf.step}
+          onChange={onSlide}
+          onSlideEnd={onValueChange}
+        />
+      ) : null}
+    </AweCriterion>
+  );
 }
 
-export default connectComponent(AweInputNumeric);
+export default AweInputNumeric;

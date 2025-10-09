@@ -1,84 +1,87 @@
-import React from "react";
-import {AweComponent, connectComponent} from "./AweComponent";
+import React, {useEffect, useState} from "react";
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
-import {bindMethods} from "../utilities";
 import {extractCellValue} from "../utilities/grid";
 import {isEmpty} from "../utilities/general";
+import {useTranslation} from "react-i18next";
+import {useDispatch, useSelector} from "react-redux";
+import {updateAttributes} from "../redux/actions/components";
+
+/**
+ * Read value list
+ * @param value
+ * @returns {*[]|*}
+ */
+function readValueList(value) {
+  return isEmpty(value) ? [] : value.split(",");
+}
+
+/**
+ * Write value list
+ * @param value
+ * @returns {*}
+ */
+function writeValueList(value) {
+  return value.join(",");
+}
 
 /**
  * AWE Pivot Table component
- * @extends AweComponent
  * @category Components
  */
-class AwePivotTable extends AweComponent {
+function AwePivotTable(props) {
 
-  /**
-   * Create a pivot table
-   * @param {object} props Component properties
-   */
-  constructor(props) {
-    super(props);
-    bindMethods(this, ["onChange"]);
-    this.state = {rendered: false};
-  }
+  const { id, } = props;
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { address, model, attributes = {} } = useSelector(state => ({
+    address: state.components[id]?.address,
+    model: state.components[id]?.model,
+    attributes: state.components[id]?.attributes
+  }));
+  const [rendered, setRendered] = useState(false);
 
-  readValueList(value) {
-    return isEmpty(value) ? [] : value.split(",");
-  }
 
-  writeValueList(value) {
-    return value.join(",");
-  }
 
   /**
    * On attributes change
    * @param e Changed attributes
    */
-  onChange(e) {
-    const {address, updateAttributes} = this.props;
+  const onChange = (e) => {
     const {cols, rows, vals} = e;
-    updateAttributes(address, {
+    dispatch(updateAttributes(address, {
       ...e,
-      vals: this.writeValueList(vals),
-      cols: this.writeValueList(cols),
-      rows: this.writeValueList(rows)
-    });
-  }
+      vals: writeValueList(vals),
+      cols: writeValueList(cols),
+      rows: writeValueList(rows)
+    }));
+  };
 
-  /**
-   * Component was mounted.
-   * Perform a state change to update the component and define cols,
-   * rows and vals, as the first time it returns error
-   */
-  componentDidMount() {
-    super.componentDidMount();
-    this.setState({rendered: true});
-  }
+  // Initialize on mount
+  useEffect(() => {
+    setRendered(true);
+  }, []);
 
   /**
    * Render component
    * @returns {JSX.Element} Rendered component
    */
-  render() {
-    const {model, attributes} = this.props;
     const {cols, rows, vals, style} = attributes;
-    let fixedAttributes = this.state.rendered ? {
+    let fixedAttributes = rendered ? {
       ...attributes,
-      vals: this.readValueList(vals),
-      cols: this.readValueList(cols),
-      rows: this.readValueList(rows)
+      vals: readValueList(vals),
+      cols: readValueList(cols),
+      rows: readValueList(rows)
     } : {};
     return (<div className={style}>
       <PivotTableUI
         data={model.values.map(row => Object.entries(row).reduce((prev, [key, value]) =>
           ({...prev, [key]: extractCellValue(value)}), {}))}
-        onChange={this.onChange}
+        onChange={onChange}
         unusedOrientationCutoff={Infinity}
         {...fixedAttributes}
       />
     </div>);
-  }
 }
 
-export default connectComponent(AwePivotTable);
+export default AwePivotTable;
