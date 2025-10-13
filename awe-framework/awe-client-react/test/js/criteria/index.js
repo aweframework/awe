@@ -17,3 +17,4 @@ import './AweInputTimeTest';
 import './AweInputPasswordTest';
 import './AweInputTextareaTest';
 import './AweInputEditorTest';
+import './AwePicklistTest';

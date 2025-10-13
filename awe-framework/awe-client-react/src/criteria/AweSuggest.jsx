@@ -7,9 +7,11 @@ import {useSelector} from "react-redux";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
 import {translateLabel} from "../utilities";
+import {Skeleton} from "primereact/skeleton";
+import PropTypes from "prop-types";
 
 function AweSuggest(props) {
-  const {id} = props;
+  const {id, style: propsStyle} = props;
   const {t} = useTranslation();
   const {address, model, attributes, validationRules} = useSelector(state => ({
     address: state.components[id]?.address,
@@ -19,10 +21,7 @@ function AweSuggest(props) {
   const autocompleteRef = useRef(null);
   const [suggestions, setSuggestions] = useState([...model.values]);
   const [value, setValue] = useState({});
-
   const {onChange, onClear, onKeyPress, onSuggest, initialSuggest} = useSuggest(autocompleteRef, setSuggestions, value, setValue, {...attributes, address});
-  const {placeholder, required, readonly, timeout, size, error} = attributes;
-  const classes = classNames("", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
 
   // Change model values if updated
   useEffect(() => {
@@ -41,6 +40,13 @@ function AweSuggest(props) {
     }
   }, [value]);
 
+  // If address is undefined, return skeleton
+  if (!address) {
+    return <Skeleton width="10rem" height="2rem" style={propsStyle}/>;
+  }
+
+  const {placeholder, required, readonly, timeout, size, error} = attributes;
+  const classes = classNames("", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <AutoComplete
@@ -66,5 +72,10 @@ function AweSuggest(props) {
     </AweCriterion>
   );
 }
+
+AweSuggest.propTypes = {
+  id: PropTypes.string,
+  style: PropTypes.string
+};
 
 export default AweSuggest;

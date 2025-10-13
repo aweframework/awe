@@ -6,10 +6,12 @@ import "./AwePicklist.less";
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
+import {Skeleton} from "primereact/skeleton";
+import PropTypes from "prop-types";
 
 function AwePicklist(props) {
 
-  const { id } = props;
+  const { id, style: propsStyle } = props;
   const { t } = useTranslation();
   const { address, attributes = {}, model = { values: [] }} = useSelector(state => ({
     address: state.components[id]?.address,
@@ -45,8 +47,13 @@ function AwePicklist(props) {
   };
 
 
-  const {label, style} = attributes;
-  const classes = classNames(style);
+  const {label, style, visible} = attributes;
+  const classes = classNames(style, {"hidden": !visible});
+
+  // If address is undefined, return skeleton
+  if (!address) {
+    return <Skeleton width="100%" height="8rem" style={propsStyle}/>;
+  }
 
   // Paint component
   return <div className={classes} criterion-id={address.component}>
@@ -63,5 +70,10 @@ function AwePicklist(props) {
     />
   </div>;
 }
+
+AwePicklist.propTypes = {
+  id: PropTypes.string,
+  style: PropTypes.string
+};
 
 export default AwePicklist;
