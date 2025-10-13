@@ -15,7 +15,6 @@ function AweDialog(props) {
   }));
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { style, label } = attributes;
 
   const hide = useCallback(() => {
     if (attributes.isShowing) {
@@ -23,6 +22,12 @@ function AweDialog(props) {
     }
   }, [dispatch, attributes?.isShowing, address]);
 
+  // If address is undefined, return skeleton
+  if (!address) {
+    return <></>;
+  }
+
+  const { style, label } = attributes;
   return (
     <Dialog
       id={id}

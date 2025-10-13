@@ -4,12 +4,19 @@ import {translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
 import {useSelect} from "../hooks/useSelect";
+import {Skeleton} from "primereact/skeleton";
+import PropTypes from "prop-types";
 
 function AweSelect(props) {
 
-  const { id } = props;
+  const { id, style: propsStyle } = props;
   const {t, ref, address, attributes, validationRules, options, selected, onChange} =
     useSelect({id, multiple: false});
+
+  // If address is undefined, return skeleton
+  if (!address) {
+    return <Skeleton width="10rem" height="2rem" style={propsStyle}/>;
+  }
 
   const {placeholder, required, readonly, optional, size, error} = attributes;
   const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
@@ -31,5 +38,10 @@ function AweSelect(props) {
     />
   </AweCriterion>;
 }
+
+AweSelect.propTypes = {
+  id: PropTypes.string,
+  style: PropTypes.string
+};
 
 export default AweSelect;

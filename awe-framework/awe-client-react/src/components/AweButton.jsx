@@ -8,11 +8,24 @@ import {useTranslation} from "react-i18next";
 import {addActionsTop} from "../redux/actions/actions";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import PropTypes from "prop-types";
+import {Skeleton} from "primereact/skeleton";
 
 const {BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL} = ButtonTypes;
 
+const getButtonType = (buttonType) => {
+  switch (buttonType) {
+    case BUTTON_SUBMIT:
+      return "";
+    case BUTTON_RESET:
+      return "p-button-secondary";
+    case BUTTON_NORMAL:
+    default:
+      return "p-button-outlined";
+  }
+};
+
 function AweButton(props) {
-  const { id } = props;
+  const { id, style: propsStyle } = props;
   const { address, attributes = {}, actions = [], settings, globalDisabled } = useSelector(state => ({
     address: state.components[id]?.address,
     attributes: state.components[id]?.attributes,
@@ -22,19 +35,6 @@ function AweButton(props) {
   }));
   const { t } = useTranslation();
   const dispatch = useDispatch();
-
-  const getButtonType = () => {
-    const {buttonType} = attributes;
-    switch (buttonType) {
-      case BUTTON_SUBMIT:
-        return "";
-      case BUTTON_RESET:
-        return "p-button-secondary";
-      case BUTTON_NORMAL:
-      default:
-        return "p-button-outlined";
-    }
-  };
 
   const onClick = useCallback(() => {
     // Change click event
@@ -48,9 +48,13 @@ function AweButton(props) {
     }
   }, [actions, address, attributes?.buttonType, dispatch]);
 
-  const {style, icon, disabled, label, size, visible, help, helpImage} = attributes;
-  const classes = classNames(`help-button-${address.component}`, "mr-2", "mt-2", getButtonType(), {"hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size}, style);
+  // If address is undefined, return skeleton
+  if (!address) {
+    return <Skeleton width="10rem" height="2rem" className={propsStyle}/>;
+  }
 
+  const {style, icon, disabled, label, size, visible, help, helpImage, buttonType} = attributes;
+  const classes = classNames(`help-button-${address.component}`, "mr-2", "mt-2", getButtonType(buttonType), {"hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size}, style);
   return (<>
     { getHelpTooltipNode(help, helpImage, t, `.help-button-${address.component}`) }
     <Button
@@ -69,7 +73,8 @@ function AweButton(props) {
 }
 
 AweButton.propTypes = {
-  id: PropTypes.string
+  id: PropTypes.string,
+  style: PropTypes.string,
 };
 
 export default AweButton;
