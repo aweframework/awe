@@ -19,7 +19,7 @@ function AweSuggest(props) {
     attributes: state.components[id]?.attributes,
     validationRules: state.components[id]?.validationRules}));
   const autocompleteRef = useRef(null);
-  const [suggestions, setSuggestions] = useState([...model.values]);
+  const [suggestions, setSuggestions] = useState([...model?.values || []]);
   const [value, setValue] = useState({});
   const {onChange, onClear, onKeyPress, onSuggest, initialSuggest} = useSuggest(autocompleteRef, setSuggestions, value, setValue, {...attributes, address});
 
