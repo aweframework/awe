@@ -33,12 +33,12 @@ function AweSuggest(props) {
 
   // Initial suggest
   useEffect(() => {
-    const {checkTarget, targetAction} = attributes;
+    const {checkTarget, targetAction} = attributes || {}
     if ((checkTarget || targetAction) && value?.needsInit) {
       const query = value?.value;
       initialSuggest(query);
     }
-  }, [value]);
+  }, [value, attributes]);
 
   // If address is undefined, return skeleton
   if (!address) {
