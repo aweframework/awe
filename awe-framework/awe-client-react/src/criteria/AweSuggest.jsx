@@ -25,11 +25,11 @@ function AweSuggest(props) {
 
   // Change model values if updated
   useEffect(() => {
-    const fixedValues = model.values
+    const fixedValues = (model?.values || [])
       .map(item => ({...item, label: item.label || item.value, needsInit: !("label" in item)}))
       .find(item => item.selected) || {};
     setValue(fixedValues);
-  }, [model.values]);
+  }, [model?.values]);
 
   // Initial suggest
   useEffect(() => {
