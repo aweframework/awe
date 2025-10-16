@@ -44,7 +44,7 @@ const DISPATCH_FUNCTIONS = {
   restoreAttributes: restoreMultipleAttributes,
   restoreValidation: restoreMultipleValidation,
   addActions
-}
+};
 
 const VALUE_DEFERRED = "[[ DEFERRED ]]";
 const VALUE_NONE = "[[ NONE ]]";

@@ -1,9 +1,10 @@
 import {
+  generateMessageAction,
   generateServerAction,
   getActionAddress,
   getActionSource,
   getComponent,
-  isInsideContext
+  isInsideContext, translateLabel
 } from "../../utilities";
 import {acceptAction, addActionsTop} from "../actions/actions";
 import {ButtonTypes, keepModel, updateAttributes} from "../actions/components";
@@ -67,28 +68,33 @@ export function restoreAction(action) {
   };
 }
 
-export function filterAction(action) {
+export function filterAction(action, t = (o) => o) {
   return (dispatch, getState) => {
-    const {components, settings} = getState();
+    const {components, settings, view} = getState();
     // Define server and target action
     const address = getActionAddress(action);
 
     // Start loading
     let component = getComponent(components, address);
 
-    // Add action to actions stack
-    const serverAction = component.attributes[settings.serverActionKey] || "data";
-    const targetAction = component.attributes[settings.targetActionKey];
-    let values = {
-      ...getFormValues(getState()),
-      ...(component.specificAttributes || {})
-    };
+    // If component not found, send an error message
+    if (!component) {
+      dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_NOT_DEFINED', t), translateLabel('ERROR_MESSAGE_NOT_DEFINED_IN', t, address.component, view[address.view].option))]));
+    } else {
+      // Add action to actions stack
+      const serverAction = component.attributes[settings.serverActionKey] || "data";
+      const targetAction = component.attributes[settings.targetActionKey];
+      let values = {
+        ...getFormValues(getState()),
+        ...(component.specificAttributes || {})
+      };
 
-    // Generate server action
-    let filterAction = generateServerAction(values, serverAction, targetAction, address, action.async, action.silent, settings);
+      // Generate server action
+      let filterAction = generateServerAction(values, serverAction, targetAction, address, action.async, action.silent, settings);
 
-    // Send action list
-    dispatch(addActionsTop([filterAction]));
+      // Send action list
+      dispatch(addActionsTop([filterAction]));
+    }
 
     // Accept action
     dispatch(acceptAction(action));
