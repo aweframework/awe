@@ -848,7 +848,7 @@
     <update>
       <table id="AweSchExe" />
       <constant id="EndDat" type="SYSTEM_TIMESTAMP"/>
-      <constant id="Sta" value="6"/>
+      <constant id="Sta" value="6" type="INTEGER"/>
       <where>
         <and>
           <filter left-field="Sta" condition="eq" right-variable="status"/>

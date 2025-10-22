@@ -208,15 +208,22 @@
   </query>
 
   <query id="TestFieldGroupByFunctions">
-    <table id="AweSitModDbs" alias="awe"/>
+    <table query="TestFieldGroupByFunctionsSubValues" alias="ordTable"/>
+    <field id="Ord" table="ordTable"/>
     <over alias="First">
-      <field id="Ord" function="FIRST_VALUE"/>
-      <order-by field="IdeMod"/>
+      <field id="Ord" table="ordTable" function="FIRST_VALUE"/>
+      <order-by field="One" table="ordTable"/>
     </over>
     <over alias="Last">
-      <field id="Ord" function="LAST_VALUE"/>
-      <order-by field="IdeMod"/>
+      <field id="Ord" table="ordTable" function="LAST_VALUE"/>
+      <order-by field="One" table="ordTable"/>
     </over>
+  </query>
+
+  <query id="TestFieldGroupByFunctionsSubValues">
+    <table id="AweSitModDbs"/>
+    <field id="Ord"/>
+    <constant value="1" alias="One"/>
   </query>
 
   <query id="TestFieldDateFunctions">
@@ -1030,6 +1037,7 @@
         </filter>
       </and>
     </where>
+    <order-by field="Nam"/>
   </query>
 
   <query id="VariableObject">
@@ -1731,7 +1739,11 @@
     <where>
       <and>
         <or>
-          <filter left-field="IdeOpe" condition="like" right-variable="SugNum"/>
+          <filter condition="like" right-variable="SugNum">
+            <left-operand>
+              <field cast="STRING" id="IdeOpe"/>
+            </left-operand>
+          </filter>
         </or>
       </and>
     </where>
