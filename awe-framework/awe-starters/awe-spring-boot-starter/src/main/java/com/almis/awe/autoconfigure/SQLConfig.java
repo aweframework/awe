@@ -17,6 +17,7 @@ import com.almis.awe.service.data.builder.SQLQueryBuilder;
 import com.almis.awe.service.data.connector.maintain.SQLMaintainConnector;
 import com.almis.awe.service.data.connector.query.SQLQueryConnector;
 import com.almis.awe.template.FixedOracleTemplates;
+import com.almis.awe.template.FixedPostgreSQLTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.sql.*;
@@ -109,7 +110,7 @@ public class SQLConfig {
 	@Bean
 	@Scope("prototype")
 	public Configuration postgresqlDatabaseConfiguration() {
-		return getConfiguration(PostgreSQLTemplates.builder().build());
+		return getConfiguration(new FixedPostgreSQLTemplates());
 	}
 
   /**

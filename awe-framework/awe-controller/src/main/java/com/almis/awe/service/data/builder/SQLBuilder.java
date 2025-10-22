@@ -1,9 +1,9 @@
 package com.almis.awe.service.data.builder;
 
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.entities.queries.Constant;
 import com.almis.awe.model.entities.queries.Operation;
-import com.almis.awe.model.entities.queries.*;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.type.UnionType;
 import com.almis.awe.model.util.data.DateUtil;
@@ -622,7 +622,9 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case DOUBLE:
         return Expressions.asNumber(Double.valueOf(value));
       case LONG:
-        return Expressions.asNumber(Long.valueOf(value));
+      case SEQUENCE:
+			case MULTIPLE_SEQUENCE:
+				return Expressions.asNumber(Long.valueOf(value));
       case INTEGER:
         return Expressions.asNumber(Integer.valueOf(value));
       case BOOLEAN:
@@ -630,8 +632,6 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       case NULL:
         return Expressions.nullExpression();
       case STRINGN:
-      case MULTIPLE_SEQUENCE:
-      case SEQUENCE:
       default:
         return getStringExpression(value);
     }
