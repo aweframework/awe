@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.11.2
+*22/10/2025*
+
+- Sequences are failing in Postgres database when storing into audit tables. [MR #594](https://gitlab.com/aweframework/awe/-/merge_requests/594) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.11.1
 *09/10/2025*
 

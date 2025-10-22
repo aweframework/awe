@@ -587,6 +587,15 @@ CREATE TABLE IF NOT EXISTS AweUsrFav
 );
 
 --------------------------------------------------------
+--  TESTING TABLES
+--------------------------------------------------------
+CREATE TABLE DummyClobTestTable
+(
+    id SERIAL PRIMARY KEY,
+    textFile TEXT
+);
+
+--------------------------------------------------------
 --  DDL for CONSTRAINTS (Scheduler & misc)
 --------------------------------------------------------
 CREATE UNIQUE INDEX IF NOT EXISTS NOM_UQ ON AWESCHCAL (Nom);
