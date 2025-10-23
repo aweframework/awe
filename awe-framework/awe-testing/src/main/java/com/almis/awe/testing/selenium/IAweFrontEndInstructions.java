@@ -524,4 +524,10 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Suggest multiple choice close selector
    */
   By getSuggestMultipleChoiceClose(String parentSelector);
+
+  /**
+   * Check if the datepicker component requires an explicit click
+   * @return true if manual click is needed, false otherwise.
+   */
+  boolean datePickerRequiresManualClick();
 }

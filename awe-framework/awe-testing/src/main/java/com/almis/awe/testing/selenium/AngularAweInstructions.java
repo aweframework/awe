@@ -293,4 +293,8 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   public By getSuggestResult(String match) {
     return By.xpath(String.format("//*[@id='select2-drop']//*[contains(@class,'select2-result-label')]//text()[contains(.,'%s')]/..", match));
   }
+
+  public boolean datePickerRequiresManualClick() {
+    return true;
+  }
 }
