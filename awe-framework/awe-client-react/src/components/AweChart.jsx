@@ -17,6 +17,7 @@ import {localeOptions} from "primereact/api";
 import {produce} from "immer";
 import {useSelector} from "react-redux";
 import PropTypes from "prop-types";
+import {classNames} from "../utilities/components";
 
 /**
  * List of magnitudes
@@ -246,7 +247,9 @@ function AweChart(props) {
     processChartOptions(attributes.chartModel, model.values, t, {...settings, language: i18n.language}, onAnimationEnd, animating)
   ));
 
-  return <div className={"awe-chart expand highcharts-dark"} id={id}>
+  const { style, visible } = attributes;
+  const classes = classNames("awe-chart", "expand", "highcharts-dark", style, { "hidden": !visible });
+  return <div className={classes} id={id}>
     <HighchartsReact
       key={i18n.language}
       highcharts={Highcharts}

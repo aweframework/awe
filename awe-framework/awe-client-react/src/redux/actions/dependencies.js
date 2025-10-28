@@ -479,7 +479,7 @@ function applyTarget(dependency, component, value, result) {
       return {updateAttributes: {address, data: {[target]: value}}};
 
     case "chart-options-true":
-      return {updateAttributes: {address, data: {chartOptions: value}}};
+      return {updateAttributes: {address, data: {chartModel: value}}};
 
     case "attribute-true":
       return {updateAttributes: {address, data: {[dependency.query]: value}}};
