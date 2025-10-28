@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-    Document   : Lgn.xml
-    Created on : 8 de febrero de 2010, 16:30
-    Author     : Pablo GARCIA
+    Document : Lgn.xml
+    Created on: 8 de febrero de 2010, 16:30
+    Author: Pablo GARCIA
     Description: Login screen
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="SCREEN_TITLE_LOGIN"
@@ -29,10 +29,30 @@
               <button-action type="validate"/>
               <button-action type="server" server-action="login"/>
             </button>
+            <!-- Azure EntraID -->
+            <button id="ButLogInAzure" style="sign-in-azure-btn-light" >
+              <dependency target-type="hide" initial="true" type="or">
+                <dependency-element id="azure-enabled" condition="eq" value="false"/>
+                <dependency-element id="azure-enabled" condition="is empty"/>
+              </dependency>
+              <button-action type="server" server-action="login-azure"/>
+            </button>
+            <!-- Sign with SSO -->
+            <button id="ButLogInSSO" style="m-0 col-12"  label="BUTTON_LOGIN_SSO">
+              <dependency target-type="hide" initial="true" type="or">
+                <dependency-element id="sso-enabled" condition="eq" value="false"/>
+                <dependency-element id="sso-enabled" condition="is empty"/>
+              </dependency>
+              <button-action type="server" server-action="login-sso"/>
+            </button>
           </tag>
         </tag>
         <!-- Right side -->
       </tag>
     </tag>
+  </tag>
+  <tag source="hidden">
+    <criteria id="azure-enabled" component="text" property="awe.security.sso.enable-azure-button"/>
+    <criteria id="sso-enabled" component="text" property="awe.security.sso.enable-generic-sso-button"/>
   </tag>
 </screen>
