@@ -6,7 +6,6 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweUserDetails;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
@@ -18,6 +17,7 @@ import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
@@ -27,17 +27,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.*;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.EMAIL;
-import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.PREFERRED_USERNAME;
 
 /**
  * Manage application accesses
  */
 @Service
+@Slf4j
 public class AccessService extends ServiceConfig {
 
   // Autowired components
@@ -139,13 +140,22 @@ public class AccessService extends ServiceConfig {
     return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(getRequest().getHttpRequest().getContextPath() + AZURE_OAUTH2_AUTHORIZATION_URL));
   }
 
-  /**
-   * SSO login redirection with KeyCloak
-   * @return do send redirect to Authentication server oauth portal
-   */
-  public ServiceData loginWithKeyCloakSSO() {
-    return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(getRequest().getHttpRequest().getContextPath() + KEYCLOAK_OAUTH2_AUTHORIZATION_URL));
-  }
+	/**
+	 * SSO login redirection - Multi-tenant aware
+	 * Dynamically resolves the correct OAuth2 provider based on the current tenant
+	 *
+	 * @return ServiceData with redirect action to the appropriate OAuth2 provider
+	 */
+  public ServiceData loginWithSSO() {
+
+		OAuth2UrlService oAuth2UrlService = this.getApplicationContext().getBean(OAuth2UrlService.class);
+		Assert.notNull(oAuth2UrlService, "OAuth2UrlService bean not found");
+		// Get the dynamic OAuth2 authorization URL based on the current tenant
+		String oauth2Url = oAuth2UrlService.getOAuth2AuthorizationUrl(getRequest().getHttpRequest());
+		log.info("Redirecting to tenant-specific OAuth2 provider: {}", oauth2Url);
+
+		return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(oauth2Url));
+	}
 
   /**
    * Manage Oauth success authentication
@@ -171,24 +181,83 @@ public class AccessService extends ServiceConfig {
     return initialUrl;
   }
 
-  private AweUserDetails getUserDetails(OAuth2AuthenticationToken oauth2User) throws AWException {
-    AweUserDetails userDetails;
-    String userName = oauth2User.getPrincipal().getAttribute(PREFERRED_USERNAME);
-    String roleOauth = userDetailsService.mapGrantedAuthorityProfile(oauth2User.getAuthorities());
-    try {
-      // Get user info from the username
-      userDetails = userDetailsService.loadUserByUsername(userName);
-      // Check if the role has been updated from OidcUser
-      checkUpdateRoleInOAuth(userDetails, roleOauth);
-    } catch (UsernameNotFoundException ex) {
-      // User not exist, retrieve generic user info from role
-      userDetails = userDetailsService.loadUserByRole(oauth2User);
-      // If is enabled, provision a new user
-      autoProvisionUser(userDetails);
-    }
-    return userDetails;
-  }
+	/**
+	 * Retrieves user details from an OAuth2 authentication token.
+	 * <p>
+	 * Parses the token's principal attributes and associated roles to construct
+	 * an instance of {@code AweUserDetails} which encapsulates user information.
+	 *
+	 * @param oauth2Token the OAuth2 authentication token containing user attributes and authorities
+	 * @return an instance of {@code AweUserDetails} populated with user-specific details and roles
+	 * @throws AWException if the user details cannot be loaded or an error occurs during processing
+	 */
+	private AweUserDetails getUserDetails(OAuth2AuthenticationToken oauth2Token) throws AWException {
+		Map<String, Object> attributes = oauth2Token.getPrincipal().getAttributes();
+		log.debug("Available attributes in token: {}", getAllAttributes(oauth2Token));
 
+		String userName = mapUsernameFromOauthToken(attributes);
+		String roleFromOAuth = userDetailsService.mapGrantedAuthorityProfile(oauth2Token.getAuthorities());
+
+		return loadUserDetailsWithRoleSync(userName, roleFromOAuth, oauth2Token);
+	}
+
+	/**
+	 * Maps and retrieves the username from the provided OAuth token attributes.
+	 *
+	 * @param attributes a Map containing the OAuth token attributes where the username attribute is expected to be present
+	 * @return the username extracted from the OAuth token attributes
+	 * @throws AWException if the username attribute is not found or is empty in the provided attributes
+	 */
+	private String mapUsernameFromOauthToken(Map<String, Object> attributes) throws AWException {
+		String ssoUserNameAttribute = securityConfigProperties.getSso().getUserNameAttribute();
+		Object userNameAttribute = attributes.get(ssoUserNameAttribute);
+
+		if (userNameAttribute == null || userNameAttribute.toString().isEmpty()) {
+			throw new AWException(getLocale("ERROR_TITLE_OAUTH_NO_USERNAME_ATTR"),	getLocale("ERROR_MESSAGE_OAUTH_NO_USERNAME_ATTR", ssoUserNameAttribute));
+		}
+
+		return userNameAttribute.toString();
+	}
+
+	/**
+	 * Loads user details for the given username, synchronizing with the provided role from OAuth.
+	 * If the user is not found in the database, attempts to provision a new user using the OAuth token.
+	 *
+	 * @param userName the username of the user whose details are to be loaded
+	 * @param roleFromOAuth the role information retrieved from OAuth to be checked/updated
+	 * @param oauth2Token the OAuth2 authentication token used to provision a new user if needed
+	 * @return an instance of AweUserDetails containing the user's details
+	 * @throws AWException if there is an issue during the process
+	 */
+	private AweUserDetails loadUserDetailsWithRoleSync(String userName, String roleFromOAuth, OAuth2AuthenticationToken oauth2Token) throws AWException {
+		try {
+			AweUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+			checkUpdateRoleInOAuth(userDetails, roleFromOAuth);
+			return userDetails;
+		} catch (UsernameNotFoundException ex) {
+			// User not found in the database, provision a new one
+			return loadAndProvisionNewUser(oauth2Token);
+		}
+	}
+
+	private AweUserDetails loadAndProvisionNewUser(OAuth2AuthenticationToken oauth2Token) throws AWException {
+		AweUserDetails userDetails = userDetailsService.loadUserByRole(oauth2Token);
+		autoProvisionUser(userDetails);
+		return userDetails;
+	}
+
+	/**
+	 * Gets all available attributes from the OAuth2 token (for debugging)
+	 *
+	 * @param oauth2Token The OAuth2 token
+	 * @return Map of all attributes
+	 */
+	private Map<String, Object> getAllAttributes(OAuth2AuthenticationToken oauth2Token) {
+		if (oauth2Token != null && oauth2Token.getPrincipal() != null) {
+			return oauth2Token.getPrincipal().getAttributes();
+		}
+		return Map.of();
+	}
   private void checkUpdateRoleInOAuth(AweUserDetails userDetails, String roleOAuth) throws AWException {
     boolean changed = !userDetails.getProfileName().equalsIgnoreCase(roleOAuth);
     if (changed && userDetailsService.existRole(roleOAuth)) {
@@ -330,10 +399,10 @@ public class AccessService extends ServiceConfig {
     for (String profile : profileList) {
       Map<String, CellData> row = new HashMap<>();
       // Set the screen name
-      row.put(AweConstants.JSON_VALUE_PARAMETER, new CellData(profile));
+      row.put(JSON_VALUE_PARAMETER, new CellData(profile));
 
       // Store screen label
-      row.put(AweConstants.JSON_LABEL_PARAMETER, new CellData(profile));
+      row.put(JSON_LABEL_PARAMETER, new CellData(profile));
 
       // Store row
       dataList.addRow(row);
@@ -343,7 +412,7 @@ public class AccessService extends ServiceConfig {
     dataList.setRecords(dataList.getRows().size());
 
     // Sort results
-    DataListUtil.sort(dataList, AweConstants.JSON_LABEL_PARAMETER, "asc");
+    DataListUtil.sort(dataList, JSON_LABEL_PARAMETER, "asc");
 
     // Set datalist to service
     serviceData.setDataList(dataList);

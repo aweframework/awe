@@ -60,16 +60,6 @@ public class SchedulerConfig {
   }
 
   /**
-   * Modify bean registration jobRegistryBeanPostProcessor to avoid some WARN messages when the application is starting
-   * @return Bean post processor
-   */
-  //TODO Remove this bean definition when spring-batch v5.2 will released
-  @Bean
-  public static BeanDefinitionRegistryPostProcessor jobRegistryBeanPostProcessorRemover() {
-    return registry -> registry.removeBeanDefinition("jobRegistryBeanPostProcessor");
-  }
-
-  /**
    * Define Scheduler
    *
    * @return Scheduler

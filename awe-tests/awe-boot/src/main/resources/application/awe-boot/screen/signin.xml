@@ -73,7 +73,7 @@
   </tag>
 
   <tag source="hidden">
-    <criteria id="azure-enabled" component="text" property="spring.cloud.azure.active-directory.enabled"/>
-    <criteria id="sso-enabled" component="text" property="awe.security.sso.enabled"/>
+    <criteria id="azure-enabled" component="text" property="awe.security.sso.enable-azure-button"/>
+    <criteria id="sso-enabled" component="text" property="awe.security.sso.enable-generic-sso-button"/>
   </tag>
 </screen>

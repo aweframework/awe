@@ -476,6 +476,7 @@
   <locale name="ERROR_MESSAGE_NO_AUDIT_FIELDS" value="No audit fields have been defined in the process launched [{0}]. They need to be defined to launch the audit process."/>
   <locale name="ERROR_MESSAGE_NONEXISTENT_FILE" value="There is no file in the path: {0}"/>
   <locale name="ERROR_MESSAGE_NOT_DEFINED_IN" value="&apos;&apos;{0}&apos;&apos; has not been defined in &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_OAUTH_NO_USERNAME_ATTR" value="OAuth2 configuration error: username attribute [{0}] not found in token"/>
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="Option {0} has not been defined. Please check menu files."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="Session has expired. Please reload"/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parameter not found: {0}"/>
@@ -654,6 +655,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="No audit fields defined"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Nonexistent file"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Error: &apos;&apos;{0}&apos;&apos; has not been defined"/>
+  <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Oauth2 error"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="Option not defined"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="ParseException Generated"/>
   <locale name="ERROR_TITLE_PARSING_COLUMN_TYPE" value="Error parsing column type"/>
@@ -1154,8 +1156,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_DATE" value="System date"/>
   <locale name="SCREEN_TEXT_DBS" value="Database"/>
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Unknown error"/>
-  <locale name="SCREEN_TEXT_ERROR_TITLE" value="{0} error"/>
-  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="The {0} process could not be completed:"/>
+  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops something went wrong"/>
+  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="The process could not be completed:"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filters"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="First"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Last"/>

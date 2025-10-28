@@ -30,8 +30,9 @@ module.exports = {
   }),
     new HtmlWebpackPlugin({
       template: require.resolve('awe-react-client/template.html'),
-      filename: 'index.html',
+      filename: '../templates/index.html',
       inject: "body",
+      publicPath: './'
     }),
     new ThymeLeafPlugin(),
     new CopyPlugin({

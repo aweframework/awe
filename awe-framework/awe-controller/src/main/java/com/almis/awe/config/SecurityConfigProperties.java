@@ -112,7 +112,26 @@ public class SecurityConfigProperties {
      * Used to filtering granted authorities in post authentication process
      */
     private String filterAuthorityPrefix;
-  }
+		/**
+		 * The name of the attribute used to extract the username during the SSO authentication process.
+		 * This attribute is typically sourced from the claims provided by the OAuth2 or OIDC identity provider.
+		 * The default value is set to "preferred_username".
+		 */
+		private String userNameAttribute = "preferred_username";
+
+		/**
+		 * Enable the Azure SSO button. Used in Signin screen
+		 */
+		private boolean enableAzureButton = false;
+		/**
+		 * Enable Google SSO button. Used in signin screen
+		 */
+		private boolean enableGoogleButton = false;
+		/**
+		 * Enable the Generic SSO button. Used in signin screen
+		 */
+		private boolean enableGenericSsoButton = false;
+	}
 
   /**
    * Ldap authentication configuration properties

@@ -9,6 +9,7 @@ import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.service.connector.JavaConnector;
 import com.almis.awe.service.connector.MicroserviceConnector;
@@ -31,6 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,6 +42,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -239,6 +242,29 @@ public class AweAutoConfiguration {
     return new PropertyService(queryService, configurableEnvironment, databaseConfigProperties);
   }
 
+	/**
+	 * OAuth2UrlService service
+	 * @param multiTenantOAuth2Config multiTenantOAuth2Config multi tenant oauth config
+	 * @param clientRegistrationRepository client registration repository
+	 * @return OAuth2UrlService bean
+	 */
+	@Bean
+	@ConditionalOnProperty(prefix = "awe.security.sso", name = "enabled", havingValue = "true")
+	@ConditionalOnMissingBean
+	public OAuth2UrlService oAuth2UrlService(MultiTenantOAuth2Config multiTenantOAuth2Config, ClientRegistrationRepository clientRegistrationRepository) {
+		return new OAuth2UrlService(multiTenantOAuth2Config, clientRegistrationRepository);
+	}
+
+	/**
+	 * MultiTenantFilter multi tenant filter bean
+	 * @param multiTenantOAuth2Config multiTenantOAuth2Config multi tenant oauth config bean. It is used to get the client registration repository and the client id.
+	 * @return MultiTenantFilter bean. It is used to filter the requests to the multi-tenant endpoints. It is used to get the tenant id from the request.
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public MultiTenantFilter multiTenantFilter(MultiTenantOAuth2Config multiTenantOAuth2Config) {
+		return new MultiTenantFilter(multiTenantOAuth2Config);
+	}
   /**
    * Init service
    *
