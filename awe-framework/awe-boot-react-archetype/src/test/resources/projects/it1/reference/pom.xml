@@ -126,7 +126,7 @@
                 <artifactItem>
                   <groupId>com.almis.awe</groupId>
                   <artifactId>awe-generic-screens</artifactId>
-                  <outputDirectory>\${project.build.frontend}</outputDirectory>
+                  <outputDirectory>\${project.build.outputDirectory}</outputDirectory>
                   <includes>templates/**</includes>
                 </artifactItem>
               </artifactItems>

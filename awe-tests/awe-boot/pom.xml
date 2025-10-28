@@ -390,7 +390,7 @@
                   <groupId>com.almis.awe</groupId>
                   <artifactId>awe-generic-screens</artifactId>
                   <version>${awe.version}</version>
-                  <outputDirectory>${project.build.frontend}</outputDirectory>
+                  <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                   <includes>templates/**,</includes>
                 </artifactItem>
               </artifactItems>
@@ -613,7 +613,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>7.2.2.jre8</version>
+          <version>13.2.0.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -642,7 +642,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>7.2.2.jre8</version>
+          <version>13.2.0.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

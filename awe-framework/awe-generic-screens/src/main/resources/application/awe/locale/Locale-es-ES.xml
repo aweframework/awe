@@ -479,6 +479,7 @@
   <locale name="ERROR_MESSAGE_NO_AUDIT_FIELDS" value="No se han definido campos de auditoría en el proceso lanzado [{0}]. Es necesario que estén definidos para lanzar el proceso de auditoría."/>
   <locale name="ERROR_MESSAGE_NONEXISTENT_FILE" value="No se ha encontrado el fichero: {0}"/>
   <locale name="ERROR_MESSAGE_NOT_DEFINED_IN" value="&apos;&apos;{0}&apos;&apos; no ha sido definido en &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_OAUTH_NO_USERNAME_ATTR" value="Error de configuración en OAuth2: no se encuentra el atributo [{0}] en el token oauth"/>
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="La opción {0} no se ha definido. Por favor, compruebe el los ficheros de menú."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="La sesión ha caducado. Por favor, recargue la página."/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parámetro no encontrado: {0}"/>
@@ -657,6 +658,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="No hay campos de auditoría definidos"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Fichero inexistente"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Error: &apos;&apos;{0}&apos;&apos; no ha sido definido"/>
+  <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Error de Oauth2 autenticación"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="La opción no está definida"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="Generada ParseException"/>
   <locale name="ERROR_TITLE_PARSING_COLUMN_TYPE" value="Error interpretando los datos"/>
@@ -1154,9 +1156,9 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_CRITERIA" value="Criterios"/>
   <locale name="SCREEN_TEXT_CURRENCY" value="Divisa de referencia"/>
   <locale name="SCREEN_TEXT_DATA" value="Datos"/>
-  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Error de {0}"/>
+  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops algo ha ido mal"/>
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Error desconocido"/>
-  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="No se pudo completar el proceso de {0}:"/>
+  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="No se pudo completar el proceso:"/>
   <locale name="SCREEN_TEXT_DATE" value="Fecha del sistema"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filtros"/>

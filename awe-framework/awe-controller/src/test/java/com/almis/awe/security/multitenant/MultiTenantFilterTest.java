@@ -67,9 +67,10 @@ class MultiTenantFilterTest {
   void testDoFilterInternalWithValidTenantSubdomain(String serverName, String expectedTenant) throws ServletException, IOException {
     // Given
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(expectedTenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(expectedTenant)).thenReturn(expectedTenant);
     when(request.getServerName()).thenReturn(serverName);
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(expectedTenant)).thenReturn(true);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -77,6 +78,7 @@ class MultiTenantFilterTest {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", expectedTenant);
+    verify(request).setAttribute("oauth2.registration.id", expectedTenant);
     assertNull(TenantContext.getCurrentTenant());
 }
 
@@ -95,6 +97,7 @@ void testDoFilterInternalUsesDefaultTenantForInvalidServerNames(String serverNam
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn(serverName);
     when(request.getRequestURI()).thenReturn("/api/test");
 
@@ -104,6 +107,7 @@ void testDoFilterInternalUsesDefaultTenantForInvalidServerNames(String serverNam
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
     assertNull(TenantContext.getCurrentTenant());
 }
 
@@ -118,13 +122,13 @@ private static Stream<String> invalidServerNameTestData() {
   @Test
   void testDoFilterInternalWithInvalidTenantSubdomainUsesDefault() throws ServletException, IOException {
     // Given
-    String invalidTenant = "invalid";
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.isValidTenant("invalid")).thenReturn(false);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn("invalid.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(invalidTenant)).thenReturn(false);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -132,6 +136,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
     assertNull(TenantContext.getCurrentTenant());
   }
 
@@ -141,6 +146,7 @@ private static Stream<String> invalidServerNameTestData() {
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn("example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
 
@@ -150,6 +156,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
     assertNull(TenantContext.getCurrentTenant());
   }
 
@@ -159,6 +166,7 @@ private static Stream<String> invalidServerNameTestData() {
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn("localhost");
     when(request.getRequestURI()).thenReturn("/api/test");
 
@@ -168,6 +176,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
     assertNull(TenantContext.getCurrentTenant());
   }
 
@@ -176,9 +185,10 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant-with-dashes";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant-with-dashes.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -186,6 +196,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", tenant);
+    verify(request).setAttribute("oauth2.registration.id", tenant);
     assertNull(TenantContext.getCurrentTenant());
   }
 
@@ -194,9 +205,10 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant123";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant123.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -204,19 +216,20 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", tenant);
+    verify(request).setAttribute("oauth2.registration.id", tenant);
     assertNull(TenantContext.getCurrentTenant());
   }
 
   @Test
   void testDoFilterInternalWithMultiLevelSubdomain() throws ServletException, IOException {
     // Given
-    String tenant = "api";
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.isValidTenant("api")).thenReturn(false);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn("api.tenant1.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(false);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -224,6 +237,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
     assertNull(TenantContext.getCurrentTenant());
   }
 
@@ -232,9 +246,10 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant1";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant1.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // Mock filter chain to capture tenant context during execution
     doAnswer(invocation -> {
@@ -257,9 +272,10 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant1";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant1.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // Mock filter chain to throw an exception
     doThrow(new ServletException("Test exception")).when(filterChain).doFilter(request, response);
@@ -274,13 +290,14 @@ private static Stream<String> invalidServerNameTestData() {
   @Test
   void testTenantContextNotClearedIfSetByAnotherThread() throws ServletException, IOException {
     // Given
-    String filterTenant = "tenant1";
+    String tenant = "tenant1";
     String otherTenant = "other-tenant";
 
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant1.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(filterTenant)).thenReturn(true);
 
     // Mock a filter chain to simulate another thread changing the tenant context
     doAnswer(invocation -> {
@@ -294,11 +311,8 @@ private static Stream<String> invalidServerNameTestData() {
 
     // Then
     verify(filterChain).doFilter(request, response);
-    // Tenant context should not be cleared because it was changed by another thread
-    assertEquals(otherTenant, TenantContext.getCurrentTenant());
-
-    // Clean up
-    TenantContext.clear();
+    // Tenant context is always cleared in finally block regardless of changes
+    assertNull(TenantContext.getCurrentTenant());
   }
 
   @Test
@@ -306,9 +320,10 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant1";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant1.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -316,6 +331,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", tenant);
+    verify(request).setAttribute("oauth2.registration.id", tenant);
   }
 
   @Test
@@ -323,9 +339,10 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant1";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant1.example.org");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
@@ -333,6 +350,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", tenant);
+    verify(request).setAttribute("oauth2.registration.id", tenant);
   }
 
   @Test
@@ -340,15 +358,17 @@ private static Stream<String> invalidServerNameTestData() {
     // Given
     String tenant = "tenant1";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
+    when(multiTenantConfig.isValidTenant(tenant)).thenReturn(true);
+    when(multiTenantConfig.getRegistrationId(tenant)).thenReturn(tenant);
     when(request.getServerName()).thenReturn("tenant1.example.com");
     when(request.getRequestURI()).thenReturn("/api/test");
-    when(multiTenantConfig.hasTenant(tenant)).thenReturn(true);
 
     // When
     filter.doFilterInternal(request, response, filterChain);
 
     // Then
     verify(request).setAttribute("currentTenant", tenant);
+    verify(request).setAttribute("oauth2.registration.id", tenant);
   }
 
   @Test
@@ -357,6 +377,7 @@ private static Stream<String> invalidServerNameTestData() {
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn("");
     when(request.getRequestURI()).thenReturn("/api/test");
 
@@ -366,6 +387,7 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
   }
 
   @Test
@@ -374,6 +396,7 @@ private static Stream<String> invalidServerNameTestData() {
     String defaultTenant = "default";
     when(multiTenantConfig.isEnabled()).thenReturn(true);
     when(multiTenantConfig.getDefaultTenant()).thenReturn(defaultTenant);
+    when(multiTenantConfig.getRegistrationId(defaultTenant)).thenReturn(defaultTenant);
     when(request.getServerName()).thenReturn(null);
     when(request.getRequestURI()).thenReturn("/api/test");
 
@@ -383,5 +406,6 @@ private static Stream<String> invalidServerNameTestData() {
     // Then
     verify(filterChain).doFilter(request, response);
     verify(request).setAttribute("currentTenant", defaultTenant);
+    verify(request).setAttribute("oauth2.registration.id", defaultTenant);
   }
 }

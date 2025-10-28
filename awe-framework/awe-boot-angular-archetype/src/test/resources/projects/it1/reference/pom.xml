@@ -133,7 +133,7 @@
                   <groupId>com.almis.awe</groupId>
                   <artifactId>awe-generic-screens</artifactId>
                   <version>${awe.version}</version>
-                  <outputDirectory>\${project.build.frontend}</outputDirectory>
+                  <outputDirectory>\${project.build.outputDirectory}</outputDirectory>
                   <includes>templates/**</includes>
                 </artifactItem>
               </artifactItems>

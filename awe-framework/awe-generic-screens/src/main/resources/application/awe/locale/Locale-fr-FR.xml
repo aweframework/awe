@@ -476,6 +476,7 @@
   <locale name="ERROR_MESSAGE_NO_AUDIT_FIELDS" value="Pas domaines de l&apos;audit ont été définis dans le processus lancé [{0}]. Ils doivent être définis pour lancer le processus de vérification."/>
   <locale name="ERROR_MESSAGE_NONEXISTENT_FILE" value="Il n&apos;ya pas de fichier dans le chemin: {0}"/>
   <locale name="ERROR_MESSAGE_NOT_DEFINED_IN" value="&apos;&apos;{0}&apos;&apos; n&apos;a pas été défini en &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_OAUTH_NO_USERNAME_ATTR" value="Erreur de configuration OAuth2 : attribut [{0}] introuvable pour récupérer le nom principal"/>
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="Option {0} n&apos;a pas été défini. Veuillez vérifier les fichiers de menu."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="Session a expiré. S&apos;il vous plait recharger la page"/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parametre non trouvé: {0}"/>
@@ -654,6 +655,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="Aucun champ d&apos;audit définies"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Fichier inexistant"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Erreur: &apos;&apos;{0}&apos;&apos; n&apos;est pas défini"/>
+  <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Erreur dans le Oauth2"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="Option non défini"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="ParseException Generated"/>
   <locale name="ERROR_TITLE_PARSING_COLUMN_TYPE" value="Erreur d&apos;analyse du typ de colonne"/>
@@ -1153,9 +1155,9 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_DATA" value="Donnees"/>
   <locale name="SCREEN_TEXT_DATE" value="Date du systeme"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
-  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Erreur de {0}"/>
+  <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops, quelque chose s&apos;est mal passé"/>
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Erreur inconnue"/>
-  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="Le processus {0} n&apos;a pas pu être terminé :"/>
+  <locale name="SCREEN_TEXT_ERROR_PREFIX" value="Le processus n&apos;a pas pu être terminé :"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Les filtres"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="Première"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Dernier"/>
