@@ -1632,7 +1632,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       const calls = dispatch.calls.allArgs();
       const hasChartOptionsUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
-        action.componentList.some(item => item.data.chartOptions)
+        action.componentList.some(item => item.data.chartModel)
       );
       expect(hasChartOptionsUpdate).toBe(true);
     });
