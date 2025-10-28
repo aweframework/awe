@@ -56,10 +56,9 @@ class TenantContextTest {
   @Test
   void testSetCurrentTenantWithNull() {
     // Given
-    String tenant = null;
 
     // When
-    TenantContext.setCurrentTenant(tenant);
+    TenantContext.setCurrentTenant(null);
 
     // Then
     assertNull(TenantContext.getCurrentTenant());
@@ -83,12 +82,12 @@ class TenantContextTest {
     String mainThreadTenant = "main-tenant";
     String otherThreadTenant = "other-tenant";
 
-    // Set tenant in main thread
+    // Set a tenant in the main thread
     TenantContext.setCurrentTenant(mainThreadTenant);
 
     // When - Execute in another thread
     CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-      // Set different tenant in other thread
+      // Set different tenant in another thread
       TenantContext.setCurrentTenant(otherThreadTenant);
       return TenantContext.getCurrentTenant();
     });
@@ -96,8 +95,8 @@ class TenantContextTest {
     String otherThreadResult = future.get();
 
     // Then
-    assertEquals(mainThreadTenant, TenantContext.getCurrentTenant()); // Main thread should be unchanged
-    assertEquals(otherThreadTenant, otherThreadResult); // Other thread should have its own value
+    assertEquals(mainThreadTenant, TenantContext.getCurrentTenant()); // The main thread should be unchanged
+    assertEquals(otherThreadTenant, otherThreadResult); // Another thread should have its own value
   }
 
   @Test

@@ -1,7 +1,6 @@
 package com.almis.awe.security.handler;
 
 import com.almis.awe.service.ErrorPageService;
-import com.almis.awe.model.type.ErrorTypology;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ public class AweOauth2AuthenticationFailureHandler implements AuthenticationFail
     // Show error page
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setContentType("text/html; charset=UTF-8");
-    String htmlErrorPage = errorPageService.generateErrorPageFromTemplate(ErrorTypology.AUTHENTICATION, null, message);
+    String htmlErrorPage = errorPageService.generateErrorPageFromTemplate(null, message);
     response.getWriter().write(htmlErrorPage);
   }
 }

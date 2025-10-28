@@ -16,14 +16,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Filter that intercepts requests to determine the tenant based on subdomain
+ * Filter that extracts tenant from subdomain and maps it to OAuth2 registration ID
+ * <p>
+ * Responsibilities:
+ * 1. Extract subdomain from request
+ * 2. Map subdomain to registration ID (via convention or explicit mapping)
+ * 3. Set registration ID as a request attribute
+ * 4. Spring Security's ClientRegistrationRepository handles the rest
  */
-@Component
 @Order(1)
 @Slf4j
 public class MultiTenantFilter extends OncePerRequestFilter {
 
 	private static final Pattern SUBDOMAIN_PATTERN = Pattern.compile("^([a-zA-Z0-9-]+)\\.(.+)$");
+	private static final String TENANT_ATTRIBUTE = "currentTenant";
+	private static final String REGISTRATION_ID_ATTRIBUTE = "oauth2.registration.id";
 
 	private final MultiTenantOAuth2Config multiTenantConfig;
 
@@ -40,62 +47,72 @@ public class MultiTenantFilter extends OncePerRequestFilter {
 			return;
 		}
 
+		// Extract tenant from subdomain
 		String tenant = extractTenantFromRequest(request);
 
-		// Set tenant in context
+		// Map tenant to registration ID
+		String registrationId = multiTenantConfig.getRegistrationId(tenant);
+
+		// Set tenant and registration ID in context
 		TenantContext.setCurrentTenant(tenant);
 
-		// Also set as request attribute for fallback scenarios
-		request.setAttribute("currentTenant", tenant);
+		// Set as request attributes for OAuth2 flow
+		request.setAttribute(TENANT_ATTRIBUTE, tenant);
+		request.setAttribute(REGISTRATION_ID_ATTRIBUTE, registrationId);
 
-		log.debug("Processing request for tenant: {} - URI: {}", tenant, request.getRequestURI());
+		log.debug("Multi-tenant filter - Tenant: '{}', Registration ID: '{}', URI: {}",
+				tenant, registrationId, request.getRequestURI());
 
 		try {
 			filterChain.doFilter(request, response);
 		} finally {
-			// Only clear if this filter set it
-			if (tenant.equals(TenantContext.getCurrentTenant())) {
-				TenantContext.clear();
-			}
+			// Clean up context
+			TenantContext.clear();
 		}
 	}
 
 	/**
 	 * Extracts tenant from request subdomain
+	 * <p>
+	 * Examples:
+	 *   - tenant1.example.com -> "tenant1"
+	 *   - public.example.com -> "public"
+	 *   - example.com -> defaultTenant
+	 *   - localhost -> defaultTenant
 	 *
 	 * @param request The HTTP request
 	 * @return The tenant identifier
 	 */
 	private String extractTenantFromRequest(HttpServletRequest request) {
 		String serverName = request.getServerName();
-		String requestURI = request.getRequestURI();
-		log.debug("Extracting tenant from server: {}. Request URI: {}", serverName, requestURI);
 
-		// Handle null or empty server name
 		if (serverName == null || serverName.isEmpty()) {
-			String defaultTenant = multiTenantConfig.getDefaultTenant();
-			log.debug("Server name is null or empty, using default tenant: {}", defaultTenant);
-			return defaultTenant;
+			log.debug("Server name is null/empty, using default tenant: {}", multiTenantConfig.getDefaultTenant());
+			return multiTenantConfig.getDefaultTenant();
 		}
 
-		// Extract subdomain
+		log.debug("Extracting tenant from server name: {}", serverName);
+
+		// Extract subdomain using regex
 		Matcher matcher = SUBDOMAIN_PATTERN.matcher(serverName);
 		if (matcher.matches()) {
 			String subdomain = matcher.group(1);
-			log.debug("Subdomain detected: {}", subdomain);
+			log.debug("Subdomain detected: '{}'", subdomain);
 
-			// Check if the tenant is configured
-			if (multiTenantConfig.hasTenant(subdomain)) {
-				log.debug("Valid tenant found: {}", subdomain);
+			// Validate if this is a valid tenant
+			if (multiTenantConfig.isValidTenant(subdomain)) {
+				log.debug("Valid tenant found: '{}'", subdomain);
 				return subdomain;
 			} else {
-				log.debug("Subdomain {} is not a configured tenant", subdomain);
+				log.debug("Subdomain '{}' is not a configured tenant, using default", subdomain);
 			}
+		} else {
+			log.debug("No subdomain pattern matched in '{}'", serverName);
 		}
 
-		// Use default tenant if not found
+		// No valid subdomain found, use default
 		String defaultTenant = multiTenantConfig.getDefaultTenant();
-		log.debug("Using default tenant: {}", defaultTenant);
+		log.debug("Using default tenant: '{}'", defaultTenant);
 		return defaultTenant;
 	}
 }

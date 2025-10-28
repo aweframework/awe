@@ -72,7 +72,7 @@ There should be a tab called Credentials. You can copy the Client Secret that we
     src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-client-4.png')}
 />
 
-The following configuration properties need to be added in order to integrate an AWE application with the Keycloak server
+The following configuration properties need to be added to integrate an AWE application with the Keycloak server
 
 ```properties title="Configure keycloak oauth client properties"
 ################################################
@@ -82,10 +82,15 @@ The following configuration properties need to be added in order to integrate an
 awe.security.sso.enabled=true
 # Auto launch sso flow (skip native window sign in)
 awe.security.sso.auto-launch=true
-# Oauth provider name
-spring.security.oauth2.client.registration.keycloak.provider=[PROVIDER_NAME]
+# Filter authority prefix (used to filtering granted authorities in post authentication process)
+awe.security.sso.filter-authority-prefix=role_
+# Enable generic SSO button in login screen
+awe.security.sso.enable-generic-sso-button=true
+
 # Provider issuer uri
-spring.security.oauth2.client.provider.awe.issuer-uri=[PROVIDER_URI]
+spring.security.oauth2.client.provider.keycloak.issuer-uri=[PROVIDER_URI]
+# Oauth provider name
+spring.security.oauth2.client.registration.keycloak.provider=keycloak
 # Authorization grant type for login
 spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
 # Client Id
@@ -94,6 +99,8 @@ spring.security.oauth2.client.registration.keycloak.client-id=[CLIENT_ID]
 spring.security.oauth2.client.registration.keycloak.client-secret=[CLIENT_SECRET]
 # Scope request
 spring.security.oauth2.client.registration.keycloak.scope=openid
+# Redirect URI
+spring.security.oauth2.client.registration.keycloak.redirect-uri={baseUrl}/login/oauth2/code/keycloak
 ```
 
 ## Multi-Tenant SSO
@@ -137,20 +144,21 @@ awe.security.sso.multitenant.default-tenant=public
 
 ### Tenant-Specific Configuration
 
-Each tenant requires its own OAuth2 registration and provider configuration. The configuration follows this pattern:
+Each tenant requires its own OAuth2 registration and provider configuration using standard Spring Security OAuth2 properties. The configuration follows this pattern:
 
 ```properties title="Multi-Tenant Configuration Pattern"
-# Registration configuration for a tenant
-awe.security.sso.multitenant.registrations.{tenant-name}.client-id={CLIENT_ID}
-awe.security.sso.multitenant.registrations.{tenant-name}.client-secret={CLIENT_SECRET}
-awe.security.sso.multitenant.registrations.{tenant-name}.authorization-grant-type=authorization_code
-awe.security.sso.multitenant.registrations.{tenant-name}.scope=openid,profile,email
-awe.security.sso.multitenant.registrations.{tenant-name}.redirect-uri={baseUrl}/login/oauth2/code/keycloak
-awe.security.sso.multitenant.registrations.{tenant-name}.client-name={CLIENT_DISPLAY_NAME}
-
 # Provider configuration for a tenant
-awe.security.sso.multitenant.providers.{tenant-name}.issuer-uri={PROVIDER_ISSUER_URI}
-awe.security.sso.multitenant.providers.{tenant-name}.user-name-attribute=preferred_username
+spring.security.oauth2.client.provider.{tenant-name}.issuer-uri={PROVIDER_ISSUER_URI}
+spring.security.oauth2.client.provider.{tenant-name}.user-name-attribute=preferred_username
+
+# Registration configuration for a tenant
+spring.security.oauth2.client.registration.{tenant-name}.provider={tenant-name}
+spring.security.oauth2.client.registration.{tenant-name}.client-id={CLIENT_ID}
+spring.security.oauth2.client.registration.{tenant-name}.client-secret={CLIENT_SECRET}
+spring.security.oauth2.client.registration.{tenant-name}.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.{tenant-name}.scope=openid,profile,email
+spring.security.oauth2.client.registration.{tenant-name}.redirect-uri={baseUrl}/login/oauth2/code/{tenant-name}
+spring.security.oauth2.client.registration.{tenant-name}.client-name={CLIENT_DISPLAY_NAME}
 ```
 
 ### Complete Example Configuration
@@ -161,49 +169,57 @@ Here's a complete example showing how to configure multiple tenants:
 ################################################
 # Multi-Tenant SSO Configuration
 ################################################
+# Enable SSO authentication
+awe.security.sso.enabled=true
+# Auto launch sso flow (skip native window sign in)
+awe.security.sso.auto-launch=true
+# Filter authority prefix (used to filtering granted authorities in post authentication process)
+awe.security.sso.filter-authority-prefix=role_
+
 
 # Enable multi-tenant functionality
 awe.security.sso.multitenant.enabled=true
 awe.security.sso.multitenant.default-tenant=public
 
 # Default tenant configuration (public.yourdomain.com or yourdomain.com)
-# Registration
-awe.security.sso.multitenant.registrations.public.client-id=awe-public-client
-awe.security.sso.multitenant.registrations.public.client-secret=your-public-client-secret
-awe.security.sso.multitenant.registrations.public.authorization-grant-type=authorization_code
-awe.security.sso.multitenant.registrations.public.scope=openid,profile,email
-awe.security.sso.multitenant.registrations.public.redirect-uri={baseUrl}/login/oauth2/code/keycloak
-awe.security.sso.multitenant.registrations.public.client-name=AWE Public
-
 # Provider
-awe.security.sso.multitenant.providers.public.issuer-uri=http://localhost:8081/realms/public
-awe.security.sso.multitenant.providers.public.user-name-attribute=preferred_username
+spring.security.oauth2.client.provider.public.issuer-uri=http://localhost:8081/realms/public
+
+# Registration
+spring.security.oauth2.client.registration.public.provider=public
+spring.security.oauth2.client.registration.public.client-id={awe-public-client}
+spring.security.oauth2.client.registration.public.client-secret={your-public-client-secret}
+spring.security.oauth2.client.registration.public.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.public.scope=openid,profile,email
+spring.security.oauth2.client.registration.public.redirect-uri={baseUrl}/login/oauth2/code/public
+spring.security.oauth2.client.registration.public.client-name=AWE Public
 
 # Company A tenant configuration (companyA.yourdomain.com)
-# Registration
-awe.security.sso.multitenant.registrations.companyA.client-id=awe-companyA-client
-awe.security.sso.multitenant.registrations.companyA.client-secret=your-companyA-client-secret
-awe.security.sso.multitenant.registrations.companyA.authorization-grant-type=authorization_code
-awe.security.sso.multitenant.registrations.companyA.scope=openid,profile,email
-awe.security.sso.multitenant.registrations.companyA.redirect-uri={baseUrl}/login/oauth2/code/keycloak
-awe.security.sso.multitenant.registrations.companyA.client-name=AWE Company A
-
 # Provider
-awe.security.sso.multitenant.providers.companyA.issuer-uri=http://localhost:8081/realms/companyA
-awe.security.sso.multitenant.providers.companyA.user-name-attribute=preferred_username
+spring.security.oauth2.client.provider.companyA.issuer-uri=http://localhost:8081/realms/companyA
+
+# Registration
+spring.security.oauth2.client.registration.companyA.provider=companyA
+spring.security.oauth2.client.registration.companyA.client-id={awe-companyA-client}
+spring.security.oauth2.client.registration.companyA.client-secret={your-companyA-client-secret}
+spring.security.oauth2.client.registration.companyA.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.companyA.scope=openid,profile,email
+spring.security.oauth2.client.registration.companyA.redirect-uri={baseUrl}/login/oauth2/code/companyA
+spring.security.oauth2.client.registration.companyA.client-name=AWE Company A
 
 # Company B tenant configuration (companyB.yourdomain.com)
-# Registration
-awe.security.sso.multitenant.registrations.companyB.client-id=awe-companyB-client
-awe.security.sso.multitenant.registrations.companyB.client-secret=your-companyB-client-secret
-awe.security.sso.multitenant.registrations.companyB.authorization-grant-type=authorization_code
-awe.security.sso.multitenant.registrations.companyB.scope=openid,profile,email
-awe.security.sso.multitenant.registrations.companyB.redirect-uri={baseUrl}/login/oauth2/code/keycloak
-awe.security.sso.multitenant.registrations.companyB.client-name=AWE Company B
-
 # Provider
-awe.security.sso.multitenant.providers.companyB.issuer-uri=http://localhost:8081/realms/companyB
-awe.security.sso.multitenant.providers.companyB.user-name-attribute=preferred_username
+spring.security.oauth2.client.provider.companyB.issuer-uri=http://localhost:8081/realms/companyB
+spring.security.oauth2.client.provider.companyB.user-name-attribute=preferred_username
+
+# Registration
+spring.security.oauth2.client.registration.companyB.provider=companyB
+spring.security.oauth2.client.registration.companyB.client-id={awe-companyB-client}
+spring.security.oauth2.client.registration.companyB.client-secret={your-companyB-client-secret}
+spring.security.oauth2.client.registration.companyB.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.companyB.scope=openid,profile,email
+spring.security.oauth2.client.registration.companyB.redirect-uri={baseUrl}/login/oauth2/code/companyB
+spring.security.oauth2.client.registration.companyB.client-name=AWE Company B
 ```
 
 ### Multi-Tenant with Different Identity Providers
@@ -212,19 +228,31 @@ You can also configure different tenants to use completely different identity pr
 
 ```properties title="Mixed Identity Providers Example"
 # Tenant using Keycloak
-awe.security.sso.multitenant.registrations.keycloak-tenant.client-id=keycloak-client
-awe.security.sso.multitenant.registrations.keycloak-tenant.client-secret=keycloak-secret
-awe.security.sso.multitenant.providers.keycloak-tenant.issuer-uri=http://keycloak.example.com/realms/tenant1
+spring.security.oauth2.client.provider.keycloak-tenant.issuer-uri=http://keycloak.example.com/realms/tenant1
+spring.security.oauth2.client.registration.keycloak-tenant.provider=keycloak-tenant
+spring.security.oauth2.client.registration.keycloak-tenant.client-id=keycloak-client
+spring.security.oauth2.client.registration.keycloak-tenant.client-secret=keycloak-secret
+spring.security.oauth2.client.registration.keycloak-tenant.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.keycloak-tenant.scope=openid,profile,email
+spring.security.oauth2.client.registration.keycloak-tenant.redirect-uri={baseUrl}/login/oauth2/code/keycloak-tenant
 
 # Tenant using Azure EntraID
-awe.security.sso.multitenant.registrations.azure-tenant.client-id=azure-client-id
-awe.security.sso.multitenant.registrations.azure-tenant.client-secret=azure-client-secret
-awe.security.sso.multitenant.providers.azure-tenant.issuer-uri=https://login.microsoftonline.com/{tenant-id}/v2.0
+spring.security.oauth2.client.provider.azure-tenant.issuer-uri=https://login.microsoftonline.com/{tenant-id}/v2.0
+spring.security.oauth2.client.registration.azure-tenant.provider=azure-tenant
+spring.security.oauth2.client.registration.azure-tenant.client-id=azure-client-id
+spring.security.oauth2.client.registration.azure-tenant.client-secret=azure-client-secret
+spring.security.oauth2.client.registration.azure-tenant.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.azure-tenant.scope=openid,profile,email
+spring.security.oauth2.client.registration.azure-tenant.redirect-uri={baseUrl}/login/oauth2/code/azure-tenant
 
 # Tenant using Google
-awe.security.sso.multitenant.registrations.google-tenant.client-id=google-client-id
-awe.security.sso.multitenant.registrations.google-tenant.client-secret=google-client-secret
-awe.security.sso.multitenant.providers.google-tenant.issuer-uri=https://accounts.google.com
+spring.security.oauth2.client.provider.google-tenant.issuer-uri=https://accounts.google.com
+spring.security.oauth2.client.registration.google-tenant.provider=google-tenant
+spring.security.oauth2.client.registration.google-tenant.client-id=google-client-id
+spring.security.oauth2.client.registration.google-tenant.client-secret=google-client-secret
+spring.security.oauth2.client.registration.google-tenant.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.google-tenant.scope=openid,profile,email
+spring.security.oauth2.client.registration.google-tenant.redirect-uri={baseUrl}/login/oauth2/code/google-tenant
 ```
 
 ### DNS Configuration

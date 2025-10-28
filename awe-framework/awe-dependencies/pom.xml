@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.11.2</version>
+    <version>4.11.3</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -19,8 +19,8 @@
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
     <ade.version>2.2.5</ade.version>
-    <spring-boot.version>3.3.10</spring-boot.version>
-    <spring-cloud.version>2023.0.5</spring-cloud.version>
+    <spring-boot.version>3.4.10</spring-boot.version>
+    <spring-cloud.version>2024.0.2</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v18.19.0</node.version>
     <yarn.version>v1.22.21</yarn.version>
@@ -585,7 +585,7 @@
         <inherited>false</inherited>
         <executions>
           <execution>
-            <!-- Cleanup the effective POM -->
+            <!-- Clean up the effective POM -->
             <id>post-process-effective-pom</id>
             <phase>process-resources</phase>
             <goals>
@@ -608,7 +608,7 @@
             </configuration>
           </execution>
           <execution>
-            <!-- Cleanup the flattened project POM -->
+            <!-- Clean up the flattened project POM -->
             <id>post-process-flattened-pom</id>
             <phase>process-resources</phase>
             <goals>
@@ -750,6 +750,7 @@
             <artifactId>maven-resources-plugin</artifactId>
             <configuration>
               <skip>true</skip>
+              <outputDirectory/>
             </configuration>
           </plugin>
           <plugin>

@@ -95,14 +95,14 @@ public class SecurityConfig extends ServiceConfig {
   @Bean
   @ConditionalOnMissingBean
   public AccessService accessService(AweSessionDetails aweSessionDetails,
-                                     MenuService menuService,
-                                     EncodeService encodeService,
-                                     TotpService totpService,
-                                     BaseConfigProperties baseConfigProperties,
-                                     SecurityConfigProperties securityConfigProperties,
-                                     TotpConfigProperties totpConfigProperties,
-                                     UserDetailsService userDetailsService,
-                                     MaintainService maintainService) {
+																		 MenuService menuService,
+																		 EncodeService encodeService,
+																		 TotpService totpService,
+																		 BaseConfigProperties baseConfigProperties,
+																		 SecurityConfigProperties securityConfigProperties,
+																		 TotpConfigProperties totpConfigProperties,
+																		 UserDetailsService userDetailsService,
+																		 MaintainService maintainService) {
     return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties, (AweUserDetailService) userDetailsService, maintainService);
   }
 

@@ -22,7 +22,7 @@ public class ThymeleafConfig {
   private static final String UTF8 = "UTF-8";
   private final WebApplicationContext applicationContext;
 
-  @Value("${spring.thymeleaf.prefix:classpath:/static/}")
+  @Value("${spring.thymeleaf.prefix:classpath:/templates/}")
   private String htmlPrefix;
 
   @Value("${spring.thymeleaf.html.suffix:.html}")

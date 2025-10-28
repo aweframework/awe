@@ -354,10 +354,9 @@ public class SeleniumUtilities implements IAweInstructions {
     writeTextFromSelector(frontEndInstructions.getCriterionInput(parentSelector), dateValue, true, activeSelector);
 
     // Make click twice if datepicker is still visible
-    if (!seleniumModel.getDriver().findElements(activeSelector).isEmpty()) {
-      clickSelector(activeSelector);
+    if (frontEndInstructions.datePickerRequiresManualClick() && !seleniumModel.getDriver().findElements(activeSelector).isEmpty()) {
+        clickSelector(activeSelector);
     }
-
     // Wait for not visible
     checkNotVisible(frontEndInstructions.getDatepicker());
 

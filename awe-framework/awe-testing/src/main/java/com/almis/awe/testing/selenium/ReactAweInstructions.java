@@ -48,9 +48,13 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   private String getParentXpath(String gridId, String rowId, String columnId) {
-    return containsGridOrTreeGrid(gridId) + Optional.ofNullable(rowId)
-      .map(r -> "//*[@role='row' and contains(@class, '" + rowId + "')]//*[@role='cell' and contains(@class, '" + columnId + "')]")
-      .orElse("//*[@role='row' and contains(@class, 'p-highlight')]//*[@role='cell' and contains(@class, '" + columnId + "')]");
+    String tbodyPrefix = containsGridOrTreeGrid(gridId) + "//tbody[contains(@class, 'p-datatable-tbody')]";
+    return tbodyPrefix + Optional.ofNullable(rowId)
+            .map(r -> String.format(
+                    "/tr[td[contains(@class, 'p-row-number-cell') and normalize-space(.) = '%s']]" +
+                            "/td[contains(@class, '%s')]",
+                    r, columnId))
+            .orElse("");
   }
 
   private String getGridXpath(String gridId) {
@@ -80,7 +84,7 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getDatepicker() {
-    return By.cssSelector(".p-calendar");
+    return By.cssSelector(".p-datepicker:not([style*='display: none'])");
   }
 
   public By getDateCriterion(String parentSelector) {
@@ -88,7 +92,7 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getActiveDatepicker() {
-    return By.xpath("//*[contains(@class,'p-calendar')]//*[contains(@class,'active')]");
+    return By.cssSelector(".p-datepicker td span.p-highlight");
   }
 
   public By getCellFromDatepicker(String type, String search) {
@@ -132,7 +136,7 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getGridCellText(String gridId, String rowId, String columnId, String search) {
-    return By.xpath(String.format("%s//text()[contains(.,'%s')]/..", getParentXpath(gridId, rowId, columnId), search));
+    return By.xpath(getParentXpath(gridId, rowId, columnId) + "/span[contains(@class, 'p-cell-text')]");
   }
 
   public By findGridCell(String gridId, String search) {
@@ -160,7 +164,7 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getMenuOption(String option) {
-    return By.cssSelector(String.format("li[role='none'].p-menuitem.%s", option));
+    return By.cssSelector(String.format("li.p-menuitem.%s", option));
   }
 
   public By getMenuOpenedChildren(String option) {
@@ -188,11 +192,14 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getTab(String tabId) {
-    return By.cssSelector(String.format("#%s [role='tab']:not(.disabled)", tabId));
+    return By.xpath(String.format("//*[@id='%s']", tabId));
   }
 
   public By getTab(String tabId, String tabLabel) {
-    return By.cssSelector(String.format("#%s [role='tab'].label-%s", tabId, tabLabel));
+    return By.xpath(String.format(
+            "//*[@id='%s']//li[@role='presentation']//span[@class='p-tab-title' and normalize-space(text())='%s']",
+            tabId, tabLabel
+    ));
   }
 
   public By getTabMenu(String tabId) {
@@ -211,7 +218,10 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getTabActive(String tabId, String tabLabel) {
-    return By.cssSelector(String.format("#%s [role='tab'].p-highlight.label-%s", tabId, tabLabel));
+    return By.xpath(String.format(
+            "//*[@id='%s']//li[contains(@class, 'p-highlight')]//span[normalize-space(text())='%s']",
+            tabId, tabLabel
+    ));
   }
 
   public By getContextButton(String buttonId) {
@@ -257,7 +267,7 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getSelectChosen(String criterionName) {
-    return By.cssSelector(String.format("%s .p-dropdown-label", getCriterionCss(criterionName)));
+    return By.cssSelector(String.format("div[id='%s'].p-dropdown .p-dropdown-label", criterionName));
   }
 
   public By getSelectMultipleTextContainer(String criterionName) {
@@ -304,5 +314,9 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public By getSuggestMultipleChoiceClose(String parentSelector) {
     return By.cssSelector(String.format("%s .p-autocomplete-token-icon", parentSelector));
+  }
+
+  public boolean datePickerRequiresManualClick() {
+    return false;
   }
 }
