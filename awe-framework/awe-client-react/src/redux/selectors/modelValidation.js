@@ -4,7 +4,7 @@ import {isEmpty} from "../../utilities/general";
 /**
  * Get all form values
  * @param {object} state Full state
- * @param {Function<"translation", undefined>} t Translate function
+ * @param {function} t Translate function
  * @param {boolean} forPrinting For printing
  * @return {object} Form values
  * @memberOf Components

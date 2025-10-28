@@ -126,7 +126,7 @@ export function checkActions(allowedActions, actions, props) {
 /**
  * Format a message with parameters
  * @param {object} error
- * @param {Function<"translation", undefined>} t translate function
+ * @param {function} t translate function
  * @returns {string|object} Message formatted
  * @memberOf Utilities
  */
@@ -477,7 +477,7 @@ export function addEventListenerTimeout(node, event, fn, fnTimeout, timeout) {
  * Generate tooltip node for components
  * @param help Help text
  * @param helpImage Help image
- * @param {Function<"translation", undefined>} t Translator function
+ * @param {function} t Translator function
  * @param target Target node class
  * @returns {JSX.Element}
  */
@@ -503,7 +503,7 @@ export function parseBoolean(value = "") {
 /**
  * Retrieve visible text data
  * @param {string} text Text to show
- * @param {Function<"translation", undefined>} t Translator
+ * @param {function} t Translator
  * @return {object} Visible column data
  */
 export function getVisibleTextData(text, t) {
@@ -513,7 +513,7 @@ export function getVisibleTextData(text, t) {
 /**
  * Translate label
  * @param label Label to translate
- * @param {Function<"translation", undefined>} t translate function
+ * @param {function} t translate function
  * @param {...any} args Arguments to replace in the translated string
  * @return {string} Label translated
  */

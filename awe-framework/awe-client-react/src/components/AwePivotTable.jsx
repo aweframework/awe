@@ -10,7 +10,7 @@ import {updateAttributes} from "../redux/actions/components";
 /**
  * Read value list
  * @param value
- * @returns {*[]|*}
+ * @returns {*}
  */
 function readValueList(value) {
   return isEmpty(value) ? [] : value.split(",");
