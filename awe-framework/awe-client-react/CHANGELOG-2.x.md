@@ -2,14 +2,11 @@
 # Changelog for AWE React 2.0.1
 *28/10/2025*
 
-# Changelog for AWE React 2.0.0
-*28/10/2025*
-
 - Fix missing chart attributes and style. [MR #120](https://gitlab.com/aweframework/awe-react/-/merge_requests/120) (Pablo Javier García Mora)
 - Actions in dependencies should be added in order, not in the top of actions. [MR #119](https://gitlab.com/aweframework/awe-react/-/merge_requests/119) (Pablo Javier García Mora)
 - Generate skeletons for components when address is undefined. [MR #118](https://gitlab.com/aweframework/awe-react/-/merge_requests/118) (Pablo Javier García Mora)
 - Get Spring Boot 3.4 with Awe v4.11.1. [MR #117](https://gitlab.com/aweframework/awe-react/-/merge_requests/117) (Pablo Vidal Otero)
-- Bump version to react-router 6 and react-dom 18. [MR #78](https://gitlab.com/aweframework/awe-react/-/merge_requests/78) (Pablo Javier García Mora)
+- [HAS IMPACTS] Bump version to react-router 6 and react-dom 18. [MR #78](https://gitlab.com/aweframework/awe-react/-/merge_requests/78) (Pablo Javier García Mora)
 - Change structure to match it a npm project with a java project. [MR #76](https://gitlab.com/aweframework/awe-react/-/merge_requests/76) (Pablo Javier García Mora)
 
 # Changelog for AWE React 1.1.14
