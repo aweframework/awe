@@ -1,7 +1,7 @@
 import React from 'react';
 import {waitFor} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
-import {MemoryRouter} from "react-router-dom";
+import {MemoryRouter} from "react-router";
 import useScreenService from "../../../src/services/ScreenService";
 import { navigationActions } from "../../../src/redux/actions/navigation";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";

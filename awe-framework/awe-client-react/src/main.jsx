@@ -28,7 +28,7 @@ import AweApp from './components/AweApp';
 import {DEFAULT_SETTINGS, updateSettings} from "./redux/actions/settings";
 import {fetchJson, getContextPath} from "./utilities";
 import {Provider} from "react-redux";
-import {BrowserRouter, useNavigate} from "react-router-dom";
+import {BrowserRouter, useNavigate} from "react-router";
 import { createStore, setNavigateFn } from "./redux/store";
 
 const store = createStore();
@@ -67,7 +67,7 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
       const value = {ripple: true};
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(
-        <BrowserRouter>
+        <BrowserRouter basename={getContextPath()}>
           <PrimeReactProvider value={value}>
             <AppWithStore settings={settings}/>
           </PrimeReactProvider>

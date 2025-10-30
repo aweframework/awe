@@ -3,7 +3,7 @@ import {
 } from "../utilities";
 import i18n from "../i18n/i18n";
 import {acceptAction} from "../redux/actions/actions";
-import {useLocation} from "react-router-dom";
+import {useLocation} from "react-router";
 import {useDispatch, useSelector} from "react-redux";
 import {
   backAction,

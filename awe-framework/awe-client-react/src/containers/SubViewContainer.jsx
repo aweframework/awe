@@ -2,7 +2,7 @@ import React, {useEffect, useRef} from "react";
 import {useTranslation} from "react-i18next";
 import {Helmet} from "react-helmet";
 import Templates from "../templates";
-import {useParams} from "react-router-dom";
+import {useParams} from "react-router";
 import {loadScreen} from "../redux/thunks/screen";
 import {useDispatch, useSelector} from "react-redux";
 import {ProgressSpinner} from "primereact/progressspinner";
