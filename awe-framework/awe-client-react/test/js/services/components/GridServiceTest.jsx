@@ -1,7 +1,7 @@
 import React from 'react';
 import useGridService from "../../../../src/services/components/GridService";
 import {renderWithProviders} from "../../test-utils";
-import {MemoryRouter} from "react-router-dom";
+import {MemoryRouter} from "react-router";
 import {waitFor} from "@testing-library/react";
 import {DEFAULT_SETTINGS} from "../../../../src/redux/actions/settings";
 

@@ -5,7 +5,7 @@ import Templates from "../templates";
 import {updateSize} from "../redux/actions/size";
 import {addActionsTop} from "../redux/actions/actions";
 import {useTranslation} from 'react-i18next';
-import {useParams} from "react-router-dom";
+import {useParams} from "react-router";
 import i18n from "../i18n/i18n";
 import {loadScreen} from "../redux/thunks/screen";
 import {ProgressSpinner} from "primereact/progressspinner";

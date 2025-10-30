@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
 import ViewContainer from "../containers/ViewContainer";
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router';
 import SubViewContainer from "../containers/SubViewContainer";
 import {useDispatch, useSelector} from "react-redux";
 import {updateSettings} from "../redux/actions/settings";
