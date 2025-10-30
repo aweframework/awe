@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 2.0.2
+*30/10/2025*
+
+- Bump react-router to version 7.9.5 and fix context path issue. [MR #121](https://gitlab.com/aweframework/awe-react/-/merge_requests/121) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.1
 *28/10/2025*
 
