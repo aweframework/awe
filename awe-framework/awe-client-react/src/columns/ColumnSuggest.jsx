@@ -44,6 +44,7 @@ function ColumnSuggest(props) {
     disabled={data?.readonly || readonly}
     onChange={onChange}
     onClear={onClear}
+    dropdown
     onKeyDown={onKeyPress}
     delay={timeout || 300}
     field="label"
