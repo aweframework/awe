@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 2.0.3
+*31/10/2025*
+
+- When adding a line to an editable grid, it should be in edit mode. [MR #124](https://gitlab.com/aweframework/awe-react/-/merge_requests/124) (Pablo Javier García Mora)
+- Suggest has lost dropdown button. [MR #123](https://gitlab.com/aweframework/awe-react/-/merge_requests/123) (Pablo Javier García Mora)
+- Avoid generating an empty y or x axis in charts if not defined. [MR #122](https://gitlab.com/aweframework/awe-react/-/merge_requests/122) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.2
 *30/10/2025*
 
