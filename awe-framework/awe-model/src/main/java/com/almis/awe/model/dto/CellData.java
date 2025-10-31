@@ -82,6 +82,15 @@ public class CellData implements Comparable<CellData>, Copyable {
     setValue(value);
   }
 
+	/**
+	 * CellData constructor from Long value
+	 *
+	 * @param value Long value
+	 */
+	public CellData(Long value) {
+		setValue(value);
+	}
+
   /**
    * Constructor: for C JNI calls
    *
