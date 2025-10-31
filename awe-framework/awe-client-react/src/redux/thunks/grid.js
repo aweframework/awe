@@ -255,7 +255,7 @@ export const addRowGridAction = (action, position) => {
     const component = getComponent(components, address);
     const {editable, multioperation, treegrid, treeParent, columnModel = []} = component.attributes || {};
     const {values} = component.model;
-    const {rowId, row} = action.parameters;
+    const {rowId, row = {}} = action.parameters;
     const gridId = getGridIdentifier(component.attributes);
     const selectedRow = values.find((item) => (rowId ? String(item[gridId]) === String(rowId) : item.selected)) || {};
     const parentId = position !== CHILD ? selectedRow[treeParent] || "" : selectedRow[gridId] || "";
@@ -273,9 +273,9 @@ export const addRowGridAction = (action, position) => {
       [gridId]: `new-row-${addedRows}`,
       ...rowDefaultValues,
       ...(treegrid ? {[treeParent]: parentId} : {}),
-      ...(row || {}),
+      ...row,
       $row: {
-        ...(row?.$row || {}),
+        ...row?.$row,
         ...(multioperation ? {operation: INSERT} : {}),
         ...(editable || multioperation ? {editing: false} : {})
       }
@@ -283,7 +283,14 @@ export const addRowGridAction = (action, position) => {
 
     dispatch(updateModelWithDependencies(address, {
       records: values.length + 1,
-      values: addRowToValues(selectedRow[gridId], gridId, values, position, editingRow),
+      values: addRowToValues(selectedRow[gridId], gridId, values, position, {
+        ...editingRow,
+        $row: {
+          ...editingRow.$row,
+          ...((editable || multioperation) ? {editing: true} : {}),
+          editingRow
+        }
+      }),
       event: "after-add-row"
     }));
     addedRows++;
@@ -413,6 +420,7 @@ export const editRowGridAction = (action) => {
       event: "edit-row",
       values: values.map(item => ({
         ...item,
+        selected: String(item[gridId]) === String(row),
         $row: {
           ...(item.$row || {}),
           editing: String(item[gridId]) === String(row),
