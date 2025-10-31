@@ -93,9 +93,15 @@ function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, a
       draft.legend.title.text = translateLabel(legend.title.text, t);
     }
 
-    // Chart axis
-    draft.xAxis = translateAxis(draft.xAxis, t);
-    draft.yAxis = translateAxis(draft.yAxis, t);
+    // Chart x axis
+    if (draft.xAxis && draft.xAxis.length > 0) {
+      draft.xAxis = translateAxis(draft.xAxis, t);
+    }
+
+    // Chart y axis
+    if (draft.yAxis && draft.yAxis.length > 0) {
+      draft.yAxis = translateAxis(draft.yAxis, t);
+    }
 
     draft.series = (series || []).map(serie => ({
       ...serie,
