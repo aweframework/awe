@@ -1,4 +1,9 @@
 
+# Changelog for AWE 4.11.4
+*31/10/2025*
+
+- Error deserializing CellData objects from Long values. [MR #596](https://gitlab.com/aweframework/awe/-/merge_requests/596) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.11.3
 *28/10/2025*
 
