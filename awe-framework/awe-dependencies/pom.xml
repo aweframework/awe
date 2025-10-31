@@ -44,7 +44,7 @@
     <totp.version>1.7.1</totp.version>
     <javase.version>3.5.3</javase.version> <!-- Used to overwrite totp vulnerability -->
     <guava.version>33.3.0-jre</guava.version>
-    <spring-cloud-azure.version>5.18.0</spring-cloud-azure.version>
+    <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -286,6 +286,13 @@
         <version>${javase.version}</version>
       </dependency>
 
+      <!-- Open API -->
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        <version>${springdoc-openapi.version}</version>
+      </dependency>
+
       <!-- Xstream -->
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
@@ -349,14 +356,6 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
-      </dependency>
-      <!-- Azure cloud -->
-      <dependency>
-        <groupId>com.azure.spring</groupId>
-        <artifactId>spring-cloud-azure-dependencies</artifactId>
-        <version>${spring-cloud-azure.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
