@@ -7,6 +7,8 @@
 # Changelog for AWE 4.11.3
 *28/10/2025*
 
+- **[HAS IMPACTS]** Upgrade spring boot framework to 3.4. [MR #592](https://gitlab.com/aweframework/awe/-/merge_requests/592) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.11.2
 *22/10/2025*
 
