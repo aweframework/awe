@@ -59,6 +59,11 @@ public abstract class SqlField extends OutputField {
   @XStreamAsAttribute
   private Boolean key;
 
+	// Defined if the field key retrieves value from identy/auto-incremental
+	@XStreamAlias("auto-incremental")
+	@XStreamAsAttribute
+	private Boolean autoIncremental;
+
   // Sequence
   @XStreamAlias("sequence")
   @XStreamAsAttribute
@@ -76,6 +81,14 @@ public abstract class SqlField extends OutputField {
   public boolean isKey() {
     return key != null && key;
   }
+
+	/**
+	 * Returns if the field retrieve value from identy/auto-incremental column
+	 * @return Is auto incremental
+	 */
+	public boolean isAutoIncremental() {
+		return autoIncremental != null && autoIncremental;
+	}
 
   /**
    * Returns if is audit

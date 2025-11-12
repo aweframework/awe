@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * MaintainQuery Class
  * Used to parse the file Maintain.xml with XStream
@@ -29,7 +31,8 @@ import lombok.experimental.SuperBuilder;
 @XStreamInclude({Serve.class, Insert.class, Update.class, Delete.class, RetrieveData.class, Multiple.class, Commit.class, Email.class, Queue.class, IncludeTarget.class})
 public abstract class MaintainQuery extends Query {
 
-  private static final long serialVersionUID = 418621393719461416L;
+  @Serial
+	private static final long serialVersionUID = 418621393719461416L;
 
   // Audit table name
   @XStreamAlias("audit")
@@ -55,7 +58,7 @@ public abstract class MaintainQuery extends Query {
   private String operationId;
 
   /**
-   * Returns if is batch
+   * Returns if is batched
    *
    * @return Is batch
    */
@@ -63,8 +66,17 @@ public abstract class MaintainQuery extends Query {
     return batch != null && batch;
   }
 
+	/**
+	 * Returns if maintain is multiple
+	 *
+	 * @return Is multiple
+	 */
+	public boolean isMultiple() {
+		return getMultiple() != null && "true".equalsIgnoreCase(getMultiple());
+	}
+
   /**
-   * Returns the maintain type
+   * Returns the maintained type
    *
    * @return Maintain type
    */

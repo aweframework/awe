@@ -628,6 +628,28 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     });
   }
 
+	/**
+	 * Test of insert with keys to retrieve auto incremental column key value
+	 *
+	 * @throws Exception Test error
+	 */
+	@Test
+	@Tag("NotOracleDatabase")
+	void testInsertWithKeys() throws Exception {
+		String maintainName = "insertWithKeySingle";
+
+		String variables = "\"order_product\": [\"Tuercas\", \"Tornillos\", \"Arandelas\"], \"order_price\":[0.80, 0.45, 1.25],\"order_quantity\":[4, 4, 5],";
+		String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1},{\"operationType\":\"INSERT\",\"rowsAffected\":1}]}}]";
+		String result = launchMaintain(maintainName, variables, expected);
+		logger.debug(result);
+		assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
+				new MaintainResultDetails(MaintainType.INSERT, 1L),
+				new MaintainResultDetails(MaintainType.INSERT, 1L),
+				new MaintainResultDetails(MaintainType.INSERT, 1L),
+				new MaintainResultDetails(MaintainType.INSERT, 1L)
+		});
+	}
+
   /**
    * Test of launchAction method, of class ActionController.
    *
