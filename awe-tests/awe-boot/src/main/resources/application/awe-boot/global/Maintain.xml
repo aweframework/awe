@@ -937,14 +937,40 @@
      <where>
         <and>
           <filter condition="eq">
-            <left-operand><constant value="1" type="INTEGER"/></left-operand>
-            <right-operand><field variable="flag" cast="INTEGER"/></right-operand>
+            <left-operand>
+              <constant value="1" type="INTEGER"/>
+            </left-operand>
+            <right-operand>
+              <field variable="flag" cast="INTEGER"/>
+            </right-operand>
           </filter>
         </and>
       </where>
       <variable id="file" type="CLOB" name="file"/>
       <variable id="flag" type="INTEGER" name="flag" />
     </update>
+  </target>
+
+  <target name="insertWithKeySingle">
+    <insert>
+      <table id="tst_order"/>
+      <field id="id" auto-incremental="true" variable="OrderId"/>
+      <field id="order_date" variable="OrderDate"/>
+      <constant id="order_comments" value="Test Order"/>
+      <variable id="OrderDate" type="SYSTEM_DATE" name="OrderDate"/>
+      <variable id="OrderId" type="INTEGER" name="OrderId"/>
+    </insert>
+    <insert multiple="true">
+      <table id="tst_order_item"/>
+      <field id="order_id" variable="OrderId"/>
+      <field id="order_product" variable="ProductName"/>
+      <field id="order_price" variable="ProductPrice"/>
+      <field id="order_quantity" variable="ProductQuantity"/>
+      <variable id="OrderId" type="INTEGER" name="OrderId"/>
+      <variable id="ProductName" type="STRING" name="order_product"/>
+      <variable id="ProductPrice" type="FLOAT" name="order_price"/>
+      <variable id="ProductQuantity" type="INTEGER" name="order_quantity"/>
+    </insert>
   </target>
 
 </maintain>

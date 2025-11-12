@@ -360,6 +360,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   /**
    * Check if a field is an autoincrement field to avoid it on insert clauses:
    * - It is for insert
+	 * - It is an autoincrement column
    * - It has key
    * - It hasn't got sequence
    * - Its value is null
@@ -369,7 +370,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
    * @throws AWException AWE exception
    */
   private boolean isIncrementalKey(SqlField field) throws AWException {
-    return field.isKey() && field.getSequence() == null && Expressions.nullExpression().equals(getSqlFieldExpression(field, getVariableIndex()));
+    return field.isAutoIncremental() || (field.isKey() && field.getSequence() == null && Expressions.nullExpression().equals(getSqlFieldExpression(field, getVariableIndex())));
   }
 
   /**
