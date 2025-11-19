@@ -17,7 +17,7 @@ describe('awe-react-client/test/js/columns/ColumnSuggestTest.jsx', () => {
       placeholder: "Suggest test",
       t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "test"}, {},true));
 
     // check component
     expect(screen.getByPlaceholderText("Suggest test")).toBeDefined();

@@ -5,12 +5,15 @@ import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import useSuggest from "../hooks/useSuggest";
 import {getCellSuggestData} from "../utilities/grid";
+import {getFirstDefinedValue} from "../utilities/general";
 
 function ColumnSuggest(props) {
 
-  const { placeholder, label, required, readonly, model, data, timeout } = props;
-  const {validationRules = props.validationRules || {}} = data;
-  const classes = classNames("column-editor", {"p-invalid": data?.error});
+  const { placeholder, label, style, required, readonly, model, data, attrs, timeout } = props;
+  const {style: cellStyle, error = null} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {required: cellRequired} = validationRules;
+  const classes = classNames(style, cellStyle, "column-editor", {"p-invalid": error}, {"hidden": !visible});
   const {t} = useTranslation();
   const autocompleteRef = useRef(null);
   const columnModel = useMemo(() => getCellSuggestData(model, data), [model, data]);
@@ -40,21 +43,21 @@ function ColumnSuggest(props) {
     ref={autocompleteRef}
     value={value}
     placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
-    required={validationRules.required || required}
-    disabled={data?.readonly || readonly}
+    required={getFirstDefinedValue(cellRequired, required, false)}
+    disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
     onChange={onChange}
     onClear={onClear}
     dropdown
     onKeyDown={onKeyPress}
     delay={timeout || 300}
     field="label"
-    invalid={data?.error}
+    invalid={error}
     suggestions={suggestions}
     completeMethod={onSuggest}
     className={classes}
     inputClassName={classes}
     appendTo={document.body}
-    tooltip={formatMessage(data?.error, t)}
+    tooltip={formatMessage(error, t)}
     tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     forceSelection={true}
   />;

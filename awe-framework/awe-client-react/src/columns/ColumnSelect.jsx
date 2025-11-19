@@ -4,29 +4,32 @@ import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
 import {useSelect} from "../hooks/useSelect";
-import {compareEqualValues} from "../utilities/general";
+import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
 
 function ColumnSelect(props) {
-  const {placeholder, label, required, readonly, optional, model, data, style, address} = props;
+  const {placeholder, label, required, readonly, optional, model, data, attrs, style, address} = props;
+  const {style: cellStyle, value: cellValue, error = null} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {required: cellRequired} = validationRules;
   const cellModel = useMemo( () => ({ values: (model?.values ?? [])
-      .map(v => ({...v, selected: compareEqualValues(v.value, data.value)}))}),
-    [model?.values, data.value]);
+      .map(v => ({...v, selected: compareEqualValues(v.value, cellValue)}))}),
+    [model?.values, cellValue]);
   const {t, options, selected, onChange} =
     useSelect({ model: cellModel, address, multiple: false});
-  const classes = classNames("column-editor", {"p-invalid": data?.error}, style, data?.style);
+  const classes = classNames(style, cellStyle, "column-editor", {"p-invalid": data?.error}, {"hidden": !visible});
   return (
     <Dropdown
       value={selected}
       placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
-      required={required}
-      disabled={readonly}
+      required={getFirstDefinedValue(cellRequired, required, false)}
+      disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
       options={options}
       onChange={onChange}
       showClear={optional}
       className={classes}
-      invalid={data?.error}
+      invalid={error}
       appendTo={document.body}
-      tooltip={formatMessage(data?.error, t)}
+      tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     />
   );
@@ -35,6 +38,7 @@ function ColumnSelect(props) {
 ColumnSelect.propTypes = {
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
+  attrs: PropTypes.object.isRequired,
   model: PropTypes.object,
   style: PropTypes.string,
   label: PropTypes.string,

@@ -13,7 +13,7 @@ describe('awe-react-client/test/js/columns/ColumnSelectTest.jsx', () => {
       address: {component: 'select', view: 'report', column: 'column', row: 'row'},
       settings: {},
       placeholder: 'Choose...'
-    }, {value: '1'}, true));
+    }, {value: '1'}, {},true));
 
     // PrimeReact Dropdown root element should be present
     expect(document.querySelector('.p-dropdown')).not.toBeNull();

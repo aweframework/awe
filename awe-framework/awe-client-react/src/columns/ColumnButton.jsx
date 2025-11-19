@@ -7,13 +7,15 @@ import {classNames} from "../utilities/components";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
+import {getFirstDefinedValue} from "../utilities/general";
 
 const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
 
 function ColumnButton(props) {
-  const {data, address, disabled, icon, actions, buttonType = BUTTON_NORMAL} = props;
-  const {style, label, visible = true} = data;
-  const classes = classNames('p-button-sm', 'p-1', style, {"hidden": !visible});
+  const {data, attrs, address, style, disabled, icon, actions, buttonType = BUTTON_NORMAL} = props;
+  const {style: cellStyle, label, icon: cellIcon} = data;
+  const {visible = true, readonly: cellReadonly} = attrs;
+  const classes = classNames('p-button-sm', 'p-1', style, cellStyle, {"hidden": !visible});
   const dispatch = useDispatch();
   const { t} = useTranslation();
 
@@ -33,8 +35,8 @@ function ColumnButton(props) {
     id={address.component}
     type="button"
     className={classes}
-    icon={getIconCode(data.icon || icon, "p-button-icon p-c")}
-    disabled={disabled}
+    icon={getIconCode(getFirstDefinedValue(cellIcon, icon), "p-button-icon p-c")}
+    disabled={getFirstDefinedValue(cellReadonly, disabled, false)}
     label={label ? translateLabel(label, t) : null}
     iconPos={"left"}
     onClick={onClick}

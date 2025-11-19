@@ -15,7 +15,7 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
       address: {component: 'grid', view: 'report', column: 'column', row: 'row'},
       t: jasmine.createSpy("t"),
       settings: {}
-    }, {value:1123123}, false));
+    }, {value:1123123}, {},false));
 
     // fails
     expect(screen.getByText(/1\.123\.123/)).toBeDefined();

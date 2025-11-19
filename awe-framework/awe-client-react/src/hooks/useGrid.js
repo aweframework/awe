@@ -51,11 +51,7 @@ export function useGrid(id) {
   const updateModelWithDependencies = useCallback((addr, payload) => dispatch(updateThunk(addr, payload)), [dispatch]);
   const updateAttributes = useCallback((addr, payload) => dispatch(updateAttributesAction(addr, payload)), [dispatch]);
 
-  const editRow = useCallback((row) => {
-    addActionsTop([{ type: "edit-row", address, parameters: { row } }]);
-  }, [addActionsTop, address]);
-
-  const saveRow = useCallback(() => {
+  const validateRow = useCallback((postActions) => {
     const { validateOnSave = true } = attributes;
     const { values = [] } = model;
     const editingRow = values.find(row => row.$row?.editing);
@@ -64,12 +60,20 @@ export function useGrid(id) {
     if (validateOnSave && editingRow) {
       actions = [{ type: "validate-row", address: { ...address, row: editingRow[gridId] } }];
     }
-    addActionsTop([...actions, { type: "save-row", address }]);
+    addActionsTop([...actions, ...postActions]);
   }, [addActionsTop, address, attributes, model]);
 
+  const editRow = useCallback((row) => {
+    validateRow([{ type: "edit-row", address, parameters: { row } }]);
+  }, [validateRow, address]);
+
+  const saveRow = useCallback(() => {
+    validateRow([{ type: "save-row", address }]);
+  }, [validateRow, address]);
+
   const cancelRow = useCallback(() => {
-    addActionsTop([{ type: "cancel-row", address }]);
-  }, [addActionsTop, address]);
+    validateRow([{ type: "cancel-row", address }]);
+  }, [validateRow, address]);
 
   const filterRow = useCallback((action) => {
     const { loadAll } = attributes;
@@ -77,17 +81,17 @@ export function useGrid(id) {
     const editingRow = values.find(row => row.$row?.editing);
     const cancelRowAction = editingRow ? [{ type: "cancel-row", address }] : [];
     if (!loadAll) {
-      addActionsTop([...cancelRowAction, action, { type: "filter", address }]);
+      validateRow([...cancelRowAction, action, { type: "filter", address }]);
     } else {
-      addActionsTop([...cancelRowAction, action]);
+      validateRow([...cancelRowAction, action]);
     }
-  }, [addActionsTop, address, attributes, model]);
+  }, [validateRow, address, attributes, model]);
 
   const onSelect = useCallback((event) => {
     const gridId = getGridIdentifier(attributes);
     const values = [event.value].flat().filter(i => !isEmpty(i)).map(i => i[gridId]);
-    addActionsTop([{ type: "select-row", address, parameters: { values } }]);
-  }, [addActionsTop, address, attributes]);
+    validateRow([{ type: "select-row", address, parameters: { values } }]);
+  }, [validateRow, address, attributes]);
 
   const onContextMenu = useCallback((data) => {
     cmRef.current?.show(data.originalEvent);
@@ -213,14 +217,8 @@ export function useGrid(id) {
     const gridId = getGridIdentifier(attributes);
     return Columns({
       ...attributes.columnModel.find(c => c.name === column),
-      updateModelWithDependencies,
-      updateAttributes,
-      addActionsTop,
-      address: { ...address, column, row: rowData[gridId] },
-      t,
-      settings,
-      components
-    }, rowData[column], (rowData.$row || {}).editing);
+      address: { ...address, column, row: rowData[gridId] }
+    }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing);
   }, [attributes, updateModelWithDependencies, updateAttributes, addActionsTop, address, t, settings, components]);
 
   const buttonsTemplate = useCallback(() => {

@@ -10,13 +10,9 @@ describe('awe-react-client/test/js/columns/ColumnUploaderTest.jsx', () => {
       component: 'uploader',
       model: {values: []},
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
       address: {component: 'button', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "test"}, {},true));
 
     // check
     expect(screen.getByText("Choose")).toBeDefined();
@@ -27,13 +23,9 @@ describe('awe-react-client/test/js/columns/ColumnUploaderTest.jsx', () => {
       component: 'uploader',
       model: {values: [{label: 'test', value: 'test', selected: true}]},
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
       address: {component: 'button', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "test"}, {}, true));
 
     // check
     expect(document.querySelector("button.p-button-secondary")).not.toBeNull();

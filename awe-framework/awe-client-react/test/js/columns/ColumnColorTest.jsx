@@ -14,7 +14,7 @@ describe('awe-react-client/test/js/columns/ColumnColorTest.jsx', () => {
       address: {component: 'color', view: 'report', column: 'column', row: 'row'},
       t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "test"}, {},true));
 
     // fails
     expect(document.querySelector("button")).not.toBeNull();

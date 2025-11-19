@@ -38,8 +38,8 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
         },
         model: {
           values: [
-            {id: 1, colA: 'A', colB: 'B'},
-            {id: 2, colA: 'A', colB: 'B'}
+            {id: 1, colA: 'A', colB: 'B', $attrs: {colA: {placeholder: 'FromStoredA'}, colB: {placeholder: 'FromStoredB'}}},
+            {id: 2, colA: 'A', colB: 'B', $attrs: {colA: {placeholder: 'FromStoredA'}, colB: {placeholder: 'FromStoredB'}}}
           ],
           page: 3,
           total: 10,
@@ -123,7 +123,8 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
   });
 
   it('updates a full row via UPDATE_ROW_MODEL', () => {
-    const rowUpdate = {id: 2, colA: {values: [{value: 'A', selected: true}]}, colB: {values: [{value: 'B', selected: true}]}};
+    const rowUpdate = {id: 2, colA: {values: [{value: 'A', selected: true}]}, colB: {values: [{value: 'B', selected: true}]},
+      $attrs: {colA: {placeholder: 'FromStoredA'}, colB: {placeholder: 'FromStoredB'}}};
     const updated = components(baseGrid, {
       type: UPDATE_ROW_MODEL,
       address: {component: 'grid', view: 'base', row: 2},
@@ -193,7 +194,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
           ...baseGrid.grid.model,
           values: baseGrid.grid.model.values.map(v => v.id === 1 ? {
             ...v,
-            colA: { ...v.colA, placeholder: 'Temporary' }
+            $attrs: {...v.$attrs, colA: {...v.$attrs.colA, placeholder: 'Temporary'}}
           } : v)
         }
       }
@@ -206,6 +207,6 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
     });
 
     const row1 = restored.grid.model.values.find(r => r.id === 1);
-    expect(row1.colA.placeholder).toBe('FromStoredA');
+    expect(row1.$attrs.colA.placeholder).toBe('FromStoredA');
   });
 });

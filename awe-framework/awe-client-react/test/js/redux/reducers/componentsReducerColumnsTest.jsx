@@ -20,7 +20,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerColumnsTest.j
         },
         model: {
           values: [
-            {id: 1, colA: {values: [{value: '1', selected: true}], validationRules: {}}, colB: 'X'},
+            {id: 1, colA: {values: [{value: '1', selected: true}]}, colB: 'X'},
             {id: 2, colA: {values: [{value: '1', selected: false}]}, colB: 'X'}
           ]
         }
@@ -63,7 +63,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerColumnsTest.j
     expect(newState.grid.attributes.columnModel[0].validationRules).toEqual({required: false});
     // Cell validation is merged on the cell model
     const updatedRow = newState.grid.model.values.find(r => String(r.id) === '1');
-    expect(updatedRow.colA.validationRules).toEqual({minLength: 2});
+    expect(updatedRow.$attrs.colA.validationRules).toEqual({minLength: 2});
   });
   it('should update column attributes via UPDATE_ATTRIBUTES without affecting other columns', function () {
     const newState = components(state, {

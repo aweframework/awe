@@ -10,11 +10,13 @@ import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
+import {useTranslation} from "react-i18next";
 
 function AweInputNumeric(props) {
   const { id } = props;
   const dispatch = useDispatch();
   const { address, attributes = {}, validationRules = {}, value: valueFromModel } = useText(id);
+  const { t } = useTranslation();
 
   const [sliding, setSliding] = useState(false);
   const [number, setNumber] = useState(Number(valueFromModel));
@@ -56,7 +58,7 @@ function AweInputNumeric(props) {
         id={address?.component}
         value={currentValue}
         className={classes}
-        placeholder={translateLabel(placeholder)}
+        placeholder={translateLabel(placeholder, t)}
         required={required}
         disabled={readonly}
         mode="decimal"
