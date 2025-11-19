@@ -169,14 +169,16 @@ function updateAttributeCell(state = {}, address = {}, data = {}) {
   const {values} = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  const cellModel = getCellModel(values[rowIndex][address.column], attributes.columnModel.find(column => column.name === address.column));
+  const rowData = values[rowIndex] || {};
+  const cellAttrs = rowData.$attrs?.[address.column] || {};
   return {
     ...state,
     [component]: {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {[address.column]: {...cellModel, ...data}})
+        values: updateArrayElement(values, rowIndex, {...values[rowIndex], $attrs: {...rowData.$attrs || {},
+            [address.column]: {...cellAttrs, ...data}}})
       }
     }
   };
@@ -293,18 +295,19 @@ function restoreAttributeCell(state, address, data) {
   const columnIndex = (attributes.columnModel || []).findIndex(column => column.name === address.column);
   const storedColumn = storedAttributes.columnModel?.[columnIndex] || {};
   const defaultValue = storedColumn?.[data];
-  const columnDef = attributes.columnModel?.find(column => column.name === address.column) || {};
-  const cellModel = getCellModel(values[rowIndex][address.column], columnDef);
+  const rowData = values[rowIndex] || {};
+  const cellAttrs = rowData.$attrs?.[address.column] || {};
+  const prevAttrs = rowData.$attrs || {};
 
-  let newCell;
+  let newAttr;
   if (typeof defaultValue !== 'undefined') {
-    newCell = {
-      ...cellModel,
+    newAttr = {
+      ...cellAttrs,
       [data]: defaultValue
     };
   } else {
-    const { [data]: _removed, ...rest } = cellModel;
-    newCell = rest;
+    const { [data]: _removed, ...rest } = cellAttrs;
+    newAttr = rest;
   }
 
   return {
@@ -313,7 +316,7 @@ function restoreAttributeCell(state, address, data) {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {[address.column]: newCell})
+        values: updateArrayElement(values, rowIndex, {...rowData, $attrs: {...prevAttrs, [address.column]: newAttr}})
       }
     }
   };
@@ -397,14 +400,28 @@ function updateValidationCell(state = {}, address = {}, data = {}) {
   const {values} = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  const cellModel = getCellModel(values[rowIndex][address.column], attributes.columnModel.find(column => column.name === address.column));
+  const rowData = values[rowIndex] || {};
+  const cellAttrs = rowData.$attrs?.[address.column] || {};
+  const currentValidation = cellAttrs.validationRules || {};
   return {
     ...state,
     [component]: {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {[address.column]: {...cellModel, validationRules: {...cellModel.validationRules || {}, ...data}}})
+        values: updateArrayElement(values, rowIndex, {
+          ...rowData,
+          $attrs: {
+            ...(rowData.$attrs || {}),
+            [address.column]: {
+              ...cellAttrs,
+              validationRules: {
+                ...currentValidation,
+                ...data
+              }
+            }
+          }
+        })
       }
     }
   };

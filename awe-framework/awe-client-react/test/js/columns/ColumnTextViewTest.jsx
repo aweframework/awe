@@ -8,13 +8,9 @@ describe('awe-react-client/test/js/columns/ColumnTextViewTest.jsx', () => {
       component: 'text-view',
       model: {values: []},
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
       address: {component: 'text-view', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "test"}, {}, true));
 
     // fails
     expect(document.querySelector("button")).not.toBeNull();

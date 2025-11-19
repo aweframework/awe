@@ -66,12 +66,12 @@
       </tag>
     </window>
     <window id="WinGrd" style="expand" maximize="true" label="SCREEN_TEXT_RESTRICTIONS">
-      <grid id="GrdScrAccLst" style="expand" server-action="data" target-action="ScrAccLst" autoload="true" editable="true" send-operations="true" max="20">
+      <grid id="GrdScrAccLst" style="expand" server-action="data" target-action="ScrAccLst" autoload="true" editable="true" send-operations="true" max="20" validate-on-save="true">
         <column name="IdeAweScrRes" hidden="true" />
         <column name="IdeMod" hidden="true" />
-        <column label="PARAMETER_USER" name="IdeOpe" sort-field="IdeOpe" align="left" charlength="25" initial-load="query" component="suggest" server-action="data" target-action="UsrSug">
+        <column label="PARAMETER_USER" name="IdeOpe" sort-field="IdeOpe" align="left" charlength="25" component="suggest" server-action="data" target-action="UsrSug">
           <dependency target-type="set-editable" initial="true">
-            <dependency-element id="GrdScrAccLst" column="IdePro" attribute="selectedRowValue" condition="eq" value="" />
+            <dependency-element id="GrdScrAccLst" column="IdePro" attribute="selectedRowValue" condition="is empty" />
           </dependency>
         </column>
         <column label="PARAMETER_PROFILE" name="IdePro" sort-field="IdePro" align="left" charlength="25" initial-load="query" component="select" target-action="ProSel" optional="true">
@@ -79,7 +79,12 @@
             <dependency-element id="GrdScrAccLst" column="IdeOpe" attribute="selectedRowValue" condition="eq" value="" />
           </dependency>
         </column>
-        <column label="PARAMETER_OPTION" name="Opt" sort-field="Scr" align="left" charlength="30" component="suggest" server-action="data" target-action="OpcMnuSug" validation="required" />
+        <column label="PARAMETER_USER 2" name="IdeOpe2" sort-field="IdeOpe2" align="left" charlength="25" component="suggest" target-action="UsrSug" optional="true">
+          <dependency target-type="set-editable" initial="true">
+            <dependency-element id="GrdScrAccLst" column="IdeOpe" attribute="selectedRowValue" condition="is not empty" />
+          </dependency>
+        </column>
+        <column label="PARAMETER_OPTION" name="Opt" sort-field="Scr" align="left" charlength="30" component="suggest" server-action="data" target-action="getOptionList" validation="required" />
         <column label="PARAMETER_ACCESS_MODE" name="AccMod" sort-field="AccMod" align="center" charlength="30" component="select" initial-load="query" server-action="data" target-action="ResAccModSel"
                 validation="required" />
         <column label="PARAMETER_ACTIVE" name="Act" sort-field="Act" align="center" charlength="10" component="select" validation="required" initial-load="enum" server-action="data"

@@ -15,7 +15,7 @@ describe('awe-react-client/test/js/columns/ColumnStaticColorTest.jsx', () => {
       address: {component: 'color', view: 'report', column: 'column', row: 'row'},
       t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "#abcdef"}, false));
+    }, {value: "#abcdef"}, {},false));
 
     // should render a color swatch span for static color
     expect(screen.getByText("#abcdef")).toBeDefined();

@@ -2,21 +2,31 @@ import React, {useCallback, useEffect, useState} from "react";
 import {InputText} from 'primereact/inputtext';
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
-import {isEmpty} from "../utilities/general";
+import {getFirstDefinedValue, isEmpty} from "../utilities/general";
 import PropTypes from "prop-types";
+import {updateModelWithDependencies} from "../redux/thunks/components";
+import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
 
 function ColumnTextType(props) {
-  const { t, placeholder, label, required, readonly, data, style, inputType, address, updateModelWithDependencies } = props;
+  const { placeholder, label, required, readonly, data, attrs, style, inputType, address } = props;
+  const {style: cellStyle, value: cellValue, error = null} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {required: cellRequired} = validationRules;
 
-  const [value, setValue] = useState(isEmpty(data?.value) ? "" : data.value);
+  const [value, setValue] = useState(isEmpty(cellValue) ? "" : cellValue);
   const [writing, setWriting] = useState(false);
 
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+
   const storeChange = useCallback(() => {
-    if (data.value !== value) {
-      updateModelWithDependencies(address, { values: value });
+    if (cellValue !== value) {
+      dispatch(updateModelWithDependencies(address, { values: value }));
     }
     setWriting(false);
-  }, [address, data.value, updateModelWithDependencies, value]);
+  }, [address, cellValue, value]);
 
   const onChange = useCallback((e) => {
     if (document.activeElement !== e.target) {
@@ -39,36 +49,35 @@ function ColumnTextType(props) {
 
   // Sync local state from external data when not writing
   useEffect(() => {
-    const newValue = data?.value;
+    const newValue = cellValue;
     if (!writing && newValue !== value) {
       setValue(isEmpty(newValue) ? "" : newValue);
     }
-  }, [data?.value, writing, value]);
+  }, [cellValue, writing, value]);
 
-  const classes = classNames(style, data?.style, {"p-invalid": data?.error});
+  const classes = classNames(style, cellStyle, {"p-invalid": error}, {"hidden": !visible});
 
   return <div className={"column-editor"}>
     <InputText
       value={value}
       type={inputType || "text"}
       placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
-      required={required}
-      disabled={readonly}
+      required={getFirstDefinedValue(cellRequired, required, false)}
+      disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
       className={classNames("w-full", classes)}
       onChange={onChange}
       onBlur={onBlur}
       onKeyDown={onKeyDown}
-      tooltip={formatMessage(data?.error, t)}
+      tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     />
   </div>;
 }
 
 ColumnTextType.propTypes = {
-  updateModelWithDependencies: PropTypes.func.isRequired,
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
-  t: PropTypes.func.isRequired,
+  attrs: PropTypes.object.isRequired,
   style: PropTypes.string,
   label: PropTypes.string,
   readonly: PropTypes.bool,

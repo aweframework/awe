@@ -14,7 +14,7 @@ describe('awe-react-client/test/js/columns/ColumnImageTest.jsx', () => {
       address: {component: 'image', view: 'report', column: 'column', row: 'row'},
       t: jasmine.createSpy("t"),
       settings: {}
-    }, {value: "test"}, true));
+    }, {value: "test"}, {},true));
 
     // fails
     expect(document.querySelector("img")).not.toBeNull();

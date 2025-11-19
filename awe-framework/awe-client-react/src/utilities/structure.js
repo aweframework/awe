@@ -70,24 +70,27 @@ export const Criteria = (node, index) => {
  * Get column
  * @param node
  * @param data
+ * @param attrs
  * @param editing
  * @returns React element
  * @constructor
  */
-export const Columns = (node, data, editing) => {
+export const Columns = (node, data = {}, attrs = {}, editing = false) => {
   const {component} = node;
   let fixedData = extractCellModel(data);
   if (editing && typeof Editor[component] !== "undefined") {
     return React.createElement(Editor[component], {
       ...node,
       key: getComponentId(node.address),
-      data: fixedData
+      data: fixedData,
+      attrs
     });
   } else if (typeof Static[component] !== "undefined") {
     return React.createElement(Static[component], {
       ...node,
       key: getComponentId(node.address),
-      data: fixedData
+      data: fixedData,
+      attrs
     });
   }
   const visibleValue = getFirstDefinedAndNotNullValue(fixedData.label, fixedData.value, "");

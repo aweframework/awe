@@ -248,6 +248,55 @@ export const deleteRowGridAction = (action) => {
   };
 };
 
+/**
+ * Verify if there is a row being edited and if it has passed validation
+ * @param dispatch Dispatch function
+ * @param getState Get state function
+ * @param action Action
+ * @returns {boolean} No row is being edited or has passed validation
+ */
+function checkEditingRow(dispatch, getState, action) {
+  const { components } = getState();
+  const address = getActionAddress(action);
+  const component = getComponent(components, address);
+  const { validateOnSave = true } = component.attributes;
+  const {values} = component.model;
+
+  // Verificar si hay una fila en edición antes de proceder
+  const editingRow = values.find(row => row.$row?.editing);
+
+  if (validateOnSave && editingRow) {
+    // Si hay una fila en edición, validarla primero
+    const gridId = getGridIdentifier(component.attributes);
+    const editingRowId = editingRow[gridId];
+
+    // Usar la validación similar a validateRow del useGrid.js
+    // Esto debería invocar la validación de la fila actual
+    dispatch(validateRow({...address, row: editingRowId}));
+
+    // Verificar si la validación fue exitosa
+    const validatedRow = getComponent(getState().components, address).model.values.find(row => row.$row?.editing);
+
+    if (errorsInValidatedRow(getState, address)) {
+      // Si hay errores de validación, rechazar la acción
+      dispatch(rejectAction(action));
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function errorsInValidatedRow(getState, address) {
+  const {components = {}} = getState();
+  const component = getComponent(components, address);
+  const {model = {}} = component;
+  const {values = []} = model;
+  const validatedRow = values.find(row => row.$row?.editing);
+  const cellErrors = Object.values(validatedRow).filter(cell => cell?.error);
+  return cellErrors.length > 0;
+}
+
 export const addRowGridAction = (action, position) => {
   return (dispatch, getState) => {
     const { components } = getState();
@@ -255,6 +304,10 @@ export const addRowGridAction = (action, position) => {
     const component = getComponent(components, address);
     const {editable, multioperation, treegrid, treeParent, columnModel = []} = component.attributes || {};
     const {values} = component.model;
+
+    // Verify if editing row
+    if (!checkEditingRow(dispatch, getState, action)) return;
+
     const {rowId, row = {}} = action.parameters;
     const gridId = getGridIdentifier(component.attributes);
     const selectedRow = values.find((item) => (rowId ? String(item[gridId]) === String(rowId) : item.selected)) || {};
@@ -269,7 +322,7 @@ export const addRowGridAction = (action, position) => {
 
     addedRows++;
 
-    const editingRow = {
+    const newRow = {
       [gridId]: `new-row-${addedRows}`,
       ...rowDefaultValues,
       ...(treegrid ? {[treeParent]: parentId} : {}),
@@ -284,11 +337,11 @@ export const addRowGridAction = (action, position) => {
     dispatch(updateModelWithDependencies(address, {
       records: values.length + 1,
       values: addRowToValues(selectedRow[gridId], gridId, values, position, {
-        ...editingRow,
+        ...newRow,
         $row: {
-          ...editingRow.$row,
+          ...newRow.$row,
           ...((editable || multioperation) ? {editing: true} : {}),
-          editingRow
+          newRow
         }
       }),
       event: "after-add-row"
@@ -412,6 +465,9 @@ export const editRowGridAction = (action) => {
     const {row} = action.parameters;
     const gridId = getGridIdentifier(component.attributes);
 
+    // Verify if editing row
+    if (!checkEditingRow(dispatch, getState, action)) return;
+
     // Accept action
     dispatch(acceptAction(action));
 
@@ -439,6 +495,9 @@ export const saveRowGridAction = (action) => {
     const {values} = component.model;
     const editingRow = values.find(row => row.$row?.editing) || {};
     const gridId = getGridIdentifier(component.attributes);
+
+    // Verify if editing row
+    if (!checkEditingRow(dispatch, getState, action)) return;
 
     // Accept action
     dispatch(acceptAction(action));
@@ -468,6 +527,9 @@ export const cancelRowGridAction = (action) => {
     const {values} = component.model;
     const editingRow = values.find(row => row.$row?.editing)?.$row?.editingRow || {};
     const gridId = getGridIdentifier(component.attributes);
+
+    // Verify if editing row
+    if (!checkEditingRow(dispatch, getState, action)) return;
 
     // Accept action
     dispatch(acceptAction(action));

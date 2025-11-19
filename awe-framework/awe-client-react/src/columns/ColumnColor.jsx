@@ -10,19 +10,23 @@ import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import debounce from "lodash/debounce";
+import {getFirstDefinedValue} from "../utilities/general";
 
 function ColumnColor(props) {
-  const {placeholder, required, readonly, style, data, address} = props;
+  const {placeholder, required, readonly, style, data, attrs, address} = props;
+  const {style: cellStyle, value: cellValue, error = null} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {required: cellRequired} = validationRules;
   const {t} = useTranslation();
   const dispatch = useDispatch();
 
-  const [value, setValue] = useState(fromColor(data.value));
+  const [value, setValue] = useState(fromColor(cellValue));
   const overlayRef = useRef(null);
 
   // Sync local state when external value changes
   useEffect(() => {
-    setValue(fromColor(data.value));
-  }, [data.value]);
+    setValue(fromColor(cellValue));
+  }, [cellValue]);
 
   // Text input change: update local state; dispatch on blur for text edits
   const onChangeText = useCallback((e) => {
@@ -32,10 +36,10 @@ function ColumnColor(props) {
 
   const dispatchIfChanged = useCallback((hexNoHash) => {
     const color = toColor(hexNoHash);
-    if (data.value !== color) {
+    if (cellValue !== color) {
       dispatch(updateModelWithDependencies(address, {values: color}));
     }
-  }, [data.value, address, dispatch]);
+  }, [cellValue, address, dispatch]);
 
   const onBlur = useCallback(() => {
     dispatchIfChanged(value);
@@ -63,7 +67,7 @@ function ColumnColor(props) {
     dispatchIfChanged(newVal);
   }, [dispatchIfChanged]);
 
-  const classes = classNames(style, data.style, "p-inputgroup", "column-editor", {"p-invalid": data?.error});
+  const classes = classNames(style, cellStyle, "p-inputgroup", "column-editor", {"p-invalid": error}, {"hidden": !visible});
 
   return <div className={classes}>
     <InputText
@@ -72,9 +76,9 @@ function ColumnColor(props) {
       placeholder={translateLabel(placeholder, t)}
       onChange={onChangeText}
       onBlur={onBlur}
-      required={required}
-      disabled={readonly}
-      tooltip={formatMessage(data?.error, t)}
+      required={getFirstDefinedValue(cellRequired, required, false)}
+      disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
+      tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     />
     <span className="p-inputgroup-addon">
@@ -84,7 +88,7 @@ function ColumnColor(props) {
           <ColorPicker
             inline
             value={fromColor(value)}
-            disabled={readonly}
+            disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
             onChange={onChangePicker}
             format="hex"
           />
@@ -96,6 +100,7 @@ function ColumnColor(props) {
 ColumnColor.propTypes = {
   address: PropTypes.object.isRequired,
   data: PropTypes.object.isRequired,
+  attrs: PropTypes.object.isRequired,
   readonly: PropTypes.bool,
   required: PropTypes.bool,
   placeholder: PropTypes.string,
