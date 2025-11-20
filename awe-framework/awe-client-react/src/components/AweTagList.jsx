@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {translateLabel} from "../utilities";
 import {classNames, parseValidationRules} from "../utilities/components";
 import {Components} from "../utilities/structure";
@@ -44,21 +44,23 @@ function findComponents(view, elementList = []) {
 
 function AweTagList(props) {
 
-  const {type, id, style, label, expand} = props;
-  const [elementList, setElementList] = useState([]);
+  const {type, id, elementList} = props;
+  const [tagList, setTagList] = useState([]);
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { address, model } = useSelector(state => ({
+  const { address, model, attributes } = useSelector(state => ({
     address: state.components[id]?.address,
-    model: state.components[id]?.model
+    model: state.components[id]?.model,
+    attributes: state.components[id]?.attributes
   }));
+  const {label, style, expand, visible = true} = attributes;
 
-  const reloadElements = () => {
+  const reloadElements = useCallback(() => {
     const fixedElements = model.values.map(row => generateTagListRow(elementList, row)).flat();
     const components = findComponents(address.view, fixedElements);
     dispatch(updateMultipleComponentsWithDependencies(components));
-    setElementList(fixedElements);
-  };
+    setTagList(fixedElements);
+  }, [elementList, model.values]);
 
   // Initialize on mount or model changes
   useEffect(() => {
@@ -66,12 +68,12 @@ function AweTagList(props) {
   }, [model.values]);
 
 
-  const classes = classNames({[`expandible-${expand}`]: expand}, style);
+  const classes = classNames({[`expandible-${expand}`]: expand}, style, {"hidden": !visible});
 
   return React.createElement(type || "div", {
     id: id,
     className: classes,
-    children: [...[translateLabel(label, t)], ...((elementList || []).map((node, index) => Components(node, index)))]
+    children: [...[translateLabel(label, t)], ...((tagList || []).map((node, index) => Components(node, index)))]
   });
 }
 

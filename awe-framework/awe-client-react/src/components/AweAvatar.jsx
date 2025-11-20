@@ -28,8 +28,8 @@ function AweAvatar(props) {
   const opRef = useRef(null);
 
   const { values = [] } = model;
-  const { style, icon, disabled, label, size, unit, image, showLabel = true } = attributes;
-  const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size });
+  const { style, icon, disabled, label, size, unit, image, visible = true, showLabel = true } = attributes;
+  const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, {"hidden": !visible});
 
   const computedLabel = getFirstDefinedValue(values?.[0]?.label, label);
   const computedImage = getFirstDefinedValue(values?.[0]?.image, image);

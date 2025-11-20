@@ -6,6 +6,7 @@ import {isEmpty} from "../utilities/general";
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {updateAttributes} from "../redux/actions/components";
+import {classNames} from "../utilities/components";
 
 /**
  * Read value list
@@ -66,14 +67,15 @@ function AwePivotTable(props) {
    * Render component
    * @returns {JSX.Element} Rendered component
    */
-    const {cols, rows, vals, style} = attributes;
+    const {cols, rows, vals, style, visible = true} = attributes;
     let fixedAttributes = rendered ? {
       ...attributes,
       vals: readValueList(vals),
       cols: readValueList(cols),
       rows: readValueList(rows)
     } : {};
-    return (<div className={style}>
+    const classes = classNames(style, {"hidden": !visible});
+    return (<div className={classes}>
       <PivotTableUI
         data={model.values.map(row => Object.entries(row).reduce((prev, [key, value]) =>
           ({...prev, [key]: extractCellValue(value)}), {}))}

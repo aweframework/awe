@@ -18,7 +18,7 @@ function AweAccordion(props) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const updateModelWithDependencies = (addr, payload) => dispatch(updateThunk(addr, payload));
-  const { autocollapse, style } = attributes;
+  const { autocollapse, style, visible = true } = attributes;
 
   // Initialize values from AccordionItem list on mount and ensure selection state exists
   useEffect(() => {
@@ -49,7 +49,7 @@ function AweAccordion(props) {
     return null;
   };
 
-  return <Accordion className={style}
+  return visible ? <Accordion className={style}
                     activeIndex={activeIndex}
                     onTabChange={onChange}
                     multiple={autocollapse === false}>
@@ -57,7 +57,7 @@ function AweAccordion(props) {
       .filter(node => node.elementType === "AccordionItem")
       .map((node, index) => <AccordionTab key={node.id || `accordion-${index}`} header={getHeader(node)}
                                           children={node.elementList.map((subnode, subindex) => Components(subnode, subindex))}/>)}
-  </Accordion>;
+  </Accordion> : <></>;
 }
 
 AweAccordion.propTypes = {

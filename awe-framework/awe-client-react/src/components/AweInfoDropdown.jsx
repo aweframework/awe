@@ -27,8 +27,8 @@ function AweInfoDropdown(props) {
   const opRef = useRef(null);
 
   const { values = [] } = model;
-  const { style, icon, disabled, label, size, unit } = attributes;
-  const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, style);
+  const { style, icon, disabled, label, size, unit, visible } = attributes;
+  const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, style, {"hidden": !visible});
 
   const computedLabel = values.length ? values[0].label : label;
   const computedUnit = unit && <span className="p-badge p-badge-info">{unit}</span>;

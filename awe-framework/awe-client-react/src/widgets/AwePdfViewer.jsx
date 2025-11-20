@@ -46,10 +46,10 @@ function AwePdfViewer(props) {
     }
   }, []);
 
-  const {style} = attributes;
-  return <div id={address.component} className={classNames("pdf-viewer", "expand", style)}>
+  const {style, visible = true} = attributes;
+  return visible ? <div id={address.component} className={classNames("pdf-viewer", "expand", style)}>
     {getPdfTemplate(pdf)}
-  </div>;
+  </div> : <></>;
 }
 
 export default AwePdfViewer;
