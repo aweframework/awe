@@ -1,4 +1,11 @@
 
+# Changelog for AWE React 2.0.4
+*20/11/2025*
+
+- Manage error in suggest components. [MR #128](https://gitlab.com/aweframework/awe-react/-/merge_requests/128) (Pablo Javier García Mora)
+- AweTagList is not working fine. [MR #127](https://gitlab.com/aweframework/awe-react/-/merge_requests/127) (Pablo Javier García Mora)
+- `set-readonly` dependency not working in grid cells. [MR #126](https://gitlab.com/aweframework/awe-react/-/merge_requests/126) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.3
 *31/10/2025*
 
