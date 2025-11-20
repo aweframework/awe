@@ -3,6 +3,7 @@ import {fetchAction} from "../../utilities";
 import {updateModelWithDependencies} from "./components";
 import {keepModel} from "../actions/components";
 import {getFormValues} from "../selectors/form";
+import {addActionsTop} from "../actions/actions";
 
 
 export const suggestAction = (event, text, props) => {
@@ -23,7 +24,7 @@ export const suggestAction = (event, text, props) => {
       signal
     );
 
-    const datalist = manageFillAction(response);
+    const datalist = manageFillAction(response, dispatch);
     return _.uniqBy([...(datalist.rows || []), ...defaultValue], "label");
   };
 };
@@ -45,7 +46,7 @@ export const initialSuggestAction = (suggest, { address, serverAction, targetAct
       settings.token
     );
 
-    const datalist = manageFillAction(response);
+    const datalist = manageFillAction(response, dispatch);
     const selectedItems = (datalist.rows || [])
       .filter(item => String(item.value) === String(suggest))
       .map(item => ({ ...item, selected: true }));
@@ -62,11 +63,20 @@ export const initialSuggestAction = (suggest, { address, serverAction, targetAct
 /**
  * Manage a fill action in response
  * @param {object} response Response
+ * @param {function} dispatch Dispatch function
  * @return {object} datalist
  * @memberOf Components
  */
-const manageFillAction =  (response) => {
+const manageFillAction = (response, dispatch) => {
   let fillAction = response.filter(action => action.type === "fill").shift() || {};
+  let otherActions = response.filter(action => action.type !== "fill") || [];
+
+  // Launch other actions if retrieved
+  if (otherActions.length > 0) {
+    dispatch(addActionsTop(otherActions));
+  }
+
+  // Return datalist from fill action
   const {datalist} = fillAction.parameters || {datalist: {rows: []}};
   return datalist;
 };
