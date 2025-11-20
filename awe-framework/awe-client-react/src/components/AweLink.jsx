@@ -10,9 +10,9 @@ function AweLink(props) {
     address: state.components[id]?.address,
     attributes: state.components[id]?.attributes
   }));
-  const {url, style, title, label} = attributes;
+  const {url, style, title, label, visible = true} = attributes;
   const { t } = useTranslation();
-  const classes = classNames(style);
+  const classes = classNames(style, {"hidden": !visible});
 
   return <a
         id={address.component}

@@ -14,10 +14,11 @@ import {fetchLogAction} from "../redux/thunks/files";
 function AweLogViewer(props) {
 
   const {id} = props;
-  const address = useSelector(state => state.components[id]?.address);
-  const autorefresh = useSelector(state => state.components[id]?.attributes?.autorefresh);
-  const serverAction = useSelector(state => state.components[id]?.attributes?.serverAction);
-  const targetAction = useSelector(state => state.components[id]?.attributes?.targetAction);
+  const { address, attributes = {}} = useSelector(state => ({
+    address: state.components[id]?.address,
+    attributes: state.components[id]?.attributes
+  }));
+  const {autorefresh, serverAction, targetAction, visible = true} = attributes;
   const dispatch = useDispatch();
   const [offset, setOffset] = useState(1);
   const [logText, setLogText] = useState(" ");
@@ -51,7 +52,7 @@ function AweLogViewer(props) {
     checkAutoRefresh();
   }, [autorefresh, offset]);
 
-  return <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id}>
+  return visible ? <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id}>
     <Button data-testid="autoload-button"
             className={"p-button-text p-button-rounded log-button-autoload"}
             icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
@@ -62,7 +63,7 @@ function AweLogViewer(props) {
       {getIconCode("circle", "fa-fw fade2 animation-dot")}
       {getIconCode("circle", "fa-fw fade3 animation-dot")}
     </div>
-  </div>;
+  </div> : <></>;
 }
 
 export default AweLogViewer;

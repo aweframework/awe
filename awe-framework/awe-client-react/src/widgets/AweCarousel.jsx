@@ -56,7 +56,7 @@ function AweCarousel({id, style = ""}) {
   }, [model]);
 
   if (items?.length) {
-    return <div className={`carousel ${style}`}><Carousel value={items} numVisible={1} numScroll={1} itemTemplate={valueTemplate}/></div>
+    return <div className={`carousel ${style}`}><Carousel value={items} numVisible={1} numScroll={1} itemTemplate={valueTemplate}/></div>;
   }
 
   // Return skeleton

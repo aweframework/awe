@@ -47,7 +47,7 @@ function AwePicklist(props) {
   };
 
 
-  const {label, style, visible} = attributes;
+  const {label, style, visible = true} = attributes;
   const classes = classNames(style, {"hidden": !visible});
 
   // If address is undefined, return skeleton

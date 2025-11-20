@@ -13,10 +13,10 @@ function AweVideo(props) {
     attributes: state.components[id]?.attributes
   }));
   const { t } = useTranslation();
-  const {src, loop, autoplay = false, poster, controls = true, style, title} = attributes;
+  const {src, loop, autoplay = false, poster, controls = true, style, title, visible = true} = attributes;
   const classes = classNames(style, "video-player");
 
-  return <ReactPlayer
+  return visible ? <ReactPlayer
         className={classes}
         id={address.component}
         url={src}
@@ -24,7 +24,7 @@ function AweVideo(props) {
         light={poster}
         playing={parseBoolean(autoplay)}
         loop={loop}
-        title={translateLabel(title, t)}/>;
+        title={translateLabel(title, t)}/> : <></>;
 }
 
 export default AweVideo;

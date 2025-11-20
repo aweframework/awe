@@ -11,8 +11,8 @@ function AweImage(props) {
     address: state.components[id]?.address,
     attributes: state.components[id]?.attributes
   }));
-  const {url, alternateUrl, style, title} = attributes;
-  const classes = classNames(style);
+  const {url, alternateUrl, style, title, visible = true} = attributes;
+  const classes = classNames(style, {"hidden": !visible});
   const { t } = useTranslation();
 
   return (<img
