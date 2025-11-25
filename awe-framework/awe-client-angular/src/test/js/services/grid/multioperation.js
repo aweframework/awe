@@ -10,7 +10,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/multioperat
       CELL_VALUE: "value",
       CELL_LABEL: "label",
       CELL_TITLE: "title",
-      CELL_STYLE: "cell-style",
+      CELL_STYLE: "style",
       CELL_ICON: "icon",
       CELL_IMAGE: "image"
     },
