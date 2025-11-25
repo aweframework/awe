@@ -254,7 +254,7 @@ public abstract class AbstractGrid extends AbstractCriteria {
    */
   @JsonGetter("validateOnSave")
   public boolean isValidateOnSave() {
-    return validateOnSave != null && validateOnSave;
+    return validateOnSave == null || validateOnSave;
   }
 
   /**
