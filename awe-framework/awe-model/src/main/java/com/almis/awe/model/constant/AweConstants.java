@@ -119,7 +119,7 @@ public class AweConstants {
   public static final String JSON_IMAGE_PARAMETER = "image";
   public static final String JSON_STYLE_PARAMETER = "style";
   public static final String JSON_TITLE_PARAMETER = "title";
-  public static final String JSON_CELL_STYLE_PARAMETER = "cell-style";
+  public static final String JSON_CELL_STYLE_PARAMETER = "style";
   public static final String JSON_ID_PARAMETER = "id";
   public static final String JSON_SCREEN = "screen";
   public static final String JSON_OPTION = "option";

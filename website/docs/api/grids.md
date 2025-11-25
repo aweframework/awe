@@ -153,12 +153,12 @@ These are the cells which use the special structure:
 
 When you send a **compound structure** to a standard cell, you can use the following attributes:
 
-| Attribute  | Description                                                                                                          |
-|------------|----------------------------------------------------------------------------------------------------------------------|
-| value      | Value which will be sent to the server                                                                               |
-| label      | Text which will be shown. You can use [i18n](i18n-internationalization.md) files (locales)                           |
-| title      | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
-| cell-style | CSS class to format the contents                                                                                     |
+| Attribute | Description                                                                                                          |
+|-----------|----------------------------------------------------------------------------------------------------------------------|
+| value     | Value which will be sent to the server                                                                               |
+| label     | Text which will be shown. You can use [i18n](i18n-internationalization.md) files (locales)                           |
+| title     | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
+| style     | CSS class to format the contents                                                                                     |
 
 #### Text view column component
 

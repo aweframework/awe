@@ -7,7 +7,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
       CELL_VALUE: "value",
       CELL_LABEL: "label",
       CELL_TITLE: "title",
-      CELL_STYLE: "cell-style",
+      CELL_STYLE: "style",
       CELL_ICON: "icon",
       CELL_IMAGE: "image"
     },
@@ -691,13 +691,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
     let cellObject7 = component.getCell("");
 
     // Assert
-    expect(cellObject1).toEqual({value: null, label: "", title: "", "cell-style": "", icon: ""});
-    expect(cellObject2).toEqual({value: "tutu", label: "tutu", title: "", "cell-style": "", icon: ""});
-    expect(cellObject3).toEqual({value: ["tutu", "lala"], label: "tutu, lala", title: "", "cell-style": "", icon: ""});
-    expect(cellObject4).toEqual({value: "tutu", label: "tutu", title: "", "cell-style": "", icon: ""});
-    expect(cellObject5).toEqual({value: "tutu", label: "lala", title: "", "cell-style": "", icon: ""});
-    expect(cellObject6).toEqual({value: null, label: "", title: "", "cell-style": "", icon: ""});
-    expect(cellObject7).toEqual({value: null, label: "", title: "", "cell-style": "", icon: ""});
+    expect(cellObject1).toEqual({value: null, label: "", title: "", "style": "", icon: ""});
+    expect(cellObject2).toEqual({value: "tutu", label: "tutu", title: "", "style": "", icon: ""});
+    expect(cellObject3).toEqual({value: ["tutu", "lala"], label: "tutu, lala", title: "", "style": "", icon: ""});
+    expect(cellObject4).toEqual({value: "tutu", label: "tutu", title: "", "style": "", icon: ""});
+    expect(cellObject5).toEqual({value: "tutu", label: "lala", title: "", "style": "", icon: ""});
+    expect(cellObject6).toEqual({value: null, label: "", title: "", "style": "", icon: ""});
+    expect(cellObject7).toEqual({value: null, label: "", title: "", "style": "", icon: ""});
   });
 
   // Get column data
@@ -824,26 +824,26 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
       "value": ["tutu", "lala", "lele", "lili", "lolo", "lulu"],
       "other": [null, null, "asda", null, null, null],
       "id.data": [
-        {"value": 1, "label": 1, "title": "", "cell-style": "", "icon": ""},
-        {"value": 2, "label": 2, "title": "", "cell-style": "", "icon": ""},
-        {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
-        {"value": 5, "label": 5, "title": "", "cell-style": "", "icon": ""},
-        {"value": 6, "label": 6, "title": "", "cell-style": "", "icon": ""},
-        {"value": 7, "label": 7, "title": "", "cell-style": "", "icon": ""}],
+        {"value": 1, "label": 1, "title": "", "style": "", "icon": ""},
+        {"value": 2, "label": 2, "title": "", "style": "", "icon": ""},
+        {"value": 4, "label": 4, "title": "", "style": "", "icon": ""},
+        {"value": 5, "label": 5, "title": "", "style": "", "icon": ""},
+        {"value": 6, "label": 6, "title": "", "style": "", "icon": ""},
+        {"value": 7, "label": 7, "title": "", "style": "", "icon": ""}],
       "value.data": [
-        {"value": "tutu", "label": "tutu", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lala", "label": "lala", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lili", "label": "lili", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lolo", "label": "lolo", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lulu", "label": "lulu", "title": "", "cell-style": "", "icon": ""}],
+        {"value": "tutu", "label": "tutu", "title": "", "style": "", "icon": ""},
+        {"value": "lala", "label": "lala", "title": "", "style": "", "icon": ""},
+        {"value": "lele", "label": "lele", "title": "", "style": "", "icon": ""},
+        {"value": "lili", "label": "lili", "title": "", "style": "", "icon": ""},
+        {"value": "lolo", "label": "lolo", "title": "", "style": "", "icon": ""},
+        {"value": "lulu", "label": "lulu", "title": "", "style": "", "icon": ""}],
       "other.data": [
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""}],
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": "asda", "label": "asda", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""}],
       "id.selected": 4,
       "value.selected": "lele",
       "other.selected": "asda",
@@ -888,26 +888,26 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
       "value": ["tutu", "lala", "lele", "lili", "lolo", "lulu"],
       "other": [null, null, "asda", null, null, null],
       "id.data": [
-        {"value": 1, "label": 1, "title": "", "cell-style": "", "icon": ""},
-        {"value": 2, "label": 2, "title": "", "cell-style": "", "icon": ""},
-        {"value": 4, "label": 4, "title": "", "cell-style": "", "icon": ""},
-        {"value": 5, "label": 5, "title": "", "cell-style": "", "icon": ""},
-        {"value": 6, "label": 6, "title": "", "cell-style": "", "icon": ""},
-        {"value": 7, "label": 7, "title": "", "cell-style": "", "icon": ""}],
+        {"value": 1, "label": 1, "title": "", "style": "", "icon": ""},
+        {"value": 2, "label": 2, "title": "", "style": "", "icon": ""},
+        {"value": 4, "label": 4, "title": "", "style": "", "icon": ""},
+        {"value": 5, "label": 5, "title": "", "style": "", "icon": ""},
+        {"value": 6, "label": 6, "title": "", "style": "", "icon": ""},
+        {"value": 7, "label": 7, "title": "", "style": "", "icon": ""}],
       "value.data": [
-        {"value": "tutu", "label": "tutu", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lala", "label": "lala", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lele", "label": "lele", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lili", "label": "lili", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lolo", "label": "lolo", "title": "", "cell-style": "", "icon": ""},
-        {"value": "lulu", "label": "lulu", "title": "", "cell-style": "", "icon": ""}],
+        {"value": "tutu", "label": "tutu", "title": "", "style": "", "icon": ""},
+        {"value": "lala", "label": "lala", "title": "", "style": "", "icon": ""},
+        {"value": "lele", "label": "lele", "title": "", "style": "", "icon": ""},
+        {"value": "lili", "label": "lili", "title": "", "style": "", "icon": ""},
+        {"value": "lolo", "label": "lolo", "title": "", "style": "", "icon": ""},
+        {"value": "lulu", "label": "lulu", "title": "", "style": "", "icon": ""}],
       "other.data": [
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": "asda", "label": "asda", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""},
-        {"value": null, "label": "", "title": "", "cell-style": "", "icon": ""}],
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": "asda", "label": "asda", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""},
+        {"value": null, "label": "", "title": "", "style": "", "icon": ""}],
       "id.selected": 4,
       "value.selected": "lele",
       "other.selected": "asda",
@@ -1104,8 +1104,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
 
     component.updateCell("4", "value", {value: "alla", label: "lala"});
     expect(component.model.values[2]["value"]).toEqual({value: "alla", label: "lala"});
-    component.updateCell("4", "value", {"cell-style": "alla", label: "lala"});
-    expect(component.model.values[2]["value"]).toEqual({"cell-style": "alla", label: "lala"});
+    component.updateCell("4", "value", {"style": "alla", label: "lala"});
+    expect(component.model.values[2]["value"]).toEqual({"style": "alla", label: "lala"});
     component.updateCell("4", "value", "tutu");
     expect(component.model.values[2]["value"]).toEqual("tutu");
     component.updateCell("4", "value", null);

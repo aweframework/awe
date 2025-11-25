@@ -61,7 +61,7 @@ aweApplication.factory('GridBase',
             CELL_TITLE: "title",
             CELL_LABEL: "label",
             CELL_VALUE: "value",
-            CELL_STYLE: "cell-style",
+            CELL_STYLE: "style",
             CELL_ICON: "icon",
             CELL_IMAGE: "image"
           };
