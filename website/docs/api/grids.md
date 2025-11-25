@@ -60,7 +60,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | icon-loading        | Optional     | String  | Set the loading icon                                                                                                      | `spinner` (default), `square`, `circles`, `carpet`, `dots`, `folding`, `squarebar`, `circlebar`, `cubes`, `icon`, `custom`, `none` |
 | row-numbers         | Optional     | Boolean | Whether to show row numbers or not                                                                                        | Default value is `true`                                                                                                            |                                                                                                          
 | row-height          | Optional     | Integer | Set the row height in pixels                                                                                              |                                                                                                                                    |
-| validate-on-save    | Optional     | Boolean | Set `true` to validate the selected row when clicking the `save` button                                                   | Default value is `false`                                                                                                           |
+| validate-on-save    | Optional     | Boolean | Set `false` to avoid validate the selected row when clicking the `save` button                                            | Default value is `true`                                                                                                            |
 
 
 ## Column structure
@@ -153,12 +153,12 @@ These are the cells which use the special structure:
 
 When you send a **compound structure** to a standard cell, you can use the following attributes:
 
-| Attribute  | Description                                                                                                          |
-|------------|----------------------------------------------------------------------------------------------------------------------|
-| value      | Value which will be sent to the server                                                                               |
-| label      | Text which will be shown. You can use [i18n](i18n-internationalization.md) files (locales)                           |
-| title      | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
-| cell-style | CSS class to format the contents                                                                                     |
+| Attribute | Description                                                                                                          |
+|-----------|----------------------------------------------------------------------------------------------------------------------|
+| value     | Value which will be sent to the server                                                                               |
+| label     | Text which will be shown. You can use [i18n](i18n-internationalization.md) files (locales)                           |
+| title     | Text to show when you move the mouse over the icon. You can use [i18n](i18n-internationalization.md) files (locales) |
+| style     | CSS class to format the contents                                                                                     |
 
 #### Text view column component
 

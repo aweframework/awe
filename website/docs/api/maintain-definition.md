@@ -29,6 +29,7 @@ The simple maintain structure is the next one:
   <[OPERATION] multiple="[multiple]" audit="[audit_table]">
     <table id="[table_name]" schema="[schema_name]"/>
     <field id="[field_name]" table="[table_name]" variable="[field_variable_name]" sequence="[sequence_name]"/>
+    <field id="[field_name]" table="[table_name]" variable="[field_variable_name]" auto-incremental="[true/false]"/>
     ... (more fields)
     <where>
       <and>
@@ -128,18 +129,19 @@ Filter element behaviour is the same as [query filter element](./query-definitio
 
 Field element in maintains has the following attributes:
 
-| Attribute | Use          | Type    | Description                                                                                                                                  | Values                                                                                                                                              |
-|-----------|--------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| id        | **Required** | String  | Name of field                                                                                                                                | **Note:** Is the real column name of table in data base                                                                                             |
-| table     | Optional     | String  | Table name of field                                                                                                                          |                                                                                                                                                     |
-| alias     | Optional     | String  | Alias of field. It used to describe the field                                                                                                |                                                                                                                                                     |
-| sequence  | Optional     | String  | Name of sequence to insert from `AweKey table`                                                                                               | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
-| key       | Optional     | Boolean | If field is a table key, this value must be set as `true`                                                                                    | **Note:** Only apply in `multiple` maintains                                                                                                        |
-| audit     | Optional     | Boolean | **ONLY** record this field on the audit table. **Note:** If this attribute is set to `true` this field will **NOT** be recorded on the table | Default value is `false`                                                                                                                            |
-| variable  | Optional     | String  | Used to set the input field with one variable value                                                                                          |                                                                                                                                                     |
-| query     | Optional     | String  | Is the query identifier to do a subquery                                                                                                     | **Note:** The query id must exist                                                                                                                   |
-| function  | Optional     | String  | To apply sql function to field                                                                                                               | The possible values are defined in [field functions](query-definition.md#field-functions)                                                           |
-| cast      | Optional     | String  | Change the field format                                                                                                                      | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                                                                           |
+| Attribute        | Use          | Type    | Description                                                                                                                                  | Values                                                                                                                                              |
+|------------------|--------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| id               | **Required** | String  | Name of field                                                                                                                                | **Note:** Is the real column name of table in data base                                                                                             |
+| table            | Optional     | String  | Table name of field                                                                                                                          |                                                                                                                                                     |
+| alias            | Optional     | String  | Alias of field. It used to describe the field                                                                                                |                                                                                                                                                     |
+| sequence         | Optional     | String  | Name of sequence to insert from `AweKey table`                                                                                               | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
+| auto-incremental | Optional     | Boolean | If field value is retrieve from identity/auto-incremental column type                                                                       | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
+| key              | Optional     | Boolean | If field is a table key, this value must be set as `true`                                                                                    | **Note:** Only apply in `multiple` maintains                                                                                                        |
+| audit            | Optional     | Boolean | **ONLY** record this field on the audit table. **Note:** If this attribute is set to `true` this field will **NOT** be recorded on the table | Default value is `false`                                                                                                                            |
+| variable         | Optional     | String  | Used to set the input field with one variable value                                                                                          |                                                                                                                                                     |
+| query            | Optional     | String  | Is the query identifier to do a subquery                                                                                                     | **Note:** The query id must exist                                                                                                                   |
+| function         | Optional     | String  | To apply sql function to field                                                                                                               | The possible values are defined in [field functions](query-definition.md#field-functions)                                                           |
+| cast             | Optional     | String  | Change the field format                                                                                                                      | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                                                                           |
 
 #### Constant element
 
@@ -262,6 +264,71 @@ The insert maintain structure is the next one:
       <variable id="Act" type="INTEGER" name="Act" />
       <variable id="IdeSit" type="INTEGER" name="IdeSit" />
     </insert>
+</target>
+```
+
+### Inserts with **auto‑increment columns** (IDENTITY/AUTO INCREMENT)
+
+When the database generates the primary key automatically (IDENTITY/AUTO INCREMENT), for `insert` operations you must:
+
+- Mark the auto‑increment column with `auto-incremental="true"` in the `field` element so that AWE retrieves the generated id after the insert.
+- Declare a `variable` for that field to store the generated value. You don't need to pass it as input; AWE will fill it with the generated id and you can reuse it within the same `target` (e.g., for subsequent operations) or return it to the client.
+- Do not set `sequence` on auto‑increment columns (sequences only apply to AWE sequences stored in the `AweKey` table).
+
+Example using the `TestAutoIncrement` table (with `id` as IDENTITY):
+
+```xml
+<!-- Insert into a table with an auto‑increment (IDENTITY) primary key -->
+<target name="TstAutoIncNew">
+  <insert>
+    <table id="TestAutoIncrement"/>
+    <!-- Mark the identity column as key and declare the variable to capture the generated id -->
+    <field id="id" auto-incremental="true" variable="id"/>
+    <field id="name" variable="name"/>
+    <field id="email" variable="email"/>
+
+    <!-- Input variables -->
+    <variable id="name" type="STRING" name="name"/>
+    <variable id="email" type="STRING" name="email"/>
+
+    <!-- Output variable that will hold the generated id after the insert -->
+    <variable id="id" type="INTEGER"/>
+  </insert>
+</target>
+```
+
+> Note: In `multiple` maintains, it is also mandatory to have a `field` with `auto-incremental="true"` to indicate the table key. The same convention applies when the key is generated by the database.
+
+Example reusing the generated id in a follow‑up insert (parent `tst_order` and its `tst_order_item` rows):
+
+```xml
+<target name="insertWithKeySingle">
+  <!-- First insert: capture the generated OrderId from tst_order.id -->
+  <insert>
+    <table id="tst_order"/>
+    <!-- Mark the identity column as auto-incremental="true" and declare the variable to capture the generated id -->
+    <field id="id" auto-incremental="true" variable="OrderId"/>
+    <field id="order_date" variable="OrderDate"/>
+    <constant id="order_comments" value="Test Order"/>
+
+    <variable id="OrderDate" type="SYSTEM_DATE" name="OrderDate"/>
+    <!-- Output variable filled by AWE with the generated id -->
+    <variable id="OrderId" type="INTEGER" name="OrderId"/>
+  </insert>
+
+  <!-- Second insert (multiple): reuse OrderId to insert order items -->
+  <insert multiple="true">
+    <table id="tst_order_item"/>
+    <field id="order_id" variable="OrderId"/>
+    <field id="order_product" variable="ProductName"/>
+    <field id="order_price" variable="ProductPrice"/>
+    <field id="order_quantity" variable="ProductQuantity"/>
+
+    <variable id="OrderId" type="INTEGER" name="OrderId"/>
+    <variable id="ProductName" type="STRING" name="order_product"/>
+    <variable id="ProductPrice" type="FLOAT" name="order_price"/>
+    <variable id="ProductQuantity" type="INTEGER" name="order_quantity"/>
+  </insert>
 </target>
 ```
 

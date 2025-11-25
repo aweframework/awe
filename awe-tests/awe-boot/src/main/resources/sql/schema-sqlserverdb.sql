@@ -1075,3 +1075,20 @@ CREATE TABLE DummyClobTestTable
     id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     textFile VARCHAR(MAX) -- CLOB TYPE
 );
+
+CREATE TABLE tst_order
+(
+    id INTEGER IDENTITY(1,1) PRIMARY KEY,
+    order_comments   VARCHAR(255),
+    order_date       DATE NOT NULL
+);
+
+CREATE TABLE tst_order_item
+(
+    id INTEGER IDENTITY(1,1) PRIMARY KEY,
+    order_id INTEGER NOT NULL,
+    order_product VARCHAR(255),
+    order_price NUMERIC(10, 2) NOT NULL,
+    order_quantity INTEGER NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES tst_order (id)
+);

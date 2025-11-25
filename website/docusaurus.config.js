@@ -101,9 +101,9 @@ module.exports = {
 			copyright: `Copyright © ${new Date().getFullYear()} Awe framework, Almis Informática S.L.`,
 		},
 		algolia: {
-			appId: 'G6FC3RBAES',
-			apiKey: 'bc4e0c0dd0883aac1d7ce0ae2dcb1ad8',
-			indexName: 'aweframework_awe',
+            appId: 'G6FC3RBAES',
+            apiKey: 'bc4e0c0dd0883aac1d7ce0ae2dcb1ad8',
+            indexName: 'aweframework_awe',
 			contextualSearch: true,
 		},
 		colorMode: {

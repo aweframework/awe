@@ -16,7 +16,10 @@ import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Query Class
@@ -203,19 +206,19 @@ public class Query implements XMLNode, Copyable {
     return getId();
   }
 
-  /**
-   * Retrieve field list
-   * @return field list
-   */
-  public List<Field> getFieldList() {
-    List<Field> fields = new ArrayList<>();
-    for (SqlField sqlField : getSqlFieldList()) {
-      if (sqlField instanceof Field) {
-        fields.add((Field) sqlField);
-      }
-    }
-    return fields;
-  }
+	/**
+	 * Retrieve field list
+	 *
+	 * @return field list
+	 */
+	public List<Field> getFieldList() {
+		return Optional.ofNullable(getSqlFieldList())
+				.orElse(Collections.emptyList())
+				.stream()
+				.filter(sqlField -> sqlField instanceof Field)
+				.map(Field.class::cast)
+				.collect(Collectors.toList());
+	}
 
   @Override
   public Query copy() {

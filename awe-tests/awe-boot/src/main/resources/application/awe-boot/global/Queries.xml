@@ -1388,7 +1388,7 @@
       <computed alias="value" format="[Prg2]"/>
     </compound>
     <compound alias="TxtSty">
-      <computed alias="cell-style" format="[Prg2] &lt; 0 ? 'text-danger' : ''" eval="true"/>
+      <computed alias="style" format="[Prg2] &lt; 0 ? 'text-danger' : ''" eval="true"/>
       <computed alias="label" format="[Prg2]" transform="NUMBER" pattern="###,##0.00"/>
       <computed alias="value" format="[Prg2]" transform="NUMBER" pattern="###,##0.00"/>
     </compound>

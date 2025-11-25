@@ -1,4 +1,14 @@
 
+# Changelog for AWE 4.11.5
+*25/11/2025*
+
+- **[HAS IMPACTS]** Change cell-style attribute on cells to style, to standarize in all cell components. [MR #602](https://gitlab.com/aweframework/awe/-/merge_requests/602) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Set validate-on-save default value to true. [MR #601](https://gitlab.com/aweframework/awe/-/merge_requests/601) (Pablo Javier García Mora)
+- Session expired don´t send 401 http error code. [MR #600](https://gitlab.com/aweframework/awe/-/merge_requests/600) (Pablo Vidal Otero)
+- Retrieve auto increments values. [MR #599](https://gitlab.com/aweframework/awe/-/merge_requests/599) (Pablo Vidal Otero)
+- Allow to select text inside the grids. [MR #598](https://gitlab.com/aweframework/awe/-/merge_requests/598) (Pablo Javier García Mora)
+- Bump version springdoc open api. [MR #597](https://gitlab.com/aweframework/awe/-/merge_requests/597) (Pablo Vidal Otero)
+
 # Changelog for AWE 4.11.4
 *31/10/2025*
 
@@ -6,6 +16,8 @@
 
 # Changelog for AWE 4.11.3
 *28/10/2025*
+
+- **[HAS IMPACTS]** Upgrade spring boot framework to 3.4. [MR #592](https://gitlab.com/aweframework/awe/-/merge_requests/592) (Pablo Vidal Otero)
 
 # Changelog for AWE 4.11.2
 *22/10/2025*
