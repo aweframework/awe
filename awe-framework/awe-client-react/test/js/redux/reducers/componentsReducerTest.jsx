@@ -151,13 +151,4 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
     });
   });
 
-  it('should launch after save row', function () {
-    const newState = components(state.components, {type: AFTER_SAVE_ROW, view: "base", address: {component: 'tutu', view: 'base'}});
-    expect(newState.tutu).toEqual({
-      address: {component: 'tutu', view: 'base'},
-      attributes: {},
-      model: {values: [{selected: false, value: "lalala", $row: {editing: false, editingRow: null}}], event: "after-save-row"}
-    });
-  });
-
 });

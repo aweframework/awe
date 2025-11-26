@@ -38,8 +38,6 @@ export const RESET_MULTIPLE_MODEL = 'RESET_MULTIPLE_MODEL';
 export const VALIDATE_COMPONENTS = 'VALIDATE_COMPONENTS';
 export const VALIDATE_ROW = 'VALIDATE_ROW';
 
-export const AFTER_SAVE_ROW = 'AFTER_SAVE_ROW';
-
 /*
  * action status
  */
@@ -175,8 +173,4 @@ export function resetModel(address, data) {
 
 export function resetMultipleModel(componentList) {
   return {type: RESET_MULTIPLE_MODEL, componentList};
-}
-
-export function afterSaveRow(address, data) {
-  return {type: AFTER_SAVE_ROW, address, data};
 }

@@ -14,8 +14,8 @@ import {getFirstDefinedValue} from "../utilities/general";
 
 function ColumnColor(props) {
   const {placeholder, required, readonly, style, data, attrs, address} = props;
-  const {style: cellStyle, value: cellValue, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle, value: cellValue} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
   const {t} = useTranslation();
   const dispatch = useDispatch();

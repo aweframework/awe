@@ -692,13 +692,17 @@ function updateCellModel(state, address, data) {
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   const newData = getCellModel(getFirstDefinedValue(data.values, values[rowIndex][address.column]), attributes.columnModel.find(column => column.name === address.column));
+  const rowData = values[rowIndex] || {};
+  const cellAttrs = rowData.$attrs?.[address.column] || {};
+  const {error, ...otherAttrs} = cellAttrs;
   return {
     ...state,
     [component]: {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {[address.column]: newData})
+        values: updateArrayElement(values, rowIndex, {[address.column]: newData,
+          $attrs: {...rowData.$attrs, [address.column]: otherAttrs}})
       }
     }
   };
@@ -1076,28 +1080,6 @@ function clearComponents(state, view) {
     .reduce((obj, entry) => ({...obj, [entry[0]]: entry[1]}), {});
 }
 
-function afterSaveRow(state, component) {
-  return {
-    ...state,
-    [component]: {
-      ...state[component],
-      model: {
-        ...state[component].model,
-        values: state[component].model.values.map(row => ({
-          ...row,
-          selected: false,
-          $row: {
-            ...(row.$row || {}),
-            editing: false,
-            editingRow: null,
-          }
-        })),
-        event: "after-save-row"
-      }
-    }
-  };
-}
-
 /**
  * Components reducer
  */
@@ -1167,8 +1149,6 @@ export function components(state = InitialState, action = {}) {
       return action.componentList.reduce((newState, _action) => validateComponent(newState, _action, action.settings), state);
     case VALIDATE_ROW:
       return validateRow(state, action.address, action.settings);
-    case AFTER_SAVE_ROW:
-      return afterSaveRow(state, memoizedGetComponentId(action.address));
     default:
       return state;
   }

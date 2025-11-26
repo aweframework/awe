@@ -18,8 +18,8 @@ import {getFirstDefinedValue} from "../utilities/general";
 
 function ColumnFilteredDate(props) {
   const { placeholder, required, readonly, data, attrs, align, style, address, model } = props;
-  const {style: cellStyle, value: cellValue, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle, value: cellValue} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
   const settings = useSelector(state => state.settings);
   const { t } = useTranslation();

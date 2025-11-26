@@ -8,8 +8,8 @@ import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
 
 function ColumnSelect(props) {
   const {placeholder, label, required, readonly, optional, model, data, attrs, style, address} = props;
-  const {style: cellStyle, value: cellValue, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle, value: cellValue} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
   const cellModel = useMemo( () => ({ values: (model?.values ?? [])
       .map(v => ({...v, selected: compareEqualValues(v.value, cellValue)}))}),

@@ -10,8 +10,8 @@ import {useDispatch} from "react-redux";
 
 function ColumnTextType(props) {
   const { placeholder, label, required, readonly, data, attrs, style, inputType, address } = props;
-  const {style: cellStyle, value: cellValue, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle, value: cellValue} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
 
   const [value, setValue] = useState(isEmpty(cellValue) ? "" : cellValue);
@@ -53,18 +53,24 @@ function ColumnTextType(props) {
     if (!writing && newValue !== value) {
       setValue(isEmpty(newValue) ? "" : newValue);
     }
-  }, [cellValue, writing, value]);
+  }, [cellValue, writing]);
 
-  const classes = classNames(style, cellStyle, {"p-invalid": error}, {"hidden": !visible});
+  // Force re-render when error changes
+  useEffect(() => {
+    // Este useEffect se ejecutará cada vez que error cambie
+    // No necesita hacer nada específico, solo asegurar el re-render
+  }, [error]);
 
-  return <div className={"column-editor"}>
+
+  const classes = classNames("column-editor", style, {"p-invalid": error}, {"hidden": !visible});
+  return <div className={classes}>
     <InputText
       value={value}
       type={inputType || "text"}
       placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
       required={getFirstDefinedValue(cellRequired, required, false)}
       disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
-      className={classNames("w-full", classes)}
+      className={classNames("w-full", cellStyle)}
       onChange={onChange}
       onBlur={onBlur}
       onKeyDown={onKeyDown}

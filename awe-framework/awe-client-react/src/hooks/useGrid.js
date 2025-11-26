@@ -97,16 +97,16 @@ export function useGrid(id) {
     cmRef.current?.show(data.originalEvent);
   }, []);
 
-  const contextMenuTemplate = useCallback(() => {
+  const contextMenuTemplate =() => {
     const { contextMenu = [] } = attributes;
     let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, address, components });
     if (contextMenuMapped.length > 0) {
       return <ContextMenu model={contextMenuMapped} ref={cmRef} breakpoint="767px" />;
     }
     return null;
-  }, [attributes, t, addActionsTop, address, components]);
+  };
 
-  const rowNumberColumnTemplate = useCallback((place, rowSpan, first, rows, rowNumbers) => {
+  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers) => {
     let maxWidth = String((first || 0) + (rows || 0)).length - 2;
     let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getWidthStyle(maxWidth) };
     if (rowNumbers) {
@@ -120,9 +120,9 @@ export function useGrid(id) {
       />;
     }
     return null;
-  }, []);
+  };
 
-  const multiselectColumnTemplate = useCallback((place, rowSpan, multiselect) => (
+  const multiselectColumnTemplate = (place, rowSpan, multiselect) => (
     multiselect ? <Column
       key={`multiselect-${place}`}
       field={`multiselect-${place}`}
@@ -131,9 +131,9 @@ export function useGrid(id) {
       footer={null}
       style={{ textAlign: "center", ...getWidthStyle(null, null, '40px') }}
     /> : null
-  ), []);
+  );
 
-  const operationColumnTemplate = useCallback((place, rowSpan, multioperation) => (
+  const operationColumnTemplate = (place, rowSpan, multioperation) => (
     multioperation ? <Column key={`operation-${place}`} field={`operation-${place}`} rowSpan={rowSpan}
                              headerStyle={getWidthStyle(null, null, '32px')}
                              bodyStyle={getWidthStyle(null, null, '32px')}
@@ -141,16 +141,16 @@ export function useGrid(id) {
                              footer={null}
                              body={rowData => <i role={rowData?.$row?.operation}
                                                  className={OperationIcon[rowData?.$row?.operation]} />}/> : null
-  ), []);
+  );
 
-  const columnTemplate = useCallback((col, rowSpan, enableFilters) => {
+  const columnTemplate = (col, rowSpan, enableFilters) => {
     const { name, sortField, label, charlength, width, sortable } = col;
     return <Column key={name} field={sortField || name} header={translateLabel(label, t)}
                    style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
                    sortable={sortable} rowSpan={rowSpan} filter={enableFilters}/>;
-  }, [t]);
+  };
 
-  const headerColumnTemplate = useCallback((col) => {
+  const headerColumnTemplate = (col) => {
     const { startColumnName, label, numberOfColumns } = col;
     return <Column
       key={startColumnName}
@@ -159,9 +159,9 @@ export function useGrid(id) {
       style={{ textAlign: "center" }}
       colSpan={numberOfColumns}
     />;
-  }, [t]);
+  };
 
-  const editorColumnTemplate = useCallback((place, forBody, rowSpan, editable, multioperation) => {
+  const editorColumnTemplate = (place, forBody, rowSpan, editable, multioperation) => {
     if (editable || multioperation) {
       if (forBody) {
         return <Column
@@ -183,9 +183,9 @@ export function useGrid(id) {
       }
     }
     return null;
-  }, [cancelRow, editRow, saveRow]);
+  };
 
-  const getHeader = useCallback(() => {
+  const getHeader = () => {
     const { headerModel = [], columnModel = [] } = attributes;
     const visibleColumns = columnModel.filter(col => !col.hidden);
     let headerColumns = [];
@@ -203,46 +203,46 @@ export function useGrid(id) {
       columns: [...headerColumns, ...visibleColumns.slice(index)],
       grouped: groupedColumns
     };
-  }, [attributes]);
+  };
 
-  const footerColumnTemplate = useCallback((column) => {
+  const footerColumnTemplate = (column) => {
     const { values = [] } = model;
     const { charlength, width, align } = column;
     return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"}
                    footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width) }}
                    footer={calculateFooterValue(column, values)?.label}/>;
-  }, [model]);
+  };
 
-  const cellTemplate = useCallback((rowData, column) => {
+  const cellTemplate = (rowData, column) => {
     const gridId = getGridIdentifier(attributes);
     return Columns({
       ...attributes.columnModel.find(c => c.name === column),
       address: { ...address, column, row: rowData[gridId] }
     }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing);
-  }, [attributes, updateModelWithDependencies, updateAttributes, addActionsTop, address, t, settings, components]);
+  };
 
-  const buttonsTemplate = useCallback(() => {
+  const buttonsTemplate = () => {
     const { buttonModel = [] } = attributes;
     return buttonModel.map((button, index) => React.createElement(AweButton, {
       ...button, key: button.id || `component-${index}`
     }));
-  }, [attributes]);
+  };
 
-  const preColumnTemplates = useCallback((place, rowSpan, specific) => {
+  const preColumnTemplates = (place, rowSpan, specific) => {
     // specific includes first, rows, rowNumbers, multiselect flags
     return [
       multiselectColumnTemplate(place, rowSpan, specific?.multiselect),
       rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers)
     ].filter(e => !isEmpty(e));
-  }, [multiselectColumnTemplate, rowNumberColumnTemplate]);
+  };
 
-  const postColumnTemplates = useCallback((place, rowSpan, forBody = false, editable, multioperation) => {
+  const postColumnTemplates = (place, rowSpan, forBody = false, editable, multioperation) => {
     return [
       operationColumnTemplate(place, rowSpan, multioperation),
       editorColumnTemplate(place, forBody, rowSpan, editable, multioperation),
       <Column key={`filler-${place}`} field={`filler-${place}`} rowSpan={rowSpan}/>
     ].filter(e => !isEmpty(e));
-  }, [operationColumnTemplate, editorColumnTemplate]);
+  };
 
   return useMemo( () => ({
     t,

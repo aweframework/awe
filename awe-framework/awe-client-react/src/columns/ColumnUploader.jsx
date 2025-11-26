@@ -22,8 +22,8 @@ const {INITIAL, UPLOADING, UPLOADED} = UploadStatus;
 
 function ColumnUploader(props) {
   const { address, placeholder, readonly, data, attrs, style, destination } = props;
-  const {style: cellStyle, value: cellValue, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle, value: cellValue} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
 
   const settings = useSelector(state => state.settings);

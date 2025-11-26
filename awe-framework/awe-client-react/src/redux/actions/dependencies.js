@@ -126,7 +126,7 @@ function getComponent(componentId, components) {
       }), {}),
       attributes: groupComponents.map(component => component.attributes).reduce((all, attributes) => ({...all, ...attributes}), {}),
       model: {values: groupComponents.map(component => component.model.values).flat()}
-    }
+    };
   } else {
     return components[componentId];
   }
@@ -393,7 +393,7 @@ function retrieveSource(dependency, component, result, force, state, dispatchAct
  */
 function retrieveQuerySource(result, target, dependency, component, state, dispatchActions) {
   let values = {...result.values};
-  const {address} = component;
+  const {address} = dependency;
   if (result.launch) {
     switch (target) {
       case "label":
@@ -571,6 +571,7 @@ function applyTarget(dependency, component, value, result) {
  */
 function executeDependency(dependency, component, result, state) {
   // Log executing dependency
+  const {address} = dependency;
   let dispatchActions = [];
   let dependencyString = result.string.join(` ${dependency.type || "and"} `);
   dependencyString = dependency.invert ? `!(${dependencyString})` : dependencyString;
@@ -578,7 +579,7 @@ function executeDependency(dependency, component, result, state) {
 
   // Launch dependency actions
   if (dependency.actions?.length > 0 && result.launch) {
-    dispatchActions.push({addActions: dependency.actions?.map(action => ({...action, address: component.address}))});
+    dispatchActions.push({addActions: dependency.actions?.map(action => ({...action, address}))});
   }
 
   // Check force by target

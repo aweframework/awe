@@ -1,6 +1,7 @@
 .column-editor {
   width: 100%;
   text-align: left;
+  position: relative;
   .p-inputnumber-input {
     width: 100%;
   }
@@ -21,9 +22,13 @@
     font-size: 1.5em;
     line-height: 1.5em;
     position: absolute;
-    padding-left: 4px;
+    padding-right: 4px;
+    right: 0;
+  }
+  &.p-dropdown::before {
     right: 1.5em;
   }
+
 
   &:focus-within {
     &::before {
