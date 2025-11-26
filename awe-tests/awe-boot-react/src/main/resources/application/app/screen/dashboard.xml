@@ -9,6 +9,11 @@
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window"
         label="MENU_DASHBOARD" help="HELP_MENU_DASHBOARD">
+    <tag source="buttons">
+        <button id="testChart" label="PARAMETER_TEXT" icon="eraser" button-type="button">
+            <button-action type="filter" target="fundProfitabilityChart"/>
+        </button>
+    </tag>
     <tag source="center" expandible="vertical">
         <tag type="div" style="expand" expandible="horizontal">
             <window label="PARAMETER_TEXT" icon="mdi:analytics" style="expand" help="PARAMETER_TEXT">
