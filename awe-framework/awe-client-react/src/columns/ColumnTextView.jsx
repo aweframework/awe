@@ -18,7 +18,6 @@ function ColumnTextView(props) {
   const {style, title, label, value} = data;
   const icon = data.icon || propIcon || undefined;
   const unit = data.unit || propUnit || null;
-  const classes = classNames("text-view", style);
 
   const onAction = (event) => {
     // Change event
@@ -32,9 +31,9 @@ function ColumnTextView(props) {
   const onKeyDown = () => onAction("keyDown");
 
   return (
-    <button className={classes} title={translateLabel(title || label, t)} onClick={onClick} onKeyDown={onKeyDown}>
-      <span className={"text-view-icon"}>{getIconCode(icon, "fa-fw")}</span>
-      <span className={"text-view-text"} style={{textAlign: align}}>{getVisibleTextData(label || value, t)}</span>
+    <button className={classNames("text-view", style)} title={translateLabel(title || label, t)} onClick={onClick} onKeyDown={onKeyDown}>
+      <span className={classNames("text-view-icon", style)}>{getIconCode(icon, "fa-fw")}</span>
+      <span className={classNames("text-view-text", style)} style={{textAlign: align}}>{getVisibleTextData(label || value, t)}</span>
       {unit && <Badge value={translateLabel(unit, t)} severity="secondary" style={{justifyContent: "center"}}/>}
     </button>
   );

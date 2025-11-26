@@ -1,7 +1,7 @@
 import React from 'react';
 import {ComponentList, IGNORE_COMPONENT_LIST} from "../components/AweComponents";
 import {CriteriaList} from "../criteria/AweCriteria";
-import {getComponentId} from "./components";
+import {getComponentId, classNames} from "./components";
 import {Editor, Static} from "../columns/AweColumns";
 import parse from "html-react-parser";
 import {extractCellModel} from "./grid";
@@ -93,6 +93,8 @@ export const Columns = (node, data = {}, attrs = {}, editing = false) => {
       attrs
     });
   }
-  const visibleValue = getFirstDefinedAndNotNullValue(fixedData.label, fixedData.value, "");
-  return <span className="p-cell-text white-space-nowrap p-text-truncate" title={visibleValue}>{parse(String(visibleValue))}</span>;
+  const {label, value, style} = fixedData;
+  const visibleValue = getFirstDefinedAndNotNullValue(label, value, "");
+  const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate", style);
+  return <span className={className} title={visibleValue}>{parse(String(visibleValue))}</span>;
 };
