@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import Highcharts from 'highcharts/highstock';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import HighchartsDrilldown from 'highcharts/modules/drilldown';
@@ -70,7 +70,7 @@ const FORMATTERS = {
  * @returns chartOptions with labels translated
  * @memberOf AweChart
  */
-function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, animating) {
+function processChartOptions(chartOptions, model, t, settings) {
   return produce(chartOptions, draft => {
     const {title, subtitle, legend, series, drilldown} = draft;
 
@@ -118,25 +118,12 @@ function processChartOptions(chartOptions, model, t, settings, onAnimationEnd, a
           data: [...getSerieData(serie, model)],
         }))
       };
+    }
 
-      // Disabled allow point selection in Pies
-      if (draft.plotOptions.pie) {
-        draft.plotOptions.pie.allowPointSelect = false;
-      }
-
-      // Animation end
-      const plotOptions = (draft.plotOptions || {});
-      if (animating) {
-        draft.plotOptions = {
-          ...plotOptions,
-          series: {...(plotOptions.series || {}), events: {afterAnimate: onAnimationEnd}}
-        };
-      } else {
-        draft.plotOptions = {
-          ...plotOptions,
-          series: {...(plotOptions.series || {}), events: {afterAnimate: () => null}}
-        };
-      }
+    // Disabled allow point selection in Pies
+    if (draft.plotOptions?.pie) {
+      draft.plotOptions.pie.allowPointSelect = false;
+      draft.plotOptions.pie.animation = false;
     }
   });
 }
@@ -231,6 +218,12 @@ function AweChart(props) {
     chartRef.current = chart;
     redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
     activeRef.current = true;
+
+    chart.series.forEach(series => {
+      Highcharts.addEvent(series, "afterAnimate", () => {
+        onAnimationEnd();
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -250,7 +243,7 @@ function AweChart(props) {
   });
 
   const chartOptions = JSON.parse(JSON.stringify(
-    processChartOptions(attributes.chartModel, model.values, t, {...settings, language: i18n.language}, onAnimationEnd, animating)
+    processChartOptions(attributes.chartModel, model.values, t, {...settings, language: i18n.language})
   ));
 
   const { style, visible } = attributes;
