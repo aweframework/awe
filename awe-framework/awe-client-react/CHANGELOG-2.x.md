@@ -1,4 +1,12 @@
 
+# Changelog for AWE React 2.0.5
+*26/11/2025*
+
+- Cell style in regular grids. [MR #132](https://gitlab.com/aweframework/awe-react/-/merge_requests/132) (Pablo Javier García Mora)
+- Refresh issue with chart components. [MR #130](https://gitlab.com/aweframework/awe-react/-/merge_requests/130) (Pablo Javier García Mora)
+- unique action not working. [MR #129](https://gitlab.com/aweframework/awe-react/-/merge_requests/129) (Pablo Javier García Mora)
+- Add 'autorefresh' functionality to grids. [MR #125](https://gitlab.com/aweframework/awe-react/-/merge_requests/125) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.4
 *20/11/2025*
 
