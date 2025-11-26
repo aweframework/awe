@@ -1,6 +1,6 @@
 import {generateMessageAction, getActionAddress, getComponent, translateLabel} from "../../utilities";
 import {acceptAction, addActionsTop, rejectAction} from "../actions/actions";
-import {afterSaveRow, updateAttributes, updateSpecificAttributes} from "../actions/components";
+import {updateAttributes, updateSpecificAttributes} from "../actions/components";
 import {updateModelWithDependencies} from "./components";
 import {compareEqualValues} from "../../utilities/general";
 import {extractCellValue, getGridIdentifier, getRow, OperationType, RowPositionType} from "../../utilities/grid";
@@ -277,7 +277,7 @@ function checkEditingRow(dispatch, getState, action) {
     // Verificar si la validación fue exitosa
     const validatedRow = getComponent(getState().components, address).model.values.find(row => row.$row?.editing);
 
-    if (errorsInValidatedRow(getState, address)) {
+    if (errorsInValidatedRow(validatedRow)) {
       // Si hay errores de validación, rechazar la acción
       dispatch(rejectAction(action));
       return false;
@@ -287,13 +287,8 @@ function checkEditingRow(dispatch, getState, action) {
   return true;
 }
 
-function errorsInValidatedRow(getState, address) {
-  const {components = {}} = getState();
-  const component = getComponent(components, address);
-  const {model = {}} = component;
-  const {values = []} = model;
-  const validatedRow = values.find(row => row.$row?.editing);
-  const cellErrors = Object.values(validatedRow).filter(cell => cell?.error);
+function errorsInValidatedRow(validatedRow) {
+  const cellErrors = Object.values(validatedRow.$attrs || {}).filter(cell => cell?.error);
   return cellErrors.length > 0;
 }
 
@@ -514,8 +509,19 @@ export const saveRowGridAction = (action) => {
       }))
     }));
 
-    // Remove save row event
-    dispatch(afterSaveRow(address, {}));
+    // After save row event
+    dispatch(updateModelWithDependencies(address, {
+      event: "after-save-row",
+      values: values.map(item => ({
+        ...item,
+        selected: false,
+        $row: {
+          ...(item.$row || {}),
+          editing: false,
+          editingRow: null,
+        }
+      }))
+    }));
   };
 };
 
@@ -630,7 +636,7 @@ export const verifyRowValidationGridAction = (action) => {
     const address = getActionAddress(action);
     const component = getComponent(components, {component: address.component, view: address.view});
     // Check if validation has been successful
-    if (Object.values(getRow(component, address.row)).filter(cell => cell?.error).length) {
+    if (errorsInValidatedRow(getRow(component, address.row))) {
       // If there are errors, reject action
       dispatch(rejectAction(action));
     } else {

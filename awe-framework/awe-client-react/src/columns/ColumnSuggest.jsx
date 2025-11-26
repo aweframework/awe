@@ -10,8 +10,8 @@ import {getFirstDefinedValue} from "../utilities/general";
 function ColumnSuggest(props) {
 
   const { placeholder, label, style, required, readonly, model, data, attrs, timeout } = props;
-  const {style: cellStyle, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
   const classes = classNames(style, cellStyle, "column-editor", {"p-invalid": error}, {"hidden": !visible});
   const {t} = useTranslation();

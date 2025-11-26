@@ -7,7 +7,7 @@ import {
 import {toDate} from "../../utilities/dates";
 import validateDate from "validate-date";
 import {getComponentId} from "../../utilities/components";
-import {extractCellValue, getCellModel} from "../../utilities/grid";
+import {extractCellValue, getCellModel, getGridIdentifier} from "../../utilities/grid";
 import {isEmpty} from "../../utilities/general";
 
 const patterns = {
@@ -347,7 +347,8 @@ export function validateRow(state, address, settings) {
   const {model} = state[gridId];
   const {values} = model;
   let columns = grid.attributes.columnModel?.filter(column => column.component) ?? [];
-  let rowIndex = values.findIndex((row) => String(row.id) === String(address.row));
+  let rowIndex = values.findIndex((row) => String(row[getGridIdentifier(grid.attributes)]) === String(address.row));
+  const rowAttrs = values[rowIndex]?.$attrs ?? {};
   return {
     ...state,
     [gridId]: {
@@ -361,9 +362,19 @@ export function validateRow(state, address, settings) {
             ...columns.reduce((prev, column) => ({...prev,
               [column.name]: {
                 ...getCellModel(values[rowIndex][column.name], column),
-                error: checkIfValid({...column, attributes: column}, extractCellValue(values[rowIndex][column.name]), state, settings)
+                valid: !!((rowAttrs?.[column.name]?.error) ?? checkIfValid({...column, attributes: column}, extractCellValue(values[rowIndex][column.name]), state, settings))
               }
-            }), {})
+            }), {}),
+            $attrs: {
+              ...rowAttrs,
+              ...columns.reduce((prev, column) => ({...prev,
+                [column.name]: {
+                  ...(rowAttrs?.[column.name] ?? {}),
+                  error: (rowAttrs?.[column.name]?.error) ??
+                    checkIfValid({...column, attributes: (rowAttrs?.[column.name] ?? {})}, extractCellValue(values[rowIndex][column.name]), state, settings)
+                }
+              }), {})
+            },
           },
           ...values.slice(rowIndex + 1, values.length)
         ]

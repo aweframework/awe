@@ -11,8 +11,8 @@ import {getFirstDefinedValue} from "../utilities/general";
 
 function ColumnNumeric(props) {
   const { placeholder, required, readonly, data, attrs, numberFormat, align, style, address } = props;
-  const {style: cellStyle, value: cellValue, error = null} = data;
-  const {readonly: cellReadonly, validationRules = {}, visible = true} = attrs;
+  const {style: cellStyle, value: cellValue} = data;
+  const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -24,8 +24,8 @@ function ColumnNumeric(props) {
   }, [cellValue, address, dispatch]);
 
   const { maxFractionDigits, minFractionDigits, min, max, suffix, locale } = translateNumberFormat(numberFormat);
-  const classes = classNames(style, cellStyle, { "p-invalid": error }, {"hidden": !visible});
-  return <div className={"column-editor"}>
+  const classes = classNames("column-editor", style, { "p-invalid": error }, {"hidden": !visible});
+  return <div className={classes}>
     <InputNumber
       value={cellValue}
       mode="decimal"
@@ -38,7 +38,7 @@ function ColumnNumeric(props) {
       min={min}
       max={max}
       suffix={suffix}
-      className={classes}
+      className={classNames(cellStyle)}
       invalid={error}
       inputStyle={{ textAlign: align || "right" }}
       onValueChange={onChange}
