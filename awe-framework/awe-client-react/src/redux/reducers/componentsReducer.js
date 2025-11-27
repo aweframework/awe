@@ -1011,27 +1011,37 @@ function getRestoreModelComponent(state, component) {
  * Reset model
  * @param {Object} state
  * @param {Object} address
- * @param {Object} data
  * @return {Object} updated state
  */
-function resetModel(state, address, data) {
-  if (isGrid(state[memoizedGetComponentId(address)])) {
-    return {
-      ...state,
-      [address.component]: {
-        ...state[address.component],
-        model: {
-          ...state[address.component].model,
-          values: [],
-          page: 1,
-          total: 1,
-          records: 0
-        }
-      }
-    };
+function resetModel(state, address) {
+  let emptyModel = {values: []};
+  if (!isGrid(state[memoizedGetComponentId(address)])) {
+    emptyModel = {
+      values: (state[memoizedGetComponentId(address)]?.model?.values || []).map(value => ({...value, selected: false}))};
   } else {
-    return updateSelected(state, address, {selected: (state[address.component].model?.defaultValues || []), event: "reset"});
+    emptyModel = {
+      values: [],
+      page: 1,
+      total: 1,
+      records: 0
+    };
   }
+  return {
+    ...state,
+    [address.component]: {
+      ...state[address.component],
+      attributes: {
+        ...state[address.component].attributes,
+        error: null
+      },
+      model: {
+        ...state[address.component].model,
+        ...emptyModel,
+        event: "reset",
+        changed: true,
+      }
+    }
+  };
 }
 
 /**

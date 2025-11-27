@@ -119,8 +119,8 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     // After reset, selected should reflect defaultValues, changed true and event 'reset'
     const c1Values = next.c1.model.values;
     const c2Values = next.c2.model.values;
-    expect(c1Values.find(v => v.value === 'A').selected).toBe(true);
-    expect(c2Values.find(v => v.value === 'B').selected).toBe(true);
+    expect(c1Values.find(v => v.value === 'A').selected).toBe(false);
+    expect(c2Values.find(v => v.value === 'B').selected).toBe(false);
     expect(next.c1.model.changed).toBe(true);
     expect(next.c2.model.changed).toBe(true);
     expect(next.c1.model.event).toBe('reset');
