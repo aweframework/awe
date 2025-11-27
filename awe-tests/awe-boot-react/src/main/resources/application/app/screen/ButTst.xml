@@ -14,6 +14,9 @@
     <button button-type="button" id="ButSetVa3" label="BUTTON_SET_VALUE3" icon="calculator" value="Valor3" />
     <button button-type="button" id="ButSetVa2" label="BUTTON_SET_VALUE2" icon="calculator" value="Valor2" />
     <button button-type="button" id="ButSetVa1" label="BUTTON_SET_VALUE1" icon="calculator" value="Valor1" />
+    <button button-type="button" label="BUTTON_RESET" icon="eraser" id="ButRst">
+      <button-action type="reset" target="ButSel" />
+    </button>
     <button button-type="button" label="BUTTON_CONFIRM_EMPTY" icon="save" id="ButCnfEmp">
       <button-action type="confirm-empty-data" />
       <button-action type="validate" />

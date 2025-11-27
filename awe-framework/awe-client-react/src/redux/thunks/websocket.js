@@ -26,7 +26,7 @@ const handleWebSocketClose = (evn, t, dispatch, client) => {
               message: translateLabel("ERROR_MESSAGE_SESSION_EXPIRED", t)
             }
           },
-          {type: "screen", target: "", force: true, parameters: {}},
+          {type: "screen", target: "/", force: true, parameters: {}},
         ]));
       }
       break;
