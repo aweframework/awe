@@ -56,10 +56,15 @@ function MessageContainer() {
   };
 
   useEffect(() => {
-    if (messages.showing.length > 0) {
-      messageRef.current?.show?.(messages.showing);
+    if (messages.showing && messages.showing.length > 0) {
+      const newMessages = messages.showing.filter(msg => !msg.show);
+      if (newMessages.length > 0) {
+        messageRef.current?.show?.(newMessages);
+        dispatch(showMessagesAction(newMessages));
+      }
     }
   }, [messages.showing]);
+
 
   const {title, message, visible = true} = confirm ?? {visible: false};
   return <>
