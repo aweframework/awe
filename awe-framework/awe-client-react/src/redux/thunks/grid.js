@@ -1,10 +1,17 @@
-import {generateMessageAction, getActionAddress, getComponent, translateLabel} from "../../utilities";
+import {
+  generateMessageAction,
+  getActionAddress,
+  getComponent,
+  getGridAndValues,
+  translateLabel
+} from "../../utilities";
 import {acceptAction, addActionsTop, rejectAction} from "../actions/actions";
 import {updateAttributes, updateSpecificAttributes} from "../actions/components";
 import {updateModelWithDependencies} from "./components";
 import {compareEqualValues} from "../../utilities/general";
 import {extractCellValue, getGridIdentifier, getRow, OperationType, RowPositionType} from "../../utilities/grid";
 import {validateRow} from "./validate";
+import {setRuntimeEvent} from "../actions/runtime";
 const { BEFORE, AFTER, FIRST, LAST, CHILD } = RowPositionType;
 const { INSERT, UPDATE, DELETE } = OperationType;
 let addedRows = 0;
@@ -484,10 +491,8 @@ export const editRowGridAction = (action) => {
 
 export const saveRowGridAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
     const address = getActionAddress(action);
-    const component = getComponent(components, address);
-    const {values} = component.model;
+    const {component, values} = getGridAndValues(getState, address);
     const editingRow = values.find(row => row.$row?.editing) || {};
     const gridId = getGridIdentifier(component.attributes);
 
@@ -510,9 +515,10 @@ export const saveRowGridAction = (action) => {
     }));
 
     // After save row event
+    const {values: newValues} = getGridAndValues(getState, address);
     dispatch(updateModelWithDependencies(address, {
       event: "after-save-row",
-      values: values.map(item => ({
+      values: newValues.map(item => ({
         ...item,
         selected: false,
         $row: {
@@ -527,10 +533,8 @@ export const saveRowGridAction = (action) => {
 
 export const cancelRowGridAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
     const address = getActionAddress(action);
-    const component = getComponent(components, address);
-    const {values} = component.model;
+    const {component, values} = getGridAndValues(getState, address);
     const editingRow = values.find(row => row.$row?.editing)?.$row?.editingRow || {};
     const gridId = getGridIdentifier(component.attributes);
 
@@ -648,12 +652,10 @@ export const verifyRowValidationGridAction = (action) => {
 
 export const toggleBranchGridAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
     const address = getActionAddress(action);
     const {rows = []} = action.parameters?.datalist || {};
-    const component = getComponent(components, address);
-    const {attributes, model} = component;
-    const {values} = model;
+    const {component, values} = getGridAndValues(getState, address);
+    const {attributes} = component;
     const {loadAll} = attributes;
     const {row} = action.parameters;
     const gridId = getGridIdentifier(component.attributes);

@@ -51,11 +51,11 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
       const innerDispatch = jasmine.createSpy("innerDispatch");
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel], [setRuntimeEvent]] = innerDispatch.calls.allArgs();
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel.type).toBe('UPDATE_MODEL');
-      expect(updateModel.data.event).toBe('select-row');
+      expect(setRuntimeEvent.type).toBe('SET_RUNTIME_EVENT');
       expect(updateModel.data.selected).toEqual([{ id: 2 }]);
     });
   });
@@ -73,10 +73,10 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
       const innerDispatch = jasmine.createSpy("innerDispatch");
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel], [setEvent]] = innerDispatch.calls.allArgs();
 
       expect(updateModel.type).toBe('UPDATE_MODEL');
-      expect(updateModel.data.event).toBe('select-row');
+      expect(setEvent.event).toBe('select-row');
 
       const selected = updateModel.data.values.filter(r => r.selected);
       expect(selected.length).toBe(1);
@@ -183,12 +183,12 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       const [[updateModel1]] = innerDispatch1.calls.allArgs();
       const innerDispatch2 = jasmine.createSpy("innerDispatch2");
       updateModelWithDependencies2(innerDispatch2, getState);
-      const [[updateModel2]] = innerDispatch2.calls.allArgs();
+      const [[updateModel2], [addEvent]] = innerDispatch2.calls.allArgs();
 
       expect(updateModel1.type).toBe('UPDATE_MODEL'); // add-row
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel2.type).toBe('UPDATE_MODEL');
-      expect(updateModel2.data.event).toBe('after-add-row');
+      expect(addEvent.type).toBe('SET_RUNTIME_EVENT');
     });
   });
 

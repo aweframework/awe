@@ -108,8 +108,8 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch.calls.count()).toBeGreaterThanOrEqual(2);
 
       // Verificar que hay una llamada con event: ""
-      const [[updateModel], [updateModelReset]] = dispatch.calls.allArgs();
-      const hasEventReset = updateModelReset.type === 'UPDATE_MODEL' && updateModelReset?.data?.event === '';
+      const [[updateModel], [changeEvent], [clearRuntimeEvent]] = dispatch.calls.allArgs();
+      const hasEventReset = clearRuntimeEvent.type === 'CLEAR_RUNTIME_EVENT';
       expect(hasEventReset).toBe(true);
     });
   });

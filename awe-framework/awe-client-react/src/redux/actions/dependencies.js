@@ -8,7 +8,7 @@ import {
   updateMultipleValidation
 } from "./components";
 
-import {addActionsTop} from "./actions";
+import { addActionsTop } from "./actions";
 import {
   asArray,
   componentValue,
@@ -16,7 +16,7 @@ import {
   generateAddress,
   generateServerAction
 } from "../../utilities";
-import {getDependencyComponentId, getTriggerId} from "../../utilities/components";
+import { getDependencyComponentId, getTriggerId } from "../../utilities/components";
 import {
   getCellAttribute,
   getCellValue,
@@ -26,7 +26,7 @@ import {
   getGridIdentifier, getRowIndex,
   getSelectedRowIndex
 } from "../../utilities/grid";
-import {compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell} from "../../utilities/general";
+import { compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell } from "../../utilities/general";
 
 /**
  * Manage action list
@@ -52,19 +52,19 @@ const VALUE_NONE = "[[ NONE ]]";
 const DEPENDENCY_VALUES = {};
 
 const ConditionTest = {
-  "eq": (v1, v2, def) => ({"test": compareEqualValues(v1, v2), "string": def}),
-  "ne": (v1, v2, def) => ({"test": !compareEqualValues(v1, v2), "string": def}),
-  "ge": (v1, v2, def) => ({"test": v1 >= v2, "string": def}),
-  "le": (v1, v2, def) => ({"test": v1 <= v2, "string": def}),
-  "gt": (v1, v2, def) => ({"test": v1 > v2, "string": def}),
-  "lt": (v1, v2, def) => ({"test": v1 < v2, "string": def}),
+  "eq": (v1, v2, def) => ({ "test": compareEqualValues(v1, v2), "string": def }),
+  "ne": (v1, v2, def) => ({ "test": !compareEqualValues(v1, v2), "string": def }),
+  "ge": (v1, v2, def) => ({ "test": v1 >= v2, "string": def }),
+  "le": (v1, v2, def) => ({ "test": v1 <= v2, "string": def }),
+  "gt": (v1, v2, def) => ({ "test": v1 > v2, "string": def }),
+  "lt": (v1, v2, def) => ({ "test": v1 < v2, "string": def }),
   "in": (v1, v2, def) => ({
     "test": (_.isString(v2) ? v2.split(",") : asArray(v2)).includes(v1),
     "string": def
   }),
-  "is not false": (v1) => ({"test": Boolean(v1), "string": `'${v1}' is not false`}),
-  "is empty": (v1) => ({"test": isEmpty(v1), "string": `'${v1}' is empty`}),
-  "is not empty": (v1) => ({"test": !isEmpty(v1), "string": `'${v1}' is not empty`})
+  "is not false": (v1) => ({ "test": Boolean(v1), "string": `'${v1}' is not false` }),
+  "is empty": (v1) => ({ "test": isEmpty(v1), "string": `'${v1}' is empty` }),
+  "is not empty": (v1) => ({ "test": !isEmpty(v1), "string": `'${v1}' is not empty` })
 };
 
 
@@ -124,8 +124,8 @@ function getComponent(componentId, components) {
         ...all, ...address,
         component: componentId
       }), {}),
-      attributes: groupComponents.map(component => component.attributes).reduce((all, attributes) => ({...all, ...attributes}), {}),
-      model: {values: groupComponents.map(component => component.model.values).flat()}
+      attributes: groupComponents.map(component => component.attributes).reduce((all, attributes) => ({ ...all, ...attributes }), {}),
+      model: { values: groupComponents.map(component => component.model.values).flat() }
     };
   } else {
     return components[componentId];
@@ -152,7 +152,16 @@ function getAttribute(trigger, state) {
 
   // First, check event
   if (trigger.event) {
-    return trigger.event === component.model.event;
+    const runtime = state.runtime;
+    const lastEvent = runtime?.lastEvent;
+    const { event, address: eventAddress = {}} = lastEvent ?? {};
+
+    // Check if the event matches the component
+    const isSameComponent = eventAddress.component === component.address.component;
+    //const isSameRow = !component.address.row || !eventAddress.row || eventAddress.row === component.address.row;
+    //const isSameColumn = !component.address.column || !eventAddress.column || eventAddress.column === component.address.column;
+
+    return isSameComponent && /*isSameRow && isSameColumn && */ trigger.event === event;
   }
 
   // Else, check attributes
@@ -305,7 +314,7 @@ function evaluateTrigger(trigger, component, state) {
     }
     return test;
   } else {
-    return {test: false, string: `invalid condition: ${condition}`};
+    return { test: false, string: `invalid condition: ${condition}` };
   }
 }
 
@@ -327,13 +336,13 @@ function evaluateDependency(dependency, component, state) {
 
   // Lazy evaluation. On first failed check of and/or evaluation, return
   (dependency.elements || []).forEach((trigger, index) => {
-    let triggerResult = evaluateTrigger({...trigger, row: dependency.address?.row}, component, state);
+    let triggerResult = evaluateTrigger({ ...trigger, row: dependency.address?.row }, component, state);
     result.launch = check(result.launch, triggerResult.test);
     result.values[getTriggerId(trigger, dependency, index)] = triggerResult.value;
     result.string.push(triggerResult.string);
 
     // Don`t trigger if a high priority trigger is not achieved
-    if (trigger.cancel && !triggerResult.test) return {...result, launch: false};
+    if (trigger.cancel && !triggerResult.test) return { ...result, launch: false };
 
     // Lazy evaluation
     if (!result.launch && dependency.type === "and") return result;
@@ -392,8 +401,8 @@ function retrieveSource(dependency, component, result, force, state, dispatchAct
  * @param {Object[]} dispatchActions Dispatch function
  */
 function retrieveQuerySource(result, target, dependency, component, state, dispatchActions) {
-  let values = {...result.values};
-  const {address} = dependency;
+  let values = { ...result.values };
+  const { address } = dependency;
   if (result.launch) {
     switch (target) {
       case "label":
@@ -422,12 +431,12 @@ function retrieveQuerySource(result, target, dependency, component, state, dispa
     values[state.settings.targetActionKey] = dependency[state.settings.targetActionKey];
 
     // Launch action list
-    const {async, silent} = dependency;
+    const { async, silent } = dependency;
     dispatchActions.push({
       addActions: [generateServerAction({
-          ...values,
-          screen: state.view[state.view.view].name
-        },
+        ...values,
+        screen: state.view[state.view.view].name
+      },
         values.type || values[state.settings.serverActionKey] || "data",
         values[state.settings.targetActionKey], address, async, silent, state.settings)]
     });
@@ -436,11 +445,11 @@ function retrieveQuerySource(result, target, dependency, component, state, dispa
     switch (target) {
       case "format-number":
         // Restore numberFormat
-        dispatchActions.push({restoreAttributes: {address, data: "numberFormat"}});
+        dispatchActions.push({ restoreAttributes: { address, data: "numberFormat" } });
         break;
       case "validate":
         // Restore validation
-        dispatchActions.push({restoreValidation: {address}});
+        dispatchActions.push({ restoreValidation: { address } });
         break;
       default:
     }
@@ -457,9 +466,9 @@ function retrieveQuerySource(result, target, dependency, component, state, dispa
  */
 function applyTarget(dependency, component, value, result) {
   let target = getFirstDefinedAndNotNullValue(dependency.target, "none");
-  const {address} = dependency;
-  const {launch} = result;
-  const {row, ...addressWithoutRow} = address;
+  const { address } = dependency;
+  const { launch } = result;
+  const { row, ...addressWithoutRow } = address;
 
   // Launch can be false only on not filtered cases
   switch (`${target}-${launch}`) {
@@ -473,87 +482,87 @@ function applyTarget(dependency, component, value, result) {
 
     case "unit-true":
     case "icon-true":
-      return {updateAttributes: {address, data: {[target]: value}}};
+      return { updateAttributes: { address, data: { [target]: value } } };
 
     case "label-true":
-      return {updateAttributes: {address, data: {[target]: value}}};
+      return { updateAttributes: { address, data: { [target]: value } } };
 
     case "chart-options-true":
-      return {updateAttributes: {address, data: {chartModel: value}}};
+      return { updateAttributes: { address, data: { chartModel: value } } };
 
     case "attribute-true":
-      return {updateAttributes: {address, data: {[dependency.query]: value}}};
+      return { updateAttributes: { address, data: { [dependency.query]: value } } };
 
     case "input-true":
-      return {updateModel: {address, data: {selected: value}}};
+      return { updateModel: { address, data: { selected: value } } };
 
     case "format-number-true":
-      return {updateAttributes: {address, data: {numberFormat: value}}};
+      return { updateAttributes: { address, data: { numberFormat: value } } };
 
     case "format-number-false":
-      return {restoreAttributes: {address, data: "numberFormat"}};
+      return { restoreAttributes: { address, data: "numberFormat" } };
 
     case "validate-true":
-      return {updateValidation: {address, data: value}};
+      return { updateValidation: { address, data: value } };
 
     case "validate-false":
-      return {restoreValidation: {address, data: address}};
+      return { restoreValidation: { address, data: address } };
 
     case "set-required-true":
     case "set-required-false":
-      return {updateValidation: {address, data: {required: launch}}};
+      return { updateValidation: { address, data: { required: launch } } };
 
     case "set-optional-true":
     case "set-optional-false":
-      return {updateValidation: {address, data: {required: !launch}}};
+      return { updateValidation: { address, data: { required: !launch } } };
 
     case "show-true":
     case "show-false":
-      return {updateAttributes: {address, data: {visible: launch}}};
+      return { updateAttributes: { address, data: { visible: launch } } };
 
     case "hide-true":
     case "hide-false":
-      return {updateAttributes: {address, data: {visible: !launch}}};
+      return { updateAttributes: { address, data: { visible: !launch } } };
 
     case "show-column-true":
     case "show-column-false":
-      return {updateAttributes: {address: addressWithoutRow, data: {hidden: !launch}}};
+      return { updateAttributes: { address: addressWithoutRow, data: { hidden: !launch } } };
 
     case "hide-column-false":
     case "hide-column-true":
-      return {updateAttributes: {address: addressWithoutRow, data: {hidden: launch}}};
+      return { updateAttributes: { address: addressWithoutRow, data: { hidden: launch } } };
 
     case "set-visible-true":
     case "set-visible-false":
-      return {updateAttributes: {address, data: {invisible: !launch}}};
+      return { updateAttributes: { address, data: { invisible: !launch } } };
 
     case "set-invisible-true":
     case "set-invisible-false":
-      return {updateAttributes: {address, data: {invisible: launch}}};
+      return { updateAttributes: { address, data: { invisible: launch } } };
 
     case "enable-true":
     case "enable-false":
-      return {updateAttributes: {address, data: {disabled: !launch}}};
+      return { updateAttributes: { address, data: { disabled: !launch } } };
 
     case "disable-true":
     case "disable-false":
-      return {updateAttributes: {address, data: {disabled: launch}}};
+      return { updateAttributes: { address, data: { disabled: launch } } };
 
     case "set-editable-true":
     case "set-editable-false":
-      return {updateAttributes: {address, data: {readonly: !launch}}};
+      return { updateAttributes: { address, data: { readonly: !launch } } };
 
     case "set-readonly-true":
     case "set-readonly-false":
-      return {updateAttributes: {address, data: {readonly: launch}}};
+      return { updateAttributes: { address, data: { readonly: launch } } };
 
     case "enable-autorefresh-true":
     case "disable-autorefresh-false":
-      return {updateAttributes: {address, data: {autorefreshEnabled: true, autorefresh: value}}};
+      return { updateAttributes: { address, data: { autorefreshEnabled: true, autorefresh: value } } };
 
     case "disable-autorefresh-true":
     case "enable-autorefresh-false":
-      return {updateAttributes: {address, data: {autorefreshEnabled: false, autorefresh: 0}}};
+      return { updateAttributes: { address, data: { autorefreshEnabled: false, autorefresh: 0 } } };
 
     case "none-true":
     case "none-false":
@@ -571,7 +580,7 @@ function applyTarget(dependency, component, value, result) {
  */
 function executeDependency(dependency, component, result, state) {
   // Log executing dependency
-  const {address} = dependency;
+  const { address } = dependency;
   let dispatchActions = [];
   let dependencyString = result.string.join(` ${dependency.type || "and"} `);
   dependencyString = dependency.invert ? `!(${dependencyString})` : dependencyString;
@@ -579,7 +588,7 @@ function executeDependency(dependency, component, result, state) {
 
   // Launch dependency actions
   if (dependency.actions?.length > 0 && result.launch) {
-    dispatchActions.push({addActions: dependency.actions?.map(action => ({...action, address}))});
+    dispatchActions.push({ addActions: dependency.actions?.map(action => ({ ...action, address })) });
   }
 
   // Check force by target
@@ -632,7 +641,7 @@ function checkAndStoreResult(dependency, component, state) {
 }
 
 function checkDependency(dependency, component, state) {
-  let result= checkAndStoreResult(dependency, component, state);
+  let result = checkAndStoreResult(dependency, component, state);
 
   // Fix result with invert
   result.launch = dependency.invert ? !result.launch : result.launch;
@@ -654,7 +663,7 @@ function hasChanged(dependency, component, state) {
   const newValues = evaluateDependency(dependency, component, state).values;
   const oldValues = Object.entries(DEPENDENCY_VALUES[component.address.view][getDependencyComponentId(component.address, dependency.address)] || {})
     .filter(([k, v]) => k in newValues)
-    .reduce((p, [k, v]) => ({...p, [k]: v}), {});
+    .reduce((p, [k, v]) => ({ ...p, [k]: v }), {});
   return !_.isEqual(oldValues, newValues);
 }
 
@@ -667,23 +676,23 @@ function getComponentDependencies(component) {
     );
 
   return [
-    ...((component.dependencies || []).map(dependency => ({...dependency, address: component.address}))),
-    ...gridDependencies].map((dependency, index) => ({...dependency, index}));
+    ...((component.dependencies || []).map(dependency => ({ ...dependency, address: component.address }))),
+    ...gridDependencies].map((dependency, index) => ({ ...dependency, index }));
 }
 
 function getColumnDependencies(dependency, column, component) {
-  const {values} = component.model;
+  const { values } = component.model;
   const gridId = getGridIdentifier(component.attributes);
   if (isColumnDependency(dependency)) {
     return values.map(row => ({
       ...dependency,
-      address: {...component.address, column: column.id, row: row[gridId]},
+      address: { ...component.address, column: column.id, row: row[gridId] },
       target: dependency.target
     }));
   } else {
     return [{
       ...dependency,
-      address: {...component.address, column: column.id, row: getEditingRow(component.model.values)[gridId]},
+      address: { ...component.address, column: column.id, row: getEditingRow(component.model.values)[gridId] },
       target: ["show", "hide"].includes(dependency.target) ? dependency.target + "-column" : dependency.target
     }];
   }
@@ -725,6 +734,6 @@ export function checkDependencies(state, dispatch) {
 export function initializeDependencies(view, state, dispatch) {
   DEPENDENCY_VALUES[view] = {};
   const executions = getDependenciesExecutions(state, true, view);
-  Object.keys(executions).length && console.log("%cInitial dependency executions:", "background: #FFBBBB;color:black",  executions);
+  Object.keys(executions).length && console.log("%cInitial dependency executions:", "background: #FFBBBB;color:black", executions);
   dispatchExecutions(executions, dispatch);
 }
