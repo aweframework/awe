@@ -59,11 +59,8 @@ function ViewContainer() {
   }, []);
 
   useEffect(() => {
-    dispatch(addActionsTop([{ type: "connectWebsocket" }]));
-    return () => {
-      dispatch(addActionsTop([{ type: "disconnectWebsocket" }]));
-    };
-  }, []);
+    dispatch(addActionsTop([{ type: "disconnectWebsocket" },{ type: "connectWebsocket", parameters: { token: settings.token } }]));
+  }, [settings.token, dispatch]);
 
   useEffect(() => {
     if (prevScreenId.current !== screenId) {

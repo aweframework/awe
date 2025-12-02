@@ -54,7 +54,7 @@ export const connectWebSocketAction = (action, t) => {
       dispatch(acceptAction(action));
     }
 
-    const {token} = settings;
+    const {token} = action.parameters || settings;
 
     // Crear un nuevo cliente WebSocket
     client = new Client({
@@ -107,6 +107,9 @@ export const disconnectWebSocketAction = (action, client) => {
       client.deactivate();
       client = null;
     }
+
+    // Devolver el cliente
+    return client;
   };
 };
 
