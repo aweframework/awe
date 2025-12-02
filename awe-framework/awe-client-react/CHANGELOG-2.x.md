@@ -1,4 +1,12 @@
 
+# Changelog for AWE React 2.0.6
+*02/12/2025*
+
+- Manage websocket connection as it is not synchronized with user login. [MR #136](https://gitlab.com/aweframework/awe-react/-/merge_requests/136) (Pablo Javier García Mora)
+- Set lastEvent as part of a runtime reducer, to avoid too much recursion looking for events. [MR #135](https://gitlab.com/aweframework/awe-react/-/merge_requests/135) (Pablo Javier García Mora)
+- Fix duplicate toasts. [MR #134](https://gitlab.com/aweframework/awe-react/-/merge_requests/134) (Pablo Javier García Mora)
+- Reset action is clearing select values. [MR #133](https://gitlab.com/aweframework/awe-react/-/merge_requests/133) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.5
 *26/11/2025*
 
