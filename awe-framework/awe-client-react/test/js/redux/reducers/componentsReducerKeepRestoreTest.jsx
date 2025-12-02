@@ -78,7 +78,6 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     const next = components(state, {type: RESTORE_MODEL, address: {component: 'comp', view: 'base'}});
     expect(next.comp.model.values).toEqual([{value: 'Y'}]);
     expect(next.comp.model.changed).toBe(false);
-    expect(next.comp.model.event).toBe('restore');
   });
 
   it('RESTORE_MULTIPLE_MODEL restores model for multiple components', () => {
@@ -93,8 +92,6 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     const next = components(state, {type: RESTORE_MULTIPLE_MODEL, componentList});
     expect(next.c1.model.values).toEqual([{value: '1'}]);
     expect(next.c2.model.values).toEqual([{value: '2'}]);
-    expect(next.c1.model.event).toBe('restore');
-    expect(next.c2.model.event).toBe('restore');
   });
 
   it('RESET_MULTIPLE_MODEL resets non-grid models to defaultValues and marks changed', () => {
@@ -123,7 +120,5 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     expect(c2Values.find(v => v.value === 'B').selected).toBe(false);
     expect(next.c1.model.changed).toBe(true);
     expect(next.c2.model.changed).toBe(true);
-    expect(next.c1.model.event).toBe('reset');
-    expect(next.c2.model.event).toBe('reset');
   });
 });

@@ -31,22 +31,123 @@ import {
   VALIDATE_ROW,
 } from '../actions/components';
 
-import {extractCellModel, extractCellValue, getCellModel, getGridIdentifier} from "../../utilities/grid";
+import { extractCellModel, extractCellValue, getCellModel, getGridIdentifier } from "../../utilities/grid";
 
-import {getUID} from "../actions/settings";
+import { getUID } from "../actions/settings";
 import _ from 'lodash';
-import {validateComponent, validateRow} from "./validation";
-import {asArray, updateArrayElement} from "../../utilities";
-import {ComponentAddressType, getAddressType, getComponentId} from "../../utilities/components";
-import {getFirstDefinedValue} from "../../utilities/general";
+import { validateComponent, validateRow } from "./validation";
+import { asArray, updateArrayElement } from "../../utilities";
+import { ComponentAddressType, getAddressType, getComponentId } from "../../utilities/components";
+import { getFirstDefinedValue } from "../../utilities/general";
 
-const {STATUS_DEFINED, STATUS_INITIALIZED} = ComponentStatus;
-const {ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT} = ComponentAddressType;
+const { STATUS_DEFINED, STATUS_INITIALIZED } = ComponentStatus;
+const { ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT } = ComponentAddressType;
 
 const memoizedGetComponentId = _.memoize(getComponentId);
 const memoizedGetGridIdentifier = _.memoize(getGridIdentifier);
 
 const InitialState = {};
+
+/**
+ * ============================================================================
+ * IMMUTABLE STATE UPDATE UTILITIES
+ * ============================================================================
+ * These helper functions provide a cleaner, more readable way to update
+ * nested state properties immutably, reducing code duplication.
+ */
+
+/**
+ * Updates a component in state with new data
+ * @param {Object} state - Current state
+ * @param {string} componentId - Component identifier
+ * @param {Object} updates - Updates to merge into the component
+ * @returns {Object} New state with updated component
+ */
+function updateComponentInState(state, componentId, updates) {
+  if (!state[componentId]) return state;
+
+  return {
+    ...state,
+    [componentId]: {
+      ...state[componentId],
+      ...updates
+    }
+  };
+}
+
+/**
+ * Updates a nested property within a component
+ * @param {Object} state - Current state
+ * @param {string} componentId - Component identifier
+ * @param {string} propertyName - Name of the property to update (e.g., 'attributes', 'model')
+ * @param {Object} updates - Updates to merge into the property
+ * @returns {Object} New state with updated property
+ */
+function updateComponentProperty(state, componentId, propertyName, updates) {
+  if (!state[componentId]) return state;
+
+  return {
+    ...state,
+    [componentId]: {
+      ...state[componentId],
+      [propertyName]: {
+        ...state[componentId][propertyName],
+        ...updates
+      }
+    }
+  };
+}
+
+/**
+ * Updates component attributes
+ * @param {Object} state - Current state
+ * @param {string} componentId - Component identifier
+ * @param {Object} attributeUpdates - Attribute updates to merge
+ * @returns {Object} New state with updated attributes
+ */
+function updateComponentAttributes(state, componentId, attributeUpdates) {
+  return updateComponentProperty(state, componentId, 'attributes', attributeUpdates);
+}
+
+/**
+ * Updates component model
+ * @param {Object} state - Current state
+ * @param {string} componentId - Component identifier
+ * @param {Object} modelUpdates - Model updates to merge
+ * @returns {Object} New state with updated model
+ */
+function updateComponentModel(state, componentId, modelUpdates) {
+  return updateComponentProperty(state, componentId, 'model', modelUpdates);
+}
+
+/**
+ * Updates component validation rules
+ * @param {Object} state - Current state
+ * @param {string} componentId - Component identifier
+ * @param {Object} validationUpdates - Validation updates to merge
+ * @returns {Object} New state with updated validation
+ */
+function updateComponentValidation(state, componentId, validationUpdates) {
+  if (!state[componentId]) return state;
+
+  return {
+    ...state,
+    [componentId]: {
+      ...state[componentId],
+      validationRules: {
+        ...(state[componentId]?.validationRules || {}),
+        ...validationUpdates
+      }
+    }
+  };
+}
+
+/**
+ * ============================================================================
+ * COMPONENT TYPE CHECKS
+ * ============================================================================
+ */
+
 /**
  * Check if component is a grid or not
  * @param {Object} component
@@ -77,11 +178,11 @@ function fixCellModel(selected, model) {
     let selectedString = selectedData.map(value => String(extractCellValue(value)));
     return {
       ...model,
-      values: model.values.map(value => ({...value, selected: selectedString.includes(String(value.value))}))
+      values: model.values.map(value => ({ ...value, selected: selectedString.includes(String(value.value)) }))
     };
   } else {
     return {
-      values: selectedData.reduce((prev, value) => ({...extractCellModel(value)}), {})
+      values: selectedData.reduce((prev, value) => ({ ...extractCellModel(value) }), {})
     };
   }
 }
@@ -116,17 +217,7 @@ function launchAddressFunction(cellFunction, columnFunction, componentFunction, 
  * @return {Object} updated state
  */
 function updateAttributeComponent(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  return !(component in state) ? state : {
-    ...state,
-    [component]: {
-      ...state[component],
-      attributes: {
-        ...state[component].attributes,
-        ...data
-      }
-    }
-  };
+  return updateComponentAttributes(state, address.component, data);
 }
 
 /**
@@ -138,8 +229,8 @@ function updateAttributeComponent(state = {}, address = {}, data = {}) {
  */
 function updateAttributeColumn(state = {}, address = {}, data = {}) {
   const component = address.component;
-  const {attributes} = state[component];
-  const {columnModel = []} = attributes;
+  const { attributes } = state[component];
+  const { columnModel = [] } = attributes;
 
   const columnMap = new Map(columnModel.map((col, index) => [col.name, index]));
   const columnIndex = columnMap.get(address.column);
@@ -165,8 +256,8 @@ function updateAttributeColumn(state = {}, address = {}, data = {}) {
  */
 function updateAttributeCell(state = {}, address = {}, data = {}) {
   const component = address.component;
-  const {model, attributes} = state[component];
-  const {values} = model;
+  const { model, attributes } = state[component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   const rowData = values[rowIndex] || {};
@@ -177,8 +268,12 @@ function updateAttributeCell(state = {}, address = {}, data = {}) {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {...values[rowIndex], $attrs: {...rowData.$attrs || {},
-            [address.column]: {...cellAttrs, ...data}}})
+        values: updateArrayElement(values, rowIndex, {
+          ...values[rowIndex], $attrs: {
+            ...rowData.$attrs || {},
+            [address.column]: { ...cellAttrs, ...data }
+          }
+        })
       }
     }
   };
@@ -195,7 +290,7 @@ function updateAttributeAction(state = {}, action = {}) {
 }
 
 function updateSpecificAttributes(state = {}, action = {}) {
-  const {address, data} = action;
+  const { address, data } = action;
   const component = memoizedGetComponentId(address);
   return !(component in state) ? state : {
     ...state,
@@ -217,18 +312,16 @@ function updateSpecificAttributes(state = {}, action = {}) {
  * @return {Object} updated state
  */
 function keepAttributeComponent(state, component, data) {
-  return {
-    ...state,
-    [component]: {
-      ...state[component],
-      storedAttributes: {
-        ...state[component].storedAttributes,
-        [data]: {
-          ...state[component].attributes[data]
-        }
+  if (!state[component]) return state;
+
+  return updateComponentInState(state, component, {
+    storedAttributes: {
+      ...state[component].storedAttributes,
+      [data]: {
+        ...state[component].attributes[data]
       }
     }
-  };
+  });
 }
 
 /**
@@ -261,8 +354,8 @@ function restoreAttributeComponent(state, address, data) {
  */
 function restoreAttributeColumn(state = {}, address = {}, data = {}) {
   const component = address.component;
-  const {attributes} = state[component];
-  const {columnModel = []} = attributes;
+  const { attributes } = state[component];
+  const { columnModel = [] } = attributes;
   const columnIndex = attributes.columnModel.findIndex(column => column.name === address.column);
   return {
     ...state,
@@ -270,7 +363,7 @@ function restoreAttributeColumn(state = {}, address = {}, data = {}) {
       ...state[component],
       attributes: {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, {[data]: state[component].storedAttributes.columnModel[columnIndex][data]})
+        columnModel: updateArrayElement(columnModel, columnIndex, { [data]: state[component].storedAttributes.columnModel[columnIndex][data] })
       }
     }
   };
@@ -285,8 +378,8 @@ function restoreAttributeColumn(state = {}, address = {}, data = {}) {
  */
 function restoreAttributeCell(state, address, data) {
   const component = address.component;
-  const {model, attributes, storedAttributes = {}} = state[component];
-  const {values} = model;
+  const { model, attributes, storedAttributes = {} } = state[component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   if (rowIndex < 0) {
@@ -316,7 +409,7 @@ function restoreAttributeCell(state, address, data) {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {...rowData, $attrs: {...prevAttrs, [address.column]: newAttr}})
+        values: updateArrayElement(values, rowIndex, { ...rowData, $attrs: { ...prevAttrs, [address.column]: newAttr } })
       }
     }
   };
@@ -350,17 +443,7 @@ function updateValidationAction(state = {}, action = {}) {
  * @return {Object} updated state
  */
 function updateValidationComponent(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  return !(component in state) ? state : {
-    ...state,
-    [component]: {
-      ...state[component] || {},
-      validationRules: {
-        ...((state[component]?.validationRules) || {}),
-        ...data
-      }
-    }
-  };
+  return updateComponentValidation(state, address.component, data);
 }
 
 /**
@@ -372,8 +455,8 @@ function updateValidationComponent(state = {}, address = {}, data = {}) {
  */
 function updateValidationColumn(state = {}, address = {}, data = {}) {
   const component = address.component;
-  const {attributes} = state[component];
-  const {columnModel = []} = attributes;
+  const { attributes } = state[component];
+  const { columnModel = [] } = attributes;
   const columnIndex = attributes.columnModel.findIndex(column => column.name === address.column);
   return {
     ...state,
@@ -381,7 +464,7 @@ function updateValidationColumn(state = {}, address = {}, data = {}) {
       ...state[component],
       attributes: {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, {validationRules: {...(columnModel[columnIndex]?.validationRules || {}), ...data}})
+        columnModel: updateArrayElement(columnModel, columnIndex, { validationRules: { ...(columnModel[columnIndex]?.validationRules || {}), ...data } })
       }
     }
   };
@@ -396,8 +479,8 @@ function updateValidationColumn(state = {}, address = {}, data = {}) {
  */
 function updateValidationCell(state = {}, address = {}, data = {}) {
   const component = address.component;
-  const {model, attributes} = state[component];
-  const {values} = model;
+  const { model, attributes } = state[component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   const rowData = values[rowIndex] || {};
@@ -434,15 +517,13 @@ function updateValidationCell(state = {}, address = {}, data = {}) {
  * @return {Object} updated state
  */
 function keepValidationComponent(state, component) {
-  return {
-    ...state,
-    [component]: {
-      ...state[component] || {},
-      storedValidationRules: {
-        ...(state[component]?.validationRules || {})
-      }
+  if (!state[component]) return state;
+
+  return updateComponentInState(state, component, {
+    storedValidationRules: {
+      ...(state[component]?.validationRules || {})
     }
-  };
+  });
 }
 
 /**
@@ -452,15 +533,13 @@ function keepValidationComponent(state, component) {
  * @return {Object} updated state
  */
 function restoreValidationComponent(state, component) {
-  return {
-    ...state,
-    [component]: {
-      ...state[component] || {},
-      validationRules: {
-        ...(state[component]?.storedValidationRules || {})
-      }
+  if (!state[component]) return state;
+
+  return updateComponentInState(state, component, {
+    validationRules: {
+      ...(state[component]?.storedValidationRules || {})
     }
-  };
+  });
 }
 
 /**
@@ -471,13 +550,8 @@ function restoreValidationComponent(state, component) {
  * @return {Object} updated state
  */
 function updateComponentData(state, component, data) {
-  return component == null ? state : {
-    ...state,
-    [component]: {
-      ...state[component],
-      ...data
-    }
-  };
+  if (component == null) return state;
+  return updateComponentInState(state, component, data);
 }
 
 /**
@@ -494,7 +568,7 @@ function generateCellComponents(state, grid, rows) {
   model.values
     .filter(row => rows.includes(row[gridId]))
     .forEach(row => columns
-      .filter(column => !(memoizedGetComponentId({...grid.address, row: row[gridId], column: column.name}) in state))
+      .filter(column => !(memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name }) in state))
       .forEach(column => Object.assign(cellComponents, generateCellComponent(grid, {
         ...grid.address,
         row: row[gridId],
@@ -517,11 +591,11 @@ function generateCellComponent(grid, address, cellModel, cellAttributes) {
   return {
     [componentId]: {
       uid: getUID(),
-      address: {...address},
-      model: {...model},
-      storedModel: {...model},
-      attributes: {...cellAttributes},
-      storedAttributes: {...cellAttributes},
+      address: { ...address },
+      model: { ...model },
+      storedModel: { ...model },
+      attributes: { ...cellAttributes },
+      storedAttributes: { ...cellAttributes },
       actions: cellAttributes.actions || [],
       dependencies: cellAttributes.dependencies || [],
       status: (cellAttributes.dependencies || []).length > 0 ? STATUS_DEFINED : STATUS_INITIALIZED
@@ -535,16 +609,16 @@ function generateCellComponent(grid, address, cellModel, cellAttributes) {
  * @param {object} grid Grid component
  */
 function updateCellsModel(state, grid) {
-  const {values} = grid.model;
+  const { values } = grid.model;
   let columns = grid.attributes.columnModel.filter(column => column.component);
   let cellComponents = {};
   const gridId = memoizedGetGridIdentifier(grid.attributes);
   values
     .forEach(row => columns
-      .filter(column => memoizedGetComponentId({...grid.address, row: row[gridId], column: column.name}) in state)
+      .filter(column => memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name }) in state)
       .forEach(column => Object.assign(cellComponents,
         getModelUpdate(state,
-          {...grid.address, row: row[gridId], column: column.name},
+          { ...grid.address, row: row[gridId], column: column.name },
           fixCellModel(row[column.name], column.model)
         )
       ))
@@ -597,12 +671,12 @@ function getGroupModelUpdate(state, view, group, model) {
           ...component,
           model: {
             ...component.model,
-            values: component.model.values.map(value => ({...value, selected: selected.includes(value.value)})),
+            values: component.model.values.map(value => ({ ...value, selected: selected.includes(value.value) })),
             changed: true
           }
         }
       }))
-      .reduce((current, entry) => ({...current, [entry.name]: entry.value}), {})
+      .reduce((current, entry) => ({ ...current, [entry.name]: entry.value }), {})
   };
 }
 
@@ -617,7 +691,7 @@ function getGroupModelUpdate(state, view, group, model) {
 function getGridModelUpdate(state, address, model, update = true) {
   let componentId = memoizedGetComponentId(address);
   let gridComponent = getModelUpdate(state, address, model);
-  let cellsState = model.values && update ? updateCellsModel({...state, ...gridComponent}, gridComponent[componentId]) : {};
+  let cellsState = model.values && update ? updateCellsModel({ ...state, ...gridComponent }, gridComponent[componentId]) : {};
   return {
     ...gridComponent,
     ...cellsState
@@ -659,8 +733,8 @@ function updateModel(state, address, data, update = true) {
  */
 function updateColumnModel(state = {}, address = {}, data = {}) {
   const component = address.component;
-  const {attributes} = state[component];
-  const {columnModel = []} = attributes;
+  const { attributes } = state[component];
+  const { columnModel = [] } = attributes;
   const columnIndex = attributes.columnModel.findIndex(column => column.name === address.column);
   return {
     ...state,
@@ -668,7 +742,8 @@ function updateColumnModel(state = {}, address = {}, data = {}) {
       ...state[component],
       attributes: {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, {model: {
+        columnModel: updateArrayElement(columnModel, columnIndex, {
+          model: {
             ...(columnModel[columnIndex]?.model || {}),
             ...data
           }
@@ -687,22 +762,24 @@ function updateColumnModel(state = {}, address = {}, data = {}) {
  */
 function updateCellModel(state, address, data) {
   const component = address.component;
-  const {model, attributes} = state[component];
-  const {values} = model;
+  const { model, attributes } = state[component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   const newData = getCellModel(getFirstDefinedValue(data.values, values[rowIndex][address.column]), attributes.columnModel.find(column => column.name === address.column));
   const rowData = values[rowIndex] || {};
   const cellAttrs = rowData.$attrs?.[address.column] || {};
-  const {error, ...otherAttrs} = cellAttrs;
+  const { error, ...otherAttrs } = cellAttrs;
   return {
     ...state,
     [component]: {
       ...state[component],
       model: {
         ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {[address.column]: newData,
-          $attrs: {...rowData.$attrs, [address.column]: otherAttrs}})
+        values: updateArrayElement(values, rowIndex, {
+          [address.column]: newData,
+          $attrs: { ...rowData.$attrs, [address.column]: otherAttrs }
+        })
       }
     }
   };
@@ -717,8 +794,8 @@ function updateCellModel(state, address, data) {
  */
 function updateCellSelected(state, address, data) {
   const component = address.component;
-  const {model, attributes} = state[component];
-  const {values} = model;
+  const { model, attributes } = state[component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   let sameValue = checkSelected(data.selected, values[rowIndex][address.column]);
@@ -727,7 +804,7 @@ function updateCellSelected(state, address, data) {
     [component]: {
       ...state[component],
       model: {
-        values: updateArrayElement(values, rowIndex, {[address.column]: fixCellModel(data.selected, values[rowIndex][address.column]).values})
+        values: updateArrayElement(values, rowIndex, { [address.column]: fixCellModel(data.selected, values[rowIndex][address.column]).values })
       }
     }
   };
@@ -739,10 +816,9 @@ function updateCellSelected(state, address, data) {
  * @param {object} values
  * @param {object} address
  * @param {object} selected
- * @param {string} event
  * @return {object} updated state
  */
-function updateSelectedGrid(state, values, address, selected, event) {
+function updateSelectedGrid(state, values, address, selected) {
   // Get values to unselect
   const component = state[memoizedGetComponentId(address)];
   const gridId = memoizedGetGridIdentifier(component.attributes);
@@ -750,17 +826,17 @@ function updateSelectedGrid(state, values, address, selected, event) {
   let toUnselect = values
     .filter(row => row.selected)
     .filter(row => !selected.map(String).includes(String(row[gridId])))
-    .map(row => ({id: row[gridId], selected: false}));
+    .map(row => ({ id: row[gridId], selected: false }));
   let toSelect = selected
-    .map(value => ({id: value, selected: true}));
+    .map(value => ({ id: value, selected: true }));
   // Unselect values
   [...toUnselect, ...toSelect].forEach(item => {
     let index = filtered.findIndex((row) => String(row[gridId]) === String(item.id));
-    filtered = updateArrayElement(filtered, index, {selected: item.selected});
+    filtered = updateArrayElement(filtered, index, { selected: item.selected });
   });
 
   // Update values
-  return getGridModelUpdate(state, address, {values: filtered, event}, false);
+  return getGridModelUpdate(state, address, { values: filtered }, false);
 }
 
 /**
@@ -769,10 +845,9 @@ function updateSelectedGrid(state, values, address, selected, event) {
  * @param {array} values
  * @param {object} address
  * @param {array} selected
- * @param {string} event
  * @return {object} updated state
  */
-function updateSelectedComponent(state, values, address, selected, event) {
+function updateSelectedComponent(state, values, address, selected) {
   let component = state[memoizedGetComponentId(address)];
   let filtered = getFilteredValues(values, selected);
   if (_.isEqual(filtered, (component.model?.values))) {
@@ -780,7 +855,7 @@ function updateSelectedComponent(state, values, address, selected, event) {
   }
 
   // Update values
-  return getModelUpdate(state, address, {values: filtered, event});
+  return getModelUpdate(state, address, { values: filtered });
 }
 
 /**
@@ -790,9 +865,9 @@ function updateSelectedComponent(state, values, address, selected, event) {
  * @returns {*} Filtered values
  */
 function getFilteredValues(values, selected) {
-  let filtered = values.map((value) => ({...value, selected: selected.includes(value.value)}));
+  let filtered = values.map((value) => ({ ...value, selected: selected.includes(value.value) }));
   return filtered.filter(value => value.selected).length === 0 ?
-    selected.map(value => ({...extractCellModel(value), selected: true})) : filtered;
+    selected.map(value => ({ ...extractCellModel(value), selected: true })) : filtered;
 }
 
 /**
@@ -800,12 +875,10 @@ function getFilteredValues(values, selected) {
  * @param {object} state
  * @param {array} values
  * @param {object} view
- * @param {object} group
- * @param {array} selected
- * @param {string} event
+ * @param {object} group * @param {array} selected
  * @return {Object} updated state
  */
-function updateSelectedGroup(state, values, view, group, selected, event) {
+function updateSelectedGroup(state, values, view, group, selected) {
   // Check equality to avoid update state if there are no changes
   return {
     ...Object.entries(state)
@@ -816,13 +889,12 @@ function updateSelectedGroup(state, values, view, group, selected, event) {
           ...component,
           model: {
             ...component.model,
-            values: component.model.values.map(value => ({...value, selected: selected.includes(value.value)})),
-            changed: true,
-            event
+            values: component.model.values.map(value => ({ ...value, selected: selected.includes(value.value) })),
+            changed: true
           }
         }
       }))
-      .reduce((current, entry) => ({...current, [entry.name]: entry.value}), {})
+      .reduce((current, entry) => ({ ...current, [entry.name]: entry.value }), {})
   };
 }
 
@@ -857,11 +929,11 @@ function getSelectedUpdate(state, address, data) {
   let values = (component.model?.values) || [];
   let selected = asArray(data.selected);
   if (isGrid(component)) {
-    return updateSelectedGrid(state, values, address, selected, data.event || "");
+    return updateSelectedGrid(state, values, address, selected);
   } else if (isGroup(component)) {
-    return updateSelectedGroup(state, values, address.view, component.attributes.group, selected, data.event || "");
+    return updateSelectedGroup(state, values, address.view, component.attributes.group, selected);
   } else {
-    return updateSelectedComponent(state, values, address, selected, data.event || "");
+    return updateSelectedComponent(state, values, address, selected);
   }
 }
 
@@ -890,8 +962,8 @@ function checkSelected(selectedValues, cellValue) {
  * @return {Object} updated state
  */
 function updateRowModel(state, address, data) {
-  const {model, attributes} = state[address.component];
-  const {values} = model;
+  const { model, attributes } = state[address.component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   return {
@@ -925,12 +997,14 @@ function keepModelComponent(state, component) {
  * @returns {{}}
  */
 function getKeepModelComponent(state, component) {
+  if (!state[component]) return {};
+
   return {
     [component]: {
       ...state[component],
       storedModel: {
         ...state[component].model,
-        values: state[component].model.values.map(value => ({...value}))
+        values: state[component].model.values.map(value => ({ ...value }))
       }
     }
   };
@@ -943,17 +1017,17 @@ function getKeepModelComponent(state, component) {
  * @return {Object} updated state
  */
 function keepRowModel(state, address) {
-  const {model, attributes} = state[address.component];
-  const {values} = model;
+  const { model, attributes } = state[address.component];
+  const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
   let rowValues = values[rowIndex];
   let cellModel = {};
   Object.keys(rowValues).forEach(column => {
-    let cellAddress = {...address, column: column};
+    let cellAddress = { ...address, column: column };
     let componentId = memoizedGetComponentId(cellAddress);
     if (componentId in state) {
-      cellModel = {...cellModel, ...getKeepModelComponent(state, componentId)};
+      cellModel = { ...cellModel, ...getKeepModelComponent(state, componentId) };
     }
   });
   return {
@@ -994,14 +1068,15 @@ function restoreModelComponent(state, component) {
  * @returns {{}}
  */
 function getRestoreModelComponent(state, component) {
+  if (!state[component]) return {};
+
   return {
     [component]: {
       ...state[component],
       model: {
         ...state[component].storedModel,
-        values: state[component].storedModel.values.map(value => ({...value})),
-        changed: false,
-        event: "restore"
+        values: state[component].storedModel.values.map(value => ({ ...value })),
+        changed: false
       }
     }
   };
@@ -1014,10 +1089,11 @@ function getRestoreModelComponent(state, component) {
  * @return {Object} updated state
  */
 function resetModel(state, address) {
-  let emptyModel = {values: []};
+  let emptyModel = { values: [] };
   if (!isGrid(state[memoizedGetComponentId(address)])) {
     emptyModel = {
-      values: (state[memoizedGetComponentId(address)]?.model?.values || []).map(value => ({...value, selected: false}))};
+      values: (state[memoizedGetComponentId(address)]?.model?.values || []).map(value => ({ ...value, selected: false }))
+    };
   } else {
     emptyModel = {
       values: [],
@@ -1037,8 +1113,7 @@ function resetModel(state, address) {
       model: {
         ...state[address.component].model,
         ...emptyModel,
-        event: "reset",
-        changed: true,
+        changed: true
       }
     }
   };
@@ -1052,10 +1127,10 @@ function resetModel(state, address) {
  * @return {Object} updated state
  */
 function resetCellModel(state, address, data) {
-  const {attributes} = state[address.component];
+  const { attributes } = state[address.component];
   const gridId = memoizedGetGridIdentifier(attributes);
   let columnModel = attributes.columnModel.filter(value => value[gridId] === address.column)[0] || {};
-  return updateCellSelected(state, address, {selected: asArray(columnModel.model?.values)});
+  return updateCellSelected(state, address, { selected: asArray(columnModel.model?.values) });
 }
 
 /**
@@ -1066,100 +1141,137 @@ function resetCellModel(state, address, data) {
  */
 function updateModelAction(state = {}, action = {}) {
   let modelState = state;
-  let data = {...action.data};
+  let data = { ...action.data };
   let selectedData = [...asArray(data.selected)];
-  let keysWithoutEvent = _.pullAll(Object.keys(data), ["event"]);
-  if (keysWithoutEvent.length > 1 || !keysWithoutEvent.includes("selected")) {
+
+  // Update model if there are properties other than just 'selected'
+  if (Object.keys(data).length > 1 || !('selected' in data)) {
     modelState = launchAddressFunction(updateCellModel, updateColumnModel, updateModel, modelState, {
       address: action.address,
       data
     });
   }
+
+  // Update selected if present
   if ("selected" in data) {
     modelState = launchAddressFunction(updateCellSelected, (s) => s, updateSelected, modelState, {
       address: action.address,
-      data: {selected: selectedData, event: data.event || ""},
+      data: { selected: selectedData },
     });
   }
+
   return modelState;
 }
 
 function clearComponents(state, view) {
   return Object.entries(state)
     .filter((entry) => entry[1].address?.view !== view)
-    .reduce((obj, entry) => ({...obj, [entry[0]]: entry[1]}), {});
+    .reduce((obj, entry) => ({ ...obj, [entry[0]]: entry[1] }), {});
 }
 
 /**
+ * Action handlers map
+ * Each handler is a pure function that takes (state, action) and returns new state
+ */
+const actionHandlers = {
+  [CLEAR_COMPONENTS]: (state, action) => clearComponents(state, action.view),
+
+  [CLEAR_ALL_COMPONENTS]: () => ({}),
+
+  [UPDATE_VIEW_COMPONENTS]: (state, action) => ({
+    ...(action.view === "base" ? {} : clearComponents(state, action.view)),
+    ...action.data
+  }),
+
+  [GENERATE_CELL_COMPONENTS]: (state, action) => ({
+    ...state,
+    ...generateCellComponents(state, state[action.address.component], action.data)
+  }),
+
+  [UPDATE_COMPONENT]: (state, action) =>
+    updateComponentData(state, memoizedGetComponentId(action.address), action.data),
+
+  [UPDATE_MULTIPLE_COMPONENTS]: (state, action) =>
+    action.componentList.reduce(
+      (newState, _action) => updateComponentData(newState, memoizedGetComponentId(_action.address), _action),
+      state
+    ),
+
+  [UPDATE_MULTIPLE_MODELS]: (state, action) =>
+    action.componentList.reduce((newState, _action) => updateModelAction(newState, _action), state),
+
+  [UPDATE_ATTRIBUTES]: (state, action) => updateAttributeAction(state, action),
+
+  [UPDATE_SPECIFIC_ATTRIBUTES]: (state, action) => updateSpecificAttributes(state, action),
+
+  [UPDATE_MULTIPLE_ATTRIBUTES]: (state, action) =>
+    action.componentList.reduce((newState, _action) => updateAttributeAction(newState, _action), state),
+
+  [UPDATE_MODEL]: (state, action) => updateModelAction(state, action),
+
+  [UPDATE_ROW_MODEL]: (state, action) => updateRowModel(state, action.address, action.data),
+
+  [UPDATE_VALIDATION]: (state, action) => updateValidationAction(state, action),
+
+  [UPDATE_MULTIPLE_VALIDATION]: (state, action) =>
+    action.componentList.reduce((newState, _action) => updateValidationAction(newState, _action), state),
+
+  [KEEP_VALIDATION]: (state, action) =>
+    keepValidationComponent(state, memoizedGetComponentId(action.address)),
+
+  [KEEP_ATTRIBUTE]: (state, action) =>
+    keepAttributeComponent(state, memoizedGetComponentId(action.address), action.data),
+
+  [KEEP_MODEL]: (state, action) =>
+    keepModelComponent(state, memoizedGetComponentId(action.address)),
+
+  [KEEP_ROW_MODEL]: (state, action) => keepRowModel(state, action.address),
+
+  [RESTORE_VALIDATION]: (state, action) =>
+    restoreValidationComponent(state, memoizedGetComponentId(action.address)),
+
+  [RESTORE_MULTIPLE_VALIDATION]: (state, action) =>
+    action.componentList.reduce(
+      (newState, _action) => restoreValidationComponent(newState, memoizedGetComponentId(_action.address)),
+      state
+    ),
+
+  [RESTORE_ATTRIBUTE]: (state, action) => restoreAttributeAction(state, action),
+
+  [RESTORE_MULTIPLE_ATTRIBUTES]: (state, action) =>
+    action.componentList.reduce((newState, _action) => restoreAttributeAction(newState, _action), state),
+
+  [RESTORE_MODEL]: (state, action) =>
+    restoreModelComponent(state, memoizedGetComponentId(action.address)),
+
+  [RESTORE_MULTIPLE_MODEL]: (state, action) =>
+    action.componentList.reduce(
+      (newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address)),
+      state
+    ),
+
+  [RESET_MODEL]: (state, action) =>
+    launchAddressFunction(resetCellModel, (s) => s, resetModel, state, { address: action.address, data: [] }),
+
+  [RESET_MULTIPLE_MODEL]: (state, action) =>
+    action.componentList.reduce(
+      (newState, _action) => launchAddressFunction(resetCellModel, (s) => s, resetModel, newState, { address: _action.address, data: [] }),
+      state
+    ),
+
+  [VALIDATE_COMPONENTS]: (state, action) =>
+    action.componentList.reduce((newState, _action) => validateComponent(newState, _action, action.settings), state),
+
+  [VALIDATE_ROW]: (state, action) => validateRow(state, action.address, action.settings),
+};
+
+/**
  * Components reducer
+ * @param {Object} state - Current Redux state
+ * @param {Object} action - Redux action with type and payload
+ * @returns {Object} New state
  */
 export function components(state = InitialState, action = {}) {
-  switch (action.type) {
-    case CLEAR_COMPONENTS:
-      // Remove the current view components
-      return clearComponents(state, action.view);
-    case CLEAR_ALL_COMPONENTS:
-      // Remove the current view components
-      return {};
-    case UPDATE_VIEW_COMPONENTS:
-      return {
-        ...action.view === "base" ? {} : clearComponents(state, action.view),
-        ...action.data
-      };
-    case GENERATE_CELL_COMPONENTS:
-      return {
-        ...state,
-        ...generateCellComponents(state, state[action.address.component], action.data)
-      };
-    case UPDATE_COMPONENT:
-      return updateComponentData(state, memoizedGetComponentId(action.address), action.data);
-    case UPDATE_MULTIPLE_COMPONENTS:
-      return action.componentList.reduce((newState, _action) => updateComponentData(newState, memoizedGetComponentId(_action.address), _action), state);
-    case UPDATE_MULTIPLE_MODELS:
-      return action.componentList.reduce((newState, _action) => updateModelAction(newState, _action), state);
-    case UPDATE_ATTRIBUTES:
-      return updateAttributeAction(state, action);
-    case UPDATE_SPECIFIC_ATTRIBUTES:
-      return updateSpecificAttributes(state, action);
-    case UPDATE_MULTIPLE_ATTRIBUTES:
-      return action.componentList.reduce((newState, _action) => updateAttributeAction(newState, _action), state);
-    case UPDATE_MODEL:
-      return updateModelAction(state, action);
-    case UPDATE_ROW_MODEL:
-      return updateRowModel(state, action.address, action.data);
-    case UPDATE_VALIDATION:
-      return updateValidationAction(state, action);
-    case UPDATE_MULTIPLE_VALIDATION:
-      return action.componentList.reduce((newState, _action) => updateValidationAction(newState, _action), state);
-    case KEEP_VALIDATION:
-      return keepValidationComponent(state, memoizedGetComponentId(action.address));
-    case KEEP_ATTRIBUTE:
-      return keepAttributeComponent(state, memoizedGetComponentId(action.address), action.data);
-    case KEEP_MODEL:
-      return keepModelComponent(state, memoizedGetComponentId(action.address));
-    case KEEP_ROW_MODEL:
-      return keepRowModel(state, action.address);
-    case RESTORE_VALIDATION:
-      return restoreValidationComponent(state, memoizedGetComponentId(action.address));
-    case RESTORE_MULTIPLE_VALIDATION:
-      return action.componentList.reduce((newState, _action) => restoreValidationComponent(newState, memoizedGetComponentId(_action.address)), state);
-    case RESTORE_ATTRIBUTE:
-      return restoreAttributeAction(state, action);
-    case RESTORE_MULTIPLE_ATTRIBUTES:
-      return action.componentList.reduce((newState, _action) => restoreAttributeAction(newState, _action), state);
-    case RESTORE_MODEL:
-      return restoreModelComponent(state, memoizedGetComponentId(action.address));
-    case RESTORE_MULTIPLE_MODEL:
-      return action.componentList.reduce((newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address)), state);
-    case RESET_MODEL:
-      return launchAddressFunction(resetCellModel, (s) => s, resetModel, state, {address: action.address, data: []});
-    case RESET_MULTIPLE_MODEL:
-      return action.componentList.reduce((newState, _action) => launchAddressFunction(resetCellModel, (s) => s, resetModel, newState, {address: _action.address, data: []}), state);
-    case VALIDATE_COMPONENTS:
-      return action.componentList.reduce((newState, _action) => validateComponent(newState, _action, action.settings), state);
-    case VALIDATE_ROW:
-      return validateRow(state, action.address, action.settings);
-    default:
-      return state;
-  }
+  const handler = actionHandlers[action.type];
+  return handler ? handler(state, action) : state;
 }

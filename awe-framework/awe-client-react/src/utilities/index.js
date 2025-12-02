@@ -414,6 +414,20 @@ export function getComponent(components, address) {
 }
 
 /**
+ * Get component with address
+ * @param {object[]} components Component list
+ * @param {object} address Component address
+ * @return component found
+ * @memberOf Utilities
+ */
+export function getGridAndValues(getState, address) {
+  const { components } = getState();
+  const component = getComponent(components, address);
+  const {values} = component.model;
+  return {component, values};
+}
+
+/**
  * Get action address
  * @param {object} action
  * @return Action address
