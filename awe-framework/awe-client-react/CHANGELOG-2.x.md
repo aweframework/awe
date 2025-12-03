@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 2.0.7
+*03/12/2025*
+
+- AWE PDF Viewer fails when address is not defined. [MR #137](https://gitlab.com/aweframework/awe-react/-/merge_requests/137) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.6
 *02/12/2025*
 
