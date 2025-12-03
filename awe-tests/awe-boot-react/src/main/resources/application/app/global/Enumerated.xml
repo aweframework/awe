@@ -52,4 +52,9 @@
     <option label="PARAMETER_RADIO_1" value="Radio5" />
   </group>
 
+  <group id="VideoPdf">
+    <option label="VIDEO" value="VIDEO" />
+    <option label="PDF" value="PDF" />
+  </group>
+
 </enumerated>

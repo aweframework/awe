@@ -3041,4 +3041,11 @@
     <field id="l1_dat" alias="testDate" transform="DATE" function="TRUNCDATE"/>
   </query>
 
+  <query id="preview-list">
+    <constant alias="url" value="https://www.youtube.com/watch?v=aqz-KE-bpKQ"/>
+    <computed alias="video" format="'[type]' === 'VIDEO' ? '': 'hidden'" eval="true"/>
+    <computed alias="pdf" format="'[type]' === 'PDF' ? '': 'hidden'" eval="true"/>
+    <variable id="type" type="STRING" name="TagListType"/>
+  </query>
+
 </queries>

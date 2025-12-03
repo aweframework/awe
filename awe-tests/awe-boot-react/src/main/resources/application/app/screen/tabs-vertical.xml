@@ -65,13 +65,21 @@
       </tabcontainer>
       <tabcontainer id="WizardStep3">
         <tag type="div" style="expand" expandible="vertical">
-          <tag type="div" style="panel-body expand">
-            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="cod_usr12" validation="required"
-                      readonly="true" style="col-xs-6 col-sm-4 col-md-2" value="Hola, Adios"/>
-            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="epa12" validation="required"
-                      style="col-xs-6 col-sm-4 col-md-2"/>
-            <criteria placeholder="SCREEN_TEXT_USER" component="text" icon="user" id="tutu12" validation="required"
-                      style="col-xs-6 col-sm-4 col-md-2"/>
+          <tag type="div" style="expand" expandible="vertical">
+            <tag type="div" style="panel-body">
+              <criteria component="select" id="TagListType" initial-load="enum" target-action="VideoPdf" style="col-xs-6 col-sm-4 col-md-2">
+                <dependency initial="true">
+                  <dependency-element id="TagListType"/>
+                  <dependency-action type="filter" target="preview2"/>
+                </dependency>
+              </criteria>
+            </tag>
+            <tag type="div" style="expand" expandible="vertical">
+              <tag-list id="preview2" target-action="preview-list" max="1" type="div" style="expand expandible-vertical">
+                <tag type="div" id="video-preview" style="[video] expand" expandible="vertical"><video id="video-w-preview" src="[url]" controls="true" style="expand"/></tag>
+                <tag type="div" id="pdf-preview" style="[pdf] expand" expandible="vertical"><widget type="pdf-viewer" id="pdf-w-preview" target-action="preview-pdf" style="expand expandible-vertical"/></tag>
+              </tag-list>
+            </tag>
           </tag>
         </tag>
       </tabcontainer>
