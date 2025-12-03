@@ -64,8 +64,6 @@ const InitialState = {};
  * @returns {Object} New state with updated component
  */
 function updateComponentInState(state, componentId, updates) {
-  if (!state[componentId]) return state;
-
   return {
     ...state,
     [componentId]: {

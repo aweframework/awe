@@ -62,7 +62,7 @@ function AweTagList(props) {
     const components = findComponents(address.view, fixedElements);
     dispatch(updateMultipleComponentsWithDependencies(components));
     setTagList(fixedElements);
-  }, [elementList, model.values]);
+  }, [elementList, model.values, address]);
 
   const classes = classNames({[`expandible-${expand}`]: expand}, style, {"hidden": !visible});
 
