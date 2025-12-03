@@ -27,7 +27,7 @@ function AweInputEditor(props) {
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
                        generateLabel={false} generateIcon={false} generateUnit={false} groupClass={"col-12"}>
       <Editor
-      id={address.component}
+      id={id}
       style={{height: "100%", minHeight:"4rem"}}
       value={value}
       className={classes}

@@ -33,4 +33,11 @@ describe('awe-react-client/test/js/criteria/AweImageTest.jsx', () => {
     expect(document.querySelector("img")).not.toBeNull();
   });
 
+  it('renders Image component with empty state', () => {
+    renderWithProviders(<AweImage id="image"/>, {components: {image: {}}, settings: DEFAULT_SETTINGS});
+
+    // check
+    expect(document.querySelector("img")).not.toBeNull();
+  });
+
 });

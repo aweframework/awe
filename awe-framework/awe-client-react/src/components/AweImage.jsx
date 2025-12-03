@@ -7,8 +7,7 @@ import {useSelector} from "react-redux";
 
 function AweImage(props) {
   const { id } = props;
-  const { address, attributes = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { attributes = {} } = useSelector(state => ({
     attributes: state.components[id]?.attributes
   }));
   const {url, alternateUrl, style, title, visible = true} = attributes;
@@ -16,7 +15,7 @@ function AweImage(props) {
   const { t } = useTranslation();
 
   return (<img
-        id={address.component}
+        id={id}
         src={url}
         alt={alternateUrl}
         className={classes}

@@ -1,7 +1,6 @@
 import './AweGridTest';
 import './AweTreeGridTest';
 import './AweMenuTest';
-//import './AweViewTest';
 import './AwePivotTableTest';
 import './AweInfoButtonTest';
 import './AweInfoDropdownTest';
@@ -16,3 +15,5 @@ import './AweLinkTest';
 import './AweVideoTest';
 import './AweWindowTest';
 import './AweDialogTest';
+import './AweButtonTest.jsx';
+import './AweTagListTest.jsx';

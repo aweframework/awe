@@ -452,7 +452,6 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
   it('should get grid data for printing', () => {
     grid.attributes.sendAll = true;
     let data = getComponentData(grid, props, true);
-    console.info(data);
     expect(data).toEqual({
       Col1: ["Value11","Value12"],
       "Col1.selected": "Value11",

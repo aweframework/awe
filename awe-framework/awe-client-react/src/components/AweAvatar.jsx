@@ -13,11 +13,12 @@ import {useDispatch, useSelector} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import PropTypes from "prop-types";
+import useComponent from "../hooks/useComponent";
 
 function AweAvatar(props) {
   const { id, elementList = [] } = props;
-  const { address, model, attributes = {}, actions = [], globalDisabled } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { address } = useComponent(id);
+  const { model = {}, attributes = {}, actions = [], globalDisabled = false } = useSelector(state => ({
     model: state.components[id]?.model,
     attributes: state.components[id]?.attributes,
     actions: state.components[id]?.actions,
@@ -55,7 +56,7 @@ function AweAvatar(props) {
   return (<>
     <div className={`avatar-component p-overlay-badge ${style}`} onClick={onClick} role="button" onKeyDown={onClick}>
       <Avatar
-        id={address.component}
+        id={id}
         type="button"
         className={classes}
         shape={"circle"}

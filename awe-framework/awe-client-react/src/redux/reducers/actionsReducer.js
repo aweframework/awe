@@ -31,12 +31,13 @@ const InitialState = {
  * @return {object} next state
  */
 function addActionSync(state, action) {
-  let currentStackIndex = Math.max(state.sync.length - 1, 0);
-  let currentStack = state.sync[currentStackIndex];
+  const {sync = [[]]} = state;
+  let currentStackIndex = Math.max(sync.length - 1, 0);
+  let currentStack = sync[currentStackIndex];
   return {
     ...state,
     sync: [
-      ...state.sync.slice(0, currentStackIndex),
+      ...sync.slice(0, currentStackIndex),
       [
         ...currentStack,
         {
@@ -45,7 +46,7 @@ function addActionSync(state, action) {
         }
       ]
     ]
-  }
+  };
 }
 
 /**
@@ -64,7 +65,7 @@ function addActionAsync(state, action) {
         status: STATUS_INITIAL
       }
     ]
-  }
+  };
 }
 
 /**
@@ -88,10 +89,11 @@ function addAction(state, action) {
  * @return {object} next state
  */
 function removeAction(state, action) {
+  const {sync = [[]], async = []} = state;
   return runNext({
     ...state,
-    sync: [...state.sync.map((stack) => [...stack.filter(a => a.id !== action?.id)])],
-    async: [...state.async.filter(a => a.id !== action?.id)]
+    sync: sync.map((stack) => stack.filter(a => a.id !== action?.id)),
+    async: async.filter(a => a.id !== action?.id)
   });
 }
 
@@ -101,11 +103,12 @@ function removeAction(state, action) {
  * @return {object} new state
  */
 function deleteStack(state) {
-  let currentStackIndex = Math.max(state.sync.length - 1, 0);
+  const {sync = [[]]} = state;
+  let currentStackIndex = Math.max(sync.length - 1, 0);
   return runNext({
     ...state,
     sync: [
-      ...state.sync.slice(0, currentStackIndex),
+      ...sync.slice(0, currentStackIndex),
       []
     ]
   });
@@ -122,7 +125,7 @@ function setActionAttribute(action, actionId, data) {
     return {
       ...action,
       ...data
-    }
+    };
   }
   return action;
 }
@@ -134,15 +137,16 @@ function setActionAttribute(action, actionId, data) {
  * @param data Action data
  */
 function changeActionAttribute(state, actionId, data) {
-  let currentStackIndex = Math.max(state.sync.length - 1, 0);
-  let currentStack = state.sync[currentStackIndex];
+  const {sync = [[]], async = []} = state;
+  let currentStackIndex = Math.max(sync.length - 1, 0);
+  let currentStack = sync[currentStackIndex];
   return {
     ...state,
     sync: [
-      ...state.sync.slice(0, currentStackIndex),
-      [...currentStack.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))]
+      ...sync.slice(0, currentStackIndex),
+      currentStack.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))
     ],
-    async: [...state.async.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))]
+    async: async.map((actionInStack) => setActionAttribute(actionInStack, actionId, data))
   };
 }
 
@@ -162,8 +166,9 @@ function runAction(state, action) {
  * @return {object}
  */
 function runNext(state) {
-  let currentStackIndex = Math.max(state.sync.length - 1, 0);
-  let currentStack = state.sync[currentStackIndex];
+  const {sync = [[]]} = state;
+  let currentStackIndex = Math.max(sync.length - 1, 0);
+  let currentStack = sync[currentStackIndex];
   if (currentStack.length === 0) {
     return toggleActionsRunning(state, false);
   } else {
@@ -217,9 +222,10 @@ function getId() {
  */
 export function actions(state = InitialState, action = {}) {
   let currentStackIndex;
-  let currentStack
+  let currentStack;
   let previousStackIndex;
   let previousStack;
+  const {sync = [[]]} = state;
 
   switch (action.type) {
     case ADD_ACTION:
@@ -227,49 +233,49 @@ export function actions(state = InitialState, action = {}) {
     case REMOVE_ACTION:
       return removeAction(state, action.payload);
     case ADD_ACTIONS:
-      currentStackIndex = Math.max(state.sync.length - 1, 0);
-      currentStack = state.sync[currentStackIndex];
+      currentStackIndex = Math.max(sync.length - 1, 0);
+      currentStack = sync[currentStackIndex];
       return runNext({
         ...state,
         sync: [
-          ...state.sync.slice(0, currentStackIndex),
+          ...sync.slice(0, currentStackIndex),
           [
             ...currentStack,
             ...action.payload.map(a => ({...a, id: "action-" + getId(), status: STATUS_INITIAL}))
           ]
         ]
-      })
+      });
     case ADD_ACTIONS_TOP:
-      currentStackIndex = Math.max(state.sync.length - 1, 0);
-      currentStack = state.sync[currentStackIndex];
+      currentStackIndex = Math.max(sync.length - 1, 0);
+      currentStack = sync[currentStackIndex];
       return runNext({
         ...state,
         sync: [
-          ...state.sync.slice(0, currentStackIndex),
+          ...sync.slice(0, currentStackIndex),
           [
             ...action.payload.map(a => ({...a, id: "action-" + getId(), status: STATUS_INITIAL})),
             ...currentStack
           ]
         ]
-      })
+      });
     case ADD_STACK:
       return runNext({
         ...state,
         sync: [
-          ...state.sync,
+          ...sync,
           []
         ]
       });
     case REMOVE_STACK:
-      previousStackIndex = Math.max(state.sync.length - 2, 0);
-      previousStack = state.sync[previousStackIndex];
-      currentStackIndex = Math.max(state.sync.length - 1, 0);
-      currentStack = state.sync[currentStackIndex];
+      previousStackIndex = Math.max(sync.length - 2, 0);
+      previousStack = sync[previousStackIndex];
+      currentStackIndex = Math.max(sync.length - 1, 0);
+      currentStack = sync[currentStackIndex];
       if (currentStackIndex === 0) return state;
       return runNext({
         ...state,
         sync: [
-          ...state.sync.slice(0, previousStackIndex),
+          ...sync.slice(0, previousStackIndex),
           [
             ...currentStack,
             ...previousStack
@@ -296,8 +302,8 @@ export function actions(state = InitialState, action = {}) {
         running: false,
         sync: [[]],
         async: []
-      }
+      };
     default:
-      return state
+      return state;
   }
 }

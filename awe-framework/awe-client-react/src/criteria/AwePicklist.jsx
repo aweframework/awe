@@ -56,7 +56,7 @@ function AwePicklist(props) {
   }
 
   // Paint component
-  return <div className={classes} criterion-id={address.component}>
+  return <div className={classes} criterion-id={id}>
     <PickList
       dataKey="value"
       source={model.values.filter(v => !v.selected)}

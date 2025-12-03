@@ -8,8 +8,7 @@ import {useTranslation} from "react-i18next";
 
 function AweVideo(props) {
   const { id } = props;
-  const { address = {}, attributes = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { attributes = {} } = useSelector(state => ({
     attributes: state.components[id]?.attributes
   }));
   const { t } = useTranslation();
@@ -18,7 +17,7 @@ function AweVideo(props) {
 
   return visible ? <ReactPlayer
         className={classes}
-        id={address.component}
+        id={id}
         url={src}
         controls={parseBoolean(controls)}
         light={poster}

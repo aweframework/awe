@@ -9,12 +9,13 @@ import useSuggest from "../hooks/useSuggest";
 import {translateLabel} from "../utilities";
 import {Skeleton} from "primereact/skeleton";
 import PropTypes from "prop-types";
+import useComponent from "../hooks/useComponent";
 
 function AweSuggest(props) {
   const {id, style: propsStyle} = props;
   const {t} = useTranslation();
-  const {address, model, attributes, validationRules} = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { address } = useComponent(id);
+  const { model, attributes, validationRules} = useSelector(state => ({
     model: state.components[id]?.model,
     attributes: state.components[id]?.attributes,
     validationRules: state.components[id]?.validationRules}));
@@ -26,14 +27,14 @@ function AweSuggest(props) {
   // Change model values if updated
   useEffect(() => {
     const fixedValues = (model?.values || [])
-      .map(item => ({...item, label: item.label || item.value, needsInit: !("label" in item)}))
+      .map(item => ({...item, label: item.label || item.value, needsInit: !item?.label}))
       .find(item => item.selected) || {};
     setValue(fixedValues);
   }, [model?.values]);
 
   // Initial suggest
   useEffect(() => {
-    const {checkTarget, targetAction} = attributes || {}
+    const {checkTarget, targetAction} = attributes || {};
     if ((checkTarget || targetAction) && value?.needsInit) {
       const query = value?.value;
       initialSuggest(query);
@@ -41,7 +42,7 @@ function AweSuggest(props) {
   }, [value, attributes]);
 
   // If address is undefined, return skeleton
-  if (!address) {
+  if (!address?.component) {
     return <Skeleton width="10rem" height="2rem" style={propsStyle}/>;
   }
 
@@ -52,7 +53,7 @@ function AweSuggest(props) {
       <AutoComplete
         field="label"
         ref={autocompleteRef}
-        id={address.component}
+        id={id}
         value={value}
         placeholder={translateLabel(placeholder, t)}
         required={required}

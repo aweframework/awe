@@ -1,4 +1,4 @@
-import React, {useCallback, useRef} from "react";
+import React from "react";
 import {Dropdown} from "primereact/dropdown";
 import {translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
@@ -23,7 +23,7 @@ function AweSelect(props) {
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <Dropdown
       ref={ref}
-      id={address.component}
+      id={id}
       value={selected}
       placeholder={translateLabel(placeholder, t)}
       onChange={onChange}
