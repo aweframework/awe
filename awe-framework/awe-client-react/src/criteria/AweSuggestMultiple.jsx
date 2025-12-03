@@ -7,13 +7,14 @@ import {useSelector} from "react-redux";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
 import {translateLabel} from "../utilities";
+import useComponent from "../hooks/useComponent";
 
 function AweSuggestMultiple(props) {
   const {id} = props;
 
   const {t} = useTranslation();
-  const {address, model, attributes, validationRules} = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { address } = useComponent(id);
+  const {model, attributes, validationRules} = useSelector(state => ({
     model: state.components[id]?.model,
     attributes: state.components[id]?.attributes,
     validationRules: state.components[id]?.validationRules}));
@@ -30,7 +31,7 @@ function AweSuggestMultiple(props) {
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <AutoComplete multiple={true}
         ref={autocompleteRef}
-        id={address.component}
+        id={id}
         value={value.map(item => ({...item, label: item.label || item.value}))}
         placeholder={translateLabel(placeholder, t)}
         required={required}

@@ -2,6 +2,7 @@ import {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
+import useComponent from "./useComponent";
 
 /**
  * useText hook
@@ -10,12 +11,12 @@ import {addActionsTop} from "../redux/actions/actions";
  */
 export default function useText(id) {
   const dispatch = useDispatch();
-  const { address, model = { values: [] }, attributes = {}, validationRules = {}, context = {}, settings = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { address } = useComponent(id);
+  const { model = { values: [] }, attributes = {}, validationRules = {}, context = {}, settings = {} } = useSelector(state => ({
     model: state.components[id]?.model,
     attributes: state.components[id]?.attributes,
     validationRules: state.components[id]?.validationRules,
-    context: state.components[id]?.context || {},
+    context: state.components[id]?.context,
     settings: state.settings
   }));
 

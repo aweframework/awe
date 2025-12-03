@@ -11,7 +11,7 @@ import {addActionsTop} from "../redux/actions/actions";
 function AweInfoButton(props) {
 
   const {id} = props;
-  const { address, attributes = {}, actions, globalDisabled, settings } = useSelector(state => ({
+  const { address = {}, attributes = {}, actions, globalDisabled, settings } = useSelector(state => ({
     address: state.components[id]?.address,
     model: state.components[id]?.model,
     attributes: state.components[id]?.attributes,
@@ -31,12 +31,12 @@ function AweInfoButton(props) {
     dispatch(addActionsTop(actions.map(action => ({...action, address}))));
   };
 
-  const classes = classNames(`help-info-button-${address.component}`, "p-button-rounded", "p-button-text", "p-button-secondary", {"hidden": !visible, [`p-button-${size}`]: size}, style);
+  const classes = classNames(`help-info-button-${id}`, "p-button-rounded", "p-button-text", "p-button-secondary", {"hidden": !visible, [`p-button-${size}`]: size}, style);
 
   return (<span className="p-overlay-badge">
-      { getHelpTooltipNode(help, helpImage, t, `.help-info-button-${address.component}`) }
+      { getHelpTooltipNode(help, helpImage, t, `.help-info-button-${id}`) }
       <Button
-      id={address.component}
+      id={id}
       type="button"
       className={classes}
       icon={getIconCode(icon, "p-button-icon p-c p-button-icon-left")}

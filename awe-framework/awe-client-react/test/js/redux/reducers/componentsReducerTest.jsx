@@ -107,7 +107,6 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
     }
     ];
     const newState = components(state.components, { type: UPDATE_MULTIPLE_ATTRIBUTES, view: "base", componentList });
-    console.info(JSON.stringify(newState));
     expect(newState.component.attributes).toEqual({ ...state.components.component.attributes, ...componentList[0].data });
     expect(newState.component2.attributes).toEqual(componentList[1].data);
   });

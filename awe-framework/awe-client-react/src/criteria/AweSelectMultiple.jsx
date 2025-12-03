@@ -16,8 +16,8 @@ function AweSelectMultiple(props) {
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <MultiSelect
         ref={ref}
-        id={address.component}
-        inputid={address.component}
+        id={id}
+        inputid={id}
         value={selected}
         placeholder={translateLabel(placeholder, t)}
         onChange={onChange}

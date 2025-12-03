@@ -26,7 +26,7 @@ const getButtonType = (buttonType) => {
 
 function AweButton(props) {
   const { id, style: propsStyle } = props;
-  const { address, attributes = {}, actions = [], settings, globalDisabled } = useSelector(state => ({
+  const { address = {}, attributes = {}, actions = [], settings, globalDisabled } = useSelector(state => ({
     address: state.components[id]?.address,
     attributes: state.components[id]?.attributes,
     actions: state.components[id]?.actions,
@@ -54,11 +54,11 @@ function AweButton(props) {
   }
 
   const {style, icon, disabled, label, size, visible, help, helpImage, buttonType} = attributes;
-  const classes = classNames(`help-button-${address.component}`, "mr-2", "mt-2", getButtonType(buttonType), {"hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size}, style);
+  const classes = classNames(`help-button-${id}`, "mr-2", "mt-2", getButtonType(buttonType), {"hidden": !visible, [`p-button-${size}`]: size, [`text-${size}`]: size}, style);
   return (<>
-    { getHelpTooltipNode(help, helpImage, t, `.help-button-${address.component}`) }
+    { getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`) }
     <Button
-      id={address.component}
+      id={id}
       type="button"
       className={classes}
       icon={getIconCode(icon, classNames("p-button-icon", "p-c",  "p-button-icon-left", {[`text-${size}`]: size}), )}

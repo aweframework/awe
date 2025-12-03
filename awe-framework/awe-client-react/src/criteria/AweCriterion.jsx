@@ -4,7 +4,6 @@ import {getHelpTooltipNode, getIconCode, formatMessage, translateLabel} from "..
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import "./AweCriterion.less";
-import useComponent from "../hooks/useComponent";
 
 const AweCriterion = ({children, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
@@ -12,7 +11,6 @@ const AweCriterion = ({children, address, attributes, validationRules,
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly} = attributes || {};
   const {t} = useTranslation();
   const {settings} = useSelector((state) => ({settings: state.settings}));
-  useComponent(address.component);
 
   const getHelpIcon = () => {
     if (help || helpImage) {

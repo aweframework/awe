@@ -1,10 +1,11 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {translateLabel} from "../utilities";
 import {classNames, parseValidationRules} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import {useTranslation} from "react-i18next";
 import {updateMultipleComponentsWithDependencies} from "../redux/thunks/components";
 import {useDispatch, useSelector} from "react-redux";
+import useComponent from "../hooks/useComponent";
 
 function generateTagListRow(elements, row) {
   let template = JSON.stringify(elements);
@@ -48,25 +49,20 @@ function AweTagList(props) {
   const [tagList, setTagList] = useState([]);
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { address, model, attributes } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { address } = useComponent(id);
+  const { model = {values: []}, attributes = {} } = useSelector(state => ({
     model: state.components[id]?.model,
     attributes: state.components[id]?.attributes
   }));
   const {label, style, expand, visible = true} = attributes;
 
-  const reloadElements = useCallback(() => {
+  // Initialize on mount or model changes
+  useEffect(() => {
     const fixedElements = model.values.map(row => generateTagListRow(elementList, row)).flat();
     const components = findComponents(address.view, fixedElements);
     dispatch(updateMultipleComponentsWithDependencies(components));
     setTagList(fixedElements);
   }, [elementList, model.values]);
-
-  // Initialize on mount or model changes
-  useEffect(() => {
-    reloadElements();
-  }, [model.values]);
-
 
   const classes = classNames({[`expandible-${expand}`]: expand}, style, {"hidden": !visible});
 

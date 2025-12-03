@@ -8,7 +8,7 @@ import {addActionsTop} from "../redux/actions/actions";
  */
 export default function useComponent(id) {
   const dispatch = useDispatch();
-  const { address, autoload = false, autorefresh = 0 } = useSelector(state => ({
+  const { address = {}, autoload = false, autorefresh = 0 } = useSelector(state => ({
     address: state.components[id]?.address,
     autoload: state.components[id]?.attributes?.autoload,
     autorefresh: state.components[id]?.attributes?.autorefresh,

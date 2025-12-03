@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {translateLabel} from "../utilities";
+import useComponent from "./useComponent";
 
 /**
  * Hook común para selects (simple y múltiple)
@@ -19,15 +20,16 @@ export function useSelect({id, model: propModel, address: propAddress, attribute
   const dispatch = useDispatch();
   const dropdownRef = useRef(null);
 
+  const { address: reduxAddress } = useComponent(id);
+
   // --- Obtener datos de Redux si hay id ---
   const reduxData = useSelector((state) => (id ? {
-    address: state.components[id]?.address,
     model: state.components[id]?.model ?? {values: []},
     attributes: state.components[id]?.attributes ?? {},
     validationRules: state.components[id]?.validationRules ?? {}
   } : {}));
 
-  const address = propAddress || reduxData.address;
+  const address = propAddress || reduxAddress;
   const model = propModel || reduxData.model || {values: []};
   const attributes = propAttrs || reduxData.attributes || {};
   const validationRules = reduxData.validationRules || {};

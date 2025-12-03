@@ -37,6 +37,15 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
     expect(document.querySelector("div#avatar")).not.toBeNull();
   });
 
+  it("renders Avatar component with empty state", () => {
+    spyOn(React, "lazy").and.callFake(importFunc => importFunc());
+
+    renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { components: {avatar: {}}, settings: {} });
+
+    // check
+    expect(document.querySelector("div#avatar")).not.toBeNull();
+  });
+
   it("renders Avatar component and clicks on it", () => {
     spyOn(React, "lazy").and.callFake(importFunc => importFunc());
 

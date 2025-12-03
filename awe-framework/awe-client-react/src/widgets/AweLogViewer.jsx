@@ -14,7 +14,7 @@ import {fetchLogAction} from "../redux/thunks/files";
 function AweLogViewer(props) {
 
   const {id} = props;
-  const { address, attributes = {}} = useSelector(state => ({
+  const { address = {}, attributes = {}} = useSelector(state => ({
     address: state.components[id]?.address,
     attributes: state.components[id]?.attributes
   }));

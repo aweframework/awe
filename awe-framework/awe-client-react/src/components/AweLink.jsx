@@ -6,8 +6,7 @@ import {useTranslation} from "react-i18next";
 
 function AweLink(props) {
   const { id } = props;
-  const { address, attributes = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { attributes = {} } = useSelector(state => ({
     attributes: state.components[id]?.attributes
   }));
   const {url, style, title, label, visible = true} = attributes;
@@ -15,7 +14,7 @@ function AweLink(props) {
   const classes = classNames(style, {"hidden": !visible});
 
   return <a
-        id={address.component}
+        id={id}
         href={url}
         target={"_blank"}
         className={classes}

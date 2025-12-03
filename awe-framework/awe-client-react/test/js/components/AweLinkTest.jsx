@@ -32,4 +32,11 @@ describe('awe-react-client/test/js/criteria/AweLinkTest.jsx', () => {
     expect(document.querySelector("a span")).not.toBeNull();
   });
 
+  it('renders Link component with empty state', () => {
+    renderWithProviders(<AweLink id="link"/>, {components: {link: {}}, settings: DEFAULT_SETTINGS});
+
+    // check
+    expect(document.querySelector("a span")).not.toBeNull();
+  });
+
 });

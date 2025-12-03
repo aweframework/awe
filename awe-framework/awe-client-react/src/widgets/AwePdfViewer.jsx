@@ -4,7 +4,6 @@ import {PDFObject} from 'react-pdfobject';
 import "./AwePdfViewer.less";
 import {Skeleton} from "primereact/skeleton";
 import {useDispatch, useSelector} from "react-redux";
-import {useTranslation} from "react-i18next";
 import {fetchPdfAction} from "../redux/thunks/files";
 
 /**
@@ -14,14 +13,11 @@ import {fetchPdfAction} from "../redux/thunks/files";
 function AwePdfViewer(props) {
 
   const {id} = props;
-  const { address, attributes = {}, settings = {}, components = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
+  const { attributes = {}} = useSelector(state => ({
     attributes: state.components[id]?.attributes,
-    context: state.components[id]?.context || {},
-    settings: state.settings,
-    components: state.components
+    context: state.components[id]?.context || {}
   }));
-  const { t } = useTranslation();
+
   const [pdf, setPdf] = useState(null);
   const dispatch = useDispatch();
 
@@ -47,7 +43,7 @@ function AwePdfViewer(props) {
   }, []);
 
   const {style, visible = true} = attributes;
-  return visible ? <div id={address.component} className={classNames("pdf-viewer", "expand", style)}>
+  return visible ? <div id={id} className={classNames("pdf-viewer", "expand", style)}>
     {getPdfTemplate(pdf)}
   </div> : <></>;
 }

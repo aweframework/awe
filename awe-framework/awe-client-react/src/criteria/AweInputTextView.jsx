@@ -6,12 +6,14 @@ import {classNames} from "../utilities/components";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
 import AweCriterion from "./AweCriterion";
+import useComponent from "../hooks/useComponent";
 
 function AweInputTextView(props) {
   const { id } = props;
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { address, model = { values: [] }, attributes = {}, validationRules = {}, actions = [] } = useSelector(state => ({
+  const { address } = useComponent(id);
+  const { model = { values: [] }, attributes = {}, validationRules = {}, actions = [] } = useSelector(state => ({
     address: state.components[id]?.address,
     model: state.components[id]?.model || { values: [] },
     attributes: state.components[id]?.attributes || {},
