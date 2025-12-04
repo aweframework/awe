@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 2.0.8
+*04/12/2025*
+
+- Awe TagList doesn't update components. [MR #138](https://gitlab.com/aweframework/awe-react/-/merge_requests/138) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.7
 *03/12/2025*
 
