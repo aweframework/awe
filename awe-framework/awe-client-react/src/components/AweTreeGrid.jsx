@@ -13,6 +13,7 @@ import {isEmpty} from "../utilities/general";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
+import {ProgressSpinner} from "primereact/progressspinner";
 
 function AweTreeGrid(props) {
   const { id } = props;
@@ -166,7 +167,7 @@ function AweTreeGrid(props) {
     }
   }, [attributes, onTogglerClick, baseCellTemplate, treeId]);
 
-  const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible } = attributes;
+  const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false } = attributes;
   const { first = 0, rows = max } = specificAttributes;
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
 
@@ -182,12 +183,14 @@ function AweTreeGrid(props) {
       headerColumnGroup={headerTemplate()}
       footerColumnGroup={footerTemplate()}
       paginator lazy={!loadAll}
+      loading={loading}
       paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
       first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={() => null}
       paginatorRight={<span>&nbsp;</span>} totalRecords={nodes.length} rowsPerPageOptions={rowsPerPageOptions}
       emptyMessage={""}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable
+      loadingIcon={<ProgressSpinner />}
     >
       {
         columnModel
