@@ -98,6 +98,9 @@
       <service-parameter type="STRING" name="BankAccount" />
     </java>
   </service>
+  <service id="TestControlTarget">
+    <java classname="com.almis.awe.test.Validation" method="testControlTarget"/>
+  </service>
   <service id="downloadFile">
     <java classname="com.almis.awe.test.File" method="downloadFile">
       <service-parameter type="STRING" name="filename" />

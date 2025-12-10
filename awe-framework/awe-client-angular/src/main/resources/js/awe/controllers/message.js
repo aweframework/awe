@@ -90,7 +90,7 @@ aweApplication.controller("MessageController",
        * @param {Object} message Popover message
        */
       $ctrl.hidePopover = function (message = $ctrl.popover) {
-        if (message.target?.popover) {
+        if (message?.target?.popover) {
           message.visible = false;
           $utilities.timeout.cancel(message.timer);
           message.target.popover('hide');
@@ -102,7 +102,7 @@ aweApplication.controller("MessageController",
        * @param {Object} message Popover message
        */
       $ctrl.destroyPopover = function (message = $ctrl.popover) {
-        if (message.target?.popover) {
+        if (message?.target?.popover) {
           message.background.remove();
           message.target.popover('destroy');
           // Finish action if alive
