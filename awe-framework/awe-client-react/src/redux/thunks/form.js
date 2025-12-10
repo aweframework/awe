@@ -74,13 +74,16 @@ export function filterAction(action, t = (o) => o) {
     // Define server and target action
     const address = getActionAddress(action);
 
-    // Start loading
+    // Get component
     let component = getComponent(components, address);
 
     // If component not found, send an error message
     if (!component) {
       dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_NOT_DEFINED', t), translateLabel('ERROR_MESSAGE_NOT_DEFINED_IN', t, address.component, view[address.view].option))]));
     } else {
+      // Start loading component
+      dispatch(updateAttributes(address, {loading: true}));
+
       // Add action to actions stack
       const serverAction = component.attributes[settings.serverActionKey] || "data";
       const targetAction = component.attributes[settings.targetActionKey];
@@ -115,6 +118,9 @@ export function fillAction(action) {
     // Publish model change
     dispatch(updateModelWithDependencies(address, model));
 
+    // Publish end loading
+    dispatch(updateAttributes(address, {loading: false}));
+
     // Finish action
     dispatch(acceptAction(action));
   };
@@ -142,6 +148,9 @@ export function selectAction(action) {
 
     // Call the method update selected value from API
     dispatch(updateModelWithDependencies(address, {selected}));
+
+    // Publish end loading
+    dispatch(updateAttributes(address, {loading: false}));
 
     // Finish action
     dispatch(acceptAction(action));

@@ -137,7 +137,8 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[addActionsTop], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [addActionsTop], [acceptAction]] = dispatch.calls.allArgs();
+      expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
       expect(addActionsTop.payload.length).toBe(1);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -165,7 +166,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateThunk], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateThunk], [updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
       // updateThunk es un thunk
       const innerDispatch = jasmine.createSpy('innerDispatch');
       const innerGetState = jasmine.createSpy('innerGetState').and.returnValue(mockState);
@@ -175,6 +176,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
       expect(updateModel.type).toBe('UPDATE_MODEL');
       expect(updateModel.data.values.length).toBe(2);
       expect(updateModel.data.page).toBe(1);
+      expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });
@@ -236,7 +238,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateThunk], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateThunk], [updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
       const innerDispatch = jasmine.createSpy('innerDispatch');
       const innerGetState = jasmine.createSpy('innerGetState').and.returnValue(mockState);
       updateThunk(innerDispatch, innerGetState);
@@ -244,6 +246,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
       const [[updateModel]] = innerDispatch.calls.allArgs();
       expect(updateModel.type).toBe('UPDATE_MODEL');
       expect(updateModel.data.selected).toEqual(['value1', 'value2', 'value3']);
+      expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });

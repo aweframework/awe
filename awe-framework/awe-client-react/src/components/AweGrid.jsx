@@ -10,6 +10,7 @@ import {classNames} from "../utilities/components";
 import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
+import {ProgressSpinner} from "primereact/progressspinner";
 
 function AweGrid(props) {
   const { id } = props;
@@ -123,7 +124,7 @@ function AweGrid(props) {
 
   const rowClassName = useCallback((data) => [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" "), []);
 
-  const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible } = attributes;
+  const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false } = attributes;
   const { records = 0, values = [] } = model;
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const classes = classNames("p-datatable-sm", "expand", style, { "hidden": !visible });
@@ -145,6 +146,7 @@ function AweGrid(props) {
       dataKey="id"
       emptyMessage={""}
       paginator lazy={!loadAll}
+      loading={loading}
       paginatorTemplate={disablePagination ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
       first={first} rows={rows} paginatorLeft={buttonsTemplate()} onPage={onPage}
       paginatorRight={<span>&nbsp;</span>} totalRecords={records} rowsPerPageOptions={rowsPerPageOptions}
@@ -156,6 +158,7 @@ function AweGrid(props) {
       onSort={onSort}
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
+      loadingIcon={<ProgressSpinner />}
     >
       {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}
       {

@@ -9,7 +9,6 @@ module.exports = {
     "bundle" : path.resolve(__dirname, "src", "js", "main.js")
   },
   output : {
-    clean: true,
     filename : "js/[name].js",
     path: path.resolve(__dirname, 'target', 'classes', 'static'),
   },
