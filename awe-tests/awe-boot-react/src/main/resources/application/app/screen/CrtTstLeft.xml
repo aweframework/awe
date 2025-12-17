@@ -275,6 +275,12 @@
             <dependency-element id="TxtVal"/>
           </dependency>
         </criteria>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtPru1" component="text" style="col-xs-6 col-sm-3 col-lg-2" autoload="true" target-action="nanana1"/>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtPru2" component="text" style="col-xs-6 col-sm-3 col-lg-2" autoload="true" target-action="nanana2"/>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtPru3" component="text" style="col-xs-6 col-sm-3 col-lg-2" autoload="true" target-action="nanana3"/>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtPru4" component="text" style="col-xs-6 col-sm-3 col-lg-2" autoload="true" target-action="nanana4"/>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtPru5" component="text" style="col-xs-6 col-sm-3 col-lg-2" autoload="true" target-action="nanana5"/>
+        <criteria left-label="18" label="PARAMETER_TEXT" id="TxtPru6" component="text" style="col-xs-6 col-sm-3 col-lg-2" autoload="true" target-action="nanana6"/>
       </tag>
     </window>
   </tag>

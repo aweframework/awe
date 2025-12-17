@@ -15,7 +15,7 @@ const useMessageService = () => {
   // Show modal confirm
   const confirm = (action) => dispatch(confirmAction(action, t));
 
-  const getActions = () => ({ message, confirm });
+  const getActions = () => ({ message, targetMessage: message, confirm });
   return {getActions};
 };
 
