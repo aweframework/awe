@@ -1,4 +1,10 @@
 
+# Changelog for AWE React 2.0.9
+*17/12/2025*
+
+- When showing more than one message and closing it, the other messages get closed and the message stack gets stuck. [MR #141](https://gitlab.com/aweframework/awe-react/-/merge_requests/141) (Pablo Javier García Mora)
+- Add loading icon on components which may wait on load. [MR #140](https://gitlab.com/aweframework/awe-react/-/merge_requests/140) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.8
 *04/12/2025*
 
