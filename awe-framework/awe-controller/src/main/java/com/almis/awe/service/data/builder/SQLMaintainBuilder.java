@@ -564,7 +564,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
       variables.put(sequenceIdentifier, new QueryParameter(JsonNodeFactory.instance.textNode(value), false, parameterType));
 
       // Add the value to request parameters
-      getParameters().put(seqVariable.getName(), value);
+      getParameters().put(Optional.ofNullable(seqVariable.getName()).orElse(seqVariable.getId()), value);
     } else {
       fieldValue = getStringExpression(sequenceVariableValue);
     }

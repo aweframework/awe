@@ -8,8 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * REST security configuration
@@ -30,7 +29,9 @@ public class SchedulerSecurityConfig extends ServiceConfig {
     return httpSecurity.securityMatcher("/scheduler/api/**")
         .authorizeHttpRequests(httpRequest -> httpRequest
             // Filter /scheduler/api urls
-            .requestMatchers(antMatcher("/scheduler/api/**")).anonymous())
+            .requestMatchers(
+								PathPatternRequestMatcher.withDefaults().matcher("/scheduler/api/**")
+						).anonymous())
         // Disable csrf
         .csrf(AbstractHttpConfigurer::disable)
         // No session cookie for API endpoints

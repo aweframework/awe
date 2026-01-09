@@ -22,8 +22,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * REST security configuration
@@ -67,13 +66,15 @@ public class RestSecurityConfiguration extends ServiceConfig {
     httpSecurity.securityMatcher(API_URL_LIST).authorizeHttpRequests(httpRequest -> httpRequest
                 // Swagger UI and api authenticate
                 .requestMatchers(
-                    antMatcher("/api/authenticate"),
-                    antMatcher("/v3/api-docs/**"),
-                    antMatcher("/swagger-ui/**")).permitAll()
+										PathPatternRequestMatcher.withDefaults().matcher("/api/authenticate"),
+										PathPatternRequestMatcher.withDefaults().matcher("/v3/api-docs/**"),
+										PathPatternRequestMatcher.withDefaults().matcher("/swagger-ui/**")
+								).permitAll()
                 // Filter public queries and maintains
                 .requestMatchers(
-                    antMatcher("/api/public/data/**"),
-                    antMatcher("/api/public/maintain/**")).access(publicQueryMaintainAuthorization)
+										PathPatternRequestMatcher.withDefaults().matcher("/api/public/data/**"),
+										PathPatternRequestMatcher.withDefaults().matcher("/api/public/maintain/**")
+								).access(publicQueryMaintainAuthorization)
                 // Any requests needs be authenticated
                 .anyRequest().authenticated()
             )

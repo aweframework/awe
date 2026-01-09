@@ -40,6 +40,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -63,11 +64,9 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.*;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.io.IOException;
 import java.util.*;
@@ -290,18 +289,16 @@ public class AweWebSecurityConfig {
 			http.exceptionHandling(exceptionHandlingConfigurer ->
 					exceptionHandlingConfigurer
 							.accessDeniedHandler(accessDeniedHandler())
-							.defaultAuthenticationEntryPointFor(actionAuthenticationEntryPoint(sessionDetails),
-									new AntPathRequestMatcher("/action/**"))
+							.defaultAuthenticationEntryPointFor(
+									actionAuthenticationEntryPoint(sessionDetails),
+									PathPatternRequestMatcher.withDefaults()
+											.matcher("/action/**")
+							)
 			);
 		}
 	}
 
 	// ============== BEANS ==============
-
-	@Bean
-	MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
-		return new MvcRequestMatcher.Builder(introspector);
-	}
 
 	@Bean
 	@ConditionalOnMissingBean
@@ -396,7 +393,8 @@ public class AweWebSecurityConfig {
 	@Bean
 	public JsonAuthenticationFilter jsonAuthenticationFilter(BaseConfigProperties baseConfigProperties, AweElements elements, ActionService actionService, ObjectMapper objectMapper) {
 		JsonAuthenticationFilter authenticationFilter = new JsonAuthenticationFilter(elements, objectMapper);
-		authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/action/login", "POST"));
+		authenticationFilter.setRequiresAuthenticationRequestMatcher(PathPatternRequestMatcher.withDefaults()
+				.matcher(HttpMethod.POST,"/action/login"));
 		authenticationFilter.setUsernameParameter(baseConfigProperties.getParameter().getUsername());
 		authenticationFilter.setPasswordParameter(baseConfigProperties.getParameter().getPassword());
 		authenticationFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {
