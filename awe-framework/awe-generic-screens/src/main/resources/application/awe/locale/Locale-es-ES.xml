@@ -693,6 +693,7 @@
   <locale name="ERROR_TITLE_RETRIEVING_SERVER_AGENT" value="Error recuperando el agente de servicios web"/>
   <locale name="ERROR_TITLE_RETRIEVING_SERVICE" value="Error recuperando el servicio"/>
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error guardando archivo"/>
+  <locale name="ERROR_TITLE_SESSION_CLOSED" value="Sesión cerrada"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Error al generar la pantalla"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Pantalla no definida"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Opción de pantalla no definida"/>
