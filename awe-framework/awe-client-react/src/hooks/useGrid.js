@@ -3,7 +3,7 @@ import {Column} from "primereact/column";
 import {Columns} from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
 import {getIconCode, translateLabel} from "../utilities";
-import {calculateFooterValue, getGridIdentifier, getWidthStyle, OperationIcon} from "../utilities/grid";
+import {getGridIdentifier, getWidthStyle, OperationIcon} from "../utilities/grid";
 import {ContextMenu} from "primereact/contextmenu";
 import {isEmpty} from "../utilities/general";
 import {useDispatch, useSelector} from "react-redux";
@@ -206,11 +206,11 @@ export function useGrid(id) {
   };
 
   const footerColumnTemplate = (column) => {
-    const { values = [] } = model;
+    const { footer = {} } = model;
     const { charlength, width, align } = column;
     return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"}
                    footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width) }}
-                   footer={calculateFooterValue(column, values)?.label}/>;
+                   footer={(footer[column.name] ?? {}).label ?? ""}/>;
   };
 
   const cellTemplate = (rowData, column) => {

@@ -127,13 +127,23 @@ export function getCellValue(values, rowIndex, columnId) {
 }
 
 /**
+ * Get footer value
+ * @param {Object} footer
+ * @param {String} columnId
+ * @memberOf Utilities
+ */
+export function getFooterValue(footer = {}, columnId) {
+  return extractCellValue(footer[columnId] ?? null);
+}
+
+/**
  * Get cell model
  * @param {mixed} value Value
  * @param {object} column Column definition
  * @returns {Object}
  * @memberOf Utilities
  */
-export function getCellModel(value = "", column = {}) {
+export function getCellModel(value = null, column = {}) {
   let colModel = column?.model || {values: []};
   if (Array.isArray(value)) {
     return value.find(item => item.selected) || {value: null};
@@ -142,7 +152,7 @@ export function getCellModel(value = "", column = {}) {
   } else if (colModel.values.length > 0) {
     return colModel.values.find(item => String(item.value) === String(value)) || {value: value, label: value};
   } else {
-    return {value: value, label: value};
+    return {value: value, label: isEmpty(value) ? "" : value};
   }
 }
 
@@ -350,7 +360,7 @@ export function getColumnDefinition(grid, columnName) {
  * @memberOf Components
  */
 export function getGridData(grid, model, props, forPrinting) {
-  const {attributes} = grid;
+  const {attributes, address} = grid;
   const {values} = model;
   const {sendAll, editable, multioperation, columnModel, id} = attributes;
   const selected = values.filter((value) => value.selected);
@@ -359,8 +369,9 @@ export function getGridData(grid, model, props, forPrinting) {
   if (multioperation) {
     sendable = values.filter((value) => value?.$row?.operation);
   } else if (!sendAll) {
-    sendable = values.filter((value) => value.selected);
+    sendable = selected;
   }
+  console.info("SELECTED.LENGTH: " + selected.length);
   return {
     ...(columnModel || [])
       .filter(column => column.sendable)
@@ -373,7 +384,9 @@ export function getGridData(grid, model, props, forPrinting) {
       }), {}),
     ...forPrinting ? getGridPrintData(grid, model, props) : {},
     [id]: sendable.map(value => value.id),
-    ...(editable || multioperation ? {[`${id}.editing`]: editing.map(value => value.id)} : {}),
+    ...(selected.length > 0 ? {[`${id}.selected`]: getDataDependingOnList(selected.map(value => value.id))} : {}),
+    ...(selected.length > 0 ? {[`${id}.selectedRowAddress`]: getDataDependingOnList(selected.map(value => value.id).map(value => ({...address, row: value})))} : {}),
+    ...(editable || multioperation ? {[`${id}.editing`]: getDataDependingOnList(editing.map(value => value.id))} : {}),
     ...(multioperation ? {[`${id}-RowTyp`]: sendable.map(value => value?.$row?.operation)} : {})
   };
 }
