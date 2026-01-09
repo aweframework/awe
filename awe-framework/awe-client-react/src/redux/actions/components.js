@@ -6,7 +6,6 @@ import {addActionsTop} from "./actions";
 
 export const CLEAR_COMPONENTS = 'CLEAR_COMPONENTS';
 export const CLEAR_ALL_COMPONENTS = 'CLEAR_ALL_COMPONENTS';
-export const GENERATE_CELL_COMPONENTS = 'GENERATE_CELL_COMPONENTS';
 export const UPDATE_VIEW_COMPONENTS = 'UPDATE_VIEW_COMPONENTS';
 export const UPDATE_COMPONENT = 'UPDATE_COMPONENT';
 export const UPDATE_ATTRIBUTES = 'UPDATE_ATTRIBUTES';
@@ -85,10 +84,6 @@ export function updateMultipleComponents(componentList) {
 
 export function updateMultipleModels(componentList) {
   return {type: UPDATE_MULTIPLE_MODELS, componentList};
-}
-
-export function generateCellComponents(address, data) {
-  return {type: GENERATE_CELL_COMPONENTS, address, data};
 }
 
 export function updateAttributes(address, data) {

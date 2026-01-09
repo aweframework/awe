@@ -439,14 +439,12 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
 
   it('should get grid data', () => {
     let data = getComponentData(grid, props, false);
-    //console.info(data);
-    expect(data).toEqual({Col1: ["Value11"], "Col1.selected": "Value11", grid: [1]});
+    expect(data).toEqual({Col1: ["Value11"], "Col1.selected": "Value11", grid: [1], "grid.selected": 1, "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}});
   });
 
   it('should get multioperation grid data', () => {
     let data = getComponentData({...grid, attributes: {...grid.attributes, multioperation: true}}, props, false);
-    //console.info(data);
-    expect(data).toEqual({Col1: ["Value12"], "Col1.selected": "Value11", grid: [2], "grid-RowTyp":["UPDATE"], "Col1.editing": null, "grid.editing": [ ]});
+    expect(data).toEqual({Col1: ["Value12"], "Col1.selected": "Value11", grid: [2], "grid-RowTyp":["UPDATE"], "Col1.editing": null, "grid.editing": null, "grid.selected": 1, "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}});
   });
 
   it('should get grid data for printing', () => {
@@ -478,7 +476,9 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
           }
         ]
       },
-      grid: [1, 2]
+      grid: [1, 2],
+      "grid.selected": 1,
+      "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}
     });
   });
 

@@ -2,7 +2,6 @@
 import {components} from '../../../../src/redux/reducers/componentsReducer';
 import {getComponentId} from '../../../../src/utilities/components';
 import {
-  GENERATE_CELL_COMPONENTS,
   UPDATE_MODEL,
   UPDATE_ROW_MODEL,
   KEEP_ROW_MODEL,
@@ -44,42 +43,18 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
           page: 3,
           total: 10,
           records: 20
+        },
+        storedModel: {
+          values: [
+            {id: 1, colA: 'A', colB: 'B', $attrs: {colA: {placeholder: 'FromStoredA'}, colB: {placeholder: 'FromStoredB'}}},
+            {id: 2, colA: 'A', colB: 'B', $attrs: {colA: {placeholder: 'FromStoredA'}, colB: {placeholder: 'FromStoredB'}}}
+          ],
+          page: 3,
+          total: 10,
+          records: 20
         }
       }
     };
-  });
-
-  it('generates cell components and updates them when grid model changes (updateCellsModel + getGridModelUpdate)', () => {
-    // 1) Generate cell components for both rows
-    const withCells = components(baseGrid, {
-      type: GENERATE_CELL_COMPONENTS,
-      address: {component: 'grid', view: 'base'},
-      data: [1, 2]
-    });
-
-    // Sanity: cell components exist
-    const idA1 = getComponentId({component: 'grid', view: 'base', row: 1, column: 'colA'});
-    const idB2 = getComponentId({component: 'grid', view: 'base', row: 2, column: 'colB'});
-    expect(withCells[idA1]).toBeDefined();
-    expect(withCells[idB2]).toBeDefined();
-
-    // 2) Update grid values to trigger updateCellsModel via getGridModelUpdate
-    const newValues = [
-      {id: 1, colA: 'A', colB: 'B'},
-      {id: 2, colA: 'A', colB: 'B'}
-    ];
-
-    const updated = components(withCells, {
-      type: UPDATE_MODEL,
-      address: {component: 'grid', view: 'base'},
-      data: {values: newValues}
-    });
-
-    // Grid changed flag set by getModelUpdate
-    expect(updated.grid.model.changed).toBe(true);
-    // Cells should also reflect the new model
-    expect(updated[idA1].model.values.find(v => v.value === 'A').selected).toBe(true);
-    expect(updated[idB2].model.values.find(v => v.value === 'B').selected).toBe(true);
   });
 
   it('updates a single cell model via UPDATE_MODEL with cell address (updateCellModel)', () => {
@@ -133,30 +108,6 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
 
     const row2 = updated.grid.model.values.find(r => r.id === 2);
     expect(row2).toEqual(rowUpdate);
-  });
-
-  it('keeps a row model (KEEP_ROW_MODEL) and stores snapshot', () => {
-    // Also ensure that when a cell component exists, it gets storedModel
-    const withCells = components(baseGrid, {
-      type: GENERATE_CELL_COMPONENTS,
-      address: {component: 'grid', view: 'base'},
-      data: [1]
-    });
-
-    // Ensure storedModel exists on grid
-    const withStored = components(withCells, {
-      type: KEEP_MODEL,
-      address: {component: 'grid', view: 'base'}
-    });
-
-    const kept = components(withStored, {
-      type: KEEP_ROW_MODEL,
-      address: {component: 'grid', view: 'base', row: 1}
-    });
-
-    const idA1 = getComponentId({component: 'grid', view: 'base', row: 1, column: 'colA'});
-    expect(kept[idA1]).toBeDefined();
-    expect(kept[idA1].storedModel).toBeDefined();
   });
 
   it('resets grid model via RESET_MODEL (grid branch)', () => {

@@ -113,7 +113,7 @@ function AweGrid(props) {
     if (showTotals) {
       return <ColumnGroup>
         <Row>
-          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect })}
+          {preColumnTemplates("footer", 1, { multiselect: attributes.multiselect, rowNumbers: attributes.rowNumbers })}
           {visibleColumns.map(col => footerColumnTemplate(col))}
           {postColumnTemplates("footer", 1, false, attributes.editable, attributes.multioperation)}
         </Row>

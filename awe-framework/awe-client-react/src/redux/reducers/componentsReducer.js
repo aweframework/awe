@@ -1,9 +1,6 @@
 import {
-  AFTER_SAVE_ROW,
   CLEAR_ALL_COMPONENTS,
   CLEAR_COMPONENTS,
-  ComponentStatus,
-  GENERATE_CELL_COMPONENTS,
   KEEP_ATTRIBUTE,
   KEEP_MODEL,
   KEEP_ROW_MODEL,
@@ -31,16 +28,20 @@ import {
   VALIDATE_ROW,
 } from '../actions/components';
 
-import { extractCellModel, extractCellValue, getCellModel, getGridIdentifier } from "../../utilities/grid";
+import {
+  calculateFooterValue,
+  extractCellModel,
+  extractCellValue,
+  getCellModel,
+  getGridIdentifier
+} from "../../utilities/grid";
 
-import { getUID } from "../actions/settings";
 import _ from 'lodash';
 import { validateComponent, validateRow } from "./validation";
 import { asArray, updateArrayElement } from "../../utilities";
 import { ComponentAddressType, getAddressType, getComponentId } from "../../utilities/components";
-import { getFirstDefinedValue } from "../../utilities/general";
+import {getFirstDefinedValue, isEmpty} from "../../utilities/general";
 
-const { STATUS_DEFINED, STATUS_INITIALIZED } = ComponentStatus;
 const { ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT } = ComponentAddressType;
 
 const memoizedGetComponentId = _.memoize(getComponentId);
@@ -108,17 +109,6 @@ function updateComponentAttributes(state, componentId, attributeUpdates) {
 }
 
 /**
- * Updates component model
- * @param {Object} state - Current state
- * @param {string} componentId - Component identifier
- * @param {Object} modelUpdates - Model updates to merge
- * @returns {Object} New state with updated model
- */
-function updateComponentModel(state, componentId, modelUpdates) {
-  return updateComponentProperty(state, componentId, 'model', modelUpdates);
-}
-
-/**
  * Updates component validation rules
  * @param {Object} state - Current state
  * @param {string} componentId - Component identifier
@@ -151,7 +141,15 @@ function updateComponentValidation(state, componentId, validationUpdates) {
  * @param {Object} component
  */
 function isGrid(component) {
-  return "columnModel" in (component.attributes || {});
+  return !isEmpty(component) && "columnModel" in (component.attributes || {});
+}
+
+/**
+ * Check if component is a grid and has footer
+ * @param {Object} component
+ */
+function hasFooter(component) {
+  return isGrid(component) && (component.attributes || {}).showTotals;
 }
 
 /**
@@ -553,55 +551,6 @@ function updateComponentData(state, component, data) {
 }
 
 /**
- * Generate cell components for a grid
- * @param {object} state State
- * @param {object} grid Grid component
- * @param {array} rows Rows to generate
- */
-function generateCellComponents(state, grid, rows) {
-  let model = grid.model;
-  let columns = grid.attributes.columnModel.filter(column => column.component);
-  const gridId = memoizedGetGridIdentifier(grid.attributes);
-  let cellComponents = {};
-  model.values
-    .filter(row => rows.includes(row[gridId]))
-    .forEach(row => columns
-      .filter(column => !(memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name }) in state))
-      .forEach(column => Object.assign(cellComponents, generateCellComponent(grid, {
-        ...grid.address,
-        row: row[gridId],
-        column: column.name
-      }, row[column.name], column))));
-  return cellComponents;
-}
-
-/**
- * Generate a cell component in redux model
- * @param {object} grid Grid component
- * @param {object} address Address
- * @param {object} cellModel Cell model
- * @param {object} cellAttributes Cell attributes
- * @return {object} Component data
- */
-function generateCellComponent(grid, address, cellModel, cellAttributes) {
-  let model = fixCellModel(cellModel, cellAttributes.model);
-  let componentId = memoizedGetComponentId(address);
-  return {
-    [componentId]: {
-      uid: getUID(),
-      address: { ...address },
-      model: { ...model },
-      storedModel: { ...model },
-      attributes: { ...cellAttributes },
-      storedAttributes: { ...cellAttributes },
-      actions: cellAttributes.actions || [],
-      dependencies: cellAttributes.dependencies || [],
-      status: (cellAttributes.dependencies || []).length > 0 ? STATUS_DEFINED : STATUS_INITIALIZED
-    }
-  };
-}
-
-/**
  * Update cells model for a grid
  * @param {object} state State
  * @param {object} grid Grid component
@@ -660,22 +609,7 @@ function getModelUpdate(state, address, model) {
 function getGroupModelUpdate(state, view, group, model) {
   // Check equality to avoid update state if there are no changes
   const selected = model.values.map(item => item.value);
-  return {
-    ...Object.entries(state)
-      .filter(([name, component]) => component.address?.view === view && component.attributes?.group === group)
-      .map(([name, component]) => ({
-        name: name,
-        value: {
-          ...component,
-          model: {
-            ...component.model,
-            values: component.model.values.map(value => ({ ...value, selected: selected.includes(value.value) })),
-            changed: true
-          }
-        }
-      }))
-      .reduce((current, entry) => ({ ...current, [entry.name]: entry.value }), {})
-  };
+  return updateSelectedGroup(state, model.values, view, group, selected);
 }
 
 /**
@@ -802,6 +736,7 @@ function updateCellSelected(state, address, data) {
     [component]: {
       ...state[component],
       model: {
+        ...model,
         values: updateArrayElement(values, rowIndex, { [address.column]: fixCellModel(data.selected, values[rowIndex][address.column]).values })
       }
     }
@@ -964,15 +899,23 @@ function updateRowModel(state, address, data) {
   const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  return {
+  const newState = {
     ...state,
     [address.component]: {
       ...state[address.component],
       model: {
+        ...state[address.component].model,
         values: updateArrayElement(values, rowIndex, data)
       }
     }
   };
+
+  // Update footer if is grid and show totals
+  if (hasFooter(state[gridId])) {
+    return updateGridFooter(newState, address);
+  }
+
+  return newState;
 }
 
 /**
@@ -1049,14 +992,21 @@ function keepRowModel(state, address) {
 /**
  * Keep model component
  * @param {Object} state
- * @param {Object} component
+ * @param {String} componentId
  * @return {Object} updated state
  */
-function restoreModelComponent(state, component) {
-  return {
+function restoreModelComponent(state, componentId) {
+  const newState = {
     ...state,
-    ...getRestoreModelComponent(state, component)
+    ...getRestoreModelComponent(state, componentId)
   };
+
+  // Update footer if is grid and show totals
+  if (hasFooter(state[componentId])) {
+    return updateGridFooter(newState, componentId);
+  }
+
+  return newState;
 }
 
 /**
@@ -1132,6 +1082,57 @@ function resetCellModel(state, address, data) {
 }
 
 /**
+ * Updates the grid footer section based on the provided state and address.
+ *
+ * @param {Object} state - The current state object containing relevant data and properties for the grid.
+ * @param {Object} address - The address information used to update the footer details.
+ */
+function updateGridFooter(state, address) {
+  const componentId = memoizedGetComponentId(address);
+  const component = state[componentId];
+  return {
+    ...state,
+    [componentId]: generateGridFooter(component)
+  };
+}
+
+/**
+ * Generates a grid footer by enhancing the provided component object.
+ *
+ * @param {Object} component - The component object to which the footer will be appended.
+ * @return {Object} The updated component object with the generated footer added to the model.
+ */
+function generateGridFooter(component) {
+  return {
+    ...component,
+    model: {
+      ...component.model,
+      footer: generateFooter(component)
+    }
+  };
+}
+
+/**
+ * Generates the footer values for each column in the component based on the provided values.
+ *
+ * @param {Object} component - The component containing attributes and column model information.
+ * @return {Array} The computed footer values for each column.
+ */
+function generateFooter(component) {
+  const { columnModel = [] } = component.attributes;
+  return columnModel.reduce((prev, column) => ({...prev, [column.name]: calculateFooterValue(column, component.model.values)}), {});
+}
+
+/**
+ * Update component footers
+ * @param data
+ * @returns {{}}
+ */
+function updateComponentFooters(data) {
+  return Object.entries(data).reduce((prev, [componentId, component]) => ({...prev, [componentId]: hasFooter(component) ? generateGridFooter(component) : component}), {});
+}
+
+/**
  * Update model
  * @param {object} state State
  * @param {object} action Action
@@ -1158,6 +1159,11 @@ function updateModelAction(state = {}, action = {}) {
     });
   }
 
+  // Update footer if is grid and show totals
+  if (hasFooter(state[memoizedGetComponentId(action.address)])) {
+    modelState = updateGridFooter(modelState, action.address);
+  }
+
   return modelState;
 }
 
@@ -1178,12 +1184,7 @@ const actionHandlers = {
 
   [UPDATE_VIEW_COMPONENTS]: (state, action) => ({
     ...(action.view === "base" ? {} : clearComponents(state, action.view)),
-    ...action.data
-  }),
-
-  [GENERATE_CELL_COMPONENTS]: (state, action) => ({
-    ...state,
-    ...generateCellComponents(state, state[action.address.component], action.data)
+    ...updateComponentFooters(action.data)
   }),
 
   [UPDATE_COMPONENT]: (state, action) =>

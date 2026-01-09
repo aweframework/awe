@@ -22,7 +22,7 @@ import {
   getCellValue,
   getEditingRow,
   getEditingRowIndex,
-  getExistingIndex,
+  getExistingIndex, getFooterValue,
   getGridIdentifier, getRowIndex,
   getSelectedRowIndex
 } from "../../utilities/grid";
@@ -213,6 +213,8 @@ function getAttribute(trigger, state) {
       return getCellValue(component.model.values, getExistingIndex([getEditingRowIndex(component.model.values), getSelectedRowIndex(component.model.values)]), trigger.address.column);
 
     case "footerValue":
+      return getFooterValue(component.model.footer, trigger.address.column);
+
     case "selectedRow":
       let index = getExistingIndex([getEditingRowIndex(component.model.values), getSelectedRowIndex(component.model.values)]);
       return index < 0 ? null : index;

@@ -328,7 +328,14 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
                 "testMax": [{value: 8, selected: true}, {value: 55, selected: false}],
                 "testMin": [{value: 8, selected: true}, {value: 55, selected: false}]
               }
-            ]
+            ],
+            footer: {
+              "test": "test",
+              "testSum": {value: 55.4, label: "55,40 EUR"},
+              "testAvg": {value: 535853.1, label: "$535,853.1"},
+              "testMax": {value: 35, label: "35,0000 EUR"},
+              "testMin": {value: 8, label: "8 EUR"}
+            }
           },
           attributes: {
             showTotals: true,
@@ -393,7 +400,16 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
       components: {
         grid: {
           address: {component: 'grid', view: 'report'},
-          model: {values: []},
+          model: {
+            values: [],
+            footer: {
+              "test": "test",
+              "testSum": {value: 0, label: "0,00 EUR"},
+              "testAvg": {value: 0, label: "$0.0"},
+              "testMax": {value: 0, label: "0,0000 EUR"},
+              "testMin": {value: 0, label: "0 EUR"}
+            }
+          },
           attributes: {
             showTotals: true,
             loadAll: true,
@@ -468,7 +484,14 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
                 "testMax": [{value: 8, selected: true}, {value: 55, selected: false}],
                 "testMin": [{value: 8, selected: true}, {value: 55, selected: false}]
               }
-            ]
+            ],
+            footer: {
+              "test": "test",
+              "testSum": {value: 55.4, label: "55,40 EUR"},
+              "testAvg": {value: 535853.1, label: "$535,853.1"},
+              "testMax": {value: 35, label: "35,0000 EUR"},
+              "testMin": {value: 8, label: "8 EUR"}
+            }
           },
           attributes: {
             showTotals: true,
@@ -569,7 +592,14 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
                 "testMax": [{value: 8, selected: true}, {value: 55, selected: false}],
                 "testMin": [{value: 8, selected: true}, {value: 55, selected: false}]
               }
-            ]
+            ],
+            footer: {
+              "test": "test",
+              "testSum": {value: 55.4, label: "55,40 EUR"},
+              "testAvg": {value: 535853.1, label: "$535,853.1"},
+              "testMax": {value: 35, label: "35,0000 EUR"},
+              "testMin": {value: 8, label: "8 EUR"}
+            }
           },
           attributes: {
             showTotals: true,
@@ -710,7 +740,14 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
                 "testMax": [{value: 8, selected: true}, {value: 55, selected: false}],
                 "testMin": [{value: 8, selected: true}, {value: 55, selected: false}]
               }
-            ]
+            ],
+            footer: {
+              "test": "test",
+              "testSum": {value: 35, label: "55,40 EUR"},
+              "testAvg": {value: 312125, label: "$535,853.1"},
+              "testMax": {value: 35, label: "35,0000 EUR"},
+              "testMin": {value: 35, label: "8 EUR"}
+            }
           },
           attributes: {
             showTotals: true,

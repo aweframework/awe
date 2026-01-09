@@ -31,11 +31,17 @@
     <dialog label="SCREEN_TEXT_CRITERIA" icon="pencil-square-o" id="dialogo-modal" modal="true" style="normal">
       <tag type="div" style="modal-body scrollable">
         <criteria component="hidden" id="columnToUpdate"/>
-        <window label="SCREEN_TEXT_CRITERIA" style="height-md expand" expandible="vertical">
-          <grid id="denominations" editable="true" show-totals="true" style="expand" validate-on-save="false" send-all="true">
+        <window label="SCREEN_TEXT_CRITERIA" style="expand" expandible="vertical">
+          <grid id="denominations" editable="true" show-totals="true" style="height-lg" validate-on-save="false" send-all="true">
             <column name="valor" align="right" sortable="false" charlength="21" label="PARAMETER_TEXT"/>
             <column name="numero" align="right" component="numeric" sortable="false" charlength="21" label="PARAMETER_TEXT" number-format="{vMin: '-999999', mDec: 0, pSign:'s', aPad:true}" value="0" formatter="number" summary-type="sum"/>
-            <column name="cantidad" align="right" component="numeric" sortable="false" charlength="21" label="PARAMETER_TEXT" number-format="{vMin: '-999999', mDec: 2, aSign:' EUR', pSign:'s', aPad:true}" value="0" formatter="number" summary-type="sum"/>
+            <column name="cantidad" align="right" component="numeric" sortable="false" charlength="21" label="PARAMETER_TEXT" number-format="{vMin: '-999999', mDec: 2, aSign:' EUR', pSign:'s', aPad:true}" value="0" formatter="number" summary-type="sum">
+              <dependency source-type="formule" target-type="input" formule="[value] * [qty]">
+                <dependency-element id="denominations" column="valor" attribute="currentRowValue" alias="value"/>
+                <dependency-element id="denominations" column="numero" attribute="currentRowValue" alias="qty"/>
+                <dependency-element id="denominations" event="select-row" optional="true"/>
+              </dependency>
+            </column>
             <button icon="plus-circle" id="ButGrdEdiAddDen">
               <button-action type="add-row" target="denominations" silent="true" />
             </button>
