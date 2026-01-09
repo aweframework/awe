@@ -1,4 +1,9 @@
 
+# Changelog for AWE React 2.0.10
+*09/01/2026*
+
+- Error opening dialog in grids. [MR #142](https://gitlab.com/aweframework/awe-react/-/merge_requests/142) (Pablo Javier García Mora)
+
 # Changelog for AWE React 2.0.9
 *17/12/2025*
 
