@@ -82,8 +82,8 @@ public class SessionConfig {
    * @return Map session repository
    */
   @Bean
-  @ConditionalOnMissingBean
-  public SessionRepository<MapSession> sessionRepository() {
+	@ConditionalOnMissingBean(SessionRepository.class)
+	public SessionRepository<MapSession> sessionRepository() {
     return new MapSessionRepository(new ConcurrentHashMap<>());
   }
 
