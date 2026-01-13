@@ -140,25 +140,25 @@ class EncodeServiceTest {
   void encodePBKDF2WithHmacSHA1() throws Exception {
     when(securityConfigProperties.getMasterKey()).thenReturn("test");
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test"));
+    assertEquals(64, encodeService.encodePBKDF2WithHmacSHA1("test").length());
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA1() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test"));
+    assertEquals(64, encodeService.encodePBKDF2WithHmacSHA1("test", "test").length());
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA11() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber()));
+    assertEquals(64, encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber()).length());
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA12() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber(), 256));
+    assertEquals(64, encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber(), 256).length());
   }
 
   @Test

@@ -123,6 +123,46 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
     });
   });
 
+  describe('once initialized as select check change process', function() {
+    let select;
+
+    // Mock module
+    beforeEach(function() {
+      let $scope = $rootScope.$new();
+      $scope.view = "report";
+      $scope.context = "contexto";
+      select = new $selector($scope, "tutu", {});
+      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
+      spyOn($control, "checkComponent").and.returnValue(true);
+      select.asSelect();
+    });
+
+    it('should process change event setting selected to null when value is empty', function() {
+      // Arrange a specific model reference so we can observe changes
+      let modelRef = {values: [], selected: 'initial'};
+      spyOn($control, "getAddressModel").and.returnValue(modelRef);
+      // Ensure modelChange is called
+      select.modelChange = jasmine.createSpy('modelChange');
+      // Act: trigger plugin change with empty value
+      select.onPluginChange({val: ''});
+      // Assert
+      expect(modelRef.selected).toBeNull();
+      expect(select.modelChange).toHaveBeenCalled();
+    });
+
+    it('should process change event setting selected to provided value when not empty', function() {
+      // Arrange
+      let modelRef = {values: [], selected: null};
+      spyOn($control, "getAddressModel").and.returnValue(modelRef);
+      select.modelChange = jasmine.createSpy('modelChange');
+      // Act
+      select.onPluginChange({val: 'ABC'});
+      // Assert
+      expect(modelRef.selected).toBe('ABC');
+      expect(select.modelChange).toHaveBeenCalled();
+    });
+  });
+
   describe('once initialized as suggest', function () {
     let suggest;
 

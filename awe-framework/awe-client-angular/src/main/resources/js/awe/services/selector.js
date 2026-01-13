@@ -27,7 +27,7 @@ export const templateSelectorColumn =
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
   <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input input-group-{{::size}} focus-target">
-      <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}" value="{{component.model.selected}}"
+      <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}"
              ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off"/>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
@@ -202,10 +202,10 @@ aweApplication.factory('Selector',
       function processChangeEvent(component, item) {
         // Check value length (of string / array)
         let model = Control.getAddressModel(component.address);
-        if (item.val && item.val.length) {
-          model.selected = item.val;
-        } else {
+        if (Utilities.isEmpty(item.val)) {
           model.selected = null;
+        } else {
+          model.selected = item.val;
         }
         component.modelChange();
       }
