@@ -57,11 +57,11 @@ aweApplication.factory('Column',
            */
           component.columnModelChange = function () {
             // Change model value
-            component.model.selected = component.model.selected !== '' ? component.model.selected : null;
-            if (component.model.selected) {
-              component.model.values = [{value: component.model.selected, label: component.model.selected}];
-            } else {
+            component.model.selected = $utilities.isNull(component.model.selected) ? null : component.model.selected;
+            if ($utilities.isNull(component.model.selected)) {
               component.model.values = [{value: null, label: ""}];
+            } else {
+              component.model.values = [{value: component.model.selected, label: component.model.selected}];
             }
             component.modelChange();
           };

@@ -529,7 +529,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getCellObject = function (cellValue) {
           let  cellObject = cellValue;
-          if (Utilities.isEmpty(cellValue)) {
+          if (Utilities.isNull(cellValue)) {
             cellObject = {
               value: null,
               label: ""

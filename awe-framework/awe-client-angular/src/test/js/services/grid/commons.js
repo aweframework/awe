@@ -671,7 +671,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
     expect(cellObject4).toEqual({value: "tutu", label: "tutu"});
     expect(cellObject5).toEqual({value: "tutu", label: "lala"});
     expect(cellObject6).toEqual({value: null, label: ""});
-    expect(cellObject7).toEqual({value: null, label: ""});
+    expect(cellObject7).toEqual({value: "", label: ""});
   });
 
   // Get cell
@@ -697,7 +697,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/commons.js'
     expect(cellObject4).toEqual({value: "tutu", label: "tutu", title: "", "style": "", icon: ""});
     expect(cellObject5).toEqual({value: "tutu", label: "lala", title: "", "style": "", icon: ""});
     expect(cellObject6).toEqual({value: null, label: "", title: "", "style": "", icon: ""});
-    expect(cellObject7).toEqual({value: null, label: "", title: "", "style": "", icon: ""});
+    expect(cellObject7).toEqual({value: "", label: "", title: "", "style": "", icon: ""});
   });
 
   // Get column data

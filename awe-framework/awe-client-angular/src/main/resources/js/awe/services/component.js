@@ -495,8 +495,8 @@ aweApplication.factory('Component',
           Control.publishModelChanged(this.address, {event: event});
         },
         modelChange: function () {
-          this.model.selected = this.model.selected !== '' ? this.model.selected : null;
-          let  changed = this.model.previous !== this.model.selected;
+          this.model.selected = Utilities.isNull(this.model.selected) ? null : this.model.selected;
+          let changed = this.model.previous !== this.model.selected;
           if (changed) {
             Control.changeModelAttribute(this.address, {selected: this.model.selected}, this.model.previous !== this.model.selected);
           }
