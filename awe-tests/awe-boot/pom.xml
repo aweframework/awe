@@ -511,6 +511,12 @@
           <skip>${skip.junit}</skip>
           <groups>${test.tags}</groups>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
