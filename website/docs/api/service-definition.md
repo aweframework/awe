@@ -291,7 +291,7 @@ Query definition to load a bean parameter (each variable is a parameter list whi
 
 ```xml
 <query id="testLoadJsonAddress" service="testLoadJsonAddress">
-  <variable id="address" type="OBJECT" name="selectedRowAddress"/>
+  <variable id="address" type="OBJECT" name="[gridId].selectedRowAddress"/>
 </query>
 ```
 
