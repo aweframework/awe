@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <jacoco.joined.coverage.path>${project.basedir}/../../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
+    <!--<jacoco.joined.coverage.path>${project.basedir}/../../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>-->
   </properties>
 
   <modules>
