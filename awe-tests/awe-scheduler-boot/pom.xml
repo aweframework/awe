@@ -26,7 +26,7 @@
 
     <jacoco.base.reports>${project.basedir}/../awe-scheduler-boot/target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
-    <!--<jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>-->
+    <jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>
     <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
     <sonar.exclusions>src/**</sonar.exclusions>
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
