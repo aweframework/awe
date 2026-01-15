@@ -715,7 +715,7 @@ aweApplication.factory('AweUtilities',
          */
         asArray: function (value) {
           let  outputArray = [];
-          if (!Utilities.isEmpty(value)) {
+          if (!Utilities.isNull(value)) {
             if (angular.isArray(value)) {
               outputArray = value;
             } else {

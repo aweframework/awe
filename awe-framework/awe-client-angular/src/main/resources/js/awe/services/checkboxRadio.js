@@ -236,7 +236,7 @@ aweApplication.factory('CheckboxRadio',
            * On model change
            */
           component.modelChange = function () {
-            component.model.selected = component.model.selected !== '' ? component.model.selected : null;
+            component.model.selected = Utilities.isNull(component.model.selected) ? null : component.model.selected;
             Control.publishModelChanged(groupAddress, {selected: component.model.selected});
           };
 
