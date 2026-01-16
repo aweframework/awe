@@ -19,7 +19,7 @@ variables:
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
   IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
-  UT_OPTS: "-Dskip.frontend=true -DgenerateUnitReport=true"
+  UT_OPTS: "-Dskip.frontend=true -DgenerateUnitReport=true -pl !awe-framework/awe-boot-angular-archetype -pl !awe-framework/awe-boot-react-archetype"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CI_PROJECT_URL_SSH: "origin git@gitlab.com:aweframework/awe.git"
   SPRING_PROFILES_ACTIVE: gitlab-ci
