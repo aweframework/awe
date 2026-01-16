@@ -904,6 +904,13 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.maven.surefire</groupId>
+                <artifactId>surefire-junit-platform</artifactId>
+                <version>${plugin-surefire.version}</version>
+              </dependency>
+            </dependencies>
             <executions>
               <execution>
                 <id>integration-test</id>
