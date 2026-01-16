@@ -34,32 +34,57 @@ echo "Next bugfix version: $NEXT_VERSION"
 # Función de paginación GitLab
 # ============================================================
 gitlab_paginate() {
-  local url="$1"
-  local page=1
-  local per_page=100
-  local all='[]'
+    local url="$1"
+    local page=1
+    local per_page=100
+    local all_pages='[]'
 
-  while true; do
-    headers=$(curl -sI "$url&page=$page&per_page=$per_page" $HEADERS)
-    next_page=$(echo "$headers" | grep -i "X-Next-Page" | awk '{print $2}' | tr -d '\r')
+    while true; do
+        response=$(curl -s -w "\n%{http_code}" \
+            "$url&page=$page&per_page=$per_page" $HEADERS)
 
-    data=$(curl -s "$url&page=$page&per_page=$per_page" $HEADERS)
-    all=$(jq -s 'add' <(echo "$all") <(echo "$data"))
+        body=$(echo "$response" | sed '$d')
+        status=$(echo "$response" | tail -n1)
 
-    [[ -z "$next_page" || "$next_page" == "null" ]] && break
-    page="$next_page"
-  done
+        if [[ "$status" -ge 400 ]]; then
+            echo "❌ GitLab API error ($status) on: $url&page=$page" >&2
+            echo "$body" >&2
+            exit 1
+        fi
 
-  echo "$all"
+        # Si no es un array, abortamos
+        if [[ "$(echo "$body" | jq -r 'type')" != "array" ]]; then
+            echo "❌ Unexpected GitLab response (not array) on: $url&page=$page" >&2
+            echo "$body" >&2
+            exit 1
+        fi
+
+        all_pages=$(jq -s '.[0] + .[1]' <(echo "$all_pages") <(echo "$body"))
+
+        next_page=$(curl -sI \
+            "$url&page=$page&per_page=$per_page" $HEADERS \
+            | grep -i "X-Next-Page" | awk '{print $2}' | tr -d '\r')
+
+        [[ -z "$next_page" ]] && break
+        page="$next_page"
+    done
+
+    echo "$all_pages"
 }
 
 # ============================================================
 # Obtener milestones
 # ============================================================
-milestones=$(gitlab_paginate "${GITLAB_API}/milestones?state=active")
+milestones=$(curl -s "${GITLAB_API}/milestones?state=active&per_page=100" $HEADERS)
 
 current_milestone_id=$(echo "$milestones" | jq -r --arg V "$NEW_VERSION" '.[] | select(.title==$V) | .id')
 previous_milestone=$(echo "$milestones" | jq -r --arg V "$NEW_VERSION" '.[] | select(.title!=$V) | .title' | tail -n1)
+
+# Comprobar el milestone actual
+if [[ -z "$current_milestone_id" || "$current_milestone_id" == "null" ]]; then
+  echo "❌ Current milestone $NEW_VERSION not found"
+  exit 1
+fi
 
 # Crear siguiente milestone si no existe
 next_milestone_id=$(echo "$milestones" | jq -r --arg V "$NEXT_VERSION" '.[] | select(.title==$V) | .id')
