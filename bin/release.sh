@@ -8,7 +8,10 @@ GITLAB_API="$1"    # https://gitlab.com/api/v4/projects/<project_id>
 TOKEN="$2"
 RELEASE_NAME="$3"  # Ej: "AWE"
 
-HEADERS="--header Authorization: Bearer ${TOKEN}"
+HEADERS=(
+  -H "Authorization: Bearer ${TOKEN}"
+  -H "Accept: application/json"
+)
 
 # ============================================================
 # Obtener versión desde pom.xml
@@ -27,7 +30,6 @@ echo "Detected version: $NEW_VERSION"
 IFS='.' read -r MAJOR MINOR PATCH <<< "$NEW_VERSION"
 NEXT_PATCH=$((PATCH + 1))
 NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}"
-
 echo "Next bugfix version: $NEXT_VERSION"
 
 # ============================================================
@@ -41,7 +43,7 @@ gitlab_paginate() {
 
     while true; do
         response=$(curl -s -w "\n%{http_code}" \
-            "$url&page=$page&per_page=$per_page" $HEADERS)
+            "$url&page=$page&per_page=$per_page" "${HEADERS[@]}")
 
         body=$(echo "$response" | sed '$d')
         status=$(echo "$response" | tail -n1)
@@ -62,7 +64,7 @@ gitlab_paginate() {
         all_pages=$(jq -s '.[0] + .[1]' <(echo "$all_pages") <(echo "$body"))
 
         next_page=$(curl -sI \
-            "$url&page=$page&per_page=$per_page" $HEADERS \
+            "$url&page=$page&per_page=$per_page" "${HEADERS[@]}" \
             | grep -i "X-Next-Page" | awk '{print $2}' | tr -d '\r')
 
         [[ -z "$next_page" ]] && break
@@ -75,10 +77,17 @@ gitlab_paginate() {
 # ============================================================
 # Obtener milestones
 # ============================================================
-milestones=$(curl -s "${GITLAB_API}/milestones?state=active&per_page=100" $HEADERS)
+milestones=$(curl -s "${GITLAB_API}/milestones?state=active&per_page=100" "${HEADERS[@]}")
 
 current_milestone_id=$(echo "$milestones" | jq -r --arg V "$NEW_VERSION" '.[] | select(.title==$V) | .id')
-previous_milestone=$(echo "$milestones" | jq -r --arg V "$NEW_VERSION" '.[] | select(.title!=$V) | .title' | tail -n1)
+previous_milestone=$(echo "$milestones" \
+  | jq -r '.[] | .title' \
+  | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+  | sort -V \
+  | awk -v cur="$NEW_VERSION" '
+      $0 == cur { print prev }
+      { prev = $0 }
+    ')
 
 # Comprobar el milestone actual
 if [[ -z "$current_milestone_id" || "$current_milestone_id" == "null" ]]; then
@@ -92,7 +101,7 @@ if [[ -z "$next_milestone_id" || "$next_milestone_id" == "null" ]]; then
   echo "Creating next milestone: $NEXT_VERSION"
   next_milestone_id=$(curl -s -X POST "${GITLAB_API}/milestones" \
     -H "Content-Type: application/json" \
-    $HEADERS \
+    "${HEADERS[@]}" \
     -d "{\"title\":\"$NEXT_VERSION\"}" | jq -r '.id')
 fi
 
@@ -109,15 +118,15 @@ if [[ -n "$previous_milestone" ]]; then
     # Actualizar MR
     curl -s -X PUT "${GITLAB_API}/merge_requests/${mr_iid}" \
       -H "Content-Type: application/json" \
-      $HEADERS \
+      "${HEADERS[@]}" \
       -d "{\"milestone_id\":$current_milestone_id}" > /dev/null
 
     # Actualizar issues relacionadas
-    issues=$(curl -s "${GITLAB_API}/merge_requests/${mr_iid}/closes_issues" $HEADERS)
+    issues=$(curl -s "${GITLAB_API}/merge_requests/${mr_iid}/closes_issues" "${HEADERS[@]}")
     for issue_iid in $(echo "$issues" | jq -r '.[].iid'); do
       curl -s -X PUT "${GITLAB_API}/issues/${issue_iid}" \
         -H "Content-Type: application/json" \
-        $HEADERS \
+        "${HEADERS[@]}" \
         -d "{\"milestone_id\":$current_milestone_id}" > /dev/null
     done
   done
@@ -131,7 +140,7 @@ open_issues=$(gitlab_paginate "${GITLAB_API}/issues?milestone=${NEW_VERSION}&sta
 for issue_iid in $(echo "$open_issues" | jq -r '.[].iid'); do
   curl -s -X PUT "${GITLAB_API}/issues/${issue_iid}" \
     -H "Content-Type: application/json" \
-    $HEADERS \
+    "${HEADERS[@]}" \
     -d "{\"milestone_id\":$next_milestone_id}" > /dev/null
 done
 
@@ -182,7 +191,7 @@ echo "Generated release notes at ./release_notes.md"
 # ============================================================
 status=$(curl -s -X PUT "${GITLAB_API}/milestones/${current_milestone_id}" \
   -H "Content-Type: application/json" \
-  $HEADERS \
+  "${HEADERS[@]}" \
   -d '{"state_event":"close"}' | jq -r '.state')
 
 echo "Milestone ${NEW_VERSION} is now ${status}"
