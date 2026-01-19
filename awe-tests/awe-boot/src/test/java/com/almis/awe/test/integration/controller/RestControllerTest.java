@@ -28,7 +28,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     private MockHttpSession session;
 
     /**
-     * Initializes json mapper for tests
+     * Initializes JSON mapper for tests
      **/
     @BeforeEach
     public void setup() {
@@ -90,7 +90,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Simple call with overwrite microservice name
+     * Simple call with overwritten microservice name
      *
      * @throws Exception Test error
      */
@@ -100,7 +100,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Simple call with overwrite microservice name returning an AWException
+     * Simple call with overwritten microservice name returning an AWException
      */
     @Test
     void testMicroserviceCallError() throws Exception {
@@ -108,7 +108,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Simple call with overwrite microservice name returning an AWException
+     * Simple call with overwritten microservice name returning an AWException
      */
     @Test
     void testMicroserviceCallWarning() throws Exception {
@@ -116,7 +116,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Simple call with overwrite microservice name returning an AWException
+     * Simple call with overwritten microservice name returning an AWException
      */
     @Test
     void testMicroserviceCallInfo() throws Exception {
@@ -134,16 +134,16 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     private void doRestTest(String name, String action, String parameters, String expected) throws Exception {
 
-      MvcResult mvcResult = mockMvc.perform(post("/action/" + action + "/" + name)
-              .with(csrf())
-              .contentType(MediaType.APPLICATION_JSON)
-              .content("{" + parameters + "\"max\":30}")
-              .accept(MediaType.APPLICATION_JSON)
-              .session(session))
-              .andExpect(status().isOk())
-              .andExpect(content().json(expected))
-              .andReturn();
-    }
+			mockMvc.perform(post("/action/" + action + "/" + name)
+							.with(csrf())
+							.contentType(MediaType.APPLICATION_JSON)
+							.content("{" + parameters + "\"max\":30}")
+							.accept(MediaType.APPLICATION_JSON)
+							.session(session))
+					.andExpect(status().isOk())
+					.andExpect(content().json(expected))
+					.andReturn();
+		}
 
     /**
      * Set parameter in session
@@ -188,7 +188,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Rest test: Simple get maintain
+     * Rest test: Simple get to maintain
      *
      * @throws Exception Test error
      */
@@ -268,7 +268,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Rest test: Complex post with POJO list
+     * Rest test: Complex post with a POJO list
      *
      * @throws Exception Test error
      */
@@ -278,7 +278,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Call a external rest API
+     * Call an external rest API
      *
      * @throws Exception Test error
      */
@@ -288,7 +288,7 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Call a external rest API
+     * Call an external rest API
      *
      * @throws Exception Test error
      */
@@ -298,16 +298,27 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Call a external rest API
+     * Call an external rest API
      *
      * @throws Exception Test error
      */
     @Test
     @Tag(value = "CIDatabase")
     void testPostmanRestApi() throws Exception {
-			doRestTest("TestPostmanRestApi", "data", "", "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"acceptLanguage\":\"\",\"acceptEncoding\":\"gzip, br\",\"cookie\":\"\",\"method\":\"GET\",\"gzipped\":true,\"postmanToken\":\"\",\"userAgent\":\"Apache-HttpClient/5.4.4 (Java/17.0.2)\",\"id\":1,\"cacheControl\":\"\",\"accept\":\"application/json, application/yaml, application/*+json\"}]}}},{\"type\":\"end-load\",\"parameters\":{}}]");
-    }
 
+			MvcResult mvcResult = mockMvc.perform(post("/action/data/TestPostmanRestApi")
+							.with(csrf())
+							.contentType(MediaType.APPLICATION_JSON)
+							.content("{\"max\":30}")
+							.accept(MediaType.APPLICATION_JSON))
+					.andExpect(status().isOk())
+					.andReturn();
+
+			String result = mvcResult.getResponse().getContentAsString();
+			Assertions.assertTrue(result.contains("\"method\":\"GET\""));
+			Assertions.assertTrue(result.contains("\"type\":\"fill\""));
+			Assertions.assertTrue(result.contains("\"type\":\"end-load\""));
+		}
     /**
      * Rest test: Complex post with parameters
      *

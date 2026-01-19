@@ -105,8 +105,10 @@
             <dependency source-type="criteria-value" target-type="input" target-action="CpyNum">
               <dependency-element id="GrdEdi" column="Num" attribute="selectedRowValue" alias="CpyNum" />
             </dependency>
-            <!--<dependency > <dependency-element id="GrdEdi" column="Num2" attribute="selectedRowValue" value="111"/> <dependency-action type="server" server-action="control-target-message"
-              target-action="OpeLst"/> </dependency> -->
+            <dependency>
+              <dependency-element id="GrdEdi" column="Txt" attribute="selectedRowValue" condition="eq" value="111"/>
+              <dependency-action type="server" server-action="control-target-message" target-action="TestControlTarget"/>
+            </dependency>
           </column>
           <column label="PARAMETER_DATE" name="Dat" sort-field="Dat" align="center" component="date" charlength="16" style="highlight">
             <dependency source-type="criteria-value" target-type="input" target-action="Date" initial="true">

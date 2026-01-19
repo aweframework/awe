@@ -529,7 +529,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getCellObject = function (cellValue) {
           let  cellObject = cellValue;
-          if (Utilities.isEmpty(cellValue)) {
+          if (Utilities.isNull(cellValue)) {
             cellObject = {
               value: null,
               label: ""
@@ -644,11 +644,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           });
 
           // Store as identifier list
-          data[component.address.component + "-id"] = columnData;
+          data[`${component.address.component}-id`] = columnData;
 
           // If there is only one row selected, send selected row address
           if (selected.length === 1) {
-            data["selectedRowAddress"] = {...component.address, row: selected[0]};
+            data[`${component.address.component}.selectedRowAddress`] = {...component.address, row: selected[0]};
           }
 
           return data;

@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.11.5</version>
+  <version>4.11.6</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.11.5</revision>
+    <revision>4.11.6</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -30,8 +30,7 @@
     <!-- Jacoco configuration -->
     <jacoco.base.reports>target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
-    <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports
-    </jacoco.joined.coverage.path>
+    <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
     <plugin-sonar.version>3.11.0.3922</plugin-sonar.version>

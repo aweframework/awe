@@ -399,14 +399,17 @@ public class EncodeService extends ServiceConfig {
    * @param salt       should be of about 160 bit size or more to create a strong salt
    * @param iterations recommended value is 256000 in 2016, double this value every 2 years
    * @param keyLength  should not be bigger than the maximum output length of the SHA-1 algorithm which is 160 bit (40 hex characters)
-   * @return String in Hexadecimal format
+   * @return String in format algorithm:type:salt:iterations:keyLength:hash
    * @throws AWException Error encoding
    */
 
   public String encodePBKDF2WithHmacSHA1(String text, String salt, int iterations, int keyLength) throws AWException {
     try {
+      // Algorithm name and type
+      String algorithm = "PBKDF2WithHmacSHA1";
+
       // Get instance of the hashing algorithm
-      SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+      SecretKeyFactory skf = SecretKeyFactory.getInstance(algorithm);
 
       // Add parameters
       PBEKeySpec spec = new PBEKeySpec(text.toCharArray(), salt.getBytes(baseConfigProperties.getEncoding()), iterations, keyLength);
@@ -418,13 +421,55 @@ public class EncodeService extends ServiceConfig {
       byte[] res = key.getEncoded();
 
       // Get the hashed value as hexadecimal string
-      return Crypto.Utils.encodeHex(res);
+      String hashHex = Crypto.Utils.encodeHex(res);
+
+      // Format: algorithm:type:salt:iterations:keyLength:hash
+      return String.format("%s:%s:%s:%d:%d:%s", 
+                          algorithm, 
+                          "hex", 
+                          salt, 
+                          iterations, 
+                          keyLength, 
+                          hashHex);
     } catch (NoSuchAlgorithmException exc) {
       throw new AWException(STRING_ENCODE_ERROR, "The algorithm does not exist.", exc);
     } catch (InvalidKeySpecException exc) {
       throw new AWException(STRING_ENCODE_ERROR, "The specified key is not valid or is not long enough.", exc);
     } catch (UnsupportedEncodingException exc) {
       throw new AWException(STRING_ENCODE_ERROR, "The specified encoding is not valid.", exc);
+    }
+  }
+
+  /**
+   * Verifies a PBKDF2 hash using the metadata included in the hash string
+   *
+   * @param text Text to verify
+   * @param hashString Hash string in the format algorithm:type:salt:iterations:keyLength:hash
+   * @return True if the hash is valid, false otherwise
+   * @throws AWException Error verifying
+   */
+  public boolean verifyPBKDF2Hash(String text, String hashString) throws AWException {
+    try {
+      // Split the hash string to get the metadata
+      String[] parts = hashString.split(":");
+      if (parts.length != 6) {
+        throw new AWException(STRING_ENCODE_ERROR, "Invalid hash format. Expected format: algorithm:type:salt:iterations:keyLength:hash");
+      }
+
+      String salt = parts[2];
+      int iterations = Integer.parseInt(parts[3]);
+      int keyLength = Integer.parseInt(parts[4]);
+      String originalHash = parts[5];
+
+      // Generate a new hash with the same parameters
+      String newHashString = encodePBKDF2WithHmacSHA1(text, salt, iterations, keyLength);
+      String[] newParts = newHashString.split(":");
+      String newHash = newParts[5];
+
+      // Compare the hashes
+      return originalHash.equals(newHash);
+    } catch (Exception exc) {
+      throw new AWException(STRING_ENCODE_ERROR, "Error verifying hash", exc);
     }
   }
 

@@ -690,6 +690,7 @@
   <locale name="ERROR_TITLE_RETRIEVING_SERVER_AGENT" value="Erreur à la récupération de l&apos;agent de service web"/>
   <locale name="ERROR_TITLE_RETRIEVING_SERVICE" value="Erreur à la récupération du service"/>
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error saving file"/>
+  <locale name="ERROR_TITLE_SESSION_CLOSED" value="Séance clôturée"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Erreur generant l&apos;ecran"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Ecran non defini"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Ecran option non defini"/>

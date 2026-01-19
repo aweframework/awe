@@ -98,5 +98,55 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/multioperat
       // Assert
       component.deleteRow(3);
     });
+
+    describe('getIdentifierColumnData', function() {
+      it('should retrieve identifier column data with operations', function() {
+        // Assert
+        const result = component.getIdentifierColumnData();
+
+        // Expect rows with operations (INSERT, UPDATE, DELETE)
+        expect(result).toEqual({
+          "componentId-id": [1, 4, 6],
+          "componentId.selectedRowAddress": { view: 'viewId', component: 'componentId', row: 4 }
+        });
+      });
+
+      it('should include selectedRowAddress when exactly one row is selected', function() {
+        // Setup - one row selected
+        component.model.selected = [4];
+
+        // Assert
+        const result = component.getIdentifierColumnData();
+
+        // Expect selectedRowAddress to be included
+        expect(result["componentId.selectedRowAddress"]).toEqual({ 
+          view: 'viewId', 
+          component: 'componentId', 
+          row: 4 
+        });
+      });
+
+      it('should not include selectedRowAddress when multiple rows are selected', function() {
+        // Setup - multiple rows selected
+        component.model.selected = [1, 4];
+
+        // Assert
+        const result = component.getIdentifierColumnData();
+
+        // Expect selectedRowAddress not to be included
+        expect(result["componentId.selectedRowAddress"]).toBeUndefined();
+      });
+
+      it('should not include selectedRowAddress when no rows are selected', function() {
+        // Setup - no rows selected
+        component.model.selected = [];
+
+        // Assert
+        const result = component.getIdentifierColumnData();
+
+        // Expect selectedRowAddress not to be included
+        expect(result["componentId.selectedRowAddress"]).toBeUndefined();
+      });
+    });
   });
 });

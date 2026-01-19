@@ -71,7 +71,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/column.js', func
     component.model.selected = "";
     component.columnModelChange();
     expect(component.modelChange).toHaveBeenCalled();
-    expect(component.model.values).toEqual([{value: null, label: ""}]);
+    expect(component.model.values).toEqual([{value: "", label: ""}]);
 
     // Assert
     component.model.selected = null;

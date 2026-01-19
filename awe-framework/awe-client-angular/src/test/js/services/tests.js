@@ -21,3 +21,4 @@ require('./validator.js');
 require('./maximize.js');
 require('./grid/tests.js');
 require('./chart/tests.js');
+require('./templateSelectorColumn.spec.js');

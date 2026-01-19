@@ -364,27 +364,28 @@ You can define a context-menu inside the grid to help the user do actions with t
 The grid component sends some specific variables to the server, depending on its status and attributes. 
 Here is the list of variables that can be sent by the grid component:
 
-| Variable                | Type        | Condition                            | Description                                                                                                                                |
-|-------------------------|-------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| _[GridName]_            | Array       | Always                               | List of selected lines identifiers                                                                                                         |
-| _[ColumnName]_          | Array       | `send-all="false"`                   | List of selected lines column values (for each column)                                                                                     |
-| _[ColumnName]_          | Array       | `send-all="true"`                    | List of all column values (for each column)                                                                                                |
-| _[ColumnName]_.selected | Value/Array | Always                               | List of selected lines column values (for each column). If there is only one row selected, it will send only the value instead of an array |
-| selectedRowAddress      | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id                                                               |
-| sort                    | Array       | Always                               | List of JsonNodes with the grid sort information (`id`: column id, `direction`: sort direction)                                            |
-| _[GridName]_.data       | JsonNode    | Always                               | List of grid extra information (page, max records, sort information, etc)                                                                  |
+| Variable                        | Type        | Condition                            | Description                                                                                                                                |
+|---------------------------------|-------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| _[GridName]_                    | Array       | Always                               | List of selected lines identifiers                                                                                                         |
+| _[GridName]_-id                 | Array       | Always                               | List of row identifiers for rows with operations                                                                                           |
+| _[ColumnName]_                  | Array       | `send-all="false"`                   | List of selected lines column values (for each column)                                                                                     |
+| _[ColumnName]_                  | Array       | `send-all="true"`                    | List of all column values (for each column)                                                                                                |
+| _[ColumnName]_.selected         | Value/Array | Always                               | List of selected lines column values (for each column). If there is only one row selected, it will send only the value instead of an array |
+| _[GridName]_.selectedRowAddress | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id                                                               |
+| sort                            | Array       | When sorting                         | List of JsonNodes with the grid sort information (`id`: column id, `direction`: sort direction)                                            |
+| _[GridName]_.data               | JsonNode    | Always                               | List of grid extra information (page, max records, sort information, etc)                                                                  |
 
 The multioperation grid sends the variables in a different way than the other grids:
 
-| Variable                | Type        | Condition                            | Description                                                                                                                                |
-|-------------------------|-------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| _[GridName]_            | Integer     | `multioperation="true"`              | Number of sent operations                                                                                                                  |
-| _[GridName]_.RowTyp     | Array       | `multioperation="true"`              | List of operations required for each column (only for the rows with operations)                                                            |
-| _[GridName]_-id         | Array       | `multioperation="true"`              | List of row identifiers for rows with operations                                                                                           |
-| _[ColumnName]_          | Array       | `multioperation="true"`              | List of column values for rows with operations (for each column)                                                                           |
-| _[ColumnName]_.selected | Value/Array | Always                               | List of selected lines column values (for each column). If there is only one row selected, it will send only the value instead of an array |
-| selectedRowAddress      | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id                                                               |
-| sort                    | Array       | Always                               | List of JsonNodes with the grid sort information (`id`: column id, `direction`: sort direction)                                            |
-| _[GridName]_.data       | JsonNode    | Always                               | List of grid extra information (page, max records, sort information, etc)                                                                  |
+| Variable                        | Type        | Condition                            | Description                                                                                                                                |
+|---------------------------------|-------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| _[GridName]_                    | Integer     | `multioperation="true"`              | Number of sent operations                                                                                                                  |
+| _[GridName]_.RowTyp             | Array       | `multioperation="true"`              | List of operations required for each column (only for the rows with operations)                                                            |
+| _[GridName]_-id                 | Array       | Always                               | List of row identifiers for rows with operations                                                                                           |
+| _[ColumnName]_                  | Array       | `multioperation="true"`              | List of column values for rows with operations (for each column)                                                                           |
+| _[ColumnName]_.selected         | Value/Array | Always                               | List of selected lines column values (for each column). If there is only one row selected, it will send only the value instead of an array |
+| _[GridName]_.selectedRowAddress | JsonNode    | When there is only one line selected | Json node with the `address` of the selected row: view, component and row id                                                               |
+| sort                            | Array       | When sorting                         | List of JsonNodes with the grid sort information (`id`: column id, `direction`: sort direction)                                            |
+| _[GridName]_.data               | JsonNode    | Always                               | List of grid extra information (page, max records, sort information, etc)                                                                  |
 
 > **Note:** See samples of usages on [Service Definition](service-definition.md#load-beans-from-parameters)

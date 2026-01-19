@@ -690,6 +690,7 @@
   <locale name="ERROR_TITLE_RETRIEVING_SERVER_AGENT" value="Error retrieving web services agent"/>
   <locale name="ERROR_TITLE_RETRIEVING_SERVICE" value="Error retrieving service"/>
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error saving file"/>
+  <locale name="ERROR_TITLE_SESSION_CLOSED" value="Session closed"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Screen generation error"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Screen not defined"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Screen option not defined"/>

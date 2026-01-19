@@ -11,9 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Custom Spring security configuration
@@ -49,10 +48,10 @@ public class SpecificSecurityConfig {
   @Bean
   SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
     return httpSecurity
-        .securityMatcher(antMatcher("/h2-console/**"))
+        .securityMatcher(PathPatternRequestMatcher.withDefaults().matcher("/h2-console/**"))
         .authorizeHttpRequests( auth -> auth
-            .requestMatchers(antMatcher("/h2-console/**")).permitAll())
-        .csrf(csrf -> csrf.ignoringRequestMatchers(antMatcher("/h2-console/**")))
+            .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/h2-console/**")).permitAll())
+        .csrf(csrf -> csrf.ignoringRequestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/h2-console/**")))
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
         .build();
   }

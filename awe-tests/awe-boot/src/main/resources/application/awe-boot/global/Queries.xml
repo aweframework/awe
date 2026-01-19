@@ -3234,4 +3234,6 @@
     <field id="Als" alias="email"/>
   </query>
 
+  <query id="TestControlTarget" service="TestControlTarget"/>
+
 </queries>

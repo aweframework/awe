@@ -2,6 +2,7 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.security.Crypto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -140,25 +141,105 @@ class EncodeServiceTest {
   void encodePBKDF2WithHmacSHA1() throws Exception {
     when(securityConfigProperties.getMasterKey()).thenReturn("test");
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test"));
+    String hash = encodeService.encodePBKDF2WithHmacSHA1("test");
+
+    // Check hash format
+    String[] parts = hash.split(":");
+    assertEquals(6, parts.length);
+    assertEquals("PBKDF2WithHmacSHA1", parts[0]);
+    assertEquals("hex", parts[1]);
+    assertEquals("test", parts[2]);
+    assertEquals(Crypto.Utils.getRecommendedIterationNumber(), Integer.parseInt(parts[3]));
+    assertEquals(256, Integer.parseInt(parts[4]));
+    assertEquals(64, parts[5].length());
+
+    // Verify hash
+    assertTrue(encodeService.verifyPBKDF2Hash("test", hash));
+    assertFalse(encodeService.verifyPBKDF2Hash("wrong", hash));
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA1() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test"));
+    String hash = encodeService.encodePBKDF2WithHmacSHA1("test", "customSalt");
+
+    // Check hash format
+    String[] parts = hash.split(":");
+    assertEquals(6, parts.length);
+    assertEquals("PBKDF2WithHmacSHA1", parts[0]);
+    assertEquals("hex", parts[1]);
+    assertEquals("customSalt", parts[2]);
+    assertEquals(Crypto.Utils.getRecommendedIterationNumber(), Integer.parseInt(parts[3]));
+    assertEquals(256, Integer.parseInt(parts[4]));
+    assertEquals(64, parts[5].length());
+
+    // Verify hash
+    assertTrue(encodeService.verifyPBKDF2Hash("test", hash));
+    assertFalse(encodeService.verifyPBKDF2Hash("wrong", hash));
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA11() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber()));
+    int customIterations = 10000;
+    String hash = encodeService.encodePBKDF2WithHmacSHA1("test", "customSalt", customIterations);
+
+    // Check hash format
+    String[] parts = hash.split(":");
+    assertEquals(6, parts.length);
+    assertEquals("PBKDF2WithHmacSHA1", parts[0]);
+    assertEquals("hex", parts[1]);
+    assertEquals("customSalt", parts[2]);
+    assertEquals(customIterations, Integer.parseInt(parts[3]));
+    assertEquals(256, Integer.parseInt(parts[4]));
+    assertEquals(64, parts[5].length());
+
+    // Verify hash
+    assertTrue(encodeService.verifyPBKDF2Hash("test", hash));
+    assertFalse(encodeService.verifyPBKDF2Hash("wrong", hash));
   }
 
   @Test
   void testEncodePBKDF2WithHmacSHA12() throws Exception {
     when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
-    assertEquals("0f52495b31c4a2ea74eb9c22f5aedb7f8017fac794d3e7f8b00e0258c67a04f5", encodeService.encodePBKDF2WithHmacSHA1("test", "test", Crypto.Utils.getRecommendedIterationNumber(), 256));
+    int customIterations = 5000;
+    int customKeyLength = 128;
+    String hash = encodeService.encodePBKDF2WithHmacSHA1("test", "customSalt", customIterations, customKeyLength);
+
+    // Check hash format
+    String[] parts = hash.split(":");
+    assertEquals(6, parts.length);
+    assertEquals("PBKDF2WithHmacSHA1", parts[0]);
+    assertEquals("hex", parts[1]);
+    assertEquals("customSalt", parts[2]);
+    assertEquals(customIterations, Integer.parseInt(parts[3]));
+    assertEquals(customKeyLength, Integer.parseInt(parts[4]));
+    assertEquals(64, parts[5].length()); // The hash is always 64 characters long regardless of key length
+
+    // Verify hash
+    assertTrue(encodeService.verifyPBKDF2Hash("test", hash));
+    assertFalse(encodeService.verifyPBKDF2Hash("wrong", hash));
+  }
+
+  @Test
+  void testVerifyPBKDF2Hash() throws Exception {
+    when(baseConfigProperties.getEncoding()).thenReturn("UTF-8");
+
+    // Create a hash with known parameters
+    String text = "testPassword";
+    String salt = "testSalt";
+    int iterations = 1000;
+    int keyLength = 256;
+
+    String hash = encodeService.encodePBKDF2WithHmacSHA1(text, salt, iterations, keyLength);
+
+    // Verify the hash
+    assertTrue(encodeService.verifyPBKDF2Hash(text, hash));
+    assertFalse(encodeService.verifyPBKDF2Hash("wrongPassword", hash));
+
+    // Manually create a hash with invalid format
+    String invalidHash = "PBKDF2WithHmacSHA1:hex:testSalt:1000:invalidKeyLength:abcdef";
+    assertThrows(AWException.class, () -> encodeService.verifyPBKDF2Hash(text, invalidHash));
   }
 
   @Test

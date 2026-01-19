@@ -90,7 +90,7 @@ aweApplication.factory('GridComponents',
 
             // If rowIndex is -1, the row is the footer row
             if (rowIndex !== -1) {
-              component.model.values[rowIndex][address.column] = cell.model.values && cell.model.values.length !== 0 ? cell.model.values[0] : cell.model.selected;
+              component.model.values[rowIndex][address.column] = cell.model.selected;
 
               // Publish model changed
               Control.publishModelChanged(component.address, {values: component.model.values});

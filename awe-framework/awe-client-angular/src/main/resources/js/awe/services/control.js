@@ -340,7 +340,7 @@ aweApplication.factory('Control',
               formattedData = null;
               break;
             case 1:
-              formattedData = dataList[0] === "" ? null : dataList[0];
+              formattedData = Utilities.isNull(dataList[0]) ? null : dataList[0];
               break;
             default:
               formattedData = dataList;

@@ -890,7 +890,7 @@
       <variable id="valor" type="INTEGER" name="valor"/>
       <variable id="numero" type="INTEGER" name="numero"/>
       <variable id="cantidad" type="INTEGER" name="cantidad"/>
-      <variable id="address" type="OBJECT" name="selectedRowAddress"/>
+      <variable id="address" type="OBJECT" name="GrdEdi.selectedRowAddress"/>
       <variable id="column" type="STRING" name="columnToUpdate"/>
     </serve>
   </target>

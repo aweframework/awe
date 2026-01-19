@@ -37,4 +37,14 @@ public class Validation extends ServiceConfig {
     }
     return check;
   }
+
+  /**
+   * Test control target
+   *
+   * @return Validation
+   * @throws AWException Error validating
+   */
+  public ServiceData testControlTarget() throws AWException {
+    throw new AWException("Test exception", "Test exception message", AnswerType.WARNING);
+  }
 }
