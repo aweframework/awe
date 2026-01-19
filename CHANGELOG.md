@@ -1,3 +1,17 @@
+# Release notes for AWE 4.11.6
+*19/01/2026*
+ 
+✨ Features:
+- Change the PBKDF2 Algorithm hash to contain algorithm name, type, salt and iterations inside. [MR #609](https://gitlab.com/aweframework/awe/-/merge_requests/609) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- Change the selectedRowAddress to [gridId].selectedRowAddress variable to allow multiple grid sending in a page. [MR #608](https://gitlab.com/aweframework/awe/-/merge_requests/608) (Pablo Javier García Mora)
+- keep empty string. [MR #607](https://gitlab.com/aweframework/awe/-/merge_requests/607) (Pablo Javier García Mora)
+- Error deploying in cloud environment. [MR #606](https://gitlab.com/aweframework/awe/-/merge_requests/606) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Update awe to Spring boot 3.5 LTS. [MR #605](https://gitlab.com/aweframework/awe/-/merge_requests/605) (Pablo Vidal Otero)
+- The select component does not save the value. [MR #604](https://gitlab.com/aweframework/awe/-/merge_requests/604) (Pablo Javier García Mora)
+- Destroy the server actions of **-target-**. [MR #603](https://gitlab.com/aweframework/awe/-/merge_requests/603) (Pablo Javier García Mora)
+
 
 # Changelog for AWE 4.11.5
 *25/11/2025*
