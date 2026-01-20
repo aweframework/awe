@@ -93,6 +93,15 @@ aweApplication.factory('Connection',
           return ajax.getRawUrl();
         },
         /**
+         * Retrieve action's url
+         * @param {String} actionId Action name
+         * @param {String} targetId Action identifier
+         * @return {String} Action url
+         */
+        getActionUrl: function (actionId, targetId) {
+          return ajax.getActionUrl(actionId, targetId);
+        },
+        /**
          * Serialize the post parameters
          * @param {Object} parameters Send message parameters
          * @return {Object} Serialized parameters

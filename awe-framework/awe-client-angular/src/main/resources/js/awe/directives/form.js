@@ -163,7 +163,7 @@ aweApplication.directive('aweForm',
           // Retrieve target specific attributes for the server call
           if (target) {
             const api = Control.getAddressApi(target);
-            if (api?.getSpecificFields) {
+            if (api && api.getSpecificFields) {
               // Add form values
               _.merge(parameters, api.getSpecificFields());
             }
@@ -332,10 +332,12 @@ aweApplication.directive('aweForm',
             action.attr("alive", true);
 
             // Launch a logout server action
-            let  parameters = {};
-            parameters[$settings.get("serverActionKey")] = "logout";
-            action.attr("parameters", parameters);
-            FormActions.server(action);
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = $connection.getActionUrl("logout");
+
+            document.body.appendChild(form);
+            form.submit();
 
             // Destroy all views
             Control.destroyAllViews();

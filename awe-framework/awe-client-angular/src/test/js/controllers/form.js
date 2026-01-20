@@ -1,7 +1,7 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', function() {
-  let $scope, $compile, $utilities, $settings, $actionController, $control, $serverData, $validator, $httpBackend;
+  let $scope, $compile, $utilities, $settings, $actionController, $control, $serverData, $validator, $httpBackend, $connection;
   let originalTimeout;
 
   // Mock module
@@ -9,8 +9,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     angular.mock.module('aweApplication');
 
     // Inject controller
-    inject(["$rootScope", "$compile", "ServerData", "Validator", "AweUtilities", "AweSettings", "ActionController", "Control", "$httpBackend",
-      function($rootScope, _$compile_, _ServerData_, _Validator_, _AweUtilities_, _AweSettings_, _ActionController_, _Control_, _$httpBackend_){
+    inject(["$rootScope", "$compile", "ServerData", "Validator", "AweUtilities", "AweSettings", "ActionController", "Control", "$httpBackend", "Connection",
+      function($rootScope, _$compile_, _ServerData_, _Validator_, _AweUtilities_, _AweSettings_, _ActionController_, _Control_, _$httpBackend_, _$connection_){
       $scope = $rootScope;
       $utilities = _AweUtilities_;
       $settings = _AweSettings_;
@@ -20,6 +20,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       $validator = _Validator_;
       $compile = _$compile_;
       $httpBackend = _$httpBackend_;
+      $connection = _$connection_;
     }]);
 
     // backend definition common for all tests
@@ -153,6 +154,37 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       expect($control.getAddressModel).toHaveBeenCalled();
       expect(navigator.clipboard.writeText).toHaveBeenCalled();
       expect($actionController.acceptAction).toHaveBeenCalled();
+    });
+
+    // Call logout action
+    it('should perform logout by disconnecting, submitting form and destroying views', function() {
+      // Prepare
+      defineForm();
+      spyOn($actionController, "deleteStack");
+      const thenSpy = jasmine.createSpy("thenSpy");
+      spyOn($connection, "disconnect").and.returnValue({ then: (cb) => { cb(); return { then: thenSpy }; } });
+      spyOn($connection, "getActionUrl").and.callFake((action) => {
+        expect(action).toBe("logout");
+        return "http://server/action/logout";
+      });
+
+      // Mock DOM form creation and submission
+      const submitSpy = jasmine.createSpy("submit");
+      const fakeForm = { method: "", action: "", submit: submitSpy };
+      spyOn(document, "createElement").and.returnValue(fakeForm);
+      spyOn(document.body, "appendChild");
+      spyOn($control, "destroyAllViews");
+
+      // Run
+      launchFormAction("logout", "logout", {address:{view: "base"}});
+
+      // Assert
+      expect($actionController.deleteStack).toHaveBeenCalled();
+      expect($connection.disconnect).toHaveBeenCalled();
+      expect(document.createElement).toHaveBeenCalledWith("form");
+      expect(document.body.appendChild).toHaveBeenCalledWith(fakeForm);
+      expect(submitSpy).toHaveBeenCalled();
+      expect($control.destroyAllViews).toHaveBeenCalled();
     });
 
     // Call update-controller action
