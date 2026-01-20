@@ -53,6 +53,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
@@ -60,6 +61,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.*;
@@ -249,13 +251,28 @@ public class AweWebSecurityConfig {
 	 * Configure logout
 	 */
 	private void configureLogout(HttpSecurity http) throws Exception {
-		http.logout(logoutConfig ->
-				logoutConfig.logoutUrl("/action/logout")
-						.deleteCookies(cookieName)
-						.clearAuthentication(true)
-						.invalidateHttpSession(true)
-						.addLogoutHandler(logoutHandler(sessionDetails))
-		);
+		boolean ssoEnabled = securityConfigProperties.getSso() != null && securityConfigProperties.getSso().isEnabled();
+		http.logout(logoutConfig -> {
+			logoutConfig.logoutUrl("/action/logout")
+				.deleteCookies(cookieName)
+				.clearAuthentication(true)
+				.invalidateHttpSession(true)
+				.addLogoutHandler(logoutHandler(sessionDetails));
+			if (ssoEnabled) {
+				logoutConfig.logoutSuccessHandler(oidcLogoutSuccessHandler());
+			}
+		});
+	}
+
+	private LogoutSuccessHandler oidcLogoutSuccessHandler() {
+		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler = new OidcClientInitiatedLogoutSuccessHandler(context.getBean(ClientRegistrationRepository.class));
+		// Sets the location that the End-User's User Agent will be redirected to after the logout has been performed at the Provider
+		String postLogoutRedirectUri = "{baseUrl}";
+		if (securityConfigProperties.getSso().isAutoLaunch()) {
+			postLogoutRedirectUri += "/screen/public/logout-sso";
+		}
+		oidcLogoutSuccessHandler.setPostLogoutRedirectUri(postLogoutRedirectUri);
+		return oidcLogoutSuccessHandler;
 	}
 
 	/**
@@ -265,8 +282,9 @@ public class AweWebSecurityConfig {
 		http.csrf(csrf -> csrf
 				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 				.csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+				// Ignore logout action to allow CSRF protection in SPA applications
+				.ignoringRequestMatchers("/action/logout")
 		);
-
 
 		if (ssoEnabled) {
 			http.addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class);

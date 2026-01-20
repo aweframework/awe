@@ -997,12 +997,12 @@ aweApplication.factory('AweUtilities',
               return {
                 name: iconValues[1],
                 family: iconValues[0]
-              }
+              };
             } else {
               return {
                 name: iconValues[0],
                 family: "fa"
-              }
+              };
             }
           }
           return {
@@ -1055,6 +1055,7 @@ aweApplication.factory('AweUtilities',
             });
           }
         },
+
         /**
          * Manage REST error
          * @param error

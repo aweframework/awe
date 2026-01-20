@@ -102,6 +102,8 @@
       <xs:enumeration value="copy-criterion-value-clipboard" />
       <xs:enumeration value="screen" />
       <xs:enumeration value="reload" />
+      <xs:enumeration value="redirect" />
+      <xs:enumeration value="redirect-screen" />
       <xs:enumeration value="wait" />
       <xs:enumeration value="filter" />
       <xs:enumeration value="print" />
