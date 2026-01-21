@@ -12,7 +12,7 @@ const basePackage = {
     "node": ">= 16"
   },
   "scripts": undefined,
-}
+};
 const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
@@ -49,7 +49,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {from: "src/template.html", to: "[name][ext]"},
-        {from: "src/help.stg", to: "[name][ext]"},
+        {from: "src/*.stg", to: "[name][ext]"},
+        {from: "src/templates.stg", to: "[name][ext]"},
         {from: "src/plugins", to: "plugins/[name][ext]"},
         {from: "src/static", to: "static/"},
       ]
