@@ -19,7 +19,7 @@ const viewControllerData = {"controller": "ViewController", "template": routeMet
 // Set up states
 export const states = [
   {"name": 'index', "url": "/", "views": {"base": {...viewControllerData}}},
-  {"name": 'global', "url": "/screen/:screenId", "views": {"base": {...viewControllerData}}, "params": {"r": null}},
+  {"name": 'global', "url": "/screen/public/:screenId", "views": {"base": {...viewControllerData}}, "params": {"r": null}},
   {"name": 'public', "url": "/screen/public/:screenId", "views": {"base": {...viewControllerData, "abstract": true}}},
   {"name": 'public.screen', "url": "/:subScreenId", "views": {"report": {...viewControllerData, "resolve": {...viewControllerData.resolve, "context": routeMethods.public}}}, "params": {"r": null}},
   {"name": 'private', "url": "/screen/private/:screenId", "views": {"base": {...viewControllerData, "abstract": true}}},
