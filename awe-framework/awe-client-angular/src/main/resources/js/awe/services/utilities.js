@@ -933,7 +933,14 @@ aweApplication.factory('AweUtilities',
           let locationFixed = location.replace(Utilities.getContextPath(), "");
           let locationData = locationFixed.split('/');
           let maxState = null;
-          if (locationFixed.indexOf('/public') !== -1) {
+          if (locationFixed.indexOf('/public') !== -1 && locationData.length < 5) {
+            // Public state
+            state.to = 'global';
+            state.parameters = {
+              screenId: locationData[3]
+            };
+            maxState = "screenId";
+          } else if (locationFixed.indexOf('/public') !== -1) {
             // Public state
             state.to = 'public.screen';
             state.parameters = {
@@ -997,12 +1004,12 @@ aweApplication.factory('AweUtilities',
               return {
                 name: iconValues[1],
                 family: iconValues[0]
-              }
+              };
             } else {
               return {
                 name: iconValues[0],
                 family: "fa"
-              }
+              };
             }
           }
           return {
@@ -1055,6 +1062,7 @@ aweApplication.factory('AweUtilities',
             });
           }
         },
+
         /**
          * Manage REST error
          * @param error
