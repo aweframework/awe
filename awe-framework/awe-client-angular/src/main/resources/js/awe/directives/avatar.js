@@ -3,7 +3,7 @@ import {getIconTemplate} from "../services/component";
 
 const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id}}" title="{{(model.values[0].title || controller.title) | translateMultiple}}" class="avatar nav-icon-btn {{::controller.style}}" ng-class="::{'dropdown': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
   <a ng-click="onClick()" ng-class="::{'dropdown-toggle': controller.hasChildren}" ng-attr-data-toggle="{{controller.hasChildren ? 'dropdown' : ''}}">
-    <img  ng-if="model.values[0].image || controller.image" class="avatar-image" ng-src="{{model.values[0].image || controller.image}}" ng-alt="{{(model.values[0].label || controller.text || controller.title || controller.label) | translateMultiple}}"/>
+    <img  ng-if="model.values[0].image || controller.image" class="avatar-image" ng-src="{{getContextPath()}}{{model.values[0].image || controller.image}}" ng-alt="{{(model.values[0].label || controller.text || controller.title || controller.label) | translateMultiple}}"/>
     <span ng-if="!(model.values[0].image || controller.image) && (model.values[0].icon || controller.icon)" class="avatar-icon">${getIconTemplate("nav-icon")}</span>
     <span ng-if="model.values[0].unit || controller.unit" class="label" translate-multiple="{{model.values[0].unit || controller.unit}}"></span>
     <span ng-if="controller.showLabel && (model.values[0].label || controller.text || controller.title || controller.label)" class="avatar-text" translate-multiple="{{model.values[0].label || controller.text || controller.title || controller.label}}"></span>
@@ -12,14 +12,15 @@ const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id
 </li>`;
 
 // Avatar directive
-aweApplication.directive('aweAvatar', ['ServerData', 'Component', 'ActionController',
+aweApplication.directive('aweAvatar', ['ServerData', 'Component', 'ActionController', 'AweUtilities',
   /**
    * Info directive
    * @param {object} ServerData Server call service
    * @param {function} Component
    * @param {object} ActionController
+   * @param {object} Utilities
    */
-  function (ServerData, Component, ActionController) {
+  function (ServerData, Component, ActionController, Utilities) {
     return {
       restrict: 'E',
       replace: true,
@@ -29,6 +30,9 @@ aweApplication.directive('aweAvatar', ['ServerData', 'Component', 'ActionControl
         'avatarId': '@avatarId'
       },
       link: function (scope) {
+        // Exponer getContextPath() al scope
+        scope.getContextPath = Utilities.getContextPath;
+
         // Init as component
         let  component = new Component(scope, scope.avatarId);
         if (!component.asComponent()) {
