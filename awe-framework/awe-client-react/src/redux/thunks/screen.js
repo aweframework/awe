@@ -6,8 +6,8 @@ import {acceptAction, addActionsTop, deleteStack} from "../actions/actions";
 import {
   fetchFile,
   fetchScreen,
-  generateMessageAction, generateServerAction,
-  getComponentValue,
+  generateMessageAction,
+  getComponentValue, getContextPath,
   getRestUrl,
   translateLabel
 } from "../../utilities";
@@ -190,13 +190,19 @@ export const getFileAction = (action) => {
  * Logout from the application
  */
 export const logoutAction = () => {
-  return (dispatch, getState) => {
-    const {settings} = getState();
+  return (dispatch) => {
     dispatch(deleteStack());
     dispatch(addActionsTop([
       {type: "disconnectWebsocket"},
-      generateServerAction({}, "logout", "", {}, false, false, settings)
     ]));
+
+    // Launch a logout server action
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `${getContextPath()}${getRestUrl("action", "logout")}`;
+
+    document.body.appendChild(form);
+    form.submit();
   };
 };
 
