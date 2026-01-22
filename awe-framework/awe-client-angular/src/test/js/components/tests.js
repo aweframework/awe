@@ -8,3 +8,4 @@ require('./loader.js');
 require('./resizable.js');
 require('./contextOption.js');
 require('./grid.js');
+require('./avatar.js');
