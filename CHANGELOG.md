@@ -1,3 +1,14 @@
+# Release notes for AWE 4.11.7
+*22/01/2026*
+ 
+✨ Features:
+- Improve logout actions with SSO. [MR #610](https://gitlab.com/aweframework/awe/-/merge_requests/610) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- Avatar images doesn't work when there is a context path defined. [MR #614](https://gitlab.com/aweframework/awe/-/merge_requests/614) (Pablo Javier García Mora)
+- Uses of deprecated methods with Spring Security 6.5. [MR #612](https://gitlab.com/aweframework/awe/-/merge_requests/612) (Pablo Vidal Otero)
+- Public screens throws error on open. [MR #611](https://gitlab.com/aweframework/awe/-/merge_requests/611) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.11.6
 *19/01/2026*
  
