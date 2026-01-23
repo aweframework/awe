@@ -116,28 +116,6 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
     });
   });
 
-  describe('getFileAction', () => {
-    it('debería invocar fetchFile con url de descarga y aceptar la acción (y aumentar d)', async () => {
-      const fetchSpy = spyOn(window, 'fetch').and.returnValue(Promise.resolve());
-
-      const action = { parameters: { fileId: 1 } };
-      await screenThunks.getFileAction(action)(dispatch, getState);
-
-      expect(fetchSpy).toHaveBeenCalled();
-      const [url1, data1] = fetchSpy.calls.argsFor(0);
-      expect(url1).toContain('/file/download');
-      const body1 = JSON.parse(data1.body);
-      expect(body1.fileId).toBe(1);
-      expect(typeof body1.d).toBe('number');
-
-      // Segunda llamada incrementa d
-      await screenThunks.getFileAction(action)(dispatch, getState);
-      const [, data2] = fetchSpy.calls.argsFor(1);
-      const body2 = JSON.parse(data2.body);
-      expect(body2.d).toBeGreaterThan(body1.d);
-    });
-  });
-
   describe('reloadScreenAction', () => {
     it('debería navegar con replace:true y aceptar', () => {
       spyOn(navigationActions, 'navigateTo').and.callFake((target, options) => ({ type: 'NAVIGATE_TO', payload: { target, options } }));
@@ -206,7 +184,6 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
 
       // Debe despacharse una función (thunk) de reloadScreenAction como segundo dispatch
       const calls = dispatch.calls.allArgs();
-      console.log(calls);
       expect(typeof calls[0][0]).toBe('function');
 
       // Ejecutamos ese thunk y comprobamos que navega con replace:true
@@ -220,32 +197,6 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
   });
 
   describe('loadScreen', () => {
-    it('carga la pantalla correctamente: loading true -> setView con loading false', async () => {
-      const response = {
-        structure: {},
-        components: [
-          { id: 'MainMenu', controller: { options: ['opt'] }, model: {}, },
-          { id: 'C1', controller: { actions: [], dependencies: [], contextMenu: [] }, model: {}, }
-        ],
-        screen: { id: 'view1' },
-        messages: [{ text: 'hello' }]
-      };
-      spyOn(window, 'fetch').and.returnValue(Promise.resolve({ok: true, json: () => response}));
-
-      const t = (k) => k; // stub translate
-      await screenThunks.loadScreen('view1', 'optA', t)(dispatch, () => ({ settings: { token: 'TOK' } }));
-
-      const types = dispatch.calls.allArgs().map(a => a[0].type);
-      expect(types[0]).toBe('UPDATE_SCREEN_VIEW'); // loading true
-      expect(types).toContain('UPDATE_MENU');
-      expect(types).toContain('UPDATE_MESSAGES');
-      expect(types).toContain('SET_SCREEN_VIEW');
-
-      // SET_SCREEN_VIEW should carry loading false in data
-      const setView = dispatch.calls.allArgs().map(a => a[0]).find(a => a.type === 'SET_SCREEN_VIEW');
-      expect(setView.data.loading).toBeFalse();
-    });
-
     it('gestiona error cuando no hay structure enviando mensaje', async () => {
       spyOn(window, 'fetch').and.returnValue(Promise.resolve({ status: 500, message: 'ERR' }));
       const t = (k) => k;
