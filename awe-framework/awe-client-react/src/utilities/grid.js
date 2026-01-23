@@ -371,7 +371,6 @@ export function getGridData(grid, model, props, forPrinting) {
   } else if (!sendAll) {
     sendable = selected;
   }
-  console.info("SELECTED.LENGTH: " + selected.length);
   return {
     ...(columnModel || [])
       .filter(column => column.sendable)
