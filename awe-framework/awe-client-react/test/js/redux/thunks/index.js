@@ -4,3 +4,4 @@ import './messagesThunkTest';
 import './formThunkTest';
 import './validateThunkTest';
 import './suggestThunkTest';
+import './screenThunkTest';

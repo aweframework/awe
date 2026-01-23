@@ -33,63 +33,63 @@ export const ActionStatus = {
   STATUS_ACCEPTED: 'STATUS_ACCEPTED',
   STATUS_REJECTED: 'STATUS_REJECTED',
   STATUS_ABORTED: 'STATUS_ABORTED'
-}
+};
 
 /*
  * action creators
  */
 export function addAction(payload) {
-  return{type: ADD_ACTION, payload};
+  return { type: ADD_ACTION, payload };
 }
 
 export function removeAction(payload) {
-  return {type: REMOVE_ACTION, payload};
+  return { type: REMOVE_ACTION, payload };
 }
 
 export function addActions(payload) {
-  return {type: ADD_ACTIONS, payload};
+  return { type: ADD_ACTIONS, payload };
 }
 
 export function addActionsTop(payload) {
-  return {type: ADD_ACTIONS_TOP, payload};
+  return { type: ADD_ACTIONS_TOP, actions: payload, payload };
 }
 
 export function addStack() {
-  return {type: ADD_STACK};
+  return { type: ADD_STACK };
 }
 
 export function removeStack() {
-  return {type: REMOVE_STACK};
+  return { type: REMOVE_STACK };
 }
 
 export function deleteStack() {
-  return {type: DELETE_STACK};
+  return { type: DELETE_STACK };
 }
 
 export function startAction(payload) {
-  return {type: START_ACTION, payload};
+  return { type: START_ACTION, payload };
 }
 
 export function runAction(payload) {
-  return {type: RUN_ACTION, payload};
+  return { type: RUN_ACTION, payload };
 }
 
 export function acceptAction(payload) {
-  return {type: ACCEPT_ACTION, payload};
+  return { type: ACCEPT_ACTION, payload };
 }
 
 export function rejectAction(payload) {
-  return {type: REJECT_ACTION, payload};
+  return { type: REJECT_ACTION, payload };
 }
 
 export function abortAction(payload) {
-  return {type: ABORT_ACTION, payload};
+  return { type: ABORT_ACTION, payload };
 }
 
 export function closeAllActions() {
-  return {type: CLOSE_ALL_ACTIONS};
+  return { type: CLOSE_ALL_ACTIONS };
 }
 
 export function toggleActionsRunning(running) {
-  return {type: TOGGLE_ACTIONS_RUNNING, running: running};
+  return { type: TOGGLE_ACTIONS_RUNNING, running: running };
 }
