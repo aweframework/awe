@@ -67,6 +67,55 @@ const ConditionTest = {
   "is not empty": (v1) => ({ "test": !isEmpty(v1), "string": `'${v1}' is not empty` })
 };
 
+/**
+ * Extracts all values from the given nested data structure and converts them to strings.
+ *
+ * @param {Array|Object} data - The nested data structure (array or object) to extract values from.
+ * @param {Array} [acc=[]] - An accumulator array to collect the extracted string values.
+ * @return {Array} An array containing all the string values extracted from the nested structure.
+ */
+function extractValues(data, acc = []) {
+  if (Array.isArray(data)) {
+    data.forEach(item => extractValues(item, acc));
+  } else if (data !== null && typeof data === 'object') {
+    Object.values(data).forEach(value => extractValues(value, acc));
+  } else {
+    acc.push(String(data));
+  }
+  return acc;
+}
+
+/**
+ * Computes a hash code for the given string.
+ *
+ * @param {string} str - The input string for which the hash code is to be calculated.
+ * @return {number} The computed hash code as a 32-bit integer.
+ */
+function hashCode(str) {
+  return Array.from(str)
+    .reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0);
+}
+
+/**
+ * Generate a lightweight hash of the model values
+ * @param {Array} values Model values
+ * @param {Number} page Model page
+ * @param {Number} max Model max elements per page
+ * @returns {number} Hash representation
+ */
+function generateModelHash(values= [], page= 1, max = null) {
+  if (max && max > 0 && values.length > max) {
+    const offset = (page - 1) * max;
+    const pageValues = values.slice(offset, offset + max);
+    const code = extractValues(pageValues).join('');
+    return hashCode(`${page}_${code}`);
+  }
+
+  // Si no, hashear todo (backward compatible)
+  const code = extractValues(values).join('');
+  return hashCode(`${page}_${code}`);
+
+}
 
 /**
  * Get text attribute from a component
@@ -107,7 +156,7 @@ function getTextAttribute(component, trigger) {
  * @param {object[]} components Components
  */
 function isGroup(group, components) {
-  return Object.values(components).filter(component => component.attributes.group === group).length > 0
+  return Object.values(components).filter(component => component.attributes.group === group).length > 0;
 }
 
 /**
@@ -631,16 +680,20 @@ function checkAndStoreResult(dependency, component, state) {
 
   // Store check values
   const componentId = getDependencyComponentId(component.address, dependency.address);
+  const modelHash = generateModelHash(component.model?.values, component.model?.page, component.attributes?.max);
+
   DEPENDENCY_VALUES[component.address.view] = {
     ...DEPENDENCY_VALUES[component.address.view],
     [componentId]: {
       ...DEPENDENCY_VALUES[component.address.view][componentId],
-      ...result.values
+      ...result.values,
+      modelHash: modelHash
     }
   };
 
   return result;
 }
+
 
 function checkDependency(dependency, component, state) {
   let result = checkAndStoreResult(dependency, component, state);
@@ -663,10 +716,21 @@ function initializeDependency(dependency, component, state) {
 
 function hasChanged(dependency, component, state) {
   const newValues = evaluateDependency(dependency, component, state).values;
-  const oldValues = Object.entries(DEPENDENCY_VALUES[component.address.view][getDependencyComponentId(component.address, dependency.address)] || {})
-    .filter(([k, v]) => k in newValues)
+  const componentId = getDependencyComponentId(component.address, dependency.address);
+  const storedData = DEPENDENCY_VALUES[component.address.view][componentId] || {};
+
+  // Comparar valores de triggers
+  const oldValues = Object.entries(storedData)
+    .filter(([k, v]) => k in newValues && k !== 'modelHash')
     .reduce((p, [k, v]) => ({ ...p, [k]: v }), {});
-  return !_.isEqual(oldValues, newValues);
+
+  const triggerValuesChanged = !_.isEqual(oldValues, newValues);
+
+  // Comparar el hash del modelo
+  const currentModelHash = generateModelHash(component.model?.values, component.model?.page, component.attributes?.max);
+  const modelHashChanged = storedData.modelHash !== currentModelHash;
+
+  return triggerValuesChanged || modelHashChanged;
 }
 
 function getComponentDependencies(component) {

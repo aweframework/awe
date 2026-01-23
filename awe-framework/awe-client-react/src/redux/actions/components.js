@@ -52,9 +52,7 @@ export const ButtonTypes = {
   BUTTON_NORMAL: "button",
   BUTTON_RESET: "reset",
   BUTTON_SUBMIT: "submit"
-}
-
-
+};
 
 /*
  * action creators
@@ -67,8 +65,6 @@ export function clearComponents(view) {
 export function clearAllComponents() {
   return {type: CLEAR_ALL_COMPONENTS};
 }
-
-
 
 export function updateViewComponents(view, data) {
   return {type: UPDATE_VIEW_COMPONENTS, view, data};
