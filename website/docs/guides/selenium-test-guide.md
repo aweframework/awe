@@ -349,7 +349,7 @@ suggest("Pro", "TS1", "TS1");
 
 ### Multiple select and suggest
 
-These two criteria can be tested the same way.
+#### Select one value
 
 Select a single value with the `suggestMultiple` criterion:
  - **criterionId** - Criterion identifier
@@ -360,6 +360,7 @@ Select a single value with the `suggestMultiple` criterion:
 // Suggest
 suggestMultiple("CrtOpc", "application-info", "application-info");
 ```
+#### More than one value
 
 Select more than one value with the `suggestMultipleList` criterion:
 - **criterionId** - Criterion identifier
