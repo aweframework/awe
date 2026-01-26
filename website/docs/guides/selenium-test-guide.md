@@ -347,9 +347,11 @@ To use a suggest criterion, call the `suggest` method:
 suggest("Pro", "TS1", "TS1");
 ```
 
-### Multiple select and suggest - Select one value
+### Multiple select and suggest
 
-Select a single value in the criteria. These two criteria can be tested the same way with the `suggestMultiple` criterion:
+These two criteria can be tested the same way.
+
+Select a single value with the `suggestMultiple` criterion:
  - **criterionId** - Criterion identifier
  - **text to suggest** - Text to search for
  - **result label** - Text to search on the result list
@@ -359,9 +361,7 @@ Select a single value in the criteria. These two criteria can be tested the same
 suggestMultiple("CrtOpc", "application-info", "application-info");
 ```
 
-### Multiple select and suggest - More than one value
-
-Select more than one value in the criteria. These two criteria can be tested the same way with the `suggestMultipleList` criterion:
+Select more than one value with the `suggestMultipleList` criterion:
 - **criterionId** - Criterion identifier
 - **text 1 to suggest** - Text 1 to search for
 - **text 2 to suggest** - Text 2 to search for
