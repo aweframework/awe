@@ -1,3 +1,14 @@
+# Release notes for AWE React 2.0.11
+*26/01/2026*
+ 
+✨ Features:
+- Change logout action to make it launch a form logout action. [MR #146](https://gitlab.com/aweframework/awe-react/-/merge_requests/146) (Pablo Vidal Otero)
+- Change pipeline release generation to match AWE definition. [MR #144](https://gitlab.com/aweframework/awe-react/-/merge_requests/144) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- Launch grid dependencies after reloading it with fill. [MR #147](https://gitlab.com/aweframework/awe-react/-/merge_requests/147) (Pablo Javier García Mora)
+- Error generating global application help. [MR #145](https://gitlab.com/aweframework/awe-react/-/merge_requests/145) (Pablo Vidal Otero)
+
 
 # Changelog for AWE React 2.0.10
 *09/01/2026*
