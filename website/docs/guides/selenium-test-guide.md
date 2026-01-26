@@ -347,9 +347,9 @@ To use a suggest criterion, call the `suggest` method:
 suggest("Pro", "TS1", "TS1");
 ```
 
-### Multiple select and suggest 
+### Multiple select and suggest - Select one value
 
-These two criteria can be tested the same way with the `suggestMultiple` criterion:
+Select a single value in the criteria. These two criteria can be tested the same way with the `suggestMultiple` criterion:
  - **criterionId** - Criterion identifier
  - **text to suggest** - Text to search for
  - **result label** - Text to search on the result list
@@ -357,6 +357,19 @@ These two criteria can be tested the same way with the `suggestMultiple` criteri
 ```java
 // Suggest
 suggestMultiple("CrtOpc", "application-info", "application-info");
+```
+
+### Multiple select and suggest - More than one value
+
+Select more than one value in the criteria. These two criteria can be tested the same way with the `suggestMultipleList` criterion:
+- **criterionId** - Criterion identifier
+- **text 1 to suggest** - Text 1 to search for
+- **text 2 to suggest** - Text 2 to search for
+- **...** - More texts to search for
+
+```java
+// Suggest
+suggestMultipleList("CrtOpc", "application-info", "application-warning", "application-error");
 ```
 
 ### Tabs
