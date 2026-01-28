@@ -13,7 +13,7 @@ aweApplication.directive('translateMultiple',
             let  value = attrs.translateMultiple;
             if (value && typeof value === "string") {
               // Split value into multiple elements
-              let translatedValue = value.split(" ").map($translate.instant).join(" ");
+              let translatedValue = value.split(" ").map(v => $translate.instant(v)).join(" ");
 
               // Put the translated value in the element
               element.html(translatedValue);
