@@ -287,7 +287,9 @@ public final class DataListUtil {
     // Get each value of the map in a list
     return IntStream.range(0, maxSize)
       .mapToObj(i -> paramsMap.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() instanceof List<?> ? ((List<?>) e.getValue()).get(i) : e.getValue() )))
+        .collect(Collectors.toMap(Map.Entry::getKey, e -> Optional.ofNullable(e.getValue())
+                .map(v -> v instanceof List<?> list && i < list.size() ? list.get(i) : v)
+                .orElse("") )))
       .toList();
   }
 
