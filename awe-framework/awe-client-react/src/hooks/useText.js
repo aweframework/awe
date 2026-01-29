@@ -1,7 +1,8 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
-import {addActionsTop} from "../redux/actions/actions";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "./useComponentState";
+import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
+import { addActionsTop } from "../redux/actions/actions";
 import useComponent from "./useComponent";
 
 /**
@@ -12,13 +13,8 @@ import useComponent from "./useComponent";
 export default function useText(id) {
   const dispatch = useDispatch();
   const { address } = useComponent(id);
-  const { model = { values: [] }, attributes = {}, validationRules = {}, context = {}, settings = {} } = useSelector(state => ({
-    model: state.components[id]?.model,
-    attributes: state.components[id]?.attributes,
-    validationRules: state.components[id]?.validationRules,
-    context: state.components[id]?.context,
-    settings: state.settings
-  }));
+  const { model = { values: [] }, attributes = {}, validationRules = {}, context = {} } = useComponentState(id);
+  const settings = useSelector(state => state.settings || {});
 
   const getValue = useCallback(() => {
     const values = model.values || [];

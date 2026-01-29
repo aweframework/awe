@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useRef} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Helmet} from "react-helmet";
 import Templates from "../templates";
-import {updateSize} from "../redux/actions/size";
+import SizeRegistry from "../redux/registry/SizeRegistry";
 import {addActionsTop} from "../redux/actions/actions";
 import {useTranslation} from 'react-i18next';
 import {useParams} from "react-router";
@@ -10,6 +10,7 @@ import i18n from "../i18n/i18n";
 import {loadScreen} from "../redux/thunks/screen";
 import {ProgressSpinner} from "primereact/progressspinner";
 import {translateLabel} from "../utilities";
+import { useView } from "../hooks/useViewRegistry";
 
 const VIEW = "base";
 
@@ -27,10 +28,10 @@ function ViewContainer() {
   // Accedemos a Redux usando los hooks de Redux
   const dispatch = useDispatch();
 
-  const {settings, view} = useSelector((state) => ({
+  const {settings} = useSelector((state) => ({
     settings: state.settings,
-    view: state.view[VIEW],
   }));
+  const view = useView(VIEW);
 
   const changeLanguage = useCallback((language) => {
     i18n.changeLanguage(language);
@@ -47,7 +48,7 @@ function ViewContainer() {
   }, [settings]);
 
   const updateWindowDimensions = useCallback(() => {
-    dispatch(updateSize({ width: window.innerWidth, height: window.innerHeight }));
+    SizeRegistry.setSize({ width: window.innerWidth, height: window.innerHeight });
   }, []);
 
   useEffect(() => {

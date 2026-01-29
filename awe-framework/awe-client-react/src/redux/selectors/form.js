@@ -1,4 +1,5 @@
-import {getComponentData, getComponentId} from "../../utilities/components";
+import { getComponentData, getComponentId } from "../../utilities/components";
+import { getAllComponents } from "./componentSelectors";
 
 /**
  * Get all form values
@@ -9,18 +10,19 @@ import {getComponentData, getComponentId} from "../../utilities/components";
  * @memberOf Components
  */
 export const getFormValues = (state, forPrinting = false, t = (o) => o) => {
-  const {components = {}, settings = {}} = state;
+  const components = getAllComponents(state);
+  const { settings = {} } = state;
   return Object.values(components)
     .filter(component => !("row" in component.address || "column" in component.address))
     .reduce((result, component) => {
-      let values = getComponentData(component, {components, settings, t}, forPrinting);
+      let values = getComponentData(component, { components, settings, t }, forPrinting);
       checkDuplicates(getComponentId(component.address), result, values);
       return {
         ...result,
         ...values
       };
     }, {
-      ...(settings.token ? {[settings.tokenKey]: settings.token} : {})
+      ...(settings.token ? { [settings.tokenKey]: settings.token } : {})
     });
 };
 

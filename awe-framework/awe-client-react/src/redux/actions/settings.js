@@ -106,7 +106,8 @@ export const DEFAULT_SETTINGS = {
   chartOptions: {
     limitPointsSerie: 1000000
   },
-  activeDependencies: true
+  activeDependencies: true,
+  useComponentRegistry: true
 };
 
 /*

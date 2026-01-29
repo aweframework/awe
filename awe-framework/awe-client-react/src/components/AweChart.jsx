@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Highcharts from 'highcharts/highstock';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import HighchartsDrilldown from 'highcharts/modules/drilldown';
@@ -8,16 +8,17 @@ import HighchartsNoData from "highcharts/modules/no-data-to-display.src";
 import HighchartsExporting from "highcharts/modules/exporting.src";
 import HighchartsReact from 'highcharts-react-official';
 import HighchartsAccesibility from 'highcharts/modules/accessibility';
-import {translateLabel} from "../utilities";
-import {useTranslation} from "react-i18next";
+import { translateLabel } from "../utilities";
+import { useTranslation } from "react-i18next";
 import _ from "lodash";
 
 import "./AweChart.less";
-import {localeOptions} from "primereact/api";
-import {produce} from "immer";
-import {useSelector} from "react-redux";
+import { localeOptions } from "primereact/api";
+import { produce } from "immer";
+import { useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
-import {classNames} from "../utilities/components";
+import { classNames } from "../utilities/components";
 
 /**
  * List of magnitudes
@@ -72,7 +73,7 @@ const FORMATTERS = {
  */
 function processChartOptions(chartOptions, model, t, settings) {
   return produce(chartOptions, draft => {
-    const {title, subtitle, legend, series, drilldown} = draft;
+    const { title, subtitle, legend, series, drilldown } = draft;
 
     // Set initial attributes
     draft.backgroundColor = draft.backgroundColor || 'rgba(0, 0, 0, 0)';
@@ -153,10 +154,10 @@ function translateAxis(axisArray, t) {
   return (axisArray || []).map(axis => ({
     ...axis,
     title: axis.title?.text
-      ? {...axis.title, text: translateLabel(axis.title.text, t)}
+      ? { ...axis.title, text: translateLabel(axis.title.text, t) }
       : axis.title,
     labels: axis.labels?.formatter
-      ? {...axis.labels, formatter: FORMATTERS[axis.labels.formatter]}
+      ? { ...axis.labels, formatter: FORMATTERS[axis.labels.formatter] }
       : axis.labels,
   }));
 }
@@ -190,16 +191,12 @@ function ensureLanguage(lang) {
 
 function AweChart(props) {
   const { id } = props;
-  const { settings, model = { values: [] }, attributes = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
-    model: state.components[id]?.model,
-    attributes: state.components[id]?.attributes,
-    settings: state.settings
-  }));
+  const { model = { values: [] }, attributes = {} } = useComponentState(id);
+  const settings = useSelector(state => state.settings);
   const [animating, setAnimating] = useState((model?.values || []).length > 0);
   const chartRef = useRef(null);
   const activeRef = useRef(false);
-  const redrawRef = useRef(() => {});
+  const redrawRef = useRef(() => { });
   const { t, i18n } = useTranslation();
 
   // Make sure Highcharts modules are ready before first render
@@ -211,7 +208,7 @@ function AweChart(props) {
   useEffect(() => {
     ensureLanguage(i18n.language);
     // force redraw callback to be reset
-    redrawRef.current = () => {};
+    redrawRef.current = () => { };
   }, [i18n.language]);
 
   const afterChartCreated = useCallback((chart) => {
@@ -229,7 +226,7 @@ function AweChart(props) {
   useEffect(() => {
     return () => {
       activeRef.current = false;
-      redrawRef.current = () => {};
+      redrawRef.current = () => { };
     };
   }, []);
 
@@ -243,7 +240,7 @@ function AweChart(props) {
   });
 
   const chartOptions = JSON.parse(JSON.stringify(
-    processChartOptions(attributes.chartModel, model.values, t, {...settings, language: i18n.language})
+    processChartOptions(attributes.chartModel, model.values, t, { ...settings, language: i18n.language })
   ));
 
   const { style, visible } = attributes;
@@ -255,7 +252,7 @@ function AweChart(props) {
       options={chartOptions}
       callback={afterChartCreated}
       allowChartUpdate={!animating}
-      containerProps={{style: {position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}}
+      containerProps={{ style: { position: "absolute", left: 0, top: 0, bottom: 0, right: 0 } }}
     />
   </div>;
 }

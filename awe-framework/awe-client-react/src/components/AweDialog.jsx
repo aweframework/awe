@@ -1,18 +1,16 @@
-import React, {useCallback} from "react";
-import {Dialog} from 'primereact/dialog';
-import {Components} from "../utilities/structure";
-import {translateLabel} from "../utilities";
-import {useTranslation} from "react-i18next";
-import {useDispatch, useSelector} from "react-redux";
-import {addActionsTop} from "../redux/actions/actions";
+import React, { useCallback } from "react";
+import { Dialog } from 'primereact/dialog';
+import { Components } from "../utilities/structure";
+import { translateLabel } from "../utilities";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { addActionsTop } from "../redux/actions/actions";
 import PropTypes from "prop-types";
 
 function AweDialog(props) {
   const { id, elementList = [] } = props;
-  const { address, attributes } = useSelector(state => ({
-    address: state.components[id]?.address,
-    attributes: state.components[id]?.attributes
-  }));
+  const { address, attributes } = useComponentState(id);
   const { t } = useTranslation();
   const dispatch = useDispatch();
 

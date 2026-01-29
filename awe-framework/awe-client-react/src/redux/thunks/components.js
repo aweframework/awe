@@ -11,13 +11,15 @@ import {
 import { setRuntimeEvent, clearRuntimeEvent } from "../actions/runtime";
 import { getActionAddress, getComponent } from "../../utilities";
 import { acceptAction, addActionsTop, addStack, rejectAction, removeStack } from "../actions/actions";
-import { updateMenu } from "../actions/menu";
+import MenuRegistry from "../registry/MenuRegistry";
+import { getAllComponents } from "../selectors/componentSelectors";
 const { BUTTON_RESET } = ButtonTypes;
 
 export function updateViewComponentsWithDependencies(view, data) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(updateViewComponents(view, data));
+    dispatch({ ...updateViewComponents(view, data), settings });
 
     // Dispatch calculate dependencies
     initializeDependencies(view, getState(), dispatch);
@@ -26,8 +28,9 @@ export function updateViewComponentsWithDependencies(view, data) {
 
 export function updateMultipleComponentsWithDependencies(componentList) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(updateMultipleComponents(componentList));
+    dispatch({ ...updateMultipleComponents(componentList), settings });
 
     // Dispatch calculate dependencies
     checkDependencies(getState(), dispatch);
@@ -36,8 +39,9 @@ export function updateMultipleComponentsWithDependencies(componentList) {
 
 export function updateMultipleModelsWithDependencies(data) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(updateMultipleModels(data));
+    dispatch({ ...updateMultipleModels(data), settings });
 
     // Dispatch calculate dependencies
     checkDependencies(getState(), dispatch);
@@ -48,8 +52,9 @@ export function updateModelWithDependencies(address, data) {
   return (dispatch, getState) => {
     const { event, ...modelData } = data;
 
+    const { settings } = getState();
     // Update the model first (without event)
-    dispatch(updateModel(address, modelData));
+    dispatch({ ...updateModel(address, modelData), settings });
 
     // Set runtime event if provided
     if (event) {
@@ -68,8 +73,9 @@ export function updateModelWithDependencies(address, data) {
 
 export function restoreModelWithDependencies(address, data) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(restoreModel(address, data));
+    dispatch({ ...restoreModel(address, data), settings });
 
     // Set runtime event
     dispatch(setRuntimeEvent(address, "change"));
@@ -84,8 +90,9 @@ export function restoreModelWithDependencies(address, data) {
 
 export function restoreMultipleModelWithDependencies(componentList) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(restoreMultipleModel(componentList));
+    dispatch({ ...restoreMultipleModel(componentList), settings });
 
     // Dispatch calculate dependencies
     checkDependencies(getState(), dispatch);
@@ -94,8 +101,9 @@ export function restoreMultipleModelWithDependencies(componentList) {
 
 export function resetModelWithDependencies(address, data) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(resetModel(address, data));
+    dispatch({ ...resetModel(address, data), settings });
 
     // Set runtime event
     dispatch(setRuntimeEvent(address, "change"));
@@ -110,8 +118,9 @@ export function resetModelWithDependencies(address, data) {
 
 export function resetMultipleModelWithDependencies(componentList) {
   return (dispatch, getState) => {
+    const { settings } = getState();
     // Update the model first
-    dispatch(resetMultipleModel(componentList));
+    dispatch({ ...resetMultipleModel(componentList), settings });
 
     // Dispatch calculate dependencies
     checkDependencies(getState(), dispatch);
@@ -120,7 +129,7 @@ export function resetMultipleModelWithDependencies(componentList) {
 
 export const clickButtonAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
 
@@ -169,7 +178,7 @@ export const deleteUploadAction = (action) => {
 
 export const openDialogAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const { isShowing } = component.attributes;
@@ -182,7 +191,7 @@ export const openDialogAction = (action) => {
 
 export const closeDialogAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     dispatch(acceptAction(action));
     const component = getComponent(components, address);
@@ -197,7 +206,7 @@ export const closeDialogAction = (action) => {
 
 export const closeDialogAndCancelAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     dispatch(acceptAction(action));
     const component = getComponent(components, address);
@@ -212,7 +221,7 @@ export const closeDialogAndCancelAction = (action) => {
 
 export const goToNextStepAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const nextIndex = Math.min(component.model.values.findIndex(item => item.selected) + 1, component.model.values.length - 1);
@@ -229,7 +238,7 @@ export const goToNextStepAction = (action) => {
 
 export const goToPrevStepAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const nextIndex = Math.max(component.model.values.findIndex(item => item.selected) - 1, 0);
@@ -246,7 +255,7 @@ export const goToPrevStepAction = (action) => {
 
 export const goToFirstStepAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     dispatch(updateModelWithDependencies(address, {
@@ -262,7 +271,7 @@ export const goToFirstStepAction = (action) => {
 
 export const goToLastStepAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     dispatch(updateModelWithDependencies(address, {
@@ -278,7 +287,7 @@ export const goToLastStepAction = (action) => {
 
 export const goToNthStepAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     dispatch(updateModelWithDependencies(address, {
@@ -294,7 +303,7 @@ export const goToNthStepAction = (action) => {
 
 export const addPointsAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     // Change state
@@ -309,7 +318,7 @@ export const addPointsAction = (action) => {
 
 export const addSeriesAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const series = action.parameters.series || [];
@@ -339,7 +348,7 @@ export const addSeriesAction = (action) => {
 
 export const removeSeriesAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const series = action.parameters.series || [];
@@ -360,7 +369,7 @@ export const removeSeriesAction = (action) => {
 
 export const replaceSeriesAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
     const series = action.parameters.series || [];
@@ -430,7 +439,7 @@ export const setPivotGroupColsAction = (action) => {
 
 export const toggleMenuAction = (action) => {
   return (dispatch, getState) => {
-    const { components } = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const component = getComponent(components, address);
 
@@ -450,7 +459,7 @@ export const changeMenuAction = (action) => {
   return (dispatch) => {
     const { options } = action.parameters;
 
-    dispatch(updateMenu(options));
+    MenuRegistry.setOptions(options);
 
     dispatch(acceptAction(action));
   };

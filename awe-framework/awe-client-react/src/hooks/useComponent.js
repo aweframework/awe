@@ -1,6 +1,7 @@
-import {useEffect, useMemo} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {addActionsTop} from "../redux/actions/actions";
+import { useEffect, useMemo } from "react";
+import { useDispatch } from "react-redux";
+import { useComponentState } from "./useComponentState";
+import { addActionsTop } from "../redux/actions/actions";
 
 /**
  * useComponent hook
@@ -8,11 +9,9 @@ import {addActionsTop} from "../redux/actions/actions";
  */
 export default function useComponent(id) {
   const dispatch = useDispatch();
-  const { address = {}, autoload = false, autorefresh = 0 } = useSelector(state => ({
-    address: state.components[id]?.address,
-    autoload: state.components[id]?.attributes?.autoload,
-    autorefresh: state.components[id]?.attributes?.autorefresh,
-  }));
+  const component = useComponentState(id);
+  const { address = {}, attributes = {} } = component;
+  const { autoload = false, autorefresh = 0 } = attributes;
 
   // Initial autoload action
   useEffect(() => {

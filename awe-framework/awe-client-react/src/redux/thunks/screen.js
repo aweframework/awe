@@ -1,8 +1,8 @@
-import {updateViewComponentsWithDependencies} from "./components";
-import { updateMenu } from "../actions/menu";
+import { updateViewComponentsWithDependencies } from "./components";
+import MenuRegistry from "../registry/MenuRegistry";
 import { updateMessages } from "../actions/messages";
-import { setView, updateView } from "../actions/view";
-import {acceptAction, addActionsTop, deleteStack} from "../actions/actions";
+import ViewRegistry from "../registry/ViewRegistry";
+import { acceptAction, addActionsTop, deleteStack } from "../actions/actions";
 import {
   fetchFile,
   fetchScreen,
@@ -18,15 +18,16 @@ import {
   getSpecificAttributes,
   parseValidationRules
 } from "../../utilities/components";
-import {produce} from "immer";
-import {getFormValues} from "../selectors/form";
-import {updateSettings} from "../actions/settings";
-import {getFirstDefinedAndNotNullValue} from "../../utilities/general";
-import {navigationActions} from "../actions/navigation";
+import { produce } from "immer";
+import { getFormValues } from "../selectors/form";
+import { updateSettings } from "../actions/settings";
+import { getAllComponents } from "../selectors/componentSelectors";
+import { getFirstDefinedAndNotNullValue } from "../../utilities/general";
+import { navigationActions } from "../actions/navigation";
 
 let downloadIdentifier = 0;
 
-export const loadScreen = (view, option, t ) => async (dispatch, getState) => {
+export const loadScreen = (view, option, t) => async (dispatch, getState) => {
   try {
     const state = getState();
     const { settings } = state;
@@ -51,7 +52,8 @@ export const loadScreen = (view, option, t ) => async (dispatch, getState) => {
     };
 
     // Set screen as loading
-    dispatch(updateView(view, {loading: true}));
+    ViewRegistry.setCurrentView(view);
+    ViewRegistry.updateView(view, { loading: true });
 
     const response = await fetchScreen(option, {}, token, getFormValues(state));
     if (!response.structure) {
@@ -91,10 +93,30 @@ export const loadScreen = (view, option, t ) => async (dispatch, getState) => {
 
     const menu = response.components.find((component) => component.id === "MainMenu");
     if (menu) {
-      dispatch(updateMenu(menu.controller.options));
+      MenuRegistry.setOptions(menu.controller.options);
     }
     dispatch(updateMessages(view, response.messages));
-    dispatch(setView(view, {...response.screen, structure: produce(response.structure,draft => draft), loading: false} ));
+    ViewRegistry.setView(view, { ...response.screen, structure: produce(response.structure, draft => draft), loading: false });
+
+    if (settings.debug === "INFO" || settings.debug === "DEBUG") {
+      const safeSize = (value) => {
+        try {
+          return JSON.stringify(value).length;
+        } catch (_e) {
+          return -1;
+        }
+      };
+      const stateSize = safeSize(getState());
+      const componentsCount = Object.keys(getState().components || {}).length;
+      const structureSize = safeSize(response.structure);
+      const menuSize = safeSize(menu?.controller?.options || []);
+      console.info("[Metrics] sizes(bytes)", {
+        reduxState: stateSize,
+        componentsCount,
+        viewStructure: structureSize,
+        menuOptions: menuSize
+      });
+    }
   } catch (error) {
     dispatch(addActionsTop([
       generateMessageAction("error", "Error", error.message || "Fallo al cargar pantalla")
@@ -104,11 +126,11 @@ export const loadScreen = (view, option, t ) => async (dispatch, getState) => {
 
 export function screenAction(action, pathname) {
   return (dispatch, getState) => {
-    const {settings} = getState();
-    const {context, reload = false, parameters = {}} = action;
+    const { settings } = getState();
+    const { context, reload = false, parameters = {} } = action;
 
     if ("token" in parameters) {
-      dispatch(updateSettings({token: parameters.token}));
+      dispatch(updateSettings({ token: parameters.token }));
     }
 
     const screen = getFirstDefinedAndNotNullValue(parameters.screen, parameters.target, action.target);
@@ -120,7 +142,7 @@ export function screenAction(action, pathname) {
     }
 
     if (target !== pathname || reload) {
-      dispatch(navigationActions.navigateTo(target, {relative: isRelativeRoute ? "path" : false}));
+      dispatch(navigationActions.navigateTo(target, { relative: isRelativeRoute ? "path" : false }));
       dispatch(acceptAction(action));
     } else if (settings.reloadCurrentScreen) {
       dispatch(reloadScreenAction(action, pathname));
@@ -132,7 +154,7 @@ export function screenAction(action, pathname) {
 
 export function reloadScreenAction(action, pathname) {
   return (dispatch) => {
-    dispatch(navigationActions.navigateTo(pathname, {replace: true}));
+    dispatch(navigationActions.navigateTo(pathname, { replace: true }));
     dispatch(acceptAction(action));
   };
 }
@@ -146,12 +168,12 @@ export function backAction(action) {
 
 export const changeLanguageAction = (action) => {
   return (dispatch, getState) => {
-    const {components} = getState();
-    const {language, target} = action.parameters;
+    const components = getAllComponents(getState());
+    const { language, target } = action.parameters;
     const targetLanguage = target ? getComponentValue(components[target]) : null;
 
     if (language || targetLanguage) {
-      dispatch(updateSettings({language: language || targetLanguage}));
+      dispatch(updateSettings({ language: language || targetLanguage }));
     }
     dispatch(acceptAction(action));
   };
@@ -163,12 +185,12 @@ export const changeLanguageAction = (action) => {
  */
 export const changeThemeAction = (action) => {
   return (dispatch, getState) => {
-    const {components} = getState();
-    const {theme, target} = action.parameters;
+    const components = getAllComponents(getState());
+    const { theme, target } = action.parameters;
     const targetTheme = target ? getComponentValue(components[target]) : null;
 
     if (theme || targetTheme) {
-      dispatch(updateSettings({theme: theme || targetTheme}));
+      dispatch(updateSettings({ theme: theme || targetTheme }));
     }
     dispatch(acceptAction(action));
   };
@@ -180,8 +202,8 @@ export const changeThemeAction = (action) => {
  */
 export const getFileAction = (action) => {
   return (dispatch, getState) => {
-    const {settings} = getState();
-    fetchFile(getRestUrl("file", "download"), {...action.parameters, d: downloadIdentifier++}, settings)
+    const { settings } = getState();
+    fetchFile(getRestUrl("file", "download"), { ...action.parameters, d: downloadIdentifier++ }, settings)
       .then(() => dispatch(acceptAction(action)));
   };
 };
@@ -193,7 +215,7 @@ export const logoutAction = () => {
   return (dispatch) => {
     dispatch(deleteStack());
     dispatch(addActionsTop([
-      {type: "disconnectWebsocket"},
+      { type: "disconnectWebsocket" },
     ]));
 
     // Launch a logout server action
@@ -212,8 +234,8 @@ export const logoutAction = () => {
  */
 export const redirectAction = (action) => {
   return (dispatch) => {
-    const {target, parameters = {}} = action;
-    const {newWindow = false} = parameters;
+    const { target, parameters = {} } = action;
+    const { newWindow = false } = parameters;
 
     if (newWindow) {
       // Open url in new window

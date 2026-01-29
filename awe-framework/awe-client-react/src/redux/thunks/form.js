@@ -6,9 +6,10 @@ import {
   getComponent,
   isInsideContext, translateLabel
 } from "../../utilities";
-import {acceptAction, addActionsTop} from "../actions/actions";
-import {ButtonTypes, keepModel, updateAttributes} from "../actions/components";
-import {getFormValues} from "../selectors/form";
+import { acceptAction, addActionsTop } from "../actions/actions";
+import { ButtonTypes, keepModel, updateAttributes } from "../actions/components";
+import { getFormValues } from "../selectors/form";
+import { getAllComponents } from "../selectors/componentSelectors";
 import {
   resetMultipleModelWithDependencies,
   restoreMultipleModelWithDependencies,
@@ -18,7 +19,7 @@ const { BUTTON_SUBMIT } = ButtonTypes;
 
 export function submitAction(action) {
   return (dispatch, getState) => {
-    const {components} = getState();
+    const components = getAllComponents(getState());
     const address = getActionAddress(action);
     const submitButton = Object.values(components).find(
       (component) =>
@@ -44,7 +45,7 @@ export function submitAction(action) {
 
 export function resetAction(action) {
   return (dispatch, getState) => {
-    const {components} = getState();
+    const components = getAllComponents(getState());
     // Check reset target
     const address = getActionAddress(action);
     dispatch(resetMultipleModelWithDependencies(Object.values(components)
@@ -57,7 +58,7 @@ export function resetAction(action) {
 
 export function restoreAction(action) {
   return (dispatch, getState) => {
-    const {components} = getState();
+    const components = getAllComponents(getState());
     // Check reset target
     const address = getActionAddress(action);
     dispatch(restoreMultipleModelWithDependencies(Object.values(components)
@@ -70,7 +71,8 @@ export function restoreAction(action) {
 
 export function filterAction(action, t = (o) => o) {
   return (dispatch, getState) => {
-    const {components, settings, view} = getState();
+    const components = getAllComponents(getState());
+    const { settings, view } = getState();
     // Define server and target action
     const address = getActionAddress(action);
 
@@ -82,7 +84,7 @@ export function filterAction(action, t = (o) => o) {
       dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_NOT_DEFINED', t), translateLabel('ERROR_MESSAGE_NOT_DEFINED_IN', t, address.component, view[address.view].option))]));
     } else {
       // Start loading component
-      dispatch(updateAttributes(address, {loading: true}));
+      dispatch(updateAttributes(address, { loading: true }));
 
       // Add action to actions stack
       const serverAction = component.attributes[settings.serverActionKey] || "data";
@@ -107,19 +109,19 @@ export function filterAction(action, t = (o) => o) {
 export function fillAction(action) {
   return (dispatch) => {
     // Retrieve parameters
-    const {parameters} = action;
+    const { parameters } = action;
     const address = getActionAddress(action);
-    const {datalist} = parameters;
+    const { datalist } = parameters;
 
     // Generate model
-    let model = {...datalist, values: [...datalist.rows]};
+    let model = { ...datalist, values: [...datalist.rows] };
     delete model.rows;
 
     // Publish model change
     dispatch(updateModelWithDependencies(address, model));
 
     // Publish end loading
-    dispatch(updateAttributes(address, {loading: false}));
+    dispatch(updateAttributes(address, { loading: false }));
 
     // Finish action
     dispatch(acceptAction(action));
@@ -133,7 +135,7 @@ export function updateControllerAction(action) {
     const values = [...((action.parameters.datalist || {}).rows || [{}])];
 
     // Change controller
-    dispatch(updateAttributes(address, {[action.parameters.attribute]: action.parameters.value || values[0].value}));
+    dispatch(updateAttributes(address, { [action.parameters.attribute]: action.parameters.value || values[0].value }));
 
     // Finish action
     dispatch(acceptAction(action));
@@ -147,10 +149,10 @@ export function selectAction(action) {
     let selected = [...action.parameters.values];
 
     // Call the method update selected value from API
-    dispatch(updateModelWithDependencies(address, {selected}));
+    dispatch(updateModelWithDependencies(address, { selected }));
 
     // Publish end loading
-    dispatch(updateAttributes(address, {loading: false}));
+    dispatch(updateAttributes(address, { loading: false }));
 
     // Finish action
     dispatch(acceptAction(action));
@@ -165,7 +167,7 @@ export function startLoadAction(action) {
   return (dispatch) => {
     // Start loading
     const address = getActionAddress(action);
-    dispatch(updateAttributes(address, {loading: true}));
+    dispatch(updateAttributes(address, { loading: true }));
 
     // Accept action
     dispatch(acceptAction(action));
@@ -180,7 +182,7 @@ export function endLoadAction(action) {
   return (dispatch) => {
     // Start loading
     const address = getActionAddress(action);
-    dispatch(updateAttributes(address, {loading: false}));
+    dispatch(updateAttributes(address, { loading: false }));
 
     // Close action
     dispatch(acceptAction(action));

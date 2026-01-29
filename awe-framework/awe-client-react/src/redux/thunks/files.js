@@ -49,11 +49,9 @@ export function fetchPdfAction (targetAction, setPdf) {
   };
 }
 
-export function fetchHelpAction(setHelp) {
+export function fetchHelpAction(setHelp, option = null) {
   return (dispatch, getState) => {
-    const { settings, view } = getState();
-    const { report: currentOption } = view;
-    const { option = null } = currentOption;
+    const { settings } = getState();
     fetchHtml(getRestUrl("template", "help", option === "application-help" ? null : option), settings.token)
       .then(setHelp)
       .catch((reason) => console.error("Error reading help file:", reason));

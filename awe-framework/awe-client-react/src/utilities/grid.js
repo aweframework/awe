@@ -233,9 +233,26 @@ export function filterRow(row, filters) {
  * @memberOf Grid
  */
 export function keySort(a, b, direction = 1) {
-  if (a < b) return -direction;
-  else if (a > b) return direction;
-  else return 0;
+  const normalize = (value) => {
+    if (value === null || value === undefined) {
+      return { type: "nil", value: null };
+    }
+    const numeric = Number(value);
+    if (!Number.isNaN(numeric) && String(value).trim() !== "") {
+      return { type: "number", value: numeric };
+    }
+    return { type: "string", value: String(value).toLowerCase() };
+  };
+
+  const aNorm = normalize(a);
+  const bNorm = normalize(b);
+
+  if (aNorm.type === "nil" && bNorm.type !== "nil") return -direction;
+  if (aNorm.type !== "nil" && bNorm.type === "nil") return direction;
+
+  if (aNorm.value < bNorm.value) return -direction;
+  if (aNorm.value > bNorm.value) return direction;
+  return 0;
 }
 
 /**

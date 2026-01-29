@@ -1,40 +1,38 @@
-import React, {useEffect, useRef, useState} from "react";
-import {AutoComplete} from "primereact/autocomplete";
-import {classNames} from "../utilities/components";
+import React, { useEffect, useRef, useState } from "react";
+import { AutoComplete } from "primereact/autocomplete";
+import { classNames } from "../utilities/components";
 import "./AweSuggest.less";
-import {useTranslation} from "react-i18next";
-import {useSelector} from "react-redux";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
-import {translateLabel} from "../utilities";
-import {Skeleton} from "primereact/skeleton";
+import { translateLabel } from "../utilities";
+import { Skeleton } from "primereact/skeleton";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
 
 function AweSuggest(props) {
-  const {id, style: propsStyle} = props;
-  const {t} = useTranslation();
+  const { id, style: propsStyle } = props;
+  const { t } = useTranslation();
   const { address } = useComponent(id);
-  const { model, attributes, validationRules} = useSelector(state => ({
-    model: state.components[id]?.model,
-    attributes: state.components[id]?.attributes,
-    validationRules: state.components[id]?.validationRules}));
+  const { model, attributes, validationRules } = useComponentState(id);
   const autocompleteRef = useRef(null);
   const [suggestions, setSuggestions] = useState([...model?.values || []]);
   const [value, setValue] = useState({});
-  const {onChange, onClear, onKeyPress, onSuggest, initialSuggest} = useSuggest(autocompleteRef, setSuggestions, value, setValue, {...attributes, address});
+  const { onChange, onClear, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
 
   // Change model values if updated
   useEffect(() => {
     const fixedValues = (model?.values || [])
-      .map(item => ({...item, label: item.label || item.value, needsInit: !item?.label}))
+      .map(item => ({ ...item, label: item.label || item.value, needsInit: !item?.label }))
       .find(item => item.selected) || {};
     setValue(fixedValues);
   }, [model?.values]);
 
   // Initial suggest
   useEffect(() => {
-    const {checkTarget, targetAction} = attributes || {};
+    const { checkTarget, targetAction } = attributes || {};
     if ((checkTarget || targetAction) && value?.needsInit) {
       const query = value?.value;
       initialSuggest(query);
@@ -43,11 +41,11 @@ function AweSuggest(props) {
 
   // If address is undefined, return skeleton
   if (!address?.component) {
-    return <Skeleton width="10rem" height="2rem" style={propsStyle}/>;
+    return <Skeleton width="10rem" height="2rem" style={propsStyle} />;
   }
 
-  const {placeholder, required, readonly, timeout, size, error} = attributes;
-  const classes = classNames("", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
+  const { placeholder, required, readonly, timeout, size, error } = attributes;
+  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <AutoComplete

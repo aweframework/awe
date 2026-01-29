@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {useSelector} from "react-redux";
+import { useScreenSize } from "../hooks/useSizeRegistry";
 
 /**
  * AWE Grid Container component (functional)
@@ -10,7 +10,7 @@ function AweGridContainer(props) {
   const { onKeyCancelRow, onKeySaveRow, onContextMenu: onContextMenuProp, children } = props;
   const containerRef = useRef(null);
   const [containerHeight, setContainerHeight] = useState(0);
-  const screenSize = useSelector(state => state.size);
+  const screenSize = useScreenSize();
 
   const checkKey = useCallback((e) => {
     switch (e.key) {

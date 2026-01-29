@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from "react";
-import {translateLabel} from "../utilities";
-import {classNames, parseValidationRules} from "../utilities/components";
-import {Components} from "../utilities/structure";
-import {useTranslation} from "react-i18next";
-import {updateMultipleComponentsWithDependencies} from "../redux/thunks/components";
-import {useDispatch, useSelector} from "react-redux";
+import React, { useEffect, useState } from "react";
+import { translateLabel } from "../utilities";
+import { classNames, parseValidationRules } from "../utilities/components";
+import { Components } from "../utilities/structure";
+import { useTranslation } from "react-i18next";
+import { updateMultipleComponentsWithDependencies } from "../redux/thunks/components";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
 import useComponent from "../hooks/useComponent";
 
 function generateTagListRow(elements, row) {
@@ -19,17 +20,17 @@ function isComponent(element) {
 
 function getComponent(element, view) {
   if (isComponent(element)) {
-    const address = {view, component: element.id};
+    const address = { view, component: element.id };
     const validationRules = parseValidationRules(element.validation, address);
     return [{
       uid: element.id,
       address: address,
-      model: {values: []},
-      storedModel: {values: []},
-      attributes: {...element},
-      storedAttributes: {...element},
-      validationRules: {...validationRules},
-      storedValidationRules: {...validationRules},
+      model: { values: [] },
+      storedModel: { values: [] },
+      attributes: { ...element },
+      storedAttributes: { ...element },
+      validationRules: { ...validationRules },
+      storedValidationRules: { ...validationRules },
       actions: [...element.actions || []],
       dependencies: [...element.dependencies || []],
       contextMenu: [...element.contextMenu || []],
@@ -45,16 +46,13 @@ function findComponents(view, elementList = []) {
 
 function AweTagList(props) {
 
-  const {type, id, elementList} = props;
+  const { type, id, elementList } = props;
   const [tagList, setTagList] = useState([]);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { address } = useComponent(id);
-  const { model = {values: []}, attributes = {} } = useSelector(state => ({
-    model: state.components[id]?.model,
-    attributes: state.components[id]?.attributes
-  }));
-  const {label, style, expand, visible = true} = attributes;
+  const { model = { values: [] }, attributes = {} } = useComponentState(id);
+  const { label, style, expand, visible = true } = attributes;
 
   // Initialize on mount or model changes
   useEffect(() => {
@@ -64,7 +62,7 @@ function AweTagList(props) {
     setTagList(fixedElements);
   }, [elementList, model.values, address]);
 
-  const classes = classNames({[`expandible-${expand}`]: expand}, style, {"hidden": !visible});
+  const classes = classNames({ [`expandible-${expand}`]: expand }, style, { "hidden": !visible });
 
   return React.createElement(type || "div", {
     id: id,

@@ -1,21 +1,22 @@
-import {fetchAction, fetchFile, getActionAddress, getComponent, getRestUrl} from "../../utilities";
-import {acceptAction, addActionsTop} from "../actions/actions";
-import {getFormValues} from "../selectors/form";
+import { fetchAction, fetchFile, getActionAddress, getComponent, getRestUrl } from "../../utilities";
+import { acceptAction, addActionsTop } from "../actions/actions";
+import { getFormValues } from "../selectors/form";
+import { getAllComponents } from "../selectors/componentSelectors";
 
 let downloadFormIdentifier = 0;
 
 export const serverAction = (action, forPrinting = false, t = (o) => o) => {
   return async (dispatch, getState) => {
-    const {settings} = getState();
-    const {parameters, target, address} = action;
-    const {component} = address || {};
-    const {serverAction, targetAction} = parameters;
+    const { settings } = getState();
+    const { parameters, target, address } = action;
+    const { component } = address || {};
+    const { serverAction, targetAction } = parameters;
 
     try {
       const response = await fetchAction(
         serverAction,
         targetAction,
-        {...getFormValues(getState(), forPrinting, t), ...parameters},
+        { ...getFormValues(getState(), forPrinting, t), ...parameters },
         settings.token,
         null
       );
@@ -24,7 +25,7 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
       dispatch(addActionsTop(
         response.map(a => ({
           ...a,
-          address: {...address, component: target || component, ...(a.address || {})}
+          address: { ...address, component: target || component, ...(a.address || {}) }
         }))
       ));
 
@@ -38,7 +39,8 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
 
 export function serverDownloadAction(action) {
   return (dispatch, getState) => {
-    const {components, settings} = getState();
+    const components = getAllComponents(getState());
+    const { settings } = getState();
     const address = getActionAddress(action);
     let component = getComponent(components, address);
     const { specificAttributes } = component;

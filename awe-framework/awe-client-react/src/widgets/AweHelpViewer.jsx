@@ -6,6 +6,7 @@ import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {isEmpty} from "../utilities/general";
 import {fetchHelpAction} from "../redux/thunks/files";
+import {useView} from "../hooks/useViewRegistry";
 
 /**
  * AWE Help Viewer component (Functional)
@@ -21,9 +22,10 @@ function AweHelpViewer(props) {
     (text) => text.replace(/\{t\{'([\w\.\$ ]*)'\}\}/g, (m, label) => translateLabel(label, t)),
     [t]
   );
+  const view = useView("report") || {};
 
   useEffect(() => {
-    dispatch(fetchHelpAction(setHelp));
+    dispatch(fetchHelpAction(setHelp, view.option));
   }, []);
 
   const skeletonTemplate = (key) => (

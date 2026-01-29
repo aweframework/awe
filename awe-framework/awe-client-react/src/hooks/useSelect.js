@@ -1,8 +1,9 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useTranslation} from "react-i18next";
-import {useDispatch, useSelector} from "react-redux";
-import {updateModelWithDependencies} from "../redux/thunks/components";
-import {translateLabel} from "../utilities";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "./useComponentState";
+import { updateModelWithDependencies } from "../redux/thunks/components";
+import { translateLabel } from "../utilities";
 import useComponent from "./useComponent";
 
 /**
@@ -15,29 +16,30 @@ import useComponent from "./useComponent";
  * @param {object} [params.attributes] - Atributos (para componentes no Redux)
  * @param {boolean} [params.multiple] - Si es selección múltiple
  */
-export function useSelect({id, model: propModel, address: propAddress, attributes: propAttrs, multiple = false}) {
-  const {t} = useTranslation();
+export function useSelect({ id, model: propModel, address: propAddress, attributes: propAttrs, multiple = false }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const dropdownRef = useRef(null);
 
   const { address: reduxAddress } = useComponent(id);
+  const component = useComponentState(id);
 
   // --- Obtener datos de Redux si hay id ---
-  const reduxData = useSelector((state) => (id ? {
-    model: state.components[id]?.model ?? {values: []},
-    attributes: state.components[id]?.attributes ?? {},
-    validationRules: state.components[id]?.validationRules ?? {}
-  } : {}));
+  const reduxData = id ? {
+    model: component.model ?? { values: [] },
+    attributes: component.attributes ?? {},
+    validationRules: component.validationRules ?? {}
+  } : {};
 
   const address = propAddress || reduxAddress;
-  const model = propModel || reduxData.model || {values: []};
+  const model = propModel || reduxData.model || { values: [] };
   const attributes = propAttrs || reduxData.attributes || {};
   const validationRules = reduxData.validationRules || {};
 
   // --- Traducir opciones ---
   const options = useMemo(
     () => (model?.values || []).map(v => ({
-      ...(!multiple ? {...v, label: translateLabel(v.label, t)} : {}),
+      ...(!multiple ? { ...v, label: translateLabel(v.label, t) } : {}),
       name: translateLabel(v.label, t),
       code: v.value
     })),
@@ -63,8 +65,8 @@ export function useSelect({id, model: propModel, address: propAddress, attribute
     const value = e.value ?? e.target?.value;
     if (multiple) {
       const selectedCodes = value.map(v => v.code);
-      const values = model.values.map(v => ({...v, selected: selectedCodes.includes(v.value)}));
-      dispatch(updateModelWithDependencies(address, {values}));
+      const values = model.values.map(v => ({ ...v, selected: selectedCodes.includes(v.value) }));
+      dispatch(updateModelWithDependencies(address, { values }));
     } else {
       dispatch(updateModelWithDependencies(address, {
         values: model.values.map(v => ({

@@ -1,24 +1,21 @@
 import React from "react";
-import {TabMenu} from "primereact/tabmenu";
-import {Components} from "../utilities/structure";
-import {getIconCode, translateLabel} from "../utilities";
-import {classNames} from "../utilities/components";
+import { TabMenu } from "primereact/tabmenu";
+import { Components } from "../utilities/structure";
+import { getIconCode, translateLabel } from "../utilities";
+import { classNames } from "../utilities/components";
 import "./AweTabs.less";
-import {Badge} from "primereact/badge";
-import {useTranslation} from "react-i18next";
-import {usePanelable} from "../hooks/usePanelable";
-import {useSelector} from "react-redux";
+import { Badge } from "primereact/badge";
+import { useTranslation } from "react-i18next";
+import { usePanelable } from "../hooks/usePanelable";
+import { useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import AweWindow from "./AweWindow";
 
 function AweTabs(props) {
-  const {id, elementList = []} = props;
-  const { model = {values: []}, address, attributes = {}, globalDisabled } = useSelector(state => ({
-    model: state.components[id]?.model,
-    address: state.components[id]?.address,
-    attributes: state.components[id]?.attributes,
-    globalDisabled: state.actions.running
-  }));
+  const { id, elementList = [] } = props;
+  const { model = { values: [] }, address, attributes = {} } = useComponentState(id);
+  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
 
@@ -28,12 +25,12 @@ function AweTabs(props) {
   const unitRenderer = (unit) => unit ? <Badge className="p-tab-unit" value={translateLabel(unit, t)}></Badge> : null;
 
   const onChange = (e) => {
-    const {index} = e;
+    const { index } = e;
     selectIndex(index);
   };
 
   const itemRenderer = (item, itemIndex) => (
-    <button className={`p-menuitem-link`} onClick={() => onChange({index: itemIndex})} tabIndex={-1}>
+    <button className={`p-menuitem-link`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}>
       {iconRenderer(item.icon)}
       <div className={`p-tab-text`}>
         {titleRenderer(item.title)}
@@ -52,8 +49,8 @@ function AweTabs(props) {
       disabled: globalDisabled || disabled,
       template: (item) => itemRenderer(item, index)
     }))}
-             activeIndex={activeIndex}
-             onTabChange={onChange}/>
+      activeIndex={activeIndex}
+      onTabChange={onChange} />
     {elementList
       .filter(item => item.elementType === "TabContainer")
       .filter((item, index) => index === activeIndex).map((node, index) => Components(node, index))}
