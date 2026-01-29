@@ -1,38 +1,36 @@
-import React, {useRef, useState} from "react";
-import {AutoComplete} from "primereact/autocomplete";
-import {classNames} from "../utilities/components";
+import React, { useRef, useState } from "react";
+import { AutoComplete } from "primereact/autocomplete";
+import { classNames } from "../utilities/components";
 import "./AweSuggest.less";
-import {useTranslation} from "react-i18next";
-import {useSelector} from "react-redux";
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
-import {translateLabel} from "../utilities";
+import { translateLabel } from "../utilities";
 import useComponent from "../hooks/useComponent";
 
 function AweSuggestMultiple(props) {
-  const {id} = props;
+  const { id } = props;
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const { address } = useComponent(id);
-  const {model, attributes, validationRules} = useSelector(state => ({
-    model: state.components[id]?.model,
-    attributes: state.components[id]?.attributes,
-    validationRules: state.components[id]?.validationRules}));
+  const { model, attributes, validationRules } = useComponentState(id);
   const autocompleteRef = useRef(null);
   const [suggestions, setSuggestions] = useState([...model.values]);
   const [value, setValue] = useState(model.values.filter(item => item.selected) || []);
 
-  const {onChange, onKeyPress, onSuggest} = useSuggest(autocompleteRef, setSuggestions, value, setValue, {...attributes, address});
+  const { onChange, onKeyPress, onSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
 
-  const {placeholder, required, readonly, timeout, size, error} = attributes;
-  const classes = classNames("", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
+  const { placeholder, required, readonly, timeout, size, error } = attributes;
+  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <AutoComplete multiple={true}
         ref={autocompleteRef}
         id={id}
-        value={value.map(item => ({...item, label: item.label || item.value}))}
+        value={value.map(item => ({ ...item, label: item.label || item.value }))}
         placeholder={translateLabel(placeholder, t)}
         required={required}
         disabled={readonly}

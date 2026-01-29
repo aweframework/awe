@@ -32,6 +32,7 @@ public class UserList extends ServiceConfig {
     ServiceData serviceData = new ServiceData();
     DataList dataList = new DataList();
     final long simulateNumFile = 10;
+    int j = 1;
 
     try {
 
@@ -49,7 +50,7 @@ public class UserList extends ServiceConfig {
         // Build dataList
         for (int i = 0; i < simulateNumFile; i++) {
           for (User user : userList) {
-            dataList.addRow(user.toDatalistRow());
+            dataList.addRow(user.toDatalistRow(j++));
           }
         }
 

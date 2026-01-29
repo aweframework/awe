@@ -4,9 +4,10 @@ import {Helmet} from "react-helmet";
 import Templates from "../templates";
 import {useParams} from "react-router";
 import {loadScreen} from "../redux/thunks/screen";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {ProgressSpinner} from "primereact/progressspinner";
-import {clearView} from "../redux/actions/view";
+import ViewRegistry from "../redux/registry/ViewRegistry";
+import { useView } from "../hooks/useViewRegistry";
 
 const VIEW = "report";
 import {translateLabel} from "../utilities";
@@ -21,7 +22,7 @@ function SubViewContainer() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const prevScreenId = useRef(null);
-  const {view} = useSelector((state) => ({view: state.view[VIEW]}));
+  const view = useView(VIEW);
 
   useEffect(() => {
     if (prevScreenId.current !== subScreenId) {
@@ -29,7 +30,7 @@ function SubViewContainer() {
     }
     prevScreenId.current = subScreenId;
     return () => {
-      dispatch(clearView(VIEW));
+      ViewRegistry.clearView(VIEW);
     };
   }, [subScreenId]);
 

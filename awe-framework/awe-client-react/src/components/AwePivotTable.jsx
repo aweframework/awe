@@ -1,12 +1,13 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
-import {extractCellValue} from "../utilities/grid";
-import {isEmpty} from "../utilities/general";
-import {useTranslation} from "react-i18next";
-import {useDispatch, useSelector} from "react-redux";
-import {updateAttributes} from "../redux/actions/components";
-import {classNames} from "../utilities/components";
+import { extractCellValue } from "../utilities/grid";
+import { isEmpty } from "../utilities/general";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { updateAttributes } from "../redux/actions/components";
+import { classNames } from "../utilities/components";
 
 /**
  * Read value list
@@ -35,11 +36,7 @@ function AwePivotTable(props) {
   const { id, } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { address, model, attributes = {} } = useSelector(state => ({
-    address: state.components[id]?.address,
-    model: state.components[id]?.model,
-    attributes: state.components[id]?.attributes
-  }));
+  const { address, model, attributes = {} } = useComponentState(id);
   const [rendered, setRendered] = useState(false);
 
 
@@ -49,7 +46,7 @@ function AwePivotTable(props) {
    * @param e Changed attributes
    */
   const onChange = (e) => {
-    const {cols, rows, vals} = e;
+    const { cols, rows, vals } = e;
     dispatch(updateAttributes(address, {
       ...e,
       vals: writeValueList(vals),
@@ -67,23 +64,23 @@ function AwePivotTable(props) {
    * Render component
    * @returns {JSX.Element} Rendered component
    */
-    const {cols, rows, vals, style, visible = true} = attributes;
-    let fixedAttributes = rendered ? {
-      ...attributes,
-      vals: readValueList(vals),
-      cols: readValueList(cols),
-      rows: readValueList(rows)
-    } : {};
-    const classes = classNames(style, {"hidden": !visible});
-    return (<div className={classes}>
-      <PivotTableUI
-        data={model.values.map(row => Object.entries(row).reduce((prev, [key, value]) =>
-          ({...prev, [key]: extractCellValue(value)}), {}))}
-        onChange={onChange}
-        unusedOrientationCutoff={Infinity}
-        {...fixedAttributes}
-      />
-    </div>);
+  const { cols, rows, vals, style, visible = true } = attributes;
+  let fixedAttributes = rendered ? {
+    ...attributes,
+    vals: readValueList(vals),
+    cols: readValueList(cols),
+    rows: readValueList(rows)
+  } : {};
+  const classes = classNames(style, { "hidden": !visible });
+  return (<div className={classes}>
+    <PivotTableUI
+      data={model.values.map(row => Object.entries(row).reduce((prev, [key, value]) =>
+        ({ ...prev, [key]: extractCellValue(value) }), {}))}
+      onChange={onChange}
+      unusedOrientationCutoff={Infinity}
+      {...fixedAttributes}
+    />
+  </div>);
 }
 
 export default AwePivotTable;

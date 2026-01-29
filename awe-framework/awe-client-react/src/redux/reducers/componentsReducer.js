@@ -27,6 +27,8 @@ import {
   VALIDATE_COMPONENTS,
   VALIDATE_ROW,
 } from '../actions/components';
+import ComponentRegistry from '../registry/ComponentRegistry';
+import { calculateDeltas, mergeComponentState } from '../../utilities/mergeUtils';
 
 import {
   calculateFooterValue,
@@ -40,7 +42,7 @@ import _ from 'lodash';
 import { validateComponent, validateRow } from "./validation";
 import { asArray, updateArrayElement } from "../../utilities";
 import { ComponentAddressType, getAddressType, getComponentId } from "../../utilities/components";
-import {getFirstDefinedValue, isEmpty} from "../../utilities/general";
+import { getFirstDefinedValue, isEmpty } from "../../utilities/general";
 
 const { ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT } = ComponentAddressType;
 
@@ -64,7 +66,25 @@ const InitialState = {};
  * @param {Object} updates - Updates to merge into the component
  * @returns {Object} New state with updated component
  */
-function updateComponentInState(state, componentId, updates) {
+function updateComponentInState(state, componentId, updates, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      // Get current merged state (base + existing delta)
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      // Apply updates to the full state
+      const updatedFull = _.merge({}, currentFull, updates);
+      // Calculate new delta against base
+      const newDelta = calculateDeltas(base, updatedFull);
+      return {
+        ...state,
+        [componentId]: newDelta
+      };
+    }
+  }
+
+  // Legacy behavior
   return {
     ...state,
     [componentId]: {
@@ -74,17 +94,29 @@ function updateComponentInState(state, componentId, updates) {
   };
 }
 
-/**
- * Updates a nested property within a component
- * @param {Object} state - Current state
- * @param {string} componentId - Component identifier
- * @param {string} propertyName - Name of the property to update (e.g., 'attributes', 'model')
- * @param {Object} updates - Updates to merge into the property
- * @returns {Object} New state with updated property
- */
-function updateComponentProperty(state, componentId, propertyName, updates) {
-  if (!state[componentId]) return state;
+function updateComponentProperty(state, componentId, propertyName, updates, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      // Get current merged state
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      // Apply property update
+      currentFull[propertyName] = {
+        ...(currentFull[propertyName] || {}),
+        ...updates
+      };
+      // Calculate new delta
+      const newDelta = calculateDeltas(base, currentFull);
+      return {
+        ...state,
+        [componentId]: newDelta
+      };
+    }
+  }
 
+  // Legacy behavior
+  if (!state[componentId]) return state;
   return {
     ...state,
     [componentId]: {
@@ -97,34 +129,74 @@ function updateComponentProperty(state, componentId, propertyName, updates) {
   };
 }
 
-/**
- * Updates component attributes
- * @param {Object} state - Current state
- * @param {string} componentId - Component identifier
- * @param {Object} attributeUpdates - Attribute updates to merge
- * @returns {Object} New state with updated attributes
- */
-function updateComponentAttributes(state, componentId, attributeUpdates) {
-  return updateComponentProperty(state, componentId, 'attributes', attributeUpdates);
+function updateComponentAttributes(state, componentId, attributeUpdates, settings) {
+  return updateComponentProperty(state, componentId, 'attributes', attributeUpdates, settings);
 }
 
-/**
- * Updates component validation rules
- * @param {Object} state - Current state
- * @param {string} componentId - Component identifier
- * @param {Object} validationUpdates - Validation updates to merge
- * @returns {Object} New state with updated validation
- */
-function updateComponentValidation(state, componentId, validationUpdates) {
-  if (!state[componentId]) return state;
+function updateComponentValidation(state, componentId, validationUpdates, settings) {
+  return updateComponentProperty(state, componentId, 'validationRules', validationUpdates, settings);
+}
+
+function getGridRowContext(state = {}, address = {}, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+  const base = useRegistry ? ComponentRegistry.get(componentId) : null;
+
+  if (useRegistry && !base) return null;
+
+  const component = useRegistry
+    ? mergeComponentState(base, state[componentId] || {})
+    : state[componentId];
+
+  if (!component) return null;
+  const { model, attributes } = component;
+  if (!model || !attributes) return null;
+
+  const { values } = model;
+  const gridId = memoizedGetGridIdentifier(attributes);
+  const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
+  if (rowIndex < 0) return null;
+
+  const rowData = values[rowIndex] || {};
+
+  return {
+    componentId,
+    useRegistry,
+    base,
+    component,
+    model,
+    attributes,
+    values,
+    rowIndex,
+    rowData
+  };
+}
+
+function updateGridRowValues(state, context, nextValues) {
+  const { componentId, useRegistry, base, component } = context;
+
+  if (useRegistry) {
+    const currentFull = {
+      ...component,
+      model: {
+        ...(component.model || {}),
+        values: nextValues
+      }
+    };
+
+    return {
+      ...state,
+      [componentId]: calculateDeltas(base, currentFull)
+    };
+  }
 
   return {
     ...state,
     [componentId]: {
       ...state[componentId],
-      validationRules: {
-        ...(state[componentId]?.validationRules || {}),
-        ...validationUpdates
+      model: {
+        ...state[componentId].model,
+        values: nextValues
       }
     }
   };
@@ -140,7 +212,7 @@ function updateComponentValidation(state, componentId, validationUpdates) {
  * Check if component is a grid or not
  * @param {Object} component
  */
-function isGrid(component) {
+function isGridComponent(component) {
   return !isEmpty(component) && "columnModel" in (component.attributes || {});
 }
 
@@ -149,7 +221,7 @@ function isGrid(component) {
  * @param {Object} component
  */
 function hasFooter(component) {
-  return isGrid(component) && (component.attributes || {}).showTotals;
+  return isGridComponent(component) && (component.attributes || {}).showTotals;
 }
 
 /**
@@ -192,14 +264,14 @@ function fixCellModel(selected, model) {
  * @param action
  * @returns {null|*}
  */
-function launchAddressFunction(cellFunction, columnFunction, componentFunction, state, action) {
+function launchAddressFunction(cellFunction, columnFunction, componentFunction, state, action, settings) {
   switch (getAddressType(action.address)) {
     case ADDRESS_CELL:
-      return cellFunction(state, action.address, action.data);
+      return cellFunction(state, action.address, action.data, settings);
     case ADDRESS_COLUMN:
-      return columnFunction(state, action.address, action.data);
+      return columnFunction(state, action.address, action.data, settings);
     case ADDRESS_COMPONENT:
-      return componentFunction(state, action.address, action.data);
+      return componentFunction(state, action.address, action.data, settings);
     default:
       return state;
   }
@@ -212,8 +284,8 @@ function launchAddressFunction(cellFunction, columnFunction, componentFunction, 
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateAttributeComponent(state = {}, address = {}, data = {}) {
-  return updateComponentAttributes(state, address.component, data);
+function updateAttributeComponent(state = {}, address = {}, data = {}, settings) {
+  return updateComponentAttributes(state, address.component, data, settings);
 }
 
 /**
@@ -223,18 +295,40 @@ function updateAttributeComponent(state = {}, address = {}, data = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateAttributeColumn(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  const { attributes } = state[component];
-  const { columnModel = [] } = attributes;
+function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
 
-  const columnMap = new Map(columnModel.map((col, index) => [col.name, index]));
-  const columnIndex = columnMap.get(address.column);
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const { attributes } = currentFull;
+      const { columnModel = [] } = attributes;
+      const columnIndex = columnModel.findIndex(col => col.name === address.column);
+
+      currentFull.attributes = {
+        ...attributes,
+        columnModel: updateArrayElement(columnModel, columnIndex, data)
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  const { attributes } = state[componentId] || {};
+  if (!attributes) return state;
+  const columnModel = attributes.columnModel || [];
+  const columnIndex = columnModel.findIndex(col => col.name === address.column);
 
   return {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       attributes: {
         ...attributes,
         columnModel: updateArrayElement(columnModel, columnIndex, data)
@@ -250,29 +344,21 @@ function updateAttributeColumn(state = {}, address = {}, data = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateAttributeCell(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  const { model, attributes } = state[component];
-  const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
-  const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  const rowData = values[rowIndex] || {};
+function updateAttributeCell(state = {}, address = {}, data = {}, settings) {
+  const context = getGridRowContext(state, address, settings);
+  if (!context) return state;
+
+  const { values, rowIndex, rowData } = context;
   const cellAttrs = rowData.$attrs?.[address.column] || {};
-  return {
-    ...state,
-    [component]: {
-      ...state[component],
-      model: {
-        ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {
-          ...values[rowIndex], $attrs: {
-            ...rowData.$attrs || {},
-            [address.column]: { ...cellAttrs, ...data }
-          }
-        })
-      }
+  const nextValues = updateArrayElement(values, rowIndex, {
+    ...rowData,
+    $attrs: {
+      ...rowData.$attrs || {},
+      [address.column]: { ...cellAttrs, ...data }
     }
-  };
+  });
+
+  return updateGridRowValues(state, context, nextValues);
 }
 
 /**
@@ -281,19 +367,46 @@ function updateAttributeCell(state = {}, address = {}, data = {}) {
  * @param {object} action Action
  * @returns {*} Action updated
  */
-function updateAttributeAction(state = {}, action = {}) {
-  return launchAddressFunction(updateAttributeCell, updateAttributeColumn, updateAttributeComponent, state, action);
+function updateAttributeAction(state = {}, action = {}, settings) {
+  const nextState = launchAddressFunction(updateAttributeCell, updateAttributeColumn, updateAttributeComponent, state, action, settings);
+  const baseAddress = action.address?.component ? { view: action.address.view, component: action.address.component } : action.address;
+  const componentId = memoizedGetComponentId(baseAddress);
+  if (!componentId) return nextState;
+  const useRegistry = settings?.useComponentRegistry;
+  const component = useRegistry
+    ? mergeComponentState(ComponentRegistry.get(componentId), nextState[componentId] || {})
+    : nextState[componentId];
+  return hasFooter(component) ? updateGridFooter(nextState, baseAddress, settings) : nextState;
 }
 
-function updateSpecificAttributes(state = {}, action = {}) {
+function updateSpecificAttributes(state = {}, action = {}, settings) {
   const { address, data } = action;
-  const component = memoizedGetComponentId(address);
-  return !(component in state) ? state : {
+  const componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      currentFull.specificAttributes = {
+        ...(currentFull.specificAttributes || {}),
+        ...data
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  return !(componentId in state) ? state : {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       specificAttributes: {
-        ...state[component].specificAttributes,
+        ...state[componentId].specificAttributes,
         ...data
       }
     }
@@ -305,9 +418,10 @@ function updateSpecificAttributes(state = {}, action = {}) {
  * @param {Object} state
  * @param {Object} component
  * @param {Object} data
+ * @param {Object} settings Settings
  * @return {Object} updated state
  */
-function keepAttributeComponent(state, component, data) {
+function keepAttributeComponent(state, component, data, settings) {
   if (!state[component]) return state;
 
   return updateComponentInState(state, component, {
@@ -317,7 +431,7 @@ function keepAttributeComponent(state, component, data) {
         ...state[component].attributes[data]
       }
     }
-  });
+  }, settings);
 }
 
 /**
@@ -327,15 +441,34 @@ function keepAttributeComponent(state, component, data) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function restoreAttributeComponent(state, address, data) {
-  const component = memoizedGetComponentId(address);
+function restoreAttributeComponent(state, address, data, settings) {
+  const componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      currentFull.attributes = {
+        ...currentFull.attributes,
+        [data]: currentFull.storedAttributes?.[data]
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
   return {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       attributes: {
-        ...state[component].attributes,
-        [data]: state[component].storedAttributes[data]
+        ...state[componentId].attributes,
+        [data]: state[componentId].storedAttributes[data]
       }
     }
   };
@@ -348,18 +481,43 @@ function restoreAttributeComponent(state, address, data) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function restoreAttributeColumn(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  const { attributes } = state[component];
-  const { columnModel = [] } = attributes;
-  const columnIndex = attributes.columnModel.findIndex(column => column.name === address.column);
+function restoreAttributeColumn(state = {}, address = {}, data = {}, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const { attributes } = currentFull;
+      const { columnModel = [] } = attributes;
+      const columnIndex = columnModel.findIndex(column => column.name === address.column);
+      if (columnIndex < 0) return state;
+
+      currentFull.attributes = {
+        ...attributes,
+        columnModel: updateArrayElement(columnModel, columnIndex, { [data]: currentFull.storedAttributes?.columnModel?.[columnIndex]?.[data] })
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  const { attributes } = state[componentId] || {};
+  if (!attributes) return state;
+  const columnModel = attributes.columnModel || [];
+  const columnIndex = columnModel.findIndex(column => column.name === address.column);
   return {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       attributes: {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, { [data]: state[component].storedAttributes.columnModel[columnIndex][data] })
+        columnModel: updateArrayElement(columnModel, columnIndex, { [data]: state[componentId].storedAttributes.columnModel[columnIndex][data] })
       }
     }
   };
@@ -372,9 +530,50 @@ function restoreAttributeColumn(state = {}, address = {}, data = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function restoreAttributeCell(state, address, data) {
-  const component = address.component;
-  const { model, attributes, storedAttributes = {} } = state[component];
+function restoreAttributeCell(state, address, data, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const { model, attributes, storedAttributes = {} } = currentFull;
+      const { values } = model;
+      const gridId = memoizedGetGridIdentifier(attributes);
+      const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
+      if (rowIndex < 0) return state;
+
+      const columnIndex = (attributes.columnModel || []).findIndex(column => column.name === address.column);
+      const storedColumn = storedAttributes.columnModel?.[columnIndex] || {};
+      const defaultValue = storedColumn?.[data];
+      const rowData = values[rowIndex] || {};
+      const cellAttrs = rowData.$attrs?.[address.column] || {};
+      const prevAttrs = rowData.$attrs || {};
+
+      let newAttr;
+      if (typeof defaultValue !== 'undefined') {
+        newAttr = { ...cellAttrs, [data]: defaultValue };
+      } else {
+        const { [data]: _removed, ...rest } = cellAttrs;
+        newAttr = rest;
+      }
+
+      currentFull.model = {
+        ...model,
+        values: updateArrayElement(values, rowIndex, { ...rowData, $attrs: { ...prevAttrs, [address.column]: newAttr } })
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  const { model, attributes, storedAttributes = {} } = state[componentId] || {};
+  if (!model || !attributes) return state;
   const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
@@ -401,10 +600,10 @@ function restoreAttributeCell(state, address, data) {
 
   return {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       model: {
-        ...state[component].model,
+        ...state[componentId].model,
         values: updateArrayElement(values, rowIndex, { ...rowData, $attrs: { ...prevAttrs, [address.column]: newAttr } })
       }
     }
@@ -417,8 +616,8 @@ function restoreAttributeCell(state, address, data) {
  * @param {object} action Action
  * @returns {*} Action updated
  */
-function restoreAttributeAction(state = {}, action = {}) {
-  return launchAddressFunction(restoreAttributeCell, restoreAttributeColumn, restoreAttributeComponent, state, action);
+function restoreAttributeAction(state = {}, action = {}, settings) {
+  return launchAddressFunction(restoreAttributeCell, restoreAttributeColumn, restoreAttributeComponent, state, action, settings);
 }
 
 /**
@@ -427,8 +626,8 @@ function restoreAttributeAction(state = {}, action = {}) {
  * @param {object} action Action
  * @returns {*} Action updated
  */
-function updateValidationAction(state = {}, action = {}) {
-  return launchAddressFunction(updateValidationCell, updateValidationColumn, updateValidationComponent, state, action);
+function updateValidationAction(state = {}, action = {}, settings) {
+  return launchAddressFunction(updateValidationCell, updateValidationColumn, updateValidationComponent, state, action, settings);
 }
 
 /**
@@ -438,8 +637,8 @@ function updateValidationAction(state = {}, action = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateValidationComponent(state = {}, address = {}, data = {}) {
-  return updateComponentValidation(state, address.component, data);
+function updateValidationComponent(state = {}, address = {}, data = {}, settings) {
+  return updateComponentValidation(state, address.component, data, settings);
 }
 
 /**
@@ -449,15 +648,45 @@ function updateValidationComponent(state = {}, address = {}, data = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateValidationColumn(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  const { attributes } = state[component];
-  const { columnModel = [] } = attributes;
-  const columnIndex = attributes.columnModel.findIndex(column => column.name === address.column);
+function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const { attributes } = currentFull;
+      const { columnModel = [] } = attributes;
+      const columnIndex = columnModel.findIndex(col => col.name === address.column);
+      if (columnIndex < 0) return state;
+
+      currentFull.attributes = {
+        ...attributes,
+        columnModel: updateArrayElement(columnModel, columnIndex, {
+          validationRules: {
+            ...(columnModel[columnIndex]?.validationRules || {}),
+            ...data
+          }
+        })
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  const { attributes } = state[componentId] || {};
+  if (!attributes) return state;
+  const columnModel = attributes.columnModel || [];
+  const columnIndex = columnModel.findIndex(column => column.name === address.column);
   return {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       attributes: {
         ...attributes,
         columnModel: updateArrayElement(columnModel, columnIndex, { validationRules: { ...(columnModel[columnIndex]?.validationRules || {}), ...data } })
@@ -473,37 +702,28 @@ function updateValidationColumn(state = {}, address = {}, data = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateValidationCell(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  const { model, attributes } = state[component];
-  const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
-  const rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  const rowData = values[rowIndex] || {};
+function updateValidationCell(state = {}, address = {}, data = {}, settings) {
+  const context = getGridRowContext(state, address, settings);
+  if (!context) return state;
+
+  const { values, rowIndex, rowData } = context;
   const cellAttrs = rowData.$attrs?.[address.column] || {};
   const currentValidation = cellAttrs.validationRules || {};
-  return {
-    ...state,
-    [component]: {
-      ...state[component],
-      model: {
-        ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {
-          ...rowData,
-          $attrs: {
-            ...(rowData.$attrs || {}),
-            [address.column]: {
-              ...cellAttrs,
-              validationRules: {
-                ...currentValidation,
-                ...data
-              }
-            }
-          }
-        })
+  const nextValues = updateArrayElement(values, rowIndex, {
+    ...rowData,
+    $attrs: {
+      ...(rowData.$attrs || {}),
+      [address.column]: {
+        ...cellAttrs,
+        validationRules: {
+          ...currentValidation,
+          ...data
+        }
       }
     }
-  };
+  });
+
+  return updateGridRowValues(state, context, nextValues);
 }
 
 /**
@@ -512,14 +732,21 @@ function updateValidationCell(state = {}, address = {}, data = {}) {
  * @param {Object} component
  * @return {Object} updated state
  */
-function keepValidationComponent(state, component) {
-  if (!state[component]) return state;
+function keepValidationComponent(state, componentId, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+  let validationRules;
+  if (useRegistry) {
+    const full = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+    validationRules = full.validationRules;
+  } else {
+    validationRules = state[componentId]?.validationRules;
+  }
 
-  return updateComponentInState(state, component, {
+  return updateComponentInState(state, componentId, {
     storedValidationRules: {
-      ...(state[component]?.validationRules || {})
+      ...(validationRules || {})
     }
-  });
+  }, settings);
 }
 
 /**
@@ -528,14 +755,21 @@ function keepValidationComponent(state, component) {
  * @param {Object} component
  * @return {Object} updated state
  */
-function restoreValidationComponent(state, component) {
-  if (!state[component]) return state;
+function restoreValidationComponent(state, componentId, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+  let storedValidationRules;
+  if (useRegistry) {
+    const full = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+    storedValidationRules = full.storedValidationRules;
+  } else {
+    storedValidationRules = state[componentId]?.storedValidationRules;
+  }
 
-  return updateComponentInState(state, component, {
+  return updateComponentInState(state, componentId, {
     validationRules: {
-      ...(state[component]?.storedValidationRules || {})
+      ...(storedValidationRules || {})
     }
-  });
+  }, settings);
 }
 
 /**
@@ -545,9 +779,33 @@ function restoreValidationComponent(state, component) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateComponentData(state, component, data) {
-  if (component == null) return state;
-  return updateComponentInState(state, component, data);
+function updateComponentData(state, componentId, data, settings) {
+  if (componentId == null) return state;
+  const useRegistry = settings && settings.useComponentRegistry;
+
+  if (useRegistry) {
+    // Si data contiene address y attributes, podría ser un componente completo
+    // Si no, es una actualización parcial que debe ir directamente a deltas
+    if (data.address && data.attributes) {
+      // Registrar en Registry (actualizar estado base)
+      ComponentRegistry.register(componentId, data);
+
+      // Calcular deltas
+      const base = ComponentRegistry.get(componentId);
+      const deltas = calculateDeltas(base, data);
+
+      return {
+        ...state,
+        [componentId]: {
+          ...state[componentId],
+          ...deltas
+        }
+      };
+    }
+  }
+
+  // Comportamiento normal o actualización parcial
+  return updateComponentInState(state, componentId, data, settings);
 }
 
 /**
@@ -555,18 +813,23 @@ function updateComponentData(state, component, data) {
  * @param {object} state State
  * @param {object} grid Grid component
  */
-function updateCellsModel(state, grid) {
+function updateCellsModel(state, grid, settings) {
   const { values } = grid.model;
-  let columns = grid.attributes.columnModel.filter(column => column.component);
+  let columns = grid.attributes?.columnModel?.filter(column => column.component) || [];
   let cellComponents = {};
   const gridId = memoizedGetGridIdentifier(grid.attributes);
+  const useRegistry = settings?.useComponentRegistry;
   values
     .forEach(row => columns
-      .filter(column => memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name }) in state)
+      .filter(column => {
+        const cellComponentId = memoizedGetComponentId({ ...grid.address, row: row[gridId], column: column.name });
+        return cellComponentId in state || (useRegistry && ComponentRegistry.get(cellComponentId));
+      })
       .forEach(column => Object.assign(cellComponents,
         getModelUpdate(state,
           { ...grid.address, row: row[gridId], column: column.name },
-          fixCellModel(row[column.name], column.model)
+          fixCellModel(row[column.name], column.model),
+          settings
         )
       ))
     );
@@ -580,18 +843,46 @@ function updateCellsModel(state, grid) {
  * @param {object} model Cell model
  * @returns {object} Component update
  */
-function getModelUpdate(state, address, model) {
+function getModelUpdate(state, address, model, settings) {
   let componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      // Get current merged state
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      // Apply model update
+      currentFull.model = {
+        ...(currentFull.model || {}),
+        ...model,
+        changed: true
+      };
+      // Reset error on update
+      currentFull.attributes = {
+        ...(currentFull.attributes || {}),
+        error: null
+      };
+
+      // Calculate new delta
+      const newDelta = calculateDeltas(base, currentFull);
+      return {
+        [componentId]: newDelta
+      };
+    }
+  }
+
+  // Legacy behavior
   return {
     [componentId]: {
       ...state[componentId],
       model: {
-        ...state[componentId].model,
+        ...state[componentId]?.model,
         ...model,
         changed: true
       },
       attributes: {
-        ...state[componentId].attributes,
+        ...state[componentId]?.attributes,
         error: null
       }
     }
@@ -604,12 +895,13 @@ function getModelUpdate(state, address, model) {
  * @param {string} view Component view
  * @param {string} group Group
  * @param {object} model Cell model
+ * @param {object} settings Settings
  * @returns {object} Component update
  */
-function getGroupModelUpdate(state, view, group, model) {
+function getGroupModelUpdate(state, view, group, model, settings) {
   // Check equality to avoid update state if there are no changes
   const selected = model.values.map(item => item.value);
-  return updateSelectedGroup(state, model.values, view, group, selected);
+  return updateSelectedGroup(state, model.values, view, group, selected, settings);
 }
 
 /**
@@ -620,10 +912,25 @@ function getGroupModelUpdate(state, view, group, model) {
  * @param {boolean} update Update cells model
  * @returns {object} Component update
  */
-function getGridModelUpdate(state, address, model, update = true) {
+function getGridModelUpdate(state, address, model, update = true, settings) {
   let componentId = memoizedGetComponentId(address);
-  let gridComponent = getModelUpdate(state, address, model);
-  let cellsState = model.values && update ? updateCellsModel({ ...state, ...gridComponent }, gridComponent[componentId]) : {};
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+
+  if (!component) return state;
+
+  let gridComponent = getModelUpdate(state, address, model, settings);
+
+  // Para updateCellsModel necesitamos el componente mergeado con los cambios que acabamos de calcular
+  const updatedFull = mergeComponentState(component, gridComponent[componentId] || {});
+
+  let cellsState = model.values && update ? updateCellsModel({ ...state, ...gridComponent }, updatedFull, settings) : {};
   return {
     ...gridComponent,
     ...cellsState
@@ -638,17 +945,33 @@ function getGridModelUpdate(state, address, model, update = true) {
  * @param {boolean} update Update grid components
  * @return {object} updated state
  */
-function updateModel(state, address, data, update = true) {
+function updateModel(state, address, data, update = true, settings) {
   let componentId = memoizedGetComponentId(address);
-  let component = state[componentId];
-  if (component === null) return state;
-  let newModel;
-  if (isGrid(component) && data.values && update) {
-    newModel = getGridModelUpdate(state, address, data, update);
-  } else if (isGroup(component)) {
-    newModel = getGroupModelUpdate(state, address.view, component.attributes.group, data);
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    component = mergeComponentState(base, state[componentId] || {});
   } else {
-    newModel = getModelUpdate(state, address, data);
+    component = state[componentId];
+  }
+
+  if (component === null || component === undefined) return state;
+
+  // Debug log
+  // console.error('updateModel component:', component, typeof component, 'isGrid:', isGridComponent(component), 'data.selected:', data.selected);
+
+  let newModel;
+  if (isGridComponent(component) && data.values && update) {
+    newModel = getGridModelUpdate(state, address, data, update, settings);
+  } else if (isGridComponent(component) && data.selected) {
+    // console.error('Entering updateSelectedGrid path, values:', component.model?.values?.length);
+    newModel = updateSelectedGrid(state, component.model?.values || [], address, data, settings);
+  } else if (isGroup(component)) {
+    newModel = getGroupModelUpdate(state, address?.view, component.attributes?.group, data, settings);
+  } else {
+    newModel = getModelUpdate(state, address, data, settings);
   }
   return {
     ...state,
@@ -663,15 +986,44 @@ function updateModel(state, address, data, update = true) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateColumnModel(state = {}, address = {}, data = {}) {
-  const component = address.component;
-  const { attributes } = state[component];
-  const { columnModel = [] } = attributes;
-  const columnIndex = attributes.columnModel.findIndex(column => column.name === address.column);
+function updateColumnModel(state = {}, address = {}, data = {}, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const { attributes } = currentFull;
+      const { columnModel = [] } = attributes;
+      const columnIndex = columnModel.findIndex(column => column.name === address.column);
+
+      currentFull.attributes = {
+        ...attributes,
+        columnModel: updateArrayElement(columnModel, columnIndex, {
+          model: {
+            ...(columnModel[columnIndex]?.model || {}),
+            ...data
+          }
+        })
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  const { attributes } = state[componentId] || {};
+  if (!attributes) return state;
+  const columnModel = attributes.columnModel || [];
+  const columnIndex = columnModel.findIndex(column => column.name === address.column);
   return {
     ...state,
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       attributes: {
         ...attributes,
         columnModel: updateArrayElement(columnModel, columnIndex, {
@@ -692,29 +1044,23 @@ function updateColumnModel(state = {}, address = {}, data = {}) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateCellModel(state, address, data) {
-  const component = address.component;
-  const { model, attributes } = state[component];
-  const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
-  let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  const newData = getCellModel(getFirstDefinedValue(data.values, values[rowIndex][address.column]), attributes.columnModel.find(column => column.name === address.column));
-  const rowData = values[rowIndex] || {};
+function updateCellModel(state, address, data, settings) {
+  const context = getGridRowContext(state, address, settings);
+  if (!context) return state;
+
+  const { values, rowIndex, rowData, attributes } = context;
+  const newData = getCellModel(
+    getFirstDefinedValue(data.values, values[rowIndex][address.column]),
+    attributes.columnModel?.find(column => column.name === address.column)
+  );
   const cellAttrs = rowData.$attrs?.[address.column] || {};
   const { error, ...otherAttrs } = cellAttrs;
-  return {
-    ...state,
-    [component]: {
-      ...state[component],
-      model: {
-        ...state[component].model,
-        values: updateArrayElement(values, rowIndex, {
-          [address.column]: newData,
-          $attrs: { ...rowData.$attrs, [address.column]: otherAttrs }
-        })
-      }
-    }
-  };
+  const nextValues = updateArrayElement(values, rowIndex, {
+    [address.column]: newData,
+    $attrs: { ...rowData.$attrs, [address.column]: otherAttrs }
+  });
+
+  return updateGridRowValues(state, context, nextValues);
 }
 
 /**
@@ -724,23 +1070,19 @@ function updateCellModel(state, address, data) {
  * @param {object} data
  * @return {object} updated state
  */
-function updateCellSelected(state, address, data) {
-  const component = address.component;
-  const { model, attributes } = state[component];
-  const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
-  let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  let sameValue = checkSelected(data.selected, values[rowIndex][address.column]);
-  return sameValue ? state : {
-    ...state,
-    [component]: {
-      ...state[component],
-      model: {
-        ...model,
-        values: updateArrayElement(values, rowIndex, { [address.column]: fixCellModel(data.selected, values[rowIndex][address.column]).values })
-      }
-    }
-  };
+function updateCellSelected(state, address, data, settings) {
+  const context = getGridRowContext(state, address, settings);
+  if (!context) return state;
+
+  const { values, rowIndex } = context;
+  const sameValue = checkSelected(data.selected, values[rowIndex][address.column]);
+  if (sameValue) return state;
+
+  const nextValues = updateArrayElement(values, rowIndex, {
+    [address.column]: fixCellModel(data.selected, values[rowIndex][address.column]).values
+  });
+
+  return updateGridRowValues(state, context, nextValues);
 }
 
 /**
@@ -748,14 +1090,26 @@ function updateCellSelected(state, address, data) {
  * @param {object} state
  * @param {object} values
  * @param {object} address
- * @param {object} selected
+ * @param {object} address
+ * @param {object} data
  * @return {object} updated state
  */
-function updateSelectedGrid(state, values, address, selected) {
-  // Get values to unselect
-  const component = state[memoizedGetComponentId(address)];
+function updateSelectedGrid(state, values, address, data, settings) {
+  const componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+
+  if (!component || !component.attributes) return state;
+
+  const { selected = [] } = data;
   const gridId = memoizedGetGridIdentifier(component.attributes);
-  let filtered = values;
+  let filtered = [...values];
   let toUnselect = values
     .filter(row => row.selected)
     .filter(row => !selected.map(String).includes(String(row[gridId])))
@@ -765,11 +1119,14 @@ function updateSelectedGrid(state, values, address, selected) {
   // Unselect values
   [...toUnselect, ...toSelect].forEach(item => {
     let index = filtered.findIndex((row) => String(row[gridId]) === String(item.id));
-    filtered = updateArrayElement(filtered, index, { selected: item.selected });
+    // Safeguard for index not found
+    if (index >= 0) {
+      filtered = updateArrayElement(filtered, index, { selected: item.selected });
+    }
   });
 
   // Update values
-  return getGridModelUpdate(state, address, { values: filtered }, false);
+  return getGridModelUpdate(state, address, { ...data, values: filtered }, false, settings);
 }
 
 /**
@@ -780,15 +1137,26 @@ function updateSelectedGrid(state, values, address, selected) {
  * @param {array} selected
  * @return {object} updated state
  */
-function updateSelectedComponent(state, values, address, selected) {
-  let component = state[memoizedGetComponentId(address)];
+function updateSelectedComponent(state, values, address, selected, settings) {
+  const componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+
+  if (!component) return state;
+
   let filtered = getFilteredValues(values, selected);
   if (_.isEqual(filtered, (component.model?.values))) {
     return null;
   }
 
   // Update values
-  return getModelUpdate(state, address, { values: filtered });
+  return getModelUpdate(state, address, { values: filtered }, settings);
 }
 
 /**
@@ -811,8 +1179,36 @@ function getFilteredValues(values, selected) {
  * @param {object} group * @param {array} selected
  * @return {Object} updated state
  */
-function updateSelectedGroup(state, values, view, group, selected) {
-  // Check equality to avoid update state if there are no changes
+function updateSelectedGroup(state, values, view, group, selected, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    // Mergear TODO el estado actual para filtrar por grupo
+    const allIds = [...new Set([...ComponentRegistry.getAllIds(), ...Object.keys(state)])];
+    const groupUpdates = allIds
+      .map(id => {
+        const base = ComponentRegistry.get(id);
+        const delta = state[id] || {};
+        const full = mergeComponentState(base, delta);
+        if (full.address?.view === view && full.attributes?.group === group) {
+          const updatedFull = {
+            ...full,
+            model: {
+              ...full.model,
+              values: (full.model?.values || []).map(value => ({ ...value, selected: selected.includes(value.value) })),
+              changed: true
+            }
+          };
+          return { id, delta: calculateDeltas(base, updatedFull) };
+        }
+        return null;
+      })
+      .filter(u => u !== null);
+
+    return groupUpdates.reduce((acc, u) => ({ ...acc, [u.id]: u.delta }), {});
+  }
+
+  // Legacy behavior
   return {
     ...Object.entries(state)
       .filter(([name, component]) => component.address?.view === view && component.attributes?.group === group)
@@ -838,8 +1234,8 @@ function updateSelectedGroup(state, values, view, group, selected) {
  * @param {object} data
  * @return {object} updated state
  */
-function updateSelected(state, address, data) {
-  let update = getSelectedUpdate(state, address, data);
+function updateSelected(state, address, data, settings) {
+  let update = getSelectedUpdate(state, address, data, settings);
   if (update) {
     return {
       ...state,
@@ -857,16 +1253,25 @@ function updateSelected(state, address, data) {
  * @param {object} data Data
  * @return {object|null} Update to apply
  */
-function getSelectedUpdate(state, address, data) {
-  let component = state[memoizedGetComponentId(address)];
-  let values = (component.model?.values) || [];
-  let selected = asArray(data.selected);
-  if (isGrid(component)) {
-    return updateSelectedGrid(state, values, address, selected);
-  } else if (isGroup(component)) {
-    return updateSelectedGroup(state, values, address.view, component.attributes.group, selected);
+function getSelectedUpdate(state, address, data, settings) {
+  const componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
   } else {
-    return updateSelectedComponent(state, values, address, selected);
+    component = state[componentId];
+  }
+
+  let values = (component?.model?.values) || [];
+  let selected = asArray(data.selected);
+  if (isGridComponent(component)) {
+    return updateSelectedGrid(state, values, address, { selected }, settings);
+  } else if (isGroup(component)) {
+    return updateSelectedGroup(state, values, address?.view, component.attributes?.group, selected, settings);
+  } else {
+    return updateSelectedComponent(state, values, address, selected, settings);
   }
 }
 
@@ -894,25 +1299,17 @@ function checkSelected(selectedValues, cellValue) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function updateRowModel(state, address, data) {
-  const { model, attributes } = state[address.component];
-  const { values } = model;
-  const gridId = memoizedGetGridIdentifier(attributes);
-  let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
-  const newState = {
-    ...state,
-    [address.component]: {
-      ...state[address.component],
-      model: {
-        ...state[address.component].model,
-        values: updateArrayElement(values, rowIndex, data)
-      }
-    }
-  };
+function updateRowModel(state, address, data, settings) {
+  const context = getGridRowContext(state, address, settings);
+  if (!context) return state;
+
+  const { values, rowIndex, component } = context;
+  const nextValues = updateArrayElement(values, rowIndex, data);
+  const newState = updateGridRowValues(state, context, nextValues);
 
   // Update footer if is grid and show totals
-  if (hasFooter(state[gridId])) {
-    return updateGridFooter(newState, address);
+  if (hasFooter(component)) {
+    return updateGridFooter(newState, address, settings);
   }
 
   return newState;
@@ -924,10 +1321,10 @@ function updateRowModel(state, address, data) {
  * @param {Object} component
  * @return {Object} updated state
  */
-function keepModelComponent(state, component) {
+function keepModelComponent(state, componentId, settings) {
   return {
     ...state,
-    ...getKeepModelComponent(state, component)
+    ...getKeepModelComponent(state, componentId, settings)
   };
 }
 
@@ -937,15 +1334,30 @@ function keepModelComponent(state, component) {
  * @param component
  * @returns {{}}
  */
-function getKeepModelComponent(state, component) {
-  if (!state[component]) return {};
+function getKeepModelComponent(state, componentId, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      currentFull.storedModel = {
+        ...(currentFull.model || {}),
+        values: (currentFull.model?.values || []).map(value => ({ ...value }))
+      };
+      return {
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
 
+  // Legacy behavior
+  if (!state[componentId]) return {};
   return {
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       storedModel: {
-        ...state[component].model,
-        values: state[component].model.values.map(value => ({ ...value }))
+        ...state[componentId].model,
+        values: state[componentId].model.values.map(value => ({ ...value }))
       }
     }
   };
@@ -957,29 +1369,61 @@ function getKeepModelComponent(state, component) {
  * @param {Object} address
  * @return {Object} updated state
  */
-function keepRowModel(state, address) {
-  const { model, attributes } = state[address.component];
+function keepRowModel(state, address, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+
+  const { model, attributes } = component;
   const { values } = model;
   const gridId = memoizedGetGridIdentifier(attributes);
   let rowIndex = values.findIndex((row) => String(row[gridId]) === String(address.row));
+  if (rowIndex < 0) return state;
+
   let rowValues = values[rowIndex];
   let cellModel = {};
   Object.keys(rowValues).forEach(column => {
     let cellAddress = { ...address, column: column };
-    let componentId = memoizedGetComponentId(cellAddress);
-    if (componentId in state) {
-      cellModel = { ...cellModel, ...getKeepModelComponent(state, componentId) };
+    let cellComponentId = memoizedGetComponentId(cellAddress);
+    if (cellComponentId in state || (useRegistry && ComponentRegistry.get(cellComponentId))) {
+      cellModel = { ...cellModel, ...getKeepModelComponent(state, cellComponentId, settings) };
     }
   });
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      currentFull.storedModel = {
+        ...(currentFull.storedModel || {}),
+        storedRows: {
+          ...(currentFull.storedModel?.storedRows || {}),
+          [address.row]: { ...values[rowIndex] }
+        }
+      };
+      return {
+        ...state,
+        ...cellModel,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
   return {
     ...state,
     ...cellModel,
-    [address.component]: {
-      ...state[address.component],
+    [componentId]: {
+      ...state[componentId],
       storedModel: {
-        ...state[address.component].storedModel,
+        ...state[componentId].storedModel,
         storedRows: {
-          ...state[address.component].storedModel.storedRows,
+          ...state[componentId].storedModel?.storedRows,
           [address.row]: {
             ...values[rowIndex]
           }
@@ -995,15 +1439,23 @@ function keepRowModel(state, address) {
  * @param {String} componentId
  * @return {Object} updated state
  */
-function restoreModelComponent(state, componentId) {
+function restoreModelComponent(state, componentId, settings) {
   const newState = {
     ...state,
-    ...getRestoreModelComponent(state, componentId)
+    ...getRestoreModelComponent(state, componentId, settings)
   };
 
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), newState[componentId] || {});
+  } else {
+    component = newState[componentId];
+  }
+
   // Update footer if is grid and show totals
-  if (hasFooter(state[componentId])) {
-    return updateGridFooter(newState, componentId);
+  if (hasFooter(component)) {
+    return updateGridFooter(newState, componentId, settings);
   }
 
   return newState;
@@ -1015,15 +1467,34 @@ function restoreModelComponent(state, componentId) {
  * @param component
  * @returns {{}}
  */
-function getRestoreModelComponent(state, component) {
-  if (!state[component]) return {};
+function getRestoreModelComponent(state, componentId, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      currentFull.model = {
+        ...(currentFull.storedModel || currentFull.model || {}),
+        values: (currentFull.storedModel?.values || currentFull.model?.values || []).map(value => ({ ...value })),
+        changed: false
+      };
+
+      return {
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  if (!state[componentId]) return {};
 
   return {
-    [component]: {
-      ...state[component],
+    [componentId]: {
+      ...state[componentId],
       model: {
-        ...state[component].storedModel,
-        values: state[component].storedModel.values.map(value => ({ ...value })),
+        ...state[componentId].storedModel,
+        values: state[componentId].storedModel.values.map(value => ({ ...value })),
         changed: false
       }
     }
@@ -1036,11 +1507,21 @@ function getRestoreModelComponent(state, component) {
  * @param {Object} address
  * @return {Object} updated state
  */
-function resetModel(state, address) {
+function resetModel(state, address, settings) {
+  const componentId = memoizedGetComponentId(address);
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+
   let emptyModel = { values: [] };
-  if (!isGrid(state[memoizedGetComponentId(address)])) {
+  if (!isGridComponent(component)) {
     emptyModel = {
-      values: (state[memoizedGetComponentId(address)]?.model?.values || []).map(value => ({ ...value, selected: false }))
+      values: (component?.model?.values || []).map(value => ({ ...value, selected: false }))
     };
   } else {
     emptyModel = {
@@ -1050,16 +1531,39 @@ function resetModel(state, address) {
       records: 0
     };
   }
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId] || {});
+      currentFull.attributes = {
+        ...(currentFull.attributes || {}),
+        error: null
+      };
+      currentFull.model = {
+        ...(currentFull.model || {}),
+        ...emptyModel,
+        changed: true
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
   return {
     ...state,
-    [address.component]: {
-      ...state[address.component],
+    [componentId]: {
+      ...state[componentId],
       attributes: {
-        ...state[address.component].attributes,
+        ...state[componentId]?.attributes,
         error: null
       },
       model: {
-        ...state[address.component].model,
+        ...state[componentId]?.model,
         ...emptyModel,
         changed: true
       }
@@ -1074,11 +1578,22 @@ function resetModel(state, address) {
  * @param {Object} data
  * @return {Object} updated state
  */
-function resetCellModel(state, address, data) {
-  const { attributes } = state[address.component];
+function resetCellModel(state, address, data, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+
+  const { attributes } = component || {};
+  if (!attributes) return state;
   const gridId = memoizedGetGridIdentifier(attributes);
-  let columnModel = attributes.columnModel.filter(value => value[gridId] === address.column)[0] || {};
-  return updateCellSelected(state, address, { selected: asArray(columnModel.model?.values) });
+  let columnModel = (attributes.columnModel || []).filter(value => value[gridId] === address.column)[0] || {};
+  return updateCellSelected(state, address, { selected: asArray(columnModel.model?.values) }, settings);
 }
 
 /**
@@ -1087,9 +1602,25 @@ function resetCellModel(state, address, data) {
  * @param {Object} state - The current state object containing relevant data and properties for the grid.
  * @param {Object} address - The address information used to update the footer details.
  */
-function updateGridFooter(state, address) {
+function updateGridFooter(state, address, settings) {
   const componentId = memoizedGetComponentId(address);
-  const component = state[componentId];
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      component = mergeComponentState(base, state[componentId] || {});
+      const updatedFull = generateGridFooter(component);
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, updatedFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  component = state[componentId];
   return {
     ...state,
     [componentId]: generateGridFooter(component)
@@ -1119,8 +1650,8 @@ function generateGridFooter(component) {
  * @return {Array} The computed footer values for each column.
  */
 function generateFooter(component) {
-  const { columnModel = [] } = component.attributes;
-  return columnModel.reduce((prev, column) => ({...prev, [column.name]: calculateFooterValue(column, component.model.values)}), {});
+  const { columnModel = [] } = component?.attributes || {};
+  return columnModel.reduce((prev, column) => ({ ...prev, [column.name]: calculateFooterValue(column, component.model?.values || []) }), {});
 }
 
 /**
@@ -1129,7 +1660,7 @@ function generateFooter(component) {
  * @returns {{}}
  */
 function updateComponentFooters(data) {
-  return Object.entries(data).reduce((prev, [componentId, component]) => ({...prev, [componentId]: hasFooter(component) ? generateGridFooter(component) : component}), {});
+  return Object.entries(data).reduce((prev, [componentId, component]) => ({ ...prev, [componentId]: hasFooter(component) ? generateGridFooter(component) : component }), {});
 }
 
 /**
@@ -1138,7 +1669,7 @@ function updateComponentFooters(data) {
  * @param {object} action Action
  * @returns {*} Action updated
  */
-function updateModelAction(state = {}, action = {}) {
+function updateModelAction(state = {}, action = {}, settings) {
   let modelState = state;
   let data = { ...action.data };
   let selectedData = [...asArray(data.selected)];
@@ -1148,7 +1679,7 @@ function updateModelAction(state = {}, action = {}) {
     modelState = launchAddressFunction(updateCellModel, updateColumnModel, updateModel, modelState, {
       address: action.address,
       data
-    });
+    }, settings);
   }
 
   // Update selected if present
@@ -1156,21 +1687,37 @@ function updateModelAction(state = {}, action = {}) {
     modelState = launchAddressFunction(updateCellSelected, (s) => s, updateSelected, modelState, {
       address: action.address,
       data: { selected: selectedData },
-    });
+    }, settings);
   }
 
   // Update footer if is grid and show totals
-  if (hasFooter(state[memoizedGetComponentId(action.address)])) {
-    modelState = updateGridFooter(modelState, action.address);
+  const componentId = memoizedGetComponentId(action.address);
+  const useRegistry = settings?.useComponentRegistry;
+  let component;
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), modelState[componentId] || {});
+  } else {
+    component = modelState[componentId];
+  }
+
+  if (hasFooter(component)) {
+    modelState = updateGridFooter(modelState, action.address, settings);
   }
 
   return modelState;
 }
 
-function clearComponents(state, view) {
-  return Object.entries(state)
-    .filter((entry) => entry[1].address?.view !== view)
-    .reduce((obj, entry) => ({ ...obj, [entry[0]]: entry[1] }), {});
+function clearComponents(state, view, settings) {
+  const useRegistry = settings?.useComponentRegistry;
+  if (useRegistry) {
+    const clearedIds = new Set(ComponentRegistry.clear(view));
+    return Object.fromEntries(Object.entries(state)
+      .filter(([id]) => !clearedIds.has(id)));
+  }
+
+  // Legacy behavior
+  return Object.fromEntries(Object.entries(state)
+    .filter((entry) => entry[1].address?.view !== view));
 }
 
 /**
@@ -1178,83 +1725,112 @@ function clearComponents(state, view) {
  * Each handler is a pure function that takes (state, action) and returns new state
  */
 const actionHandlers = {
-  [CLEAR_COMPONENTS]: (state, action) => clearComponents(state, action.view),
+  [CLEAR_COMPONENTS]: (state, action) => clearComponents(state, action.view, action.settings),
 
-  [CLEAR_ALL_COMPONENTS]: () => ({}),
+  [CLEAR_ALL_COMPONENTS]: () => {
+    ComponentRegistry.clearAll();
+    return {};
+  },
 
-  [UPDATE_VIEW_COMPONENTS]: (state, action) => ({
-    ...(action.view === "base" ? {} : clearComponents(state, action.view)),
-    ...updateComponentFooters(action.data)
-  }),
+  [UPDATE_VIEW_COMPONENTS]: (state, action) => {
+    const clearedState = action.view === "base" ? {} : clearComponents(state, action.view, action.settings);
+    const updatedData = updateComponentFooters(action.data);
+    const useRegistry = action.settings && action.settings.useComponentRegistry;
+
+    if (useRegistry) {
+      // Registrar componentes en el Registry y calcular deltas para Redux
+      const deltas = Object.entries(updatedData).reduce((acc, [id, component]) => {
+        // Registrar en Registry (estado base)
+        ComponentRegistry.register(id, component);
+
+        // Calcular deltas (lo que realmente guardamos en Redux)
+        const base = ComponentRegistry.get(id);
+        acc[id] = calculateDeltas(base, component);
+
+        return acc;
+      }, {});
+
+      return {
+        ...clearedState,
+        ...deltas
+      };
+    }
+
+    // Modo legacy: guardar todo en Redux
+    return {
+      ...clearedState,
+      ...updatedData
+    };
+  },
 
   [UPDATE_COMPONENT]: (state, action) =>
-    updateComponentData(state, memoizedGetComponentId(action.address), action.data),
+    updateComponentData(state, memoizedGetComponentId(action.address), action.data, action.settings),
 
   [UPDATE_MULTIPLE_COMPONENTS]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => updateComponentData(newState, memoizedGetComponentId(_action.address), _action),
+      (newState, _action) => updateComponentData(newState, memoizedGetComponentId(_action.address), _action, action.settings),
       state
     ),
 
   [UPDATE_MULTIPLE_MODELS]: (state, action) =>
-    action.componentList.reduce((newState, _action) => updateModelAction(newState, _action), state),
+    action.componentList.reduce((newState, _action) => updateModelAction(newState, _action, action.settings), state),
 
-  [UPDATE_ATTRIBUTES]: (state, action) => updateAttributeAction(state, action),
+  [UPDATE_ATTRIBUTES]: (state, action) => updateAttributeAction(state, action, action.settings),
 
-  [UPDATE_SPECIFIC_ATTRIBUTES]: (state, action) => updateSpecificAttributes(state, action),
+  [UPDATE_SPECIFIC_ATTRIBUTES]: (state, action) => updateSpecificAttributes(state, action, action.settings),
 
   [UPDATE_MULTIPLE_ATTRIBUTES]: (state, action) =>
-    action.componentList.reduce((newState, _action) => updateAttributeAction(newState, _action), state),
+    action.componentList.reduce((newState, _action) => updateAttributeAction(newState, _action, action.settings), state),
 
-  [UPDATE_MODEL]: (state, action) => updateModelAction(state, action),
+  [UPDATE_MODEL]: (state, action) => updateModelAction(state, action, action.settings),
 
-  [UPDATE_ROW_MODEL]: (state, action) => updateRowModel(state, action.address, action.data),
+  [UPDATE_ROW_MODEL]: (state, action) => updateRowModel(state, action.address, action.data, action.settings),
 
-  [UPDATE_VALIDATION]: (state, action) => updateValidationAction(state, action),
+  [UPDATE_VALIDATION]: (state, action) => updateValidationAction(state, action, action.settings),
 
   [UPDATE_MULTIPLE_VALIDATION]: (state, action) =>
-    action.componentList.reduce((newState, _action) => updateValidationAction(newState, _action), state),
+    action.componentList.reduce((newState, _action) => updateValidationAction(newState, _action, action.settings), state),
 
   [KEEP_VALIDATION]: (state, action) =>
-    keepValidationComponent(state, memoizedGetComponentId(action.address)),
+    keepValidationComponent(state, memoizedGetComponentId(action.address), action.settings),
 
   [KEEP_ATTRIBUTE]: (state, action) =>
-    keepAttributeComponent(state, memoizedGetComponentId(action.address), action.data),
+    keepAttributeComponent(state, memoizedGetComponentId(action.address), action.data, action.settings),
 
   [KEEP_MODEL]: (state, action) =>
-    keepModelComponent(state, memoizedGetComponentId(action.address)),
+    keepModelComponent(state, memoizedGetComponentId(action.address), action.settings),
 
-  [KEEP_ROW_MODEL]: (state, action) => keepRowModel(state, action.address),
+  [KEEP_ROW_MODEL]: (state, action) => keepRowModel(state, action.address, action.settings),
 
   [RESTORE_VALIDATION]: (state, action) =>
-    restoreValidationComponent(state, memoizedGetComponentId(action.address)),
+    restoreValidationComponent(state, memoizedGetComponentId(action.address), action.settings),
 
   [RESTORE_MULTIPLE_VALIDATION]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => restoreValidationComponent(newState, memoizedGetComponentId(_action.address)),
+      (newState, _action) => restoreValidationComponent(newState, memoizedGetComponentId(_action.address), action.settings),
       state
     ),
 
-  [RESTORE_ATTRIBUTE]: (state, action) => restoreAttributeAction(state, action),
+  [RESTORE_ATTRIBUTE]: (state, action) => restoreAttributeAction(state, action, action.settings),
 
   [RESTORE_MULTIPLE_ATTRIBUTES]: (state, action) =>
-    action.componentList.reduce((newState, _action) => restoreAttributeAction(newState, _action), state),
+    action.componentList.reduce((newState, _action) => restoreAttributeAction(newState, _action, action.settings), state),
 
   [RESTORE_MODEL]: (state, action) =>
-    restoreModelComponent(state, memoizedGetComponentId(action.address)),
+    restoreModelComponent(state, memoizedGetComponentId(action.address), action.settings),
 
   [RESTORE_MULTIPLE_MODEL]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address)),
+      (newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address), action.settings),
       state
     ),
 
   [RESET_MODEL]: (state, action) =>
-    launchAddressFunction(resetCellModel, (s) => s, resetModel, state, { address: action.address, data: [] }),
+    launchAddressFunction(resetCellModel, (s) => s, resetModel, state, { address: action.address, data: [] }, action.settings),
 
   [RESET_MULTIPLE_MODEL]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => launchAddressFunction(resetCellModel, (s) => s, resetModel, newState, { address: _action.address, data: [] }),
+      (newState, _action) => launchAddressFunction(resetCellModel, (s) => s, resetModel, newState, { address: _action.address, data: [] }, action.settings),
       state
     ),
 

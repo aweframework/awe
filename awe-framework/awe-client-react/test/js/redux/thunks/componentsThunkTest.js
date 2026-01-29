@@ -1,4 +1,5 @@
 import * as thunks from '../../../../src/redux/thunks/components';
+import MenuRegistry from '../../../../src/redux/registry/MenuRegistry';
 
 describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
   let dispatch;
@@ -658,6 +659,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
   describe('changeMenuAction', () => {
     it('debería actualizar las opciones del menú', () => {
+      const setOptionsSpy = spyOn(MenuRegistry, 'setOptions');
       const action = {
         type: 'changeMenu',
         address: mockAddress,
@@ -669,10 +671,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.changeMenuAction(action)(dispatch);
 
       expect(dispatch).toHaveBeenCalled();
+      expect(setOptionsSpy).toHaveBeenCalledWith({ item1: true, item2: false });
 
-      const [[updateMenu]] = dispatch.calls.allArgs();
-      expect(updateMenu).toBeDefined();
-      expect(updateMenu.data).toEqual({ item1: true, item2: false });
+      const [[acceptAction]] = dispatch.calls.allArgs();
+      expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });
 });

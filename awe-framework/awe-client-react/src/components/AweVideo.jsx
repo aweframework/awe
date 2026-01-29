@@ -1,29 +1,28 @@
 import React from "react";
-import {classNames} from "../utilities/components";
+import { classNames } from "../utilities/components";
 import ReactPlayer from 'react-player';
-import {parseBoolean, translateLabel} from "../utilities";
+import { parseBoolean, translateLabel } from "../utilities";
 import "./AweVideo.less";
-import {useSelector} from "react-redux";
-import {useTranslation} from "react-i18next";
+import { useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { useTranslation } from "react-i18next";
 
 function AweVideo(props) {
   const { id } = props;
-  const { attributes = {} } = useSelector(state => ({
-    attributes: state.components[id]?.attributes
-  }));
+  const { attributes = {} } = useComponentState(id);
   const { t } = useTranslation();
-  const {src, loop, autoplay = false, poster, controls = true, style, title, visible = true} = attributes;
+  const { src, loop, autoplay = false, poster, controls = true, style, title, visible = true } = attributes;
   const classes = classNames(style, "video-player");
 
   return visible ? <ReactPlayer
-        className={classes}
-        id={id}
-        url={src}
-        controls={parseBoolean(controls)}
-        light={poster}
-        playing={parseBoolean(autoplay)}
-        loop={loop}
-        title={translateLabel(title, t)}/> : <></>;
+    className={classes}
+    id={id}
+    url={src}
+    controls={parseBoolean(controls)}
+    light={poster}
+    playing={parseBoolean(autoplay)}
+    loop={loop}
+    title={translateLabel(title, t)} /> : <></>;
 }
 
 export default AweVideo;

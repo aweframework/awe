@@ -9,7 +9,7 @@ import AweCriterion from "./AweCriterion";
 function AweInputRadio(props) {
   const { id } = props;
   const { t } = useTranslation();
-  const { address, attributes, validationRules, getChecked, onChangeCheckbox } = useCheckboxRadio(id);
+  const { address, attributes, validationRules, getChecked, onChangeRadio } = useCheckboxRadio(id);
 
   const { placeholder, required, readonly, label, group, size, error = false } = attributes;
   const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
@@ -22,7 +22,7 @@ function AweInputRadio(props) {
           name={group}
           checked={getChecked()}
           placeholder={translateLabel(placeholder, t)}
-          onChange={onChangeCheckbox}
+          onChange={onChangeRadio}
           required={required}
           disabled={readonly}
           className={classes}

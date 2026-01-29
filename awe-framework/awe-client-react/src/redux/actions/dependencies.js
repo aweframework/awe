@@ -16,7 +16,9 @@ import {
   generateAddress,
   generateServerAction
 } from "../../utilities";
+import { getAllComponents } from "../selectors/componentSelectors";
 import { getDependencyComponentId, getTriggerId } from "../../utilities/components";
+import ViewRegistry from "../registry/ViewRegistry";
 import {
   getCellAttribute,
   getCellValue,
@@ -103,7 +105,7 @@ function hashCode(str) {
  * @param {Number} max Model max elements per page
  * @returns {number} Hash representation
  */
-function generateModelHash(values= [], page= 1, max = null) {
+function generateModelHash(values = [], page = 1, max = null) {
   if (max && max > 0 && values.length > max) {
     const offset = (page - 1) * max;
     const pageValues = values.slice(offset, offset + max);
@@ -141,7 +143,7 @@ function getTextAttribute(component, trigger) {
   if (trigger.address.column) {
     // Grid attributes
     return componentValue(rows.map(row => getCellAttribute(row[trigger.address.column], modelAttribute)));
-  } else if (component.attributes.columnModel) {
+  } else if (component.attributes?.columnModel) {
     // Grid rows length
     return rows.length;
   } else {
@@ -156,7 +158,7 @@ function getTextAttribute(component, trigger) {
  * @param {object[]} components Components
  */
 function isGroup(group, components) {
-  return Object.values(components).filter(component => component.attributes.group === group).length > 0;
+  return Object.values(components).filter(component => component.attributes?.group === group).length > 0;
 }
 
 /**
@@ -167,7 +169,7 @@ function isGroup(group, components) {
  */
 function getComponent(componentId, components) {
   if (isGroup(componentId, components)) {
-    const groupComponents = Object.values(components).filter(component => component.attributes.group === componentId);
+    const groupComponents = Object.values(components).filter(component => component.attributes?.group === componentId);
     return {
       address: groupComponents.map(component => component.address).reduce((all, address) => ({
         ...all, ...address,
@@ -188,29 +190,31 @@ function getComponent(componentId, components) {
  * @return {*} Trigger attribute
  */
 function getAttribute(trigger, state) {
+  const allComponents = getAllComponents(state);
   let componentId = trigger.address.component;
 
   // Check if component is defined
-  if (!(componentId in state.components) && !isGroup(componentId, state.components)) {
+  if (!(componentId in allComponents) && !isGroup(componentId, allComponents)) {
     console.warn("[Dependency] WARNING! " + componentId + " is not defined!");
     return null;
   }
 
   // Check if component exists
-  let component = getComponent(componentId, state.components);
+  let component = getComponent(componentId, allComponents);
 
   // First, check event
   if (trigger.event) {
     const runtime = state.runtime;
     const lastEvent = runtime?.lastEvent;
-    const { event, address: eventAddress = {}} = lastEvent ?? {};
+    const { event, address: eventAddress = {} } = lastEvent ?? {};
 
     // Check if the event matches the component
-    const isSameComponent = eventAddress.component === component.address.component;
+    const isSameComponent = eventAddress.component === trigger.address.component;
+    const isSameView = !trigger.address.view || eventAddress.view === trigger.address.view;
     //const isSameRow = !component.address.row || !eventAddress.row || eventAddress.row === component.address.row;
     //const isSameColumn = !component.address.column || !eventAddress.column || eventAddress.column === component.address.column;
 
-    return isSameComponent && /*isSameRow && isSameColumn && */ trigger.event === event;
+    return isSameComponent && isSameView && /*isSameRow && isSameColumn && */ trigger.event === event;
   }
 
   // Else, check attributes
@@ -314,14 +318,14 @@ function getTriggers(element, component) {
   // Add first trigger
   let triggers = [];
 
-  // Don't check changes if not defined
-  if (!element.checkChanges) {
+  // Don't check changes if not defined, unless it's an event trigger
+  if (!element.checkChanges && !element.event) {
     return triggers;
   }
 
   // Add first trigger
   triggers.push({
-    address: generateAddress(element.view1 || component.address.view, element.id, element.column1 || undefined, element.row1 || row),
+    address: generateAddress(element.view1 || component.address?.view, element.id, element.column1 || undefined, element.row1 || row),
     attribute: element.attribute1 || "value",
     event: element.event || undefined
   });
@@ -329,7 +333,7 @@ function getTriggers(element, component) {
   // Add second trigger if it exists
   if ("id2" in element) {
     triggers.push({
-      address: generateAddress(element.view2 || component.address.view, element.id2, element.column2 || undefined, element.row2 || row),
+      address: generateAddress(element.view2 || component.address?.view, element.id2, element.column2 || undefined, element.row2 || row),
       attribute: element.attribute2 || "value"
     });
   }
@@ -486,7 +490,7 @@ function retrieveQuerySource(result, target, dependency, component, state, dispa
     dispatchActions.push({
       addActions: [generateServerAction({
         ...values,
-        screen: state.view[state.view.view].name
+        screen: ViewRegistry.get(ViewRegistry.getCurrentView())?.name
       },
         values.type || values[state.settings.serverActionKey] || "data",
         values[state.settings.targetActionKey], address, async, silent, state.settings)]
@@ -682,10 +686,10 @@ function checkAndStoreResult(dependency, component, state) {
   const componentId = getDependencyComponentId(component.address, dependency.address);
   const modelHash = generateModelHash(component.model?.values, component.model?.page, component.attributes?.max);
 
-  DEPENDENCY_VALUES[component.address.view] = {
-    ...DEPENDENCY_VALUES[component.address.view],
+  DEPENDENCY_VALUES[component.address?.view] = {
+    ...DEPENDENCY_VALUES[component.address?.view],
     [componentId]: {
-      ...DEPENDENCY_VALUES[component.address.view][componentId],
+      ...DEPENDENCY_VALUES[component.address?.view][componentId],
       ...result.values,
       modelHash: modelHash
     }
@@ -717,7 +721,7 @@ function initializeDependency(dependency, component, state) {
 function hasChanged(dependency, component, state) {
   const newValues = evaluateDependency(dependency, component, state).values;
   const componentId = getDependencyComponentId(component.address, dependency.address);
-  const storedData = DEPENDENCY_VALUES[component.address.view][componentId] || {};
+  const storedData = DEPENDENCY_VALUES[component.address?.view][componentId] || {};
 
   // Comparar valores de triggers
   const oldValues = Object.entries(storedData)
@@ -770,8 +774,9 @@ function isColumnDependency(dependency) {
 }
 
 function getDependenciesExecutions(state, initial, view) {
-  const executions = _.groupBy(Object.values(state.components)
-    .filter(component => (!initial || component.address.view === view) && getComponentDependencies(component).length > 0)
+  const allComponents = getAllComponents(state);
+  const executions = _.groupBy(Object.values(allComponents)
+    .filter(component => (!initial || component.address?.view === view) && getComponentDependencies(component).length > 0)
     .map(component => getComponentDependencies(component)
       .filter(dependency => initial ? initializeDependency(dependency, component, state) : hasChanged(dependency, component, state))
       .map(dependency => checkDependency(dependency, component, state))
@@ -785,21 +790,27 @@ function getDependenciesExecutions(state, initial, view) {
   }), {});
 }
 
-function dispatchExecutions(executions, dispatch) {
+function dispatchExecutions(executions, state, dispatch) {
   Object.keys(executions)
     .filter(key => key in DISPATCH_FUNCTIONS)
-    .forEach(key => dispatch(DISPATCH_FUNCTIONS[key](executions[key])));
+    .forEach(key => {
+      if (key === 'addActions') {
+        dispatch(DISPATCH_FUNCTIONS[key](executions[key]));
+      } else {
+        dispatch({ ...DISPATCH_FUNCTIONS[key](executions[key]), settings: state.settings });
+      }
+    });
 }
 
 export function checkDependencies(state, dispatch) {
   const executions = getDependenciesExecutions(state, false);
   Object.keys(executions).length && console.log("%cDependency executions:", "background: #BBFFBB;color:black", executions);
-  dispatchExecutions(executions, dispatch);
+  dispatchExecutions(executions, state, dispatch);
 }
 
 export function initializeDependencies(view, state, dispatch) {
   DEPENDENCY_VALUES[view] = {};
   const executions = getDependenciesExecutions(state, true, view);
   Object.keys(executions).length && console.log("%cInitial dependency executions:", "background: #FFBBBB;color:black", executions);
-  dispatchExecutions(executions, dispatch);
+  dispatchExecutions(executions, state, dispatch);
 }

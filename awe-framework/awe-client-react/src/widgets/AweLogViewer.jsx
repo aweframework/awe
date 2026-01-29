@@ -1,11 +1,12 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {LazyLog} from 'react-lazylog';
-import {getIconCode} from "../utilities";
-import {Button} from "primereact/button";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { LazyLog } from 'react-lazylog';
+import { getIconCode } from "../utilities";
+import { Button } from "primereact/button";
 import "./AweLogViewer.less";
-import {useDispatch, useSelector} from "react-redux";
-import {updateAttributes} from "../redux/actions/components";
-import {fetchLogAction} from "../redux/thunks/files";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { updateAttributes } from "../redux/actions/components";
+import { fetchLogAction } from "../redux/thunks/files";
 
 /**
  * AWE Log Viewer component
@@ -13,12 +14,9 @@ import {fetchLogAction} from "../redux/thunks/files";
  */
 function AweLogViewer(props) {
 
-  const {id} = props;
-  const { address = {}, attributes = {}} = useSelector(state => ({
-    address: state.components[id]?.address,
-    attributes: state.components[id]?.attributes
-  }));
-  const {autorefresh, serverAction, targetAction, visible = true} = attributes;
+  const { id } = props;
+  const { address = {}, attributes = {} } = useComponentState(id);
+  const { autorefresh, serverAction, targetAction, visible = true } = attributes;
   const dispatch = useDispatch();
   const [offset, setOffset] = useState(1);
   const [logText, setLogText] = useState(" ");
@@ -45,7 +43,7 @@ function AweLogViewer(props) {
    * Turn on/off autorefresh on log viewer
    */
   const toggleAutoRefresh = () => {
-    dispatch(updateAttributes(address, {autorefresh: showLoadingDots ? 0 : lastAutorefresh.current}));
+    dispatch(updateAttributes(address, { autorefresh: showLoadingDots ? 0 : lastAutorefresh.current }));
   };
 
   useEffect(() => {
@@ -54,10 +52,10 @@ function AweLogViewer(props) {
 
   return visible ? <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id}>
     <Button data-testid="autoload-button"
-            className={"p-button-text p-button-rounded log-button-autoload"}
-            icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
-            onClick={toggleAutoRefresh}/>
-    <LazyLog text={logText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1}/>
+      className={"p-button-text p-button-rounded log-button-autoload"}
+      icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
+      onClick={toggleAutoRefresh} />
+    <LazyLog text={logText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1} />
     <div className={"log-loading-dots " + (!showLoadingDots ? "hidden" : "")}>
       {getIconCode("circle", "fa-fw fade1 animation-dot")}
       {getIconCode("circle", "fa-fw fade2 animation-dot")}

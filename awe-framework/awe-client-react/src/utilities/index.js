@@ -1,10 +1,10 @@
 import _ from "lodash";
-import {delayActions, startAction} from "../redux/actions/actions";
-import {fromDate} from "./dates";
+import { delayActions, startAction } from "../redux/actions/actions";
+import { fromDate } from "./dates";
 import download from "downloadjs";
 import React from "react";
-import {Tooltip} from "primereact/tooltip";
-import {isEmpty} from "./general";
+import { Tooltip } from "primereact/tooltip";
+import { isEmpty } from "./general";
 
 /**
  * Utilities functions
@@ -20,7 +20,7 @@ import {isEmpty} from "./general";
 export function combineActions() {
   return [...arguments]
     .map(service => service.getActions())
-    .reduce((allActions, actions) => ({...allActions, ...actions}), {});
+    .reduce((allActions, actions) => ({ ...allActions, ...actions }), {});
 }
 
 /**
@@ -41,9 +41,9 @@ export function getRestUrl() {
  * @memberOf Utilities
  */
 export function generateAddress(view, component, column, row) {
-  let address = {view: view, component: component};
-  address = column !== undefined ? {...address, column: column} : address;
-  return row !== undefined ? {...address, row: row} : address;
+  let address = { view: view, component: component };
+  address = column !== undefined ? { ...address, column: column } : address;
+  return row !== undefined ? { ...address, row: row } : address;
 }
 
 /**
@@ -95,7 +95,7 @@ export function formule(expression, values) {
   try {
     return evaluateExpression(expression);
   } catch (exc) {
-    console.error("[FORMULE] Formule: " + expression, {params: values, exception: exc});
+    console.error("[FORMULE] Formule: " + expression, { params: values, exception: exc });
   }
 
   return expression;
@@ -109,11 +109,11 @@ export function formule(expression, values) {
  * @memberOf Utilities
  */
 export function checkActions(allowedActions, actions, props) {
-  const {prevRunningActions, runningActions} = actions;
-  const {settings, dispatch} = props;
+  const { prevRunningActions, runningActions } = actions;
+  const { settings, dispatch } = props;
   if (!_.isEqual(prevRunningActions, runningActions) && runningActions.length) {
     runningActions.forEach(a => {
-      const {type} = a;
+      const { type } = a;
       if (type in allowedActions) {
         console.info("Running action: ", a);
         dispatch(startAction(a));
@@ -132,7 +132,7 @@ export function checkActions(allowedActions, actions, props) {
  */
 export function formatMessage(error, t) {
   if (error) {
-    const {message, values = {}} = error;
+    const { message, values = {} } = error;
     const fixDate = (value) => !isEmpty(value) && _.isDate(value) ? fromDate(value) : String(value);
     return Object.entries(values).reduce((formatted, [key, value]) => formatted.replace(`{${key}}`, fixDate(value)), translateLabel(message, t));
   } else {
@@ -165,7 +165,7 @@ export function getSelectedValues(component) {
  * @param {object} components Components
  */
 export function getGroupSelectedValues(component, components) {
-  const {group} = component.attributes;
+  const { group } = component.attributes;
   return Object.values(components)
     .filter(item => item.attributes.group === group)
     .reduce((result, item) => [
@@ -195,7 +195,7 @@ export function isInsideContext(searchContext, view, source) {
  */
 export function getActionSource(action, components) {
   // If target, get target
-  const {address, target} = action;
+  const { address, target } = action;
   let source = target;
 
   // If target is defined get components from target, else get all components from component inner source
@@ -279,7 +279,7 @@ export function fetchJson(method, url, body, token, signal = undefined) {
   })
     .then(response => response.ok ?
       response.json() :
-      response.text().then(message => ({message, status: response.status})));
+      response.text().then(message => ({ message, status: response.status })));
 }
 
 /**
@@ -329,14 +329,14 @@ export function fetchHtml(url, token) {
  * Retrieve context path from html
  */
 export function getContextPath() {
-  let contextPath = (document.getElementsByTagName('base')[0] || {href: "/"}).href
+  let contextPath = (document.getElementsByTagName('base')[0] || { href: "/" }).href
     .replace(location.origin || "", "")
     .replaceAll("/", "");
   return isEmpty(contextPath) ? "" : `/${contextPath}`;
 }
 
 export function getBaseHref() {
-  return (document.getElementsByTagName('base')[0] || {href: "/"}).href
+  return (document.getElementsByTagName('base')[0] || { href: "/" }).href
 }
 
 /**
@@ -386,7 +386,7 @@ export function generateServerAction(values, serverAction, targetAction, address
 export function generateMessageAction(type = "ok", title = null, message = "") {
   return {
     type: 'message',
-    parameters: {type, title, message}
+    parameters: { type, title, message }
   };
 }
 
@@ -420,11 +420,10 @@ export function getComponent(components, address) {
  * @return component found
  * @memberOf Utilities
  */
-export function getGridAndValues(getState, address) {
-  const { components } = getState();
+export function getGridAndValues(components, address) {
   const component = getComponent(components, address);
-  const {values} = component.model;
-  return {component, values};
+  const { values } = (component?.model || {});
+  return { component, values };
 }
 
 /**
@@ -434,8 +433,8 @@ export function getGridAndValues(getState, address) {
  * @memberOf Utilities
  */
 export function getActionAddress(action) {
-  const {target, address} = action;
-  return target ? {view: address.view, component: target} : {...address};
+  const { target, address } = action;
+  return target ? { view: (address || action || {}).view, component: target } : { ...address };
 }
 
 /**
@@ -444,7 +443,7 @@ export function getActionAddress(action) {
  */
 export function extractIcon(icon = "") {
   const [key, value] = icon.replace("fa-", "").split(":");
-  return {name: value || key, family: value ? key : "fa"};
+  return { name: value || key, family: value ? key : "fa" };
 }
 
 /**
@@ -460,7 +459,7 @@ export function getIconCode(icon, extraClasses = "") {
         return <i role="icon" className={`material-icons ${extraClasses}`}>{iconValues.name}</i>;
       default:
         return <i role="icon"
-                  className={`${iconValues.family} ${iconValues.family}-${iconValues.name} ${extraClasses}`}/>;
+          className={`${iconValues.family} ${iconValues.family}-${iconValues.name} ${extraClasses}`} />;
     }
   }
   return null;
@@ -496,7 +495,7 @@ export function addEventListenerTimeout(node, event, fn, fnTimeout, timeout) {
  * @returns {JSX.Element}
  */
 export function getHelpTooltipNode(help, helpImage, t, target) {
-  const imageNode = helpImage ? <img src={translateLabel(helpImage, t)} alt={translateLabel(help, t)}/> : null;
+  const imageNode = helpImage ? <img src={translateLabel(helpImage, t)} alt={translateLabel(help, t)} /> : null;
   if (help || helpImage) {
     return <Tooltip target={target}>
       {getVisibleTextData(help, t)}
@@ -535,7 +534,7 @@ export function translateLabel(label = "", t = (l) => l, ...args) {
   let translated = (String(label) || "")
     .split(" ") // Split from spaces
     .filter(w => w !== "") // Remove blank words
-    .map(t) // Translate
+    .map(w => t(w)) // Translate
     .join(" "); // Join with spaces
 
   // Replace placeholders {0}, {1}, etc. with args

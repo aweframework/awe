@@ -1,21 +1,18 @@
 import React from "react";
-import {Steps} from "primereact/steps";
-import {Components} from "../utilities/structure";
+import { Steps } from "primereact/steps";
+import { Components } from "../utilities/structure";
 import './AweSteps.less';
-import {getIconCode, translateLabel} from "../utilities";
-import {useTranslation} from "react-i18next";
-import {usePanelable} from "../hooks/usePanelable";
-import {useSelector} from "react-redux";
+import { getIconCode, translateLabel } from "../utilities";
+import { useTranslation } from "react-i18next";
+import { usePanelable } from "../hooks/usePanelable";
+import { useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 
 function AweSteps(props) {
   const { id, elementList = [] } = props;
-  const { model = { values: [] }, address, attributes, globalDisabled } = useSelector(state => ({
-    model: state.components[id]?.model,
-    address: state.components[id]?.address,
-    attributes: state.components[id]?.attributes,
-    globalDisabled: state.actions.running
-  }));
+  const { model = { values: [] }, address, attributes } = useComponentState(id);
+  const globalDisabled = useSelector(state => state.actions.running);
   const { t } = useTranslation();
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
 
@@ -24,7 +21,7 @@ function AweSteps(props) {
   const iconRenderer = (icon, number) => icon ? getIconCode(icon) : number;
 
   const onChange = (e) => {
-    const {index} = e;
+    const { index } = e;
     selectIndex(index);
   };
 
@@ -40,7 +37,7 @@ function AweSteps(props) {
     }
 
     return (
-      <button className={`p-menuitem-link ${stepClass}`} onClick={() => onChange({index: itemIndex})} tabIndex={-1}>
+      <button className={`p-menuitem-link ${stepClass}`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}>
         <span className="p-steps-number">{iconRenderer(icon, itemIndex + 1)}</span>
         <div className={`p-steps-text`}>
           {titleRenderer(item.title)}
@@ -58,9 +55,9 @@ function AweSteps(props) {
       disabled: globalDisabled || disabled || index > activeIndex,
       template: (item) => itemRenderer(item, index)
     }))}
-           activeIndex={activeIndex}
-           onSelect={onChange}
-           readOnly={false}
+      activeIndex={activeIndex}
+      onSelect={onChange}
+      readOnly={false}
     />
     {elementList
       .filter(item => item.elementType === "WizardPanel")

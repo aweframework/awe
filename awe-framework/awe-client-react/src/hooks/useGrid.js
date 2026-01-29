@@ -1,21 +1,22 @@
-import React, {useCallback, useMemo, useRef} from "react";
-import {Column} from "primereact/column";
-import {Columns} from "../utilities/structure";
+import React, { useCallback, useMemo, useRef } from "react";
+import { Column } from "primereact/column";
+import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
-import {getIconCode, translateLabel} from "../utilities";
-import {getGridIdentifier, getWidthStyle, OperationIcon} from "../utilities/grid";
-import {ContextMenu} from "primereact/contextmenu";
-import {isEmpty} from "../utilities/general";
-import {useDispatch, useSelector} from "react-redux";
-import {addActionsTop as addActionsTopAction} from "../redux/actions/actions";
-import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
-import {updateAttributes as updateAttributesAction} from "../redux/actions/components";
-import {useTranslation} from "react-i18next";
+import { getIconCode, translateLabel } from "../utilities";
+import { getGridIdentifier, getWidthStyle, OperationIcon } from "../utilities/grid";
+import { ContextMenu } from "primereact/contextmenu";
+import { isEmpty } from "../utilities/general";
+import { useDispatch, useSelector } from "react-redux";
+import { addActionsTop as addActionsTopAction } from "../redux/actions/actions";
+import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
+import { updateAttributes as updateAttributesAction } from "../redux/actions/components";
+import { useTranslation } from "react-i18next";
 import AweButton from "../components/AweButton";
 import useComponent from "./useComponent";
+import { useComponentState, useAllComponents } from "./useComponentState";
 
 function mapContextMenu(contextMenu, props) {
-  const {t, addActionsTop, address, components} = props;
+  const { t, addActionsTop, address, components } = props;
   return (contextMenu || [])
     .map(option => components[option.id].attributes)
     .map(option => ({
@@ -24,8 +25,8 @@ function mapContextMenu(contextMenu, props) {
       disabled: option.disabled,
       visible: option.visible,
       separator: option.separator,
-      command: () => addActionsTop((option.actions || []).map(action => ({...action, address}))),
-      ...(mapContextMenu(option.contextMenu, props).length > 0 ? {items: mapContextMenu(option.contextMenu, props)} : {}),
+      command: () => addActionsTop((option.actions || []).map(action => ({ ...action, address }))),
+      ...(mapContextMenu(option.contextMenu, props).length > 0 ? { items: mapContextMenu(option.contextMenu, props) } : {}),
     }));
 }
 
@@ -38,13 +39,9 @@ export function useGrid(id) {
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { attributes = {}, model = { values: [] }, specificAttributes = {}, settings = {} } = useSelector(state => ({
-    attributes: state.components[id]?.attributes || {},
-    model: state.components[id]?.model || { values: [] },
-    specificAttributes: state.components[id]?.specificAttributes || {},
-    settings: state.settings || {}
-  }));
-  const components = useSelector(state => state.components);
+  const { attributes = {}, model = { values: [] }, specificAttributes = {} } = useComponentState(id);
+  const settings = useSelector(state => state.settings || {});
+  const components = useAllComponents();
   const cmRef = useRef(null);
 
   const addActionsTop = useCallback((actions) => dispatch(addActionsTopAction(actions)), [dispatch]);
@@ -97,7 +94,7 @@ export function useGrid(id) {
     cmRef.current?.show(data.originalEvent);
   }, []);
 
-  const contextMenuTemplate =() => {
+  const contextMenuTemplate = () => {
     const { contextMenu = [] } = attributes;
     let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, address, components });
     if (contextMenuMapped.length > 0) {
@@ -111,12 +108,12 @@ export function useGrid(id) {
     let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getWidthStyle(maxWidth) };
     if (rowNumbers) {
       return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan}
-                     body={(_data, options) => options.rowIndex + 1}
-                     headerClassName={"p-row-number-header"} headerStyle={rowNumberStyle}
-                     bodyClassName={"p-row-number-cell"} bodyStyle={rowNumberStyle}
-                     footer={null}
-                     footerClassName={"p-row-number-footer"}
-                     footerStyle={rowNumberStyle}
+        body={(_data, options) => options.rowIndex + 1}
+        headerClassName={"p-row-number-header"} headerStyle={rowNumberStyle}
+        bodyClassName={"p-row-number-cell"} bodyStyle={rowNumberStyle}
+        footer={null}
+        footerClassName={"p-row-number-footer"}
+        footerStyle={rowNumberStyle}
       />;
     }
     return null;
@@ -135,19 +132,19 @@ export function useGrid(id) {
 
   const operationColumnTemplate = (place, rowSpan, multioperation) => (
     multioperation ? <Column key={`operation-${place}`} field={`operation-${place}`} rowSpan={rowSpan}
-                             headerStyle={getWidthStyle(null, null, '32px')}
-                             bodyStyle={getWidthStyle(null, null, '32px')}
-                             style={{ textAlign: "center" }}
-                             footer={null}
-                             body={rowData => <i role={rowData?.$row?.operation}
-                                                 className={OperationIcon[rowData?.$row?.operation]} />}/> : null
+      headerStyle={getWidthStyle(null, null, '32px')}
+      bodyStyle={getWidthStyle(null, null, '32px')}
+      style={{ textAlign: "center" }}
+      footer={null}
+      body={rowData => <i role={rowData?.$row?.operation}
+        className={OperationIcon[rowData?.$row?.operation]} />} /> : null
   );
 
   const columnTemplate = (col, rowSpan, enableFilters) => {
     const { name, sortField, label, charlength, width, sortable } = col;
     return <Column key={name} field={sortField || name} header={translateLabel(label, t)}
-                   style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
-                   sortable={sortable} rowSpan={rowSpan} filter={enableFilters}/>;
+      style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
+      sortable={sortable} rowSpan={rowSpan} filter={enableFilters} />;
   };
 
   const headerColumnTemplate = (col) => {
@@ -174,12 +171,12 @@ export function useGrid(id) {
             rowData={data}
             editRow={editRow}
             saveRow={saveRow}
-            cancelRow={cancelRow}/>}
+            cancelRow={cancelRow} />}
           footer={null}
           style={getWidthStyle(null, 50)}
           bodyStyle={{ textAlign: "center", ...getWidthStyle(null, 50) }} />;
       } else {
-        return <Column key={`${place}-editor`} field={`${place}-editor`} style={getWidthStyle(null, 50)} rowSpan={rowSpan}/>;
+        return <Column key={`${place}-editor`} field={`${place}-editor`} style={getWidthStyle(null, 50)} rowSpan={rowSpan} />;
       }
     }
     return null;
@@ -209,14 +206,14 @@ export function useGrid(id) {
     const { footer = {} } = model;
     const { charlength, width, align } = column;
     return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"}
-                   footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width) }}
-                   footer={(footer[column.name] ?? {}).label ?? ""}/>;
+      footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width) }}
+      footer={(footer[column.name] ?? {}).label ?? ""} />;
   };
 
   const cellTemplate = (rowData, column) => {
     const gridId = getGridIdentifier(attributes);
     return Columns({
-      ...attributes.columnModel.find(c => c.name === column),
+      ...attributes.columnModel?.find(c => c.name === column),
       address: { ...address, column, row: rowData[gridId] }
     }, rowData[column], rowData.$attrs?.[column], (rowData.$row || {}).editing);
   };
@@ -240,11 +237,11 @@ export function useGrid(id) {
     return [
       operationColumnTemplate(place, rowSpan, multioperation),
       editorColumnTemplate(place, forBody, rowSpan, editable, multioperation),
-      <Column key={`filler-${place}`} field={`filler-${place}`} rowSpan={rowSpan}/>
+      <Column key={`filler-${place}`} field={`filler-${place}`} rowSpan={rowSpan} />
     ].filter(e => !isEmpty(e));
   };
 
-  return useMemo( () => ({
+  return useMemo(() => ({
     t,
     address,
     attributes,

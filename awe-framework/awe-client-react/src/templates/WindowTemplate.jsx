@@ -3,12 +3,12 @@ import {getSource, getSourceChildren} from "../utilities/structure";
 import {BreadCrumb} from "primereact/breadcrumb";
 
 import "./WindowTemplate.css";
-import {useSelector} from "react-redux";
+import { useMenuBreadcrumbs } from "../hooks/useMenuRegistry";
 
 function WindowTemplate(props) {
 
   const { elementList = [] } = props;
-  const { breadcrumbs } = useSelector(state => ({breadcrumbs: state.menu.breadcrumbs}));
+  const breadcrumbs = useMenuBreadcrumbs();
   const home = {icon: 'pi pi-home'};
   const sourceCenter = getSource("center", elementList);
   const sourceModal = getSource("modal", elementList);

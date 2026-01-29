@@ -1,9 +1,10 @@
-import React, {useCallback, useMemo} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useTranslation} from "react-i18next";
-import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
-import {classNames} from "../utilities/components";
-import {getIconCode, translateLabel} from "../utilities";
+import React, { useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "./useComponentState";
+import { useTranslation } from "react-i18next";
+import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
+import { classNames } from "../utilities/components";
+import { getIconCode, translateLabel } from "../utilities";
 import useComponent from "./useComponent";
 
 /**
@@ -19,11 +20,7 @@ export default function useCheckboxRadio(id) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { address } = useComponent(id);
-  const { model = { values: [] }, attributes = {}, validationRules = {} } = useSelector(state => ({
-    model: state.components[id]?.model || { values: [] },
-    attributes: state.components[id]?.attributes || {},
-    validationRules: state.components[id]?.validationRules || {}
-  }));
+  const { model = { values: [] }, attributes = {}, validationRules = {} } = useComponentState(id);
 
   const values = model.values || [];
 
@@ -35,6 +32,14 @@ export default function useCheckboxRadio(id) {
     const checked = !!e.target?.checked;
     dispatch(updateThunk(address, {
       values: values.map(d => ({ ...d, selected: checked }))
+    }));
+  }, [dispatch, address, values]);
+
+  const onChangeRadio = useCallback((e) => {
+    const selectedValue = e.value ?? e.target?.value ?? values[0]?.value;
+    if (selectedValue === undefined) return;
+    dispatch(updateThunk(address, {
+      selected: selectedValue
     }));
   }, [dispatch, address, values]);
 
@@ -57,7 +62,7 @@ export default function useCheckboxRadio(id) {
     const { size } = attributes || {};
     const iconTemplate = getIconCode(icon);
     const labelTemplate = label ? <span>{translateLabel(label, t)}</span> : null;
-    return <span className={classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size}, style)}>
+    return <span className={classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size }, style)}>
       {iconTemplate}
       {labelTemplate}
     </span>;
@@ -72,6 +77,7 @@ export default function useCheckboxRadio(id) {
     getValue,
     itemTemplate,
     onChangeCheckbox,
+    onChangeRadio,
     onChangeButtonRadio,
     onChangeButtonCheckbox
   }), [
@@ -83,6 +89,7 @@ export default function useCheckboxRadio(id) {
     getValue,
     itemTemplate,
     onChangeCheckbox,
+    onChangeRadio,
     onChangeButtonRadio,
     onChangeButtonCheckbox]);
 }

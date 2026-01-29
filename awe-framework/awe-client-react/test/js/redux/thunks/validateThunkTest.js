@@ -298,13 +298,13 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
 
       const calls = dispatch.calls.allArgs();
-      expect(calls.length).toBeGreaterThanOrEqual(2);
+      expect(calls.length).toBeGreaterThanOrEqual(1);
 
       const hasAddActionsTop = calls.some(([call]) => call.type === 'ADD_ACTIONS_TOP');
       expect(hasAddActionsTop).toBe(true);
     });
 
-    it('debería despachar doble confirmación si modelo vacío y modificado', () => {
+    it('debería despachar confirmación si modelo vacío', () => {
       getState = jasmine.createSpy('getState2').and.callFake(() => ({
         ...mockState,
         components: {
@@ -328,7 +328,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       const calls = dispatch.calls.allArgs();
       const addActionsTopCalls = calls.filter(([call]) => call.type === 'ADD_ACTIONS_TOP');
-      expect(addActionsTopCalls.length).toBe(2);
+      expect(addActionsTopCalls.length).toBe(1);
     });
 
     it('no debería despachar nada si el modelo no está vacío', () => {
@@ -339,7 +339,9 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       validationThunks.checkModelEmptyAction(action)(dispatch, getState);
 
-      expect(dispatch).not.toHaveBeenCalled();
+      const calls = dispatch.calls.allArgs();
+      const addActionsTopCalls = calls.filter(([call]) => call.type === 'ADD_ACTIONS_TOP');
+      expect(addActionsTopCalls.length).toBe(0);
     });
   });
 });

@@ -1,14 +1,17 @@
-import React, {useEffect, useMemo, useState} from "react";
-import {useTranslation} from 'react-i18next';
-import {Menubar} from "primereact/menubar";
-import {PanelMenu} from "primereact/panelmenu";
-import {useDispatch, useSelector} from "react-redux";
-import {addActionsTop, deleteStack} from "../redux/actions/actions";
-import {updateBreadcrumbs} from "../redux/actions/menu";
+import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from 'react-i18next';
+import { Menubar } from "primereact/menubar";
+import { PanelMenu } from "primereact/panelmenu";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { addActionsTop, deleteStack } from "../redux/actions/actions";
 import PropTypes from 'prop-types';
 
 import "./AweMenu.css";
-import {getIconCode, translateLabel} from "../utilities";
+import { getIconCode, translateLabel } from "../utilities";
+import { useView } from "../hooks/useViewRegistry";
+import MenuRegistry from "../redux/registry/MenuRegistry";
+import { useMenuOptions } from "../hooks/useMenuRegistry";
 
 /**
  * Check if option has children or is a final option
@@ -16,19 +19,19 @@ import {getIconCode, translateLabel} from "../utilities";
  * @param children  Option children
  */
 function isFinalOption(option, children) {
-  const {actions, menuScreen} = option;
+  const { actions, menuScreen } = option;
   return menuScreen || (actions.length > 0 && children === undefined)
 }
 
 function getSeparatorModel(option, t) {
-  const {name, label} = option;
+  const { name, label } = option;
   return label ? {
     key: name,
     label: translateLabel(label, t),
     className: "p-menuitem-separator",
     display: true,
-    command: () => {}
-  } : {separator: true, display: false};
+    command: () => { }
+  } : { separator: true, display: false };
 }
 
 /**
@@ -37,26 +40,26 @@ function getSeparatorModel(option, t) {
  * @returns {object} Map of expanded option IDs
  */
 function findExpandedKeys(option) {
-  const {options} = option;
+  const { options } = option;
   return options
-      // Filter only arrays with elements
-      .filter(optionList => optionList.options?.length)
-      // Flat map to get all options and their children
-      .flatMap(o => [
-        // Check if the current option is expanded
-        ...(o.expanded === true ? [o.id] : []),
-        // Recursively check child options
-        ...(findExpandedKeys(o))
-      ]);
+    // Filter only arrays with elements
+    .filter(optionList => optionList.options?.length)
+    // Flat map to get all options and their children
+    .flatMap(o => [
+      // Check if the current option is expanded
+      ...(o.expanded === true ? [o.id] : []),
+      // Recursively check child options
+      ...(findExpandedKeys(o))
+    ]);
 }
 
 function getExpandedKeys(optionList) {
   // Reduce to object with ids as keys
   return findExpandedKeys(optionList)
-      .reduce((expandedKeys, id) => ({
-        ...expandedKeys,
-        [id]: true
-      }), {})
+    .reduce((expandedKeys, id) => ({
+      ...expandedKeys,
+      [id]: true
+    }), {});
 }
 
 /**
@@ -66,8 +69,8 @@ function getExpandedKeys(optionList) {
  * @returns {object} Item
  */
 function optionToItem(option, props) {
-  const {t, deleteStack, addActionsTop, currentOption, disabled} = props;
-  const {separator, name, label, icon, options, actions} = option;
+  const { t, deleteStack, addActionsTop, currentOption, disabled } = props;
+  const { separator, name, label, icon, options, actions } = option;
   let children = optionsToItems(options, props);
   return separator ? getSeparatorModel(option, t) : {
     name, disabled,
@@ -76,7 +79,7 @@ function optionToItem(option, props) {
     display: true,
     className: name + (name === currentOption.option ? " p-menuitem-active" : ""),
     icon: getIconCode(icon, "p-menuitem-icon"),
-    ...(!isFinalOption(option, children) && children ? {items: children} : {}),
+    ...(!isFinalOption(option, children) && children ? { items: children } : {}),
     ...(isFinalOption(option, children) ? {
       command: () => {
         deleteStack();
@@ -92,7 +95,7 @@ function optionToItem(option, props) {
  * @param {object} props Properties
  */
 function optionsToItems(optionList, props) {
-  const {module} = props;
+  const { module } = props;
   const moduleValue = (module.model.values.find(item => item.selected) || {}).value || null;
   let filtered = optionList
     .filter(option => (moduleValue === option.module || !option.module) && option.visible && !option.restricted)
@@ -108,12 +111,12 @@ function optionsToItems(optionList, props) {
  * @param props
  */
 function generateBreadcrumbs(optionList, breadcrumbs, props) {
-  const {t, currentOption} = props;
+  const { t, currentOption } = props;
   return optionList
     .map((option) => {
-      const {name, label, options} = option;
+      const { name, label, options } = option;
       let translated = translateLabel(label || currentOption.title, t);
-      let newBreadcrumbs = [...breadcrumbs, {label: translated, name: name}];
+      let newBreadcrumbs = [...breadcrumbs, { label: translated, name: name }];
       if (name === currentOption.option) {
         return newBreadcrumbs;
       } else if (options.length === 0) {
@@ -130,13 +133,11 @@ function AweMenu(props) {
   const { id, style = "horizontal" } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { options, breadcrumbs, currentOption, disabled, module } = useSelector(state => ({
-    options: state.menu.options,
-    breadcrumbs: state.menu.breadcrumbs || {},
-    currentOption: state.view.report || {},
-    disabled: state.actions.running,
-    module: state.components['module'] || { model: { values: [] } }
-  }));
+  const componentModule = useComponentState('module');
+  const currentOption = useView("report") || {};
+  const options = useMenuOptions();
+  const disabled = useSelector(state => state.actions.running);
+  const module = componentModule?.model ? componentModule : { model: { values: [] } };
 
   const [expandedKeys, setExpandedKeys] = useState({});
 
@@ -155,17 +156,17 @@ function AweMenu(props) {
     setExpandedKeys(initialExpanded);
     // initial breadcrumbs
     if (currentOption?.option) {
-      dispatch(updateBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []));
+      MenuRegistry.setBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update breadcrumbs when current option changes
   useEffect(() => {
-    if (currentOption?.option && breadcrumbs?.option !== currentOption.option) {
-      dispatch(updateBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []));
+    if (currentOption?.option) {
+      MenuRegistry.setBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []);
     }
-  }, [currentOption?.option, breadcrumbs?.option, options, helperProps, dispatch]);
+  }, [currentOption?.option, options, helperProps]);
 
   const onExpand = (ek) => setExpandedKeys(ek);
 
@@ -173,10 +174,10 @@ function AweMenu(props) {
 
   if (style.includes("vertical")) {
     return <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
-                      expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
-                      model={model}/>;
+      expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
+      model={model} />;
   } else {
-    return <Menubar aria-disabled={disabled} model={model}/>;
+    return <Menubar aria-disabled={disabled} model={model} />;
   }
 }
 

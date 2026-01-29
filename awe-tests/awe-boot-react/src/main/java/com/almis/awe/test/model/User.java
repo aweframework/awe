@@ -135,9 +135,9 @@ public class User {
    * 
    * @return User as datalist row
    */
-  public Map<String, CellData> toDatalistRow() {
-    Map<String, CellData> row = new HashMap<String, CellData>();
-    row.put("id", new CellData(this.id));
+  public Map<String, CellData> toDatalistRow(int index) {
+    Map<String, CellData> row = new HashMap<>();
+    row.put("id", new CellData(index));
     row.put("name", new CellData(this.name));
     row.put("gender", new CellData(this.getGender().toString().toLowerCase()));
     row.put("age", new CellData(this.age));

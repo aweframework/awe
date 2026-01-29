@@ -1,10 +1,11 @@
-import React, {useCallback} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useTranslation} from "react-i18next";
-import {getIconCode, getVisibleTextData, translateLabel} from "../utilities";
-import {classNames} from "../utilities/components";
-import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
-import {addActionsTop} from "../redux/actions/actions";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { useTranslation } from "react-i18next";
+import { getIconCode, getVisibleTextData, translateLabel } from "../utilities";
+import { classNames } from "../utilities/components";
+import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
+import { addActionsTop } from "../redux/actions/actions";
 import AweCriterion from "./AweCriterion";
 import useComponent from "../hooks/useComponent";
 
@@ -13,12 +14,7 @@ function AweInputTextView(props) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { address } = useComponent(id);
-  const { model = { values: [] }, attributes = {}, validationRules = {}, actions = [] } = useSelector(state => ({
-    address: state.components[id]?.address,
-    model: state.components[id]?.model || { values: [] },
-    attributes: state.components[id]?.attributes || {},
-    actions: state.components[id]?.actions || []
-  }));
+  const { model = { values: [] }, attributes = {}, validationRules = {}, actions = [] } = useComponentState(id);
 
   const onAction = useCallback((event) => {
     dispatch(updateThunk(address, { event }));
@@ -39,7 +35,7 @@ function AweInputTextView(props) {
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
-                  groupClass="flex p-2" generateIcon={false} generateUnit={false}>
+      groupClass="flex p-2" generateIcon={false} generateUnit={false}>
       {iconNode}
       <button className={classes} tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}>{getVisibleTextData(textToShow, t)}</button>
       {unitNode}
