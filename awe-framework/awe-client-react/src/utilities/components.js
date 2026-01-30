@@ -6,7 +6,7 @@ import {
 } from "./index";
 import {formatNumber, getFirstDefinedValueAsNumber} from "./numbers";
 import {ComponentType, getFirstDefinedAndNotNullValue, isEmpty} from "./general";
-import {extractCellModel, getGridData} from "./grid";
+import {extractCellModel, getGridData, getGridIdentifier} from "./grid";
 
 /**
  * Upload status
@@ -50,6 +50,12 @@ const {ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT, ADDRESS_VIEW, ADDRESS_IN
  * @category Utilities
  * @namespace Components
  */
+
+export function getComponentIdentifierKey(component) {
+  const attributes = component?.attributes || {};
+  const isGrid = "columnModel" in attributes;
+  return isGrid ? getGridIdentifier(attributes) : "value";
+}
 
 /**
  * Retrieve the validation nodes

@@ -162,7 +162,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
         }
       };
 
-      formThunks.fillAction(action)(dispatch);
+      formThunks.fillAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
 

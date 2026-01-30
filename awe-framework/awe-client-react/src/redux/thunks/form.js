@@ -15,6 +15,7 @@ import {
   restoreMultipleModelWithDependencies,
   updateModelWithDependencies
 } from "./components";
+import { getComponentIdentifierKey } from "../../utilities/components";
 const { BUTTON_SUBMIT } = ButtonTypes;
 
 export function submitAction(action) {
@@ -107,14 +108,32 @@ export function filterAction(action, t = (o) => o) {
 }
 
 export function fillAction(action) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     // Retrieve parameters
     const { parameters } = action;
     const address = getActionAddress(action);
     const { datalist } = parameters;
+    const components = getAllComponents(getState());
+    const component = getComponent(components, address);
+    const identifierKey = getComponentIdentifierKey(component);
+    const previousSelected = new Set(
+      (component?.model?.values || [])
+        .filter((item) => item?.selected)
+        .map((item) => item?.[identifierKey])
+        .filter((value) => value !== null && value !== undefined)
+        .map((value) => String(value))
+    );
+    const values = (datalist?.rows || []).map((row) => {
+      if (!previousSelected.size) {
+        return row;
+      }
+      const rowId = row?.[identifierKey];
+      const isPreviouslySelected = rowId !== null && rowId !== undefined && previousSelected.has(String(rowId));
+      return { ...row, selected: row?.selected || isPreviouslySelected };
+    });
 
     // Generate model
-    let model = { ...datalist, values: [...datalist.rows] };
+    let model = { ...datalist, values };
     delete model.rows;
 
     // Publish model change
