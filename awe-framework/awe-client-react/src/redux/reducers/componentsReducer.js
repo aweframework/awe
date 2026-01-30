@@ -73,7 +73,7 @@ function updateComponentInState(state, componentId, updates, settings) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
       // Get current merged state (base + existing delta)
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       // Apply updates to the full state
       const updatedFull = _.merge({}, currentFull, updates);
       // Calculate new delta against base
@@ -110,10 +110,10 @@ function updateComponentProperty(state, componentId, propertyName, updates, sett
     const base = ComponentRegistry.get(componentId);
     if (base) {
       // Get current merged state
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       // Apply property update
       currentFull[propertyName] = {
-        ...(currentFull[propertyName] || {}),
+        ...currentFull?.[propertyName],
         ...updates
       };
       // Calculate new delta
@@ -178,7 +178,7 @@ function getGridRowContext(state = {}, address = {}, settings) {
   if (useRegistry && !base) return null;
 
   const component = useRegistry
-    ? mergeComponentState(base, state[componentId] || {})
+    ? mergeComponentState(base, state[componentId])
     : state[componentId];
 
   if (!component) return null;
@@ -219,7 +219,7 @@ function updateGridRowValues(state, context, nextValues) {
     const currentFull = {
       ...component,
       model: {
-        ...(component.model || {}),
+        ...component?.model,
         values: nextValues
       }
     };
@@ -252,7 +252,7 @@ function updateGridRowValues(state, context, nextValues) {
 function getMergedComponent(useRegistry, componentId, state) {
   let component;
   if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId]);
   } else {
     component = state[componentId];
   }
@@ -364,7 +364,7 @@ function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       const { attributes } = currentFull;
       const { columnModel = [] } = attributes;
       const columnIndex = columnModel.findIndex(col => col.name === address.column);
@@ -416,7 +416,7 @@ function updateAttributeCell(state = {}, address = {}, data = {}, settings) {
   const nextValues = updateArrayElement(values, rowIndex, {
     ...rowData,
     $attrs: {
-      ...rowData.$attrs || {},
+      ...rowData?.$attrs,
       [address.column]: { ...cellAttrs, ...data }
     }
   });
@@ -458,9 +458,9 @@ function updateSpecificAttributes(state = {}, action = {}, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       currentFull.specificAttributes = {
-        ...(currentFull.specificAttributes || {}),
+        ...currentFull?.specificAttributes,
         ...data
       };
 
@@ -520,7 +520,7 @@ function restoreAttributeComponent(state, address, data, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       currentFull.attributes = {
         ...currentFull.attributes,
         [data]: currentFull.storedAttributes?.[data]
@@ -561,7 +561,7 @@ function restoreAttributeColumn(state = {}, address = {}, data = {}, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       const { attributes } = currentFull;
       const { columnModel = [] } = attributes;
       const columnIndex = columnModel.findIndex(column => column.name === address.column);
@@ -611,7 +611,7 @@ function restoreAttributeCell(state, address, data, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       const { model, attributes, storedAttributes = {} } = currentFull;
       const { values } = model;
       const gridId = memoizedGetGridIdentifier(attributes);
@@ -733,7 +733,7 @@ function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       const { attributes } = currentFull;
       const { columnModel = [] } = attributes;
       const columnIndex = columnModel.findIndex(col => col.name === address.column);
@@ -743,7 +743,7 @@ function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
         ...attributes,
         columnModel: updateArrayElement(columnModel, columnIndex, {
           validationRules: {
-            ...(columnModel[columnIndex]?.validationRules || {}),
+            ...columnModel[columnIndex]?.validationRules,
             ...data
           }
         })
@@ -767,7 +767,7 @@ function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
       ...state[componentId],
       attributes: {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, { validationRules: { ...(columnModel[columnIndex]?.validationRules || {}), ...data } })
+        columnModel: updateArrayElement(columnModel, columnIndex, { validationRules: { ...columnModel[columnIndex]?.validationRules, ...data } })
       }
     }
   };
@@ -791,7 +791,7 @@ function updateValidationCell(state = {}, address = {}, data = {}, settings) {
   const nextValues = updateArrayElement(values, rowIndex, {
     ...rowData,
     $attrs: {
-      ...(rowData.$attrs || {}),
+      ...rowData?.$attrs,
       [address.column]: {
         ...cellAttrs,
         validationRules: {
@@ -818,7 +818,7 @@ function keepValidationComponent(state, componentId, settings) {
 
   return updateComponentInState(state, componentId, {
     storedValidationRules: {
-      ...(component?.validationRules || {})
+      ...component?.validationRules
     }
   }, settings);
 }
@@ -836,7 +836,7 @@ function restoreValidationComponent(state, componentId, settings) {
 
   return updateComponentInState(state, componentId, {
     validationRules: {
-      ...(component?.storedValidationRules || {})
+      ...component?.storedValidationRules
     }
   }, settings);
 }
@@ -924,16 +924,16 @@ function getModelUpdate(state, address, model, settings) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
       // Get current merged state
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       // Apply model update
       currentFull.model = {
-        ...(currentFull.model || {}),
+        ...currentFull?.model,
         ...model,
         changed: true
       };
       // Reset error on update
       currentFull.attributes = {
-        ...(currentFull.attributes || {}),
+        ...currentFull?.attributes,
         error: null
       };
 
@@ -995,7 +995,7 @@ function getGridModelUpdate(state, address, model, update = true, settings) {
   let gridComponent = getModelUpdate(state, address, model, settings);
 
   // Para updateCellsModel necesitamos el componente mergeado con los cambios que acabamos de calcular
-  const updatedFull = mergeComponentState(component, gridComponent[componentId] || {});
+  const updatedFull = mergeComponentState(component, gridComponent[componentId]);
 
   let cellsState = model.values && update ? updateCellsModel({ ...state, ...gridComponent }, updatedFull, settings) : {};
   return {
@@ -1055,7 +1055,7 @@ function updateColumnModel(state = {}, address = {}, data = {}, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       const { attributes } = currentFull;
       const { columnModel = [] } = attributes;
       const columnIndex = columnModel.findIndex(column => column.name === address.column);
@@ -1064,7 +1064,7 @@ function updateColumnModel(state = {}, address = {}, data = {}, settings) {
         ...attributes,
         columnModel: updateArrayElement(columnModel, columnIndex, {
           model: {
-            ...(columnModel[columnIndex]?.model || {}),
+            ...columnModel[columnIndex]?.model,
             ...data
           }
         })
@@ -1090,7 +1090,7 @@ function updateColumnModel(state = {}, address = {}, data = {}, settings) {
         ...attributes,
         columnModel: updateArrayElement(columnModel, columnIndex, {
           model: {
-            ...(columnModel[columnIndex]?.model || {}),
+            ...columnModel[columnIndex]?.model,
             ...data
           }
         })
@@ -1393,9 +1393,9 @@ function getKeepModelComponent(state, componentId, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       currentFull.storedModel = {
-        ...(currentFull.model || {}),
+        ...currentFull?.model,
         values: (currentFull.model?.values || []).map(value => ({ ...value }))
       };
       return {
@@ -1450,11 +1450,11 @@ function keepRowModel(state, address, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       currentFull.storedModel = {
-        ...(currentFull.storedModel || {}),
+        ...currentFull?.storedModel,
         storedRows: {
-          ...(currentFull.storedModel?.storedRows || {}),
+          ...currentFull.storedModel?.storedRows,
           [address.row]: { ...values[rowIndex] }
         }
       };
@@ -1522,9 +1522,9 @@ function getRestoreModelComponent(state, componentId, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       currentFull.model = {
-        ...(currentFull.storedModel || currentFull.model || {}),
+        ...(currentFull?.storedModel || currentFull?.model),
         values: (currentFull.storedModel?.values || currentFull.model?.values || []).map(value => ({ ...value })),
         changed: false
       };
@@ -1579,13 +1579,13 @@ function resetModel(state, address, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = mergeComponentState(base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId]);
       currentFull.attributes = {
-        ...(currentFull.attributes || {}),
+        ...currentFull?.attributes,
         error: null
       };
       currentFull.model = {
-        ...(currentFull.model || {}),
+        ...currentFull?.model,
         ...emptyModel,
         changed: true
       };
@@ -1650,7 +1650,7 @@ function updateGridFooter(state, address, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      component = mergeComponentState(base, state[componentId] || {});
+      component = mergeComponentState(base, state[componentId]);
       const updatedFull = generateGridFooter(component);
       return {
         ...state,

@@ -8,7 +8,7 @@ import _ from 'lodash';
  * @param {Object} deltas - Cambios dinámicos de Redux
  * @returns {Object} Estado mergeado
  */
-export function mergeComponentState(base, deltas) {
+export function mergeComponentState(base, deltas = {}) {
     // Si no hay base, retornar solo deltas
     if (!base || Object.keys(base).length === 0) {
         return _.cloneDeep(deltas || {});
