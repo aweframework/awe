@@ -60,11 +60,12 @@ const InitialState = {};
  */
 
 /**
- * Updates a component in state with new data
- * @param {Object} state - Current state
- * @param {string} componentId - Component identifier
- * @param {Object} updates - Updates to merge into the component
- * @returns {Object} New state with updated component
+ * Update a component entry by merging new data (registry-aware).
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} updates Partial data to merge into the component
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateComponentInState(state, componentId, updates, settings) {
   const useRegistry = settings?.useComponentRegistry;
@@ -94,6 +95,15 @@ function updateComponentInState(state, componentId, updates, settings) {
   };
 }
 
+/**
+ * Merge updates into a component property bag (e.g. attributes, validationRules).
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {string} propertyName Target property name
+ * @param {Object} updates Partial updates for the property
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
 function updateComponentProperty(state, componentId, propertyName, updates, settings) {
   const useRegistry = settings?.useComponentRegistry;
   if (useRegistry) {
@@ -129,14 +139,37 @@ function updateComponentProperty(state, componentId, propertyName, updates, sett
   };
 }
 
+/**
+ * Update component attributes.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} attributeUpdates Attribute changes
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
 function updateComponentAttributes(state, componentId, attributeUpdates, settings) {
   return updateComponentProperty(state, componentId, 'attributes', attributeUpdates, settings);
 }
 
+/**
+ * Update component validation rules.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} validationUpdates Validation rule changes
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
 function updateComponentValidation(state, componentId, validationUpdates, settings) {
   return updateComponentProperty(state, componentId, 'validationRules', validationUpdates, settings);
 }
 
+/**
+ * Resolve grid row context from an address.
+ * @param {Object} state Current state
+ * @param {Object} address Address with component/row/column
+ * @param {Object} settings Settings
+ * @returns {Object|null} Grid row context or null when not found
+ */
 function getGridRowContext(state = {}, address = {}, settings) {
   const componentId = address.component;
   const useRegistry = settings?.useComponentRegistry;
@@ -172,6 +205,13 @@ function getGridRowContext(state = {}, address = {}, settings) {
   };
 }
 
+/**
+ * Update grid row values using a resolved context.
+ * @param {Object} state Current state
+ * @param {Object} context Grid row context from getGridRowContext
+ * @param {Array} nextValues Updated grid values array
+ * @returns {Object} Updated state
+ */
 function updateGridRowValues(state, context, nextValues) {
   const { componentId, useRegistry, base, component } = context;
 
@@ -203,31 +243,50 @@ function updateGridRowValues(state, context, nextValues) {
 }
 
 /**
+ * Get the merged component (base + delta) when using the registry.
+ * @param {boolean} useRegistry Whether the component registry is enabled
+ * @param {string} componentId Component identifier
+ * @param {Object} state Current state
+ * @returns {Object|undefined} Merged component or undefined
+ */
+function getMergedComponent(useRegistry, componentId, state) {
+  let component;
+  if (useRegistry) {
+    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
+  } else {
+    component = state[componentId];
+  }
+  return component;
+}
+
+/**
  * ============================================================================
  * COMPONENT TYPE CHECKS
  * ============================================================================
  */
 
 /**
- * Check if component is a grid or not
- * @param {Object} component
+ * Check whether a component is a grid.
+ * @param {Object} component Component to inspect
+ * @returns {boolean} True if the component has a column model
  */
 function isGridComponent(component) {
   return !isEmpty(component) && "columnModel" in (component.attributes || {});
 }
 
 /**
- * Check if component is a grid and has footer
- * @param {Object} component
+ * Check whether a grid component has a footer.
+ * @param {Object} component Component to inspect
+ * @returns {boolean} True when grid totals footer is enabled
  */
 function hasFooter(component) {
   return isGridComponent(component) && (component.attributes || {}).showTotals;
 }
 
 /**
- * Check if component is part of a group
- * @param {Object} component
- * @return {Boolean} component belongs a group
+ * Check whether a component belongs to a radio group.
+ * @param {Object} component Component to inspect
+ * @returns {boolean} True if it is a grouped radio component
  */
 function isGroup(component) {
   let attributes = component.attributes || {};
@@ -235,10 +294,10 @@ function isGroup(component) {
 }
 
 /**
- * Fix cell model
- * @param selected Selected data
- * @param model Select model
- * @returns {object} Model fixed
+ * Normalize a cell model by applying selected values.
+ * @param {Array|Object} selected Selected data
+ * @param {Object} model Existing cell model definition
+ * @returns {Object} Normalized cell model
  */
 function fixCellModel(selected, model) {
   let selectedData = [...asArray(selected)];
@@ -256,13 +315,14 @@ function fixCellModel(selected, model) {
 }
 
 /**
- * Get component id
- * @param cellFunction
- * @param columnFunction
- * @param componentFunction
- * @param state
- * @param action
- * @returns {null|*}
+ * Route a model/action update to the proper handler by address type.
+ * @param {Function} cellFunction Handler for cell-level updates
+ * @param {Function} columnFunction Handler for column-level updates
+ * @param {Function} componentFunction Handler for component-level updates
+ * @param {Object} state Current state
+ * @param {Object} action Action payload with address/data
+ * @param {Object} settings Settings
+ * @returns {*} Handler result or unchanged state
  */
 function launchAddressFunction(cellFunction, columnFunction, componentFunction, state, action, settings) {
   switch (getAddressType(action.address)) {
@@ -278,22 +338,24 @@ function launchAddressFunction(cellFunction, columnFunction, componentFunction, 
 }
 
 /**
- * Update attributes for component
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update component attributes at component scope.
+ * @param {Object} state Current state
+ * @param {Object} address Component address
+ * @param {Object} data Attribute updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateAttributeComponent(state = {}, address = {}, data = {}, settings) {
   return updateComponentAttributes(state, address.component, data, settings);
 }
 
 /**
- * Update attributes for column
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update column attributes inside a grid.
+ * @param {Object} state Current state
+ * @param {Object} address Column address
+ * @param {Object} data Column attribute updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
@@ -338,11 +400,12 @@ function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
 }
 
 /**
- * Update attributes for cell
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update cell attributes stored in the grid row $attrs.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {Object} data Cell attribute updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateAttributeCell(state = {}, address = {}, data = {}, settings) {
   const context = getGridRowContext(state, address, settings);
@@ -362,10 +425,11 @@ function updateAttributeCell(state = {}, address = {}, data = {}, settings) {
 }
 
 /**
- * Update attributes
- * @param {object} state State
- * @param {object} action Action
- * @returns {*} Action updated
+ * Dispatch attribute updates based on address type.
+ * @param {Object} state Current state
+ * @param {Object} action Action with address/data
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateAttributeAction(state = {}, action = {}, settings) {
   const nextState = launchAddressFunction(updateAttributeCell, updateAttributeColumn, updateAttributeComponent, state, action, settings);
@@ -373,12 +437,19 @@ function updateAttributeAction(state = {}, action = {}, settings) {
   const componentId = memoizedGetComponentId(baseAddress);
   if (!componentId) return nextState;
   const useRegistry = settings?.useComponentRegistry;
-  const component = useRegistry
-    ? mergeComponentState(ComponentRegistry.get(componentId), nextState[componentId] || {})
-    : nextState[componentId];
+  const component = getMergedComponent(useRegistry, componentId, nextState);
+
+  if ( !isGridComponent(component) ) return nextState;
   return hasFooter(component) ? updateGridFooter(nextState, baseAddress, settings) : nextState;
 }
 
+/**
+ * Update component-specific attributes (stored separately from normal attributes).
+ * @param {Object} state Current state
+ * @param {Object} action Action with address/data
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
 function updateSpecificAttributes(state = {}, action = {}, settings) {
   const { address, data } = action;
   const componentId = memoizedGetComponentId(address);
@@ -414,12 +485,12 @@ function updateSpecificAttributes(state = {}, action = {}, settings) {
 }
 
 /**
- * Keep validation
- * @param {Object} state
- * @param {Object} component
- * @param {Object} data
+ * Snapshot a single attribute value for later restore.
+ * @param {Object} state Current state
+ * @param {string} component Component identifier
+ * @param {string} data Attribute name to keep
  * @param {Object} settings Settings
- * @return {Object} updated state
+ * @returns {Object} Updated state
  */
 function keepAttributeComponent(state, component, data, settings) {
   if (!state[component]) return state;
@@ -435,11 +506,12 @@ function keepAttributeComponent(state, component, data, settings) {
 }
 
 /**
- * Restore application
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Restore a previously kept component attribute.
+ * @param {Object} state Current state
+ * @param {Object} address Component address
+ * @param {string} data Attribute name to restore
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function restoreAttributeComponent(state, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
@@ -475,11 +547,12 @@ function restoreAttributeComponent(state, address, data, settings) {
 }
 
 /**
- * Update attributes for column
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Restore a previously kept column attribute.
+ * @param {Object} state Current state
+ * @param {Object} address Column address
+ * @param {string} data Attribute name to restore
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function restoreAttributeColumn(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
@@ -524,11 +597,12 @@ function restoreAttributeColumn(state = {}, address = {}, data = {}, settings) {
 }
 
 /**
- * Restore attributes for cell
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Restore a previously kept cell attribute.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {string} data Attribute name to restore
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function restoreAttributeCell(state, address, data, settings) {
   const componentId = address.component;
@@ -611,42 +685,46 @@ function restoreAttributeCell(state, address, data, settings) {
 }
 
 /**
- * Update attributes
- * @param {object} state State
- * @param {object} action Action
- * @returns {*} Action updated
+ * Restore attributes based on address type.
+ * @param {Object} state Current state
+ * @param {Object} action Action with address/data
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function restoreAttributeAction(state = {}, action = {}, settings) {
   return launchAddressFunction(restoreAttributeCell, restoreAttributeColumn, restoreAttributeComponent, state, action, settings);
 }
 
 /**
- * Update attributes
- * @param {object} state State
- * @param {object} action Action
- * @returns {*} Action updated
+ * Dispatch validation updates based on address type.
+ * @param {Object} state Current state
+ * @param {Object} action Action with address/data
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateValidationAction(state = {}, action = {}, settings) {
   return launchAddressFunction(updateValidationCell, updateValidationColumn, updateValidationComponent, state, action, settings);
 }
 
 /**
- * Update validation
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update component-level validation rules.
+ * @param {Object} state Current state
+ * @param {Object} address Component address
+ * @param {Object} data Validation rule updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateValidationComponent(state = {}, address = {}, data = {}, settings) {
   return updateComponentValidation(state, address.component, data, settings);
 }
 
 /**
- * Update validation for column
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update column-level validation rules in a grid.
+ * @param {Object} state Current state
+ * @param {Object} address Column address
+ * @param {Object} data Validation rule updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
@@ -696,11 +774,12 @@ function updateValidationColumn(state = {}, address = {}, data = {}, settings) {
 }
 
 /**
- * Update validation for cell
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update cell-level validation rules stored in $attrs.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {Object} data Validation rule updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateValidationCell(state = {}, address = {}, data = {}, settings) {
   const context = getGridRowContext(state, address, settings);
@@ -727,61 +806,52 @@ function updateValidationCell(state = {}, address = {}, data = {}, settings) {
 }
 
 /**
- * Keep validation
- * @param {Object} state
- * @param {Object} component
- * @return {Object} updated state
+ * Snapshot validation rules for later restore.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function keepValidationComponent(state, componentId, settings) {
   const useRegistry = settings?.useComponentRegistry;
-  let validationRules;
-  if (useRegistry) {
-    const full = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-    validationRules = full.validationRules;
-  } else {
-    validationRules = state[componentId]?.validationRules;
-  }
+  const component = getMergedComponent(useRegistry, componentId, state);
 
   return updateComponentInState(state, componentId, {
     storedValidationRules: {
-      ...(validationRules || {})
+      ...(component?.validationRules || {})
     }
   }, settings);
 }
 
 /**
- * Restore validation
- * @param {Object} state
- * @param {Object} component
- * @return {Object} updated state
+ * Restore previously kept validation rules.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function restoreValidationComponent(state, componentId, settings) {
   const useRegistry = settings?.useComponentRegistry;
-  let storedValidationRules;
-  if (useRegistry) {
-    const full = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-    storedValidationRules = full.storedValidationRules;
-  } else {
-    storedValidationRules = state[componentId]?.storedValidationRules;
-  }
+  const component = getMergedComponent(useRegistry, componentId, state);
 
   return updateComponentInState(state, componentId, {
     validationRules: {
-      ...(storedValidationRules || {})
+      ...(component?.storedValidationRules || {})
     }
   }, settings);
 }
 
 /**
- * Update attributes
- * @param {Object} state
- * @param {Object} component
- * @param {Object} data
- * @return {Object} updated state
+ * Update or register a component and its model/attributes.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} data Component data or partial update
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateComponentData(state, componentId, data, settings) {
   if (componentId == null) return state;
-  const useRegistry = settings && settings.useComponentRegistry;
+  const useRegistry = settings?.useComponentRegistry;
 
   if (useRegistry) {
     // Si data contiene address y attributes, podría ser un componente completo
@@ -809,9 +879,11 @@ function updateComponentData(state, componentId, data, settings) {
 }
 
 /**
- * Update cells model for a grid
- * @param {object} state State
- * @param {object} grid Grid component
+ * Update child cell models for a grid based on row values.
+ * @param {Object} state Current state
+ * @param {Object} grid Grid component
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state for cell components
  */
 function updateCellsModel(state, grid, settings) {
   const { values } = grid.model;
@@ -837,11 +909,12 @@ function updateCellsModel(state, grid, settings) {
 }
 
 /**
- * Get cell model update
- * @param {object} state State
- * @param {object} address Address
- * @param {object} model Cell model
- * @returns {object} Component update
+ * Build a component model update at component scope.
+ * @param {Object} state Current state
+ * @param {Object} address Component address
+ * @param {Object} model Model updates
+ * @param {Object} settings Settings
+ * @returns {Object} Component update map
  */
 function getModelUpdate(state, address, model, settings) {
   let componentId = memoizedGetComponentId(address);
@@ -890,13 +963,13 @@ function getModelUpdate(state, address, model, settings) {
 }
 
 /**
- * Get group model update
- * @param {object} state State
- * @param {string} view Component view
- * @param {string} group Group
- * @param {object} model Cell model
- * @param {object} settings Settings
- * @returns {object} Component update
+ * Build model updates for all components in a radio group.
+ * @param {Object} state Current state
+ * @param {string} view View identifier
+ * @param {string} group Group identifier
+ * @param {Object} model Model containing values/selection
+ * @param {Object} settings Settings
+ * @returns {Object} Component update map
  */
 function getGroupModelUpdate(state, view, group, model, settings) {
   // Check equality to avoid update state if there are no changes
@@ -905,24 +978,18 @@ function getGroupModelUpdate(state, view, group, model, settings) {
 }
 
 /**
- * Get cell model update
- * @param {object} state State
- * @param {object} address Address
- * @param {object} model Cell model
- * @param {boolean} update Update cells model
- * @returns {object} Component update
+ * Build a grid model update and optionally refresh cell models.
+ * @param {Object} state Current state
+ * @param {Object} address Grid address
+ * @param {Object} model Model updates
+ * @param {boolean} update Whether to update cell models
+ * @param {Object} settings Settings
+ * @returns {Object} Component update map
  */
 function getGridModelUpdate(state, address, model, update = true, settings) {
   let componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
-
+  const component = getMergedComponent(useRegistry, componentId, state);
   if (!component) return state;
 
   let gridComponent = getModelUpdate(state, address, model, settings);
@@ -938,26 +1005,20 @@ function getGridModelUpdate(state, address, model, update = true, settings) {
 }
 
 /**
- * Update model
- * @param {object} state
- * @param {object} address
- * @param {object} data
- * @param {boolean} update Update grid components
- * @return {object} updated state
+ * Update a model at component/column/cell scope depending on address.
+ * @param {Object} state Current state
+ * @param {Object} address Target address
+ * @param {Object} data Model updates
+ * @param {boolean} update Whether to update grid cell models
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateModel(state, address, data, update = true, settings) {
   let componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
+  const component = getMergedComponent(useRegistry, componentId, state);
 
-  if (useRegistry) {
-    const base = ComponentRegistry.get(componentId);
-    component = mergeComponentState(base, state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
-
-  if (component === null || component === undefined) return state;
+  if (isEmpty(component)) return state;
 
   // Debug log
   // console.error('updateModel component:', component, typeof component, 'isGrid:', isGridComponent(component), 'data.selected:', data.selected);
@@ -980,11 +1041,12 @@ function updateModel(state, address, data, update = true, settings) {
 }
 
 /**
- * Update column model (definition) in a grid
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update a column model definition inside a grid.
+ * @param {Object} state Current state
+ * @param {Object} address Column address
+ * @param {Object} data Model updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateColumnModel(state = {}, address = {}, data = {}, settings) {
   const componentId = address.component;
@@ -1038,11 +1100,12 @@ function updateColumnModel(state = {}, address = {}, data = {}, settings) {
 }
 
 /**
- * Update cell model
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update a single cell model and clear cell error.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {Object} data Model updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateCellModel(state, address, data, settings) {
   const context = getGridRowContext(state, address, settings);
@@ -1064,11 +1127,12 @@ function updateCellModel(state, address, data, settings) {
 }
 
 /**
- * Update cell selected
- * @param {object} state
- * @param {object} address
- * @param {object} data
- * @return {object} updated state
+ * Update selected values inside a cell model.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {Object} data Selection payload
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateCellSelected(state, address, data, settings) {
   const context = getGridRowContext(state, address, settings);
@@ -1086,24 +1150,18 @@ function updateCellSelected(state, address, data, settings) {
 }
 
 /**
- * Update selected
- * @param {object} state
- * @param {object} values
- * @param {object} address
- * @param {object} address
- * @param {object} data
- * @return {object} updated state
+ * Update selected rows in a grid by ids.
+ * @param {Object} state Current state
+ * @param {Array} values Grid values
+ * @param {Object} address Grid address
+ * @param {Object} data Selection payload
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateSelectedGrid(state, values, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
+  const component = getMergedComponent(useRegistry, componentId, state);
 
   if (!component || !component.attributes) return state;
 
@@ -1130,23 +1188,18 @@ function updateSelectedGrid(state, values, address, data, settings) {
 }
 
 /**
- * Update selected
- * @param {object} state
- * @param {array} values
- * @param {object} address
- * @param {array} selected
- * @return {object} updated state
+ * Update selection flags for a non-grid component.
+ * @param {Object} state Current state
+ * @param {Array} values Current values
+ * @param {Object} address Component address
+ * @param {Array} selected Selected values array
+ * @param {Object} settings Settings
+ * @returns {Object|null} Updated state or null if no changes
  */
 function updateSelectedComponent(state, values, address, selected, settings) {
   const componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
+  const component = getMergedComponent(useRegistry, componentId, state);
 
   if (!component) return state;
 
@@ -1160,10 +1213,10 @@ function updateSelectedComponent(state, values, address, selected, settings) {
 }
 
 /**
- * Retrieve filtered values
- * @param {array} values Values
- * @param {array} selected Selected
- * @returns {*} Filtered values
+ * Build a values array with selection flags applied.
+ * @param {Array} values Current values
+ * @param {Array} selected Selected values
+ * @returns {Array} Values with selection applied
  */
 function getFilteredValues(values, selected) {
   let filtered = values.map((value) => ({ ...value, selected: selected.includes(value.value) }));
@@ -1172,12 +1225,14 @@ function getFilteredValues(values, selected) {
 }
 
 /**
- * Update selected
- * @param {object} state
- * @param {array} values
- * @param {object} view
- * @param {object} group * @param {array} selected
- * @return {Object} updated state
+ * Update selection for all components in a group.
+ * @param {Object} state Current state
+ * @param {Array} values Current values
+ * @param {Object} view View identifier
+ * @param {Object} group Group identifier
+ * @param {Array} selected Selected values
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateSelectedGroup(state, values, view, group, selected, settings) {
   const useRegistry = settings?.useComponentRegistry;
@@ -1228,11 +1283,12 @@ function updateSelectedGroup(state, values, view, group, selected, settings) {
 }
 
 /**
- * Update selected
- * @param {object} state
- * @param {object} address
- * @param {object} data
- * @return {object} updated state
+ * Update selection at the correct scope for a component.
+ * @param {Object} state Current state
+ * @param {Object} address Target address
+ * @param {Object} data Selection payload
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateSelected(state, address, data, settings) {
   let update = getSelectedUpdate(state, address, data, settings);
@@ -1247,22 +1303,17 @@ function updateSelected(state, address, data, settings) {
 }
 
 /**
- * Get update to be done
- * @param {object} state State
- * @param {object} address Address
- * @param {object} data Data
- * @return {object|null} Update to apply
+ * Build the selection update for a component.
+ * @param {Object} state Current state
+ * @param {Object} address Target address
+ * @param {Object} data Selection payload
+ * @param {Object} settings Settings
+ * @returns {Object|null} Update to apply
  */
 function getSelectedUpdate(state, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
+  const component = getMergedComponent(useRegistry, componentId, state);
 
   let values = (component?.model?.values) || [];
   let selected = asArray(data.selected);
@@ -1276,10 +1327,10 @@ function getSelectedUpdate(state, address, data, settings) {
 }
 
 /**
- * Check if selected values are the same as cell values
- * @param {array} selectedValues Selected values
+ * Check whether selected values match a cell value.
+ * @param {Array} selectedValues Selected values
  * @param {*} cellValue Cell value
- * @return {boolean} Same selected value
+ * @returns {boolean} True when selection matches the cell value
  */
 function checkSelected(selectedValues, cellValue) {
   let selectedAsString = selectedValues.map(item => String(item));
@@ -1293,11 +1344,12 @@ function checkSelected(selectedValues, cellValue) {
 }
 
 /**
- * Update cell values
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Update a full grid row with new data.
+ * @param {Object} state Current state
+ * @param {Object} address Row address
+ * @param {Object} data Row updates
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateRowModel(state, address, data, settings) {
   const context = getGridRowContext(state, address, settings);
@@ -1316,10 +1368,11 @@ function updateRowModel(state, address, data, settings) {
 }
 
 /**
- * Keep model component
- * @param {Object} state
- * @param {Object} component
- * @return {Object} updated state
+ * Store the current model snapshot for a component.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function keepModelComponent(state, componentId, settings) {
   return {
@@ -1329,10 +1382,11 @@ function keepModelComponent(state, componentId, settings) {
 }
 
 /**
- * Get changes for keep model component
- * @param state
- * @param component
- * @returns {{}}
+ * Build the model snapshot update for a component.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} settings Settings
+ * @returns {Object} State diff for the snapshot
  */
 function getKeepModelComponent(state, componentId, settings) {
   const useRegistry = settings?.useComponentRegistry;
@@ -1363,21 +1417,19 @@ function getKeepModelComponent(state, componentId, settings) {
   };
 }
 
+
+
 /**
- * Keep row model
- * @param {Object} state
- * @param {Object} address
- * @return {Object} updated state
+ * Store the current model snapshot for a grid row and its cell components.
+ * @param {Object} state Current state
+ * @param {Object} address Row address
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function keepRowModel(state, address, settings) {
   const componentId = address.component;
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
+  const component = getMergedComponent(settings, componentId, state);
 
   const { model, attributes } = component;
   const { values } = model;
@@ -1434,10 +1486,11 @@ function keepRowModel(state, address, settings) {
 }
 
 /**
- * Keep model component
- * @param {Object} state
- * @param {String} componentId
- * @return {Object} updated state
+ * Restore a component model from the stored snapshot.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function restoreModelComponent(state, componentId, settings) {
   const newState = {
@@ -1446,12 +1499,7 @@ function restoreModelComponent(state, componentId, settings) {
   };
 
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), newState[componentId] || {});
-  } else {
-    component = newState[componentId];
-  }
+  const component = getMergedComponent(useRegistry, componentId, newState);
 
   // Update footer if is grid and show totals
   if (hasFooter(component)) {
@@ -1462,10 +1510,11 @@ function restoreModelComponent(state, componentId, settings) {
 }
 
 /**
- * Get changes for restore model component
- * @param state
- * @param component
- * @returns {{}}
+ * Build the restore update for a component model.
+ * @param {Object} state Current state
+ * @param {string} componentId Component identifier
+ * @param {Object} settings Settings
+ * @returns {Object} State diff for the restore
  */
 function getRestoreModelComponent(state, componentId, settings) {
   const useRegistry = settings?.useComponentRegistry;
@@ -1502,23 +1551,18 @@ function getRestoreModelComponent(state, componentId, settings) {
 }
 
 /**
- * Reset model
- * @param {Object} state
- * @param {Object} address
- * @return {Object} updated state
+ * Reset a component model to an empty/default state.
+ * @param {Object} state Current state
+ * @param {Object} address Component address
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function resetModel(state, address, settings) {
   const componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
+  const component = getMergedComponent(useRegistry, componentId, state);
 
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
-
-  let emptyModel = { values: [] };
+  let emptyModel;
   if (!isGridComponent(component)) {
     emptyModel = {
       values: (component?.model?.values || []).map(value => ({ ...value, selected: false }))
@@ -1572,22 +1616,17 @@ function resetModel(state, address, settings) {
 }
 
 /**
- * Update cell model
- * @param {Object} state
- * @param {Object} address
- * @param {Object} data
- * @return {Object} updated state
+ * Reset a grid cell selection to the column defaults.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {Object} data Unused payload
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function resetCellModel(state, address, data, settings) {
   const componentId = address.component;
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), state[componentId] || {});
-  } else {
-    component = state[componentId];
-  }
+  const component = getMergedComponent(useRegistry, componentId, state);
 
   const { attributes } = component || {};
   if (!attributes) return state;
@@ -1597,10 +1636,11 @@ function resetCellModel(state, address, data, settings) {
 }
 
 /**
- * Updates the grid footer section based on the provided state and address.
- *
- * @param {Object} state - The current state object containing relevant data and properties for the grid.
- * @param {Object} address - The address information used to update the footer details.
+ * Update grid footer values based on current grid data.
+ * @param {Object} state Current state
+ * @param {Object} address Grid address
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateGridFooter(state, address, settings) {
   const componentId = memoizedGetComponentId(address);
@@ -1628,10 +1668,9 @@ function updateGridFooter(state, address, settings) {
 }
 
 /**
- * Generates a grid footer by enhancing the provided component object.
- *
- * @param {Object} component - The component object to which the footer will be appended.
- * @return {Object} The updated component object with the generated footer added to the model.
+ * Attach footer data to a grid component model.
+ * @param {Object} component Grid component
+ * @returns {Object} Updated component with footer model
  */
 function generateGridFooter(component) {
   return {
@@ -1644,10 +1683,9 @@ function generateGridFooter(component) {
 }
 
 /**
- * Generates the footer values for each column in the component based on the provided values.
- *
- * @param {Object} component - The component containing attributes and column model information.
- * @return {Array} The computed footer values for each column.
+ * Compute footer values for all grid columns.
+ * @param {Object} component Grid component
+ * @returns {Object} Footer values by column name
  */
 function generateFooter(component) {
   const { columnModel = [] } = component?.attributes || {};
@@ -1655,19 +1693,20 @@ function generateFooter(component) {
 }
 
 /**
- * Update component footers
- * @param data
- * @returns {{}}
+ * Update footer values for all components that support footers.
+ * @param {Object} data Components map
+ * @returns {Object} Components map with updated footers
  */
 function updateComponentFooters(data) {
   return Object.entries(data).reduce((prev, [componentId, component]) => ({ ...prev, [componentId]: hasFooter(component) ? generateGridFooter(component) : component }), {});
 }
 
 /**
- * Update model
- * @param {object} state State
- * @param {object} action Action
- * @returns {*} Action updated
+ * Handle UPDATE_MODEL actions, including selection and footer refresh.
+ * @param {Object} state Current state
+ * @param {Object} action Action with address/data
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
  */
 function updateModelAction(state = {}, action = {}, settings) {
   let modelState = state;
@@ -1693,12 +1732,7 @@ function updateModelAction(state = {}, action = {}, settings) {
   // Update footer if is grid and show totals
   const componentId = memoizedGetComponentId(action.address);
   const useRegistry = settings?.useComponentRegistry;
-  let component;
-  if (useRegistry) {
-    component = mergeComponentState(ComponentRegistry.get(componentId), modelState[componentId] || {});
-  } else {
-    component = modelState[componentId];
-  }
+  const component = getMergedComponent(useRegistry, componentId, modelState);
 
   if (hasFooter(component)) {
     modelState = updateGridFooter(modelState, action.address, settings);
@@ -1707,6 +1741,13 @@ function updateModelAction(state = {}, action = {}, settings) {
   return modelState;
 }
 
+/**
+ * Remove all components for a given view.
+ * @param {Object} state Current state
+ * @param {string} view View identifier
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
 function clearComponents(state, view, settings) {
   const useRegistry = settings?.useComponentRegistry;
   if (useRegistry) {
@@ -1721,8 +1762,8 @@ function clearComponents(state, view, settings) {
 }
 
 /**
- * Action handlers map
- * Each handler is a pure function that takes (state, action) and returns new state
+ * Action handlers map.
+ * Each handler is a pure function that takes (state, action) and returns new state.
  */
 const actionHandlers = {
   [CLEAR_COMPONENTS]: (state, action) => clearComponents(state, action.view, action.settings),
@@ -1841,9 +1882,9 @@ const actionHandlers = {
 };
 
 /**
- * Components reducer
- * @param {Object} state - Current Redux state
- * @param {Object} action - Redux action with type and payload
+ * Components reducer.
+ * @param {Object} state Current Redux state
+ * @param {Object} action Redux action with type and payload
  * @returns {Object} New state
  */
 export function components(state = InitialState, action = {}) {
