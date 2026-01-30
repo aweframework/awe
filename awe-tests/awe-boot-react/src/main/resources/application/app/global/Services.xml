@@ -159,6 +159,13 @@
     <java classname="com.almis.awe.test.model.UserList" method="loadTreeJsonFile" />
   </service>
 
+  <!-- Load user json file -->
+  <service id="longSuggest">
+    <java classname="com.almis.awe.test.model.UserList" method="longSuggest">
+      <service-parameter type="STRING" name="suggest"/>
+    </java>
+  </service>
+
   <service id="simpleGETMicroservice">
     <microservice name="alu-microservice" method="GET" endpoint="/invoke" />
   </service>
