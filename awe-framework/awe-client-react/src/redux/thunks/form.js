@@ -1,4 +1,5 @@
 import {
+  asArray,
   generateMessageAction,
   generateServerAction,
   getActionAddress,
@@ -165,7 +166,14 @@ export function selectAction(action) {
   return (dispatch) => {
     // Retrieve parameters
     const address = getActionAddress(action);
-    let selected = [...action.parameters.values];
+    let selected = asArray(action.parameters.values)
+      .map((item) => {
+        if (item && typeof item === "object") {
+          return item.value;
+        }
+        return item;
+      })
+      .filter((item) => item !== undefined && item !== null);
 
     // Call the method update selected value from API
     dispatch(updateModelWithDependencies(address, { selected }));
