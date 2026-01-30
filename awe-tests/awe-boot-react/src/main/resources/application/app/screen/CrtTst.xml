@@ -332,6 +332,7 @@
           <button-action type="validate" />
         </avatar>
         <criteria label="PARAMETER_PICKLIST" style="col-xs-12 col-sm-6" id="picklist" variable="picklist" component="picklist" initial-load="query" target-action="picklist"/>
+        <criteria label="PARAMETER_LARGE_SUGGEST" id="LongSuggest" component="suggest" style="col-xs-6 col-sm-3 col-lg-2"  server-action="data" target-action="TstLongSuggest" check-initial="true"/>
       </tag>
     </window>
   </tag>

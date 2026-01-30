@@ -3,6 +3,12 @@ const tests = path.join(__dirname, "test", "js", "tests.js");
 
 // Fix webpack for karma
 module.exports = (config) => {
+  const grepArgIndex = process.argv.indexOf("--grep");
+  const grepArg = process.argv.find((arg) => arg.startsWith("--grep="));
+  const grepValue = grepArg
+    ? grepArg.split("=").slice(1).join("=")
+    : (grepArgIndex !== -1 ? process.argv[grepArgIndex + 1] : null);
+
   config.set({
     basePath: path.join(__dirname),
     frameworks: ['jasmine'],
@@ -12,6 +18,9 @@ module.exports = (config) => {
     reportSlowerThan: 500,
     singleRun: true,
     files: [tests],
+    client: {
+      args: grepValue ? [`--grep=${grepValue}`] : []
+    },
     preprocessors: {
       [tests]: ['webpack', 'sourcemap']
     },

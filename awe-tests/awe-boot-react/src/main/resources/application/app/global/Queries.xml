@@ -1710,6 +1710,13 @@
     <variable id="queryName" type="STRING" value="TstUsrSug"/>
   </query>
 
+  <!-- LONG SUGGEST (TEST) -->
+  <query id="TstLongSuggest" service="longSuggest">
+    <field id="id" alias="value"/>
+    <field id="name" alias="label"/>
+    <variable id="suggest" type="STRING" name="suggest"/>
+  </query>
+
   <!-- ID USER SUGGEST (TEST) -->
   <query id="TstUsrSugIde" cacheable="true">
     <table id="ope"/>

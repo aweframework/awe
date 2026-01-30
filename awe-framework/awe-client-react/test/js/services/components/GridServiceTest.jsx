@@ -9,6 +9,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   let gridService;
   let actions;
   let props;
+  let originalClipboard;
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
@@ -39,6 +40,30 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
     actions = gridService.getActions();
     return null;
   }
+
+  beforeEach(() => {
+    originalClipboard = navigator.clipboard;
+    if (!navigator.clipboard) {
+      Object.defineProperty(navigator, "clipboard", {
+        value: {},
+        configurable: true
+      });
+    }
+    if (!navigator.clipboard.writeText) {
+      navigator.clipboard.writeText = () => Promise.resolve();
+    }
+  });
+
+  afterEach(() => {
+    if (originalClipboard) {
+      Object.defineProperty(navigator, "clipboard", {
+        value: originalClipboard,
+        configurable: true
+      });
+    } else if (navigator.clipboard) {
+      delete navigator.clipboard;
+    }
+  });
 
   // Get all screen actions
   it('should get all grid actions', function () {
