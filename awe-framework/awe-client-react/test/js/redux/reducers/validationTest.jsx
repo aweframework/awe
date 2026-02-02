@@ -1,7 +1,8 @@
-import {validateComponent} from "../../../../src/redux/reducers/validation";
+import {validateComponent, validateRow} from "../../../../src/redux/reducers/validation";
 import {parseValidationRules} from "../../../../src/utilities/components";
 
 import {isEmpty} from "../../../../src/utilities/general";
+import ComponentRegistry from "../../../../src/redux/registry/ComponentRegistry";
 
 function launchTest(state, validation, values, expected) {
   let validationRules = parseValidationRules(validation, state.components.component.address);
@@ -29,6 +30,7 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
 
   // Mock module
   beforeEach(function() {
+    ComponentRegistry.clearAll();
     state = {
       settings: {
         activeDependencies: true,
@@ -178,6 +180,46 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
   // Digits validation
   it('should launch a digits validation KO', function() {
     testValidation("{digits: {message: \"Naaaah, no son solo digitos\"}}", "1232.21", { message: 'Naaaah, no son solo digitos' });
+  });
+
+  describe('component registry', function() {
+    it('should validate component and store error as delta when registry is enabled', function() {
+      const baseComponent = {
+        address: {component: 'comp', view: 'base'},
+        attributes: {id: 'comp'},
+        validationRules: {required: {value: true}},
+        model: {values: []}
+      };
+      ComponentRegistry.register('comp', baseComponent);
+
+      const registryState = {
+        settings: {useComponentRegistry: true},
+        components: {comp: {}}
+      };
+
+      const next = validateComponent(registryState.components, baseComponent, registryState.settings);
+      expect(next.comp.attributes.error.message).toBe('VALIDATOR_MESSAGE_REQUIRED');
+    });
+
+    it('should validate grid row and store row attrs as delta when registry is enabled', function() {
+      const baseGrid = {
+        address: {component: 'grid', view: 'base'},
+        attributes: {
+          id: 'id',
+          columnModel: [{name: 'col1', component: 'text', validationRules: {required: {value: true}}}]
+        },
+        model: {values: [{id: '1', col1: ''}]}
+      };
+      ComponentRegistry.register('grid', baseGrid);
+
+      const registryState = {
+        settings: {useComponentRegistry: true},
+        components: {grid: {}}
+      };
+
+      const next = validateRow(registryState.components, {component: 'grid', view: 'base', row: '1'}, registryState.settings);
+      expect(next.grid.model.values[0].$attrs.col1.error.message).toBe('VALIDATOR_MESSAGE_REQUIRED');
+    });
   });
 
   // Email validation

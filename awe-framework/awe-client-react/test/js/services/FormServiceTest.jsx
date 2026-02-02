@@ -17,7 +17,6 @@ describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
   });
 
   it('should get all form actions', () => {
-    let actions = service.getActions();
     expect(Object.keys(actions).length).toBe(23);
   });
 

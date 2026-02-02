@@ -74,8 +74,10 @@ function updateComponentInState(state, componentId, updates, settings) {
     if (base) {
       // Get current merged state (base + existing delta)
       const currentFull = mergeComponentState(base, state[componentId]);
-      // Apply updates to the full state
-      const updatedFull = _.merge({}, currentFull, updates);
+      // Apply updates to the full state (arrays replace instead of merging)
+      const updatedFull = _.mergeWith({}, currentFull, updates, (objValue, srcValue) =>
+        Array.isArray(srcValue) ? srcValue : undefined
+      );
       // Calculate new delta against base
       const newDelta = calculateDeltas(base, updatedFull);
       return {

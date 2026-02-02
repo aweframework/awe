@@ -10,8 +10,7 @@ import { getComponentId } from "../../utilities/components";
 import { extractCellValue, getCellModel, getGridIdentifier } from "../../utilities/grid";
 import { isEmpty } from "../../utilities/general";
 import ComponentRegistry from '../registry/ComponentRegistry';
-import { calculateDeltas } from '../../utilities/mergeUtils';
-import _ from 'lodash';
+import { calculateDeltas, mergeComponentState } from '../../utilities/mergeUtils';
 
 const patterns = {
   TEXT: /^[A-Za-z]+$/,
@@ -333,7 +332,7 @@ export function validateComponent(state, component, settings) {
     // Since we are in a reducer, we only have the current deltas (state)
     // We merge them with registry to get the full view
     mergedComponents = ComponentRegistry.getAllIds().reduce((acc, id) => {
-      acc[id] = _.merge({}, ComponentRegistry.get(id), state[id] || {});
+      acc[id] = mergeComponentState(ComponentRegistry.get(id), state[id] || {});
       return acc;
     }, { ...state });
   }
@@ -343,7 +342,7 @@ export function validateComponent(state, component, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
-      const currentFull = _.merge({}, base, state[componentId] || {});
+      const currentFull = mergeComponentState(base, state[componentId] || {});
       currentFull.attributes = {
         ...(currentFull.attributes || {}),
         error
@@ -383,10 +382,10 @@ export function validateRow(state, address, settings) {
 
   if (useRegistry) {
     const base = ComponentRegistry.get(gridId);
-    grid = _.merge({}, base, state[gridId] || {});
+    grid = mergeComponentState(base, state[gridId] || {});
     // Full view for cross-component validation
     mergedComponents = ComponentRegistry.getAllIds().reduce((acc, id) => {
-      acc[id] = _.merge({}, ComponentRegistry.get(id), state[id] || {});
+      acc[id] = mergeComponentState(ComponentRegistry.get(id), state[id] || {});
       return acc;
     }, { ...state });
   } else {
@@ -429,7 +428,7 @@ export function validateRow(state, address, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(gridId);
     if (base) {
-      const currentFull = _.merge({}, base, state[gridId] || {});
+      const currentFull = mergeComponentState(base, state[gridId] || {});
       currentFull.model = {
         ...currentFull.model,
         values: [
