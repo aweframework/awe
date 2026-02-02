@@ -2,8 +2,9 @@ import React from 'react';
 import useGridService from "../../../../src/services/components/GridService";
 import {renderWithProviders} from "../../test-utils";
 import {MemoryRouter} from "react-router";
-import {waitFor} from "@testing-library/react";
+import {act, waitFor} from "@testing-library/react";
 import {DEFAULT_SETTINGS} from "../../../../src/redux/actions/settings";
+import ComponentRegistry from "../../../../src/redux/registry/ComponentRegistry";
 
 describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', function () {
   let gridService;
@@ -42,6 +43,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   }
 
   beforeEach(() => {
+    ComponentRegistry.clearAll();
     originalClipboard = navigator.clipboard;
     if (!navigator.clipboard) {
       Object.defineProperty(navigator, "clipboard", {
@@ -55,6 +57,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   });
 
   afterEach(() => {
+    ComponentRegistry.clearAll();
     if (originalClipboard) {
       Object.defineProperty(navigator, "clipboard", {
         value: originalClipboard,
@@ -75,10 +78,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an add-row action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["add-row"]({
+    act(() => actions["add-row"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1"}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -89,10 +92,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an add-row action on last position', async function () {
     const { store } = setup(preloadedState);
 
-    actions["add-row-bottom"]({
+    act(() => actions["add-row-bottom"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1"}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -102,10 +105,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
 
   it('should launch an add-row action after the selected row', async function () {
     const { store } = setup(preloadedState);
-    actions["add-row-down"]({
+    act(() => actions["add-row-down"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1"}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -115,10 +118,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
 
   it('should launch an add-row action before the selected row', async function () {
     const { store } = setup(preloadedState);
-    actions["add-row-up"]({
+    act(() => actions["add-row-up"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1"}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -129,10 +132,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an add-row action on multioperation grid', async function () {
     const { store } = setup({...preloadedState,
       components: {grid: {...preloadedState.components.grid, attributes: {multioperation: true}}}});
-    actions["add-row-top"]({
+    act(() => actions["add-row-top"]({
         address: {component: "grid", view: "report"},
         parameters: {row: {id: "tutu"}, rowId: "1"}
-      }, props);
+      }, props));
 
     // Spies
     await waitFor(() => {
@@ -143,10 +146,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an copy-row action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["copy-row"]({
+    act(() => actions["copy-row"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1", $row: {}}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -157,10 +160,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an copy-row-top action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["copy-row-top"]({
+    act(() => actions["copy-row-top"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1", $row: {}}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -171,10 +174,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an copy-row-bottom action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["copy-row-bottom"]({
+    act(() => actions["copy-row-bottom"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1", $row: {}}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -185,10 +188,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an copy-row-before action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["copy-row-up"]({
+    act(() => actions["copy-row-up"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1", $row: {}}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -199,10 +202,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an copy-row-after action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["copy-row-down"]({
+    act(() => actions["copy-row-down"]({
       address: {component: "grid", view: "report"},
       parameters: {row: {id: "tutu"}, rowId: "1", $row: {}}
-    }, props);
+    }, props));
 
     // Spies
     await waitFor(() => {
@@ -213,7 +216,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
   it('should launch an delete-row action', async function () {
     const { store } = setup(preloadedState);
 
-    actions["delete-row"]({address: {component: "grid", view: "report"}, parameters: {rowId: "1"}}, props);
+    act(() => actions["delete-row"]({address: {component: "grid", view: "report"}, parameters: {rowId: "1"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -231,7 +234,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["delete-row"]({address: {component: "grid", view: "report"}, parameters: {rowId: "1"}}, props);
+    act(() => actions["delete-row"]({address: {component: "grid", view: "report"}, parameters: {rowId: "1"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -254,10 +257,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["update-row"]({
+    act(() => actions["update-row"]({
         address: {component: "grid", view: "report"},
         parameters: {row: {id: "1", lala: "tutu"}}
-      }, props);
+      }, props));
 
     // Spies
     await waitFor(() => {
@@ -275,10 +278,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["update-row"]({
+    act(() => actions["update-row"]({
         address: {component: "grid", view: "report"},
         parameters: {row: {id: "1", lala: "tutu"}}
-      }, props);
+      }, props));
 
     // Spies
     await waitFor(() => {
@@ -303,7 +306,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["edit-row"]({address: {component: "grid", view: "report"}, parameters: {row: 1}}, props);
+    act(() => actions["edit-row"]({address: {component: "grid", view: "report"}, parameters: {row: 1}}, props));
 
     // Spies
     await waitFor(() => {
@@ -328,7 +331,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["save-row"]({address: {component: "grid", view: "report"}, parameters: {rowIndex: 0}}, props);
+    act(() => actions["save-row"]({address: {component: "grid", view: "report"}, parameters: {rowIndex: 0}}, props));
 
     // Spies
     await waitFor(() => {
@@ -353,7 +356,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["cancel-row"]({address: {component: "grid", view: "report"}, parameters: {rowIndex: 0}}, props);
+    act(() => actions["cancel-row"]({address: {component: "grid", view: "report"}, parameters: {rowIndex: 0}}, props));
 
     // Spies
     await waitFor(() => {
@@ -373,10 +376,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["change-page"]({
+    act(() => actions["change-page"]({
         address: {component: "grid", view: "report"},
         parameters: {page: 1, first: 1, rows: 1, max: 100}
-      }, props);
+      }, props));
 
     // Spies
     await waitFor(() => {
@@ -396,7 +399,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["change-sort"]({address: {component: "grid", view: "report"}, parameters: {sort: []}}, props);
+    act(() => actions["change-sort"]({address: {component: "grid", view: "report"}, parameters: {sort: []}}, props));
 
     // Spies
     await waitFor(() => {
@@ -416,7 +419,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["change-filter"]({address: {component: "grid", view: "report"}, parameters: {filters: {}}}, props);
+    act(() => actions["change-filter"]({address: {component: "grid", view: "report"}, parameters: {filters: {}}}, props));
 
     // Spies
     await waitFor(() => {
@@ -436,7 +439,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["check-records-saved"]({address: {component: "grid", view: "report"}}, props);
+    act(() => actions["check-records-saved"]({address: {component: "grid", view: "report"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -456,7 +459,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["check-records-saved"]({address: {component: "grid", view: "report"}}, props);
+    act(() => actions["check-records-saved"]({address: {component: "grid", view: "report"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -475,7 +478,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["check-records-generated"]({address: {component: "grid", view: "report"}}, props);
+    act(() => actions["check-records-generated"]({address: {component: "grid", view: "report"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -494,7 +497,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["check-records-generated"]({address: {component: "grid", view: "report"}}, props);
+    act(() => actions["check-records-generated"]({address: {component: "grid", view: "report"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -516,7 +519,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
       }
     });
 
-    actions["validate-row"]({address: {component: "grid", view: "report"}}, props);
+    act(() => actions["validate-row"]({address: {component: "grid", view: "report"}}, props));
 
     // Spies
     await waitFor(() => {
@@ -538,7 +541,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["verify-row-validation"]({address: {component: "grid", view: "report", row: "1"}}, props);
+    act(() => actions["verify-row-validation"]({address: {component: "grid", view: "report", row: "1"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -560,7 +563,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["verify-row-validation"]({address: {component: "grid", view: "report", row: "1"}}, props);
+     act(() => actions["verify-row-validation"]({address: {component: "grid", view: "report", row: "1"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -599,7 +602,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
      // Spies
      const clipboard = spyOn(navigator.clipboard, "writeText");
 
-     actions["copy-selected-rows-clipboard"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["copy-selected-rows-clipboard"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      expect(clipboard).toHaveBeenCalledWith("Column 1\tColumn 2\tColumn 3\n" +
@@ -635,7 +638,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["select-first-row"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["select-first-row"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -669,7 +672,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["select-last-row"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["select-last-row"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -703,7 +706,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["select-all-rows"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["select-all-rows"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -737,7 +740,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["unselect-all-rows"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["unselect-all-rows"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -771,7 +774,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["check-one-selected"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["check-one-selected"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -805,7 +808,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["check-one-selected"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["check-one-selected"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -839,7 +842,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["check-some-selected"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["check-some-selected"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -873,7 +876,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["check-some-selected"]({address: {component: "grid", view: "report"}}, props);
+     act(() => actions["check-some-selected"]({address: {component: "grid", view: "report"}}, props));
 
      // Spies
      await waitFor(() => {
@@ -897,10 +900,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["change-column-label"]({
+     act(() => actions["change-column-label"]({
          address: {component: "grid", view: "report"},
          parameters: {column: "tutu", label: "Nuevo tutu"}
-       }, props);
+       }, props));
 
      // Spies
      await waitFor(() => {
@@ -925,10 +928,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["show-columns"]({
+     act(() => actions["show-columns"]({
          address: {component: "grid", view: "report"},
          parameters: {columns: ["tutu", "tutu2"]}
-       }, props);
+       }, props));
 
      // Spies
      await waitFor(() => {
@@ -953,10 +956,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["hide-columns"]({
+     act(() => actions["hide-columns"]({
          address: {component: "grid", view: "report"},
          parameters: {columns: ["tutu", "tutu3"]}
-       }, props);
+       }, props));
 
      // Spies
      await waitFor(() => {
@@ -981,11 +984,11 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["toggle-columns-visibility"]({
+     act(() => actions["toggle-columns-visibility"]({
          address: {component: "grid", view: "report"},
          parameters: {columns: ["tutu", "tutu3"], show: false}
        }, props
-     );
+     ));
 
      // Spies
      await waitFor(() => {
@@ -1010,7 +1013,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["add-columns"]({
+     act(() => actions["add-columns"]({
          address: {component: "grid", view: "report"},
          parameters: {
            columns: [{name: "tutu4", label: "Tutu 4", hidden: false}, {
@@ -1019,8 +1022,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
              hidden: false
            }], show: false
          }
-       },
-       props);
+       }, props));
 
      // Spies
      await waitFor(() => {
@@ -1045,7 +1047,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["replace-columns"]({
+     act(() => actions["replace-columns"]({
          address: {component: "grid", view: "report"},
          parameters: {
            columns: [{name: "tutu4", label: "Tutu 4", hidden: false}, {
@@ -1054,8 +1056,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
              hidden: false
            }], show: false
          }
-       },
-       props);
+       }, props));
 
      // Spies
      await waitFor(() => {
@@ -1080,11 +1081,10 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
        }
      });
 
-     actions["update-cell"]({
+     act(() => actions["update-cell"]({
          address: {component: "grid", view: "report", column: 'tutu', row: '1'},
          parameters: {data: "LALA"}
-       },
-       props);
+       }, props));
 
      // Spies
      await waitFor(() => {

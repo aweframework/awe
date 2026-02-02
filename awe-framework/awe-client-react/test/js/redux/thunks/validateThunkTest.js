@@ -1,4 +1,5 @@
 import * as validationThunks from '../../../../src/redux/thunks/validate';
+import ComponentRegistry from '../../../../src/redux/registry/ComponentRegistry';
 
 describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
   let dispatch;
@@ -7,6 +8,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
   let mockAddress;
 
   beforeEach(() => {
+    ComponentRegistry.clearAll();
     dispatch = jasmine.createSpy('dispatch');
     mockAddress = { view: 'base', component: 'comp1' };
 
@@ -108,6 +110,45 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       expect(innerDispatch.calls.count()).toBe(2);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
+
+    it('debería usar ComponentRegistry cuando está habilitado', () => {
+      ComponentRegistry.register('comp1', {
+        address: mockAddress,
+        context: {view: 'base', source: ['home', 'comp1']},
+        attributes: {id: 'comp1'},
+        model: {values: [{value: 'value1', selected: true}]}
+      });
+      ComponentRegistry.register('comp2', {
+        address: { view: 'base', component: 'comp2' },
+        context: {view: 'base', source: ['home', 'comp2']},
+        attributes: {id: 'comp2'},
+        model: {values: []}
+      });
+
+      mockState = {
+        components: {},
+        settings: {
+          serverActionKey: 'serverAction',
+          useComponentRegistry: true
+        }
+      };
+      getState = jasmine.createSpy('getStateRegistry').and.callFake(() => mockState);
+
+      const action = {
+        type: 'validate',
+        address: mockAddress
+      };
+
+      validationThunks.validateAction(action)(dispatch, getState);
+
+      const [[validateThunk]] = dispatch.calls.allArgs();
+      const innerDispatch = jasmine.createSpy('innerDispatch');
+      validateThunk(innerDispatch, getState);
+
+      const [[validateComponentsAction]] = innerDispatch.calls.allArgs();
+      expect(validateComponentsAction.type).toBe('VALIDATE_COMPONENTS');
+      expect(validateComponentsAction.componentList.length).toBe(2);
+    });
   });
 
   describe('verifyValidationAction', () => {
@@ -137,6 +178,30 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       const [[acceptAction]] = dispatch.calls.allArgs();
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
+    });
+
+    it('debería detectar errores desde ComponentRegistry cuando está habilitado', () => {
+      ComponentRegistry.register('comp1', {
+        address: mockAddress,
+        context: {view: 'base', source: ['home', 'comp1']},
+        attributes: {id: 'comp1', error: {message: 'Invalid value'}},
+        model: {values: []}
+      });
+
+      mockState = {
+        components: {},
+        settings: {
+          serverActionKey: 'serverAction',
+          useComponentRegistry: true
+        }
+      };
+      getState = jasmine.createSpy('getStateRegistry').and.callFake(() => mockState);
+
+      const action = { type: 'verify-validation' };
+      validationThunks.verifyValidationAction(action)(dispatch, getState);
+
+      const [[rejectAction]] = dispatch.calls.allArgs();
+      expect(rejectAction.type).toBe('REJECT_ACTION');
     });
   });
 

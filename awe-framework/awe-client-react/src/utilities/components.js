@@ -424,6 +424,7 @@ export function fixModel(model, isGrid) {
   }
   return {
     ...model,
+    selected: null,
     values: values
   };
 }

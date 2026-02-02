@@ -64,6 +64,23 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     expect(next.comp.attributes).toEqual({ foo: 'baz' });
   });
 
+  it('replaces array values when updating component model with registry enabled', () => {
+    ComponentRegistry.register('comp', {
+      address: { component: 'comp', view: 'base' },
+      attributes: { foo: 'bar' },
+      model: { values: [{ value: 'a', selected: true }] }
+    });
+
+    const next = components({}, {
+      type: UPDATE_COMPONENT,
+      address: { component: 'comp', view: 'base' },
+      data: { model: { values: [] } },
+      settings
+    });
+
+    expect(next.comp.model.values).toEqual([]);
+  });
+
   it('updates column attributes and stores full columnModel in delta with registry enabled', () => {
     ComponentRegistry.register('grid', {
       address: { component: 'grid', view: 'base' },
