@@ -62,7 +62,7 @@
                     </dependency>
                   </info-button>
                 </info>
-                <avatar id="ButUsrAct" icon="mdi:person_outline" initial-load="query" target-action="connectedUser" show-label="true">
+                <avatar id="ButUsrAct" icon="mdi:person_outline" image="/images/logos/logo-awe-nuevo.svg" initial-load="query" target-action="connectedUser" show-label="true">
                   <include target-screen="notification-panel" target-source="user-settings"/>
                   <include target-screen="info-buttons" target-source="themeModeSelector"/>
                   <include target-screen="info-buttons" target-source="themeSelector"/>

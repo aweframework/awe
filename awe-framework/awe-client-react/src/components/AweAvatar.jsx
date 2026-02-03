@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from "react";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { classNames, clickDropdown } from "../utilities/components";
-import { getIconCode, translateLabel } from "../utilities";
+import {getContextPath, getIconCode, translateLabel} from "../utilities";
 
 import "./AweAvatar.less";
 import { Avatar } from "primereact/avatar";
@@ -30,7 +30,7 @@ function AweAvatar(props) {
   const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, { "hidden": !visible });
 
   const computedLabel = getFirstDefinedValue(values?.[0]?.label, label);
-  const computedImage = getFirstDefinedValue(values?.[0]?.image, image);
+  const computedImage = `${getContextPath()}${getFirstDefinedValue(values?.[0]?.image, image)}`;
   const computedIcon = getFirstDefinedValue(values?.[0]?.icon, icon);
   const computedUnit = getFirstDefinedValue(values?.[0]?.unit, unit);
   const unitBadge = computedUnit && <Badge value={computedUnit} />;
