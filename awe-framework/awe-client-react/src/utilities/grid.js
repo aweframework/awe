@@ -2,6 +2,7 @@ import _ from "lodash";
 import {getDataDependingOnList, getVisibleTextData} from "./index";
 import {formatNumber, isNumber} from "./numbers";
 import {ComponentType, isEmpty} from "./general";
+
 const {
   COMPONENT_NUMERIC,
   COMPONENT_TIME,
@@ -94,6 +95,45 @@ export function extractCellValue(cell) {
       .map(data => data.value).join(", ");
   } else if (_.isPlainObject(cell)) {
     return cell.value;
+  } else {
+    return cell;
+  }
+}
+
+/**
+ * Get cell values as list or single value
+ * @param {mixed} cell Cell to extract
+ * @return {mixed} Cell values
+ * @memberOf Utilities
+ */
+export function extractCellValues(cell) {
+  if (Array.isArray(cell)) {
+    const selected = cell.filter(data => data.selected);
+    const items = selected.length > 0 ? selected : cell;
+    return items.map(data => data.value);
+  } else if (_.isPlainObject(cell)) {
+    return cell.value;
+  } else {
+    return cell;
+  }
+}
+
+/**
+ * Get cell labels as a printable string
+ * @param {mixed} cell Cell to extract
+ * @return {string} Cell labels
+ * @memberOf Utilities
+ */
+export function extractCellLabels(cell) {
+  if (Array.isArray(cell)) {
+    const selected = cell.filter(data => data.selected);
+    const items = selected.length > 0 ? selected : cell;
+    return items
+      .map(data => data.label || data.value)
+      .filter(value => !isEmpty(value))
+      .join(", ");
+  } else if (_.isPlainObject(cell)) {
+    return cell.label || cell.value;
   } else {
     return cell;
   }
@@ -394,9 +434,9 @@ export function getGridData(grid, model, props, forPrinting) {
       .map(column => column.name)
       .reduce((prevColumns, name) => ({
         ...prevColumns,
-        [name]: sendable.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value),
-        [`${name}.selected`]: getDataDependingOnList(selected.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value)),
-        ...(editable || multioperation ? {[`${name}.editing`]: getDataDependingOnList(editing.map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value))} : {})
+        [name]: sendable.map(value => extractCellValues(value[name])),
+        [`${name}.selected`]: getDataDependingOnList(selected.map(value => extractCellValues(value[name]))),
+        ...(editable || multioperation ? {[`${name}.editing`]: getDataDependingOnList(editing.map(value => extractCellValues(value[name])))} : {})
       }), {}),
     ...forPrinting ? getGridPrintData(grid, model, props) : {},
     [id]: sendable.map(value => value.id),
@@ -429,15 +469,22 @@ export function getGridPrintData(grid = {}, model = {}, props = {}) {
         ...prevColumns,
         [name]: values.map(value => {
           const attr = columnModel.find(column => column.name === name);
+          if (Array.isArray(value[name])) {
+            return extractCellValues(value[name]);
+          }
           const cellModel = getCellModel(value[name], attr);
           return cellModel.value;
         }),
         [`${name}.data`]: values.map(value => {
           const attr = columnModel.find(column => column.name === name);
+          if (Array.isArray(value[name])) {
+            const label = extractCellLabels(value[name]);
+            return { value: extractCellValues(value[name]), label };
+          }
           const cellModel = getCellModel(value[name], attr);
           return getCellModelForPrinting(cellModel, attr, t);
         }),
-        [`${name}.selected`]: getDataDependingOnList(values.filter(row => row.selected).map(value => getCellModel(value[name], columnModel.find(column => column.name === name)).value))
+        [`${name}.selected`]: getDataDependingOnList(values.filter(row => row.selected).map(value => extractCellValues(value[name])))
       }), {}),
     [`${id}.data`]: {
       visibleColumns: visibleColumns.map(column => getVisibleColumnData(column, t)),

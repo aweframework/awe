@@ -1,9 +1,10 @@
 import React from 'react';
 import {classNames} from "../utilities/components";
-import {getHelpTooltipNode, getIconCode, formatMessage, translateLabel} from "../utilities";
+import {formatMessage, getHelpTooltipNode, getIconCode, translateLabel} from "../utilities";
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import "./AweCriterion.less";
+import PropTypes from "prop-types";
 
 const AweCriterion = ({children, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
@@ -85,6 +86,17 @@ const AweCriterion = ({children, address, attributes, validationRules,
       {getValidation()}
     </div>
   );
+};
+
+AweCriterion.propTypes = {
+  children: PropTypes.node,
+  address: PropTypes.object,
+  attributes: PropTypes.object,
+  validationRules: PropTypes.object,
+  generateLabel: PropTypes.bool,
+  generateIcon: PropTypes.bool,
+  generateUnit: PropTypes.bool,
+  groupClass: PropTypes.string
 };
 
 export default AweCriterion;

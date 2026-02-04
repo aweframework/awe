@@ -6,6 +6,7 @@ import {useDispatch} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {getFirstDefinedValue} from "../utilities/general";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 function ColumnCheckbox(props) {
   const {required, readonly, style, data, attrs, address} = props;
@@ -34,5 +35,14 @@ function ColumnCheckbox(props) {
     tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
   />;
 }
+
+ColumnCheckbox.propTypes = {
+  address: PropTypes.object,
+  attrs: PropTypes.object,
+  data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  readonly: PropTypes.bool,
+  required: PropTypes.bool,
+  style: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+};
 
 export default ColumnCheckbox;

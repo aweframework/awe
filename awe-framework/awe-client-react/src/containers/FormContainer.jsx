@@ -1,4 +1,5 @@
 import React, {useCallback} from "react";
+import PropTypes from "prop-types";
 
 /**
  * Form container
@@ -16,5 +17,9 @@ function FormContainer(props) {
 
   return <form className="expand expandible-vertical" onSubmit={handleSubmit}>{props.children}</form>;
 }
+
+FormContainer.propTypes = {
+  children: PropTypes.node
+};
 
 export default FormContainer;

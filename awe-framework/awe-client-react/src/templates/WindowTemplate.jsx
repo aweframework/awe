@@ -3,7 +3,8 @@ import {getSource, getSourceChildren} from "../utilities/structure";
 import {BreadCrumb} from "primereact/breadcrumb";
 
 import "./WindowTemplate.css";
-import { useMenuBreadcrumbs } from "../hooks/useMenuRegistry";
+import {useMenuBreadcrumbs} from "../hooks/useMenuRegistry";
+import PropTypes from "prop-types";
 
 function WindowTemplate(props) {
 
@@ -29,4 +30,8 @@ function WindowTemplate(props) {
 }
 
 // Connect redux store updates
+WindowTemplate.propTypes = {
+  elementList: PropTypes.any,
+};
+
 export default WindowTemplate;

@@ -10,4 +10,6 @@ import './ColumnImageTest';
 import './ColumnProgressTest';
 import './ColumnStaticColorTest';
 import './ColumnSelectTest';
+import './ColumnSelectMultipleTest';
 import './ColumnTimeTest';
+import './ColumnSuggestMultipleTest';

@@ -1,12 +1,6 @@
 import React, {useCallback, useEffect} from "react";
 import {InputText} from 'primereact/inputtext';
-import {
-  generateMessageAction,
-  getContextPath,
-  getRestUrl,
-  getSizeString,
-  translateLabel
-} from "../utilities";
+import {generateMessageAction, getContextPath, getRestUrl, getSizeString, translateLabel} from "../utilities";
 import {ProgressBar} from "primereact/progressbar";
 import {Button} from "primereact/button";
 import {FileUpload} from "primereact/fileupload";
@@ -18,6 +12,7 @@ import {useDispatch} from "react-redux";
 import {useTranslation} from "react-i18next";
 import {addActionsTop} from "../redux/actions/actions";
 import useText from "../hooks/useText";
+import PropTypes from "prop-types";
 
 const {INITIAL, UPLOADING, UPLOADED} = UploadStatus;
 
@@ -95,5 +90,9 @@ function AweInputUploader(props) {
     </AweCriterion>
   );
 }
+
+AweInputUploader.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputUploader;

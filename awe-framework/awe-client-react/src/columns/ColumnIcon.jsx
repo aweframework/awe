@@ -2,6 +2,7 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {classNames} from "../utilities/components";
 import {getIconCode, translateLabel} from "../utilities";
+import PropTypes from "prop-types";
 
 function ColumnIcon(props) {
   const {t} = useTranslation();
@@ -11,5 +12,9 @@ function ColumnIcon(props) {
 
   return <span className="icon-container" title={translateLabel(title || label, t)}>{getIconCode(icon, classes)}</span>;
 }
+
+ColumnIcon.propTypes = {
+  data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+};
 
 export default ColumnIcon;

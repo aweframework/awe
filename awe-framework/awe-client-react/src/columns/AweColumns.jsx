@@ -11,6 +11,8 @@ import ColumnDate from "./ColumnDate";
 import ColumnFilteredDate from "./ColumnFilteredDate";
 import ColumnTime from "./ColumnTime";
 import ColumnSuggest from "./ColumnSuggest";
+import ColumnSelectMultiple from "./ColumnSelectMultiple";
+import ColumnSuggestMultiple from "./ColumnSuggestMultiple";
 import ColumnColor from "./ColumnColor";
 import ColumnStaticColor from "./ColumnStaticColor";
 import ColumnStaticUploader from "./ColumnStaticUploader";
@@ -46,7 +48,9 @@ export const Editor = {
   "icon": ColumnIcon,
   "image": ColumnImage,
   "select": ColumnSelect,
+  "select-multiple": ColumnSelectMultiple,
   "suggest": ColumnSuggest,
+  "suggest-multiple": ColumnSuggestMultiple,
   "numeric": ColumnNumeric,
   "checkbox": ColumnCheckbox,
   "button": ColumnButton,

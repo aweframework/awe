@@ -1,5 +1,6 @@
 import React from "react";
 import {getSource, getSourceChildren} from "../utilities/structure";
+import PropTypes from "prop-types";
 
 function FullTemplate(props) {
 
@@ -16,5 +17,9 @@ function FullTemplate(props) {
     </div>
   );
 }
+
+FullTemplate.propTypes = {
+  elementList: PropTypes.any,
+};
 
 export default FullTemplate;

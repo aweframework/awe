@@ -1,9 +1,9 @@
 import React from "react";
-import { classNames } from "../utilities/components";
-import { translateLabel } from "../utilities";
-import { useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
-import { useTranslation } from "react-i18next";
+import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
+import {useComponentState} from "../hooks/useComponentState";
+import {useTranslation} from "react-i18next";
+import PropTypes from "prop-types";
 
 function AweLink(props) {
   const { id } = props;
@@ -22,5 +22,9 @@ function AweLink(props) {
   </a>;
 
 }
+
+AweLink.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweLink;

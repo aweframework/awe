@@ -8,6 +8,7 @@ import {useDispatch} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
 import {getFirstDefinedValue} from "../utilities/general";
+import PropTypes from "prop-types";
 
 const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
 
@@ -42,5 +43,16 @@ function ColumnButton(props) {
     onClick={onClick}
   />;
 }
+
+ColumnButton.propTypes = {
+  actions: PropTypes.array,
+  address: PropTypes.object,
+  attrs: PropTypes.object,
+  buttonType: PropTypes.any,
+  data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  disabled: PropTypes.bool,
+  icon: PropTypes.any,
+  style: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+};
 
 export default ColumnButton;

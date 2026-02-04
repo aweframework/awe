@@ -6,6 +6,7 @@ import {InputSwitch} from "primereact/inputswitch";
 import {translateLabel} from "../utilities";
 import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
+import PropTypes from "prop-types";
 
 function AweInputCheckbox(props) {
   const { id } = props;
@@ -56,5 +57,9 @@ function AweInputCheckbox(props) {
     </AweCriterion>
   );
 }
+
+AweInputCheckbox.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputCheckbox;

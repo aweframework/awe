@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { translateLabel } from "../utilities";
+import React, {useCallback, useEffect, useState} from "react";
+import {translateLabel} from "../utilities";
 import "./AweHelpViewer.less";
-import { Skeleton } from "primereact/skeleton";
+import {Skeleton} from "primereact/skeleton";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {isEmpty} from "../utilities/general";
 import {fetchHelpAction} from "../redux/thunks/files";
 import {useView} from "../hooks/useViewRegistry";
+import PropTypes from "prop-types";
 
 /**
  * AWE Help Viewer component (Functional)
@@ -53,5 +54,9 @@ function AweHelpViewer(props) {
     <div className="help-viewer m-4" id={id} dangerouslySetInnerHTML={{ __html: translateHelp(help) }} />
   );
 }
+
+AweHelpViewer.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweHelpViewer;

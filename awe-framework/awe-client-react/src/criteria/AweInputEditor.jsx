@@ -7,6 +7,7 @@ import useText from "../hooks/useText";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {useTranslation} from "react-i18next";
+import PropTypes from "prop-types";
 
 function AweInputEditor(props) {
 
@@ -38,5 +39,9 @@ function AweInputEditor(props) {
     />
   </AweCriterion>;
 }
+
+AweInputEditor.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputEditor;

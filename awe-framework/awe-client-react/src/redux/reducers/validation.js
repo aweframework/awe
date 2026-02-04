@@ -1,16 +1,12 @@
 // Retrieve default settings
-import {
-  getComponentValue,
-  getGroupSelectedValues,
-  getSelectedValues
-} from "../../utilities";
-import { toDate } from "../../utilities/dates";
+import {getComponentValue, getGroupSelectedValues, getSelectedValues} from "../../utilities";
+import {toDate} from "../../utilities/dates";
 import validateDate from "validate-date";
-import { getComponentId } from "../../utilities/components";
-import { extractCellValue, getCellModel, getGridIdentifier } from "../../utilities/grid";
-import { isEmpty } from "../../utilities/general";
+import {getComponentId} from "../../utilities/components";
+import {extractCellValue, getCellModel, getGridIdentifier} from "../../utilities/grid";
+import {isEmpty, isMultipleComponent} from "../../utilities/general";
 import ComponentRegistry from '../registry/ComponentRegistry';
-import { calculateDeltas, mergeComponentState } from '../../utilities/mergeUtils';
+import {calculateDeltas, mergeComponentState} from '../../utilities/mergeUtils';
 
 const patterns = {
   TEXT: /^[A-Za-z]+$/,
@@ -407,10 +403,19 @@ export function validateRow(state, address, settings) {
     ...values[rowIndex],
     ...columns.reduce((prev, column) => ({
       ...prev,
-      [column.name]: {
-        ...getCellModel(values[rowIndex][column.name], column),
-        valid: !!((rowAttrs?.[column.name]?.error) ?? checkIfValid({ ...column, attributes: column }, extractCellValue(values[rowIndex][column.name]), mergedComponents, settings))
-      }
+      [column.name]: (() => {
+        const cellValue = values[rowIndex][column.name];
+        const isMultiple = isMultipleComponent(column.component);
+        const valid = !!((rowAttrs?.[column.name]?.error) ??
+          checkIfValid({ ...column, attributes: column }, extractCellValue(cellValue), mergedComponents, settings));
+        if (isMultiple && Array.isArray(cellValue)) {
+          return cellValue;
+        }
+        return {
+          ...getCellModel(cellValue, column),
+          valid
+        };
+      })()
     }), {}),
     $attrs: {
       ...rowAttrs,
