@@ -115,6 +115,24 @@ The *query* element has the following attributes:
 | service            |    Optional    |  String   | The name of service to fill the query                                                                                                                                                 | **Note:** Only applies in service queries. For more info. see [service query](#service-query)                                                                     |
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
 
+### Query cache and trace logging
+
+If `cacheable="true"`, the query result is cached using the query id plus the resolved parameters as the cache key.
+This avoids re-executing the same query with the same inputs during the cache lifetime.
+
+To see cache hits in logs, set the logger `com.almis.awe.cache.LoggingCache` to `trace`.
+When enabled, you will see entries like:
+
+```log
+Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}
+```
+
+Example configuration in `application.properties`:
+
+```properties
+logging.level.com.almis.awe.cache.LoggingCache=trace
+```
+
 ## SQL elements
 
 The following elements are translated into a SQL clause. 

@@ -4,6 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.service.MenuService;
@@ -59,20 +60,21 @@ public class TemplateDao {
    * @return Screen template
    */
   @Async("threadHelpPoolTaskExecutor")
-  public Future<ST> generateOptionHelpAsync(Option option, Integer level, boolean developers) {
+  public Future<ST> generateOptionHelpAsync(Menu menu, Option option, Integer level, boolean developers) {
     // Retrieve code
-    return CompletableFuture.completedFuture(generateOptionHelp(option, level, developers));
+    return CompletableFuture.completedFuture(generateOptionHelp(menu, option, level, developers));
   }
 
   /**
    * Generate option template
    *
+   * @param menu       Menu
    * @param option     Option
    * @param level      Option level
    * @param developers Help for developers
    * @return Screen template
    */
-  public ST generateOptionHelp(Option option, Integer level, boolean developers) {
+  public ST generateOptionHelp(Menu menu, Option option, Integer level, boolean developers) {
     // Generate template from screen
     ST optionTemplate = helpTemplateGroup.createStringTemplate(helpTemplateGroup.rawGetTemplate(AweConstants.TEMPLATE_HELP_OPTION));
 
@@ -80,7 +82,7 @@ public class TemplateDao {
     if (option.getScreen() != null && !option.isMenuScreen()) {
       Screen screen;
       try {
-        screen = menuService.getOptionScreen(option.getName());
+        screen = menuService.getOptionScreen(option.getName(), menu);
       } catch (AWException ex) {
         throw new IllegalArgumentException(ex);
       }
