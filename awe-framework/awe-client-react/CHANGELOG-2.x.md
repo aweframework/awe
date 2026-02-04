@@ -1,3 +1,17 @@
+# Release notes for AWE React 2.1.0
+*04/02/2026*
+ 
+✨ Features:
+- Add select-multiple and suggest-multiple column components. [MR #153](https://gitlab.com/aweframework/awe-react/-/merge_requests/153) (Pablo Javier García Mora)
+- Refactor redux components to avoid storing most of data which doesn't change. [MR #148](https://gitlab.com/aweframework/awe-react/-/merge_requests/148) (Pablo Javier García Mora)
+- Add VirtualController to the Suggest component. [MR #143](https://gitlab.com/aweframework/awe-react/-/merge_requests/143) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- Avatar images doesn't show if context path is defined. [MR #152](https://gitlab.com/aweframework/awe-react/-/merge_requests/152) (Pablo Javier García Mora)
+- Select component must have the first option selected if it's not optional. [MR #151](https://gitlab.com/aweframework/awe-react/-/merge_requests/151) (Pablo Javier García Mora)
+- When launching select action, depending on select values it may overwrite all the values instead of selecting over them. [MR #150](https://gitlab.com/aweframework/awe-react/-/merge_requests/150) (Pablo Javier García Mora)
+- When filling a model, the selected element must be kept to match the new values. [MR #149](https://gitlab.com/aweframework/awe-react/-/merge_requests/149) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.0.11
 *26/01/2026*
  
