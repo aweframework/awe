@@ -3,6 +3,7 @@ package com.almis.awe.service;
 import com.almis.awe.builder.screen.ScreenBuilder;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
@@ -19,6 +20,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -77,7 +79,8 @@ class ScreenServiceTest {
    */
   @Test
   void getScreenDataForReact() throws Exception {
-    when(menuService.getAvailableOptionScreen(eq("MatTst"))).thenReturn(new ScreenBuilder().setId("test-screen").build());
+    when(menuService.getMenu()).thenReturn(new Menu());
+    when(menuService.getAvailableOptionScreen(eq("MatTst"), any(Menu.class))).thenReturn(new ScreenBuilder().setId("test-screen").build());
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getUser()).thenReturn("testUser");
@@ -94,7 +97,8 @@ class ScreenServiceTest {
    */
   @Test
   void getScreenDataForAngular() throws Exception {
-    when(menuService.getDefaultScreen()).thenReturn(new ScreenBuilder().setId("default-screen").build());
+    when(menuService.getMenu()).thenReturn(new Menu());
+    when(menuService.getDefaultScreen(any(Menu.class))).thenReturn(new ScreenBuilder().setId("default-screen").build());
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getUser()).thenReturn("testUser");

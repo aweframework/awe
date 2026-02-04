@@ -125,9 +125,9 @@ public class TemplateConfig {
     return defineGroup(errorListener, "templates.stg");
   }
 
-  /////////////////////////////////////////////
+  // ///////////////////////////////////////////
   // DAO
-  /////////////////////////////////////////////
+  // ///////////////////////////////////////////
 
   /**
    * Template DAO
@@ -143,9 +143,9 @@ public class TemplateConfig {
     return new TemplateDao(menuService, aweElementsDao, helpTemplateGroup);
   }
 
-  /////////////////////////////////////////////
+  // ///////////////////////////////////////////
   // SERVICES
-  /////////////////////////////////////////////
+  // ///////////////////////////////////////////
 
   /**
    * Template service
@@ -176,7 +176,7 @@ public class TemplateConfig {
    */
   @Bean
   @ConditionalOnMissingBean
-  public HelpService helpService(TemplateService templateService) {
-    return new HelpService(templateService, baseConfigProperties);
+  public HelpService helpService(TemplateService templateService, MenuService menuService) {
+    return new HelpService(templateService, menuService, baseConfigProperties);
   }
 }

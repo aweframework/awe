@@ -110,14 +110,17 @@ public class ScreenService extends ServiceConfig {
    * @throws AWException Screen data generation failed
    */
   public ScreenData generateScreenData(String optionId, boolean generateTemplate) throws AWException {
+    // Get menu once to avoid redundant loads
+    Menu menu = menuService.getMenu();
+
     // Get screen
-    Screen screen = getScreenFromOptionId(optionId);
+    Screen screen = getScreenFromOptionId(optionId, menu);
 
     // Initialize screen
     initializeScreenNavigation(screen, optionId);
 
     // Generate map with model and controller data
-    return getScreenData(screen, optionId, generateTemplate);
+    return getScreenData(screen, menu, optionId, generateTemplate);
   }
 
   /**
@@ -127,8 +130,8 @@ public class ScreenService extends ServiceConfig {
    * @return Screen
    * @throws AWException Error retrieving screen
    */
-  private Screen getScreenFromOptionId(String optionId) throws AWException {
-    return optionId == null ? menuService.getDefaultScreen() : menuService.getAvailableOptionScreen(optionId);
+  private Screen getScreenFromOptionId(String optionId, Menu menu) throws AWException {
+    return optionId == null ? menuService.getDefaultScreen(menu) : menuService.getAvailableOptionScreen(optionId, menu);
   }
 
   /**
@@ -204,9 +207,8 @@ public class ScreenService extends ServiceConfig {
    * @return Screen data
    * @throws AWException Error retrieving menu
    */
-  private ScreenData getScreenData(Screen screen, String optionId, boolean generateTemplate) throws AWException {
+  private ScreenData getScreenData(Screen screen, Menu menu, String optionId, boolean generateTemplate) throws AWException {
     ScreenData data = new ScreenData();
-    Menu menu = menuService.getMenu();
 
     // If criteria are cached, add them to parameter map
     ObjectNode storedParameters = getScreenParameters(optionId);
@@ -228,7 +230,7 @@ public class ScreenService extends ServiceConfig {
 
     if (generateTemplate) {
       // Add template to screen data
-      addTemplateToScreenData(screen, data, getRequest().getParameterAsString("view"), optionId);
+      addTemplateToScreenData(screen, menu, data, getRequest().getParameterAsString("view"), optionId);
     } else {
       data.setStructure(screen);
     }
@@ -313,10 +315,13 @@ public class ScreenService extends ServiceConfig {
    * Add template to screen data
    *
    * @param screen   Screen object
+   * @param menu     Menu
    * @param data     Screen data
+   * @param view      View
+   * @param optionId  Option identifier
    */
-  private void addTemplateToScreenData(Screen screen, ScreenData data, String view, String optionId) throws AWException {
-    data.setTemplate(templateService.generateScreenTemplate(screen, view, optionId));
+  private void addTemplateToScreenData(Screen screen, Menu menu, ScreenData data, String view, String optionId) throws AWException {
+    data.setTemplate(templateService.generateScreenTemplate(screen, menu, view, optionId));
   }
 
   /**
@@ -524,10 +529,11 @@ public class ScreenService extends ServiceConfig {
    */
   public ServiceData getTaglistData(String option, String tagListId) throws AWException {
     TagList tagList;
+    Menu menu = menuService.getMenu();
     if (option == null) {
-      tagList = templateService.getTagList(tagListId);
+      tagList = templateService.getTagList(menu, tagListId);
     } else {
-      tagList = templateService.getTagList(option, tagListId);
+      tagList = templateService.getTagList(menu, option, tagListId);
     }
 
     // Get taglist data

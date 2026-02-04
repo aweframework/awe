@@ -74,10 +74,11 @@ public class TemplateService extends ServiceConfig {
   public String getTemplate() throws AWException {
 
     // Get screen from option
-    Screen screen = menuService.getDefaultScreen();
+    Menu menu = menuService.getMenu();
+    Screen screen = menuService.getDefaultScreen(menu);
 
     // Generate screen template
-    return generateScreenTemplate(screen, AweConstants.BASE_VIEW, null);
+    return generateScreenTemplate(screen, menu, AweConstants.BASE_VIEW, null);
   }
 
   /**
@@ -90,26 +91,28 @@ public class TemplateService extends ServiceConfig {
    */
   public String getTemplate(String view, String optionId) throws AWException {
     // Get screen from option
-    Screen screen = menuService.getAvailableOptionScreen(optionId);
+    Menu menu = menuService.getMenu();
+    Screen screen = menuService.getAvailableOptionScreen(optionId, menu);
     if (screen == null) {
       throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"),
         getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
     }
 
     // Generate screen template
-    return generateScreenTemplate(screen, view, optionId);
+    return generateScreenTemplate(screen, menu, view, optionId);
   }
 
   /**
    * Generate screen template
    *
    * @param screen   Screen object
+   * @param menu     Menu
    * @param view     Screen view
    * @param optionId Option identifier
    * @return Screen template
    * @throws AWException Error generating breadcrumbs
    */
-  public String generateScreenTemplate(Screen screen, String view, String optionId) throws AWException {
+  public String generateScreenTemplate(Screen screen, Menu menu, String view, String optionId) throws AWException {
     // Generate template from screen
     ST screenTemplate = screensTemplateGroup.createStringTemplate(screensTemplateGroup.rawGetTemplate(screen.getTemplate()));
 
@@ -125,7 +128,7 @@ public class TemplateService extends ServiceConfig {
 
     // Add breadcrumbs
     if (AweConstants.REPORT_VIEW.equalsIgnoreCase(view)) {
-      screenTemplate.add(AweConstants.TEMPLATE_BREADCRUMBS, generateBreadcrumbTemplate(optionId));
+      screenTemplate.add(AweConstants.TEMPLATE_BREADCRUMBS, generateBreadcrumbTemplate(optionId, menu));
     }
 
     // Retrieve code
@@ -136,13 +139,14 @@ public class TemplateService extends ServiceConfig {
    * Generates screen breadcrumbs
    *
    * @param optionId Option identifier
+   * @param menu     Menu
    * @return Breadcrumbs
    * @throws AWException Error generating breadcrumbs
    */
-  private List<ST> generateBreadcrumbTemplate(String optionId) throws AWException {
+  private List<ST> generateBreadcrumbTemplate(String optionId, Menu menu) throws AWException {
     // Variable definition
     List<ST> breadcrumbs = new ArrayList<>();
-    Option option = menuService.getOptionByName(optionId);
+    Option option = menuService.getOptionByName(optionId, menu);
 
     // Generate breadcrumbs
     if (option != null) {
@@ -171,7 +175,7 @@ public class TemplateService extends ServiceConfig {
     // Generate template from screen
     ST screenTemplate = screensTemplateGroup.createStringTemplate(screensTemplateGroup.rawGetTemplate(AweConstants.HELP_TEMPLATE));
     ST applicationTemplate = helpTemplateGroup.createStringTemplate(helpTemplateGroup.rawGetTemplate(AweConstants.TEMPLATE_HELP_APPLICATION));
-    List<Future<ST>> contents = generateMenuHelp(menu.getElementList(), 1, developers);
+    List<Future<ST>> contents = generateMenuHelp(menu, menu.getElementList(), 1, developers);
 
     // Add application template
     for (Future<ST> content : contents) {
@@ -193,15 +197,16 @@ public class TemplateService extends ServiceConfig {
   /**
    * Generate option help template
    *
+   * @param menu       Menu
    * @param optionId   Option identifier
    * @param developers Help for developers
    * @return Application help template
    * @throws AWException Error generating breadcrumbs
    */
-  public String generateOptionHelpTemplate(String optionId, boolean developers) throws AWException {
+  public String generateOptionHelpTemplate(Menu menu, String optionId, boolean developers) throws AWException {
     // Retrieve code
-    Option option = menuService.getOptionByName(optionId);
-    return templateDao.generateOptionHelp(option, 1, developers).render();
+    Option option = menuService.getOptionByName(optionId, menu);
+    return templateDao.generateOptionHelp(menu, option, 1, developers).render();
   }
 
   /**
@@ -227,7 +232,7 @@ public class TemplateService extends ServiceConfig {
    * @param developers  Help for developers
    * @return Screen template
    */
-  private List<Future<ST>> generateMenuHelp(List<Element> elementList, Integer level, boolean developers) {
+  private List<Future<ST>> generateMenuHelp(Menu menu, List<Element> elementList, Integer level, boolean developers) {
     List<Future<ST>> templateList = new CopyOnWriteArrayList<>();
 
     // Call generate method on all elements
@@ -235,17 +240,16 @@ public class TemplateService extends ServiceConfig {
       Option option = (Option) element;
       if (option.getLabel() != null && !option.isRestricted()) {
         // Generate option template
-        templateList.add(templateDao.generateOptionHelpAsync(option, level, developers));
+        templateList.add(templateDao.generateOptionHelpAsync(menu, option, level, developers));
 
         // Generate the children
-        templateList.addAll(generateMenuHelp(option.getElementList(), level + 1, developers));
+        templateList.addAll(generateMenuHelp(menu, option.getElementList(), level + 1, developers));
       }
     }
 
     // Retrieve code
     return templateList;
   }
-
 
   /**
    * Generates a taglist template from a screen and a taglist id
@@ -255,19 +259,34 @@ public class TemplateService extends ServiceConfig {
    * @throws AWException error generating taglist template
    */
   public TagList getTagList(String tagListId) throws AWException {
-    return getTagList(menuService.getDefaultScreen(), tagListId);
+    Menu menu = menuService.getMenu();
+    return getTagList(menu, tagListId);
+  }
+
+
+  /**
+   * Generates a taglist template from a screen and a taglist id
+   *
+   * @param menu Menu
+   * @param tagListId Taglist identifier
+   * @return Taglist template
+   * @throws AWException error generating taglist template
+   */
+  public TagList getTagList(Menu menu, String tagListId) throws AWException {
+    return getTagList(menuService.getDefaultScreen(menu), tagListId);
   }
 
   /**
    * Generates a taglist template from a screen and a taglist id
    *
+   * @param menu      Menu
    * @param optionId  Option identifier
    * @param tagListId Taglist identifier
    * @return Taglist template
    * @throws AWException error generating taglist template
    */
-  public TagList getTagList(String optionId, String tagListId) throws AWException {
-    Screen screen = menuService.getAvailableOptionScreen(optionId);
+  public TagList getTagList(Menu menu, String optionId, String tagListId) throws AWException {
+    Screen screen = menuService.getAvailableOptionScreen(optionId, menu);
     if (screen == null) {
       throw new AWENotFoundException(getLocale("ERROR_TITLE_OPTION_NOT_DEFINED"), getLocale("ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED", optionId));
     }

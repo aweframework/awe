@@ -6,6 +6,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.menu.Menu;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -22,15 +23,19 @@ public class HelpService extends ServiceConfig {
   // Autowired services
   private final TemplateService templateService;
   private final BaseConfigProperties baseConfigProperties;
+  private final MenuService menuService;
+
 
   /**
    * Autowired constructor
    *
    * @param templateService Template service
+   * @param menuService Menu service
    * @param baseConfigProperties Base configuration properties
    */
-  public HelpService(TemplateService templateService, BaseConfigProperties baseConfigProperties) {
+  public HelpService(TemplateService templateService, MenuService menuService, BaseConfigProperties baseConfigProperties) {
     this.templateService = templateService;
+    this.menuService = menuService;
     this.baseConfigProperties = baseConfigProperties;
   }
 
@@ -65,8 +70,11 @@ public class HelpService extends ServiceConfig {
     String help;
 
     try {
+      // Get menu
+      Menu menu = menuService.getMenu();
+
       // Generate screen help
-      help = templateService.generateOptionHelpTemplate(optionId, false);
+      help = templateService.generateOptionHelpTemplate(menu, optionId, false);
     } catch (AWException exc) {
       help = templateService.generateErrorTemplate(exc);
       exc.log();
