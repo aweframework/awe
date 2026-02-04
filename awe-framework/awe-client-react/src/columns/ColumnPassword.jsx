@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import ColumnTextType from "./ColumnTextType";
+import PropTypes from "prop-types";
 
 function ColumnPassword(props) {
   const { address, ...rest } = props;
@@ -20,5 +21,9 @@ function ColumnPassword(props) {
     />
   );
 }
+
+ColumnPassword.propTypes = {
+  address: PropTypes.object,
+};
 
 export default ColumnPassword;

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
 import {generateServerAction} from "../utilities";
@@ -14,6 +14,7 @@ import {useDispatch} from "react-redux";
 import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
 import {ProgressSpinner} from "primereact/progressspinner";
+import PropTypes from "prop-types";
 
 function AweTreeGrid(props) {
   const { id } = props;
@@ -211,5 +212,9 @@ function AweTreeGrid(props) {
     {contextMenuTemplate()}
   </AweGridContainer>;
 }
+
+AweTreeGrid.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweTreeGrid;

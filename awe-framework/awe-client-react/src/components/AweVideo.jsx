@@ -1,11 +1,11 @@
 import React from "react";
-import { classNames } from "../utilities/components";
+import {classNames} from "../utilities/components";
 import ReactPlayer from 'react-player';
-import { parseBoolean, translateLabel } from "../utilities";
+import {parseBoolean, translateLabel} from "../utilities";
 import "./AweVideo.less";
-import { useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
-import { useTranslation } from "react-i18next";
+import {useComponentState} from "../hooks/useComponentState";
+import {useTranslation} from "react-i18next";
+import PropTypes from "prop-types";
 
 function AweVideo(props) {
   const { id } = props;
@@ -24,5 +24,9 @@ function AweVideo(props) {
     loop={loop}
     title={translateLabel(title, t)} /> : <></>;
 }
+
+AweVideo.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweVideo;

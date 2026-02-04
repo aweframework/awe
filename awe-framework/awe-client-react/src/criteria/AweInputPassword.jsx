@@ -1,10 +1,11 @@
 import React from "react";
-import { InputText } from "primereact/inputtext";
-import { classNames } from "../utilities/components";
-import { translateLabel } from "../utilities";
-import { useTranslation } from "react-i18next";
+import {InputText} from "primereact/inputtext";
+import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
+import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
+import PropTypes from "prop-types";
 
 function AweInputPassword(props) {
   const { id } = props;
@@ -31,5 +32,9 @@ function AweInputPassword(props) {
     </AweCriterion>
   );
 }
+
+AweInputPassword.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputPassword;

@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
-import { extractCellValue } from "../utilities/grid";
-import { isEmpty } from "../utilities/general";
-import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
-import { updateAttributes } from "../redux/actions/components";
-import { classNames } from "../utilities/components";
+import {extractCellValue} from "../utilities/grid";
+import {isEmpty} from "../utilities/general";
+import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
+import {useComponentState} from "../hooks/useComponentState";
+import {updateAttributes} from "../redux/actions/components";
+import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 /**
  * Read value list
@@ -82,5 +83,9 @@ function AwePivotTable(props) {
     />
   </div>);
 }
+
+AwePivotTable.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AwePivotTable;

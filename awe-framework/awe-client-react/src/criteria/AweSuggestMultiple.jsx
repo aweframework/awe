@@ -1,14 +1,14 @@
-import React, { useRef, useState } from "react";
-import { AutoComplete } from "primereact/autocomplete";
-import { classNames } from "../utilities/components";
+import React, {useRef, useState} from "react";
+import {AutoComplete} from "primereact/autocomplete";
+import {classNames} from "../utilities/components";
 import "./AweSuggest.less";
-import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
+import {useTranslation} from "react-i18next";
+import {useComponentState} from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
-import { translateLabel } from "../utilities";
+import {translateLabel} from "../utilities";
 import useComponent from "../hooks/useComponent";
+import PropTypes from "prop-types";
 
 function AweSuggestMultiple(props) {
   const { id } = props;
@@ -48,5 +48,9 @@ function AweSuggestMultiple(props) {
     </AweCriterion>
   );
 }
+
+AweSuggestMultiple.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweSuggestMultiple;

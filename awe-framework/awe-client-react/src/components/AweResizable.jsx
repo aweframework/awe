@@ -2,6 +2,7 @@ import React from "react";
 import {Splitter, SplitterPanel} from "primereact/splitter";
 import SizeRegistry from "../redux/registry/SizeRegistry";
 import {Components} from "../utilities/structure";
+import PropTypes from "prop-types";
 
 function Resizable(props) {
 
@@ -20,5 +21,11 @@ function Resizable(props) {
       className="expand expandible-vertical scrollable">{Components(node, index)}</SplitterPanel>)}
   </Splitter>;
 }
+
+Resizable.propTypes = {
+  directions: PropTypes.any,
+  elementList: PropTypes.any,
+  style: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+};
 
 export default Resizable;

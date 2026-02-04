@@ -10,6 +10,7 @@ import {fromColor, toColor} from "../utilities/color";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import {useTranslation} from "react-i18next";
+import PropTypes from "prop-types";
 
 function AweInputColor(props) {
   const { id } = props;
@@ -64,5 +65,9 @@ function AweInputColor(props) {
     </AweCriterion>
   );
 }
+
+AweInputColor.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputColor;

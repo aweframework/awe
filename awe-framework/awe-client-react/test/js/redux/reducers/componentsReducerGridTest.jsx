@@ -1,14 +1,6 @@
 /* eslint-disable */
-import { components } from '../../../../src/redux/reducers/componentsReducer';
-import { getComponentId } from '../../../../src/utilities/components';
-import {
-  UPDATE_MODEL,
-  UPDATE_ROW_MODEL,
-  KEEP_ROW_MODEL,
-  KEEP_MODEL,
-  RESET_MODEL,
-  RESTORE_ATTRIBUTE
-} from '../../../../src/redux/actions/components';
+import {components} from '../../../../src/redux/reducers/componentsReducer';
+import {RESET_MODEL, RESTORE_ATTRIBUTE, UPDATE_MODEL, UPDATE_ROW_MODEL} from '../../../../src/redux/actions/components';
 
 /**
  * Additional grid-focused coverage for componentsReducer
@@ -82,6 +74,37 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerGridTest.jsx'
     const row1 = newState.grid.model.values.find(r => String(r.id) === '1');
     expect(row1.colA).toBeDefined();
     expect(row1.colA.value).toBe('A');
+  });
+
+  it('keeps list values when updating a multiple column cell model', () => {
+    const state = {
+      ...baseGrid,
+      grid: {
+        ...baseGrid.grid,
+        attributes: {
+          ...baseGrid.grid.attributes,
+          columnModel: [
+            { name: 'colA', id: 'colA', component: 'select-multiple', model: { values: [{ value: 'A', label: 'A' }, { value: 'B', label: 'B' }] } }
+          ]
+        },
+        model: {
+          ...baseGrid.grid.model,
+          values: [
+            { id: 1, colA: [] }
+          ]
+        }
+      }
+    };
+
+    const newState = components(state, {
+      type: UPDATE_MODEL,
+      address: { component: 'grid', view: 'base', row: 1, column: 'colA' },
+      data: { values: [{ value: 'A', selected: true }, { value: 'B', selected: true }] }
+    });
+
+    const row1 = newState.grid.model.values.find(r => String(r.id) === '1');
+    expect(Array.isArray(row1.colA)).toBe(true);
+    expect(row1.colA.map(item => item.value)).toEqual(['A', 'B']);
   });
 
   it('updates selected rows on grid (updateSelectedGrid path)', () => {

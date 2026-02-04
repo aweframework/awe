@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Calendar } from "primereact/calendar";
-import { translateLabel } from "../utilities";
-import { classNames } from "../utilities/components";
-import { fromDate, getAvailableDates, getDisabledDates, getMaxDate, getMinDate, toDate } from "../utilities/dates";
-import { useDispatch } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
+import React, {useCallback, useEffect, useState} from "react";
+import {Calendar} from "primereact/calendar";
+import {translateLabel} from "../utilities";
+import {classNames} from "../utilities/components";
+import {fromDate, getAvailableDates, getDisabledDates, getMaxDate, getMinDate, toDate} from "../utilities/dates";
+import {useDispatch} from "react-redux";
+import {useTranslation} from "react-i18next";
+import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
+import PropTypes from "prop-types";
 
 function AweInputFilteredDate(props) {
   const { id } = props;
@@ -62,5 +63,9 @@ function AweInputFilteredDate(props) {
     </AweCriterion>
   );
 }
+
+AweInputFilteredDate.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputFilteredDate;

@@ -3,6 +3,7 @@ import {SelectButton} from "primereact/selectbutton";
 import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
 import classNames from "classnames";
+import PropTypes from "prop-types";
 
 function AweButtonRadio(props) {
   const { id } = props;
@@ -23,5 +24,9 @@ function AweButtonRadio(props) {
     </AweCriterion>
   );
 }
+
+AweButtonRadio.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweButtonRadio;

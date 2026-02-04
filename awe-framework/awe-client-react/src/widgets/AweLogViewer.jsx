@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { LazyLog } from 'react-lazylog';
-import { getIconCode } from "../utilities";
-import { Button } from "primereact/button";
+import React, {useCallback, useEffect, useRef, useState} from "react";
+import {LazyLog} from 'react-lazylog';
+import {getIconCode} from "../utilities";
+import {Button} from "primereact/button";
 import "./AweLogViewer.less";
-import { useDispatch, useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
-import { updateAttributes } from "../redux/actions/components";
-import { fetchLogAction } from "../redux/thunks/files";
+import {useDispatch} from "react-redux";
+import {useComponentState} from "../hooks/useComponentState";
+import {updateAttributes} from "../redux/actions/components";
+import {fetchLogAction} from "../redux/thunks/files";
+import PropTypes from "prop-types";
 
 /**
  * AWE Log Viewer component
@@ -63,5 +64,9 @@ function AweLogViewer(props) {
     </div>
   </div> : <></>;
 }
+
+AweLogViewer.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweLogViewer;

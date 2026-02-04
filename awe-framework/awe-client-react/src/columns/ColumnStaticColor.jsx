@@ -1,5 +1,6 @@
 import React from "react";
 import {classNames} from "../utilities/components";
+import PropTypes from "prop-types";
 
 function ColumnStaticColor(props) {
   const {data, style} = props;
@@ -10,5 +11,10 @@ function ColumnStaticColor(props) {
     {value && <span className={classes} style={{backgroundColor: value || null}}/>}
   </>;
 }
+
+ColumnStaticColor.propTypes = {
+  data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  style: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+};
 
 export default ColumnStaticColor;

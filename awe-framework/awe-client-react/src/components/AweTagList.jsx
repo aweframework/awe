@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { translateLabel } from "../utilities";
-import { classNames, parseValidationRules } from "../utilities/components";
-import { Components } from "../utilities/structure";
-import { useTranslation } from "react-i18next";
-import { updateMultipleComponentsWithDependencies } from "../redux/thunks/components";
-import { useDispatch, useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
+import React, {useEffect, useState} from "react";
+import {translateLabel} from "../utilities";
+import {classNames, parseValidationRules} from "../utilities/components";
+import {Components} from "../utilities/structure";
+import {useTranslation} from "react-i18next";
+import {updateMultipleComponentsWithDependencies} from "../redux/thunks/components";
+import {useDispatch} from "react-redux";
+import {useComponentState} from "../hooks/useComponentState";
 import useComponent from "../hooks/useComponent";
+import PropTypes from "prop-types";
 
 function generateTagListRow(elements, row) {
   let template = JSON.stringify(elements);
@@ -70,5 +71,11 @@ function AweTagList(props) {
     children: [...[translateLabel(label, t)], ...((tagList || []).map((node, index) => Components(node, index)))]
   });
 }
+
+AweTagList.propTypes = {
+  elementList: PropTypes.any,
+  id: PropTypes.string,
+  type: PropTypes.any,
+};
 
 export default AweTagList;

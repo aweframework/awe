@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { classNames } from "../utilities/components";
-import { PDFObject } from 'react-pdfobject';
+import React, {useCallback, useEffect, useState} from "react";
+import {classNames} from "../utilities/components";
+import {PDFObject} from 'react-pdfobject';
 import "./AwePdfViewer.less";
-import { Skeleton } from "primereact/skeleton";
-import { useDispatch, useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
-import { fetchPdfAction } from "../redux/thunks/files";
+import {Skeleton} from "primereact/skeleton";
+import {useDispatch} from "react-redux";
+import {useComponentState} from "../hooks/useComponentState";
+import {fetchPdfAction} from "../redux/thunks/files";
+import PropTypes from "prop-types";
 
 /**
  * AWE PDF viewer component
@@ -45,5 +46,9 @@ function AwePdfViewer(props) {
     {getPdfTemplate(pdf)}
   </div> : <></>;
 }
+
+AwePdfViewer.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AwePdfViewer;

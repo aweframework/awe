@@ -104,6 +104,8 @@
         </column>
         <column label="PARAMETER_TIME" name="Tim" sort-field="Tim" align="center" component="time" charlength="14" />
         <column label="PARAMETER_LINK" name="Link" sort-field="Link" align="center" component="link" charlength="30" />
+        <column label="PARAMETER_SELECT_MULTIPLE" name="SelectMultiple" sort-field="SelectMultiple" align="center" component="select-multiple" initial-load="query" target-action="QryEdiSug" charlength="30" />
+        <column label="PARAMETER_SUGGEST_MULTIPLE" name="SuggestMultiple" sort-field="SuggestMultiple" align="center" component="suggest-multiple" server-action="data" target-action="QryEdiSug" charlength="20" />
         <group-header name="GrpHea1" label="PARAMETER_TEXT">
           <column label="PARAMETER_SUGGEST" name="Sug" sort-field="Sug" align="left" component="suggest" server-action="data" target-action="QryEdiSug" charlength="20" />
           <column label="PARAMETER_SELECT" name="Sel" sort-field="Sel" align="left" component="select" initial-load="enum" target-action="Es1Es0" optional="true" charlength="20" type="string">

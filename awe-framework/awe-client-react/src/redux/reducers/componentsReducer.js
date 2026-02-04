@@ -28,7 +28,7 @@ import {
   VALIDATE_ROW,
 } from '../actions/components';
 import ComponentRegistry from '../registry/ComponentRegistry';
-import { calculateDeltas, mergeComponentState } from '../../utilities/mergeUtils';
+import {calculateDeltas, mergeComponentState} from '../../utilities/mergeUtils';
 
 import {
   calculateFooterValue,
@@ -39,10 +39,10 @@ import {
 } from "../../utilities/grid";
 
 import _ from 'lodash';
-import { validateComponent, validateRow } from "./validation";
-import { asArray, updateArrayElement } from "../../utilities";
-import { ComponentAddressType, getAddressType, getComponentId } from "../../utilities/components";
-import { getFirstDefinedValue, isEmpty } from "../../utilities/general";
+import {validateComponent, validateRow} from "./validation";
+import {asArray, updateArrayElement} from "../../utilities";
+import {ComponentAddressType, getAddressType, getComponentId} from "../../utilities/components";
+import {getFirstDefinedValue, isEmpty, isMultipleComponent} from "../../utilities/general";
 
 const { ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT } = ComponentAddressType;
 
@@ -1114,10 +1114,12 @@ function updateCellModel(state, address, data, settings) {
   if (!context) return state;
 
   const { values, rowIndex, rowData, attributes } = context;
-  const newData = getCellModel(
-    getFirstDefinedValue(data.values, values[rowIndex][address.column]),
-    attributes.columnModel?.find(column => column.name === address.column)
-  );
+  const column = attributes.columnModel?.find(column => column.name === address.column) || {};
+  const rawValue = getFirstDefinedValue(data.values, values[rowIndex][address.column]);
+  const isMultiple = isMultipleComponent(column.component);
+  const newData = isMultiple
+    ? (Array.isArray(rawValue) ? rawValue : [])
+    : getCellModel(rawValue, column);
   const cellAttrs = rowData.$attrs?.[address.column] || {};
   const { error, ...otherAttrs } = cellAttrs;
   const nextValues = updateArrayElement(values, rowIndex, {

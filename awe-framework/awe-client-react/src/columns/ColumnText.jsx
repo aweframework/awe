@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import ColumnTextType from "./ColumnTextType";
+import PropTypes from "prop-types";
 
 function ColumnText(props) {
   const { address, t: tProp, updateModelWithDependencies: updProp, ...rest } = props;
@@ -23,5 +24,11 @@ function ColumnText(props) {
     />
   );
 }
+
+ColumnText.propTypes = {
+  address: PropTypes.object,
+  t: PropTypes.func,
+  updateModelWithDependencies: PropTypes.any,
+};
 
 export default ColumnText;

@@ -1,11 +1,11 @@
 import React from 'react';
 import {ComponentList, IGNORE_COMPONENT_LIST} from "../components/AweComponents";
 import {CriteriaList} from "../criteria/AweCriteria";
-import {getComponentId, classNames} from "./components";
+import {classNames, getComponentId} from "./components";
 import {Editor, Static} from "../columns/AweColumns";
 import parse from "html-react-parser";
 import {extractCellModel} from "./grid";
-import {getFirstDefinedAndNotNullValue} from "./general";
+import {getFirstDefinedAndNotNullValue, isMultipleComponent} from "./general";
 
 /**
  * Retrieves the first element from the provided list that matches the specified source.
@@ -77,7 +77,8 @@ export const Criteria = (node, index) => {
  */
 export const Columns = (node, data = {}, attrs = {}, editing = false) => {
   const {component} = node;
-  let fixedData = extractCellModel(data);
+  const isMultiple = isMultipleComponent(component);
+  let fixedData = isMultiple ? data : extractCellModel(data);
   if (editing && typeof Editor[component] !== "undefined") {
     return React.createElement(Editor[component], {
       ...node,
@@ -92,6 +93,16 @@ export const Columns = (node, data = {}, attrs = {}, editing = false) => {
       data: fixedData,
       attrs
     });
+  }
+  if (Array.isArray(fixedData)) {
+    const selectedItems = fixedData.filter(item => item?.selected);
+    const items = selectedItems.length > 0 ? selectedItems : fixedData;
+    const visibleValue = items
+      .map(item => getFirstDefinedAndNotNullValue(item?.label, item?.value, ""))
+      .filter(value => value !== "")
+      .join(", ");
+    const className = classNames("p-cell-text", "white-space-nowrap", "p-text-truncate");
+    return <span className={className} title={visibleValue}>{parse(String(visibleValue))}</span>;
   }
   const {label, value, style} = fixedData;
   const visibleValue = getFirstDefinedAndNotNullValue(label, value, "");

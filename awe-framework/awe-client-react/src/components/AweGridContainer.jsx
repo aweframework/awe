@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import { useScreenSize } from "../hooks/useSizeRegistry";
+import {useScreenSize} from "../hooks/useSizeRegistry";
+import PropTypes from "prop-types";
 
 /**
  * AWE Grid Container component (functional)
@@ -57,5 +58,12 @@ function AweGridContainer(props) {
     </div>
   );
 }
+
+AweGridContainer.propTypes = {
+  children: PropTypes.node,
+  onContextMenu: PropTypes.any,
+  onKeyCancelRow: PropTypes.any,
+  onKeySaveRow: PropTypes.any,
+};
 
 export default AweGridContainer;

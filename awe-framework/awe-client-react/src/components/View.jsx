@@ -1,10 +1,11 @@
 import React, {useEffect} from "react";
 import ViewContainer from "../containers/ViewContainer";
-import { Routes, Route } from 'react-router';
+import {Route, Routes} from 'react-router';
 import SubViewContainer from "../containers/SubViewContainer";
 import {useDispatch, useSelector} from "react-redux";
 import {updateSettings} from "../redux/actions/settings";
-import { navigationActions } from "../redux/actions/navigation";
+import {navigationActions} from "../redux/actions/navigation";
+import PropTypes from "prop-types";
 
 const routes = [
   {path: "/screen/public/:screenId", subroutes: [{path: ":subScreenId"}]},
@@ -37,5 +38,11 @@ function View(props) {
       </Routes>
   );
 }
+
+View.propTypes = {
+  initialURL: PropTypes.string,
+  reloadCurrentScreen: PropTypes.bool,
+  name: PropTypes.string
+};
 
 export default View;

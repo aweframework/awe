@@ -2,6 +2,7 @@ import React from "react";
 import {getSource, getSourceChildren} from "../utilities/structure";
 
 import "./WindowTemplate.css";
+import PropTypes from "prop-types";
 
 function DocumentTemplate(props) {
 
@@ -23,4 +24,8 @@ function DocumentTemplate(props) {
 }
 
 // Connect redux store updates
+DocumentTemplate.propTypes = {
+  elementList: PropTypes.any,
+};
+
 export default DocumentTemplate;

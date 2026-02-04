@@ -5,6 +5,7 @@ import {classNames} from "../utilities/components";
 import {translateLabel} from "../utilities";
 import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
+import PropTypes from "prop-types";
 
 function AweInputRadio(props) {
   const { id } = props;
@@ -32,5 +33,9 @@ function AweInputRadio(props) {
     </AweCriterion>
   );
 }
+
+AweInputRadio.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputRadio;

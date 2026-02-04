@@ -11,6 +11,7 @@ import useText from "../hooks/useText";
 import {useDispatch} from "react-redux";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import {useTranslation} from "react-i18next";
+import PropTypes from "prop-types";
 
 function AweInputNumeric(props) {
   const { id } = props;
@@ -86,5 +87,9 @@ function AweInputNumeric(props) {
     </AweCriterion>
   );
 }
+
+AweInputNumeric.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputNumeric;

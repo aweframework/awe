@@ -1,13 +1,14 @@
-import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useComponentState } from "../hooks/useComponentState";
-import { useTranslation } from "react-i18next";
-import { getIconCode, getVisibleTextData, translateLabel } from "../utilities";
-import { classNames } from "../utilities/components";
-import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
-import { addActionsTop } from "../redux/actions/actions";
+import React, {useCallback} from "react";
+import {useDispatch} from "react-redux";
+import {useComponentState} from "../hooks/useComponentState";
+import {useTranslation} from "react-i18next";
+import {getIconCode, getVisibleTextData, translateLabel} from "../utilities";
+import {classNames} from "../utilities/components";
+import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
+import {addActionsTop} from "../redux/actions/actions";
 import AweCriterion from "./AweCriterion";
 import useComponent from "../hooks/useComponent";
+import PropTypes from "prop-types";
 
 function AweInputTextView(props) {
   const { id } = props;
@@ -42,5 +43,9 @@ function AweInputTextView(props) {
     </AweCriterion>
   );
 }
+
+AweInputTextView.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputTextView;

@@ -1,10 +1,11 @@
 import React from "react";
-import { InputTextarea } from "primereact/inputtextarea";
-import { classNames } from "../utilities/components";
-import { translateLabel } from "../utilities";
-import { useTranslation } from "react-i18next";
+import {InputTextarea} from "primereact/inputtextarea";
+import {classNames} from "../utilities/components";
+import {translateLabel} from "../utilities";
+import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
+import PropTypes from "prop-types";
 
 function AweInputTextarea(props) {
   const { id } = props;
@@ -31,5 +32,9 @@ function AweInputTextarea(props) {
     </AweCriterion>
   );
 }
+
+AweInputTextarea.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputTextarea;

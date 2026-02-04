@@ -40,6 +40,17 @@ export const ComponentType = {
 };
 
 /**
+ * Check if a component type supports multiple selection
+ * @param {string} component Component type
+ * @returns {boolean}
+ */
+export function isMultipleComponent(component) {
+  return component === ComponentType.COMPONENT_SELECT_MULTIPLE
+    || component === ComponentType.COMPONENT_SUGGEST_MULTIPLE
+    || component === ComponentType.COMPONENT_PICKLIST;
+}
+
+/**
  * Compare if two values are equal
  * @param {type} value1
  * @param {type} value2

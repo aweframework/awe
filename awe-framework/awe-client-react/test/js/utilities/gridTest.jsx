@@ -1,9 +1,12 @@
 import {
+  extractCellLabels,
+  extractCellValues,
   filterRow,
   getCell,
   getCellAttribute,
   getCellModel,
   getDirection,
+  getGridData,
   getWidthStyle,
   sortRow
 } from '../../../src/utilities/grid';
@@ -131,6 +134,42 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     expect(getCellModel([{value:"1"}, {value: "2"}, {value: "3"}], null)).toEqual({value: null});
     expect(getCellModel({value:"1", label: "test"}, null)).toEqual({value: "1", label: "test"});
     expect(getCellModel("value1", colModel)).toEqual( {id: "row1", value: "value1", label: "label1"});
+  });
+
+  it('should extract cell values for multiple cells', () => {
+    expect(extractCellValues([
+      {value: "1", selected: true},
+      {value: "2", selected: true}
+    ])).toEqual(["1", "2"]);
+    expect(extractCellValues({value: "x"})).toBe("x");
+  });
+
+  it('should extract cell labels for multiple cells', () => {
+    expect(extractCellLabels([
+      {value: "1", label: "One", selected: true},
+      {value: "2", label: "Two", selected: true}
+    ])).toBe("One, Two");
+    expect(extractCellLabels({value: "x", label: "Ex"})).toBe("Ex");
+  });
+
+  it('should return list values in getGridData for multiple columns', () => {
+    const grid = {
+      address: {component: "grid", view: "base"},
+      attributes: {
+        id: "id",
+        sendAll: true,
+        columnModel: [
+          {name: "tags", sendable: true, component: "select-multiple"}
+        ]
+      }
+    };
+    const model = {
+      values: [
+        {id: 1, tags: [{value: "a", selected: true}, {value: "b", selected: true}]}
+      ]
+    };
+    const data = getGridData(grid, model, {}, false);
+    expect(data.tags).toEqual([["a", "b"]]);
   });
 
 });

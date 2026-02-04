@@ -4,6 +4,7 @@ import {classNames} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import parse from 'html-react-parser';
 import {translateLabel} from "../utilities";
+import PropTypes from "prop-types";
 
 function Tag(props) {
   const {type, id, style, label, expand, elementList, value} = props;
@@ -17,5 +18,15 @@ function Tag(props) {
       {children: [parse(translateLabel(label, t) || ""), value]})
   });
 }
+
+Tag.propTypes = {
+  elementList: PropTypes.any,
+  expand: PropTypes.any,
+  id: PropTypes.string,
+  label: PropTypes.string,
+  style: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  type: PropTypes.any,
+  value: PropTypes.any,
+};
 
 export default Tag;

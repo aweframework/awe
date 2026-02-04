@@ -4,6 +4,7 @@ import {classNames} from "../utilities/components";
 
 import {ActionStatus} from "../redux/actions/actions";
 import {Button} from "primereact/button";
+import PropTypes from "prop-types";
 
 const {STATUS_RUNNING, STATUS_STARTED} = ActionStatus;
 
@@ -80,3 +81,7 @@ export function StackList({elements, type, stacks}) {
   }
   return <div className={"stack " + type + "-zone"}>{stackList}</div>;
 }
+
+Action.propTypes = {
+  parameters: PropTypes.any,
+};

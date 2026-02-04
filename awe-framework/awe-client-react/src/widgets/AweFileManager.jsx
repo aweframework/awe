@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 /**
  * AWE File Manager component
@@ -10,5 +11,9 @@ function AweFileManager(props) {
     <iframe src={"/fm/home"} className={"expand"} style={{border: "none"}}/>
   </div>;
 }
+
+AweFileManager.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweFileManager;

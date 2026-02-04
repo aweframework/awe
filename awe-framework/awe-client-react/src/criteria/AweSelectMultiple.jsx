@@ -4,6 +4,7 @@ import {MultiSelect} from "primereact/multiselect";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
 import {useSelect} from "../hooks/useSelect";
+import PropTypes from "prop-types";
 
 function AweSelectMultiple(props) {
 
@@ -34,5 +35,9 @@ function AweSelectMultiple(props) {
       />
     </AweCriterion>;
 }
+
+AweSelectMultiple.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweSelectMultiple;

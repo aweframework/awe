@@ -2,41 +2,54 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {classNames} from "../utilities/components";
 import useSuggest from "../hooks/useSuggest";
-import {getCellSuggestData} from "../utilities/grid";
-import PropTypes from "prop-types";
 import ColumnSuggestInput from "./ColumnSuggestInput";
+import PropTypes from "prop-types";
 
-function ColumnSuggest(props) {
+function ColumnSuggestMultiple(props) {
 
   const { placeholder, label, style, required, readonly, model, data, attrs, timeout } = props;
-  const {style: cellStyle} = data;
+  const cellStyle = Array.isArray(data) ? null : data?.style;
   const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
   const classes = classNames(style, cellStyle, "column-editor", {"p-invalid": error}, {"hidden": !visible});
   const {t} = useTranslation();
   const autocompleteRef = useRef(null);
-  const columnModel = useMemo(() => getCellSuggestData(model, data), [model, data]);
+  const selectedItems = useMemo(() => {
+    if (Array.isArray(data)) {
+      const selected = data.filter(item => item?.selected);
+      return selected.length > 0 ? selected : data;
+    }
+    if (data?.value !== undefined && data?.value !== null) {
+      return [data];
+    }
+    return [];
+  }, [data]);
+  const columnModel = useMemo(() => {
+    const merged = [...(model?.values ?? []), ...selectedItems]
+      .map(item => ({...item, label: item.label || item.value}));
+    const seen = new Set();
+    return merged.filter(item => {
+      const key = String(item.value);
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }, [model?.values, selectedItems]);
   const [suggestions, setSuggestions] = useState(columnModel);
-  const [value, setValue] = useState({});
+  const [value, setValue] = useState([]);
 
-  const {onChange, onClear, onKeyPress, onSuggest, initialSuggest} = useSuggest(autocompleteRef, setSuggestions, value, setValue, props);
+  const {onChange, onClear, onKeyPress, onSuggest} =
+    useSuggest(autocompleteRef, setSuggestions, value, setValue, props);
 
-  // Change model values if updated
   useEffect(() => {
-    const fixedValues = columnModel
-      .map(item => ({...item, label: item.label || item.value, needsInit: !("label" in item)}))
-      .find(item => item.selected) || {};
-    setValue(fixedValues);
+    setSuggestions(columnModel);
   }, [columnModel]);
 
-  // Initial suggest
   useEffect(() => {
-    const {checkTarget, targetAction} = props;
-    if ((checkTarget || targetAction) && value?.needsInit) {
-      initialSuggest(value.value)
-        .then(() => setValue(prev => ({...prev, needsInit: false})));
-    }
-  }, [value]);
+    setValue(selectedItems.map(item => ({...item, label: item.label || item.value})));
+  }, [selectedItems]);
 
   return (
     <ColumnSuggestInput
@@ -56,15 +69,14 @@ function ColumnSuggest(props) {
       suggestions={suggestions}
       onSuggest={onSuggest}
       classes={classes}
-      multiple={false}
+      multiple={true}
       t={t}
     />
   );
 }
 
-ColumnSuggest.propTypes = {
+ColumnSuggestMultiple.propTypes = {
   attrs: PropTypes.object,
-  checkTarget: PropTypes.any,
   data: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   label: PropTypes.string,
   model: PropTypes.object,
@@ -72,8 +84,7 @@ ColumnSuggest.propTypes = {
   readonly: PropTypes.bool,
   required: PropTypes.bool,
   style: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  targetAction: PropTypes.any,
   timeout: PropTypes.number,
 };
 
-export default ColumnSuggest;
+export default ColumnSuggestMultiple;

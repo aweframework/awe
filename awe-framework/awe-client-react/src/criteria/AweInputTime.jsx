@@ -8,6 +8,7 @@ import {useTranslation} from "react-i18next";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
+import PropTypes from "prop-types";
 
 function AweInputTime(props) {
   const { id } = props;
@@ -42,5 +43,9 @@ function AweInputTime(props) {
     </AweCriterion>
   );
 }
+
+AweInputTime.propTypes = {
+  id: PropTypes.string,
+};
 
 export default AweInputTime;
