@@ -44,7 +44,11 @@
             <dependency-action type="value" target="RadBoxButGrp" value="Radio1"/>
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true,maxlength:{value: 4, type: 'integer'}}"/>
+        <criteria label="PARAMETER_TEXT" id="TxtReq" variable="TxtReq" component="text" style="col-xs-6 col-sm-3 col-lg-2" validation="{required:true,maxlength:{value: 4, type: 'integer'}}">
+          <dependency source-type="value" target-type="validate" value="{gt:{value:0, type:'integer'}}">
+            <dependency-element id="Txt" condition="eq" value="valida"/>
+          </dependency>
+        </criteria>
         <criteria label="PARAMETER_TEXT_READONLY" id="TxtRea" variable="TxtRea" component="text" readonly="true" style="col-xs-6 col-sm-3 col-lg-2" initial-load="value" target-action="FilCalDat" unit="PARAMETER_TEXT">
           <dependency source-type="launcher" target-type="input" target-action="language">
             <dependency-element id="language" view="base" attribute="text" alias="language"/>
@@ -110,11 +114,14 @@
           </dependency>
           <dependency initial="true">
             <dependency-element id="Txt" condition="eq" value="rellenaSelector"/>
-            <dependency-action type="server" server-action="value" target-action="PrnAct" target="Sel"/>
+            <dependency-action type="server" server-action="data" target-action="PrnAct" target="Sel"/>
           </dependency>
           <dependency initial="true">
             <dependency-element id="Sel" condition="eq" value="1"/>
             <dependency-action type="remove-class" target=".window-buttons" target-action="hidden"/>
+          </dependency>
+          <dependency source-type="reset" target-type="input">
+            <dependency-element id="Txt" condition="eq" value="borraSelector" />
           </dependency>
         </criteria>
         <criteria label="PARAMETER_SELECT" id="SelReq" variable="SelReq" component="select" style="col-xs-6 col-sm-3 col-lg-2" initial-load="enum" target-action="Es1Es0" optional="true" validation="required" unit="PARAMETER_TEXT">
@@ -124,6 +131,9 @@
           <dependency>
             <dependency-element id="Txt" condition="eq" value="sino" />
             <dependency-action type="server" server-action="data" target-action="Es1Es0"/>
+          </dependency>
+          <dependency source-type="reset" target-type="input">
+            <dependency-element id="Txt" condition="eq" value="borraSelectorRequired" />
           </dependency>
         </criteria>
         <criteria label="PARAMETER_SELECT_READONLY" id="SelRea" variable="SelRea" component="select" style="col-xs-6 col-sm-3 col-lg-2" initial-load="enum" target-action="Es1Es0" readonly="true" />

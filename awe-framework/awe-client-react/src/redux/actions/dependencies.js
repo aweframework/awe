@@ -1,6 +1,7 @@
 // Globals
 import _ from "lodash";
 import {
+  resetMultipleModel,
   restoreMultipleAttributes,
   restoreMultipleValidation,
   updateMultipleAttributes,
@@ -8,27 +9,23 @@ import {
   updateMultipleValidation
 } from "./components";
 
-import { addActionsTop } from "./actions";
-import {
-  asArray,
-  componentValue,
-  formule,
-  generateAddress,
-  generateServerAction
-} from "../../utilities";
-import { getAllComponents } from "../selectors/componentSelectors";
-import { getDependencyComponentId, getTriggerId } from "../../utilities/components";
+import {addActionsTop} from "./actions";
+import {asArray, componentValue, formule, generateAddress, generateServerAction} from "../../utilities";
+import {getAllComponents} from "../selectors/componentSelectors";
+import {getDependencyComponentId, getTriggerId, parseValidationRules} from "../../utilities/components";
 import ViewRegistry from "../registry/ViewRegistry";
 import {
   getCellAttribute,
   getCellValue,
   getEditingRow,
   getEditingRowIndex,
-  getExistingIndex, getFooterValue,
-  getGridIdentifier, getRowIndex,
+  getExistingIndex,
+  getFooterValue,
+  getGridIdentifier,
+  getRowIndex,
   getSelectedRowIndex
 } from "../../utilities/grid";
-import { compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell } from "../../utilities/general";
+import {compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell} from "../../utilities/general";
 
 /**
  * Manage action list
@@ -43,6 +40,7 @@ const DISPATCH_FUNCTIONS = {
   updateAttributes: updateMultipleAttributes,
   updateValidation: updateMultipleValidation,
   updateModel: updateMultipleModels,
+  resetModel: resetMultipleModel,
   restoreAttributes: restoreMultipleAttributes,
   restoreValidation: restoreMultipleValidation,
   addActions
@@ -50,6 +48,7 @@ const DISPATCH_FUNCTIONS = {
 
 const VALUE_DEFERRED = "[[ DEFERRED ]]";
 const VALUE_NONE = "[[ NONE ]]";
+const VALUE_RESET = "[[ RESET ]]";
 
 const DEPENDENCY_VALUES = {};
 
@@ -117,6 +116,14 @@ function generateModelHash(values = [], page = 1, max = null) {
   const code = extractValues(values).join('');
   return hashCode(`${page}_${code}`);
 
+}
+
+function hashContext(context) {
+  if (!context || context.length === 0) {
+    return null;
+  }
+  const code = extractValues(context).join('');
+  return hashCode(code);
 }
 
 /**
@@ -319,7 +326,7 @@ function getTriggers(element, component) {
   let triggers = [];
 
   // Don't check changes if not defined, unless it's an event trigger
-  if (!element.checkChanges && !element.event) {
+  if (element.checkChanges === false && !element.event) {
     return triggers;
   }
 
@@ -339,6 +346,50 @@ function getTriggers(element, component) {
   }
 
   return triggers;
+}
+
+const MODEL_CONTEXT_ATTRIBUTES = new Set([
+  "selectedRows",
+  "selectedRowValue",
+  "currentRowValue",
+  "prevCurrentRowValue",
+  "nextCurrentRowValue",
+  "prevRowValue",
+  "nextRowValue",
+  "selectedRow",
+  "currentRow",
+  "prevCurrentRow",
+  "nextCurrentRow",
+  "prevRow",
+  "nextRow"
+]);
+
+function getTriggerModelContext(trigger, state) {
+  if (!MODEL_CONTEXT_ATTRIBUTES.has(trigger.attribute)) {
+    return null;
+  }
+
+  const allComponents = getAllComponents(state);
+  const componentId = trigger.address.component;
+  if (!(componentId in allComponents) && !isGroup(componentId, allComponents)) {
+    return null;
+  }
+
+  const component = getComponent(componentId, allComponents);
+  const modelVersion = component?.model?.modelVersion ?? 0;
+
+  return {
+    componentId,
+    attribute: trigger.attribute,
+    modelVersion
+  };
+}
+
+function getDependencyModelContext(dependency, component, state) {
+  return (dependency.elements || [])
+    .flatMap(element => getTriggers({ ...element, row: dependency.address?.row }, component))
+    .map(trigger => getTriggerModelContext(trigger, state))
+    .filter(context => context);
 }
 
 /**
@@ -441,6 +492,10 @@ function retrieveSource(dependency, component, result, force, state, dispatchAct
       return formule(dependency.formule, result.values);
     // Reset value
     case "reset":
+      if (target === "input") {
+        return VALUE_RESET;
+      }
+      return null;
     default:
       return null;
   }
@@ -549,7 +604,11 @@ function applyTarget(dependency, component, value, result) {
       return { updateAttributes: { address, data: { [dependency.query]: value } } };
 
     case "input-true":
-      return { updateModel: { address, data: { selected: value } } };
+      if (value === VALUE_RESET) {
+        return {resetModel: { address, data: null }};
+      } else {
+        return {updateModel: {address, data: {selected: value}}};
+      }
 
     case "format-number-true":
       return { updateAttributes: { address, data: { numberFormat: value } } };
@@ -558,7 +617,7 @@ function applyTarget(dependency, component, value, result) {
       return { restoreAttributes: { address, data: "numberFormat" } };
 
     case "validate-true":
-      return { updateValidation: { address, data: value } };
+      return { updateValidation: { address, data: parseValidationRules(value, address) } };
 
     case "validate-false":
       return { restoreValidation: { address, data: address } };
@@ -681,10 +740,11 @@ function executeDependency(dependency, component, result, state) {
 
 function checkAndStoreResult(dependency, component, state) {
   let result = evaluateDependency(dependency, component, state);
+  const modelContext = getDependencyModelContext(dependency, component, state);
+  const modelHash = hashContext(modelContext);
 
   // Store check values
   const componentId = getDependencyComponentId(component.address, dependency.address);
-  const modelHash = generateModelHash(component.model?.values, component.model?.page, component.attributes?.max);
 
   DEPENDENCY_VALUES[component.address?.view] = {
     ...DEPENDENCY_VALUES[component.address?.view],
@@ -722,6 +782,8 @@ function hasChanged(dependency, component, state) {
   const newValues = evaluateDependency(dependency, component, state).values;
   const componentId = getDependencyComponentId(component.address, dependency.address);
   const storedData = DEPENDENCY_VALUES[component.address?.view][componentId] || {};
+  const modelContext = getDependencyModelContext(dependency, component, state);
+  const currentModelHash = hashContext(modelContext);
 
   // Comparar valores de triggers
   const oldValues = Object.entries(storedData)
@@ -730,8 +792,6 @@ function hasChanged(dependency, component, state) {
 
   const triggerValuesChanged = !_.isEqual(oldValues, newValues);
 
-  // Comparar el hash del modelo
-  const currentModelHash = generateModelHash(component.model?.values, component.model?.page, component.attributes?.max);
   const modelHashChanged = storedData.modelHash !== currentModelHash;
 
   return triggerValuesChanged || modelHashChanged;
