@@ -348,14 +348,6 @@ aweApplication.factory('Control',
           return formattedData;
         },
         /**
-         * Format an array of selected values
-         * @param {object} values Data array
-         * @return {Array} Selected values
-         */
-        formatSelectedValues: function (values) {
-          return values.map(row => (_.isPlainObject(row) ? row : {}).value || row);
-        },
-        /**
          * Change a controller attribute
          * @param {Object} address Component address
          * @param {Object} attributes Attributes to set
