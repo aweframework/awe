@@ -72,12 +72,19 @@ function updateComponentInState(state, componentId, updates, settings) {
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
+      const replaceObjectKeys = new Set(["validationRules", "storedValidationRules"]);
       // Get current merged state (base + existing delta)
       const currentFull = mergeComponentState(base, state[componentId]);
       // Apply updates to the full state (arrays replace instead of merging)
-      const updatedFull = _.mergeWith({}, currentFull, updates, (objValue, srcValue) =>
-        Array.isArray(srcValue) ? srcValue : undefined
-      );
+      const updatedFull = _.mergeWith({}, currentFull, updates, (objValue, srcValue, key) => {
+        if (Array.isArray(srcValue)) {
+          return srcValue;
+        }
+        if (replaceObjectKeys.has(key)) {
+          return srcValue;
+        }
+        return undefined;
+      });
       // Calculate new delta against base
       const newDelta = calculateDeltas(base, updatedFull);
       return {
@@ -709,6 +716,17 @@ function updateValidationAction(state = {}, action = {}, settings) {
 }
 
 /**
+ * Restore validation rules based on address type.
+ * @param {Object} state Current state
+ * @param {Object} action Action with address/data
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
+function restoreValidationAction(state = {}, action = {}, settings) {
+  return launchAddressFunction(restoreValidationCell, restoreValidationColumn, restoreValidationComponent, state, action, settings);
+}
+
+/**
  * Update component-level validation rules.
  * @param {Object} state Current state
  * @param {Object} address Component address
@@ -828,19 +846,129 @@ function keepValidationComponent(state, componentId, settings) {
 /**
  * Restore previously kept validation rules.
  * @param {Object} state Current state
- * @param {string} componentId Component identifier
+ * @param {Object} address Component addres
  * @param {Object} settings Settings
  * @returns {Object} Updated state
  */
-function restoreValidationComponent(state, componentId, settings) {
+function restoreValidationComponent(state, address, settings) {
+  const componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
   const component = getMergedComponent(useRegistry, componentId, state);
+  if (typeof component?.storedValidationRules === "undefined") {
+    return state;
+  }
 
   return updateComponentInState(state, componentId, {
     validationRules: {
       ...component?.storedValidationRules
     }
   }, settings);
+}
+
+/**
+ * Restore column-level validation rules in a grid.
+ * @param {Object} state Current state
+ * @param {Object} address Column address
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
+function restoreValidationColumn(state = {}, address = {}, _data = {}, settings) {
+  const componentId = address.component;
+  const useRegistry = settings?.useComponentRegistry;
+
+  const buildNextColumn = (columnModel = [], storedAttributes = {}) => {
+    const columnIndex = columnModel.findIndex(column => column.name === address.column);
+    if (columnIndex < 0) return null;
+
+    const storedColumn = storedAttributes.columnModel?.[columnIndex] || {};
+    if (typeof storedColumn.validationRules !== "undefined") {
+      return {
+        columnIndex,
+        nextColumn: {
+          ...columnModel[columnIndex],
+          validationRules: storedColumn.validationRules
+        }
+      };
+    }
+
+    return {
+      columnIndex,
+      nextColumn: {
+        ...columnModel[columnIndex],
+        validationRules: undefined
+      }
+    };
+  };
+
+  if (useRegistry) {
+    const base = ComponentRegistry.get(componentId);
+    if (base) {
+      const currentFull = mergeComponentState(base, state[componentId]);
+      const { attributes, storedAttributes = {} } = currentFull;
+      const { columnModel = [] } = attributes;
+      const result = buildNextColumn(columnModel, storedAttributes);
+      if (!result) return state;
+      const { columnIndex, nextColumn } = result;
+
+      currentFull.attributes = {
+        ...attributes,
+        columnModel: updateArrayElement(columnModel, columnIndex, nextColumn)
+      };
+
+      return {
+        ...state,
+        [componentId]: calculateDeltas(base, currentFull)
+      };
+    }
+  }
+
+  // Legacy behavior
+  const { attributes, storedAttributes = {} } = state[componentId] || {};
+  if (!attributes) return state;
+  const { columnModel = [] } = attributes;
+  const result = buildNextColumn(columnModel, storedAttributes);
+  if (!result) return state;
+  const { columnIndex, nextColumn } = result;
+
+  return {
+    ...state,
+    [componentId]: {
+      ...state[componentId],
+      attributes: {
+        ...attributes,
+        columnModel: updateArrayElement(columnModel, columnIndex, nextColumn)
+      }
+    }
+  };
+}
+
+/**
+ * Restore cell-level validation rules stored in $attrs.
+ * @param {Object} state Current state
+ * @param {Object} address Cell address
+ * @param {Object} settings Settings
+ * @returns {Object} Updated state
+ */
+function restoreValidationCell(state = {}, address = {}, _data = {}, settings) {
+  const context = getGridRowContext(state, address, settings);
+  if (!context) return state;
+
+  const { values, rowIndex, rowData } = context;
+  const cellAttrs = rowData.$attrs?.[address.column] || {};
+  if (!("validationRules" in cellAttrs)) {
+    return state;
+  }
+
+  const { validationRules: _removed, ...restCellAttrs } = cellAttrs;
+  const nextValues = updateArrayElement(values, rowIndex, {
+    ...rowData,
+    $attrs: {
+      ...rowData?.$attrs,
+      [address.column]: restCellAttrs
+    }
+  });
+
+  return updateGridRowValues(state, context, nextValues);
 }
 
 /**
@@ -994,7 +1122,12 @@ function getGridModelUpdate(state, address, model, update = true, settings) {
   const component = getMergedComponent(useRegistry, componentId, state);
   if (!component) return state;
 
-  let gridComponent = getModelUpdate(state, address, model, settings);
+  const nextModelVersion = (component?.model?.modelVersion || 0) + 1;
+  const modelWithVersion = {
+    ...model,
+    modelVersion: nextModelVersion
+  };
+  let gridComponent = getModelUpdate(state, address, modelWithVersion, settings);
 
   // Para updateCellsModel necesitamos el componente mergeado con los cambios que acabamos de calcular
   const updatedFull = mergeComponentState(component, gridComponent[componentId]);
@@ -1848,11 +1981,11 @@ const actionHandlers = {
   [KEEP_ROW_MODEL]: (state, action) => keepRowModel(state, action.address, action.settings),
 
   [RESTORE_VALIDATION]: (state, action) =>
-    restoreValidationComponent(state, memoizedGetComponentId(action.address), action.settings),
+    restoreValidationAction(state, action, action.settings),
 
   [RESTORE_MULTIPLE_VALIDATION]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => restoreValidationComponent(newState, memoizedGetComponentId(_action.address), action.settings),
+      (newState, _action) => restoreValidationAction(newState, _action, action.settings),
       state
     ),
 

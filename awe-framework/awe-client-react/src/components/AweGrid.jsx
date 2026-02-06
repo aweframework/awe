@@ -3,7 +3,7 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {getWidthStyle} from "../utilities/grid";
+import {getGridIdentifier, getWidthStyle} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import "./AweGrid.less";
 import {classNames} from "../utilities/components";
@@ -42,10 +42,12 @@ function AweGrid(props) {
   } = useGrid(id);
 
   const onRowDoubleClick = useCallback((event) => {
-    const index = event.index;
-    const rowId = model.values[index]?.id;
-    if (rowId != null) editRow(rowId);
-  }, [model.values, editRow]);
+    const gridId = getGridIdentifier(attributes);
+    const rowId = event.data?.[gridId];
+    if (rowId != null) {
+      editRow(rowId);
+    }
+  }, [attributes, editRow]);
 
   const onPage = useCallback((event) => {
     const { loadAll } = attributes;

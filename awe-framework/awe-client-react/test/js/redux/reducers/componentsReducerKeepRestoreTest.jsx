@@ -1,13 +1,13 @@
 import {components} from '../../../../src/redux/reducers/componentsReducer';
 import {
-  KEEP_VALIDATION,
-  RESTORE_VALIDATION,
   KEEP_ATTRIBUTE,
   KEEP_MODEL,
+  KEEP_VALIDATION,
+  RESET_MULTIPLE_MODEL,
   RESTORE_MODEL,
-  RESTORE_MULTIPLE_VALIDATION,
   RESTORE_MULTIPLE_MODEL,
-  RESET_MULTIPLE_MODEL
+  RESTORE_MULTIPLE_VALIDATION,
+  RESTORE_VALIDATION
 } from '../../../../src/redux/actions/components';
 
 /**
@@ -32,6 +32,115 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerKeepRestoreTe
     };
     const next = components(state, {type: RESTORE_VALIDATION, address: {component: 'comp', view: 'base'}});
     expect(next.comp.validationRules).toEqual({required: true, minLength: 3});
+  });
+
+  it('RESTORE_VALIDATION overwrites modified validationRules with storedValidationRules', () => {
+    const state = {
+      comp: {
+        address: {component: 'comp', view: 'base'},
+        validationRules: {required: true, minLength: 3},
+        storedValidationRules: {required: true, minLength: 3}
+      }
+    };
+
+    const modified = components(state, {
+      type: 'UPDATE_VALIDATION',
+      address: {component: 'comp', view: 'base'},
+      data: {gt: {value: 10, type: 'integer'}, maxLength: 10}
+    });
+
+    expect(modified.comp.validationRules).toEqual({gt: {value: 10, type: 'integer'}, maxLength: 10, minLength: 3, required: true});
+
+    const restored = components(modified, {
+      type: RESTORE_VALIDATION,
+      address: {component: 'comp', view: 'base'}
+    });
+
+    expect(restored.comp.validationRules).toEqual({required: true, minLength: 3});
+  });
+
+  it('RESTORE_VALIDATION restores column validationRules from storedAttributes', () => {
+    const state = {
+      grid: {
+        address: {component: 'grid', view: 'base'},
+        attributes: {
+          columnModel: [
+            {name: 'col1', validationRules: {required: false}}
+          ]
+        },
+        storedAttributes: {
+          columnModel: [
+            {name: 'col1', validationRules: {required: true, minLength: 2}}
+          ]
+        }
+      }
+    };
+
+    const next = components(state, {
+      type: RESTORE_VALIDATION,
+      address: {component: 'grid', view: 'base', column: 'col1'}
+    });
+
+    expect(next.grid.attributes.columnModel[0].validationRules).toEqual({required: true, minLength: 2});
+  });
+
+  it('RESTORE_VALIDATION removes column validationRules when storedAttributes are missing', () => {
+    const state = {
+      grid: {
+        address: {component: 'grid', view: 'base'},
+        attributes: {
+          columnModel: [
+            {name: 'col1', validationRules: {required: false}}
+          ]
+        },
+        storedAttributes: {
+          columnModel: [
+            {name: 'col1'}
+          ]
+        }
+      }
+    };
+
+    const next = components(state, {
+      type: RESTORE_VALIDATION,
+      address: {component: 'grid', view: 'base', column: 'col1'}
+    });
+
+    expect(next.grid.attributes.columnModel[0].validationRules).toBeUndefined();
+  });
+
+  it('RESTORE_VALIDATION removes cell validationRules from $attrs', () => {
+    const state = {
+      grid: {
+        address: {component: 'grid', view: 'base'},
+        attributes: {
+          columnModel: [{name: 'col1'}],
+          gridId: 'id'
+        },
+        model: {
+          values: [
+            {
+              id: 1,
+              col1: 'A',
+              $attrs: {
+                col1: {
+                  validationRules: {required: true},
+                  readOnly: true
+                }
+              }
+            }
+          ]
+        }
+      }
+    };
+
+    const next = components(state, {
+      type: RESTORE_VALIDATION,
+      address: {component: 'grid', view: 'base', column: 'col1', row: 1}
+    });
+
+    expect(next.grid.model.values[0].$attrs.col1.validationRules).toBeUndefined();
+    expect(next.grid.model.values[0].$attrs.col1.readOnly).toBe(true);
   });
 
   it('RESTORE_MULTIPLE_VALIDATION restores validation for multiple components', () => {
