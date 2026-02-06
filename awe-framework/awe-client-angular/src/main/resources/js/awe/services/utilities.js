@@ -1137,7 +1137,19 @@ aweApplication.factory('AweUtilities',
                 }
               }];
           }
-        }
+        },
+        /**
+         * Format an array of selected values
+         * @param {Array|String|Number} values Data array
+         * @return {Array} Selected values
+         */
+        formatSelectedValues: function (values) {
+          if (angular.isArray(values)) {
+            return values.map(row => _.isPlainObject(row) ? row.value : row);
+          } else {
+            return Utilities.asArray(values);
+          }
+        },
       };
       return Utilities;
     }

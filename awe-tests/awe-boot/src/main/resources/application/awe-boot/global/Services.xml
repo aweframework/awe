@@ -436,6 +436,10 @@
     <java classname="com.almis.awe.service.DummyService" method="testSuggestMultiple"/>
   </service>
 
+  <service id="testSuggestMultipleSelectAllValues">
+    <java classname="com.almis.awe.service.DummyService" method="testSuggestMultipleSelectAllValues"/>
+  </service>
+
   <service id="testGetServiceDataForComputed">
     <java classname="com.almis.awe.service.DummyService" method="testGetServiceDataForComputed"/>
   </service>

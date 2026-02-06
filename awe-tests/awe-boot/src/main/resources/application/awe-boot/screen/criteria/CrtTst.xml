@@ -186,6 +186,10 @@
           <dependency target-type="set-optional" initial="true">
             <dependency-element id="Txt" condition="gt" value="1"/>
           </dependency>
+          <dependency initial="true">
+            <dependency-element id="Txt" condition="eq" value="multiple"/>
+            <dependency-action type="server" server-action="data-silent" target-action="testSuggestMultipleSelectAllValues" silent="true" async="true"/>
+          </dependency>
         </criteria>
         <criteria label="PARAMETER_SUGGEST_MULTIPLE_READONLY" id="SugMulRea" variable="SugMul" component="suggest-multiple" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="UsrEmlLstTstSugDelay" readonly="true" value="test" />
         <tag type="div" style="btn-group col-xs-12 col-sm-6">

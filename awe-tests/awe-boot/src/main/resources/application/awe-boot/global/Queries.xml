@@ -3213,6 +3213,7 @@
   </query>
 
   <query id="testSuggestMultiple" service="testSuggestMultiple"/>
+  <query id="testSuggestMultipleSelectAllValues" service="testSuggestMultipleSelectAllValues"/>
 
   <query id="dynamicScreen" service="dynamicScreen"/>
 
