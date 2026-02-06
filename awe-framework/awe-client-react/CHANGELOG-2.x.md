@@ -1,3 +1,9 @@
+# Release notes for AWE React 2.1.1
+*06/02/2026*
+ 
+🐛 Bug fixes:
+- Reset source dependency must launch resetMultipleModel instead of updateMultipleModel with null values. [MR #154](https://gitlab.com/aweframework/awe-react/-/merge_requests/154) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.1.0
 *04/02/2026*
  
