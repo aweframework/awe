@@ -163,6 +163,71 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
     });
   });
 
+  describe('once initialized as select for value helpers', function() {
+    let select;
+
+    beforeEach(function() {
+      let $scope = $rootScope.$new();
+      $scope.view = "report";
+      $scope.context = "contexto";
+      select = new $selector($scope, "tutu", {});
+      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
+      spyOn($control, "checkComponent").and.returnValue(true);
+      spyOn($control, "getAddressModel").and.returnValue({values: [], selected: null});
+      select.asSelect();
+    });
+
+    it('should fallback to first value when selected is not in values', function() {
+      let modelRef = {
+        values: [{value: "A", label: "Alpha"}, {value: "B", label: "Beta"}],
+        selected: "C"
+      };
+      $control.getAddressModel.and.returnValue(modelRef);
+      select.onStart();
+
+      expect(modelRef.selected).toBe("A");
+      expect(modelRef["initial-selected"]).toBe("A");
+    });
+
+    it('should keep selected when it is in values', function() {
+      let modelRef = {
+        values: [{value: 1, label: "One"}, {value: 2, label: "Two"}],
+        selected: "2"
+      };
+      $control.getAddressModel.and.returnValue(modelRef);
+
+      select.onStart();
+
+      expect(modelRef.selected).toBe("2");
+      expect(modelRef["initial-selected"]).toBeUndefined();
+    });
+
+    it('should translate and join selected labels for visible value', function() {
+      let modelRef = {
+        values: [{value: 1, label: "One"}, {value: "2", label: "Two"}],
+        selected: [1, "2"]
+      };
+      spyOn($translate, "instant").and.callFake(text => `T-${text}`);
+      $control.getAddressModel.and.returnValue(modelRef);
+
+      expect(select.getVisibleValue()).toBe("T-One, T-Two");
+    });
+
+    it('should filter select data for initSelection', function() {
+      let modelRef = {
+        values: [{value: 1, label: "One"}, {value: "2", label: "Two"}, {value: 3, label: "Three"}],
+        selected: [2, 4]
+      };
+      spyOn($translate, "instant").and.callFake(text => `T-${text}`);
+      $control.getAddressModel.and.returnValue(modelRef);
+      let callback = jasmine.createSpy('callback');
+
+      select.scope.aweSelectOptions.initSelection(null, callback);
+
+      expect(callback).toHaveBeenCalledWith({id: "2", text: "T-Two"});
+    });
+  });
+
   describe('once initialized as suggest', function () {
     let suggest;
 

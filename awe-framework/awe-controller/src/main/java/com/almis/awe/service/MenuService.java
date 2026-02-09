@@ -116,6 +116,9 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Menu has not been found
    */
   private boolean sessionExpired(String optionId) throws AWException {
+    if (getSession().isAuthenticated()) {
+      return false;
+    }
     Menu menu = getMenu(baseConfigProperties.getFiles().getMenuPrivate());
     return !getSession().isAuthenticated() && menu.getOptionByName(optionId) != null;
   }
@@ -176,17 +179,6 @@ public class MenuService extends ServiceConfig {
   /**
    * Retrieve the menu with all restrictions (included modules)
    *
-   * @param menuType Menu type
-   * @return Retrieved menu
-   * @throws AWException Menu has not been found
-   */
-  public Menu getMenuWithAllRestrictions(String menuType) throws AWException {
-    return getMenuWithAllRestrictions(getMenu(menuType));
-  }
-
-  /**
-   * Retrieve the menu with all restrictions (included modules)
-   *
    * @param menu Menu
    * @return Retrieved menu
    * @throws AWException Menu has not been found
@@ -232,8 +224,17 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Default screen has not been defined
    */
   public Screen getDefaultScreen() throws AWException {
-    // Get screen from option
-    Menu menu = getMenu();
+    return getDefaultScreen(getMenu());
+  }
+
+  /**
+   * Retrieve the menu default screen
+   *
+   * @param menu Menu
+   * @return Default screen
+   * @throws AWException Default screen has not been defined
+   */
+  public Screen getDefaultScreen(Menu menu) throws AWException {
 
     // Get default screen identifier
     String defaultScreenId = menu.getScreen();
@@ -255,15 +256,24 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Screen has not been found
    */
   public Screen getOptionScreen(String optionId) throws AWException {
-    // Get current menu
-    Menu menu = getMenu();
+    return getOptionScreen(optionId, getMenu());
+  }
 
+  /**
+   * Retrieve an option screen from the user menu
+   *
+   * @param optionId Option identifier
+   * @param menu Menu
+   * @return Screen retrieved
+   * @throws AWException Screen has not been found
+   */
+  public Screen getOptionScreen(String optionId, Menu menu) throws AWException {
     if (optionId.equalsIgnoreCase(baseConfigProperties.getScreen().getHome())) {
       // Get home screen from menu
       return getScreen(menu.getScreen(), optionId);
     } else {
       // Find option
-      Option option = getOptionByName(optionId);
+      Option option = getOptionByName(optionId, menu);
 
       // Get screen identifier
       return getScreenByOption(option, menu);
@@ -278,15 +288,25 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Screen has not been found
    */
   public Screen getAvailableOptionScreen(String optionId) throws AWException {
-    // Get current menu
-    Menu menu = getMenu();
+    return getAvailableOptionScreen(optionId, getMenu());
+  }
+
+  /**
+   * Retrieve an option screen from the user menu
+   *
+   * @param optionId Option identifier
+   * @param menu Menu
+   * @return Screen retrieved
+   * @throws AWException Screen has not been found
+   */
+  public Screen getAvailableOptionScreen(String optionId, Menu menu) throws AWException {
 
     if (optionId.equalsIgnoreCase(baseConfigProperties.getScreen().getHome())) {
       // Get home screen from menu
       return getScreen(menu.getScreen(), optionId);
     } else {
       // Find option
-      Option option = getAvailableOptionByName(optionId);
+      Option option = getAvailableOptionByName(optionId, menu);
 
       // Get screen identifier
       return getScreenByOption(option, menu);
@@ -431,14 +451,23 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Option has not been found
    */
   public Option getOptionByName(String optionId) throws AWException {
-    // Get screen from option
-    Menu menu = getMenu();
+    return getOptionByName(optionId, getMenu());
+  }
 
-    // Find option
+  /**
+   * Retrieve an option screen from the user menu
+   *
+   * @param optionId Option identifier
+   * @param menu Menu
+   * @return Option retrieved
+   * @throws AWException Option has not been found
+   */
+  public Option getOptionByName(String optionId, Menu menu) throws AWException {
+    // Get screen from option
     Option option = menu.getOptionByName(optionId);
 
     // If option hasn't been found, search in public menu
-    if (option == null) {
+    if (option == null && getSession().isAuthenticated()) {
       option = getMenu(baseConfigProperties.getFiles().getMenuPublic()).getOptionByName(optionId);
     }
 
@@ -464,9 +493,20 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Option has not been found
    */
   public Option getAvailableOptionByName(String optionId) throws AWException {
+    return getAvailableOptionByName(optionId, getMenu());
+  }
 
+  /**
+   * Retrieve an option screen from the user menu
+   *
+   * @param optionId Option identifier
+   * @param menu     Menu
+   * @return Option retrieved
+   * @throws AWException Option has not been found
+   */
+  public Option getAvailableOptionByName(String optionId, Menu menu) throws AWException {
     // Find option
-    Option option = getAvailableOption(optionId);
+    Option option = getAvailableOption(optionId, menu);
 
     // Check if option is defined
     if (option == null) {
@@ -1134,8 +1174,19 @@ public class MenuService extends ServiceConfig {
    * @throws AWException Option has not been found
    */
   private List<Option> getAllAvailableOptions() throws AWException {
+    return getAllAvailableOptions(getMenu());
+  }
+
+  /**
+   * Retrieve a list of available options
+   *
+   * @param baseMenu Menu to retrieve
+   * @return Screen list retrieved
+   * @throws AWException Option has not been found
+   */
+  private List<Option> getAllAvailableOptions(Menu baseMenu) throws AWException {
     // Get options
-    Menu menu = getMenuWithAllRestrictions();
+    Menu menu = getMenuWithAllRestrictions(baseMenu);
     List<Option> optionList = menu.getElementsByType(Option.class);
 
     // Add public menu options
@@ -1151,10 +1202,10 @@ public class MenuService extends ServiceConfig {
    * @return Screen list retrieved
    * @throws AWException Option has not been found
    */
-  private Option getAvailableOption(String optionName) throws AWException {
+  private Option getAvailableOption(String optionName, Menu menu) throws AWException {
     // Get options
     Option optionFound = null;
-    List<Option> optionList = getAllAvailableOptions();
+    List<Option> optionList = getAllAvailableOptions(menu);
 
     // Add public menu options if authenticated
     for (Option option : optionList) {

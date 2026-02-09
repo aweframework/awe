@@ -76,6 +76,15 @@ aweApplication.factory('Selector',
       }
 
       /**
+       * Normalize selected values to plain value list
+       * @param {Array|Object|String|Number} selected Selected values
+       * @return {Array} selected values as strings
+       */
+      function normalizeSelectedValues(selected) {
+        return Utilities.formatSelectedValues(Utilities.asArray(selected)).map(String);
+      }
+
+      /**
        * Format select data
        * @param {Array} values Model values
        * @param {Array} selected Model selected values
@@ -84,7 +93,7 @@ aweApplication.factory('Selector',
       function filterSelectData(values, selected) {
         let data = [];
         if (selected !== null) {
-          let selectedList = Utilities.asArray(selected).map(String);
+          let selectedList = normalizeSelectedValues(selected);
           _.each(values, function (element) {
             if ($.inArray(String(element.value), selectedList) > -1) {
               data.push({
@@ -122,7 +131,7 @@ aweApplication.factory('Selector',
        */
       function filterSuggestModel(model) {
         if (model.selected !== null) {
-          let selected = Utilities.asArray(model.selected).map(String);
+          let selected = normalizeSelectedValues(model.selected);
           model.values = [...Utilities.asArray(model.storedValues), ...model.values]
             .reduce((prev, element) => prev.map(e => String(e.value)).includes(String(element.value)) ? prev : [...prev, element], [])
             .filter(element => selected.includes(String(element.value)));
@@ -166,11 +175,14 @@ aweApplication.factory('Selector',
       function checkSelectedValues(component) {
         let check = false;
         let model = Control.getAddressModel(component.address);
-        _.each(model.values, function (value) {
-          if (String(model.selected) === String(value.value)) {
-            check = true;
-          }
-        });
+        let selected = normalizeSelectedValues(model.selected)[0];
+        if (!Utilities.isNull(selected)) {
+          _.each(model.values, function (value) {
+            if (String(selected) === String(value.value)) {
+              check = true;
+            }
+          });
+        }
         return check;
       }
 
@@ -181,7 +193,7 @@ aweApplication.factory('Selector',
        * @return {Array} label list
        */
       function getSelectedLabel(selected, valueList) {
-        let selectedList = Utilities.asArray(selected);
+        let selectedList = normalizeSelectedValues(selected);
         let labelList = [];
         _.each(selectedList, function (selectedValue) {
           _.each(valueList, function (value) {
@@ -353,7 +365,7 @@ aweApplication.factory('Selector',
               // If selected in data, update selected values
               if ("selected" in data) {
                 // Filter selected values
-                model.selected = filterSelectedValues(model.values, Control.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
+                model.selected = filterSelectedValues(model.values, Utilities.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
                 selector.selectData(model.selected);
               }
 

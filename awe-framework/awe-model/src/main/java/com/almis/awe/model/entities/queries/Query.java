@@ -4,6 +4,9 @@ import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -15,10 +18,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -215,7 +215,7 @@ public class Query implements XMLNode, Copyable {
 		return Optional.ofNullable(getSqlFieldList())
 				.orElse(Collections.emptyList())
 				.stream()
-				.filter(sqlField -> sqlField instanceof Field)
+				.filter(Field.class::isInstance)
 				.map(Field.class::cast)
 				.collect(Collectors.toList());
 	}
@@ -257,6 +257,46 @@ public class Query implements XMLNode, Copyable {
     }
 
     return builder.toString();
+  }
+
+  /**
+   * Returns the parameter names allowed for cache key generation.
+   *
+   * @return Allowed parameter names
+   */
+  public Set<String> getCacheKeyParamNames() {
+    Set<String> allowedParameters = new TreeSet<>();
+    allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_PAGE);
+    allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_MAX);
+    allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_SORT);
+    if (getVariableDefinitionList() != null) {
+      for (Variable variable : getVariableDefinitionList()) {
+        String parameterKey = variable.getName() != null ? variable.getName() : variable.getId();
+        if (parameterKey != null) {
+          allowedParameters.add(parameterKey);
+        }
+      }
+    }
+    return allowedParameters;
+  }
+
+  /**
+   * Builds the cache key based on query id and allowed parameters.
+   *
+   * @param parameters Parameters
+   * @return Cache key string
+   */
+  public String getQueryKeys(ObjectNode parameters) {
+    ObjectNode safeParameters = parameters == null ? JsonNodeFactory.instance.objectNode() : parameters;
+    ObjectNode filteredParameters = JsonNodeFactory.instance.objectNode();
+    for (String parameterKey : getCacheKeyParamNames()) {
+      JsonNode value = safeParameters.get(parameterKey);
+      if (value != null) {
+        filteredParameters.set(parameterKey, value);
+      }
+    }
+
+    return (getId() == null ? "" : getId()) + "|" + filteredParameters.toString();
   }
 
   private void generateSelectClause(StringBuilder builder) {

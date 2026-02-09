@@ -206,6 +206,42 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       expect($actionController.acceptAction.calls.count()).toBe(2);
     });
 
+    it('should select primitive values without updating value list', function() {
+      // Prepare
+      defineForm();
+      let address = {view: "base", component: "tutu"};
+      let values = ["A", "B"];
+      spyOn($utilities, "formatSelectedValues").and.returnValue(["A", "B"]);
+      spyOn($control, "changeModelAttribute").and.returnValue({});
+      spyOn($actionController, "acceptAction").and.callThrough();
+
+      // Run
+      launchFormAction("select", "select", {address: address, parameters: {values: values}});
+
+      // Assert
+      expect($utilities.formatSelectedValues).toHaveBeenCalledWith(values);
+      expect($control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: ["A", "B"]}, true);
+      expect($actionController.acceptAction).toHaveBeenCalled();
+    });
+
+    it('should select and include values when objects are provided', function() {
+      // Prepare
+      defineForm();
+      let address = {view: "base", component: "tutu"};
+      let values = [{value: 1, label: "One"}, {value: 2, label: "Two"}];
+      spyOn($utilities, "formatSelectedValues").and.returnValue([1, 2]);
+      spyOn($control, "changeModelAttribute").and.returnValue({});
+      spyOn($actionController, "acceptAction").and.callThrough();
+
+      // Run
+      launchFormAction("select", "select", {address: address, parameters: {values: values}});
+
+      // Assert
+      expect($utilities.formatSelectedValues).toHaveBeenCalledWith(values);
+      expect($control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: [1, 2], values: values}, true);
+      expect($actionController.acceptAction).toHaveBeenCalled();
+    });
+
     // Call validate action
     it('should call a validate action', function() {
       // Prepare

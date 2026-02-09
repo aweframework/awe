@@ -258,8 +258,13 @@ aweApplication.directive('aweForm',
           let  values = parameters.values;
           let  address = action.attr("callbackTarget");
 
-          // Call the method update seleted value from API
-          Control.changeModelAttribute(address, {selected: values}, true);
+          // Call the method update selected value from API
+          let selectedData = {selected: Utilities.formatSelectedValues(values)};
+          let valueList = Utilities.asArray(values);
+          if (valueList.some(item => _.isPlainObject(item) && ("value" in item || "label" in item))) {
+            selectedData.values = valueList;
+          }
+          Control.changeModelAttribute(address, selectedData, true);
 
           // Finish action
           $actionController.acceptAction(action);

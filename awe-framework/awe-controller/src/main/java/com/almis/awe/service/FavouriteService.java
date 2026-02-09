@@ -37,15 +37,16 @@ public class FavouriteService {
   public ServiceData clickFavourite(String user, String option) throws AWException {
     // Get parameters
     ObjectNode parameters = getUserAndOptionParameters(user, option);
+    List<Favourite> favouriteList = getFavourites(user);
 
     // Check if is favourite
-    boolean isFavourite = isFavourite(user, option);
+    boolean isFavourite = isFavourite(favouriteList, option);
 
     // Add or remove to favourites
     ServiceData output = maintainService.launchPrivateMaintain(isFavourite ? "removeFromFavourites" : "addToFavourites", parameters);
 
     // Call check favourites and retrieve the client action list
-    output.setClientActionList(checkFavourites(user, option).getClientActionList());
+    output.setClientActionList(checkFavourites(favouriteList, option).getClientActionList());
 
     // Add a refresh menu option
     output.addClientAction(new ClientAction("server")
@@ -64,10 +65,21 @@ public class FavouriteService {
    * @return Service data
    */
   public ServiceData checkFavourites(String user, String option) throws AWException {
+    return checkFavourites(getFavourites(user), option);
+  }
+
+  /**
+   * Check favourite option to keep button state updated
+   *
+   * @param favouriteList Favourite list
+   * @param option Option to check
+   * @return Service data
+   */
+  public ServiceData checkFavourites(List<Favourite> favouriteList, String option) {
     ServiceData output = new ServiceData();
 
     // Check if is favourite
-    boolean isFavourite = isFavourite(user, option);
+    boolean isFavourite = isFavourite(favouriteList, option);
 
     // Change icon
     output.addClientAction(new ClientAction("update-controller")
@@ -106,18 +118,14 @@ public class FavouriteService {
     return DataListUtil.asBeanList(serviceData.getDataList(), Favourite.class);
   }
 
-
   /**
    * Check if an option is favourite for a user
    *
-   * @param user   User
+   * @param favouriteList Favourite list
    * @param option Option
    * @return Option is favourite
    */
-  private boolean isFavourite(String user, String option) throws AWException {
-    // Get favourites
-    List<Favourite> favouriteList = getFavourites(user);
-
+  private boolean isFavourite(List<Favourite> favouriteList, String option) {
     // Return if option is favourite
     return favouriteList.stream().anyMatch(f -> f.getOption().equalsIgnoreCase(option));
   }

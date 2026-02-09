@@ -15,6 +15,7 @@ import com.almis.awe.model.ProfileModel;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
+import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
@@ -410,6 +411,18 @@ public class DummyService extends ServiceConfig {
   public ServiceData testSuggestMultiple() {
     logger.info("Launching a suggest multiple select action");
     return new ServiceData().addClientAction(new SelectActionBuilder("SugMul", Arrays.asList("test", "pei")).build());
+  }
+
+  /**
+   * Fill suggest multiple with data
+   *
+   * @return
+   */
+  public ServiceData testSuggestMultipleSelectAllValues() {
+    logger.info("Launching a suggest multiple select action with all values selected");
+    return new ServiceData().addClientAction(new SelectActionBuilder("SugMul", Arrays.asList(
+            new Global().setValue("test").setLabel("Test (test@almis.com)"),
+            new Global().setValue("pei").setLabel("Pei (pei@almis.com)"))).build());
   }
 
   /**

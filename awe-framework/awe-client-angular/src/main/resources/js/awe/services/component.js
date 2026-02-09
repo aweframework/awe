@@ -250,7 +250,7 @@ aweApplication.factory('Component',
               if (model) {
                 // If selected in data, update selected values
                 if ("selected" in data) {
-                  model.selected = Control.formatDataList(Control.formatSelectedValues(Utilities.asArray(data.selected)));
+                  model.selected = Control.formatDataList(Utilities.formatSelectedValues(Utilities.asArray(data.selected)));
                 }
 
                 if ("values" in data) {
