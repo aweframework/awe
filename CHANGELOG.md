@@ -1,3 +1,17 @@
+# Release notes for AWE 4.11.8
+*09/02/2026*
+ 
+✨ Features:
+- Limit cache key in cacheable queries to variables defined in query and sort, max and page attributes. [MR #619](https://gitlab.com/aweframework/awe/-/merge_requests/619) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- Check select client action working over multiple suggest criterion. [MR #620](https://gitlab.com/aweframework/awe/-/merge_requests/620) (Pablo Javier García Mora)
+- Fix parameter management issue when value is null. [MR #615](https://gitlab.com/aweframework/awe/-/merge_requests/615) (Pablo Javier García Mora)
+- Add stg templates in awe-boot-react-archetype. [MR #613](https://gitlab.com/aweframework/awe/-/merge_requests/613) (Pablo Vidal Otero)
+
+📄 Documentation:
+- Add remote scheduler properties and documentation. [MR #618](https://gitlab.com/aweframework/awe/-/merge_requests/618) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.11.7
 *22/01/2026*
  
