@@ -126,6 +126,21 @@ aweApplication.factory('Selector',
         return multiple ? filtered : filtered.length > 0 ? filtered[0] : null;
       }
       /**
+       * Ensure multiple criteria data is always an array
+       * @param {object} component
+       */
+      function ensureMultipleGetData(component) {
+        if (!component._multipleGetData) {
+          let baseGetData = component.getData;
+          component.getData = function () {
+            let data = baseGetData();
+            data[component.address.component] = Utilities.formatSelectedValues(Utilities.asArray(component.model.selected));
+            return data;
+          };
+          component._multipleGetData = true;
+        }
+      }
+      /**
        * Format select data
        * @param {object} model
        */
@@ -287,6 +302,9 @@ aweApplication.factory('Selector',
             // If criterion is wrong, cancel initialization
             return false;
           }
+          if (selector.multiple) {
+            ensureMultipleGetData(component);
+          }
 
           /*
            * Set select2 options
@@ -416,6 +434,9 @@ aweApplication.factory('Selector',
           if (!component.asCriterion()) {
             // If criterion is wrong, cancel initialization
             return false;
+          }
+          if (selector.multiple) {
+            ensureMultipleGetData(component);
           }
 
           // Retrieve attributes from component
