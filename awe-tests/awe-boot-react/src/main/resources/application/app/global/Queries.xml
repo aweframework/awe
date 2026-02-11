@@ -3055,4 +3055,8 @@
     <variable id="type" type="STRING" name="TagListType"/>
   </query>
 
+  <query id="seleccionaTrue">
+    <constant value="1" type="STRING" alias="value"/>
+  </query>
+
 </queries>

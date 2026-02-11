@@ -114,7 +114,11 @@
           </dependency>
           <dependency initial="true">
             <dependency-element id="Txt" condition="eq" value="rellenaSelector"/>
-            <dependency-action type="server" server-action="data" target-action="PrnAct" target="Sel"/>
+            <dependency-action type="server" server-action="data" target-action="ProAllLst" target="Sel"/>
+          </dependency>
+          <dependency initial="true">
+            <dependency-element id="Txt" condition="eq" value="seleccionaSelector"/>
+            <dependency-action type="server" server-action="value" target-action="seleccionaTrue" target="Sel"/>
           </dependency>
           <dependency initial="true">
             <dependency-element id="Sel" condition="eq" value="1"/>
