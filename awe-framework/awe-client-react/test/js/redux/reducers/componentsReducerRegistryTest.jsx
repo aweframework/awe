@@ -1,7 +1,8 @@
-import { components } from '../../../../src/redux/reducers/componentsReducer';
+import {components} from '../../../../src/redux/reducers/componentsReducer';
 import ComponentRegistry from '../../../../src/redux/registry/ComponentRegistry';
 import {
   CLEAR_COMPONENTS,
+  RESET_MODEL,
   UPDATE_ATTRIBUTES,
   UPDATE_COMPONENT,
   UPDATE_VALIDATION,
@@ -157,5 +158,29 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     expect(ComponentRegistry.get('a')).toBeNull();
     expect(ComponentRegistry.get('b')).toBeNull();
     expect(ComponentRegistry.get('c')).not.toBeNull();
+  });
+
+  it('resets non-grid model values by clearing selection instead of removing values when registry enabled', () => {
+    ComponentRegistry.register('comp', {
+      address: { component: 'comp', view: 'base' },
+      attributes: { label: 'Test' },
+      model: {
+        values: [
+          { value: 'a', selected: true },
+          { value: 'b', selected: false }
+        ]
+      }
+    });
+
+    const next = components({}, {
+      type: RESET_MODEL,
+      address: { component: 'comp', view: 'base' },
+      settings
+    });
+
+    expect(next.comp.model.values).toEqual([
+      { value: 'a', selected: false },
+      { value: 'b', selected: false }
+    ]);
   });
 });

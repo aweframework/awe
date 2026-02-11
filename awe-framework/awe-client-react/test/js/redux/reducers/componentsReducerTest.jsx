@@ -1,8 +1,15 @@
-import { components } from "../../../../src/redux/reducers/componentsReducer";
+import {components} from "../../../../src/redux/reducers/componentsReducer";
 import {
   CLEAR_ALL_COMPONENTS,
-  CLEAR_COMPONENTS, KEEP_MODEL, RESET_MODEL, UPDATE_ATTRIBUTES,
-  UPDATE_COMPONENT, UPDATE_MODEL, UPDATE_MULTIPLE_ATTRIBUTES, UPDATE_MULTIPLE_COMPONENTS, UPDATE_SPECIFIC_ATTRIBUTES,
+  CLEAR_COMPONENTS,
+  KEEP_MODEL,
+  RESET_MODEL,
+  UPDATE_ATTRIBUTES,
+  UPDATE_COMPONENT,
+  UPDATE_MODEL,
+  UPDATE_MULTIPLE_ATTRIBUTES,
+  UPDATE_MULTIPLE_COMPONENTS,
+  UPDATE_SPECIFIC_ATTRIBUTES,
   UPDATE_VIEW_COMPONENTS
 } from "../../../../src/redux/actions/components";
 
@@ -127,6 +134,15 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
       address: { component: 'component', view: 'base' },
       attributes: { something: "12", error: null },
       model: { values: [], changed: true }
+    });
+  });
+
+  it('should reset a non-grid model by clearing selections without removing values', function () {
+    const newState = components(state.components, { type: RESET_MODEL, view: "base", address: { component: 'component2', view: 'base' } });
+    expect(newState.component2).toEqual({
+      address: { component: 'component2', view: 'base' },
+      attributes: { error: null },
+      model: { values: [{ selected: false, value: "tutu" }], changed: true }
     });
   });
 

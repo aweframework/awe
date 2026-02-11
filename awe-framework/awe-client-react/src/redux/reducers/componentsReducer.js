@@ -1691,10 +1691,11 @@ function getRestoreModelComponent(state, componentId, settings) {
  * Reset a component model to an empty/default state.
  * @param {Object} state Current state
  * @param {Object} address Component address
+ * @param {Object} data Reset data
  * @param {Object} settings Settings
  * @returns {Object} Updated state
  */
-function resetModel(state, address, settings) {
+function resetModel(state, address, data, settings) {
   const componentId = memoizedGetComponentId(address);
   const useRegistry = settings?.useComponentRegistry;
   const component = getMergedComponent(useRegistry, componentId, state);
