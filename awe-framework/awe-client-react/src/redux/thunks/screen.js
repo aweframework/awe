@@ -1,29 +1,31 @@
-import { updateViewComponentsWithDependencies } from "./components";
+import {updateViewComponentsWithDependencies} from "./components";
 import MenuRegistry from "../registry/MenuRegistry";
-import { updateMessages } from "../actions/messages";
+import {updateMessages} from "../actions/messages";
 import ViewRegistry from "../registry/ViewRegistry";
-import { acceptAction, addActionsTop, deleteStack } from "../actions/actions";
+import {acceptAction, addActionsTop, deleteStack} from "../actions/actions";
+import {clearComponents} from "../actions/components";
 import {
   fetchFile,
   fetchScreen,
   generateMessageAction,
-  getComponentValue, getContextPath,
+  getComponentValue,
+  getContextPath,
   getRestUrl,
   translateLabel
 } from "../../utilities";
 import {
-  inspectComponentStructure,
   fixController,
   fixModel,
   getSpecificAttributes,
+  inspectComponentStructure,
   parseValidationRules
 } from "../../utilities/components";
-import { produce } from "immer";
-import { getFormValues } from "../selectors/form";
-import { updateSettings } from "../actions/settings";
-import { getAllComponents } from "../selectors/componentSelectors";
-import { getFirstDefinedAndNotNullValue } from "../../utilities/general";
-import { navigationActions } from "../actions/navigation";
+import {produce} from "immer";
+import {getFormValues} from "../selectors/form";
+import {updateSettings} from "../actions/settings";
+import {getAllComponents} from "../selectors/componentSelectors";
+import {getFirstDefinedAndNotNullValue} from "../../utilities/general";
+import {navigationActions} from "../actions/navigation";
 
 let downloadIdentifier = 0;
 
@@ -62,6 +64,10 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
     }
 
     const componentStructure = inspectComponentStructure(response.structure, [], {});
+
+    // Limpiar componentes de la vista anterior antes de cargar los nuevos
+    // Esto limpia tanto Redux como el ComponentRegistry (si está habilitado)
+    dispatch({ ...clearComponents(view), settings });
 
     // Almacenar los componentes
     dispatch(updateViewComponentsWithDependencies(view, response.components.reduce((list = {}, component = {}) => {

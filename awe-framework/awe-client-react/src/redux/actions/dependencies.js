@@ -9,10 +9,10 @@ import {
   updateMultipleValidation
 } from "./components";
 
-import {addActionsTop} from "./actions";
-import {asArray, componentValue, formule, generateAddress, generateServerAction} from "../../utilities";
-import {getAllComponents} from "../selectors/componentSelectors";
-import {getDependencyComponentId, getTriggerId, parseValidationRules} from "../../utilities/components";
+import { addActionsTop } from "./actions";
+import { asArray, componentValue, formule, generateAddress, generateServerAction } from "../../utilities";
+import { getAllComponents } from "../selectors/componentSelectors";
+import { getDependencyComponentId, getTriggerId, parseValidationRules } from "../../utilities/components";
 import ViewRegistry from "../registry/ViewRegistry";
 import {
   getCellAttribute,
@@ -25,7 +25,7 @@ import {
   getRowIndex,
   getSelectedRowIndex
 } from "../../utilities/grid";
-import {compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell} from "../../utilities/general";
+import { compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell } from "../../utilities/general";
 
 /**
  * Manage action list
@@ -605,9 +605,9 @@ function applyTarget(dependency, component, value, result) {
 
     case "input-true":
       if (value === VALUE_RESET) {
-        return {resetModel: { address, data: null }};
+        return { resetModel: { address, data: null } };
       } else {
-        return {updateModel: {address, data: {selected: value}}};
+        return { updateModel: { address, data: { selected: value } } };
       }
 
     case "format-number-true":
@@ -698,7 +698,11 @@ function executeDependency(dependency, component, result, state) {
   let dispatchActions = [];
   let dependencyString = result.string.join(` ${dependency.type || "and"} `);
   dependencyString = dependency.invert ? `!(${dependencyString})` : dependencyString;
-  console.log(`%cExecuting dependency (${result.launch}) => ${dependencyString}`, (result.launch && "background:#FFFF66;color:black") || "background:#DDDDFF;color:black");
+  const depId = `${address.component}[${dependency.index}]`;
+  const depSource = dependency.source ? ` source=${dependency.source}` : "";
+  const depTarget = dependency.target ? ` target=${dependency.target}` : "";
+  const depTargetAction = dependency[state.settings.targetActionKey] ? ` action=${dependency[state.settings.targetActionKey]}` : "";
+  console.log(`%cExecuting dependency ${depId} (${result.launch}${depSource}${depTarget}${depTargetAction}) => ${dependencyString}`, (result.launch && "background:#FFFF66;color:black") || "background:#DDDDFF;color:black");
 
   // Launch dependency actions
   if (dependency.actions?.length > 0 && result.launch) {
@@ -744,7 +748,7 @@ function checkAndStoreResult(dependency, component, state) {
   const modelHash = hashContext(modelContext);
 
   // Store check values
-  const componentId = getDependencyComponentId(component.address, dependency.address);
+  const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
 
   DEPENDENCY_VALUES[component.address?.view] = {
     ...DEPENDENCY_VALUES[component.address?.view],
@@ -765,7 +769,7 @@ function checkDependency(dependency, component, state) {
   // Fix result with invert
   result.launch = dependency.invert ? !result.launch : result.launch;
 
-  console.info("Checking dependency", dependency, component, result);
+  console.info(`Checking dependency ${component.address.component}[${dependency.index}]`, dependency, component, result);
   if (state.settings.activeDependencies) {
     return executeDependency(dependency, component, result, state);
   }
@@ -780,7 +784,7 @@ function initializeDependency(dependency, component, state) {
 
 function hasChanged(dependency, component, state) {
   const newValues = evaluateDependency(dependency, component, state).values;
-  const componentId = getDependencyComponentId(component.address, dependency.address);
+  const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
   const storedData = DEPENDENCY_VALUES[component.address?.view][componentId] || {};
   const modelContext = getDependencyModelContext(dependency, component, state);
   const currentModelHash = hashContext(modelContext);
