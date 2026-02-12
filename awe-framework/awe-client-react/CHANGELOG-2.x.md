@@ -1,3 +1,10 @@
+# Release notes for AWE React 2.1.2
+*12/02/2026*
+ 
+🐛 Bug fixes:
+- Locale screen dependencies get stuck on a loop. [MR #157](https://gitlab.com/aweframework/awe-react/-/merge_requests/157) (Pablo Javier García Mora)
+- Reset action is clearing select values when not updated in redux. [MR #156](https://gitlab.com/aweframework/awe-react/-/merge_requests/156) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.1.1
 *06/02/2026*
  
