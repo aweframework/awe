@@ -1,18 +1,22 @@
-import { checkDependencies, initializeDependencies } from "../actions/dependencies";
+import {checkDependencies, initializeDependencies} from "../actions/dependencies";
 import {
   ButtonTypes,
-  resetModel, resetMultipleModel,
-  restoreModel, restoreMultipleModel, updateAttributes,
+  resetModel,
+  resetMultipleModel,
+  restoreModel,
+  restoreMultipleModel,
+  updateAttributes,
   updateModel,
   updateMultipleComponents,
   updateMultipleModels,
   updateViewComponents
 } from "../actions/components";
-import { setRuntimeEvent, clearRuntimeEvent } from "../actions/runtime";
-import { getActionAddress, getComponent } from "../../utilities";
-import { acceptAction, addActionsTop, addStack, rejectAction, removeStack } from "../actions/actions";
+import {clearRuntimeEvent, setRuntimeEvent} from "../actions/runtime";
+import {getActionAddress, getComponent} from "../../utilities";
+import {acceptAction, addActionsTop, addStack, rejectAction, removeStack} from "../actions/actions";
 import MenuRegistry from "../registry/MenuRegistry";
-import { getAllComponents } from "../selectors/componentSelectors";
+import {getAllComponents} from "../selectors/componentSelectors";
+
 const { BUTTON_RESET } = ButtonTypes;
 
 export function updateViewComponentsWithDependencies(view, data) {
@@ -52,9 +56,11 @@ export function updateModelWithDependencies(address, data) {
   return (dispatch, getState) => {
     const { event, ...modelData } = data;
 
-    const { settings } = getState();
-    // Update the model first (without event)
-    dispatch({ ...updateModel(address, modelData), settings });
+    // Only update the model if there are actual model properties (not just an event)
+    if (Object.keys(modelData).length > 0) {
+      const { settings } = getState();
+      dispatch({ ...updateModel(address, modelData), settings });
+    }
 
     // Set runtime event if provided
     if (event) {

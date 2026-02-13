@@ -1,5 +1,5 @@
 import * as gridThunks from '../../../../src/redux/thunks/grid';
-import { RowPositionType } from '../../../../src/utilities/grid';
+import {RowPositionType} from '../../../../src/utilities/grid';
 
 describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
   let dispatch;
@@ -180,12 +180,12 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       const [ [updateModelWithDependencies1], [acceptAction], [updateModelWithDependencies2]] = dispatch.calls.allArgs();
       const innerDispatch1 = jasmine.createSpy("innerDispatch1");
       updateModelWithDependencies1(innerDispatch1, getState);
-      const [[updateModel1]] = innerDispatch1.calls.allArgs();
+      const [[addEvent1]] = innerDispatch1.calls.allArgs();
       const innerDispatch2 = jasmine.createSpy("innerDispatch2");
       updateModelWithDependencies2(innerDispatch2, getState);
       const [[updateModel2], [addEvent]] = innerDispatch2.calls.allArgs();
 
-      expect(updateModel1.type).toBe('UPDATE_MODEL'); // add-row
+      expect(addEvent1.type).toBe('SET_RUNTIME_EVENT'); // add-row
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel2.type).toBe('UPDATE_MODEL');
       expect(addEvent.type).toBe('SET_RUNTIME_EVENT');
