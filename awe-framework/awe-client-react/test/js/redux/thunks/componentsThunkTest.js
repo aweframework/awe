@@ -113,6 +113,36 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       const hasEventReset = clearRuntimeEvent.type === 'CLEAR_RUNTIME_EVENT';
       expect(hasEventReset).toBe(true);
     });
+
+    it('no debería despachar updateModel si solo se pasa un evento', () => {
+      const address = { view: 'test', component: 'comp1' };
+      const data = { event: 'click' };
+
+      thunks.updateModelWithDependencies(address, data)(dispatch, getState);
+
+      const allCalls = dispatch.calls.allArgs().map(([action]) => action.type);
+
+      // No debería contener UPDATE_MODEL
+      expect(allCalls).not.toContain('UPDATE_MODEL');
+
+      // Debería contener SET_RUNTIME_EVENT y CLEAR_RUNTIME_EVENT
+      expect(allCalls).toContain('SET_RUNTIME_EVENT');
+      expect(allCalls).toContain('CLEAR_RUNTIME_EVENT');
+    });
+
+    it('debería despachar updateModel y setRuntimeEvent si se pasan datos de modelo y evento', () => {
+      const address = { view: 'test', component: 'comp1' };
+      const data = { event: 'click', value: 'test' };
+
+      thunks.updateModelWithDependencies(address, data)(dispatch, getState);
+
+      const allCalls = dispatch.calls.allArgs().map(([action]) => action.type);
+
+      // Debería contener UPDATE_MODEL, SET_RUNTIME_EVENT y CLEAR_RUNTIME_EVENT
+      expect(allCalls).toContain('UPDATE_MODEL');
+      expect(allCalls).toContain('SET_RUNTIME_EVENT');
+      expect(allCalls).toContain('CLEAR_RUNTIME_EVENT');
+    });
   });
 
   describe('restoreModelWithDependencies', () => {
