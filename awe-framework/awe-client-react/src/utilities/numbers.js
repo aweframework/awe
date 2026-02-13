@@ -1,4 +1,4 @@
-import {getFirstDefinedAndNotNullValue, isEmpty} from "./general";
+import { getFirstDefinedAndNotNullValue, isEmpty } from "./general";
 
 /**
  * Number utility functions
@@ -42,8 +42,11 @@ export function translateNumberFormat(numberFormat = {}) {
   let decimals = getFirstDefinedValueAsNumber(numberFormat.precision, numberFormat.mDec, numberFormat.decimalPlaces, 0);
   let isPrefix = numberFormat.pSign === "p";
   let prefixSuffix = getFirstDefinedAndNotNullValue(numberFormat.currencySymbol, numberFormat.aSign, "");
+  const separator = getFirstDefinedAndNotNullValue(numberFormat.digitGroupSeparator, numberFormat.aSep, undefined);
+  const useGrouping = separator !== "";
   return {
-    locale: getLocaleFromSeparator(getFirstDefinedAndNotNullValue(numberFormat.digitGroupSeparator, numberFormat.aSep, undefined)),
+    locale: getLocaleFromSeparator(separator),
+    useGrouping,
     maxFractionDigits: decimals,
     minFractionDigits: getFirstDefinedAndNotNullValue(numberFormat.allowDecimalPadding, numberFormat.aPad, true) ? decimals : 0,
     prefix: isPrefix ? prefixSuffix : "",
@@ -61,10 +64,10 @@ export function translateNumberFormat(numberFormat = {}) {
  * @return {string} Formatted number
  */
 export function formatNumber(number, numberFormat) {
-  const {maxFractionDigits, minFractionDigits, prefix, suffix, locale} = translateNumberFormat(numberFormat);
+  const { maxFractionDigits, minFractionDigits, prefix, suffix, locale, useGrouping } = translateNumberFormat(numberFormat);
   const value = isNumber(number) ? number : parseFloat(number);
   return isEmpty(number) ? "" : prefix +
-    value.toLocaleString(locale, {minimumFractionDigits: minFractionDigits, maximumFractionDigits: maxFractionDigits}) +
+    value.toLocaleString(locale, { minimumFractionDigits: minFractionDigits, maximumFractionDigits: maxFractionDigits, useGrouping }) +
     suffix;
 }
 

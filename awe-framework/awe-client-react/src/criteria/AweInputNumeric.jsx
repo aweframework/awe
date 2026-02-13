@@ -1,16 +1,16 @@
-import React, {useCallback, useMemo, useState} from "react";
-import {InputNumber} from "primereact/inputnumber";
-import {translateLabel} from "../utilities";
-import {formatNumber, translateNumberFormat} from "../utilities/numbers";
-import {classNames} from "../utilities/components";
+import React, { useCallback, useMemo, useState } from "react";
+import { InputNumber } from "primereact/inputnumber";
+import { translateLabel } from "../utilities";
+import { formatNumber, translateNumberFormat } from "../utilities/numbers";
+import { classNames } from "../utilities/components";
 
 import "./AweInputNumeric.less";
-import {Slider} from "primereact/slider";
+import { Slider } from "primereact/slider";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
-import {useDispatch} from "react-redux";
-import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
-import {useTranslation} from "react-i18next";
+import { useDispatch } from "react-redux";
+import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
+import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 
 function AweInputNumeric(props) {
@@ -64,6 +64,7 @@ function AweInputNumeric(props) {
         disabled={readonly}
         mode="decimal"
         locale={nf.locale}
+        useGrouping={nf.useGrouping}
         maxFractionDigits={nf.maxFractionDigits}
         minFractionDigits={nf.minFractionDigits}
         min={nf.min}

@@ -698,7 +698,7 @@ function executeDependency(dependency, component, result, state) {
   let dispatchActions = [];
   let dependencyString = result.string.join(` ${dependency.type || "and"} `);
   dependencyString = dependency.invert ? `!(${dependencyString})` : dependencyString;
-  const depId = `${address.component}[${dependency.index}]`;
+  const depId = `${address.component} #${dependency.index + 1}`;
   const depSource = dependency.source ? ` source=${dependency.source}` : "";
   const depTarget = dependency.target ? ` target=${dependency.target}` : "";
   const depTargetAction = dependency[state.settings.targetActionKey] ? ` action=${dependency[state.settings.targetActionKey]}` : "";
@@ -769,7 +769,7 @@ function checkDependency(dependency, component, state) {
   // Fix result with invert
   result.launch = dependency.invert ? !result.launch : result.launch;
 
-  console.info(`Checking dependency ${component.address.component}[${dependency.index}]`, dependency, component, result);
+  console.info(`Checking dependency ${component.address.component} #${dependency.index + 1}`, dependency, component, result);
   if (state.settings.activeDependencies) {
     return executeDependency(dependency, component, result, state);
   }
