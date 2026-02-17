@@ -1,6 +1,6 @@
 {
   "name": "awe-react-client",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "main": "main.jsx",
   "scripts": {
     "test": "karma start",
