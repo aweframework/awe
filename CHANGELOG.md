@@ -1,3 +1,9 @@
+# Release notes for AWE 4.11.9
+*17/02/2026*
+ 
+🐛 Bug fixes:
+- Select multiple and suggest multiple sends a single element when only one element is selected instead of sending a list every time. [MR #621](https://gitlab.com/aweframework/awe/-/merge_requests/621) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.11.8
 *09/02/2026*
  

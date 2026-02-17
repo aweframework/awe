@@ -1,5 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', function() {
-  let $injector, $utilities, $settings, $control, $rootScope, $translate, $httpBackend, $log, $actionController, $criterion, $selector;
+  let $injector, $utilities, $settings, $control, $rootScope, $translate, $httpBackend, $log, $actionController, $criterion, $selector, $serverData;
   let originalTimeout;
   let controller = {};
   let model = {};
@@ -19,6 +19,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $log = $injector.get('$log');
       $actionController = $injector.get('ActionController');
       $control = $injector.get('Control');
+      $serverData = $injector.get('ServerData');
       $selector = $injector.get('Selector');
     }]);
 
@@ -528,6 +529,42 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       // Check selected updated
       expect(model.values).toEqual([]);
       expect(model.selected).toEqual(null);
+    });
+  });
+
+  describe('multiple selector getData', function () {
+    it('should return an empty array for select multiple when nothing is selected', function () {
+      let $scope = $rootScope.$new();
+      $scope.view = "report";
+      $scope.context = "contexto";
+      let modelRef = {values: [], selected: null};
+      spyOn($control, "getAddressModel").and.returnValue(modelRef);
+      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
+      spyOn($control, "checkComponent").and.returnValue(true);
+
+      let select = new $selector($scope, "tutu", {});
+      select.asSelectMultiple();
+
+      let data = select.getData();
+      expect(data.tutu).toEqual([]);
+    });
+
+    it('should return an array with a single value for suggest multiple when selected is scalar', function () {
+      let $scope = $rootScope.$new();
+      $scope.view = "report";
+      $scope.context = "contexto";
+      let modelRef = {values: [], selected: "A"};
+      spyOn($control, "getAddressModel").and.returnValue(modelRef);
+      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
+      spyOn($control, "checkComponent").and.returnValue(true);
+      spyOn($serverData, "getServerAction").and.returnValue({});
+      spyOn($actionController, "addActionList");
+
+      let suggest = new $selector($scope, "tutu", {});
+      suggest.asSuggestMultiple();
+
+      let data = suggest.getData();
+      expect(data.tutu).toEqual(["A"]);
     });
   });
 });
