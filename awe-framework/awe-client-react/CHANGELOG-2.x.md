@@ -1,3 +1,10 @@
+# Release notes for AWE React 2.1.3
+*17/02/2026*
+ 
+🐛 Bug fixes:
+- If updating ONLY an event, avoid updating model on component. [MR #159](https://gitlab.com/aweframework/awe-react/-/merge_requests/159) (Pablo Javier García Mora)
+- Allow numeric criterion to define numbers without thousand separator. [MR #158](https://gitlab.com/aweframework/awe-react/-/merge_requests/158) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.1.2
 *12/02/2026*
  
