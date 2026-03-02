@@ -34,8 +34,10 @@ import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -96,98 +98,114 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     // Log start query prepare time
     List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
-    // Generate the corresponding query factory
-    SQLQueryFactory queryFactory = getQueryFactory(parameters);
+    // Obtain the datasource and connection explicitly to guarantee release on any code path
+    QueryFactoryWithConnection factoryWithConnection = getQueryFactoryWithConnection(parameters);
+    DataSource currentDataSource = factoryWithConnection.dataSource();
+    Connection connection = factoryWithConnection.connection();
+    SQLQueryFactory queryFactory = factoryWithConnection.queryFactory();
 
-    // Get query builder
-    SQLQueryBuilder builder = getBean(SQLQueryBuilder.class);
-
-    // Get query variables for further usage
-    Map<String, QueryParameter> variableMap = builder.setQuery(query)
-      .setFactory(queryFactory)
-      .setParameters(parameters)
-      .getVariables();
-
-    // Set sort and order
-    if (variableMap.containsKey(AweConstants.QUERY_SORT)) {
-      ArrayNode sortList = (ArrayNode) variableMap.get(AweConstants.QUERY_SORT).getValue();
-      builder.setComponentSort(sortList);
-    }
-
-    // Get pagination
-    long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong();
-
-    // Only manage pagination by default if there is no totalization and elements per page is greater than zero
-    boolean paginate = (query.getPaginationManaged() == null || query.isPaginationManaged()) &&
-            (query.getTotalizeList() == null || query.getTotalizeList().isEmpty()) &&
-            (elementsPerPage > 0);
-
-    // Build query
-    SQLQuery<Tuple> queryBuilt = builder.build();
-    SQLQuery<Tuple> queryCount = null;
-    if (paginate) {
-      queryCount = builder.queryForCount().build();
-    }
-
-    // Get query preparation time
-    LogUtil.checkpoint(timeLapse);
-
-    List<Tuple> results;
-    long records;
-
-		if (paginate) {
-			long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong();
-			queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
-		}
-		String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
-		try {
-			// Launch query
-			List<Tuple> allResults = queryBuilt.fetch();
-      if (paginate) {
-        records = queryFactory.select(SQLExpressions.all).from(queryCount, new PathBuilder<>(Object.class, "R")).fetchCount();
-      } else {
-        records = allResults.size();
-      }
-			results = allResults;
-    } catch (Exception exc) {
-      throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
-    }
-
-    // Get query preparation time
-    LogUtil.checkpoint(timeLapse);
-
-    DataList datalist;
     try {
-      // Generate datalist
-      datalist = fillDataList(results, records, query, queryBuilt.getMetadata().getProjection(), variableMap);
+      // Get query builder
+      SQLQueryBuilder builder = getBean(SQLQueryBuilder.class);
+
+      // Get query variables for further usage
+      Map<String, QueryParameter> variableMap = builder.setQuery(query)
+        .setFactory(queryFactory)
+        .setParameters(parameters)
+        .getVariables();
+
+      // Set sort and order
+      if (variableMap.containsKey(AweConstants.QUERY_SORT)) {
+        ArrayNode sortList = (ArrayNode) variableMap.get(AweConstants.QUERY_SORT).getValue();
+        builder.setComponentSort(sortList);
+      }
+
+      // Get pagination
+      long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong();
+
+      // Only manage pagination by default if there is no totalization and elements per page is greater than zero
+      boolean paginate = (query.getPaginationManaged() == null || query.isPaginationManaged()) &&
+              (query.getTotalizeList() == null || query.getTotalizeList().isEmpty()) &&
+              (elementsPerPage > 0);
+
+      // Build query
+      SQLQuery<Tuple> queryBuilt = builder.build();
+      SQLQuery<Tuple> queryCount = null;
+      if (paginate) {
+        queryCount = builder.queryForCount().build();
+      }
 
       // Get query preparation time
       LogUtil.checkpoint(timeLapse);
 
-      // Log query
-      log.info("[\u001B[34m{}\u001B[0m] [{}] => {} records. Create query time: {}s - Sql time: {}s - Datalist time: {}s - {}",
-        query.getId(), sql, records,
-        LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
-        LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
-        LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
-        LogUtil.getTotalTime(timeLapse));
-    } catch (Exception exc) {
-      throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
-    }
+      List<Tuple> results;
+      long records;
 
-    ServiceData out = new ServiceData();
-    out.setDataList(datalist);
-    return out;
+      if (paginate) {
+        long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong();
+        queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
+      }
+      String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
+      try {
+        // Launch query
+        List<Tuple> allResults = queryBuilt.fetch();
+        if (paginate) {
+          records = queryFactory.select(SQLExpressions.all).from(queryCount, new PathBuilder<>(Object.class, "R")).fetchCount();
+        } else {
+          records = allResults.size();
+        }
+        results = allResults;
+      } catch (Exception exc) {
+        throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
+      }
+
+      // Get query preparation time
+      LogUtil.checkpoint(timeLapse);
+
+      DataList datalist;
+      try {
+        // Generate datalist
+        datalist = fillDataList(results, records, query, queryBuilt.getMetadata().getProjection(), variableMap);
+
+        // Get query preparation time
+        LogUtil.checkpoint(timeLapse);
+
+        // Log query
+        log.info("[\u001B[34m{}\u001B[0m] [{}] => {} records. Create query time: {}s - Sql time: {}s - Datalist time: {}s - {}",
+          query.getId(), sql, records,
+          LogUtil.getElapsed(timeLapse, AweConstants.PREPARATION_TIME),
+          LogUtil.getElapsed(timeLapse, AweConstants.EXECUTION_TIME),
+          LogUtil.getElapsed(timeLapse, AweConstants.RESULTS_TIME),
+          LogUtil.getTotalTime(timeLapse));
+      } catch (Exception exc) {
+        throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
+      }
+
+      ServiceData out = new ServiceData();
+      out.setDataList(datalist);
+      return out;
+
+    } finally {
+      // Always release the connection back to the pool, even if an exception occurred
+      DataSourceUtils.releaseConnection(connection, currentDataSource);
+    }
   }
 
   /**
-   * Retrieve corresponding query factory
+   * Internal record to carry the query factory together with the connection and datasource
+   * needed to release the connection after use.
+   */
+  private record QueryFactoryWithConnection(SQLQueryFactory queryFactory, Connection connection, DataSource dataSource) {}
+
+  /**
+   * Retrieve corresponding query factory, obtaining the connection explicitly
+   * so it can be released by the caller via {@link DataSourceUtils#releaseConnection}.
    *
    * @param parameters Parameters
-   * @return Query factory
+   * @return QueryFactoryWithConnection holding the factory, the open connection and the datasource
    * @throws AWException Error retrieving query factory
    */
-  private SQLQueryFactory getQueryFactory(ObjectNode parameters) throws AWException {
+  private QueryFactoryWithConnection getQueryFactoryWithConnection(ObjectNode parameters) throws AWException {
     // Retrieve current datasource
     DataSource currentDataSource = dataSource;
     DatabaseConnection databaseConnection = contextHolder.getDatabaseConnection(dataSource);
@@ -201,8 +219,18 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       MDC.put(AweConstants.SESSION_DATABASE, database);
     }
 
-    // Retrieve query factory
-    return new SQLQueryFactory(getConfiguration(databaseConnection.getConnectionType()), currentDataSource);
+    // Obtain the connection explicitly from the pool (Spring-managed) so we can release it in a finally block
+    Connection connection = DataSourceUtils.getConnection(currentDataSource);
+    try {
+      final Connection finalConnection = connection;
+      SQLQueryFactory queryFactory = new SQLQueryFactory(getConfiguration(databaseConnection.getConnectionType()), () -> finalConnection);
+      return new QueryFactoryWithConnection(queryFactory, connection, currentDataSource);
+    } catch (Exception e) {
+      // If factory/configuration setup fails after the connection was already obtained,
+      // release it immediately to avoid connection-pool leaks.
+      DataSourceUtils.releaseConnection(connection, currentDataSource);
+      throw e;
+    }
   }
 
   /**
