@@ -1,3 +1,9 @@
+# Release notes for AWE 4.11.10
+*02/03/2026*
+ 
+🐛 Bug fixes:
+- Leak database conections. [MR #622](https://gitlab.com/aweframework/awe/-/merge_requests/622) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.11.9
 *17/02/2026*
  
