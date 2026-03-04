@@ -36,6 +36,16 @@ public class DatabaseConnection {
   }
 
   /**
+   * Check if a connection has already been assigned to this instance
+   * without triggering the lazy-acquisition logic in {@link #getConnection()}.
+   *
+   * @return {@code true} if a connection object is already held
+   */
+  public boolean hasConnection() {
+    return connection != null;
+  }
+
+  /**
    * Get Connection
    * @return connection
    */

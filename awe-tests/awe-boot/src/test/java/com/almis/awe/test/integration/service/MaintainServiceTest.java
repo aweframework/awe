@@ -36,7 +36,7 @@ class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
-   * Test of maintain not defined.
+   * Test maintain aren't defined — prepareMaintain should throw BEFORE any connection is opened.
    */
   @Test
   void testMaintainNotDefined() {
@@ -44,7 +44,7 @@ class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
-   * Test of maintain over a null alias (should launch over default database)
+   * Test of maintain over a default database
    *
    * @throws AWException Test error
    */
@@ -56,20 +56,21 @@ class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
-   * Test of maintain over a null alias (should launch over default database)
+   * Test of maintain over a specific alias (should resolve via getDatabaseConnection(ObjectNode))
    *
    * @throws AWException Test error
    */
   @Test
   void testMaintainWithValidAlias() throws Exception {
     MaintainService mock = spy(maintainService);
-    doReturn(maintainService.getDatabaseConnection()).when(mock).getDatabaseConnection(anyString());
+    // Stub getDatabaseConnection(ObjectNode) since that's what launchMaintain(String, ObjectNode) calls internally
+    doReturn(maintainService.getDatabaseConnection()).when(mock).getDatabaseConnection(any(ObjectNode.class));
     mock.launchMaintain("SimpleSingleInsertFromVariableValue", "aweora1");
     verify(mock, times(1)).getDatabaseConnection(any(ObjectNode.class));
   }
 
   /**
-   * Test of maintain over a null alias (should launch over default database)
+   * Test private maintain over a default database
    *
    * @throws AWException Test error
    */
@@ -81,16 +82,15 @@ class MaintainServiceTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
-   * Test of maintain over a null alias (should launch over default database)
+   * Test private maintain over a specific alias (should resolve via getDatabaseConnection(ObjectNode))
    *
    * @throws AWException Test error
    */
   @Test
   void testPrivateMaintainWithValidAlias() throws Exception {
     MaintainService mock = spy(maintainService);
-    doReturn(maintainService.getDatabaseConnection()).when(mock).getDatabaseConnection(anyString());
+    doReturn(maintainService.getDatabaseConnection()).when(mock).getDatabaseConnection(any(ObjectNode.class));
     mock.launchPrivateMaintain("SimpleSingleInsertFromVariableValue", "aweora1");
     verify(mock, times(1)).getDatabaseConnection(any(ObjectNode.class));
   }
-
 }

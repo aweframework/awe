@@ -47,7 +47,7 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
   private MockHttpSession session;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     session = new MockHttpSession();
   }
 
