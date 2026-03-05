@@ -22,8 +22,8 @@
     <spring-boot.version>3.5.9</spring-boot.version>
     <spring-cloud.version>2025.0.1</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
-    <node.version>v20.9.0</node.version>
-    <yarn.version>v1.22.21</yarn.version>
+    <node.version>v24.14.0</node.version>
+    <yarn.version>v1.22.22</yarn.version>
     <npm.version>v6.9.0</npm.version>
     <st.version>4.3.1</st.version>
     <flexmark.version>0.62.2</flexmark.version>
