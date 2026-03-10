@@ -1,11 +1,11 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {initialSuggestAction, suggestAction} from "../redux/thunks/suggest";
 
 const useSuggest = (autocompleteRef, setSuggestions, value, setValue, props) => {
   const dispatch = useDispatch();
-  const [abortController, setAbortController] = useState(new AbortController());
+  const abortControllerRef = useRef(new AbortController());
   const [suggesting, setSuggesting] = useState(false);
   const { address, serverAction, targetAction, checkTarget, strict = true } = props;
 
@@ -44,17 +44,25 @@ const useSuggest = (autocompleteRef, setSuggestions, value, setValue, props) => 
    * @memberOf Components
    */
   const suggest = useCallback(async (event, text) => {
-    // Cancel previous fetch
-    if (suggesting) {
-      abortController.abort();
-      setAbortController(new AbortController());
-    }
+    try {
+      // Cancel previous fetch
+      if (suggesting) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = new AbortController();
+      }
 
-    // Fetch server action
-    const {signal} = abortController;
-    setSuggesting(true);
-    setSuggestions(await dispatch(suggestAction(event, text, {address, serverAction, targetAction, strict, signal})));
-    setSuggesting(false);
+      // Fetch server action
+      const {signal} = abortControllerRef.current;
+      setSuggesting(true);
+      setSuggestions(await dispatch(suggestAction(event, text, {address, serverAction, targetAction, strict, signal})));
+      setSuggesting(false);
+    } catch (error) {
+      // Ignore AbortError - it happens when a previous request is cancelled
+      if (error?.name !== 'AbortError') {
+        console.error('Error in suggest:', error);
+      }
+      setSuggesting(false);
+    }
   }, [dispatch, suggesting, address, serverAction, targetAction, strict]);
 
   /**
