@@ -1,3 +1,9 @@
+# Release notes for AWE React 2.1.4
+*10/03/2026*
+ 
+🐛 Bug fixes:
+- Data load in suggest fails after writting in it too fast. [MR #160](https://gitlab.com/aweframework/awe-react/-/merge_requests/160) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.1.3
 *17/02/2026*
  
