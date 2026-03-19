@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "awe-framework": {
+      "source": "aweframework/awe-skills",
+      "sourceType": "github",
+      "computedHash": "23b37d3b1271a8545dbff5d2f8a12f3ee772ee4929e43869dcf2edb87561944c"
+    }
+  }
+}
