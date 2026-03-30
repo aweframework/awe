@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import Highcharts from 'highcharts/highstock';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import HighchartsDrilldown from 'highcharts/modules/drilldown';
@@ -10,7 +10,6 @@ import HighchartsReact from 'highcharts-react-official';
 import HighchartsAccesibility from 'highcharts/modules/accessibility';
 import { translateLabel } from "../utilities";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
 
 import "./AweChart.less";
 import { localeOptions } from "primereact/api";
@@ -193,10 +192,6 @@ function AweChart(props) {
   const { id } = props;
   const { model = { values: [] }, attributes = {} } = useComponentState(id);
   const settings = useSelector(state => state.settings);
-  const [animating, setAnimating] = useState((model?.values || []).length > 0);
-  const chartRef = useRef(null);
-  const activeRef = useRef(false);
-  const redrawRef = useRef(() => { });
   const { t, i18n } = useTranslation();
 
   // Make sure Highcharts modules are ready before first render
@@ -207,37 +202,7 @@ function AweChart(props) {
   // Update language when app language changes (runtime changes)
   useEffect(() => {
     ensureLanguage(i18n.language);
-    // force redraw callback to be reset
-    redrawRef.current = () => { };
   }, [i18n.language]);
-
-  const afterChartCreated = useCallback((chart) => {
-    chartRef.current = chart;
-    redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
-    activeRef.current = true;
-
-    chart.series.forEach(series => {
-      Highcharts.addEvent(series, "afterAnimate", () => {
-        onAnimationEnd();
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      activeRef.current = false;
-      redrawRef.current = () => { };
-    };
-  }, []);
-
-  const onAnimationEnd = useCallback(() => {
-    setTimeout(() => setAnimating(false), 500);
-  }, []);
-
-  // Redraw on updates
-  useEffect(() => {
-    redrawRef.current();
-  });
 
   const chartOptions = JSON.parse(JSON.stringify(
     processChartOptions(attributes.chartModel, model.values, t, { ...settings, language: i18n.language })
@@ -250,8 +215,6 @@ function AweChart(props) {
       key={i18n.language}
       highcharts={Highcharts}
       options={chartOptions}
-      callback={afterChartCreated}
-      allowChartUpdate={!animating}
       containerProps={{ style: { position: "absolute", left: 0, top: 0, bottom: 0, right: 0 } }}
     />
   </div>;
