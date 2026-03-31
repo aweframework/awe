@@ -1,3 +1,9 @@
+# Release notes for AWE React 2.1.5
+*31/03/2026*
+ 
+🐛 Bug fixes:
+- Filter action on chart is not refreshing component view. [MR #161](https://gitlab.com/aweframework/awe-react/-/merge_requests/161) (Pablo Vidal Otero)
+
 # Release notes for AWE React 2.1.4
 *10/03/2026*
  
