@@ -1,3 +1,9 @@
+# Release notes for AWE React 2.1.6
+*31/03/2026*
+ 
+🐛 Bug fixes:
+- fix(tests): isolate useComponent registry state. [MR #162](https://gitlab.com/aweframework/awe-react/-/merge_requests/162) (Pablo Vidal Otero)
+
 # Release notes for AWE React 2.1.5
 *31/03/2026*
  
