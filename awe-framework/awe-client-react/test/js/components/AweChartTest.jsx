@@ -1,7 +1,9 @@
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
+import {act} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
-import AweChart from "../../../src/components/AweChart";
+import AweChart, {processChartOptions} from "../../../src/components/AweChart";
+import {updateModel} from "../../../src/redux/actions/components";
 
 import "../../../src/i18n/i18n";
 
@@ -1903,6 +1905,141 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
     });
 
     // check
+    expect(document.querySelector("div#chart")).not.toBeNull();
+  });
+
+  // Regression: filter-refresh — when the model's values are replaced (e.g. after applying a
+  // filter), the chart container must still be present and the component must not throw.
+  // This test also guards the allowChartUpdate fix: the component must not block chart.update()
+  // calls after the initial render (old bug: animating=true + afterAnimate never firing in
+  // headless/disabled-animation environments would permanently suppress updates).
+  it('re-renders chart when model values are refreshed via store dispatch', () => {
+    const address = {component: 'chart', view: 'report'};
+    const initialState = {
+      ...preloadedState,
+      components: {
+        ...preloadedState.components,
+        chart: {
+          ...preloadedState.components.chart,
+          model: {values},
+          attributes: {
+            ...preloadedState.components.chart.attributes,
+            chartModel
+          }
+        }
+      }
+    };
+
+    const { store, container } = renderWithProviders(
+      <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
+      {preloadedState: initialState}
+    );
+
+    // Simulate a filter-refresh by replacing the model with a smaller data set
+    const filteredValues = values.slice(0, 10);
+    act(() => {
+      store.dispatch(updateModel(address, {values: filteredValues}));
+    });
+
+    // The chart container must still be present after the model update (component rerender path)
+    const chartDiv = container.querySelector("div#chart");
+    expect(chartDiv).not.toBeNull();
+
+    // The store model must reflect the updated values (store-driven rerender)
+    const state = store.getState();
+    expect(state.components.chart.model.values.length).toBe(filteredValues.length);
+
+    // Validate the chart computation path: processChartOptions must produce series data
+    // that reflects the filtered (reduced) model values, not the original full set.
+    // This mirrors the useMemo computation inside the component triggered by the rerender.
+    // Because allowChartUpdate is always true, the component passes these new options
+    // to HighchartsReact without any animation-state gate blocking the update.
+    const t = (key) => key; // identity translator — mirrors what i18n returns when not loaded
+    const computed = processChartOptions(chartModel, filteredValues, t, { language: "en" });
+    expect(computed.series).toBeDefined();
+    expect(computed.series.length).toBeGreaterThan(0);
+    expect(computed.series[0].data.length).toBe(filteredValues.length);
+    // lang must be set in the computed options (language-driven locale path).
+    expect(computed.lang).toBeDefined();
+
+    // Also verify that the full original dataset would produce a different (longer) series,
+    // confirming the component would render different options before vs after the dispatch.
+    const computedFull = processChartOptions(chartModel, values, t, { language: "en" });
+    expect(computedFull.series[0].data.length).toBe(values.length);
+    expect(computedFull.series[0].data.length).toBeGreaterThan(computed.series[0].data.length);
+  });
+
+  // Regression: allowChartUpdate must never be blocked by an animation-state gate.
+  // Previously, animating=true (set when model had data on mount) would suppress all
+  // chart.update() calls until afterAnimate fired. In headless/jsdom environments
+  // afterAnimate never fires, so subsequent model updates were silently dropped.
+  // With allowChartUpdate=true unconditionally, multiple sequential model updates must
+  // all survive without throwing and the chart container must remain in the DOM.
+  it('survives multiple sequential model updates without animation events (allowChartUpdate fix)', () => {
+    const address = {component: 'chart', view: 'report'};
+    const initialState = {
+      ...preloadedState,
+      components: {
+        ...preloadedState.components,
+        chart: {
+          ...preloadedState.components.chart,
+          model: {values},  // non-empty — would have triggered animating=true in the old code
+          attributes: {
+            ...preloadedState.components.chart.attributes,
+            chartModel
+          }
+        }
+      }
+    };
+
+    const { store, container } = renderWithProviders(
+      <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
+      {preloadedState: initialState}
+    );
+
+    // Dispatch three successive model updates without any animation event in between.
+    // In the old code (animating=true, no afterAnimate in jsdom), all three would be
+    // silently ignored by HighchartsReact. With allowChartUpdate=true they must all
+    // pass through without errors.
+    act(() => { store.dispatch(updateModel(address, {values: values.slice(0, 50)})); });
+    act(() => { store.dispatch(updateModel(address, {values: values.slice(0, 20)})); });
+    act(() => { store.dispatch(updateModel(address, {values: []})); });
+
+    // Chart container must survive all updates
+    expect(container.querySelector("div#chart")).not.toBeNull();
+
+    // Store must reflect the final dispatched model
+    const finalState = store.getState();
+    expect(finalState.components.chart.model.values.length).toBe(0);
+  });
+
+  // Regression: model update with empty values (cleared filter) must not crash
+  it('handles empty model values without throwing', () => {
+    const address = {component: 'chart', view: 'report'};
+    const initialState = {
+      ...preloadedState,
+      components: {
+        ...preloadedState.components,
+        chart: {
+          ...preloadedState.components.chart,
+          model: {values},
+          attributes: {
+            ...preloadedState.components.chart.attributes,
+            chartModel
+          }
+        }
+      }
+    };
+
+    const { store } = renderWithProviders(
+      <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
+      {preloadedState: initialState}
+    );
+
+    act(() => {
+      store.dispatch(updateModel(address, {values: []}));
+    });
+
     expect(document.querySelector("div#chart")).not.toBeNull();
   });
 

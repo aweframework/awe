@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import Highcharts from 'highcharts/highstock';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import HighchartsDrilldown from 'highcharts/modules/drilldown';
@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import "./AweChart.less";
 import { localeOptions } from "primereact/api";
 import { produce } from "immer";
-import { useSelector } from "react-redux";
+import _ from "lodash";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import { classNames } from "../utilities/components";
@@ -70,7 +70,7 @@ const FORMATTERS = {
  * @returns chartOptions with labels translated
  * @memberOf AweChart
  */
-function processChartOptions(chartOptions, model, t, settings) {
+export function processChartOptions(chartOptions, model, t, settings) {
   return produce(chartOptions, draft => {
     const { title, subtitle, legend, series, drilldown } = draft;
 
@@ -166,9 +166,9 @@ function translateAxis(axisArray, t) {
  * @category Components
  * @subcategory Chart
  */
-// Synchronous one-time module initialization (before any render/mount)
-let __AWE_CHART_MODULES_INITIALIZED__ = (typeof __AWE_CHART_MODULES_INITIALIZED__ !== 'undefined') ? __AWE_CHART_MODULES_INITIALIZED__ : false;
-let __AWE_CHART_CURRENT_LANG__ = (typeof __AWE_CHART_CURRENT_LANG__ !== 'undefined') ? __AWE_CHART_CURRENT_LANG__ : null;
+// Synchronous one-time module initialization — runs at module load time, never inside render.
+let __AWE_CHART_MODULES_INITIALIZED__ = false;
+let __AWE_CHART_CURRENT_LANG__ = null;
 function ensureModulesInit() {
   if (!__AWE_CHART_MODULES_INITIALIZED__) {
     Highcharts3D(Highcharts);
@@ -187,26 +187,55 @@ function ensureLanguage(lang) {
     __AWE_CHART_CURRENT_LANG__ = lang;
   }
 }
+// Run one-time side effects at module evaluation time, not inside any render.
+ensureModulesInit();
 
 function AweChart(props) {
   const { id } = props;
   const { model = { values: [] }, attributes = {} } = useComponentState(id);
-  const settings = useSelector(state => state.settings);
+  const chartRef = useRef(null);
+  const activeRef = useRef(false);
+  const redrawRef = useRef(() => { });
   const { t, i18n } = useTranslation();
 
-  // Make sure Highcharts modules are ready before first render
-  ensureModulesInit();
-  // Ensure initial language is applied synchronously too (before mount)
-  ensureLanguage(i18n.language);
-
-  // Update language when app language changes (runtime changes)
+  // Apply initial language once on mount, then track runtime language changes.
+  // No explicit reflow call needed here: the key={i18n.language} prop on
+  // HighchartsReact causes a full remount when the language changes, and the
+  // unconstrained render effect below triggers a reflow after every committed
+  // render (including the one following a language change).
   useEffect(() => {
     ensureLanguage(i18n.language);
   }, [i18n.language]);
 
-  const chartOptions = JSON.parse(JSON.stringify(
-    processChartOptions(attributes.chartModel, model.values, t, { ...settings, language: i18n.language })
-  ));
+  const afterChartCreated = useCallback((chart) => {
+    chartRef.current = chart;
+    redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
+    activeRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      activeRef.current = false;
+      // Cancel any pending debounced reflow on unmount to prevent state updates
+      // on an unmounted chart instance.
+      if (typeof redrawRef.current.cancel === 'function') {
+        redrawRef.current.cancel();
+      }
+      redrawRef.current = () => { };
+    };
+  }, []);
+
+  // Trigger a reflow after every committed render so the chart fills its
+  // container correctly when the layout changes (e.g. resizable panels).
+  useEffect(() => {
+    redrawRef.current();
+  });
+
+  // Memoize chart options so HighchartsReact only sees a new object reference
+  // when the underlying data, attributes, language, or translation actually change.
+  const chartOptions = useMemo(() => JSON.parse(JSON.stringify(
+    processChartOptions(attributes.chartModel, model.values, t, { language: i18n.language })
+  )), [attributes.chartModel, model.values, t, i18n.language]);
 
   const { style, visible } = attributes;
   const classes = classNames("awe-chart", "expand", "highcharts-dark", style, { "hidden": !visible });
@@ -215,6 +244,8 @@ function AweChart(props) {
       key={i18n.language}
       highcharts={Highcharts}
       options={chartOptions}
+      callback={afterChartCreated}
+      allowChartUpdate={true}
       containerProps={{ style: { position: "absolute", left: 0, top: 0, bottom: 0, right: 0 } }}
     />
   </div>;
