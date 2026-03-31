@@ -4,6 +4,7 @@ import { renderWithProviders } from '../test-utils';
 import { ADD_ACTIONS_TOP } from '../../../src/redux/actions/actions';
 import { updateAttributes } from '../../../src/redux/actions/components';
 import {act} from "@testing-library/react";
+import ComponentRegistry from '../../../src/redux/registry/ComponentRegistry';
 
 // Small harness that just uses the hook
 function HookHarness({ id }) {
@@ -17,6 +18,14 @@ function getAddActionsTopCalls(dispatchSpy) {
 
 describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
   const baseAddress = { view: 'tortilla', component: 'comp1' };
+
+  beforeEach(() => {
+    ComponentRegistry.clearAll();
+  });
+
+  afterEach(() => {
+    ComponentRegistry.clearAll();
+  });
 
   it('dispatches a filter action on mount when autoload is true', () => {
     const preloadedState = {
