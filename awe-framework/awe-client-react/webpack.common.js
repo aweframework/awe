@@ -53,6 +53,7 @@ module.exports = {
         {from: "src/templates.stg", to: "[name][ext]"},
         {from: "src/plugins", to: "plugins/[name][ext]"},
         {from: "src/static", to: "static/"},
+        {from: "README.md", to: "[name][ext]"},
       ]
     })
   ]
