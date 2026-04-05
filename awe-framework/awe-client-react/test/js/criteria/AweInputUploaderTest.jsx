@@ -7,6 +7,7 @@ import AweInputUploader from "../../../src/criteria/AweInputUploader";
 describe('awe-react-client/test/js/criteria/AweInputUploaderTest.jsx', () => {
 
   afterAll(cleanup);
+  afterEach(() => jest.restoreAllMocks());
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
@@ -54,7 +55,7 @@ describe('awe-react-client/test/js/criteria/AweInputUploaderTest.jsx', () => {
         json: () => resultPromise
       });
     });
-    spyOn(window, "fetch").and.returnValue(promise);
+    global.fetch = jest.fn().mockReturnValue(promise);
     promise.catch((e) => console.info(e));
 
     renderWithProviders(<AweInputUploader id="uploader"/>, {preloadedState});

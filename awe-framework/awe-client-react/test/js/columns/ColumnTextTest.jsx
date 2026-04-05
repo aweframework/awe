@@ -33,7 +33,7 @@ describe('awe-react-client/test/js/columns/ColumnTextTest.jsx', () => {
     renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
     expect(input).not.toBeNull();
-    expect(input.required).toBeTrue();
+    expect(input.required).toBe(true);
   });
 
   /*it('llama a updateModelWithDependencies al hacer blur tras cambio', () => {
@@ -98,6 +98,6 @@ describe('awe-react-client/test/js/columns/ColumnTextTest.jsx', () => {
     props.readonly = true;
     renderWithProviders(<ColumnText {...props} />);
     const input = screen.getByDisplayValue('initial');
-    expect(input.disabled).toBeTrue();
+    expect(input.disabled).toBe(true);
   });
 });

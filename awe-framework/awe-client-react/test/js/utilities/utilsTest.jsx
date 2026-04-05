@@ -11,6 +11,11 @@ import React from "react";
 import {extractCellModel, extractCellValue, getCellValue} from "../../../src/utilities/grid";
 
 describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
+  beforeEach(() => {
+    global.fetch = jest.fn();
+    window.fetch = global.fetch;
+  });
+
   it('should extract a cell value from array', () => {
     expect(extractCellValue([{value: 1, label: "1", selected: false}, {value: 2, label: "2", selected: true}])).toBe("2");
   });
@@ -45,7 +50,7 @@ describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
   });
 
   it('should fetch a json and return json', async () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    jest.spyOn(window, "fetch").mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'application/json;charset=UTF-8'
       },
@@ -59,7 +64,7 @@ describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
   });
 
   it('should fetch an html file and return text', async () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    jest.spyOn(window, "fetch").mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'text/html;charset=UTF-8'
       },
@@ -81,24 +86,38 @@ describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
   });
 
   it('should generate a help tooltip node without image', () => {
-    expect(getHelpTooltipNode("help", null, t => t, "test")).toEqual(<Tooltip target="test">
-      {["help", null]}
-    </Tooltip>)
+    const node = getHelpTooltipNode("help", null, t => t, "test");
+    expect(node.type).toBe(Tooltip);
+    expect(node.props.target).toBe("test");
+    expect(node.props.children[0]).toBe("help");
+    expect(node.props.children[1]).toBeNull();
   });
 
   it('should generate a help tooltip node with image', () => {
-    expect(getHelpTooltipNode("help", null, t => t, "test")).toEqual(<Tooltip target="test">
-      {["help", null]}
-    </Tooltip>)
+    const node = getHelpTooltipNode("help", null, t => t, "test");
+    expect(node.type).toBe(Tooltip);
+    expect(node.props.target).toBe("test");
+    expect(node.props.children[0]).toBe("help");
+    expect(node.props.children[1]).toBeNull();
   });
 
   it('should generate a help tooltip node only with image', () => {
-    expect(getHelpTooltipNode("help", "test", t => t, "test")).toEqual(<Tooltip target="test">
-      {["help", <img src="test" alt="help"/>]}
-    </Tooltip>)
+    const node = getHelpTooltipNode("help", "test", t => t, "test");
+    expect(node.type).toBe(Tooltip);
+    expect(node.props.target).toBe("test");
+    expect(node.props.children[0]).toBe("help");
+    expect(node.props.children[1].type).toBe("img");
+    expect(node.props.children[1].props.src).toBe("test");
+    expect(node.props.children[1].props.alt).toBe("help");
   });
 
   it('should generate a help tooltip node empty', () => {
     expect(getHelpTooltipNode(null, null, t => t, "test")).toEqual(null)
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    delete global.fetch;
+    delete window.fetch;
   });
 });

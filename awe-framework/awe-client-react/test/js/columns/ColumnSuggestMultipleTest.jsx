@@ -9,12 +9,12 @@ describe('awe-react-client/test/js/columns/ColumnSuggestMultipleTest.jsx', () =>
       component: 'suggest-multiple',
       model: {values: []},
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'suggest-multiple', view: 'report', column: 'column', row: 'row'},
       placeholder: "Suggest multiple test",
-      t: jasmine.createSpy("t"),
+      t: jest.fn(),
       settings: {}
     }, [
       {value: "test-a", label: "Test A", selected: true},

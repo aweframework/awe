@@ -9,7 +9,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
   let mockAddress;
 
   beforeEach(() => {
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
 
     mockAddress = { view: 'base', component: 'comp1' };
 
@@ -39,7 +39,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       }
     };
 
-    getState = jasmine.createSpy('getState').and.callFake(() => mockState);
+    getState = jest.fn(() => mockState);
   });
 
   describe('updateViewComponentsWithDependencies', () => {
@@ -50,9 +50,9 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.updateViewComponentsWithDependencies(view, data)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBeGreaterThanOrEqual(1);
+      expect(dispatch.mock.calls.length).toBeGreaterThanOrEqual(1);
 
-      const [[updateViewComponents]] = dispatch.calls.allArgs();
+      const [[updateViewComponents]] = dispatch.mock.calls;
       expect(updateViewComponents.type).toBe('UPDATE_VIEW_COMPONENTS');
     });
   });
@@ -66,7 +66,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[updateMultipleComponents]] = dispatch.calls.allArgs();
+      const [[updateMultipleComponents]] = dispatch.mock.calls;
       expect(updateMultipleComponents.type).toBe('UPDATE_MULTIPLE_COMPONENTS');
     });
   });
@@ -80,7 +80,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[updateMultipleModels]] = dispatch.calls.allArgs();
+      const [[updateMultipleModels]] = dispatch.mock.calls;
       expect(updateMultipleModels.type).toBe('UPDATE_MULTIPLE_MODELS');
     });
   });
@@ -95,7 +95,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[updateModel]] = dispatch.calls.allArgs();
+      const [[updateModel]] = dispatch.mock.calls;
       expect(updateModel.type).toBe('UPDATE_MODEL');
       expect(updateModel.address).toEqual(address);
     });
@@ -106,10 +106,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.updateModelWithDependencies(address, data)(dispatch, getState);
 
-      expect(dispatch.calls.count()).toBeGreaterThanOrEqual(2);
+      expect(dispatch.mock.calls.length).toBeGreaterThanOrEqual(2);
 
       // Verificar que hay una llamada con event: ""
-      const [[updateModel], [changeEvent], [clearRuntimeEvent]] = dispatch.calls.allArgs();
+      const [[updateModel], [changeEvent], [clearRuntimeEvent]] = dispatch.mock.calls;
       const hasEventReset = clearRuntimeEvent.type === 'CLEAR_RUNTIME_EVENT';
       expect(hasEventReset).toBe(true);
     });
@@ -120,7 +120,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.updateModelWithDependencies(address, data)(dispatch, getState);
 
-      const allCalls = dispatch.calls.allArgs().map(([action]) => action.type);
+      const allCalls = dispatch.mock.calls.map(([action]) => action.type);
 
       // No debería contener UPDATE_MODEL
       expect(allCalls).not.toContain('UPDATE_MODEL');
@@ -136,7 +136,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.updateModelWithDependencies(address, data)(dispatch, getState);
 
-      const allCalls = dispatch.calls.allArgs().map(([action]) => action.type);
+      const allCalls = dispatch.mock.calls.map(([action]) => action.type);
 
       // Debería contener UPDATE_MODEL, SET_RUNTIME_EVENT y CLEAR_RUNTIME_EVENT
       expect(allCalls).toContain('UPDATE_MODEL');
@@ -155,7 +155,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[restoreModel]] = dispatch.calls.allArgs();
+      const [[restoreModel]] = dispatch.mock.calls;
       expect(restoreModel.type).toBe('RESTORE_MODEL');
     });
   });
@@ -169,7 +169,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[restoreMultipleModel]] = dispatch.calls.allArgs();
+      const [[restoreMultipleModel]] = dispatch.mock.calls;
       expect(restoreMultipleModel.type).toBe('RESTORE_MULTIPLE_MODEL');
     });
   });
@@ -184,7 +184,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[resetModel]] = dispatch.calls.allArgs();
+      const [[resetModel]] = dispatch.mock.calls;
       expect(resetModel.type).toBe('RESET_MODEL');
     });
   });
@@ -198,7 +198,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
       expect(getState).toHaveBeenCalled();
 
-      const [[resetMultipleModel]] = dispatch.calls.allArgs();
+      const [[resetMultipleModel]] = dispatch.mock.calls;
       expect(resetMultipleModel.type).toBe('RESET_MULTIPLE_MODEL');
     });
   });
@@ -212,7 +212,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[addActionsTop]] = dispatch.calls.allArgs();
+      const [[addActionsTop]] = dispatch.mock.calls;
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
       expect(addActionsTop.payload.length).toBe(2);
       expect(addActionsTop.payload[0].address).toEqual(mockAddress);
@@ -227,7 +227,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[addActionsTop]] = dispatch.calls.allArgs();
+      const [[addActionsTop]] = dispatch.mock.calls;
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
       expect(addActionsTop.payload[0].type).toBe('restore');
     });
@@ -238,7 +238,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.clickButtonAction(action)(dispatch, getState);
 
-      const [[addActionsTop], [acceptAction]] = dispatch.calls.allArgs();
+      const [[addActionsTop], [acceptAction]] = dispatch.mock.calls;
       const hasAcceptAction = acceptAction.type === 'ACCEPT_ACTION';
       expect(hasAcceptAction).toBe(true);
     });
@@ -262,7 +262,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
 
       // Verificar que se acepta la acción
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       const hasAcceptAction = acceptAction.type === 'ACCEPT_ACTION';
       expect(hasAcceptAction).toBe(true);
     });
@@ -276,7 +276,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       const hasAcceptAction = acceptAction.type === 'ACCEPT_ACTION';
       expect(hasAcceptAction).toBe(true);
     });
@@ -290,9 +290,9 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.openDialogAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(2);
+      expect(dispatch).toHaveBeenCalledTimes(2);
 
-      const [[addStack], [updateAttributes]] = dispatch.calls.allArgs();
+      const [[addStack], [updateAttributes]] = dispatch.mock.calls;
       expect(addStack.type).toBe('ADD_STACK');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.isShowing).toBe(true);
@@ -318,9 +318,9 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.closeDialogAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(4);
+      expect(dispatch).toHaveBeenCalledTimes(4);
 
-      const [[acceptAction], [removeStack], [acceptAction2], [updateAttributes]] = dispatch.calls.allArgs();
+      const [[acceptAction], [removeStack], [acceptAction2], [updateAttributes]] = dispatch.mock.calls;
       expect(removeStack.type).toBe('REMOVE_STACK');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
     });
@@ -332,7 +332,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.closeDialogAction(action)(dispatch, getState);
 
       // Solo se acepta la acción
-      expect(dispatch.calls.count()).toBe(1);
+      expect(dispatch).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -346,7 +346,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[acceptAction], [removeStack], [rejectAction], [updateAttributes]] = dispatch.calls.allArgs();
+      const [[acceptAction], [removeStack], [rejectAction], [updateAttributes]] = dispatch.mock.calls;
       expect(rejectAction.type).toBe('REJECT_ACTION');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
     });
@@ -361,10 +361,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -384,10 +384,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.goToNextStepAction(action)(dispatch, getState);
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -404,10 +404,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       expect(dispatch).toHaveBeenCalled();
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -427,10 +427,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.goToPrevStepAction(action)(dispatch, getState);
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -445,10 +445,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.goToFirstStepAction(action)(dispatch, getState);
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -463,10 +463,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.goToLastStepAction(action)(dispatch, getState);
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -487,10 +487,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.goToNthStepAction(action)(dispatch, getState);
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -511,10 +511,10 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
       thunks.addPointsAction(action)(dispatch, getState);
 
       // Verificar que se llama a updateModel
-      const [[updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       // Recuperar los valores
       const values = updateModel.data.values;
@@ -542,7 +542,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.addSeriesAction(action)(dispatch, getState);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes).toBeDefined();
       expect(updateAttributes.data.chartModel.series.length).toBe(1);
     });
@@ -565,7 +565,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.removeSeriesAction(action)(dispatch, getState);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.chartModel.series.length).toBe(1);
       expect(updateAttributes.data.chartModel.series[0].id).toBe('series2');
     });
@@ -594,7 +594,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.replaceSeriesAction(action)(dispatch, getState);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.chartModel.series.length).toBe(1);
       expect(updateAttributes.data.chartModel.series[0].id).toBe('newSeries');
     });
@@ -612,7 +612,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.setPivotSortersAction(action)(dispatch);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.sorters).toEqual({
         column1: 'asc',
         column2: 'desc'
@@ -632,7 +632,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.setPivotGroupRowsAction(action)(dispatch);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.rows).toBe('category,subcategory');
     });
   });
@@ -649,7 +649,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.setPivotGroupColsAction(action)(dispatch);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.cols).toBe('year,month');
     });
   });
@@ -661,7 +661,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.toggleMenuAction(action)(dispatch, getState);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.minimized).toBe(true);
     });
 
@@ -671,7 +671,7 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.toggleMenuAction(action)(dispatch, getState);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.minimized).toBe(false);
     });
   });
@@ -682,29 +682,36 @@ describe('awe-react-client/test/js/redux/thunks/componentsThunkTest.js', () => {
 
       thunks.toggleNavbarAction(action)(dispatch);
 
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });
 
   describe('changeMenuAction', () => {
     it('debería actualizar las opciones del menú', () => {
-      const setOptionsSpy = spyOn(MenuRegistry, 'setOptions');
+      const setOptionsSpy = jest.spyOn(MenuRegistry, 'setOptions');
       const action = {
         type: 'changeMenu',
         address: mockAddress,
         parameters: {
-          options: { item1: true, item2: false }
+          options: [
+            { key: 'item1', visible: true, restricted: false, options: [] },
+            { key: 'item2', visible: true, restricted: true, options: [] }
+          ]
         }
       };
 
       thunks.changeMenuAction(action)(dispatch);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(setOptionsSpy).toHaveBeenCalledWith({ item1: true, item2: false });
+      expect(setOptionsSpy).toHaveBeenCalledWith(action.parameters.options);
 
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 });

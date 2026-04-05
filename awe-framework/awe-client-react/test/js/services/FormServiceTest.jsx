@@ -13,7 +13,12 @@ describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
   }
 
   beforeEach(function () {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     renderWithProviders(<TestHarness />);
+  });
+
+  afterEach(function () {
+    jest.restoreAllMocks();
   });
 
   it('should get all form actions', () => {

@@ -8,11 +8,11 @@ describe('awe-react-client/test/js/columns/ColumnImageTest.jsx', () => {
       component: 'image',
       model: {values: []},
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'image', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
+      t: jest.fn(),
       settings: {}
     }, {value: "test"}, {},true));
 

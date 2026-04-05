@@ -9,11 +9,11 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
     renderWithProviders(Columns({
       component: 'numeric',
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'grid', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
+      t: jest.fn(),
       settings: {}
     }, {value:1123123}, {},false));
 
@@ -25,11 +25,11 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
     renderWithProviders(Columns({
       component: 'numeric',
       numberFormat: {aSign: ' EUR'},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'grid', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
+      t: jest.fn(),
       settings: {}
     }, {value:1123123}, false));
 
@@ -41,11 +41,11 @@ describe('awe-react-client/test/js/columns/ColumnStaticNumericTest.jsx', () => {
     renderWithProviders(Columns({
       component: 'numeric',
       numberFormat: {aSign: ' EUR'},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'grid', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
+      t: jest.fn(),
       settings: {}
     }, {value:null}, false));
 

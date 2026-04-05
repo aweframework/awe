@@ -7,8 +7,8 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
   let mockTranslate;
 
   beforeEach(() => {
-    dispatch = jasmine.createSpy('dispatch');
-    mockTranslate = jasmine.createSpy('translate').and.callFake((key) => `translated_${key}`);
+    dispatch = jest.fn();
+    mockTranslate = jest.fn((key) => `translated_${key}`);
 
     mockState = {
       settings: {
@@ -39,7 +39,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
       }
     };
 
-    getState = jasmine.createSpy('getState').and.callFake(() => mockState);
+    getState = jest.fn(() => mockState);
   });
 
   describe('messageAction', () => {
@@ -58,7 +58,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.type).toBe('ADD_MESSAGE');
       expect(addMessage.data.severity).toBe('error');
       expect(addMessage.data.summary).toBe('translated_Error');
@@ -81,7 +81,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.type).toBe('ADD_MESSAGE');
       expect(addMessage.data.severity).toBe('success');
       expect(addMessage.data.summary).toBe('translated_Success');
@@ -103,7 +103,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.type).toBe('ADD_MESSAGE');
       expect(addMessage.data.severity).toBe('warn');
       expect(addMessage.data.summary).toBe('translated_Warning');
@@ -124,7 +124,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.type).toBe('ADD_MESSAGE');
       expect(addMessage.data.severity).toBe('error');
       expect(addMessage.data.summary).toBe('translated_Error_Title');
@@ -144,7 +144,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.data.severity).toBe('error');
       expect(addMessage.data.sticky).toBe(true);
       expect(addMessage.data.life).toBe(0);
@@ -163,7 +163,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.data.severity).toBe('custom-type');
       expect(addMessage.data.life).toBe(5000); // default info timeout
     });
@@ -190,13 +190,13 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
       };
 
       thunks.messageAction(action1, mockTranslate)(dispatch, getState);
-      const [[firstMessage]] = dispatch.calls.allArgs();
+      const [[firstMessage]] = dispatch.mock.calls;
       const firstId = firstMessage.data.id;
 
-      dispatch.calls.reset();
+      dispatch.mockClear();
 
       thunks.messageAction(action2, mockTranslate)(dispatch, getState);
-      const [[secondMessage]] = dispatch.calls.allArgs();
+      const [[secondMessage]] = dispatch.mock.calls;
       const secondId = secondMessage.data.id;
 
       expect(secondId).toBeGreaterThan(firstId);
@@ -215,7 +215,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.data.action).toBe(action);
     });
 
@@ -231,7 +231,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.messageAction(action, mockTranslate)(dispatch, getState);
 
-      const [[addMessage]] = dispatch.calls.allArgs();
+      const [[addMessage]] = dispatch.mock.calls;
       expect(addMessage.data.summary).toBe('translated_Error_Title');
       expect(addMessage.data.detail).toBe('translated_Error_Message');
     });
@@ -252,7 +252,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[confirmMessage]] = dispatch.calls.allArgs();
+      const [[confirmMessage]] = dispatch.mock.calls;
       expect(confirmMessage.type).toBe('CONFIRM_MESSAGE');
       expect(confirmMessage.data.title).toBe('translated_Confirm_Action');
       expect(confirmMessage.data.message).toBe('translated_Are_you_sure?');
@@ -270,7 +270,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.confirmAction(action, mockTranslate)(dispatch, getState);
 
-      const [[confirmMessage]] = dispatch.calls.allArgs();
+      const [[confirmMessage]] = dispatch.mock.calls;
       expect(confirmMessage.type).toBe('CONFIRM_MESSAGE');
       expect(confirmMessage.data.title).toBe('translated_Warning_Title');
       expect(confirmMessage.data.message).toBe('translated_Warning_Message');
@@ -288,7 +288,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.confirmAction(action, mockTranslate)(dispatch, getState);
 
-      const [[confirmMessage]] = dispatch.calls.allArgs();
+      const [[confirmMessage]] = dispatch.mock.calls;
       expect(confirmMessage.data.title).toBe('translated_Success_Title');
       expect(confirmMessage.data.message).toBe('translated_Success_Message');
     });
@@ -302,7 +302,7 @@ describe('awe-react-client/test/js/redux/thunks/messagesThunkTest.js', () => {
 
       thunks.confirmAction(action, mockTranslate)(dispatch, getState);
 
-      const [[confirmMessage]] = dispatch.calls.allArgs();
+      const [[confirmMessage]] = dispatch.mock.calls;
       expect(confirmMessage.type).toBe('CONFIRM_MESSAGE');
       expect(confirmMessage.data.title).toBe('');
       expect(confirmMessage.data.message).toBe('');

@@ -8,13 +8,15 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
   let state;
 
   beforeEach(() => {
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
     state = {
       settings: { token: 'TOKEN' },
       // getFormValues reads state; minimal shape is fine for our checks
       components: {}
     };
-    getState = jasmine.createSpy('getState').and.callFake(() => state);
+    getState = jest.fn(() => state);
+    global.fetch = jest.fn();
+    window.fetch = global.fetch;
   });
 
   describe('suggestAction', () => {
@@ -24,7 +26,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
         { type: 'fill', parameters: { datalist: { rows: [{ value: 1, label: 'one' }] } } },
         { type: 'other-action', foo: 'bar' }
       ];
-      const fetchSpy = spyOn(window, 'fetch').and.returnValue(Promise.resolve({
+      const fetchSpy = jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({
         ok: true,
         json: () => Promise.resolve(response)
       }));
@@ -36,7 +38,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
 
       // Assert fetch params
       expect(fetchSpy).toHaveBeenCalled();
-      const [url, options] = fetchSpy.calls.mostRecent().args;
+      const [url, options] = fetchSpy.mock.calls.at(-1);
       expect(typeof url).toBe('string');
       expect(url).toContain('/action/');
       expect(url).toContain('suggest-cities');
@@ -47,7 +49,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
       expect(options.headers.Authorization).toBe('TOKEN');
 
       // Assert ADD_ACTIONS_TOP dispatched for other actions
-      const addTop = dispatch.calls.allArgs().map(a => a[0]).find(a => a && a.type === ADD_ACTIONS_TOP);
+      const addTop = dispatch.mock.calls.map(a => a[0]).find(a => a && a.type === ADD_ACTIONS_TOP);
       expect(addTop).toBeDefined();
       expect(addTop.payload.length).toBe(1);
       expect(addTop.payload[0].type).toBe('other-action');
@@ -62,7 +64,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
       const response = [
         { type: 'fill', parameters: { datalist: { rows: [{ value: 2, label: 'two' }] } } }
       ];
-      spyOn(window, 'fetch').and.returnValue(Promise.resolve({
+      jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({
         ok: true,
         json: () => Promise.resolve(response)
       }));
@@ -78,7 +80,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
       const response = [
         { type: 'fill', parameters: { datalist: { rows: [] } } }
       ];
-      spyOn(window, 'fetch').and.returnValue(Promise.resolve({
+      jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({
         ok: true,
         json: () => Promise.resolve(response)
       }));
@@ -97,7 +99,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
       const response = [
         { type: 'fill', parameters: { datalist: { rows } } }
       ];
-      const fetchSpy = spyOn(window, 'fetch').and.returnValue(Promise.resolve({
+      const fetchSpy = jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({
         ok: true,
         json: () => Promise.resolve(response)
       }));
@@ -113,7 +115,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
       const returnedRows = await promise;
 
       // Called with checkTarget instead of targetAction
-      const [url, options] = fetchSpy.calls.mostRecent().args;
+      const [url, options] = fetchSpy.mock.calls.at(-1);
       expect(typeof url).toBe('string');
       expect(url).toContain('/action/');
       expect(url).toContain('checkA');
@@ -123,7 +125,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
 
       // First dispatch should be a thunk (updateModelWithDependencies), second a KEEP_MODEL action
       expect(dispatch).toHaveBeenCalled();
-      const calls = dispatch.calls.allArgs().map(a => a[0]);
+      const calls = dispatch.mock.calls.map(a => a[0]);
       expect(typeof calls[0]).toBe('function');
       const keep = calls.find(a => a && a.type === KEEP_MODEL);
       expect(keep).toBeDefined();
@@ -138,7 +140,7 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
         { value: '111', label: 'Uno' },
         { value: '222', label: 'Dos' }
       ];
-      spyOn(window, 'fetch').and.returnValue(Promise.resolve({
+      jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({
         ok: true,
         json: () => Promise.resolve([
           { type: 'fill', parameters: { datalist: { rows } } }
@@ -146,17 +148,23 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
       }));
 
       // capture the thunk passed as first dispatch and execute it to inspect payload
-      const localDispatch = jasmine.createSpy('localDispatch');
+      const localDispatch = jest.fn();
       const localGetState = getState;
 
       await suggestThunks.initialSuggestAction('222', { address: { view: 'v', component: 'comp1' } })(localDispatch, localGetState);
 
       // The first dispatched arg should be a thunk that when executed would eventually dispatch an UPDATE_MODEL action.
       // Since wiring that thunk chain is complex, at least ensure a function was dispatched and KEEP_MODEL too
-      const calls = localDispatch.calls.allArgs().map(a => a[0]);
+      const calls = localDispatch.mock.calls.map(a => a[0]);
       expect(typeof calls[0]).toBe('function');
       const keep = calls.find(a => a && a.type === KEEP_MODEL);
       expect(keep).toBeDefined();
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    delete global.fetch;
+    delete window.fetch;
   });
 });

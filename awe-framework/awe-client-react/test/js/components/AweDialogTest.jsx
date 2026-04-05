@@ -47,7 +47,7 @@ describe("awe-react-client/test/js/components/AweDialogTest.jsx", () => {
     if (closeButton) {
       fireEvent.click(closeButton);
       // We don't assert store effects here; just ensure no crash when invoking onHide
-      expect(true).toBeTrue();
+      expect(true).toBe(true);
     } else {
       // Fallback: ensure dialog rendered
       expect(document.querySelector(".p-dialog")).not.toBeNull();

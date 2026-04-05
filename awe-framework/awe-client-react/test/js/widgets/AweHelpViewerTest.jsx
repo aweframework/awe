@@ -8,6 +8,7 @@ import AweHelpViewer from "../../../src/widgets/AweHelpViewer";
 describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
 
   afterAll(cleanup);
+  afterEach(() => jest.restoreAllMocks());
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
@@ -28,7 +29,7 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
   };
 
   it('renders AWE Help Viewer widget', async () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'text/html;charset=UTF-8'
       },
@@ -40,12 +41,11 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
     renderWithProviders(<AweHelpViewer id="helpViewer"/>, {preloadedState});
 
     expect(await screen.findByText("palabras a traducir")).toBeDefined();
-    console.info("1.-", await screen.findByText("palabras a traducir"));
 
   });
 
   it('renders AWE Help Viewer widget with error on help retrieval', async () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'text/html;charset=UTF-8'
       },
@@ -57,7 +57,6 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
     renderWithProviders(<AweHelpViewer id="helpViewer"/>, {preloadedState});
 
     expect(await screen.findByRole("alert")).toBeDefined();
-    console.info("2.-", await screen.findByText("Error leyendo ayuda"));
 
   });
 
@@ -72,7 +71,7 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
       }
     };
 
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'text/html;charset=UTF-8'
       },
@@ -84,6 +83,5 @@ describe('awe-react-client/test/js/widgets/AweHelpViewerTest.jsx', () => {
     renderWithProviders(<AweHelpViewer id="helpViewer"/>, {preloadedState: preloadedState2});
 
     expect(await screen.findByText("palabras a traducir")).toBeDefined();
-    console.info("3.-", await screen.findByText("palabras a traducir"));
   });
 });

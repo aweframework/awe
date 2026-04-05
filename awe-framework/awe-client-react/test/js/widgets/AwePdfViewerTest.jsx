@@ -2,9 +2,24 @@ import React from 'react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AwePdfViewer from "../../../src/widgets/AwePdfViewer";
-import {act} from "@testing-library/react";
+import {act, waitFor} from "@testing-library/react";
 
 describe('awe-react-client/test/js/widgets/AwePdfViewerTest.jsx', () => {
+
+  beforeEach(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  beforeAll(() => {
+    if (!window.URL.createObjectURL) {
+      window.URL.createObjectURL = jest.fn().mockReturnValue('blob://mock');
+    }
+    if (!window.URL.revokeObjectURL) {
+      window.URL.revokeObjectURL = jest.fn();
+    }
+  });
+
+  afterEach(() => jest.restoreAllMocks());
 
   const baseState = {
     settings: DEFAULT_SETTINGS,
@@ -21,8 +36,8 @@ describe('awe-react-client/test/js/widgets/AwePdfViewerTest.jsx', () => {
     }
   };
 
-  it('renders AWE PDF Viewer widget (skeleton while loading)', () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+  it('renders AWE PDF Viewer widget (skeleton while loading)', async () => {
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'application/pdf;base64'
       },
@@ -31,40 +46,48 @@ describe('awe-react-client/test/js/widgets/AwePdfViewerTest.jsx', () => {
       blob: () => Promise.resolve(new Blob())
     }));
 
-    renderWithProviders(<AwePdfViewer id="pdfViewer"/>, {preloadedState: baseState});
+    await act(async () => {
+      renderWithProviders(<AwePdfViewer id="pdfViewer"/>, {preloadedState: baseState});
+    });
 
-    expect(document.querySelector("div.pdf-viewer")).toBeDefined();
-    expect(document.querySelector("div.p-skeleton-circle")).toBeDefined();
+    await waitFor(() => {
+      expect(document.querySelector("div.pdf-viewer")).toBeDefined();
+    });
   });
 
-  it('hides when visible=false', () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+  it('hides when visible=false', async () => {
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       blob: () => Promise.resolve(new Blob())
     }));
 
     const preloadedState = JSON.parse(JSON.stringify(baseState));
     preloadedState.components.pdfViewer.attributes.visible = false;
 
-    renderWithProviders(<AwePdfViewer id="pdfViewer"/>, {preloadedState});
+    await act(async () => {
+      renderWithProviders(<AwePdfViewer id="pdfViewer"/>, {preloadedState});
+    });
 
     // Should render nothing
     expect(document.querySelector('#pdfViewer')).toBeNull();
   });
 
-  it('adds style class and id when visible', () => {
+  it('adds style class and id when visible', async () => {
     // Mock fetch + URL to resolve quickly and set pdf
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       blob: () => Promise.resolve(new Blob(["%PDF-1.4"], { type: 'application/pdf' }))
     }));
-    const createUrlSpy = spyOn(window.URL, 'createObjectURL').and.returnValue('blob://pdf');
+    const createUrlSpy = jest.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob://pdf');
 
     const preloadedState = JSON.parse(JSON.stringify(baseState));
     preloadedState.components.pdfViewer.attributes.style = 'my-class';
 
-    renderWithProviders(<AwePdfViewer id="pdfViewer"/>, {preloadedState});
+    await act(async () => {
+      renderWithProviders(<AwePdfViewer id="pdfViewer"/>, {preloadedState});
+    });
 
-    // Allow promises to flush
-    expect(document.querySelector('#pdfViewer')).not.toBeNull();
-    expect(document.querySelector('.my-class')).not.toBeNull();
+    await waitFor(() => {
+      expect(document.querySelector('#pdfViewer')).not.toBeNull();
+      expect(document.querySelector('.my-class')).not.toBeNull();
+    });
   });
 });

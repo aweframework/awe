@@ -8,11 +8,11 @@ describe('awe-react-client/test/js/columns/ColumnButtonTest.jsx', () => {
       component: 'button',
       model: {values: []},
       numberFormat: {},
-      updateModelWithDependencies: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModelWithDependencies: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'button', view: 'report', column: 'column', row: 'row'},
-      t: jasmine.createSpy("t"),
+      t: jest.fn(),
       settings: {}
     }, {value: "test"}, {},true));
 

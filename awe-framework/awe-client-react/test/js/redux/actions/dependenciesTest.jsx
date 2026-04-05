@@ -30,7 +30,14 @@ describe('awe-react-client/test/js/redux/actions/dependenciesTest.jsx', function
       }
     };
 
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(function () {
+    jest.restoreAllMocks();
   });
 
   it('should initialize and check an empty dependency', function () {

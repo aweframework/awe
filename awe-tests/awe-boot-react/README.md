@@ -1,16 +1,53 @@
-# awe application powered by **AWE** 
+# test-react
 
-## Requirements
+`test-react` is the Spring Boot + AWE integration application used to validate `awe-react-client` as a real consumer.
 
-- Apache Maven 3 or higher
-- Java 8 or higher
+## Recommended entry point
 
-## Build your app
+Use the repository root scripts instead of invoking this module manually whenever possible.
+
+From the repository root:
+
+```bash
+npm install
+npm run dev:start
 ```
-./mvn clean install
+
+## Module-only commands
+
+If you are already inside `test-react`, the main commands are:
+
+```bash
+npm run build:dev
+npm run build:prod
+npm run build
+npm run start
 ```
 
-or you can run with `Spring Boot plugin` with
+Legacy aliases are still supported:
+
+```bash
+npm run test-dev
+npm run test-prod
 ```
-./mvn spring-boot:run
+
+## Full Maven build
+
+```bash
+mvn clean install
+```
+
+## Spring Boot run
+
+```bash
+mvn spring-boot:run
+```
+
+## Important
+
+This module consumes `awe-react-client` from `file:../awe-react-client/dist`.
+If you want to test the latest client changes here, rebuild and resync from the repository root:
+
+```bash
+npm run app:sync
 ```

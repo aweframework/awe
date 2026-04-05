@@ -26,7 +26,6 @@ function launchTest(state, validation, values, expected) {
 describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function() {
   let state;
   let stateWithGroup;
-  let dispatch;
 
   // Mock module
   beforeEach(function() {
@@ -78,8 +77,6 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
         }
       }
     };
-
-    dispatch = jasmine.createSpy('dispatch');
   });
 
   /**

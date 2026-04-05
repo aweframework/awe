@@ -7,6 +7,14 @@ import AweTreeGrid from "../../../src/components/AweTreeGrid";
 
 describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
 
+  beforeEach(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('renders Awe Tree Grid component', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,

@@ -2,6 +2,7 @@ import useWebsocketService from "../../../src/services/WebsocketService";
 import {Server} from "mock-socket";
 import {renderWithProviders} from "../test-utils";
 import React from "react";
+import {act} from "@testing-library/react";
 
 describe('awe-react-client/test/js/services/WebsocketServiceTest.jsx', function () {
   let props;
@@ -24,9 +25,11 @@ describe('awe-react-client/test/js/services/WebsocketServiceTest.jsx', function 
   });
 
   beforeEach(function () {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     props = {
-      updateSettings:jasmine.createSpy('updateSettings'),
-      acceptAction: jasmine.createSpy('accept'),
+      updateSettings: jest.fn(),
+      acceptAction: jest.fn(),
       settings: {}};
 
     const rendered = renderWithProviders(<TestHarness />, { spyDispatch: true });
@@ -50,8 +53,14 @@ describe('awe-react-client/test/js/services/WebsocketServiceTest.jsx', function 
     document.head.removeChild(base);
   });
 
+  afterEach(function () {
+    jest.restoreAllMocks();
+  });
+
   it('should connect a websocket', function() {
-    actions.connectWebsocket({}, props);
+    act(() => {
+      actions.connectWebsocket({}, props);
+    });
     expect(store.dispatch).toHaveBeenCalled();
   });
 

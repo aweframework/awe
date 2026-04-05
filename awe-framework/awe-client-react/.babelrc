@@ -1,22 +1,17 @@
 {
   "presets": [
     "@babel/preset-env",
-    "@babel/preset-react",
-    "@babel/preset-typescript"
+    "@babel/preset-react"
   ],
   "env": {
     "development": {
       "compact": false,
       "plugins": [
-        "@babel/plugin-syntax-jsx",
-        "@babel/plugin-syntax-dynamic-import",
         ["istanbul", {"exclude": ["**/test/", "**/node_modules/"]}]
       ]
     },
     "production": {
       "plugins": [
-        "@babel/plugin-syntax-jsx",
-        "@babel/plugin-syntax-dynamic-import",
         ["istanbul", {"exclude": ["**/test/", "**/node_modules/"]}]
       ]
     }
