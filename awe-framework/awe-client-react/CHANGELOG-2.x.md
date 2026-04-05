@@ -1,3 +1,12 @@
+# Release notes for AWE React 2.2.0
+*05/04/2026*
+ 
+🐛 Bug fixes:
+- docs(npm): include package README in dist builds. [MR #163](https://gitlab.com/aweframework/awe-react/-/merge_requests/163) (Pablo Vidal Otero)
+
+🧪 Tests:
+- **[HAS IMPACTS]** build(frontend): modernize npm, webpack, and lint tooling. [MR #164](https://gitlab.com/aweframework/awe-react/-/merge_requests/164) (Pablo Vidal Otero)
+
 # Release notes for AWE React 2.1.6
 *31/03/2026*
  
