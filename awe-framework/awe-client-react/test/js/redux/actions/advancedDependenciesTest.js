@@ -6,7 +6,11 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
   let mockComponent;
 
   beforeEach(() => {
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
     mockComponent = {
       address: { view: 'testView', component: 'comp1' },
@@ -57,6 +61,14 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
     };
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('checkDependencies', () => {
     it('debería verificar dependencias sin cambios', () => {
       dependencies.checkDependencies(mockState, dispatch);
@@ -79,7 +91,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       // Primera llamada para inicializar
       dependencies.initializeDependencies('testView', mockState, dispatch);
-      dispatch.calls.reset();
+      dispatch.mockClear();
 
       // Cambiar valor
       mockState.components.comp2.model.values = [{ value: 'changed', selected: true }];
@@ -298,7 +310,6 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
         checkChanges: true
       }];
 
-      spyOn(console, 'log');
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
       expect(console.log).toHaveBeenCalled();
@@ -614,7 +625,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'show';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasVisibleUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.visible === true)
@@ -626,7 +637,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'hide';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasVisibleUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.visible === false)
@@ -638,7 +649,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'enable';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasDisabledUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.disabled === false)
@@ -650,7 +661,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'disable';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasDisabledUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.disabled === true)
@@ -662,7 +673,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'set-editable';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasReadonlyUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.readonly === false)
@@ -674,7 +685,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'set-readonly';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasReadonlyUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.readonly === true)
@@ -686,7 +697,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'set-required';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasRequiredUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_VALIDATION' &&
         action.componentList.some(item => item.data.required === true)
@@ -698,7 +709,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'set-optional';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasRequiredUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_VALIDATION' &&
         action.componentList.some(item => item.data.required === false)
@@ -710,7 +721,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'set-visible';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasInvisibleUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.invisible === false)
@@ -722,7 +733,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'set-invisible';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasInvisibleUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.invisible === true)
@@ -736,7 +747,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].value = 'New Label';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasLabelUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.label === 'New Label')
@@ -750,7 +761,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].value = 'kg';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasUnitUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.unit === 'kg')
@@ -764,7 +775,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].value = 'fa-check';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasIconUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.icon === 'fa-check')
@@ -778,7 +789,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].value = ['selected1', 'selected2'];
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasInputUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_MODELS'
       );
@@ -791,7 +802,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].value = 5000;
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAutorefreshUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.autorefreshEnabled === true)
@@ -803,7 +814,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].target = 'disable-autorefresh';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAutorefreshUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.autorefreshEnabled === false)
@@ -821,8 +832,6 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
     it('debería advertir sobre target no definido', () => {
       mockComponent.dependencies[0].target = 'unknown-target';
-      spyOn(console, 'warn');
-
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
       expect(console.warn).toHaveBeenCalled();
@@ -851,7 +860,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].value = 'Fixed Value';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasLabelUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.label === 'Fixed Value')
@@ -864,7 +873,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].label = 'Fixed Label';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasLabelUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.label === 'Fixed Label')
@@ -912,7 +921,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].serverAction = 'data';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
       expect(hasAddActions).toBe(true);
     });
@@ -923,7 +932,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].serverAction = 'data';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
       expect(hasAddActions).toBe(true);
     });
@@ -934,7 +943,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].serverAction = 'data';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
       expect(hasAddActions).toBe(true);
     });
@@ -945,7 +954,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].serverAction = 'data';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
       expect(hasAddActions).toBe(true);
     });
@@ -956,7 +965,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].serverAction = 'data';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
       expect(hasAddActions).toBe(true);
     });
@@ -969,7 +978,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
       // No debería despachar ADD_ACTIONS_TOP porque la condición no se cumple
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasRestoreAttributes = calls.some(([action]) =>
         action.type === 'RESTORE_MULTIPLE_ATTRIBUTES'
       );
@@ -983,7 +992,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       mockComponent.dependencies[0].elements[0].value = 'wrong';
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasRestoreValidation = calls.some(([action]) =>
         action.type === 'RESTORE_MULTIPLE_VALIDATION'
       );
@@ -1011,7 +1020,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
       // Con invert, debería ocultar en vez de mostrar
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasVisibleUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.visible === false)
@@ -1042,7 +1051,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActions = calls.some(([action]) =>
         action.type === 'ADD_ACTIONS_TOP' &&
         action.payload.length === 2
@@ -1070,7 +1079,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAddActionsWithCustom = calls.some(([action]) =>
         action.type === 'ADD_ACTIONS_TOP' &&
         action.payload.some(a => a.type === 'custom-action')
@@ -1213,7 +1222,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasColumnUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES'
       );
@@ -1304,8 +1313,6 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
   describe('Advertencias y errores', () => {
     it('debería advertir cuando componente no existe', () => {
-      spyOn(console, 'warn');
-
       mockComponent.dependencies = [{
         type: 'and',
         elements: [{
@@ -1319,7 +1326,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      expect(console.warn).toHaveBeenCalledWith(jasmine.stringContaining('nonexistent is not defined'));
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('nonexistent is not defined'));
     });
   });
 
@@ -1629,7 +1636,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasChartOptionsUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.chartModel)
@@ -1659,7 +1666,7 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
 
       dependencies.initializeDependencies('testView', mockState, dispatch);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const hasAttributeUpdate = calls.some(([action]) =>
         action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
         action.componentList.some(item => item.data.customAttr === 'customValue')

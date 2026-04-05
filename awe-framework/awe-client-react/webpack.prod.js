@@ -1,10 +1,12 @@
 const {merge} = require('webpack-merge');
 const common = require('./webpack.common.js');
-const JSDocPlugin = require('jsdoc-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
   devtool: 'source-map',
+  performance: {
+    hints: false
+  },
   optimization: {
     minimize: true,
     splitChunks: {
@@ -17,11 +19,5 @@ module.exports = merge(common, {
         }
       }
     }
-  },
-  plugins: [
-    new JSDocPlugin({
-      conf: 'jsdoc.conf.json',
-      cwd: "./"
-    })
-  ]
+  }
 });

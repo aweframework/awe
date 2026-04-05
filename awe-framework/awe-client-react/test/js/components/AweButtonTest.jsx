@@ -28,9 +28,10 @@ function baseState(overrides = {}) {
 }
 
 function getAddActionsTopCalls(dispatchSpy) {
-  return dispatchSpy
-    ? dispatchSpy.calls.allArgs().map(args => args[0]).filter(a => a && a.type === ADD_ACTIONS_TOP)
-    : [];
+  if (!dispatchSpy) return [];
+  // Support both Jest (mock.calls) and Jasmine (calls.allArgs()) spy APIs
+  const allArgs = dispatchSpy.mock ? dispatchSpy.mock.calls : dispatchSpy.calls.allArgs();
+  return allArgs.map(args => args[0]).filter(a => a && a.type === ADD_ACTIONS_TOP);
 }
 
 describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
@@ -107,7 +108,7 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
     act(() => btn.click());
 
     // First dispatch should be a thunk (function)
-    const firstCall = dispatchSpy.calls.argsFor(0)[0];
+    const firstCall = dispatchSpy.mock ? dispatchSpy.mock.calls[0][0] : dispatchSpy.calls.argsFor(0)[0];
     expect(typeof firstCall).toBe('function');
 
     // One addActionsTop should be dispatched with address mapped in each action

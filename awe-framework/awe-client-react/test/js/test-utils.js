@@ -29,7 +29,17 @@ export function renderWithProviders(
   {
     preloadedState = {},
     // Automatically create a store instance if no store was passed in
-    store = configureStore({ reducer: createRootReducer({}), preloadedState }),
+    store = configureStore({
+      reducer: createRootReducer({}),
+      preloadedState,
+      middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: ['UPDATE_ATTRIBUTES'],
+          ignoredActionPaths: [/^data\.(onChange|aggregators|renderers|tableColorScaleGenerator)$/],
+          ignoredPaths: [/^components\..*\.attributes\.(onChange|aggregators|renderers|tableColorScaleGenerator)$/]
+        }
+      })
+    }),
     spyDispatch = false,
     ...renderOptions
   } = {}
@@ -40,13 +50,17 @@ export function renderWithProviders(
 
   let dispatchSpy = null;
   if (spyDispatch) {
-    try {
-      dispatchSpy = globalThis.spyOn(store, 'dispatch');
-      if (dispatchSpy.and && typeof dispatchSpy.and.callThrough === 'function') {
-        dispatchSpy.and.callThrough();
+    if (typeof jest !== 'undefined' && typeof jest.spyOn === 'function') {
+      dispatchSpy = jest.spyOn(store, 'dispatch');
+    } else {
+      try {
+        dispatchSpy = globalThis.spyOn(store, 'dispatch');
+        if (dispatchSpy.and && typeof dispatchSpy.and.callThrough === 'function') {
+          dispatchSpy.and.callThrough();
+        }
+      } catch (e) {
+        // ignore
       }
-    } catch (e) {
-      // ignore
     }
   }
 

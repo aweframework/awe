@@ -6,14 +6,28 @@ import {renderWithProviders} from "../test-utils";
 
 describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
 
+  beforeEach(() => {
+    global.fetch = jest.fn();
+    window.fetch = global.fetch;
+  });
+
   afterAll(cleanup);
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    delete global.fetch;
+    delete window.fetch;
+  });
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS
   };
 
   it('renders SubView container', () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+
+    jest.spyOn(window, "fetch").mockReturnValue(Promise.resolve({
         headers: {
           get: () => 'application/json;charset=UTF-8'
         },
@@ -28,7 +42,10 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
   });
 
   it('renders a SubView container unauthorized', () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+
+    jest.spyOn(window, "fetch").mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'plain/text;charset=UTF-8'
       },
@@ -44,7 +61,10 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
   });
 
   it('renders a SubView container with structure', () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+
+    jest.spyOn(window, "fetch").mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'application/json;charset=UTF-8'
       },

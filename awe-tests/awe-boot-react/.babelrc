@@ -14,11 +14,6 @@
     "development": {
       "compact": false,
       "plugins": [
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-transform-object-assign",
-        "array-includes",
-        "object-values-to-object-keys",
-        "@babel/plugin-syntax-dynamic-import",
         ["istanbul", {
           "exclude": [
             "**/node_modules/"
@@ -28,11 +23,6 @@
     },
     "production": {
       "plugins": [
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-transform-object-assign",
-        "array-includes",
-        "object-values-to-object-keys",
-        "@babel/plugin-syntax-dynamic-import",
         ["istanbul", {
           "exclude": [
             "**/node_modules/"

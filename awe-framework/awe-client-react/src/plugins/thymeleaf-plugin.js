@@ -1,7 +1,11 @@
 class ThymeleafPlugin {
+  constructor(options = {}) {
+    this.htmlWebpackPlugin = options.htmlWebpackPlugin || null;
+  }
+
   apply(compiler) {
     compiler.hooks.compilation.tap('ThymeleafPlugin', (compilation) => {
-      const HtmlWebpackPlugin = require('html-webpack-plugin');
+      const HtmlWebpackPlugin = this.htmlWebpackPlugin || require('html-webpack-plugin');
 
       HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tapAsync(
         'ThymeleafPlugin',

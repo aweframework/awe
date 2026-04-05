@@ -8,7 +8,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
   let mockComponent;
 
   beforeEach(() => {
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
     mockAddress = { view: 'base', component: 'comp1' };
 
     mockComponent = {
@@ -44,7 +44,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
       }
     };
 
-    getState = jasmine.createSpy('getState').and.callFake(() => mockState);
+    getState = jest.fn(() => mockState);
   });
 
   describe('submitAction', () => {
@@ -58,7 +58,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[addActionsTop], [acceptAction]] = dispatch.calls.allArgs();
+      const [[addActionsTop], [acceptAction]] = dispatch.mock.calls;
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
       expect(addActionsTop.payload.length).toBe(1);
       expect(addActionsTop.payload[0].type).toBe('click');
@@ -67,7 +67,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
     });
 
     it('debería aceptar acción si no hay botón submit', () => {
-      getState = jasmine.createSpy('getState2').and.callFake(() => ({...mockState, components: {comp1: mockComponent}}));
+      getState = jest.fn(() => ({...mockState, components: {comp1: mockComponent}}));
 
       const action = {
         type: 'submit',
@@ -76,8 +76,8 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       formThunks.submitAction(action)(dispatch, getState);
 
-      expect(dispatch.calls.count()).toBe(1);
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      expect(dispatch).toHaveBeenCalledTimes(1);
+      const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });
@@ -93,9 +93,9 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[resetThunk], [acceptAction]] = dispatch.calls.allArgs();
+      const [[resetThunk], [acceptAction]] = dispatch.mock.calls;
       // resetThunk es un thunk, lo ejecutamos para ver qué despacha
-      const innerDispatch = jasmine.createSpy('innerDispatch');
+      const innerDispatch = jest.fn();
       resetThunk(innerDispatch, getState);
 
       expect(innerDispatch).toHaveBeenCalled();
@@ -114,10 +114,10 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[restoreMultipleModelWithDependencies],[acceptAction]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[restoreMultipleModelWithDependencies],[acceptAction]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       restoreMultipleModelWithDependencies(innerDispatch, getState);
-      const [[restoreMultipleModel]] = innerDispatch.calls.allArgs();
+      const [[restoreMultipleModel]] = innerDispatch.mock.calls;
 
       expect(restoreMultipleModel.type).toBe('RESTORE_MULTIPLE_MODEL');
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -137,7 +137,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateAttributes], [addActionsTop], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [addActionsTop], [acceptAction]] = dispatch.mock.calls;
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
       expect(addActionsTop.payload.length).toBe(1);
@@ -166,13 +166,13 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateThunk], [updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateThunk], [updateAttributes], [acceptAction]] = dispatch.mock.calls;
       // updateThunk es un thunk
-      const innerDispatch = jasmine.createSpy('innerDispatch');
-      const innerGetState = jasmine.createSpy('innerGetState').and.returnValue(mockState);
+      const innerDispatch = jest.fn();
+      const innerGetState = jest.fn().mockReturnValue(mockState);
       updateThunk(innerDispatch, innerGetState);
 
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
       expect(updateModel.type).toBe('UPDATE_MODEL');
       expect(updateModel.data.values.length).toBe(2);
       expect(updateModel.data.page).toBe(1);
@@ -196,7 +196,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [acceptAction]] = dispatch.mock.calls;
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.selectedValue).toBe('newValue');
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -219,7 +219,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       formThunks.updateControllerAction(action)(dispatch);
 
-      const [[updateAttributes]] = dispatch.calls.allArgs();
+      const [[updateAttributes]] = dispatch.mock.calls;
       expect(updateAttributes.data.selectedValue).toBe('firstValue');
     });
   });
@@ -238,12 +238,12 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateThunk], [updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy('innerDispatch');
-      const innerGetState = jasmine.createSpy('innerGetState').and.returnValue(mockState);
+      const [[updateThunk], [updateAttributes], [acceptAction]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      const innerGetState = jest.fn().mockReturnValue(mockState);
       updateThunk(innerDispatch, innerGetState);
 
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
       expect(updateModel.type).toBe('UPDATE_MODEL');
       expect(updateModel.data.selected).toEqual(['value1', 'value2', 'value3']);
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
@@ -262,7 +262,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [acceptAction]] = dispatch.mock.calls;
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.loading).toBe(true);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -280,7 +280,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [acceptAction]] = dispatch.mock.calls;
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.loading).toBe(false);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -298,7 +298,7 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[keepModel], [acceptAction]] = dispatch.calls.allArgs();
+      const [[keepModel], [acceptAction]] = dispatch.mock.calls;
       expect(keepModel.type).toBe('KEEP_MODEL');
       expect(keepModel.address).toEqual(mockAddress);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');

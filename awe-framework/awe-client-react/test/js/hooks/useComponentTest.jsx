@@ -13,7 +13,7 @@ function HookHarness({ id }) {
 }
 
 function getAddActionsTopCalls(dispatchSpy) {
-  return dispatchSpy.calls.allArgs().filter(args => args[0] && args[0].type === ADD_ACTIONS_TOP);
+  return dispatchSpy.mock.calls.filter(args => args[0] && args[0].type === ADD_ACTIONS_TOP);
 }
 
 describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
@@ -49,7 +49,7 @@ describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
   });
 
   it('does not auto-refresh when autorefresh is 0', () => {
-    jasmine.clock().install();
+    jest.useFakeTimers();
     try {
       const preloadedState = {
         components: {
@@ -62,17 +62,17 @@ describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
 
       const { dispatchSpy } = renderWithProviders(<HookHarness id="comp1" />, { preloadedState, spyDispatch: true });
 
-      jasmine.clock().tick(3000);
+      jest.advanceTimersByTime(3000);
 
       const calls = getAddActionsTopCalls(dispatchSpy);
       expect(calls.length).toBe(0);
     } finally {
-      jasmine.clock().uninstall();
+      jest.useRealTimers();
     }
   });
 
   it('auto-refreshes by dispatching filter periodically when autorefresh > 0', () => {
-    jasmine.clock().install();
+    jest.useFakeTimers();
     try {
       const preloadedState = {
         components: {
@@ -88,18 +88,18 @@ describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
       // Initially no dispatch yet
       expect(getAddActionsTopCalls(dispatchSpy).length).toBe(0);
 
-      jasmine.clock().tick(1000);
+      jest.advanceTimersByTime(1000);
       expect(getAddActionsTopCalls(dispatchSpy).length).toBe(1);
 
-      jasmine.clock().tick(2000);
+      jest.advanceTimersByTime(2000);
       expect(getAddActionsTopCalls(dispatchSpy).length).toBe(3);
     } finally {
-      jasmine.clock().uninstall();
+      jest.useRealTimers();
     }
   });
 
   it('updates interval cadence when autorefresh changes in Redux', () => {
-    jasmine.clock().install();
+    jest.useFakeTimers();
     try {
       const preloadedState = {
         components: {
@@ -113,26 +113,26 @@ describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
       const { dispatchSpy, store } = renderWithProviders(<HookHarness id="comp1" />, { preloadedState, spyDispatch: true });
 
       // After 1s -> 1 dispatch
-      jasmine.clock().tick(1000);
+      jest.advanceTimersByTime(1000);
       expect(getAddActionsTopCalls(dispatchSpy).length).toBe(1);
 
       // Change autorefresh to 2 seconds
       act(() => store.dispatch(updateAttributes(baseAddress, { autorefresh: 2 })));
 
       // Next 1s should not trigger (since now needs 2s)
-      jasmine.clock().tick(1000);
+      jest.advanceTimersByTime(1000);
       expect(getAddActionsTopCalls(dispatchSpy).length).toBe(1);
 
       // After another 1s (total 2s since change) -> +1 dispatch (now 2 total)
-      jasmine.clock().tick(1000);
+      jest.advanceTimersByTime(1000);
       expect(getAddActionsTopCalls(dispatchSpy).length).toBe(2);
     } finally {
-      jasmine.clock().uninstall();
+      jest.useRealTimers();
     }
   });
 
   it('cleans interval on unmount so no more dispatches happen after', () => {
-    jasmine.clock().install();
+    jest.useFakeTimers();
     try {
       const preloadedState = {
         components: {
@@ -145,17 +145,17 @@ describe('awe-react-client/test/js/hooks/useComponentTest.jsx', () => {
 
       const { dispatchSpy, unmount } = renderWithProviders(<HookHarness id="comp1" />, { preloadedState, spyDispatch: true });
 
-      jasmine.clock().tick(1000);
+      jest.advanceTimersByTime(1000);
       const before = getAddActionsTopCalls(dispatchSpy).length; // should be 1
       expect(before).toBe(1);
 
       // Unmount and advance clock; no further calls should be recorded
       unmount();
-      jasmine.clock().tick(3000);
+      jest.advanceTimersByTime(3000);
       const after = getAddActionsTopCalls(dispatchSpy).length;
       expect(after).toBe(before);
     } finally {
-      jasmine.clock().uninstall();
+      jest.useRealTimers();
     }
   });
 });

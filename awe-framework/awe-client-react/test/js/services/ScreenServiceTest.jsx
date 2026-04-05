@@ -25,6 +25,8 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   beforeEach(function () {
     props = {};
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const rendered = renderWithProviders(<MemoryRouter initialEntries={["/"]}>
       <TestHarness />
@@ -35,11 +37,17 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
     dispatchSpy = store.dispatch;
 
     // mock location
-    spyOn(navigationActions, "navigateTo").and.callFake((target, options) => {
+    jest.spyOn(navigationActions, "navigateTo").mockImplementation((target, options) => {
       return dispatch => {
         dispatch({ type: "NAVIGATE_TO", payload: target });
       };
     });
+    jest.spyOn(window, 'open').mockImplementation(() => true);
+  });
+
+  afterEach(function () {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   // Get all screen actions
@@ -128,16 +136,11 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Wait default time
   it('should wait 1 millisecond', async function() {
-    // Install clock
-    jasmine.clock().install();
+    jest.useFakeTimers();
 
     actions.wait({parameters:{}}, props);
 
-    // Wait till action has been accepted
-    jasmine.clock().tick(2);
-
-    // Uninstall clock
-    jasmine.clock().uninstall();
+    jest.advanceTimersByTime(2);
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
@@ -145,16 +148,11 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Wait defined time
   it('should wait 5 milliseconds', async function() {
-    // Install clock
-    jasmine.clock().install();
+    jest.useFakeTimers();
 
     actions.wait({parameters:{target: 5}}, props);
 
-    // Wait till action has been accepted
-    jasmine.clock().tick(6);
-
-    // Uninstall clock
-    jasmine.clock().uninstall();
+    jest.advanceTimersByTime(6);
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
@@ -162,18 +160,13 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Add css class
   it('should add a css class', async function() {
-    // Install clock
-    jasmine.clock().install();
+    jest.useFakeTimers();
 
     actions["add-class"]({target: ".test1", parameters:{targetAction: "tutu"}}, props);
 
-    // Wait till action has been accepted
-    jasmine.clock().tick(500);
+    jest.advanceTimersByTime(500);
 
     expect(document.querySelector(".test1").classList.contains("tutu")).toBe(true);
-
-    // Uninstall clock
-    jasmine.clock().uninstall();
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
@@ -181,18 +174,13 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Remove css class
   it('should remove a css class', async function() {
-    // Install clock
-    jasmine.clock().install();
+    jest.useFakeTimers();
 
     actions["remove-class"]({target: ".test2", parameters:{targetAction: "tutu"}}, props);
 
-    // Wait till action has been accepted
-    jasmine.clock().tick(500);
+    jest.advanceTimersByTime(500);
 
     expect(document.querySelector(".test2").classList.contains("tutu")).toBe(false);
-
-    // Uninstall clock
-    jasmine.clock().uninstall();
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
@@ -200,19 +188,14 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Toggle css class
   it('should toggle a css class', async function() {
-    // Install clock
-    jasmine.clock().install();
+    jest.useFakeTimers();
 
     actions["toggle-class"]({target: ".test2", parameters:{targetAction: "tutu lala"}}, props);
 
-    // Wait till action has been accepted
-    jasmine.clock().tick(500);
+    jest.advanceTimersByTime(500);
 
     expect(document.querySelector(".test2").classList.contains("lala")).toBe(true);
     expect(document.querySelector(".test2").classList.contains("tutu")).toBe(false);
-
-    // Uninstall clock
-    jasmine.clock().uninstall();
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
@@ -220,8 +203,6 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Redirect action
   it('should redirect in a new window', async function() {
-    spyOn(window, "open").and.returnValue(true);
-
     actions["redirect"]({target: "url", parameters:{newWindow: true}}, props);
 
     // Spies
@@ -230,8 +211,6 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Redirect action in the current window
   it('should redirect in the current window', async function() {
-    spyOn(window, "open").and.returnValue(true);
-
     // Call the redirect method with newWindow set to false
     actions["redirect"]({target: "test-url", parameters:{newWindow: false}}, props);
 

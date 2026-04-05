@@ -9,7 +9,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
   beforeEach(() => {
     ComponentRegistry.clearAll();
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
     mockAddress = { view: 'base', component: 'comp1' };
 
     mockState = {
@@ -55,7 +55,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       }
     };
 
-    getState = jasmine.createSpy('getState').and.callFake(() => mockState);
+    getState = jest.fn(() => mockState);
   });
 
   describe('validateComponents', () => {
@@ -65,9 +65,9 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       validationThunks.validateComponents(componentList)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(2);
+      expect(dispatch).toHaveBeenCalledTimes(2);
 
-      const [[validateComponents], [addActionsTop]] = dispatch.calls.allArgs();
+      const [[validateComponents], [addActionsTop]] = dispatch.mock.calls;
       expect(validateComponents.type).toBe('VALIDATE_COMPONENTS');
       expect(validateComponents.componentList).toBe(componentList);
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
@@ -80,9 +80,9 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       validationThunks.validateRow(mockAddress)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(2);
+      expect(dispatch).toHaveBeenCalledTimes(2);
 
-      const [[validateRow], [addActionsTop]] = dispatch.calls.allArgs();
+      const [[validateRow], [addActionsTop]] = dispatch.mock.calls;
       expect(validateRow.type).toBe('VALIDATE_ROW');
       expect(validateRow.address).toBe(mockAddress);
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
@@ -100,14 +100,14 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       validationThunks.validateAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(2);
+      expect(dispatch).toHaveBeenCalledTimes(2);
 
-      const [[validateThunk], [acceptAction]] = dispatch.calls.allArgs();
+      const [[validateThunk], [acceptAction]] = dispatch.mock.calls;
       // validateThunk es validateComponents
-      const innerDispatch = jasmine.createSpy('innerDispatch');
+      const innerDispatch = jest.fn();
       validateThunk(innerDispatch, getState);
 
-      expect(innerDispatch.calls.count()).toBe(2);
+      expect(innerDispatch).toHaveBeenCalledTimes(2);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
 
@@ -132,7 +132,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
           useComponentRegistry: true
         }
       };
-      getState = jasmine.createSpy('getStateRegistry').and.callFake(() => mockState);
+      getState = jest.fn(() => mockState);
 
       const action = {
         type: 'validate',
@@ -141,11 +141,11 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       validationThunks.validateAction(action)(dispatch, getState);
 
-      const [[validateThunk]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy('innerDispatch');
+      const [[validateThunk]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       validateThunk(innerDispatch, getState);
 
-      const [[validateComponentsAction]] = innerDispatch.calls.allArgs();
+      const [[validateComponentsAction]] = innerDispatch.mock.calls;
       expect(validateComponentsAction.type).toBe('VALIDATE_COMPONENTS');
       expect(validateComponentsAction.componentList.length).toBe(2);
     });
@@ -161,7 +161,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[rejectAction]] = dispatch.calls.allArgs();
+      const [[rejectAction]] = dispatch.mock.calls;
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
 
@@ -176,7 +176,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
 
@@ -195,12 +195,12 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
           useComponentRegistry: true
         }
       };
-      getState = jasmine.createSpy('getStateRegistry').and.callFake(() => mockState);
+      getState = jest.fn(() => mockState);
 
       const action = { type: 'verify-validation' };
       validationThunks.verifyValidationAction(action)(dispatch, getState);
 
-      const [[rejectAction]] = dispatch.calls.allArgs();
+      const [[rejectAction]] = dispatch.mock.calls;
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
   });
@@ -216,7 +216,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [acceptAction]] = dispatch.mock.calls;
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.error).toBeNull();
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -237,7 +237,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const [[updateAttributes], [acceptAction]] = dispatch.calls.allArgs();
+      const [[updateAttributes], [acceptAction]] = dispatch.mock.calls;
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
       expect(updateAttributes.data.error).toEqual({ message: 'Invalid value' });
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -247,7 +247,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
   describe('checkModelUpdatedAction', () => {
     it('debería despachar confirmación si el modelo ha sido modificado', () => {
       // Modificar el modelo para que sea diferente del inicial
-      getState = jasmine.createSpy('getState2').and.callFake(() => ({
+      getState = jest.fn(() => ({
         ...mockState,
         components: {
           ...mockState.components,
@@ -268,7 +268,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       expect(calls.length).toBeGreaterThanOrEqual(2);
 
       const [[addActionsTop], [acceptAction]] = calls;
@@ -285,9 +285,9 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       validationThunks.checkModelUpdatedAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(1);
+      expect(dispatch).toHaveBeenCalledTimes(1);
 
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });
@@ -303,7 +303,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       expect(calls.length).toBeGreaterThanOrEqual(2);
 
       const [[addActionsTop], [acceptAction]] = calls;
@@ -312,7 +312,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
     });
 
     it('no debería despachar confirmación si el modelo ha sido modificado', () => {
-      getState = jasmine.createSpy('getState2').and.callFake(() => ({
+      getState = jest.fn(() => ({
         ...mockState,
         components: {
           ...mockState.components,
@@ -332,16 +332,16 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
       validationThunks.checkModelNoUpdatedAction(action)(dispatch, getState);
 
       expect(dispatch).toHaveBeenCalled();
-      expect(dispatch.calls.count()).toBe(1);
+      expect(dispatch).toHaveBeenCalledTimes(1);
 
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
   });
 
   describe('checkModelEmptyAction', () => {
     it('debería despachar confirmación si el modelo está vacío', () => {
-      getState = jasmine.createSpy('getState2').and.callFake(() => ({
+      getState = jest.fn(() => ({
         ...mockState,
         components: {
           ...mockState.components,
@@ -362,7 +362,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       expect(calls.length).toBeGreaterThanOrEqual(1);
 
       const hasAddActionsTop = calls.some(([call]) => call.type === 'ADD_ACTIONS_TOP');
@@ -370,7 +370,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
     });
 
     it('debería despachar confirmación si modelo vacío', () => {
-      getState = jasmine.createSpy('getState2').and.callFake(() => ({
+      getState = jest.fn(() => ({
         ...mockState,
         components: {
           ...mockState.components,
@@ -391,7 +391,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       expect(dispatch).toHaveBeenCalled();
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const addActionsTopCalls = calls.filter(([call]) => call.type === 'ADD_ACTIONS_TOP');
       expect(addActionsTopCalls.length).toBe(1);
     });
@@ -404,7 +404,7 @@ describe('awe-react-client/test/js/redux/thunks/validateThunkTest.js', () => {
 
       validationThunks.checkModelEmptyAction(action)(dispatch, getState);
 
-      const calls = dispatch.calls.allArgs();
+      const calls = dispatch.mock.calls;
       const addActionsTopCalls = calls.filter(([call]) => call.type === 'ADD_ACTIONS_TOP');
       expect(addActionsTopCalls.length).toBe(0);
     });

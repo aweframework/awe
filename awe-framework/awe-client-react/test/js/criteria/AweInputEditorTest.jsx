@@ -1,5 +1,6 @@
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
+import {act} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 import AweInputEditor from "../../../src/criteria/AweInputEditor";
 
@@ -24,11 +25,13 @@ describe('awe-react-client/test/js/criteria/AweInputEditorTest.jsx', () => {
     }
   };
 
-  it('renders Awe Input Editor component', () => {
-    renderWithProviders(<AweInputEditor id="editor"/>, {preloadedState});
+  it('renders Awe Input Editor component', async () => {
+    await act(async () => {
+      renderWithProviders(<AweInputEditor id="editor"/>, {preloadedState});
+    });
 
     // check
     expect(document.querySelector("#editor")).not.toBeNull();
-  });
+  }, 15000);
 
 });

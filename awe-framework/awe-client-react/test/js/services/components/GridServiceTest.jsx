@@ -44,6 +44,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
 
   beforeEach(() => {
     ComponentRegistry.clearAll();
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     originalClipboard = navigator.clipboard;
     if (!navigator.clipboard) {
       Object.defineProperty(navigator, "clipboard", {
@@ -58,6 +59,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
 
   afterEach(() => {
     ComponentRegistry.clearAll();
+    jest.restoreAllMocks();
     if (originalClipboard) {
       Object.defineProperty(navigator, "clipboard", {
         value: originalClipboard,
@@ -600,7 +602,7 @@ describe('awe-react-client/test/js/services/components/GridServiceTest.jsx', fun
      });
 
      // Spies
-     const clipboard = spyOn(navigator.clipboard, "writeText");
+     const clipboard = jest.spyOn(navigator.clipboard, "writeText");
 
      act(() => actions["copy-selected-rows-clipboard"]({address: {component: "grid", view: "report"}}, props));
 

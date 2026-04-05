@@ -33,7 +33,7 @@ function getPreloaded(id = 'comp1', extra = {}) {
 }
 
 function findAddActionsTop(dispatchSpy) {
-  return dispatchSpy.calls.allArgs().map(args => args[0]).filter(a => a && a.type === ADD_ACTIONS_TOP);
+  return dispatchSpy.mock.calls.map(args => args[0]).filter(a => a && a.type === ADD_ACTIONS_TOP);
 }
 
 describe('awe-react-client/test/js/hooks/useTextTest.jsx', () => {
@@ -45,8 +45,13 @@ describe('awe-react-client/test/js/hooks/useTextTest.jsx', () => {
   });
 
   it('initializes value from empty state', () => {
-    const preloadedState = getPreloaded();
-    renderWithProviders(<HookHarness id="comp1" />, { components: {comp1: {}, settings: {} } });
+    const preloadedState = {
+      components: {
+        comp1: {}
+      },
+      settings: {}
+    };
+    renderWithProviders(<HookHarness id="comp1" />, { preloadedState });
 
     expect(screen.getByTestId('shown-value').textContent).toBe('');
   });

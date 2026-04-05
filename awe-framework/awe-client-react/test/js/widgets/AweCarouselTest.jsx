@@ -1,9 +1,23 @@
 import React from 'react';
+import { act, waitFor } from '@testing-library/react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweCarousel from "../../../src/widgets/AweCarousel";
 
+jest.mock('react-player', () => function MockReactPlayer(props) {
+  return <div data-testid="mock-react-player" data-url={props.url} />;
+});
+
 describe('awe-react-client/test/js/widgets/AweCarouselTest.jsx', () => {
+
+  beforeEach(() => {
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
@@ -45,10 +59,14 @@ describe('awe-react-client/test/js/widgets/AweCarouselTest.jsx', () => {
     }
   };
 
-  it('renders Carousel widget', () => {
-    renderWithProviders(<AweCarousel id="carousel"/>, {preloadedState});
+  it('renders Carousel widget', async () => {
+    await act(async () => {
+      renderWithProviders(<AweCarousel id="carousel"/>, {preloadedState});
+    });
 
-    expect(document.querySelector("div.carousel")).toBeDefined();
-    expect(document.querySelector("div.p-carousel")).toBeDefined();
+    await waitFor(() => {
+      expect(document.querySelector("div.carousel")).toBeDefined();
+      expect(document.querySelector("div.p-carousel")).toBeDefined();
+    });
   });
 });

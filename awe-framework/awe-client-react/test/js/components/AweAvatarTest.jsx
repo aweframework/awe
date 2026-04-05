@@ -7,6 +7,8 @@ import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 // Test
 describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
 
+  afterEach(() => jest.restoreAllMocks());
+
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
     components: {
@@ -29,7 +31,7 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
   };
 
   it("renders Avatar component", () => {
-    spyOn(React, "lazy").and.callFake(importFunc => importFunc());
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
 
     renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { preloadedState });
 
@@ -38,7 +40,7 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
   });
 
   it("renders Avatar component with empty state", () => {
-    spyOn(React, "lazy").and.callFake(importFunc => importFunc());
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
 
     renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { components: {avatar: {}}, settings: {} });
 
@@ -47,7 +49,7 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
   });
 
   it("renders Avatar component and clicks on it", () => {
-    spyOn(React, "lazy").and.callFake(importFunc => importFunc());
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
 
     renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { preloadedState });
 

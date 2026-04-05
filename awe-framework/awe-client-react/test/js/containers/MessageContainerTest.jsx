@@ -9,6 +9,15 @@ describe('awe-react-client/test/js/containers/MessageContainerTest.jsx', () => {
     settings: DEFAULT_SETTINGS
   };
 
+  beforeEach(() => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('renders message container', () => {
     renderWithProviders(<MessageContainer/>, {preloadedState:{...preloadedState, messages: {showing: []}}});
 

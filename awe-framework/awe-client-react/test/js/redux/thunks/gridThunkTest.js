@@ -9,7 +9,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
   let mockState;
 
   beforeEach(() => {
-    dispatch = jasmine.createSpy('dispatch');
+    dispatch = jest.fn();
 
     mockAddress = { view: 'base', component: 'grid1' };
     mockComponent = {
@@ -33,7 +33,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     };
 
     mockState = { components: { grid1: mockComponent } };
-    getState = jasmine.createSpy('getState').and.returnValue(mockState);
+    getState = jest.fn().mockReturnValue(mockState);
   });
 
   // -------------------------------
@@ -48,10 +48,10 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.selectRowGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[acceptAction], [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel], [setRuntimeEvent]] = innerDispatch.calls.allArgs();
+      const [[updateModel], [setRuntimeEvent]] = innerDispatch.mock.calls;
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel.type).toBe('UPDATE_MODEL');
@@ -70,10 +70,10 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.selectFirstRowGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[acceptAction], [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel], [setEvent]] = innerDispatch.calls.allArgs();
+      const [[updateModel], [setEvent]] = innerDispatch.mock.calls;
 
       expect(updateModel.type).toBe('UPDATE_MODEL');
       expect(setEvent.event).toBe('select-row');
@@ -93,10 +93,10 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.selectLastRowGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[acceptAction], [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel.data.values.find(r => r.selected).id).toBe(3);
@@ -113,12 +113,12 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.selectAllRowsGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[acceptAction], [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
-      expect(updateModel.data.values.every(r => r.selected)).toBeTrue();
+      expect(updateModel.data.values.every(r => r.selected)).toBe(true);
     });
   });
 
@@ -132,12 +132,12 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.unselectAllRowsGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[acceptAction], [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
-      expect(updateModel.data.values.every(r => !r.selected)).toBeTrue();
+      expect(updateModel.data.values.every(r => !r.selected)).toBe(true);
     });
   });
 
@@ -154,13 +154,13 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.toggleColumnVisibilityGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateAttributes]] = dispatch.calls.allArgs();
+      const [[acceptAction], [updateAttributes]] = dispatch.mock.calls;
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateAttributes.type).toBe('UPDATE_ATTRIBUTES');
 
       const updatedCols = updateAttributes.data.columnModel;
-      expect(updatedCols.find(c => c.name === 'id').hidden).toBeTrue();
+      expect(updatedCols.find(c => c.name === 'id').hidden).toBe(true);
     });
   });
 
@@ -177,13 +177,13 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.addRowGridAction(action, RowPositionType.AFTER)(dispatch, getState);
 
       // Recuperación de acciones
-      const [ [updateModelWithDependencies1], [acceptAction], [updateModelWithDependencies2]] = dispatch.calls.allArgs();
-      const innerDispatch1 = jasmine.createSpy("innerDispatch1");
+      const [ [updateModelWithDependencies1], [acceptAction], [updateModelWithDependencies2]] = dispatch.mock.calls;
+      const innerDispatch1 = jest.fn();
       updateModelWithDependencies1(innerDispatch1, getState);
-      const [[addEvent1]] = innerDispatch1.calls.allArgs();
-      const innerDispatch2 = jasmine.createSpy("innerDispatch2");
+      const [[addEvent1]] = innerDispatch1.mock.calls;
+      const innerDispatch2 = jest.fn();
       updateModelWithDependencies2(innerDispatch2, getState);
-      const [[updateModel2], [addEvent]] = innerDispatch2.calls.allArgs();
+      const [[updateModel2], [addEvent]] = innerDispatch2.mock.calls;
 
       expect(addEvent1.type).toBe('SET_RUNTIME_EVENT'); // add-row
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
@@ -202,10 +202,10 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.deleteRowGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction], [updateModelWithDependencies]] = dispatch.calls.allArgs();
-      const innerDispatch = jasmine.createSpy("innerDispatch");
+      const [[acceptAction], [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
       updateModelWithDependencies(innerDispatch, getState);
-      const [[updateModel]] = innerDispatch.calls.allArgs();
+      const [[updateModel]] = innerDispatch.mock.calls;
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel.type).toBe('UPDATE_MODEL');
@@ -226,7 +226,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       gridThunks.checkOneSelectedGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[acceptAction]] = dispatch.calls.allArgs();
+      const [[acceptAction]] = dispatch.mock.calls;
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
@@ -242,13 +242,13 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
           }
         }
       };
-      getState.and.returnValue(stateWithoutSelection);
+      getState.mockReturnValue(stateWithoutSelection);
       const action = { parameters: {}, address: mockAddress };
 
       gridThunks.checkOneSelectedGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[rejectAction]] = dispatch.calls.allArgs();
+      const [[rejectAction]] = dispatch.mock.calls;
 
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
@@ -264,13 +264,13 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
           }
         }
       };
-      getState.and.returnValue(stateWithMultiple);
+      getState.mockReturnValue(stateWithMultiple);
       const action = { parameters: {}, address: mockAddress };
 
       gridThunks.checkOneSelectedGridAction(action)(dispatch, getState);
 
       // Recuperación de acciones
-      const [[rejectAction]] = dispatch.calls.allArgs();
+      const [[rejectAction]] = dispatch.mock.calls;
 
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
@@ -283,7 +283,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     it('debería aceptar si hay al menos una fila seleccionada', () => {
       const action = { parameters: {}, address: mockAddress };
       gridThunks.checkSomeSelectedGridAction(action)(dispatch, getState);
-      expect(dispatch.calls.argsFor(0)[0].type).toBe('ACCEPT_ACTION');
+      expect(dispatch.mock.calls[0][0].type).toBe('ACCEPT_ACTION');
     });
 
     it('debería rechazar si no hay ninguna seleccionada', () => {
@@ -295,12 +295,12 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
           }
         }
       };
-      getState.and.returnValue(state);
+      getState.mockReturnValue(state);
 
       gridThunks.checkSomeSelectedGridAction({address: mockAddress})(dispatch, getState);
 
       // Recuperación de acciones
-      const [[rejectAction]] = dispatch.calls.allArgs();
+      const [[rejectAction]] = dispatch.mock.calls;
 
       expect(rejectAction.type).toBe('REJECT_ACTION');
     });
@@ -314,7 +314,7 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       const action = { parameters: { page: 2 }, address: mockAddress };
       gridThunks.changePageGridAction(action)(dispatch, getState);
 
-      const [[acceptAction], [updateSpecificAttributes]] = dispatch.calls.allArgs();
+      const [[acceptAction], [updateSpecificAttributes]] = dispatch.mock.calls;
 
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateSpecificAttributes.type).toBe('UPDATE_SPECIFIC_ATTRIBUTES');

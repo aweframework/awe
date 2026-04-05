@@ -7,6 +7,7 @@ import AweAccordion from "../../../src/components/AweAccordion";
 describe('awe-react-client/test/js/components/AweAccordionTest.jsx', () => {
 
   afterAll(cleanup);
+  afterEach(() => jest.restoreAllMocks());
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
@@ -38,9 +39,9 @@ describe('awe-react-client/test/js/components/AweAccordionTest.jsx', () => {
     renderWithProviders(<AweAccordion id="accordion" style="estilo-especifico" elementList={[{
       elementType: "AccordionItem",
       id: "acc1",
-      updateModel: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModel: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'acc1', view: 'report'},
       elementList: [{elementType: "Tag", type: "div", elementList: [], t: (key) => key}],
       t: (key) => key
@@ -65,9 +66,9 @@ describe('awe-react-client/test/js/components/AweAccordionTest.jsx', () => {
     renderWithProviders(<AweAccordion id="accordion" style="estilo-especifico" autocollapse={false} elementList={[{
       elementType: "AccordionItem",
       id: "acc1",
-      updateModel: jasmine.createSpy("updateModel"),
-      updateAttributes: jasmine.createSpy("updateAttributes"),
-      addActionsTop: jasmine.createSpy("addActionsTop"),
+      updateModel: jest.fn(),
+      updateAttributes: jest.fn(),
+      addActionsTop: jest.fn(),
       address: {component: 'acc1', view: 'report'},
       t: (key) => key,
       elementList: [

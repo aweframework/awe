@@ -10,22 +10,16 @@
   "recurseDepth": 10,
   "sourceType": "module",
   "plugins": [
-    "plugins/markdown",
-    "node_modules/better-docs/category",
-    "node_modules/better-docs/typescript"
+    "plugins/markdown"
   ],
   "opts": {
     "encoding": "utf8",
     "destination": "target/reports/jsdoc",
-    "template": "node_modules/better-docs",
     "recurse": true
   },
   "templates": {
     "cleverLinks": false,
     "monospaceLinks": false,
-    "search": true,
-    "better-docs": {
-      "name": "AWE React Front-End Engine"
-    }
+    "search": true
   }
 }

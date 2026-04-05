@@ -7,6 +7,10 @@ import AweLogViewer from "../../../src/widgets/AweLogViewer";
 describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
 
   afterAll(cleanup);
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
 
   const preloadedState = {
     settings: DEFAULT_SETTINGS,
@@ -23,10 +27,9 @@ describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
   };
 
   beforeEach(() => {
-    // Install clock
-    jasmine.clock().install();
+    jest.useFakeTimers();
 
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
+    global.fetch = jest.fn().mockReturnValue(Promise.resolve({
       headers: {
         get: () => 'application/json;charset=UTF-8'
       },
@@ -36,16 +39,10 @@ describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
     }));
   });
 
-  afterEach(() => {
-    // Uninstall clock
-    jasmine.clock().uninstall();
-  })
-
   it('renders AWE Log Viewer widget', () => {
     renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
 
-    // Install clock
-    jasmine.clock().tick(150);
+    jest.advanceTimersByTime(150);
 
     expect(screen.findByPlaceholderText("Search")).toBeDefined();
   });
@@ -53,8 +50,7 @@ describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
   it('renders AWE Log Viewer widget and disables log autorefresh', () => {
     renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
 
-    // Install clock
-    jasmine.clock().tick(150);
+    jest.advanceTimersByTime(150);
 
     expect(screen.findByPlaceholderText("Search")).toBeDefined();
 

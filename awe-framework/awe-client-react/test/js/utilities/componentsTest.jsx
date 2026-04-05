@@ -53,23 +53,23 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
   let checkbox;
 
   beforeEach(function () {
-    abortController = {abort: jasmine.createSpy('abort'), signal: {aborted: false}};
+    abortController = {abort: jest.fn(), signal: {aborted: false}};
     component = {
       suggesting: false,
       props: {
         serverAction: "serverAction", targetAction: "targetAction", settings: DEFAULT_SETTINGS, strict: true,
-        keepModel: jasmine.createSpy("keepModel"),
+        keepModel: jest.fn(),
         address: {},
-        addActionsTop: jasmine.createSpy("addActionsTop"),
+        addActionsTop: jest.fn(),
       },
       autocomplete: {
-        hide: jasmine.createSpy("hide")
+        hide: jest.fn()
       },
       abortController: abortController
     };
     props = {
-      updateSettings: jasmine.createSpy('updateSettings'),
-      acceptAction: jasmine.createSpy('accept'),
+      updateSettings: jest.fn(),
+      acceptAction: jest.fn(),
       t: (v) => v,
       settings: {}
     };
@@ -164,8 +164,10 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
   });
 
   it('should parse an invalid rule', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     expect(parseRule("required {min: 0, max: 100, step: 0.01, precision: 2, aSign:' £', pSign:'s', aPad:true}", address))
       .toEqual({});
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   it('should parse a rule list from object', () => {
@@ -181,261 +183,6 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     expect(parseValidationRules("{min: 0, max: 100, step: 0.01, precision: 2, aSign:' £', pSign:'s', aPad:true}", address))
       .toEqual({min: 0, max: 100, step: 0.01, precision: 2, aSign: ' £', pSign: 's', aPad: true});
   });
-
-  /*it('should suggest a text', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: () => getDataListActions()
-    }));
-
-    // Define setState
-    component.setState = (params) => {
-      expect(params).toEqual({suggestions: [{"label": "test", "id": 1, "value": 1, "nom": "test"}]});
-      done();
-    };
-    suggest(component, {},"test");
-  });
-
-  it('should suggest a text non strict', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: getDataListActions
-    }));
-
-    // Define setState
-    component.props.strict = false;
-    component.setState = (params) => {
-      expect(params).toEqual({
-        suggestions: [
-          {"label": "test", "id": 1, "value": 1, "nom": "test"},
-          {"label": "te", "value": "te"}]
-      });
-      done();
-    };
-    suggest(component, {},"te");
-  });
-
-  it('should suggest a text non strict with the same label', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: getDataListActions
-    }));
-
-    // Define setState
-    component.props.strict = false;
-    component.setState = (params) => {
-      expect(params).toEqual({suggestions: [{"label": "test", "id": 1, "value": 1, "nom": "test"}]});
-      done();
-    };
-    suggest(component, {},"test");
-  });
-
-  it('should suggest a text aborting the previous one', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: getDataListActions
-    }));
-
-    // Define setState
-    component.suggesting = true;
-    component.setState = (params) => {
-      expect(abortController.abort).toHaveBeenCalled();
-      expect(params).toEqual({suggestions: [{"label": "test", "id": 1, "value": 1, "nom": "test"}]});
-      done();
-    };
-    suggest(component, {},"test");
-  });
-
-  it('should suggest a text aborted', () => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: getDataListActions
-    }));
-
-    // Define setState
-    component.abortController.signal.aborted = true;
-    suggest(component, {},"test");
-  });
-
-  it('should suggest a text without data', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      ok: true,
-      status: 200,
-      statusText: 'HTTP/1.1 200 OK',
-      json: () => [],
-      text: () => ""
-    }));
-
-    // Define setState
-    component.setState = (params) => {
-      expect(params).toEqual({suggestions: []});
-      done();
-    };
-    suggest(component, {},"test");
-  });
-
-  it('should suggest not strict a text with bad data', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: () => [{type: 'message'}]
-    }));
-
-    // Define setState
-    component.props.strict = false;
-    component.setState = (params) => {
-      expect(params).toEqual({suggestions: [{"label": "test", "value": "test"}]});
-      done();
-    };
-    suggest(component, {}, "test");
-  });
-
-  it('should suggest a text with error in feedback', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'plain/text;charset=UTF-8'
-      },
-      status: 500,
-      ok: false,
-      statusText: 'HTTP/1.1 500 INTERNAL ERROR',
-      text: () => ""
-    }));
-    spyOn(console, "debug").and.callFake(() => done());
-    suggest(component, {}, "test");
-  });
-
-
-  it('should fill initial target', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: getDataListActions
-    }));
-
-    // Define setState
-    component.props.strict = false;
-    component.props.updateModelWithDependencies = (address, data) => {
-      //console.info(data);
-      expect(data).toEqual({
-        values: [{"label": "test", "id": 1, "value": 1, "nom": "test", selected: true}]
-      });
-      done();
-    };
-    initialSuggest(component, "1");
-  });
-
-  it('should fill initial target with bad data', (done) => {
-    spyOn(window, "fetch").and.returnValue(Promise.resolve({
-      headers: {
-        get: () => 'application/json;charset=UTF-8'
-      },
-      status: 200,
-      ok: true,
-      statusText: 'HTTP/1.1 200 OK',
-      json: () => [{type: 'fill', parameters: {datalist: {}}}]
-    }));
-
-    // Define setState
-    component.props.updateModelWithDependencies = (address, data) => {
-      expect(data).toEqual({
-        values: []
-      });
-      done();
-    };
-    initialSuggest(component, "test");
-  });
-
-  it('should get initial file data with empty filedata', () => {
-    const uploadComponent = {
-      setState: jasmine.createSpy("setState"),
-      props: {
-        address: {},
-        addActionsTop: jasmine.createSpy("addActionsTop"),
-        destination: null,
-        settings: {}
-      }
-    };
-
-    getInitialFileData(uploadComponent, "");
-
-    expect(uploadComponent.setState).toHaveBeenCalledTimes(1);
-    expect(uploadComponent.props.addActionsTop).not.toHaveBeenCalled();
-  });
-
-
-  it('should upload a file', () => {
-    const uploadComponent = {
-      setState: jasmine.createSpy("setState"),
-      props: {
-        settings: {}
-      }
-    };
-
-    const uploader = {
-      xhr: {
-        setRequestHeader: jasmine.createSpy("setRequestHeader")
-      },
-      formData: {
-        set: jasmine.createSpy("setFormData")
-      }
-    };
-    uploadFile(uploadComponent, uploader);
-
-    expect(uploadComponent.setState).toHaveBeenCalledTimes(1);
-  });
-
-  it('should delete an uploaded file', () => {
-    const uploadComponent = {
-      setState: jasmine.createSpy("setState"),
-      props: {
-        address: {},
-        addActionsTop: jasmine.createSpy("addActionsTop"),
-        destination: null,
-        settings: {}
-      }
-    };
-
-    deleteFile(uploadComponent, "filename");
-
-    expect(uploadComponent.setState).toHaveBeenCalledTimes(1);
-    expect(uploadComponent.props.addActionsTop).toHaveBeenCalledTimes(1);
-  });*/
 
   it('should get grid data', () => {
     let data = getComponentData(grid, props, false);
@@ -1046,8 +793,8 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     const props = { t: (text) => text };
 
     const result = getCriterionPrintData(criterion, model, props);
-    expect('numCriterion.data' in result).toBeTrue();
-    expect('text' in result['numCriterion.data']).toBeTrue();
+    expect('numCriterion.data' in result).toBe(true);
+    expect('text' in result['numCriterion.data']).toBe(true);
   });
 
   it('should get criterion print data for time', () => {
@@ -1065,7 +812,7 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     const props = { t: (text) => text };
 
     const result = getCriterionPrintData(criterion, model, props);
-    expect('timeCriterion.data' in result).toBeTrue();
+    expect('timeCriterion.data' in result).toBe(true);
     expect(result['timeCriterion.data'].text).toEqual('12:34:56');
   });
 
@@ -1085,8 +832,8 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     const props = { t: (text) => `T: ${text}` };
 
     const result = getCriterionPrintData(criterion, model, props);
-    expect('defaultCriterion.data' in result).toBeTrue();
-    expect('text' in result['defaultCriterion.data']).toBeTrue();
+    expect('defaultCriterion.data' in result).toBe(true);
+    expect('text' in result['defaultCriterion.data']).toBe(true);
   });
 
   // Tests for getCheckboxData
@@ -1236,14 +983,14 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
   // Tests for clickDropdown
   it('should handle click on dropdown', () => {
     const dropdown = {
-      toggle: jasmine.createSpy('toggle')
+      toggle: jest.fn()
     };
 
     const dropdownProps = {
       address: { component: 'dropdown1', view: 'view1' },
-      addActionsTop: jasmine.createSpy('addActionsTop'),
-      updateModelWithDependencies: jasmine.createSpy('updateModelWithDependencies'),
-      dispatch: jasmine.createSpy('dispatch'),
+      addActionsTop: jest.fn(),
+      updateModelWithDependencies: jest.fn(),
+      dispatch: jest.fn(),
       actions: [
         { type: 'action1', parameters: {} },
         { type: 'action2', parameters: {} }
@@ -1283,9 +1030,13 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     };
 
     const result = getTabPrintData(tab, model, props);
-    expect('tabId.data' in result).toBeTrue();
+    expect('tabId.data' in result).toBe(true);
     expect(result['tabId.data'].text).toBe('Translated: Tab Translated: 1');
-    expect('all' in result['tabId.data']).toBeTrue();
+    expect('all' in result['tabId.data']).toBe(true);
     expect(result['tabId.data'].all).toEqual(model.values);
   }); //X
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
 });

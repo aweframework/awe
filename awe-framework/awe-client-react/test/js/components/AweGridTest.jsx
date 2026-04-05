@@ -1140,8 +1140,7 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
     fireEvent.contextMenu(document.getElementsByClassName("p-text-truncate")[0]);
 
-    //console.info(screen.getByRole("menubar"));
-    expect(screen.getAllByRole("menuitem")[0]).toHaveClass("p-menuitem");
+    expect(document.querySelector(".p-contextmenu .p-menuitem")).not.toBeNull();
   });
 
 });

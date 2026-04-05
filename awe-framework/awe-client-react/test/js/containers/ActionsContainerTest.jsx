@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from '@testing-library/react';
 import { renderWithProviders } from '../test-utils';
 import ActionsContainer from '../../../src/containers/ActionsContainer';
 import { ActionStatus } from '../../../src/redux/actions/actions';
@@ -111,7 +112,9 @@ describe('awe-react-client/test/js/containers/ActionsContainerTest.jsx', () => {
 
     // Simulate the hotkey Alt+Shift+Digit2 -> 2 * 1000
     const evt = new KeyboardEvent('keydown', { altKey: true, shiftKey: true, code: 'Digit2' });
-    window.dispatchEvent(evt);
+    act(() => {
+      window.dispatchEvent(evt);
+    });
 
     const state = store.getState();
     expect(state.settings.actionsStack).toBe(2000);
