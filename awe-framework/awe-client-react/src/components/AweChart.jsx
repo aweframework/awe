@@ -190,13 +190,75 @@ function ensureLanguage(lang) {
 // Run one-time side effects at module evaluation time, not inside any render.
 ensureModulesInit();
 
+function removeScheduledReflowHandle(scheduledReflowsRef, handleId) {
+  scheduledReflowsRef.current = scheduledReflowsRef.current.filter(handle => handle.id !== handleId);
+}
+
+function triggerScheduledReflow(scheduledReflowsRef, redrawRef, handleId) {
+  removeScheduledReflowHandle(scheduledReflowsRef, handleId);
+  redrawRef.current();
+}
+
+function scheduleSecondAnimationFrame(scheduledReflowsRef, redrawRef) {
+  const secondFrame = requestAnimationFrame(() => {
+    triggerScheduledReflow(scheduledReflowsRef, redrawRef, secondFrame);
+  });
+
+  scheduledReflowsRef.current = [...scheduledReflowsRef.current, { type: "frame", id: secondFrame }];
+}
+
+function scheduleAnimationFrameReflow(scheduledReflowsRef, redrawRef) {
+  const firstFrame = requestAnimationFrame(() => {
+    removeScheduledReflowHandle(scheduledReflowsRef, firstFrame);
+    scheduleSecondAnimationFrame(scheduledReflowsRef, redrawRef);
+  });
+
+  scheduledReflowsRef.current = [{ type: "frame", id: firstFrame }];
+}
+
+function scheduleTimeoutReflow(scheduledReflowsRef, redrawRef) {
+  const timeoutId = setTimeout(() => {
+    triggerScheduledReflow(scheduledReflowsRef, redrawRef, timeoutId);
+  }, 0);
+
+  scheduledReflowsRef.current = [{ type: "timeout", id: timeoutId }];
+}
+
 function AweChart(props) {
   const { id } = props;
   const { model = { values: [] }, attributes = {} } = useComponentState(id);
+  const containerRef = useRef(null);
   const chartRef = useRef(null);
   const activeRef = useRef(false);
   const redrawRef = useRef(() => { });
+  const resizeObserverRef = useRef(null);
+  const scheduledReflowsRef = useRef([]);
   const { t, i18n } = useTranslation();
+
+  const cancelScheduledReflows = useCallback(() => {
+    scheduledReflowsRef.current.forEach(handle => {
+      if (handle.type === "frame" && typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(handle.id);
+      }
+
+      if (handle.type === "timeout") {
+        clearTimeout(handle.id);
+      }
+    });
+
+    scheduledReflowsRef.current = [];
+  }, []);
+
+  const schedulePostLayoutReflow = useCallback(() => {
+    cancelScheduledReflows();
+
+    if (typeof requestAnimationFrame === "function") {
+      scheduleAnimationFrameReflow(scheduledReflowsRef, redrawRef);
+      return;
+    }
+
+    scheduleTimeoutReflow(scheduledReflowsRef, redrawRef);
+  }, [cancelScheduledReflows]);
 
   // Apply initial language once on mount, then track runtime language changes.
   // No explicit reflow call needed here: the key={i18n.language} prop on
@@ -211,11 +273,56 @@ function AweChart(props) {
     chartRef.current = chart;
     redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
     activeRef.current = true;
+    schedulePostLayoutReflow();
+  }, [schedulePostLayoutReflow]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container || typeof ResizeObserver !== "function") {
+      return;
+    }
+
+    let lastWidth = null;
+    let lastHeight = null;
+
+    const observer = new ResizeObserver(entries => {
+      const entry = entries?.[0];
+      if (!entry) {
+        return;
+      }
+
+      const width = entry.contentRect?.width ?? container.offsetWidth;
+      const height = entry.contentRect?.height ?? container.offsetHeight;
+
+      if (width === lastWidth && height === lastHeight) {
+        return;
+      }
+
+      lastWidth = width;
+      lastHeight = height;
+      redrawRef.current();
+    });
+
+    resizeObserverRef.current = observer;
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+
+      if (resizeObserverRef.current === observer) {
+        resizeObserverRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
     return () => {
       activeRef.current = false;
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
+      cancelScheduledReflows();
+
       // Cancel any pending debounced reflow on unmount to prevent state updates
       // on an unmounted chart instance.
       if (typeof redrawRef.current.cancel === 'function') {
@@ -223,7 +330,7 @@ function AweChart(props) {
       }
       redrawRef.current = () => { };
     };
-  }, []);
+  }, [cancelScheduledReflows]);
 
   // Trigger a reflow after every committed render so the chart fills its
   // container correctly when the layout changes (e.g. resizable panels).
@@ -239,7 +346,7 @@ function AweChart(props) {
 
   const { style, visible } = attributes;
   const classes = classNames("awe-chart", "expand", "highcharts-dark", style, { "hidden": !visible });
-  return <div className={classes} id={id}>
+  return <div ref={containerRef} className={classes} id={id}>
     <HighchartsReact
       key={i18n.language}
       highcharts={Highcharts}
