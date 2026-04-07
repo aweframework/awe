@@ -7,6 +7,23 @@ import {updateModel} from "../../../src/redux/actions/components";
 
 import "../../../src/i18n/i18n";
 
+const mockChartReflow = jest.fn();
+const mockHighchartsChart = {
+  reflow: mockChartReflow
+};
+
+jest.mock('highcharts-react-official', () => {
+  const React = require('react');
+
+  return function MockHighchartsReact(props) {
+    React.useEffect(() => {
+      props.callback?.(mockHighchartsChart);
+    }, [props]);
+
+    return React.createElement('div', props.containerProps);
+  };
+});
+
 describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
 
   const values = [
@@ -2041,6 +2058,77 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
     });
 
     expect(document.querySelector("div#chart")).not.toBeNull();
+  });
+
+  it('reflows chart when ResizeObserver detects container size changes', () => {
+    jest.useFakeTimers();
+
+    const originalResizeObserver = global.ResizeObserver;
+    const originalRequestAnimationFrame = window.requestAnimationFrame;
+    const originalCancelAnimationFrame = window.cancelAnimationFrame;
+    const observe = jest.fn();
+    const disconnect = jest.fn();
+    let resizeObserverCallback;
+
+    global.ResizeObserver = jest.fn(callback => {
+      resizeObserverCallback = callback;
+      return {
+        observe,
+        disconnect
+      };
+    });
+    window.requestAnimationFrame = jest.fn(callback => setTimeout(callback, 0));
+    window.cancelAnimationFrame = jest.fn(id => clearTimeout(id));
+
+    let unmount;
+
+    try {
+      ({ unmount } = renderWithProviders(
+        <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
+        {
+          preloadedState: {
+            ...preloadedState,
+            components: {
+              ...preloadedState.components,
+              chart: {
+                ...preloadedState.components.chart,
+                attributes: {
+                  ...preloadedState.components.chart.attributes,
+                  chartModel
+                }
+              }
+            }
+          }
+        }
+      ));
+
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(observe).toHaveBeenCalledTimes(1);
+
+      mockChartReflow.mockClear();
+
+      act(() => {
+        resizeObserverCallback([{contentRect: {width: 640, height: 320}}]);
+        jest.runAllTimers();
+      });
+
+      expect(mockChartReflow).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        unmount();
+      });
+
+      expect(disconnect).toHaveBeenCalledTimes(1);
+    } finally {
+      global.ResizeObserver = originalResizeObserver;
+      window.requestAnimationFrame = originalRequestAnimationFrame;
+      window.cancelAnimationFrame = originalCancelAnimationFrame;
+      jest.useRealTimers();
+      mockChartReflow.mockClear();
+    }
   });
 
 });
