@@ -224,6 +224,40 @@ function scheduleTimeoutReflow(scheduledReflowsRef, redrawRef) {
   scheduledReflowsRef.current = [{ type: "timeout", id: timeoutId }];
 }
 
+function getContainerSize(container) {
+  if (!container) {
+    return null;
+  }
+
+  const width = container.offsetWidth || container.clientWidth || Math.round(container.getBoundingClientRect?.().width || 0);
+  const height = container.offsetHeight || container.clientHeight || Math.round(container.getBoundingClientRect?.().height || 0);
+
+  if (!width || !height) {
+    return null;
+  }
+
+  return { width, height };
+}
+
+function syncChartLayout(containerRef, chartRef, activeRef) {
+  if (!activeRef.current) {
+    return;
+  }
+
+  const chart = chartRef.current;
+  if (!chart) {
+    return;
+  }
+
+  const size = getContainerSize(containerRef.current);
+  if (size && typeof chart.setSize === "function") {
+    chart.setSize(size.width, size.height, false);
+    return;
+  }
+
+  chart.reflow?.();
+}
+
 function AweChart(props) {
   const { id } = props;
   const { model = { values: [] }, attributes = {} } = useComponentState(id);
@@ -271,7 +305,7 @@ function AweChart(props) {
 
   const afterChartCreated = useCallback((chart) => {
     chartRef.current = chart;
-    redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
+    redrawRef.current = _.debounce(() => syncChartLayout(containerRef, chartRef, activeRef), 50);
     activeRef.current = true;
     schedulePostLayoutReflow();
   }, [schedulePostLayoutReflow]);
