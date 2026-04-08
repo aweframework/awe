@@ -249,14 +249,39 @@ function syncChartLayout(containerRef, chartRef, activeRef) {
     return;
   }
 
+  const isPie3D = chart.series?.some(series => series?.type === "pie" && chart.options?.chart?.options3d?.enabled);
+
   const size = getContainerSize(containerRef.current);
   if (size && typeof chart.setSize === "function") {
     chart.setSize(size.width, size.height, false);
+
+    if (isPie3D) {
+      chart.isDirtyBox = true;
+      chart.isDirtyLegend = true;
+      chart.series.forEach(series => {
+        series.isDirty = true;
+        series.isDirtyData = true;
+      });
+      chart.redraw(false);
+    }
+
     return;
   }
 
   chart.reflow?.();
+
+  if (isPie3D) {
+    chart.isDirtyBox = true;
+    chart.isDirtyLegend = true;
+    chart.series.forEach(series => {
+      series.isDirty = true;
+      series.isDirtyData = true;
+    });
+    chart.redraw(false);
+  }
 }
+
+const COLD_START_DELAY_MS = 150;
 
 function AweChart(props) {
   const { id } = props;
@@ -267,6 +292,10 @@ function AweChart(props) {
   const redrawRef = useRef(() => { });
   const resizeObserverRef = useRef(null);
   const scheduledReflowsRef = useRef([]);
+  // Tracks whether the one-shot cold-start delayed reflow has already been
+  // scheduled for this mount. Prevents re-scheduling on warm afterChartCreated
+  // calls within the same mount lifetime.
+  const initialReflowDoneRef = useRef(false);
   const { t, i18n } = useTranslation();
 
   const cancelScheduledReflows = useCallback(() => {
@@ -308,6 +337,21 @@ function AweChart(props) {
     redrawRef.current = _.debounce(() => syncChartLayout(containerRef, chartRef, activeRef), 50);
     activeRef.current = true;
     schedulePostLayoutReflow();
+
+    // Cold-start safety net: schedule a one-shot delayed reflow only on the
+    // very first afterChartCreated call per mount. This catches the timing gap
+    // where the double-rAF reflow fires before the browser's first layout has
+    // fully stabilised (e.g. donut_3d on cold application entry).
+    if (!initialReflowDoneRef.current) {
+      initialReflowDoneRef.current = true;
+      const coldStartTimeout = setTimeout(() => {
+        triggerScheduledReflow(scheduledReflowsRef, redrawRef, coldStartTimeout);
+      }, COLD_START_DELAY_MS);
+      scheduledReflowsRef.current = [
+        ...scheduledReflowsRef.current,
+        { type: "timeout", id: coldStartTimeout }
+      ];
+    }
   }, [schedulePostLayoutReflow]);
 
   useEffect(() => {
