@@ -8,8 +8,10 @@ import {updateModel} from "../../../src/redux/actions/components";
 import "../../../src/i18n/i18n";
 
 const mockChartReflow = jest.fn();
+const mockChartSetSize = jest.fn();
 const mockHighchartsChart = {
-  reflow: mockChartReflow
+  reflow: mockChartReflow,
+  setSize: mockChartSetSize
 };
 
 jest.mock('highcharts-react-official', () => {
@@ -2128,6 +2130,80 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
       window.cancelAnimationFrame = originalCancelAnimationFrame;
       jest.useRealTimers();
       mockChartReflow.mockClear();
+      mockChartSetSize.mockClear();
+    }
+  });
+
+  it('forces chart size sync from container dimensions after chart creation', () => {
+    jest.useFakeTimers();
+
+    const originalRequestAnimationFrame = window.requestAnimationFrame;
+    const originalCancelAnimationFrame = window.cancelAnimationFrame;
+    const offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+    const offsetHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
+
+    window.requestAnimationFrame = jest.fn(callback => setTimeout(callback, 0));
+    window.cancelAnimationFrame = jest.fn(id => clearTimeout(id));
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+      configurable: true,
+      get() {
+        return 1000;
+      }
+    });
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get() {
+        return 500;
+      }
+    });
+
+    try {
+      renderWithProviders(
+        <div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>,
+        {
+          preloadedState: {
+            ...preloadedState,
+            components: {
+              ...preloadedState.components,
+              chart: {
+                ...preloadedState.components.chart,
+                attributes: {
+                  ...preloadedState.components.chart.attributes,
+                  chartModel
+                }
+              }
+            }
+          }
+        }
+      );
+
+      act(() => {
+        jest.runAllTimers();
+      });
+
+      expect(mockChartSetSize).toHaveBeenCalled();
+      expect(mockChartReflow).not.toHaveBeenCalled();
+
+      const [width, height, animate] = mockChartSetSize.mock.calls.at(-1);
+      expect(width).toBeGreaterThan(0);
+      expect(height).toBeGreaterThan(0);
+      expect(animate).toBe(false);
+    } finally {
+      window.requestAnimationFrame = originalRequestAnimationFrame;
+      window.cancelAnimationFrame = originalCancelAnimationFrame;
+      if (offsetWidthDescriptor) {
+        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', offsetWidthDescriptor);
+      } else {
+        delete HTMLElement.prototype.offsetWidth;
+      }
+      if (offsetHeightDescriptor) {
+        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeightDescriptor);
+      } else {
+        delete HTMLElement.prototype.offsetHeight;
+      }
+      jest.useRealTimers();
+      mockChartReflow.mockClear();
+      mockChartSetSize.mockClear();
     }
   });
 
