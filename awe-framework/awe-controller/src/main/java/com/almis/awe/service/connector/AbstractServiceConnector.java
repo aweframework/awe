@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -126,8 +127,16 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
    */
   Object getParameterValue(ServiceInputParameter parameter, Object parameterValue) {
     switch (ParameterType.valueOf(parameter.getType())) {
-      case INTEGER, LONG, FLOAT, DOUBLE, BOOLEAN:
-        return "".equals(parameterValue) ? null : parameterValue;
+      case INTEGER:
+        return getIntegerValue(parameterValue);
+      case LONG:
+        return getLongValue(parameterValue);
+      case FLOAT:
+        return getFloatValue(parameterValue);
+      case DOUBLE:
+        return getDoubleValue(parameterValue);
+      case BOOLEAN:
+        return getBooleanValue(parameterValue);
       case DATE, TIMESTAMP:
         if (parameterValue instanceof String stringValue) {
           return Optional.of(stringValue)
@@ -161,6 +170,48 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
       default:
         return parameterValue;
     }
+  }
+
+  private Integer getIntegerValue(Object parameterValue) {
+    return Optional.ofNullable(parameterValue)
+      .filter(value -> !"".equals(value))
+      .map(value -> value instanceof Integer integerValue ? integerValue : ((Number) normalizeNumericValue(value)).intValue())
+      .orElse(null);
+  }
+
+  private Long getLongValue(Object parameterValue) {
+    return Optional.ofNullable(parameterValue)
+      .filter(value -> !"".equals(value))
+      .map(value -> value instanceof Long longValue ? longValue : ((Number) normalizeNumericValue(value)).longValue())
+      .orElse(null);
+  }
+
+  private Float getFloatValue(Object parameterValue) {
+    return Optional.ofNullable(parameterValue)
+      .filter(value -> !"".equals(value))
+      .map(value -> value instanceof Float floatValue ? floatValue : ((Number) normalizeNumericValue(value)).floatValue())
+      .orElse(null);
+  }
+
+  private Double getDoubleValue(Object parameterValue) {
+    return Optional.ofNullable(parameterValue)
+      .filter(value -> !"".equals(value))
+      .map(value -> value instanceof Double doubleValue ? doubleValue : ((Number) normalizeNumericValue(value)).doubleValue())
+      .orElse(null);
+  }
+
+  private Boolean getBooleanValue(Object parameterValue) {
+    return Optional.ofNullable(parameterValue)
+      .filter(value -> !"".equals(value))
+      .map(value -> value instanceof Boolean booleanValue ? booleanValue : Boolean.valueOf(String.valueOf(value)))
+      .orElse(null);
+  }
+
+  private Number normalizeNumericValue(Object parameterValue) {
+    if (parameterValue instanceof Number numberValue) {
+      return numberValue;
+    }
+    return new BigDecimal(String.valueOf(parameterValue));
   }
 
   /**
