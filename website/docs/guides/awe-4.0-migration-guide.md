@@ -258,6 +258,20 @@ sidebar_label: v4.0 Migration Guide
 
 ## **XML files**
 
+### Resource path structure
+
+AWE 4 introduces an extra `application/` level in the resources path. All XML files (screens, queries, locales, etc.)
+must be placed under `application/[module]/` instead of directly under `[module]/`:
+
+| AWE 3 path | AWE 4 path |
+|------------|------------|
+| `src/main/resources/{module}/global/Queries.xml` | `src/main/resources/application/{module}/global/Queries.xml` |
+| `src/main/resources/{module}/global/Maintain.xml` | `src/main/resources/application/{module}/global/Maintain.xml` |
+| `src/main/resources/{module}/global/Services.xml` | `src/main/resources/application/{module}/global/Services.xml` |
+| `src/main/resources/{module}/global/Enumerate.xml` | `src/main/resources/application/{module}/global/Enumerate.xml` |
+| `src/main/resources/{module}/screen/` | `src/main/resources/application/{module}/screen/` |
+| `src/main/resources/{module}/local/` | `src/main/resources/application/{module}/locale/` |
+
 ### **Screens**
 
 * Regular expressions
@@ -296,6 +310,12 @@ pagination="true" => managed-pagination="true"
 control-empty-cancel => control-unique-cancel
 ```
 
+* `modal-xl` CSS class renamed to `modal-xlg`:
+
+```regexp
+modal-xl => modal-xlg
+```
+
 ### **Query & Maintain**
 
 * Regular expressions
@@ -319,6 +339,7 @@ control-empty-cancel => control-unique-cancel
 ```regexp
 condition="=" => condition="eq"
 condition="!=" => condition="ne"
+condition="<>" => condition="ne"
 condition="LIKE" => condition="like"
 condition="NOT LIKE" => condition="not like"
 condition="&gt;" => condition="gt"
@@ -329,6 +350,8 @@ condition="IS NULL" => condition="is null"
 condition="IS NOT NULL" => condition="is not null"
 condition="IN" => condition="in"
 condition="NOT IN" => condition="not in"
+condition="EXISTS" => condition="exists"
+condition="NOT EXISTS" => condition="not exists"
 ```
 
 * Variable identifiers can't be used in field aliases.
@@ -453,6 +476,32 @@ condition="NOT IN" => condition="not in"
 
 ### **Services**
 
+* Java service class references in `<java>` service definitions must be updated to the new `@Service` naming convention.
+  AWE 4 no longer uses the `Controller`/`Manager` pattern; all backend classes are `@Service`:
+
+```regexp
+classname="([a-z.]+)\.services\.controller\.(\w+)Controller" => classname="$1.service.$2Service"
+classname="([a-z.]+)\.services\.manager\.(\w+)Manager" => classname="$1.service.$2Service"
+```
+
+  Example:
+
+```xml
+<!-- AWE 3 -->
+<service id="MyDataService">
+  <java classname="com.almis.myapp.services.controller.MyDataController" method="getMyData">
+    <service-parameter name="code" type="STRING"/>
+  </java>
+</service>
+
+<!-- AWE 4 -->
+<service id="MyDataService">
+  <java classname="com.almis.myapp.service.MyDataService" method="getMyData">
+    <service-parameter name="code" type="STRING"/>
+  </java>
+</service>
+```
+
 * Web services calls have been changed to microservices calls:
 
 Examples:
@@ -514,8 +563,17 @@ Examples:
 
 ### **Locales**
 
-* **Rename** Local-XX.xml files to Locale-XX.xml
-* Direct replacement:
+* **Rename** `Local-XX.xml` files to `Locale-xx-XX.xml` using the locale code mapping:
+
+| AWE 3 filename | AWE 4 filename |
+|----------------|----------------|
+| `Local-ES.xml` | `Locale-es-ES.xml` |
+| `Local-EN.xml` | `Locale-en-GB.xml` |
+| `Local-FR.xml` | `Locale-fr-FR.xml` |
+| `Local-PA.xml` | `Locale-es-PA.xml` |
+| `Local-CA.xml` | `Locale-ca-ES.xml` |
+
+* Direct replacement (root tag and entry tags):
 
 ```regexp
 <locals => <locales
@@ -554,6 +612,21 @@ XMLElement => XMLWrapper
 AWEConstants => AweConstants
 AweConstants.PARAMETER_MAX => AweConstants.COMPONENT_MAX
 ```
+
+### Jakarta EE migration (Spring Boot 3)
+
+AWE 4 on Spring Boot 3 requires **Jakarta EE 9+**. All `javax.*` imports must be replaced with `jakarta.*`:
+
+```regexp
+javax.persistence. => jakarta.persistence.
+javax.servlet. => jakarta.servlet.
+javax.validation. => jakarta.validation.
+javax.transaction. => jakarta.transaction.
+javax.annotation. => jakarta.annotation.
+```
+
+> **Note:** This affects all JPA entities (`@Entity`, `@Table`, `@Column`, `@Id`...), servlet filters, Bean
+> Validation (`@NotNull`, `@Size`...) and transaction annotations (`@Transactional`).
 
 * Logging
     1. Remove com.almis.awe.core.util.LogUtil
@@ -622,6 +695,48 @@ public MyClass{
   of `DataList`. You can retrieve the `DataList` with `serviceData.getDataList()` method.
 * Use `MaintainService` instead of `MaintainController`.
 
+#### Complete migration example (AWE 3 → AWE 4)
+
+```java
+// AWE 3 — Controller + Manager pattern
+public class MyController {
+  public ServiceData myMethod() throws AWException {
+    return new MyManager().myMethod();
+  }
+}
+
+public class MyManager {
+  public ServiceData myMethod() throws AWException {
+    Context ctx = ContextUtil.getContext();
+    String param = ctx.getParameter("myParam").textValue();
+    DataList result = new DataController().launchQuery("MyQuery");
+    LogUtil.log(MyManager.class.getName(), Level.INFO, "Query done");
+    return new ServiceData();
+  }
+}
+
+// AWE 4 — Single @Service
+@Slf4j
+@Service
+public class MyService extends ServiceConfig {
+
+  private final QueryService queryService;
+
+  @Autowired
+  public MyService(QueryService queryService) {
+    this.queryService = queryService;
+  }
+
+  public ServiceData myMethod() throws AWException {
+    String param = getRequest().getParameterAsString("myParam");
+    ServiceData result = queryService.launchPrivateQuery("MyQuery");
+    DataList dataList = result.getDataList();
+    log.info("Query done");
+    return new ServiceData();
+  }
+}
+```
+
 ### Locale retrieval
 
 * Extending from `ServiceConfig` you get access to `getLocale` methods:
@@ -650,6 +765,25 @@ public MyClass{
   @Value("${var.trt.thd.sug.tim:100}")
 private Integer suggestTime;
 ```
+
+:::caution Remove application-specific property wrappers
+Do **not** inject application-level property beans (e.g., a custom `BaseConfigProperties` or `AppProperties`
+component) just to call `getProperty()`. If the class already extends `ServiceConfig`, call `getProperty()`
+directly — no extra injection needed:
+
+```java
+// AWE 3 — unnecessary intermediary
+@Autowired
+private BaseConfigProperties baseConfigProperties;
+String value = baseConfigProperties.getProperty("my.prop");
+
+// AWE 4 — use ServiceConfig directly (if class extends ServiceConfig)
+String value = getProperty("my.prop");
+// or, even better, use @Value injection
+@Value("${my.prop:defaultValue}")
+private String myProp;
+```
+:::
 
 ### Session retrieval
 
@@ -683,6 +817,59 @@ or
 
 * DataList `getRows` method has changed its' signature from `ArrayList<HashMap<String, CellData>>` to a more generic
   signature: `List<Map<String, CellData>>`.
+
+### DataList API changes
+
+Several instance methods have been removed from `DataList` and replaced by static utility methods in `DataListUtil`:
+
+| AWE 3 (instance method) | AWE 4 (`DataListUtil` static method) |
+|--------------------------|---------------------------------------|
+| `dataList.getCellData(rowIndex, columnName)` | `DataListUtil.getCellData(dataList, rowIndex, columnName)` |
+| `dataList.addColumn(name, valueList, type)` | `DataListUtil.addColumn(dataList, name, valueList)` |
+| `DataListUtil.getJSONColumnValues(dataList, col)` | `DataListUtil.getColumnAsArrayNode(dataList, col)` |
+| `dataList.filter(columnName, value)` | `dataList.getRows().removeIf(row -> !value.equals(DataListUtil.getCellData(dataList, row, columnName)))` |
+| `dataList.getRow(index)` | `dataList.getRows().get(index)` |
+| `dataList.getColumn(name)` | Stream over `dataList.getRows()` |
+
+Import required:
+
+```java
+import com.almis.awe.model.util.data.DataListUtil;
+```
+
+**Filtering rows example:**
+
+```java
+// AWE 3
+dataList.filter("status", getLocale("STATUS_ACTIVE"));
+
+// AWE 4
+String filterValue = getLocale("STATUS_ACTIVE");
+dataList.getRows().removeIf(row -> {
+  CellData cell = row.get("status");
+  return cell == null || !filterValue.equals(cell.getStringValue());
+});
+```
+
+**Reading a cell value example:**
+
+```java
+// AWE 3
+String value = dataList.getCellData(0, "myColumn").getStringValue();
+
+// AWE 4
+String value = DataListUtil.getCellData(dataList, 0, "myColumn").getStringValue();
+```
+
+**Adding a column example:**
+
+```java
+// AWE 3
+dataList.addColumn("myColumn", valueList, "STRING");
+
+// AWE 4
+DataListUtil.addColumn(dataList, "myColumn", valueList);
+```
 
 ### Beans
 
@@ -755,6 +942,50 @@ serviceData.addClientAction(new ClientAction("fill")
 
 ```java
 serviceData.addClientAction(new FillActionBuilder(address,datalist).setAsync(true).build());
+```
+
+### `ClientAction` — boolean parameters
+
+`ClientAction` setter methods for `async` and `silent` now accept **`boolean`** instead of `String`:
+
+```java
+// AWE 3
+action.setAsync("true");
+action.setSilent("true");
+
+// AWE 4
+action.setAsync(true);
+action.setSilent(true);
+```
+
+This also applies when chaining on builders:
+
+```java
+new FillActionBuilder(address, dataList).setAsync(true).setSilent(true).build();
+```
+
+### `SelectActionBuilder` — populate select/combo components
+
+Use `SelectActionBuilder` to fill a select component from a service:
+
+```java
+import com.almis.awe.model.util.data.builder.SelectActionBuilder;
+
+// AWE 4
+serviceData.addClientAction(new SelectActionBuilder(address, dataList).build());
+```
+
+### `DownloadActionBuilder` — serve file downloads
+
+Use `DownloadActionBuilder` to trigger a file download response:
+
+```java
+import com.almis.awe.model.util.data.builder.DownloadActionBuilder;
+
+// AWE 4
+FileData fileData = new FileData(fileName, fileSize, "application/octet-stream")
+    .setFilePath(tempPath);
+serviceData.addClientAction(new DownloadActionBuilder(fileData).build());
 ```
 
 ### `FileData` bean has now a new implementation:

@@ -122,3 +122,8 @@ grafana-data/
 .eslintcache
 *.lock
 awe-framework/awe-dependencies/.flattened-pom.xml
+
+######################
+# ATL
+######################
+.atl/

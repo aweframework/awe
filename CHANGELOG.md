@@ -1,3 +1,12 @@
+# Release notes for AWE 4.11.12
+*15/04/2026*
+ 
+🐛 Bug fixes:
+- fix(service-binding): coerce scalar service parameters before Java invocation. [MR #625](https://gitlab.com/aweframework/awe/-/merge_requests/625) (Pablo Javier García Mora)
+
+📄 Documentation:
+- New function suggestMultipleList in Selenium Tests doc. [MR #616](https://gitlab.com/aweframework/awe/-/merge_requests/616) (Jorge Almarza Trigo)
+
 # Release notes for AWE 4.11.11
 *04/03/2026*
  
