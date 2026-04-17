@@ -1,3 +1,9 @@
+# Release notes for AWE 4.11.13
+*17/04/2026*
+ 
+🐛 Bug fixes:
+- fix(criteria): preserve scalar values for single criteria updates. [MR #626](https://gitlab.com/aweframework/awe/-/merge_requests/626) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.11.12
 *15/04/2026*
  
