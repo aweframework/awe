@@ -127,3 +127,8 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 # ATL
 ######################
 .atl/
+
+######################
+# Playwright MCP
+######################
+.playwright-mcp/

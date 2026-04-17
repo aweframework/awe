@@ -21,7 +21,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
       $httpBackend = $injector.get("$httpBackend");
 
       controller = {visible: true};
-      model = {selected: "text", records: 14, model: [{value:"text", label:"Visible text"}]};
+      model = {selected: "text", records: 14, values: [{value:"text", label:"Visible text"}]};
 
       spyOn($control, "checkComponent").and.returnValue(true);
       spyOn($control, "getAddressModel").and.returnValue(model);
@@ -207,5 +207,18 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
     // Assert
     expect($utilities.timeout).toHaveBeenCalledTimes(1);
     expect($control.publish).toHaveBeenCalledTimes(1);
+  });
+
+  it('should keep selected scalar when updateModelValues receives selected and values', function () {
+    let comp = new Component(scope, "comp2");
+    comp.init();
+
+    comp.api.updateModelValues({
+      selected: [{id: 1, label: 1.0, value: "1"}],
+      values: [{id: 1, label: 1.0, value: "1"}]
+    });
+
+    expect(model.selected).toBe("1");
+    expect(model.values).toEqual([{id: 1, label: 1.0, value: "1"}]);
   });
 });
