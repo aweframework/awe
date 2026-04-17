@@ -27,7 +27,7 @@ export const templateSelectorColumn =
   <span class="visible-value" ng-cloak>{{component.visibleValue}}</span>
   <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input input-group-{{::size}} focus-target">
-      <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}"
+      <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}" value="{{component.model.selected}}"
              ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off"/>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
@@ -115,15 +115,44 @@ aweApplication.factory('Selector',
        */
       function filterSelectedValues(values, selected, multiple) {
         let filtered = [];
+        let selectedMap = {};
         if (selected !== null) {
-          let selectedList = Utilities.asArray(selected).map(String);
+          Utilities.asArray(selected).forEach(value => {
+            selectedMap[String(value)] = value;
+          });
           _.each(values, function (element) {
-            if ($.inArray(String(element.value), selectedList) > -1) {
-              filtered.push(String(element.value));
+            let key = String(element.value);
+            if (key in selectedMap) {
+              filtered.push(selectedMap[key]);
             }
           });
         }
         return multiple ? filtered : filtered.length > 0 ? filtered[0] : null;
+      }
+
+      /**
+       * Normalize incoming selected values preserving single/multiple contracts
+       * @param {Array|Object|String|Number|null} selected Incoming selected values
+       * @param {boolean} multiple Select multiple values
+       * @return {Array|String|Number|null} normalized selected values
+       */
+      function normalizeIncomingSelected(selected, multiple) {
+        if (Utilities.isNull(selected)) {
+          return null;
+        }
+        let normalized = Utilities.formatSelectedValues(Utilities.asArray(selected));
+        return multiple ? normalized : normalized.length > 0 ? normalized[0] : null;
+      }
+
+      /**
+       * Clear selected only when current values prove it is invalid
+       * @param {object} model Component model
+       * @param {Array} data Retrieved selected option data
+       */
+      function clearSelectedIfResolvedAndMissing(model, data) {
+        if (data.length === 0 && model.values.length > 0) {
+          model.selected = null;
+        }
       }
       /**
        * Ensure multiple criteria data is always an array
@@ -176,9 +205,9 @@ aweApplication.factory('Selector',
        * @param {Object} callback Callback function
        * @return {Object} Data retrieved
        */
-      function filterSelectedCallback(values, selected, callback) {
+      function filterSelectedCallback(values, selected, callback, multiple) {
         let data = filterSelectData(values, selected);
-        callback(data.length === 1 ? data[0] : data);
+        callback(multiple ? data : data.length === 1 ? data[0] : data);
         return data;
       }
 
@@ -229,10 +258,11 @@ aweApplication.factory('Selector',
       function processChangeEvent(component, item) {
         // Check value length (of string / array)
         let model = Control.getAddressModel(component.address);
-        if (Utilities.isEmpty(item.val)) {
-          model.selected = null;
+        if (item.val && item.val.length) {
+          // Always return array for multiple components
+          model.selected = component.multiple ? Utilities.asArray(item.val) : item.val;
         } else {
-          model.selected = item.val;
+          model.selected = null;
         }
         component.modelChange();
       }
@@ -303,6 +333,7 @@ aweApplication.factory('Selector',
             return false;
           }
           if (selector.multiple) {
+            component.multiple = selector.multiple;
             ensureMultipleGetData(component);
           }
 
@@ -319,10 +350,8 @@ aweApplication.factory('Selector',
             },
             initSelection: function (node, callback) {
               let model = Control.getAddressModel(component.address);
-              let data = filterSelectedCallback(model.values, model.selected, callback);
-              if (data.length === 0) {
-                model.selected = null;
-              }
+               let data = filterSelectedCallback(model.values, model.selected, callback, selector.multiple);
+              clearSelectedIfResolvedAndMissing(model, data);
             }
           };
           /**
@@ -384,6 +413,9 @@ aweApplication.factory('Selector',
               if ("selected" in data) {
                 // Filter selected values
                 model.selected = filterSelectedValues(model.values, Utilities.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
+                if (!selector.multiple && !component.controller.serverAction) {
+                  model.selected = model.selected !== null ? String(model.selected) : null;
+                }
                 selector.selectData(model.selected);
               }
 
@@ -436,6 +468,7 @@ aweApplication.factory('Selector',
             return false;
           }
           if (selector.multiple) {
+            component.multiple = selector.multiple;
             ensureMultipleGetData(component);
           }
 
@@ -467,10 +500,8 @@ aweApplication.factory('Selector',
             },
             initSelection: function (node, callback) {
               let model = Control.getAddressModel(component.address);
-              let data = filterSelectedCallback(model.values, model.selected, callback);
-              if (data.length === 0) {
-                model.selected = null;
-              }
+              let data = filterSelectedCallback(model.values, model.selected, callback, selector.multiple);
+              clearSelectedIfResolvedAndMissing(model, data);
             }
           };
           // Fix the selected value so that it always returns an array
@@ -541,10 +572,8 @@ aweApplication.factory('Selector',
               searchCallback = null;
               // Fill data
             } else if (initCallback !== null) {
-              let data = filterSelectedCallback(model.values, model.selected, initCallback);
-              if (data.length === 0) {
-                model.selected = null;
-              }
+               let data = filterSelectedCallback(model.values, model.selected, initCallback, selector.multiple);
+              clearSelectedIfResolvedAndMissing(model, data);
               initCallback = null;
             } else {
               filterSuggestModel(model);
@@ -600,8 +629,10 @@ aweApplication.factory('Selector',
           component.onStart = function () {
             // Fill data
             let model = Control.getAddressModel(component.address);
-            selector.selectData(Utilities.asArray(model.selected));
-            filterSuggestModel(model);
+            if (!checkSelectedValue(model)) {
+              selector.selectData(Utilities.asArray(model.selected));
+              filterSuggestModel(model);
+            }
           };
           /**
            * On plugin change
@@ -609,6 +640,34 @@ aweApplication.factory('Selector',
            */
           component.onPluginChange = function (item) {
             processChangeEvent(component, item);
+          };
+          /**
+           * Update model values
+           * @param {type} data
+           */
+          component.api.updateModelValues = function (data) {
+            let model = Control.getAddressModel(component.address);
+            if (model) {
+              _.merge(model, data);
+              if ("values" in data) {
+                model.values = _.cloneDeep(data.values);
+              }
+              if ("selected" in data) {
+                let mappedSelected = filterSelectedValues(model.values, Utilities.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
+                let normalizedSelected = normalizeIncomingSelected(data.selected, selector.multiple);
+                let unresolvedSelected = !("values" in data) && Utilities.asArray(normalizedSelected).length > 0 &&
+                  ((selector.multiple && mappedSelected.length === 0) || (!selector.multiple && mappedSelected === null));
+                model.selected = unresolvedSelected ? normalizedSelected : mappedSelected;
+                if (unresolvedSelected) {
+                  model.values = [];
+                  checkSelectedValue(model);
+                } else {
+                  selector.selectData(model.selected);
+                }
+              }
+
+              Control.setAddressModel(component.address, model);
+            }
           };
 
           // Initialization (for suggest on columns)

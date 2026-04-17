@@ -311,8 +311,9 @@ public class ScreenModelGenerator extends ServiceConfig {
       ComponentModel model = component.getModel();
       if (LoadType.VALUE.toString().equalsIgnoreCase(component.getController().getInitialLoad())) {
         List<CellData> selectedData = getSelectedData(componentData, "value");
-        model.setDefaultValues(selectedData);
-        model.setSelected(selectedData);
+        List<CellData> initialSelectedData = isMultipleCriteria(component.getController()) ? selectedData : selectedData.stream().findFirst().map(List::of).orElse(Collections.emptyList());
+        model.setDefaultValues(initialSelectedData);
+        model.setSelected(initialSelectedData);
       }
 
       // Set values, page, total and records
@@ -398,6 +399,17 @@ public class ScreenModelGenerator extends ServiceConfig {
       }
     }
     return selectedData;
+  }
+
+  /**
+   * Check if a component is a multiple criteria selector.
+   *
+   * @param component Component controller
+   * @return True when the criteria accepts multiple selected values
+   */
+  private boolean isMultipleCriteria(Component component) {
+    return component instanceof AbstractCriteria abstractCriteria
+      && isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE), abstractCriteria.getComponentType());
   }
 
   /**

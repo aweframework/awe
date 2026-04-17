@@ -394,6 +394,8 @@ aweApplication.factory('Control',
         changeModelAttribute: function (address, attributes, publish) {
           let  model = Control.getAddressModel(address);
           if (model) {
+            let  api = Control.getAddressApi(address);
+            let  hasUpdateModelValues = api && "updateModelValues" in api;
             _.each(attributes, function (attribute, attributeId) {
               let  initialAttribute = INITIAL + attributeId;
               if (!(initialAttribute in model) && Storage.get("status")[address.view] === "loaded") {
@@ -409,6 +411,13 @@ aweApplication.factory('Control',
                 model[PREVIOUS] = _.cloneDeep(attribute);
               }
             });
+
+            // Keep model in sync only if component API is not ready yet
+            if (!hasUpdateModelValues) {
+              _.each(attributes, function (attribute, attributeId) {
+                model[attributeId] = _.cloneDeep(attribute);
+              });
+            }
 
             // Copy attributes to model
             Control.launchApiMethod(address, "updateModelValues", [attributes]);

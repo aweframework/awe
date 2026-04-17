@@ -162,6 +162,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       expect(modelRef.selected).toBe('ABC');
       expect(select.modelChange).toHaveBeenCalled();
     });
+
+    it('should process change event setting selected to null when value is numeric zero', function() {
+      let modelRef = {values: [], selected: 'initial'};
+      spyOn($control, "getAddressModel").and.returnValue(modelRef);
+      select.modelChange = jasmine.createSpy('modelChange');
+
+      select.onPluginChange({val: 0});
+
+      expect(modelRef.selected).toBeNull();
+      expect(select.modelChange).toHaveBeenCalled();
+    });
   });
 
   describe('once initialized as select for value helpers', function() {
@@ -414,6 +425,66 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       expect(model.values).toEqual([]);
       expect(model.selected).toEqual(null);
     });
+
+    it('should preserve scalar selected when suggest receives only value without label', function () {
+      let model = {
+        storedValues: [],
+        values: [],
+        selected: null
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+      spyOn(suggest, "reload").and.returnValue(true);
+
+      suggest.api.updateModelValues({selected: ["DjrRepPth"]});
+
+      expect(model.values).toEqual([]);
+      expect(model.selected).toEqual("DjrRepPth");
+      expect(suggest.reload).toHaveBeenCalled();
+    });
+
+    it('should clear stale values and reload when suggest receives a different scalar without label', function () {
+      let model = {
+        storedValues: [{value: "DjrRepPth", label: "5 (DjrRepPth)"}],
+        values: [{value: "DjrRepPth", label: "5 (DjrRepPth)"}],
+        selected: "DjrRepPth"
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+      spyOn(suggest, "reload").and.returnValue(true);
+
+      suggest.api.updateModelValues({selected: ["DjrHdgPag"]});
+
+      expect(model.values).toEqual([]);
+      expect(model.selected).toEqual("DjrHdgPag");
+      expect(suggest.reload).toHaveBeenCalled();
+    });
+
+    it('should not clear selected during initSelection when values are still empty', function () {
+      let model = {
+        storedValues: [],
+        values: [],
+        selected: "test"
+      };
+      let callback = jasmine.createSpy('callback');
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      suggest.scope.aweSelectOptions.initSelection(null, callback);
+
+      expect(model.selected).toEqual("test");
+    });
+
+    it('should clear selected during initSelection when values prove selection is missing', function () {
+      let model = {
+        storedValues: [],
+        values: [{value: "other", label: "Other"}],
+        selected: "test"
+      };
+      let callback = jasmine.createSpy('callback');
+      spyOn($control, "getAddressModel").and.returnValue(model);
+
+      suggest.scope.aweSelectOptions.initSelection(null, callback);
+
+      expect(model.selected).toBeNull();
+    });
   });
 
   describe('once initialized as multiple suggest', function () {
@@ -529,6 +600,22 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       // Check selected updated
       expect(model.values).toEqual([]);
       expect(model.selected).toEqual(null);
+    });
+
+    it('should preserve selected array when suggest multiple receives only values without labels', function () {
+      let model = {
+        storedValues: [],
+        values: [],
+        selected: null
+      };
+      spyOn($control, "getAddressModel").and.returnValue(model);
+      spyOn(suggest, "reload").and.returnValue(true);
+
+      suggest.api.updateModelValues({selected: ["test", "pei"]});
+
+      expect(model.values).toEqual([]);
+      expect(model.selected).toEqual(["test", "pei"]);
+      expect(suggest.reload).toHaveBeenCalled();
     });
   });
 

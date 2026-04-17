@@ -123,4 +123,34 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
     expect(model.previous).toEqual("lala");
     expect(model["initial-values"]).toEqual(newModel.values);
   });
+
+  it('should persist model attributes even when updateModelValues api is missing', function () {
+    let model = {previous: null, selected: null, values: []};
+    spyOn($control, "getAddressModel").and.returnValue(model);
+    spyOn($storage, "get").and.returnValue({base: "loaded"});
+    spyOn($control, "getAddressApi").and.returnValue({});
+    spyOn($log, "warn");
+
+    $control.changeModelAttribute({component: "Sug", view: "base"}, {selected: "test"}, false);
+
+    expect(model.selected).toEqual("test");
+    expect(model.previous).toEqual("test");
+    expect($log.warn).toHaveBeenCalled();
+  });
+
+  it('should delegate to updateModelValues without direct fallback when api exists', function () {
+    let model = {previous: null, selected: null, values: []};
+    let updateModelValues = jasmine.createSpy('updateModelValues').and.callFake(function (data) {
+      model.selected = data.selected;
+    });
+    spyOn($control, "getAddressModel").and.returnValue(model);
+    spyOn($storage, "get").and.returnValue({base: "loaded"});
+    spyOn($control, "getAddressApi").and.returnValue({updateModelValues});
+
+    $control.changeModelAttribute({component: "Sug", view: "base"}, {selected: "test"}, false);
+
+    expect(updateModelValues).toHaveBeenCalledWith({selected: "test"});
+    expect(model.selected).toEqual("test");
+    expect(model.previous).toEqual("test");
+  });
 });
