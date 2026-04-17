@@ -248,15 +248,21 @@ aweApplication.factory('Component',
             component.api[methodName] = function (data) {
               let model = Control.getAddressModel(component.address);
               if (model) {
+                let normalizedSelected = model.selected;
+
                 // If selected in data, update selected values
                 if ("selected" in data) {
-                  model.selected = Control.formatDataList(Utilities.formatSelectedValues(Utilities.asArray(data.selected)));
+                  normalizedSelected = Control.formatDataList(Utilities.formatSelectedValues(Utilities.asArray(data.selected)));
+                  model.selected = normalizedSelected;
                 }
 
                 if ("values" in data) {
                   let selected = Utilities.asArray(model.selected).map(String);
                   model.values = model.values.filter(item => selected.includes(String(item.value)));
                   _.merge(model, data);
+                  if ("selected" in data) {
+                    model.selected = normalizedSelected;
+                  }
                   model.values = _.uniqBy(model.values, 'value');
                 }
               }
