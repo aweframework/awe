@@ -515,6 +515,7 @@ Build package:
   artifacts:
     reports:
       dotenv: build.env
+    expire_in: 1 week
   rules:
     - <<: *if-develop
     - <<: *if-master
@@ -627,6 +628,7 @@ Generate release notes:
   artifacts:
     paths:
       - release_notes.md
+    expire_in: 1 week
   rules:
     - <<: *if-tag
 
