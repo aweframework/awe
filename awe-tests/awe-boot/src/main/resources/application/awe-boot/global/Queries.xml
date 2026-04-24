@@ -147,6 +147,41 @@
     <order-by field="IdeModPro" type="ASC"/>
   </query>
 
+  <query id="ContractQueryVariableByName">
+    <table id="AweThm"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="eq" right-variable="backendThemeName"/>
+      </and>
+    </where>
+    <variable id="backendThemeName" type="STRING" name="frontendThemeName"/>
+  </query>
+
+  <query id="ContractInsertedDescription">
+    <table id="HISAweDbs"/>
+    <field id="Des"/>
+    <where>
+      <and>
+        <filter left-field="Des" condition="eq" right-variable="backendDescription"/>
+      </and>
+    </where>
+    <variable id="backendDescription" type="STRING" name="frontendDescription"/>
+  </query>
+
+  <query id="ContractInsertedThemes">
+    <table id="AweThm"/>
+    <field id="Nam"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="backendThemePrefix"/>
+      </and>
+    </where>
+    <variable id="backendThemePrefix" type="STRINGR" name="frontendThemePrefix"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
   <query id="SimpleGetAllNoAlias">
     <table id="AweDbs"/>
     <field id="Drv"/>
@@ -934,6 +969,45 @@
       </and>
     </where>
     <variable id="string-null" type="STRINGN" name="stringNull"/>
+  </query>
+
+  <query id="RequestBodyStringContract" service="returnRequestBodyStringContract">
+    <field id="string"/>
+    <field id="stringN"/>
+    <variable id="string" type="STRING" name="string"/>
+    <variable id="stringN" type="STRINGN" name="stringN"/>
+  </query>
+
+  <query id="RequestBodyNumericContract">
+    <table id="ope"/>
+    <field variable="integerValue" alias="integerValue"/>
+    <field variable="longValue" alias="longValue"/>
+    <field variable="doubleValue" alias="doubleValue"/>
+    <field variable="floatValue" alias="floatValue"/>
+    <where>
+      <and>
+        <filter left-field="l1_nom" condition="eq" right-variable="test" trim="true"/>
+      </and>
+    </where>
+    <variable id="test" type="STRING" value="test"/>
+    <variable id="integerValue" type="INTEGER" name="integerValue"/>
+    <variable id="longValue" type="LONG" name="longValue"/>
+    <variable id="doubleValue" type="DOUBLE" name="doubleValue"/>
+    <variable id="floatValue" type="FLOAT" name="floatValue"/>
+  </query>
+
+  <query id="RequestBodyTemporalContract">
+    <table id="ope"/>
+    <field variable="dateValue" alias="dateValue" transform="DATE"/>
+    <field variable="timestampValue" alias="timestampValue" transform="TIMESTAMP"/>
+    <where>
+      <and>
+        <filter left-field="l1_nom" condition="eq" right-variable="test" trim="true"/>
+      </and>
+    </where>
+    <variable id="test" type="STRING" value="test"/>
+    <variable id="dateValue" type="DATE" name="dateValue"/>
+    <variable id="timestampValue" type="TIMESTAMP" name="timestampValue"/>
   </query>
 
   <query id="VariableStringHash">

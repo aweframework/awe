@@ -207,7 +207,7 @@ aweApplication.factory('CheckboxRadio',
           groupAddress.component = group;
 
           // Set model value
-          component.value = component.model.values[0].value;
+          component.value = component.model.values.length > 0 ? component.model.values[0].value : null;
 
           // Change model with group attribute
           let  viewModels = Control.getAddressViewModel(component.address);

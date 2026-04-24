@@ -18,6 +18,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.sql.DataSource;
 import java.text.SimpleDateFormat;
@@ -2265,6 +2267,116 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertResultVariablesJson(queryName, result, 16);
   }
 
+  @Test
+  void testDatabaseQueryRequestBodyStringNullContracts() throws Exception {
+    String queryName = "RequestBodyStringContract";
+    String variables = "\"string\":null,\"stringN\":null";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertEquals("", row.get("string").asText());
+    assertTrue(row.get("stringN").isNull());
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyStringEmptyContracts() throws Exception {
+    String queryName = "RequestBodyStringContract";
+    String variables = "\"string\":\"\",\"stringN\":\"\"";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertEquals("", row.get("string").asText());
+    assertEquals("", row.get("stringN").asText());
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyNumericValuesFromJsonNumber() throws Exception {
+    String queryName = "RequestBodyNumericContract";
+    String variables = "\"integerValue\":7,\"longValue\":2147483648,\"doubleValue\":10.5,\"floatValue\":2.25";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertEquals(7, row.get("integerValue").asInt());
+    assertEquals(2147483648L, row.get("longValue").asLong());
+    assertEquals(10.5d, row.get("doubleValue").asDouble(), 0.001d);
+    assertEquals(2.25d, row.get("floatValue").asDouble(), 0.001d);
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyNumericValuesFromNumericString() throws Exception {
+    String queryName = "RequestBodyNumericContract";
+    String variables = "\"integerValue\":\"7\",\"longValue\":\"2147483648\",\"doubleValue\":\"10.5\",\"floatValue\":\"2.25\"";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertEquals(7, row.get("integerValue").asInt());
+    assertEquals(2147483648L, row.get("longValue").asLong());
+    assertEquals(10.5d, row.get("doubleValue").asDouble(), 0.001d);
+    assertEquals(2.25d, row.get("floatValue").asDouble(), 0.001d);
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyNumericEmptyStringBecomesNull() throws Exception {
+    String queryName = "RequestBodyNumericContract";
+    String variables = "\"integerValue\":\"\",\"longValue\":\"\",\"doubleValue\":\"\",\"floatValue\":\"\"";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertTrue(row.get("integerValue").isNull());
+    assertTrue(row.get("longValue").isNull());
+    assertTrue(row.get("doubleValue").isNull());
+    assertTrue(row.get("floatValue").isNull());
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyTemporalValues() throws Exception {
+    String queryName = "RequestBodyTemporalContract";
+    String variables = "\"dateValue\":\"22/10/3100\",\"timestampValue\":\"23/10/1978 15:03:01.000\"";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertEquals("22/10/3100", row.get("dateValue").asText());
+    assertEquals("23/10/1978 15:03:01", row.get("timestampValue").asText());
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyTemporalEmptyStringBecomesNull() throws Exception {
+    String queryName = "RequestBodyTemporalContract";
+    String variables = "\"dateValue\":\"\",\"timestampValue\":\"\"";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertTrue(row.get("dateValue").isNull());
+    assertTrue(row.get("timestampValue").isNull());
+  }
+
+  @Test
+  void testDatabaseQueryRequestBodyTemporalNullPreserved() throws Exception {
+    String queryName = "RequestBodyTemporalContract";
+    String variables = "\"dateValue\":null,\"timestampValue\":null";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
+    ObjectNode row = (ObjectNode) rows.get(0);
+
+    assertTrue(row.get("dateValue").isNull());
+    assertTrue(row.get("timestampValue").isNull());
+  }
+
   /**
    * Test of launchAction method, of class ActionController.
    *
@@ -2398,6 +2510,26 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertResultVariablesJson(queryName, result, 1);
   }
 
+  @Test
+  void testDatabaseQueryUsesVariableNameFromRequestBody() throws Exception {
+    String queryName = "ContractQueryVariableByName";
+    String variables = "\"frontendThemeName\":\"sunset\"";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"IdeThm\":1,\"Nam\":\"sunset\"}]}}},{\"type\":\"end-load\"}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultVariablesJson(queryName, result, 1);
+  }
+
+  @Test
+  void testDatabaseQueryUsesVariableNameFromRequestBodyWithNoMatches() throws Exception {
+    String queryName = "ContractQueryVariableByName";
+    String variables = "\"frontendThemeName\":\"does-not-exist\"";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":0,\"rows\":[]}}},{\"type\":\"end-load\"}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultVariablesJson(queryName, result, 0);
+  }
+
   /**
    * Test of launchAction method, of class ActionController.
    *
@@ -2474,6 +2606,31 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertResultVariablesJson(queryName, result, 2);
   }
 
+  @Test
+  void testDatabaseVariableListOptionalArraysAreOmittedWhenEmpty() throws Exception {
+    String queryName = "VariableList";
+    String variables = "\"list1\":[],\"list2\":[],\"list3\":[],\"list4\":[1,3,4,5]";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    ArrayNode rows = assertResultVariablesJson(queryName, result, 2);
+
+    Set<String> actualNames = StreamSupport.stream(rows.spliterator(), false)
+      .map(row -> row.get("l1_nom").asText())
+      .collect(Collectors.toSet());
+
+    assertEquals(Set.of("test", "jorgito"), actualNames);
+  }
+
+  @Test
+  void testDatabaseVariableListEmptyNonOptionalReturnsRealError() throws Exception {
+    String queryName = "VariableList";
+    String variables = "\"list1\":[],\"list2\":[],\"list3\":[],\"list4\":[]";
+
+    String result = performRequest(queryName, variables, DATABASE);
+    assertQueryErrorMessage(result, "Error generating SQL filter",
+      "If a list can be empty, use optional in filter");
+  }
+
   /**
    * Test of filter in subquery
    *
@@ -2543,6 +2700,20 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
   private void testDatabaseRequest(String query, String variables, String expected, Integer expectedRows) throws Exception {
     assertResultJson(query, performRequest(query, variables, DATABASE, expected), expectedRows);
+  }
+
+  private void assertQueryErrorMessage(String result, String expectedTitle, String expectedMessageFragment) throws Exception {
+    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ObjectNode endLoad = (ObjectNode) resultList.get(0);
+    assertEquals("end-load", endLoad.get("type").textValue());
+
+    ObjectNode messageAction = (ObjectNode) resultList.get(1);
+    assertEquals("message", messageAction.get("type").textValue());
+
+    ObjectNode parameters = (ObjectNode) messageAction.get("parameters");
+    assertEquals("error", parameters.get("type").asText());
+    assertEquals(expectedTitle, parameters.get("title").asText());
+    assertTrue(parameters.get("message").asText().contains(expectedMessageFragment));
   }
 
   /**

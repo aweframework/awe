@@ -187,7 +187,7 @@ aweApplication.factory('Text',
 
             // Changed selected
             if ("values" in changed) {
-              component.model.selected = values[0].value;
+              component.model.selected = values.length > 0 ? values[0].value : null;
             } else if ("selected" in changed) {
               values[0] = {...(values[0] || {}), value: selected, label: selected || ""};
             }
@@ -219,7 +219,7 @@ aweApplication.factory('Text',
             if (component.model.values.length > 0) {
               visibleValue = component.model.values[0].label;
             } else {
-              visibleValue = component.model.selected;
+              visibleValue = component.model.selected || "";
             }
             return visibleValue;
           };

@@ -65,6 +65,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/dateTime.js', fu
 
   describe('once initialized', function() {
     let dateSelector;
+    let currentModel;
 
     // Mock module
     beforeEach(function() {
@@ -72,20 +73,38 @@ describe('awe-framework/awe-client-angular/src/test/js/services/dateTime.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       dateSelector = new $dateTime($scope, "tutu", {});
-      spyOn($control, "getAddressModel").and.returnValue({values: [], selected: []});
+      currentModel = {values: [], selected: []};
+      spyOn($control, "getAddressModel").and.returnValue(currentModel);
       spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
       spyOn($control, "checkComponent").and.returnValue(true);
       dateSelector.asFilteredDate();
     });
 
     // As select
-    it('should filter some dates', function() {
-      // Filter date without date list
-      dateSelector.scope.aweDateOptions.beforeShowDay(new Date());
+    it('should filter allowed dates, months and years from values objects', function() {
+      currentModel.values = [
+        {value: '23/10/2018', label: '23/10/2018'},
+        {value: '05/11/2019', label: '05/11/2019'}
+      ];
 
-      // Filter date with date list
-      dateSelector.model.values = ['23/10/2018'];
-      dateSelector.scope.aweDateOptions.beforeShowDay(new Date());
+      dateSelector.onModelChanged();
+
+      expect(dateSelector.scope.aweDateOptions.beforeShowDay(new Date(2018, 9, 23))).toBeTrue();
+      expect(dateSelector.scope.aweDateOptions.beforeShowDay(new Date(2018, 9, 24))).toBeFalse();
+      expect(dateSelector.scope.aweDateOptions.beforeShowMonth(new Date(2018, 9, 1))).toBeTrue();
+      expect(dateSelector.scope.aweDateOptions.beforeShowMonth(new Date(2018, 8, 1))).toBeFalse();
+      expect(dateSelector.scope.aweDateOptions.beforeShowYear(new Date(2018, 0, 1))).toBeTrue();
+      expect(dateSelector.scope.aweDateOptions.beforeShowYear(new Date(2020, 0, 1))).toBeFalse();
+    });
+
+    it('should ignore malformed filtered date values without crashing', function() {
+      currentModel.values = ['23/10/2018', null, {label: 'missing value'}];
+
+      expect(function() {
+        dateSelector.onModelChanged();
+      }).not.toThrow();
+
+      expect(dateSelector.scope.aweDateOptions.beforeShowDay(new Date(2018, 9, 23))).toBeFalse();
     });
   });
 });
