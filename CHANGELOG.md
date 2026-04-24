@@ -1,3 +1,9 @@
+# Release notes for AWE 4.11.14
+*24/04/2026*
+ 
+🐛 Bug fixes:
+- refactor(selector): simplify selector model normalization. [MR #627](https://gitlab.com/aweframework/awe/-/merge_requests/627) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.11.13
 *17/04/2026*
  
