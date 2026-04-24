@@ -211,7 +211,15 @@ aweApplication.factory('DateTime',
             dateTime.validMonths = {};
             dateTime.validYears = {};
             _.each(component.model.values, function (date) {
-              let momentDate = moment(date.value, "DD/MM/YYYY");
+              if (!date || !date.value) {
+                return;
+              }
+
+              let momentDate = moment(date.value, "DD/MM/YYYY", true);
+              if (!momentDate.isValid()) {
+                return;
+              }
+
               dateTime.validDates[date.value] = true;
               dateTime.validMonths[momentDate.format('MMYYYY')] = true;
               dateTime.validYears[momentDate.format('YYYY')] = true;

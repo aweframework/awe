@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static com.almis.awe.test.integration.util.TestUtil.assertResultJson;
 import static com.almis.awe.test.integration.util.TestUtil.readFileAsText;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -885,6 +886,52 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     String expected = "[{\"type\":\"end-load\",\"parameters\":{}},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.info(result);
+  }
+
+  @Test
+  void testMaintainUsesVariableNameFromRequestBody() throws Exception {
+    String maintainName = "ContractMaintainVariableByName";
+    String variables = "\"frontendDescription\":\"AWEBOOT-TEST-CONTRACT-SINGLE\",";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"INSERT\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
+    });
+
+    String queryResult = launchPostRequest("data", "ContractInsertedDescription",
+      "\"frontendDescription\":\"AWEBOOT-TEST-CONTRACT-SINGLE\",",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"Des\":\"AWEBOOT-TEST-CONTRACT-SINGLE\"}]}}},{\"type\":\"end-load\"}]");
+    ArrayNode queryRows = extractQueryRows(queryResult);
+    assertEquals(1, queryRows.size());
+    assertEquals("AWEBOOT-TEST-CONTRACT-SINGLE", queryRows.get(0).get("Des").asText());
+  }
+
+  @Test
+  void testMaintainUsesVariableNameFromRequestBodyForMultipleValues() throws Exception {
+    String maintainName = "ContractMaintainMultipleVariableByName";
+    String variables = "\"frontendThemeNames\":[\"AWEBOOT-TEST-CONTRACT-LIST-0\",\"AWEBOOT-TEST-CONTRACT-LIST-1\"],";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L)
+    });
+
+    String queryResult = launchPostRequest("data", "ContractInsertedThemes",
+      "\"frontendThemePrefix\":\"AWEBOOT-TEST-CONTRACT-LIST\",",
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":2,\"rows\":[{\"Nam\":\"AWEBOOT-TEST-CONTRACT-LIST-0\"},{\"Nam\":\"AWEBOOT-TEST-CONTRACT-LIST-1\"}]}}},{\"type\":\"end-load\"}]");
+    ArrayNode queryRows = extractQueryRows(queryResult);
+    assertEquals(2, queryRows.size());
+    assertEquals("AWEBOOT-TEST-CONTRACT-LIST-0", queryRows.get(0).get("Nam").asText());
+    assertEquals("AWEBOOT-TEST-CONTRACT-LIST-1", queryRows.get(1).get("Nam").asText());
+  }
+
+  private ArrayNode extractQueryRows(String queryResult) throws Exception {
+    ArrayNode resultList = (ArrayNode) objectMapper.readTree(queryResult);
+    ObjectNode fillAction = (ObjectNode) resultList.get(0);
+    ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
+    ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
+    return (ArrayNode) dataList.get("rows");
   }
 
   // *****************************************************************************************************************//

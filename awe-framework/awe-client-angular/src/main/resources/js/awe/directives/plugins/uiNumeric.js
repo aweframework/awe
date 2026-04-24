@@ -116,6 +116,21 @@ aweApplication.directive('uiNumeric',
             });
           }
 
+          /**
+           * API link to update model values
+           * @param {object} data New model data attributes
+           * @param {{initialized: boolean, opts: *, elem, scope}} params
+           */
+          function updateNumericApiModelValues(data, params) {
+            let model = Control.getAddressModel(params.scope.component.address);
+            if (model) {
+              Object.keys(data).forEach((attributeId) => {
+                model[attributeId] = _.cloneDeep(data[attributeId]);
+              });
+              updateNumericModel(params);
+            }
+          }
+
 
           // Read options
           const params = {initialized: false, opts: options, elem, scope};
@@ -157,17 +172,7 @@ aweApplication.directive('uiNumeric',
                  * API Links
                  */
                 if (scope.component.api) {
-                  /**
-                   * API link to update the model values
-                   * @param {object} data New model data attributes
-                   */
-                  scope.component.api.updateModelValues = function (data) {
-                    let model = Control.getAddressModel(scope.component.address);
-                    if (model) {
-                      _.merge(model, data);
-                      updateNumericModel(params);
-                    }
-                  };
+                  scope.component.api.updateModelValues = (data) => updateNumericApiModelValues(data, params);
                 }
 
                 // Unwatch initialization

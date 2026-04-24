@@ -206,6 +206,43 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       expect($actionController.acceptAction.calls.count()).toBe(2);
     });
 
+    it('should preserve falsy explicit values in update-controller actions', function() {
+      // Prepare
+      defineForm();
+      spyOn($control, "changeControllerAttribute").and.returnValue({});
+      spyOn($actionController, "acceptAction").and.returnValue({});
+
+      // Run
+      launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "zero", value: 0}});
+      launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "flag", value: false}});
+      launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "empty", value: ""}});
+
+      // Assert
+      expect($control.changeControllerAttribute.calls.allArgs()).toEqual([
+        [{view: "base", component:"tutu"}, {"zero": 0}],
+        [{view: "base", component:"tutu"}, {"flag": false}],
+        [{view: "base", component:"tutu"}, {"empty": ""}]
+      ]);
+    });
+
+    it('should set update-controller attribute to undefined when neither explicit value nor datalist rows exist', function() {
+      // Prepare
+      defineForm();
+      spyOn($control, "changeControllerAttribute").and.returnValue({});
+      spyOn($actionController, "acceptAction").and.returnValue({});
+
+      // Run
+      expect(function () {
+        launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "lala", datalist: {rows: []}}});
+      }).not.toThrow();
+
+      // Assert
+      expect($control.changeControllerAttribute).toHaveBeenCalledWith(
+        {view: "base", component:"tutu"},
+        {"lala": undefined}
+      );
+    });
+
     it('should select primitive values without updating value list', function() {
       // Prepare
       defineForm();
@@ -239,6 +276,24 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       // Assert
       expect($utilities.formatSelectedValues).toHaveBeenCalledWith(values);
       expect($control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: [1, 2], values: values}, true);
+      expect($actionController.acceptAction).toHaveBeenCalled();
+    });
+
+    it('should fill suggest using selected and values without legacy model payload', function() {
+      // Prepare
+      defineForm();
+      let address = {view: "base", component: "tutu"};
+      let values = [{value: "A", label: "Alpha"}, {value: "B", label: "Beta"}];
+      spyOn($utilities, "formatSelectedValues").and.returnValue(["A", "B"]);
+      spyOn($control, "changeModelAttribute").and.returnValue({});
+      spyOn($actionController, "acceptAction").and.callThrough();
+
+      // Run
+      launchFormAction("fill-suggest", "fillSuggest", {address: address, parameters: {values: values}});
+
+      // Assert
+      expect($utilities.formatSelectedValues).toHaveBeenCalledWith(values);
+      expect($control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: ["A", "B"], values: values}, true);
       expect($actionController.acceptAction).toHaveBeenCalled();
     });
 

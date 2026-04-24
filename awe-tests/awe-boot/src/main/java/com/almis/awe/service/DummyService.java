@@ -225,6 +225,21 @@ public class DummyService extends ServiceConfig {
   }
 
   /**
+   * Returns request-bound string parameters without SQL projection semantics.
+   *
+   * @param string  Non-nullable string parameter
+   * @param stringN Nullable string parameter
+   * @return ServiceData
+   */
+  public ServiceData returnRequestBodyStringContract(String string, String stringN) {
+    ServiceData out = new ServiceData();
+    out.setDataList(new DataList());
+    DataListUtil.addColumnWithOneRow(out.getDataList(), "string", string);
+    DataListUtil.addColumnWithOneRow(out.getDataList(), "stringN", stringN);
+    return out;
+  }
+
+  /**
    * Pretends to answer an OK from a maintain
    *
    * @return ServiceData

@@ -521,7 +521,11 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     if (LIST_TO_STRING.equals(type)) {
       return getListAsStringExpression(nodeValue);
     } else {
-      return getVariableAsExpression(getVariableAsString(nodeValue), type);
+      String value = getVariableAsString(nodeValue);
+      if ((nodeValue == null || nodeValue.isNull()) && ParameterType.STRING.equals(type)) {
+        value = "";
+      }
+      return getVariableAsExpression(value, type);
     }
   }
 

@@ -1,6 +1,26 @@
 import {aweApplication} from "../awe";
 import "../directives/plugins/uiSelect";
 import {getIconTemplate} from "./component";
+import {
+  ensureSuggestVisibleOptions,
+  filterSuggestModel as normalizeSuggestSelection,
+  normalizeSelectorLegacyModel,
+  normalizeSuggestLegacyModel,
+} from "./selector/selectorNormalizer";
+import {
+  getSelectorOptionKey,
+  mergeUniqueSelectorOptions,
+  selectorValueEquals,
+} from "./selector/selectorIdentity";
+import {
+  asSelectedArray,
+  formatSelectedValues,
+  getSelectedKeyList,
+} from "./selector/selectorSelection";
+import {
+  applySelectorModelSlice,
+  syncSelectorOptionState,
+} from "./selector/selectorModelState";
 
 // Selector template
 export const templateSelector =
@@ -34,6 +54,40 @@ export const templateSelectorColumn =
   </span>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
 </div>`;
+
+/**
+ * Normalize selected values to plain value list
+ * @param {Array|Object|String|Number} selected Selected values
+ * @return {Array} selected values as strings
+ */
+function normalizeSelectedValues(selected) {
+  return getSelectedKeyList(selected);
+}
+
+/**
+ * Ensure multiple criteria data is always an array
+ * @param {object} component
+ */
+function ensureMultipleGetData(component) {
+  if (!component._multipleGetData) {
+    let baseGetData = component.getData;
+    component.getData = function () {
+      let data = baseGetData();
+      data[component.address.component] = formatSelectedValues(component.model.selected);
+      return data;
+    };
+    component._multipleGetData = true;
+  }
+}
+
+/**
+ * Normalize suggest model state
+ * @param {object} model
+ */
+function filterSuggestModel(model) {
+  let normalizedModel = normalizeSuggestSelection(model);
+  syncSelectorOptionState(model, normalizedModel);
+}
 
 // Selector service
 aweApplication.factory('Selector',
@@ -76,15 +130,6 @@ aweApplication.factory('Selector',
       }
 
       /**
-       * Normalize selected values to plain value list
-       * @param {Array|Object|String|Number} selected Selected values
-       * @return {Array} selected values as strings
-       */
-      function normalizeSelectedValues(selected) {
-        return Utilities.formatSelectedValues(Utilities.asArray(selected)).map(String);
-      }
-
-      /**
        * Format select data
        * @param {Array} values Model values
        * @param {Array} selected Model selected values
@@ -95,7 +140,7 @@ aweApplication.factory('Selector',
         if (selected !== null) {
           let selectedList = normalizeSelectedValues(selected);
           _.each(values, function (element) {
-            if ($.inArray(String(element.value), selectedList) > -1) {
+            if ($.inArray(getSelectorOptionKey(element), selectedList) > -1) {
               data.push({
                 id: element.value,
                 text: $translate.instant(String(element.label))
@@ -104,44 +149,6 @@ aweApplication.factory('Selector',
           });
         }
         return data;
-      }
-
-      /**
-       * Format selected values (store in values only the selected data)
-       * @param {Array} values Model values
-       * @param {Array} selected Model selected values
-       * @param {boolean} multiple Select multiple values
-       * @return {Array} formatted data
-       */
-      function filterSelectedValues(values, selected, multiple) {
-        let filtered = [];
-        let selectedMap = {};
-        if (selected !== null) {
-          Utilities.asArray(selected).forEach(value => {
-            selectedMap[String(value)] = value;
-          });
-          _.each(values, function (element) {
-            let key = String(element.value);
-            if (key in selectedMap) {
-              filtered.push(selectedMap[key]);
-            }
-          });
-        }
-        return multiple ? filtered : filtered.length > 0 ? filtered[0] : null;
-      }
-
-      /**
-       * Normalize incoming selected values preserving single/multiple contracts
-       * @param {Array|Object|String|Number|null} selected Incoming selected values
-       * @param {boolean} multiple Select multiple values
-       * @return {Array|String|Number|null} normalized selected values
-       */
-      function normalizeIncomingSelected(selected, multiple) {
-        if (Utilities.isNull(selected)) {
-          return null;
-        }
-        let normalized = Utilities.formatSelectedValues(Utilities.asArray(selected));
-        return multiple ? normalized : normalized.length > 0 ? normalized[0] : null;
       }
 
       /**
@@ -154,35 +161,6 @@ aweApplication.factory('Selector',
           model.selected = null;
         }
       }
-      /**
-       * Ensure multiple criteria data is always an array
-       * @param {object} component
-       */
-      function ensureMultipleGetData(component) {
-        if (!component._multipleGetData) {
-          let baseGetData = component.getData;
-          component.getData = function () {
-            let data = baseGetData();
-            data[component.address.component] = Utilities.formatSelectedValues(Utilities.asArray(component.model.selected));
-            return data;
-          };
-          component._multipleGetData = true;
-        }
-      }
-      /**
-       * Format select data
-       * @param {object} model
-       */
-      function filterSuggestModel(model) {
-        if (model.selected !== null) {
-          let selected = normalizeSelectedValues(model.selected);
-          model.values = [...Utilities.asArray(model.storedValues), ...model.values]
-            .reduce((prev, element) => prev.map(e => String(e.value)).includes(String(element.value)) ? prev : [...prev, element], [])
-            .filter(element => selected.includes(String(element.value)));
-        }
-        model.storedValues = _.cloneDeep([...model.values]);
-      }
-
       /**
        * Fill a callback object (in select2 format) with a model value list
        * @param {Array} values
@@ -207,7 +185,13 @@ aweApplication.factory('Selector',
        */
       function filterSelectedCallback(values, selected, callback, multiple) {
         let data = filterSelectData(values, selected);
-        callback(multiple ? data : data.length === 1 ? data[0] : data);
+        if (multiple) {
+          callback(data);
+        } else if (data.length === 1) {
+          callback(data[0]);
+        } else {
+          callback(data);
+        }
         return data;
       }
 
@@ -222,7 +206,7 @@ aweApplication.factory('Selector',
         let selected = normalizeSelectedValues(model.selected)[0];
         if (!Utilities.isNull(selected)) {
           _.each(model.values, function (value) {
-            if (String(selected) === String(value.value)) {
+            if (selectorValueEquals(selected, value)) {
               check = true;
             }
           });
@@ -241,12 +225,45 @@ aweApplication.factory('Selector',
         let labelList = [];
         _.each(selectedList, function (selectedValue) {
           _.each(valueList, function (value) {
-            if (String(selectedValue) === String(value.value)) {
+            if (selectorValueEquals(selectedValue, value)) {
               labelList.push($translate.instant(String(value.label)));
             }
           });
         });
         return labelList;
+      }
+
+      /**
+       * Normalize multiple plugin values to the selector contract
+       * @param {object} model Component model
+       * @param {Array|String|Number|Object} value Raw plugin value
+       * @return {Array} normalized selected value list
+       */
+      function normalizeMultiplePluginValue(model, value) {
+        if (Array.isArray(value)) {
+          return value.filter(item => item !== "");
+        }
+
+        if (typeof value !== "string") {
+          return Utilities.asArray(value).filter(item => item !== "");
+        }
+
+        const selectableValues = _.uniq(
+          [...Utilities.asArray(model.storedValues), ...Utilities.asArray(model.values)]
+            .filter(item => _.isPlainObject(item) && Object.prototype.hasOwnProperty.call(item, "value"))
+            .map(getSelectorOptionKey)
+        );
+
+        if (selectableValues.includes(value)) {
+          return [value];
+        }
+
+        const splitValues = value.split(",").filter(item => item !== "");
+        if (splitValues.length > 0 && splitValues.every(item => selectableValues.includes(item))) {
+          return splitValues;
+        }
+
+        return [value];
       }
 
       /**
@@ -260,7 +277,11 @@ aweApplication.factory('Selector',
         let model = Control.getAddressModel(component.address);
         if (item.val && item.val.length) {
           // Always return array for multiple components
-          model.selected = component.multiple ? Utilities.asArray(item.val) : item.val;
+          if (component.multiple) {
+            model.selected = normalizeMultiplePluginValue(model, item.val);
+          } else {
+            model.selected = item.val;
+          }
         } else {
           model.selected = null;
         }
@@ -405,17 +426,14 @@ aweApplication.factory('Selector',
           component.api.updateModelValues = function (data) {
             let model = Control.getAddressModel(component.address);
             if (model) {
-              _.merge(model, data);
-              if ("values" in data) {
-                model.values = _.cloneDeep(data.values);
-              }
-              // If selected in data, update selected values
+              let normalizedModel = normalizeSelectorLegacyModel(model, data, {
+                multiple: selector.multiple,
+                stringifySingle: !selector.multiple && !component.controller.serverAction,
+              });
+
+              applySelectorModelSlice(model, normalizedModel);
+
               if ("selected" in data) {
-                // Filter selected values
-                model.selected = filterSelectedValues(model.values, Utilities.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
-                if (!selector.multiple && !component.controller.serverAction) {
-                  model.selected = model.selected !== null ? String(model.selected) : null;
-                }
                 selector.selectData(model.selected);
               }
 
@@ -514,9 +532,9 @@ aweApplication.factory('Selector',
               let trimmedTerm = $.trim(term);
               let output = null;
               if (trimmedTerm.length > 0) {
-                let newValue = {value: trimmedTerm, label: trimmedTerm};
+                let newValue = {value: trimmedTerm, label: trimmedTerm, __adHoc: true};
                 component.model.values.push(newValue);
-                component.model.values = _.uniqWith(component.model.values, _.isEqual);
+                component.model.values = mergeUniqueSelectorOptions(component.model.values);
                 output = {id: trimmedTerm, text: trimmedTerm};
               }
               return output;
@@ -558,7 +576,7 @@ aweApplication.factory('Selector',
           component.onModelChangedValuesSelected = function () {
             // Fill data
             let model = Control.getAddressModel(component.address);
-            selector.selectData(Utilities.asArray(model.selected));
+            selector.selectData(asSelectedArray(model.selected));
             filterSuggestModel(model);
           };
           /**
@@ -577,14 +595,10 @@ aweApplication.factory('Selector',
               initCallback = null;
             } else {
               filterSuggestModel(model);
+              let visibleModel = ensureSuggestVisibleOptions(model, {strict: component.controller.strict});
+              syncSelectorOptionState(model, visibleModel);
 
-              // Add option if it's not strict
-              let term = model.selected;
-              if (!component.controller.strict && !Utilities.isEmpty(term) && model.values.length === 0) {
-                model.values.push({value: term, label: term});
-              }
-
-              selector.selectData(Utilities.asArray(model.selected));
+              selector.selectData(asSelectedArray(model.selected));
             }
           };
           /**
@@ -611,7 +625,7 @@ aweApplication.factory('Selector',
             // select the data to launch callback if needed
             filterSuggestModel(model);
             if (!checkSelectedValue(model)) {
-              selector.selectData(Utilities.asArray(model.selected));
+              selector.selectData(asSelectedArray(model.selected));
             }
           };
           /**
@@ -630,7 +644,7 @@ aweApplication.factory('Selector',
             // Fill data
             let model = Control.getAddressModel(component.address);
             if (!checkSelectedValue(model)) {
-              selector.selectData(Utilities.asArray(model.selected));
+              selector.selectData(asSelectedArray(model.selected));
               filterSuggestModel(model);
             }
           };
@@ -648,18 +662,15 @@ aweApplication.factory('Selector',
           component.api.updateModelValues = function (data) {
             let model = Control.getAddressModel(component.address);
             if (model) {
-              _.merge(model, data);
-              if ("values" in data) {
-                model.values = _.cloneDeep(data.values);
-              }
+              let normalizedModel = normalizeSuggestLegacyModel(model, data, {
+                multiple: selector.multiple,
+                strict: component.controller.strict,
+              });
+
+              applySelectorModelSlice(model, normalizedModel);
+
               if ("selected" in data) {
-                let mappedSelected = filterSelectedValues(model.values, Utilities.formatSelectedValues(Utilities.asArray(data.selected)), selector.multiple);
-                let normalizedSelected = normalizeIncomingSelected(data.selected, selector.multiple);
-                let unresolvedSelected = !("values" in data) && Utilities.asArray(normalizedSelected).length > 0 &&
-                  ((selector.multiple && mappedSelected.length === 0) || (!selector.multiple && mappedSelected === null));
-                model.selected = unresolvedSelected ? normalizedSelected : mappedSelected;
-                if (unresolvedSelected) {
-                  model.values = [];
+                if (model.shouldReload) {
                   checkSelectedValue(model);
                 } else {
                   selector.selectData(model.selected);

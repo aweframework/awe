@@ -11,6 +11,7 @@ import com.almis.awe.model.entities.actions.Answer;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.Parameter;
 import com.almis.awe.model.type.AnswerType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -251,13 +252,13 @@ public class ActionService extends ServiceConfig {
     // Retrieve parameter list
     try {
       ObjectNode parameterList = getRequest().getParameterList();
-      String password = getRequest().getParameterAsString(baseConfigProperties.getParameter().getPassword());
+      String password = getScalarParameterValueAsString(parameterList.get(baseConfigProperties.getParameter().getPassword()));
 
       // Remove nonsense values from parameter list
       Iterator<String> fieldNames = parameterList.fieldNames();
       while (fieldNames.hasNext()) {
         String key = fieldNames.next();
-        String value = getRequest().getParameterAsString(key);
+        String value = getParameterValueAsString(parameterList.get(key));
         buildParameterString(builder, key, value, password);
       }
     } catch (Exception exc) {
@@ -266,6 +267,37 @@ public class ActionService extends ServiceConfig {
 
     // Return parameter list string
     return builder.toString();
+  }
+
+  /**
+   * Retrieve parameter value as string preserving structured JSON values
+   *
+   * @param parameter Parameter node
+   * @return Parameter value as string
+   */
+  private String getParameterValueAsString(JsonNode parameter) {
+    if (parameter == null || parameter.isNull()) {
+      return null;
+    } else if (parameter.isArray() || parameter.isObject()) {
+      return parameter.toString();
+    } else if (parameter.isTextual()) {
+      return parameter.toString();
+    } else {
+      return parameter.asText();
+    }
+  }
+
+  /**
+   * Retrieve scalar parameter value as plain string
+   *
+   * @param parameter Parameter node
+   * @return Scalar parameter value as plain string
+   */
+  private String getScalarParameterValueAsString(JsonNode parameter) {
+    if (parameter == null || parameter.isNull() || parameter.isArray() || parameter.isObject()) {
+      return null;
+    }
+    return parameter.asText();
   }
 
   /**
