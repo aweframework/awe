@@ -65,8 +65,11 @@ aweApplication.factory('Panelable',
           let panelable = this;
           if (!this.component.asCriterion()) return false;
 
-          // Select first option in case of selected is null
-          if (!this.component.model.selected && this.component.model.values.length > 0) {
+          // Select first option in case selected is null or no longer exists in values
+          let selectedExists = _.some(this.component.model.values, value =>
+            String(value.value) === String(this.component.model.selected));
+          if (this.component.model.values.length > 0 &&
+            ($utilities.isNull(this.component.model.selected) || !selectedExists)) {
             this.component.model.selected = this.component.model.values[0].value;
           }
 

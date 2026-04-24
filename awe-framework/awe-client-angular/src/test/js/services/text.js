@@ -78,5 +78,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/text.js', functi
       // Assert
       expect(text.getVisibleValue()).toBe("This is the right text");
     });
+
+    it('should clear selected when values change to an empty list', function() {
+      // Change model
+      text.model = {selected: "text", values: []};
+
+      // Run
+      text.onModelChanged({values: true});
+
+      // Assert
+      expect(text.model.selected).toBeNull();
+      expect(text.getVisibleValue()).toBe("");
+    });
   });
 });

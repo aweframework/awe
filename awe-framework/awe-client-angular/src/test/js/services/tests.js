@@ -9,6 +9,7 @@ require('./connection.js');
 require('./control.js');
 require('./dependency.js');
 require('./screen.js');
+require('./selectorNormalizer.js');
 require('./selector.js');
 require('./dateTime.js');
 require('./serverData.js');

@@ -169,7 +169,9 @@ aweApplication.factory('Numeric',
           component.api.updateModelValues = function (data) {
             let  model = Control.getAddressModel(component.address);
             if (model) {
-              _.merge(model, data);
+              _.each(data, function (attribute, attributeId) {
+                model[attributeId] = _.cloneDeep(attribute);
+              });
               if (component.updateModel) {
                 component.updateModel(model);
               }

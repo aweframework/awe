@@ -239,6 +239,28 @@
     </insert>
   </target>
 
+  <target name="ContractMaintainVariableByName">
+    <insert>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <field id="Des" variable="backendDescription"/>
+      <variable type="STRING" id="backendDescription" name="frontendDescription"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+  </target>
+
+  <target name="ContractMaintainMultipleVariableByName">
+    <insert multiple="true">
+      <table id="AweThm"/>
+      <field id="IdeThm" sequence="ThmKey"/>
+      <field id="Nam" variable="backendThemeName"/>
+      <constant id="Act" type="INTEGER" value="1"/>
+      <variable id="backendThemeName" type="STRING" name="frontendThemeNames"/>
+    </insert>
+  </target>
+
   <target name="SimpleSingleInsertUpdateDeleteFromVariableOptional">
     <insert>
       <table id="HISAweDbs"/>

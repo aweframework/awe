@@ -100,4 +100,28 @@ describe('awe-framework/awe-client-angular/src/test/js/services/checkboxRadio.js
       expect(checkboxSelector.model.selected).toBe(0);
     });
   });
+
+  describe('once initialized as radio', function() {
+    it('should initialize safely when values are empty', function() {
+      let $scope = $rootScope.$new();
+      $scope.view = "report";
+      $scope.context = "contexto";
+      let radioSelector = new $checkboxRadio($scope, "tutu", {});
+
+      spyOn($control, "getAddressController").and.returnValue({id: "tutu", group: "grp"});
+      spyOn($control, "checkComponent").and.returnValue(true);
+      spyOn($control, "getAddressViewModel").and.returnValue({});
+      spyOn($control, "getAddressViewApi").and.returnValue({});
+      spyOn($control, "publishModelChanged").and.returnValue(true);
+
+      radioSelector.model = {selected: null, values: []};
+      radioSelector.controller = {group: "grp"};
+
+      expect(function() {
+        radioSelector.asRadio();
+      }).not.toThrow();
+
+      expect(radioSelector.value).toBeNull();
+    });
+  });
 });

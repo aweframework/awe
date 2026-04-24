@@ -103,4 +103,26 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiNumeric.js', fu
 
     expect(model).toEqual({selected: 1200.21, values: [{value: 1200.21, label: "1.200,21"}]});
   });
+
+  it('should rebuild derived numeric values after api updates without relying on merge semantics', function() {
+    $rootScope.firstLoad = true;
+    $rootScope.component = component;
+    let currentModel = {values: [{}], selected: "3", meta: {foo: "bar"}};
+
+    spyOn($control, "checkComponent").and.returnValue(true);
+    spyOn($control, "getAddressModel").and.returnValue(currentModel);
+
+    $compile("<input ui-numeric='{min:0, precision: 0}'/>")($rootScope);
+    $rootScope.$digest();
+
+    $rootScope.component.api.updateModelValues({
+      selected: 5,
+      values: [{value: 999, label: "stale"}],
+      meta: {foo: "baz"}
+    });
+
+    expect(currentModel.selected).toBe(5);
+    expect(currentModel.values).toEqual([{value: 5, label: "5"}]);
+    expect(currentModel.meta).toEqual({foo: "baz"});
+  });
 });

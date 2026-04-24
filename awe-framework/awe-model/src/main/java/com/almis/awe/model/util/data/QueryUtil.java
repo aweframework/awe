@@ -25,7 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.MessageFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -34,6 +37,8 @@ import java.util.regex.Matcher;
  */
 @Slf4j
 public class QueryUtil extends ServiceConfig {
+
+  private static final String EMPTY_SQL_COLLECTION_LOG = "/* empty */";
 
   // Autowired services
   private final BaseConfigProperties baseConfigProperties;
@@ -674,11 +679,40 @@ public class QueryUtil extends ServiceConfig {
    * @return Formatted parameter
    */
   private String formatParameter(Object binding) {
-    if (binding instanceof String stringBinding) {
-      return MessageFormat.format("''{0}''", StringUtil.shortenText(stringBinding, 25, "..."));
+    if (binding == null) {
+      return "null";
+    } else if (binding instanceof Collection<?> collectionBinding) {
+      if (collectionBinding.isEmpty()) {
+        return EMPTY_SQL_COLLECTION_LOG;
+      }
+      return collectionBinding.stream()
+          .map(this::formatParameter)
+          .reduce((left, right) -> left + ", " + right)
+          .orElse("");
+    } else if (binding.getClass().isArray()) {
+      return formatArrayParameter(binding);
+    } else if (binding instanceof String stringBinding) {
+      return MessageFormat.format("''{0}''", stringBinding.replace("'", "''"));
+    } else if (binding instanceof Boolean booleanBinding) {
+      return booleanBinding ? "TRUE" : "FALSE";
+    } else if (binding instanceof LocalDate localDateBinding) {
+      return MessageFormat.format("(date ''{0}'')", localDateBinding.format(DateUtil.DATE_FORMAT_SQL));
+    } else if (binding instanceof LocalDateTime localDateTimeBinding) {
+      return MessageFormat.format("(timestamp ''{0}'')", localDateTimeBinding.format(DateUtil.TIMESTAMP_FORMAT_SQL_MS));
     } else if (binding instanceof Date dateBinding) {
       return MessageFormat.format("(timestamp ''{0}'')", DateUtil.dat2SqlTimeString(dateBinding));
     }
     return binding.toString();
+  }
+
+  private String formatArrayParameter(Object binding) {
+    if (Array.getLength(binding) == 0) {
+      return EMPTY_SQL_COLLECTION_LOG;
+    }
+    List<String> values = new ArrayList<>();
+    for (int index = 0; index < Array.getLength(binding); index++) {
+      values.add(formatParameter(Array.get(binding, index)));
+    }
+    return String.join(", ", values);
   }
 }

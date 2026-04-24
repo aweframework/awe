@@ -166,6 +166,24 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     expect($ctrl.isActive("3")).toBe(true);
   });
 
+  it('falls back to first tab when selected value is not present in values', function() {
+    $rootScope.firstLoad = true;
+    model.selected = "99";
+
+    spyOn($storage, "get").and.returnValue({'base': {}});
+    spyOn($control, "checkComponent").and.returnValue(true);
+    spyOn($control, "getAddressModel").and.returnValue(model);
+    spyOn($control, "getAddressController").and.returnValue(controller);
+    spyOn($utilities, "checkAddress").and.returnValue(true);
+
+    let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope.$new());
+    $rootScope.$digest();
+
+    expect(model.selected).toEqual("1");
+    let $ctrl = element.controller("aweInputTab");
+    expect($ctrl.isActive("1")).toBe(true);
+  });
+
   it('click on tab', function() {
     $rootScope.firstLoad = true;
     model.selected = "1";

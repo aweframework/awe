@@ -617,6 +617,56 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       expect(model.selected).toEqual(["test", "pei"]);
       expect(suggest.reload).toHaveBeenCalled();
     });
+
+    it('should split comma-separated plugin values when suggest multiple changes', function () {
+      let modelRef = {
+        values: [
+          {value: 'a', label: 'a'},
+          {value: 'test', label: 'test'},
+          {value: 't', label: 't'}
+        ],
+        selected: null
+      };
+      spyOn($control, 'getAddressModel').and.returnValue(modelRef);
+      suggest.modelChange = jasmine.createSpy('modelChange');
+
+      suggest.onPluginChange({val: 'a,test,t'});
+
+      expect(modelRef.selected).toEqual(['a', 'test', 't']);
+      expect(suggest.modelChange).toHaveBeenCalled();
+    });
+
+    it('should keep exact comma-containing values when plugin sends a single known option', function () {
+      let modelRef = {
+        storedValues: [{value: 'a,test', label: 'a,test'}],
+        values: [{value: 'a,test', label: 'a,test'}, {value: 'x', label: 'x'}],
+        selected: null
+      };
+      spyOn($control, 'getAddressModel').and.returnValue(modelRef);
+      suggest.modelChange = jasmine.createSpy('modelChange');
+
+      suggest.onPluginChange({val: 'a,test'});
+
+      expect(modelRef.selected).toEqual(['a,test']);
+      expect(suggest.modelChange).toHaveBeenCalled();
+    });
+
+    it('should keep array plugin values unchanged for suggest multiple', function () {
+      let modelRef = {
+        values: [
+          {value: 'a', label: 'a'},
+          {value: 'test', label: 'test'}
+        ],
+        selected: null
+      };
+      spyOn($control, 'getAddressModel').and.returnValue(modelRef);
+      suggest.modelChange = jasmine.createSpy('modelChange');
+
+      suggest.onPluginChange({val: ['a', 'test']});
+
+      expect(modelRef.selected).toEqual(['a', 'test']);
+      expect(suggest.modelChange).toHaveBeenCalled();
+    });
   });
 
   describe('multiple selector getData', function () {

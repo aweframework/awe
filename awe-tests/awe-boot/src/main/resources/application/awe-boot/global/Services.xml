@@ -75,6 +75,13 @@
     </java>
   </service>
 
+  <service id="returnRequestBodyStringContract">
+    <java classname="com.almis.awe.service.DummyService" method="returnRequestBodyStringContract">
+      <service-parameter type="STRING" name="string"/>
+      <service-parameter type="STRING" name="stringN"/>
+    </java>
+  </service>
+
   <service id="returnMaintainOkNoParams">
     <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkNoParams">
     </java>

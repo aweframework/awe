@@ -223,8 +223,9 @@ aweApplication.directive('aweForm',
           let values = parameters.values;
           let address = action.attr("callbackTarget");
 
-          // Call the method update seleted value from API
-          Control.changeModelAttribute(address, {selected: values, model: values}, true);
+          // Keep suggest payload aligned with the selected/values contract
+          let selected = Utilities.formatSelectedValues(values);
+          Control.changeModelAttribute(address, {selected: selected, values: values}, true);
 
           // Finish action
           $actionController.acceptAction(action);
@@ -242,7 +243,9 @@ aweApplication.directive('aweForm',
           delete data.rows;
 
           // Change controller
-          const attributes = {[parameters.attribute]: parameters.value || values[0].value};
+          const hasExplicitValue = Object.prototype.hasOwnProperty.call(parameters, "value");
+          const fallbackValue = values.length > 0 ? values[0].value : undefined;
+          const attributes = {[parameters.attribute]: hasExplicitValue ? parameters.value : fallbackValue};
           Control.changeControllerAttribute(address, attributes);
 
           // Finish action
