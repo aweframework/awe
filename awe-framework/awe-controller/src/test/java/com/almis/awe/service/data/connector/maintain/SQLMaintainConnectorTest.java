@@ -1,9 +1,11 @@
 package com.almis.awe.service.data.connector.maintain;
 
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.maintain.Insert;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.QueryUtil;
@@ -26,7 +28,11 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +61,9 @@ class SQLMaintainConnectorTest {
 
   @Mock
   private ObjectMapper objectMapper;
+
+  @Mock
+  private AweElements aweElements;
 
   @BeforeEach
   void setUp() {
@@ -121,5 +130,45 @@ class SQLMaintainConnectorTest {
     // Asserts
     assertNotNull(maintainOut);
     assertEquals(AnswerType.OK, maintainOut.getType());
+  }
+
+  @Test
+  void givenExecutionFailure_wrapsExceptionWithBoundSql() throws AWException {
+
+    Insert insertMaintain = new Insert();
+    insertMaintain.setId("TestMaintain");
+    insertMaintain.setOperationId("TestMaintain");
+    insertMaintain.setVariableIndex(0);
+
+    RuntimeException expectedCause = new RuntimeException("db failure");
+    String placeholderSql = "insert into test_table (name) values (?)";
+    String fullSql = "insert into test_table (name) values ('John')";
+
+    when(queryUtil.getDefaultVariableMap(any())).thenReturn(new HashMap<>());
+    when(databaseConfigProperties.isAuditEnable()).thenReturn(false);
+    when(context.getBean(SQLMaintainBuilder.class)).thenReturn(sqlMaintainBuilder);
+    when(databaseConnection.getConfigurationBean()).thenReturn("configDummyBean");
+    when(context.getBean("configDummyBean")).thenReturn(new Configuration(new HSQLDBTemplates()));
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en");
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("translated");
+    when(sqlMaintainBuilder.setMaintain(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setVariableIndex(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setOperation(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setFactory(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setVariables(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.setParameters(any())).thenReturn(sqlMaintainBuilder);
+    when(sqlMaintainBuilder.build()).thenReturn(abstractSQLClause);
+    when(abstractSQLClause.getSQL()).thenReturn(Collections.singletonList(new SQLBindings(placeholderSql, Collections.singletonList("John"))));
+    when(queryUtil.getFullSQL(placeholderSql, Collections.singletonList("John"))).thenReturn(fullSql);
+    when(abstractSQLClause.execute()).thenThrow(expectedCause);
+
+    AWEQueryException exception = assertThrows(AWEQueryException.class,
+      () -> sqlMaintainConnector.launch(insertMaintain, databaseConnection, objectMapper.createObjectNode()));
+
+    assertEquals(fullSql, exception.getQuery());
+    assertEquals(expectedCause, exception.getCause());
+    assertTrue(exception.getQuery().contains("'John'"));
+    verify(queryUtil).getFullSQL(placeholderSql, Collections.singletonList("John"));
   }
 }

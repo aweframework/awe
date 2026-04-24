@@ -2,6 +2,7 @@ package com.almis.awe.service.data.connector.maintain;
 
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.QueryParameter;
@@ -385,53 +386,64 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     return null;
   }
 
-	/**
-	 * Executes a single SQL operation and returns the number of rows affected. If the operation is
-	 * an insert and contains a key, it retrieves the generated keys. Logs the execution details
-	 * (including audit and SQL bindings) and computes the operation's execution time.
-	 *
-	 * @param statement     The SQL statement to execute. This can be an insert, update, or delete operation.
-	 * @param index         The index of the current operation, typically used for logging or auditing. Can be null.
-	 * @param isAudit       A flag indicating whether this operation is part of an audit process.
-	 * @param maintainQuery The maintaining query object that contains metadata and context for the SQL operation.
-	 * @return The number of rows affected by the SQL operation.
-	 */
-	private long launchAsSingleOperation(AbstractSQLClause<?> statement, Integer index, boolean isAudit, MaintainQuery maintainQuery) {
-		List<Long> timeLapse = LogUtil.prepareTimeLapse();
-		long updated;
+  /**
+   * Executes a single SQL operation and returns the number of rows affected. If the operation is
+   * an insert and contains a key, it retrieves the generated keys. Logs the execution details
+   * (including audit and SQL bindings) and computes the operation's execution time.
+   *
+   * @param statement     The SQL statement to execute. This can be an insert, update, or delete operation.
+   * @param index         The index of the current operation, typically used for logging or auditing. Can be null.
+   * @param isAudit       A flag indicating whether this operation is part of an audit process.
+   * @param maintainQuery The maintaining query object that contains metadata and context for the SQL operation.
+   * @return The number of rows affected by the SQL operation.
+   */
+  private long launchAsSingleOperation(AbstractSQLClause<?> statement, Integer index, boolean isAudit,
+                                       MaintainQuery maintainQuery) throws AWException {
+    List<Long> timeLapse = LogUtil.prepareTimeLapse();
+    long updated;
 
-		// Retrieve fields with an auto-increment attribute
-		Optional<Field> autoIncrementalField = maintainQuery.getFieldList()
-				.stream()
-				.filter(SqlField::isAutoIncremental)
-				.findFirst();
+    // Retrieve fields with an auto-increment attribute
+    Optional<Field> autoIncrementalField = maintainQuery.getFieldList()
+      .stream()
+      .filter(SqlField::isAutoIncremental)
+      .findFirst();
 
-		if (statement instanceof SQLInsertClause insertClause && autoIncrementalField.isPresent()) {
-			// Launch as single operation and get generated key if it's an insert (used with auto numeric column).
-			updated = launchInsertWithKeys(maintainQuery, insertClause, autoIncrementalField.get());
-		} else {
-			// Normal execution
-			updated = statement.execute();
-		}
+    String sql = getStatementSql(statement);
 
-		// Get final query time
-		LogUtil.checkpoint(timeLapse);
+    try {
+      if (statement instanceof SQLInsertClause insertClause && autoIncrementalField.isPresent()) {
+        // Launch as single operation and get generated key if it's an insert (used with auto numeric column).
+        updated = launchInsertWithKeys(maintainQuery, insertClause, autoIncrementalField.get());
+      } else {
+        // Normal execution
+        updated = statement.execute();
+      }
+    } catch (Exception exc) {
+      throw new AWEQueryException(getLocale("ERROR_TITLE_LAUNCHING_MAINTAIN"),
+        getLocale("ERROR_MESSAGE_DURING_MAINTAIN"), sql, exc);
+    }
 
-		// Audit message
-		String auditMessage = isAudit ? "[AUDIT] " : "";
-		String indexMessage = index == null ? "" : " (" + index + ")";
-		SQLBindings bindings = statement.getSQL().get(statement.getSQL().size() - 1);
-		String sql = StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings()));
+    // Get final query time
+    LogUtil.checkpoint(timeLapse);
 
-		// Shorten sql clause
-		String sqlShortened = StringUtil.shortenText(sql, databaseConfigProperties.getLimitLogSize(), "...");
+    // Audit message
+    String auditMessage = isAudit ? "[AUDIT] " : "";
+    String indexMessage = index == null ? "" : " (" + index + ")";
 
-		// Log operation
-		log.info("{}[\u001B[34m{}\u001B[0m{}] [{}] => {} rows affected - {}",
-				auditMessage, maintainQuery.getOperationId(), indexMessage, sqlShortened, updated, LogUtil.getTotalTime(timeLapse));
+    // Shorten sql clause
+    String sqlShortened = StringUtil.shortenText(sql, databaseConfigProperties.getLimitLogSize(), "...");
 
-		return updated;
-	}
+    // Log operation
+    log.info("{}[\u001B[34m{}\u001B[0m{}] [{}] => {} rows affected - {}",
+      auditMessage, maintainQuery.getOperationId(), indexMessage, sqlShortened, updated, LogUtil.getTotalTime(timeLapse));
+
+    return updated;
+  }
+
+  private String getStatementSql(AbstractSQLClause<?> statement) {
+    SQLBindings bindings = statement.getSQL().get(statement.getSQL().size() - 1);
+    return StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings()));
+  }
 
 	/**
 	 * Executes an insert operation and retrieves the generated keys. Updates the number of
