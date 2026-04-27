@@ -12,6 +12,7 @@ import "angular-mocks";
 import './controllers/tests.js';
 import './data/tests.js';
 import './filters/tests.js';
+import './karma/tests.js';
 import './components/tests.js';
 import './services/tests.js';
 import './singletons/tests.js';

@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const { selectBrowsers } = require("./karma.browser-selection");
 const testDir = path.join(__dirname, "src", "test", "js");
 const tests = path.join(testDir, "tests.js");
 const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib");
@@ -26,9 +27,7 @@ module.exports = (config) => {
       preferHeadless: true,
       // Remove PhantomJS and IE
       postDetection: function(availableBrowsers) {
-        return availableBrowsers
-          .map(browser => 'Safari' === browser ? 'SafariNative' : browser)
-          .filter(browser => !['IE', 'PhantomJS'].includes(browser));
+        return selectBrowsers(availableBrowsers);
       }
     },
     webpack: {
