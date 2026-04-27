@@ -25,8 +25,7 @@
     "@docusaurus/utils-common": "3.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "clsx": "^2.0.0",
-    "file-loader": "^6.2.0"
+    "clsx": "^2.0.0"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.8.1",
