@@ -1,3 +1,10 @@
+# Release notes for AWE 4.11.15
+*28/04/2026*
+ 
+🐛 Bug fixes:
+- fix(client-action): preserve criterion options on select. [MR #629](https://gitlab.com/aweframework/awe/-/merge_requests/629) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** [HAS IMPACTS] build(frontend): migrate frontend builds to npm. [MR #628](https://gitlab.com/aweframework/awe/-/merge_requests/628) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.11.14
 *24/04/2026*
  

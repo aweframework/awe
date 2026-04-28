@@ -95,7 +95,7 @@ stages:
   image: registry.gitlab.com/aweframework/docker-tools/website-build:latest
   stage: build
   script:
-    - yarn --cwd website install
+    - npm --prefix website ci
   cache: { }
   artifacts:
     paths:
@@ -123,18 +123,18 @@ Build project:jdk 18:
 Build website:
   extends: .build-website
   script:
-    - yarn --cwd website install
-    - yarn --cwd website build
+    - npm --prefix website ci
+    - npm --prefix website run build
   rules:
     - <<: *if-merge-request
 
 Build website with i18n:
   extends: .build-website
   script:
-    - yarn --cwd website install
+    - npm --prefix website ci
     # Do translations
-    - yarn --cwd website crowdin:sync
-    - yarn --cwd website build
+    - npm --prefix website run crowdin:sync
+    - npm --prefix website run build
   resource_group: crowdin
   rules:
     - <<: *if-develop

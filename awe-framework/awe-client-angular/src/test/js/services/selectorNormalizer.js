@@ -50,6 +50,22 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selectorNormaliz
     expect(result.selected).toBeNull();
   });
 
+  it('should preserve selector options when incoming data only updates selected values', function () {
+    const currentValues = [{value: 'A', label: 'Alpha'}, {value: 'B', label: 'Beta'}];
+    const result = normalizerApi.normalizeSelectorLegacyModel({
+      values: currentValues,
+      selected: 'A'
+    }, {
+      selected: ['B']
+    }, {
+      multiple: false,
+      stringifySingle: true
+    });
+
+    expect(result.values).toEqual(currentValues);
+    expect(result.selected).toBe('B');
+  });
+
   it('should preserve pending selection when suggest receives only an unresolved single value', function () {
     const result = normalizerApi.normalizeSuggestLegacyModel({
       values: [{value: 'old', label: 'Old'}],

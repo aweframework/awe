@@ -261,7 +261,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       expect($actionController.acceptAction).toHaveBeenCalled();
     });
 
-    it('should select and include values when objects are provided', function() {
+    it('should select object values without replacing the existing option list', function() {
       // Prepare
       defineForm();
       let address = {view: "base", component: "tutu"};
@@ -275,7 +275,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
 
       // Assert
       expect($utilities.formatSelectedValues).toHaveBeenCalledWith(values);
-      expect($control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: [1, 2], values: values}, true);
+      expect($control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: [1, 2]}, true);
       expect($actionController.acceptAction).toHaveBeenCalled();
     });
 
