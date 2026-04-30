@@ -22,10 +22,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
 
-        <!-- Frontend configuration -->
-        <node.version>v20.9.0</node.version>
-        <npm.version>10.2.3</npm.version>
-
         <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
         <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
         <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
@@ -43,7 +39,6 @@
         <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
         <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
         <build.environment>development</build.environment>
-        <plugin-spring-boot.version>3.1.2</plugin-spring-boot.version>
 
         <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
     </properties>
@@ -290,7 +285,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${plugin-spring-boot.version}</version>
                 <configuration>
                     <profiles>
                         <profile>gitlab-ci</profile>
@@ -369,36 +363,6 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>${maven-plugin-frontend.version}</version>
                 <executions>
-                    <execution>
-                        <id>install node and yarn</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>install-node-and-yarn</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>yarn install</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>webpack</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>webpack</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>install node and npm</id>
                         <goals>
