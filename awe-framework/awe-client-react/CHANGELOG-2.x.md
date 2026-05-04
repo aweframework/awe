@@ -1,3 +1,16 @@
+# Release notes for AWE React 2.2.1
+*04/05/2026*
+ 
+🐛 Bug fixes:
+- fix(chart): guard AweChart reflow when Highcharts container is unstable. [MR #172](https://gitlab.com/aweframework/awe-react/-/merge_requests/172) (Pablo Javier García Mora)
+- fix(screen): explicit current-screen reload via location.state token. [MR #171](https://gitlab.com/aweframework/awe-react/-/merge_requests/171) (Pablo Javier García Mora)
+- chore(build): align test-react with AWE 4.11.15. [MR #170](https://gitlab.com/aweframework/awe-react/-/merge_requests/170) (Pablo Javier García Mora)
+- Fix AweChart to disable donut 3d animations. [MR #169](https://gitlab.com/aweframework/awe-react/-/merge_requests/169) (Pablo Javier García Mora)
+- ci: split build-test and package stages into dev and prod profiles. [MR #168](https://gitlab.com/aweframework/awe-react/-/merge_requests/168) (Pablo Vidal Otero)
+- fix(chart): redraw pie 3d after cold-start sync. [MR #167](https://gitlab.com/aweframework/awe-react/-/merge_requests/167) (Pablo Vidal Otero)
+- fix(chart): sync size with container layout. [MR #166](https://gitlab.com/aweframework/awe-react/-/merge_requests/166) (Pablo Vidal Otero)
+- fix(chart): ensure initial reflow after layout. [MR #165](https://gitlab.com/aweframework/awe-react/-/merge_requests/165) (Pablo Vidal Otero)
+
 # Release notes for AWE React 2.2.0
 *05/04/2026*
  
