@@ -13,6 +13,9 @@
         <button id="testChart" label="PARAMETER_TEXT" icon="eraser" button-type="button">
             <button-action type="filter" target="fundProfitabilityChart"/>
         </button>
+        <button id="testReload" label="PARAMETER_RELOAD" icon="mdi:autorenew" button-type="button">
+            <button-action type="reload"/>
+        </button>
     </tag>
     <tag source="center" expandible="vertical">
         <tag type="div" style="expand" expandible="horizontal">

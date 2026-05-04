@@ -1,5 +1,6 @@
 import React from 'react';
 import {cleanup} from '@testing-library/react';
+import {MemoryRouter, Route, Routes} from "react-router";
 import SubViewContainer from "../../../src/containers/SubViewContainer";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
@@ -23,6 +24,17 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
     settings: DEFAULT_SETTINGS
   };
 
+  function renderSubViewContainer() {
+    return renderWithProviders(
+      <MemoryRouter initialEntries={["/subscreen"]}>
+        <Routes>
+          <Route path="/:subScreenId" element={<SubViewContainer />} />
+        </Routes>
+      </MemoryRouter>,
+      {preloadedState}
+    );
+  }
+
   it('renders SubView container', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'info').mockImplementation(() => {});
@@ -35,7 +47,7 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
         ok: true,
         json: () => Promise.resolve({})
       }));
-    renderWithProviders(<SubViewContainer match={{params: {subScreenId: "subscreen"}}}/>, {preloadedState});
+    renderSubViewContainer();
 
     // fails
     expect(document.querySelector(".p-progress-spinner")).not.toBeNull();
@@ -54,7 +66,7 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
       text: () => Promise.resolve("UNAUTHORIZED")
     }));
 
-    renderWithProviders(<SubViewContainer match={{params: {subScreenId: "subscreen"}}}/>, {preloadedState});
+    renderSubViewContainer();
 
     // fails
     expect(document.querySelector(".p-progress-spinner")).not.toBeNull();
@@ -79,7 +91,7 @@ describe('awe-react-client/test/js/containers/SubViewContainerTest.jsx', () => {
       })
     }));
 
-    renderWithProviders(<SubViewContainer match={{params: {subScreenId: "subscreen"}}}/>, {preloadedState});
+    renderSubViewContainer();
 
     // fails
     expect(document.querySelector(".p-progress-spinner")).not.toBeNull();
