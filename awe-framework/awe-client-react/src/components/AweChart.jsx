@@ -198,6 +198,7 @@ ensureModulesInit();
 function AweChart(props) {
   const { id } = props;
   const { model = { values: [] }, attributes = {} } = useComponentState(id);
+  const containerRef = useRef(null);
   const chartRef = useRef(null);
   const activeRef = useRef(false);
   const redrawRef = useRef(() => { });
@@ -220,23 +221,58 @@ function AweChart(props) {
     setTimeout(() => setAnimating(false), 500);
   }, []);
 
+  const safeReflow = useCallback(() => {
+    const chart = chartRef.current;
+    const container = containerRef.current;
+    const renderTarget = chart?.renderTo;
+
+    if (!activeRef.current || !chart || !container || !renderTarget?.isConnected) {
+      return;
+    }
+
+    if (container.clientWidth === 0 || container.clientHeight === 0) {
+      return;
+    }
+
+    try {
+      chart.reflow();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const isTransientLayoutError = /reflow|offset(width|height)|renderTo|container/i.test(message);
+
+      if (isTransientLayoutError) {
+        return;
+      }
+
+      throw error;
+    }
+  }, []);
+
   const afterChartCreated = useCallback((chart) => {
     chartRef.current = chart;
-    redrawRef.current = _.debounce(() => activeRef.current && chartRef.current?.reflow(), 50);
     activeRef.current = true;
+    redrawRef.current = _.debounce(safeReflow, 50);
+    redrawRef.current();
 
     chart.series.forEach(series => {
       Highcharts.addEvent(series, "afterAnimate", () => {
         onAnimationEnd();
       });
     });
+  }, [onAnimationEnd, safeReflow]);
+
+  useEffect(() => {
+    return () => {
+      activeRef.current = false;
+      redrawRef.current.cancel?.();
+      chartRef.current = null;
+    };
   }, []);
 
-  // Trigger a reflow after every committed render so the chart fills its
-  // container correctly when the layout changes (e.g. resizable panels).
+  // Trigger a guarded reflow only when the chart inputs actually change.
   useEffect(() => {
     redrawRef.current();
-  });
+  }, [chartOptions, visible]);
 
   // Memoize chart options so HighchartsReact only sees a new object reference
   // when the underlying data, attributes, language, or translation actually change.
@@ -246,7 +282,7 @@ function AweChart(props) {
 
   const { style, visible } = attributes;
   const classes = classNames("awe-chart", "expand", "highcharts-dark", style, { "hidden": !visible });
-  return <div className={classes} id={id}>
+  return <div className={classes} id={id} ref={containerRef}>
     <HighchartsReact
       key={i18n.language}
       highcharts={Highcharts}
