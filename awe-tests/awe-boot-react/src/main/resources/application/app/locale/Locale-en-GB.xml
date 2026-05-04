@@ -128,6 +128,7 @@
   <locale name="PARAMETER_SELECT_MULTIPLE" value="MultiSelect"/>
   <locale name="PARAMETER_SELECT_MULTIPLE_READONLY" value="MultiSelect (read)"/>
   <locale name="PARAMETER_SELECT_READONLY" value="Select (read)"/>
+  <locale name="PARAMETER_RELOAD" value="Reload"/>
   <locale name="PARAMETER_STATE" value="State"/>
   <locale name="PARAMETER_SUGGEST" value="Suggest"/>
   <locale name="PARAMETER_SUGGEST_MULTIPLE" value="MultiSuggest"/>

@@ -21,19 +21,20 @@ const useScreenService = () => {
 
   const dispatch = useDispatch();
   const { settings } = useSelector((state) => ({settings: state.settings}));
-  const { pathname } = useLocation();
+  const { pathname, search, hash } = useLocation();
+  const currentLocation = `${pathname}${search}${hash}`;
 
   /**
    * Go to screen
    * @param {Action} action Action received
    */
-  const screen = (action) => dispatch(screenAction(action, pathname));
+  const screen = (action) => dispatch(screenAction(action, pathname, currentLocation));
 
   /**
    * Reload current screen
    * @param {Action} action Action received
    */
-  const reloadScreen = (action) => dispatch(reloadScreenAction(action, pathname));
+  const reloadScreen = (action) => dispatch(reloadScreenAction(action, currentLocation));
 
   /**
    * Go to previous screen

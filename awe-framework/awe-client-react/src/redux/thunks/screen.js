@@ -28,6 +28,27 @@ import {getFirstDefinedAndNotNullValue} from "../../utilities/general";
 import {navigationActions} from "../actions/navigation";
 
 let downloadIdentifier = 0;
+let screenReloadIdentifier = 0;
+
+function getScreenReloadState() {
+  return { screenReloadToken: ++screenReloadIdentifier };
+}
+
+function resolveScreenTarget(screen, pathname, context) {
+  if (screen.startsWith("/")) {
+    return screen;
+  }
+
+  return context ? `/${context}/${screen}` : `${pathname.split("/").slice(0, -1).join("/")}/${screen}`;
+}
+
+function getScreenNavigationOptions(isCurrentScreenReload, isRelativeRoute) {
+  if (isCurrentScreenReload) {
+    return { replace: true, relative: false, state: getScreenReloadState() };
+  }
+
+  return { relative: isRelativeRoute ? "path" : false };
+}
 
 export const loadScreen = (view, option, t) => async (dispatch, getState) => {
   try {
@@ -130,7 +151,7 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
   }
 };
 
-export function screenAction(action, pathname) {
+export function screenAction(action, pathname, currentLocation = pathname) {
   return (dispatch, getState) => {
     const { settings } = getState();
     const { context, reload = false, parameters = {} } = action;
@@ -141,17 +162,15 @@ export function screenAction(action, pathname) {
 
     const screen = getFirstDefinedAndNotNullValue(parameters.screen, parameters.target, action.target);
     const isRelativeRoute = !screen.startsWith("/");
-    let target = screen;
-
-    if (isRelativeRoute) {
-      target = context ? `/${context}/${screen}` : `${pathname.split("/").slice(0, -1).join("/")}/${screen}`;
-    }
+    const target = resolveScreenTarget(screen, pathname, context);
+    const isCurrentScreenReload = reload && target === pathname;
 
     if (target !== pathname || reload) {
-      dispatch(navigationActions.navigateTo(target, { relative: isRelativeRoute ? "path" : false }));
+      const navigationTarget = isCurrentScreenReload ? currentLocation : target;
+      dispatch(navigationActions.navigateTo(navigationTarget, getScreenNavigationOptions(isCurrentScreenReload, isRelativeRoute)));
       dispatch(acceptAction(action));
     } else if (settings.reloadCurrentScreen) {
-      dispatch(reloadScreenAction(action, pathname));
+      dispatch(reloadScreenAction(action, currentLocation));
     } else {
       dispatch(acceptAction(action));
     }
@@ -160,7 +179,7 @@ export function screenAction(action, pathname) {
 
 export function reloadScreenAction(action, pathname) {
   return (dispatch) => {
-    dispatch(navigationActions.navigateTo(pathname, { replace: true }));
+    dispatch(navigationActions.navigateTo(pathname, { replace: true, state: getScreenReloadState() }));
     dispatch(acceptAction(action));
   };
 }

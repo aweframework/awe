@@ -5,7 +5,7 @@ import Templates from "../templates";
 import SizeRegistry from "../redux/registry/SizeRegistry";
 import {addActionsTop} from "../redux/actions/actions";
 import {useTranslation} from 'react-i18next';
-import {useParams} from "react-router";
+import {useLocation, useParams} from "react-router";
 import i18n from "../i18n/i18n";
 import {loadScreen} from "../redux/thunks/screen";
 import {ProgressSpinner} from "primereact/progressspinner";
@@ -21,8 +21,8 @@ const VIEW = "base";
  */
 function ViewContainer() {
   const {screenId} = useParams();
+  const location = useLocation();
   const prevSettings = useRef({});
-  const prevScreenId = useRef(null);
   const {t} = useTranslation();
 
   // Accedemos a Redux usando los hooks de Redux
@@ -32,6 +32,7 @@ function ViewContainer() {
     settings: state.settings,
   }));
   const view = useView(VIEW);
+  const screenReloadToken = location.state?.screenReloadToken;
 
   const changeLanguage = useCallback((language) => {
     i18n.changeLanguage(language);
@@ -64,11 +65,8 @@ function ViewContainer() {
   }, [settings.token, dispatch]);
 
   useEffect(() => {
-    if (prevScreenId.current !== screenId) {
-      dispatch(loadScreen(VIEW, screenId, t));
-    }
-    prevScreenId.current = screenId;
-  }, [screenId]);
+    dispatch(loadScreen(VIEW, screenId, t));
+  }, [dispatch, screenId, screenReloadToken]);
 
   return view.loading ?
     <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center"/></div>: (
