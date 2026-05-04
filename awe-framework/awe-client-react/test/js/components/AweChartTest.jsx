@@ -14,6 +14,7 @@ const mockHighchartsChart = {
   reflow: mockChartReflow,
   setSize: mockChartSetSize,
   redraw: mockChartRedraw,
+  renderTo: { isConnected: true },
   options: { chart: { options3d: { enabled: true } } },
   series: [{ type: 'pie', isDirty: false, isDirtyData: false, points: [] }],
   isDirtyBox: false,
@@ -2073,6 +2074,8 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
 
     const originalRequestAnimationFrame = window.requestAnimationFrame;
     const originalCancelAnimationFrame = window.cancelAnimationFrame;
+    const clientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
+    const clientHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
     const offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
     const offsetHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
 
@@ -2084,7 +2087,19 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
         return 1000;
       }
     });
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get() {
+        return 1000;
+      }
+    });
     Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get() {
+        return 500;
+      }
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
       configurable: true,
       get() {
         return 500;
@@ -2126,10 +2141,20 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
       } else {
         delete HTMLElement.prototype.offsetWidth;
       }
+      if (clientWidthDescriptor) {
+        Object.defineProperty(HTMLElement.prototype, 'clientWidth', clientWidthDescriptor);
+      } else {
+        delete HTMLElement.prototype.clientWidth;
+      }
       if (offsetHeightDescriptor) {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeightDescriptor);
       } else {
         delete HTMLElement.prototype.offsetHeight;
+      }
+      if (clientHeightDescriptor) {
+        Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeightDescriptor);
+      } else {
+        delete HTMLElement.prototype.clientHeight;
       }
       jest.useRealTimers();
       mockChartReflow.mockClear();
@@ -2143,6 +2168,8 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
 
     const originalRequestAnimationFrame = window.requestAnimationFrame;
     const originalCancelAnimationFrame = window.cancelAnimationFrame;
+    const clientWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
+    const clientHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
     const offsetWidthDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
     const offsetHeightDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
 
@@ -2154,7 +2181,19 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
         return 800;
       }
     });
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get() {
+        return 800;
+      }
+    });
     Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get() {
+        return 400;
+      }
+    });
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
       configurable: true,
       get() {
         return 400;
@@ -2201,10 +2240,20 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
       } else {
         delete HTMLElement.prototype.offsetWidth;
       }
+      if (clientWidthDescriptor) {
+        Object.defineProperty(HTMLElement.prototype, 'clientWidth', clientWidthDescriptor);
+      } else {
+        delete HTMLElement.prototype.clientWidth;
+      }
       if (offsetHeightDescriptor) {
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', offsetHeightDescriptor);
       } else {
         delete HTMLElement.prototype.offsetHeight;
+      }
+      if (clientHeightDescriptor) {
+        Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeightDescriptor);
+      } else {
+        delete HTMLElement.prototype.clientHeight;
       }
       jest.useRealTimers();
       mockChartReflow.mockClear();
