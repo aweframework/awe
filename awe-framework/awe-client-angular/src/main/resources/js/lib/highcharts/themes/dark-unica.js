@@ -17,6 +17,7 @@ Highcharts.theme["dark-unica"] = {
 		style: {
 			fontFamily: "'Unica One', sans-serif"
 		},
+		plotBackgroundColor: 'rgba(255, 255, 255, .1)',
 		plotBorderColor: '#606063'
 	},
 	title: {
