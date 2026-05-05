@@ -29,7 +29,7 @@
     <check.xml.directory>\${project.basedir}/src/main/resources/application/</check.xml.directory>
 
     <!-- Build environment -->
-    <build.environment>development</build.environment>
+    <build.environment>production</build.environment>
   </properties>
 
   <dependencies>
@@ -165,7 +165,7 @@
               <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>ci</arguments>
+              <arguments>ci --include=dev</arguments>
             </configuration>
           </execution>
           <execution>
@@ -175,8 +175,9 @@
               <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>run build</arguments>
+              <arguments>run build:${build.environment}</arguments>
               <environmentVariables>
+                <NODE_ENV>${build.environment}</NODE_ENV>
                 <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
               </environmentVariables>
             </configuration>

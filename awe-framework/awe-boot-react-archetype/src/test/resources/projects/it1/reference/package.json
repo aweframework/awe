@@ -5,9 +5,11 @@
   "main": "src/main/resources/webpack",
   "license": "SEE LICENSE IN ./../LICENSE.md",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "test-dev": "webpack --config webpack.dev.js",
-    "test-prod": "webpack --config webpack.prod.js"
+    "build": "npm run build:production",
+    "build:development": "webpack --config webpack.dev.js",
+    "build:production": "webpack --config webpack.prod.js",
+    "test-dev": "npm run build:development",
+    "test-prod": "npm run build:production"
   },
   "dependencies": {
     "awe-react-client": "^2.0.11"

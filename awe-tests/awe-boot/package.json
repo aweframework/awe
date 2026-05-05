@@ -5,7 +5,9 @@
   "main": "./src/main/resources/webpack",
   "license": "SEE LICENSE IN ./../LICENSE.md",
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "npm run build:production",
+    "build:development": "webpack --config webpack.config.js --mode development",
+    "build:production": "webpack --config webpack.config.js --mode production"
   },
   "dependencies": {
     "webpack": "^5.72.1",
