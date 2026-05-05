@@ -1,4 +1,11 @@
 {
+  "plugins": [
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-transform-object-assign",
+    "array-includes",
+    "object-values-to-object-keys",
+    "transform-object-entries"
+  ],
   "presets": [
     ["@babel/preset-env", {
       "targets": {
@@ -14,11 +21,18 @@
     "development": {
       "compact": false,
       "plugins": [
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-transform-object-assign",
-        "array-includes",
-        "object-values-to-object-keys",
-        "transform-object-entries",
+        ["istanbul", {
+          "exclude": [
+            "**/test/",
+            "**/node_modules/",
+            "**/lib/"
+          ]
+        }]
+      ]
+    },
+    "test": {
+      "compact": false,
+      "plugins": [
         ["istanbul", {
           "exclude": [
             "**/test/",
@@ -29,20 +43,7 @@
       ]
     },
     "production": {
-      "plugins": [
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-transform-object-assign",
-        "array-includes",
-        "object-values-to-object-keys",
-        "transform-object-entries",
-        ["istanbul", {
-          "exclude": [
-            "**/test/",
-            "**/node_modules/",
-            "**/lib/"
-          ]
-        }]
-      ]
+      "plugins": []
     }
   }
 }

@@ -415,9 +415,6 @@
           <version>${plugin-frontend.version}</version>
           <configuration>
             <skip>${skip.frontend}</skip>
-            <environmentVariables>
-              <NODE_ENV>${build.environment}</NODE_ENV>
-            </environmentVariables>
           </configuration>
           <executions>
             <execution>
@@ -438,7 +435,7 @@
                 <goal>npm</goal>
               </goals>
               <configuration>
-                <arguments>ci</arguments>
+                <arguments>ci --include=dev</arguments>
               </configuration>
             </execution>
             <execution>
@@ -448,7 +445,10 @@
                 <goal>npm</goal>
               </goals>
               <configuration>
-                <arguments>run build</arguments>
+                <arguments>run build:${build.environment}</arguments>
+                <environmentVariables>
+                  <NODE_ENV>${build.environment}</NODE_ENV>
+                </environmentVariables>
               </configuration>
             </execution>
           </executions>

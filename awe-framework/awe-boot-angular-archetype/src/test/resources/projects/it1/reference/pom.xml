@@ -29,7 +29,7 @@
     <check.xml.directory>\${project.basedir}/src/main/resources/application/</check.xml.directory>
 
     <!-- Build environment -->
-    <build.environment>development</build.environment>
+    <build.environment>production</build.environment>
   </properties>
 
   <dependencies>

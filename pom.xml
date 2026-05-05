@@ -66,7 +66,7 @@
     <gitflow-maven-plugin.version>1.13.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->
-    <build.environment>development</build.environment>
+    <build.environment>production</build.environment>
 
     <!-- Skip stages -->
     <skip.javadoc>true</skip.javadoc>
