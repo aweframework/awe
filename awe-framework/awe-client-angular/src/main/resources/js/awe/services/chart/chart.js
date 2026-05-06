@@ -103,7 +103,7 @@ aweApplication.factory('Chart',
           });
           // Add point
           let swift = component.model.values.length >= component.getMax();
-          component.chart.get(serie.id).addPoint(point, false, swift);
+          component.chartInstance.get(serie.id).addPoint(point, false, swift);
         }
       }
 
@@ -282,7 +282,7 @@ aweApplication.factory('Chart',
 
             if (component.initialized) {
               // Get chart object
-              let  chart = component.chart;
+               let  chart = component.chartInstance;
               // Flag check limit serie size
               let  sizeSerieLimit = false;
               // Get chart series controller
@@ -393,7 +393,7 @@ aweApplication.factory('Chart',
               // Get attribute id for each serie
               component.model.values.push(points[0]);
               _.each(chartOptions.series, (serie) => addSeriePoints(serie, points, component));
-              component.chart.redraw();
+               component.chartInstance.redraw();
             }
           };
 
@@ -404,7 +404,7 @@ aweApplication.factory('Chart',
            */
           component.addSeries = function (series) {
             // Get chart
-            let  chart = component.chart;
+             let  chart = component.chartInstance;
 
             _.each(series, function (serie) {
               // Add serie with
@@ -421,7 +421,7 @@ aweApplication.factory('Chart',
            */
           component.replaceSeries = function (series) {
             // Get chart
-            let  chart = component.chart;
+             let  chart = component.chartInstance;
 
             // Remove old series
             let  seriesLength = chart.series.length;
@@ -443,7 +443,7 @@ aweApplication.factory('Chart',
            */
           component.removeSeries = function (series) {
             // Get chart
-            let  chart = component.chart;
+             let  chart = component.chartInstance;
 
             // Remove series by id
             _.each(series, function (serie) {
@@ -462,7 +462,7 @@ aweApplication.factory('Chart',
            */
           component.resetChart = function () {
             // Get chart Object
-            let  chart = component.chart;
+             let  chart = component.chartInstance;
 
             // Get chart series controller
             let  seriesModelList = _.get(chartOptions, "series", []);
@@ -532,14 +532,14 @@ aweApplication.factory('Chart',
               if (axis in zoom) {
                 if (selectedMin !== zoom[axis].min || selectedMax !== zoom[axis].max) {
                   // Set zoom extremes
-                  if (component.chart[axis + "Axis"][0].setExtremes) {
-                    component.chart[axis + "Axis"][0].setExtremes(zoom[axis].min || null, zoom[axis].max || null);
-                  }
+                   if (component.chartInstance[axis + "Axis"][0].setExtremes) {
+                     component.chartInstance[axis + "Axis"][0].setExtremes(zoom[axis].min || null, zoom[axis].max || null);
+                   }
                   // Update zoom model
                   component.model.zoom[axis] = {min: zoom[axis].min || null, max: zoom[axis].max || null};
                   // Reset zoom if both values are null
                   if (zoom[axis].min === null && zoom[axis].max === null) {
-                    component.chart.zoomOut();
+                     component.chartInstance.zoomOut();
                   }
                 }
               }
@@ -683,7 +683,7 @@ aweApplication.factory('Chart',
             }
             data[component.address.component] = {
               // Set chart image
-              image: component.chart.getSVG({chart:chartSize})
+               image: component.chartInstance.getSVG({chart:chartSize})
             };
             return data;
           };
