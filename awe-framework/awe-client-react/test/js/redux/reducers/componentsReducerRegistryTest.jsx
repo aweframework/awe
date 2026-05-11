@@ -183,4 +183,62 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
       { value: 'b', selected: false }
     ]);
   });
+
+  it('warns and ignores malformed component updates without address', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const state = {
+      comp: {
+        address: { component: 'comp', view: 'base' },
+        attributes: { foo: 'bar' }
+      }
+    };
+
+    const next = components(state, {
+      type: UPDATE_COMPONENT,
+      data: {
+        uid: 'broken-uid',
+        attributes: { id: 'broken' },
+        context: { view: 'broken-view' }
+      },
+      settings
+    });
+
+    expect(next).toEqual(state);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[AWE] Malformed component detected in reducer:updateComponentData'),
+      expect.objectContaining({
+        componentUid: 'broken-uid',
+        attributesId: 'broken',
+        view: 'broken-view'
+      })
+    );
+  });
+
+  it('warns when registering malformed components in UPDATE_VIEW_COMPONENTS', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    components({}, {
+      type: UPDATE_VIEW_COMPONENTS,
+      view: 'target-view',
+      data: {
+        broken: {
+          uid: 'broken-list-uid',
+          attributes: { id: 'broken-list' },
+          context: { view: 'fallback-view' }
+        }
+      },
+      settings
+    });
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[AWE] Malformed component detected in reducer:updateViewComponents'),
+      expect.objectContaining({
+        componentUid: 'broken-list-uid',
+        attributesId: 'broken-list',
+        view: 'fallback-view',
+        registryComponentId: 'broken',
+        targetView: 'target-view'
+      })
+    );
+  });
 });

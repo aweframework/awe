@@ -1,4 +1,6 @@
+import _ from "lodash";
 import { getComponentData } from "../../utilities/components";
+import { isTopLevelFormComponent } from "../../utilities/components";
 import { isEmpty } from "../../utilities/general";
 import { getAllComponents } from "./componentSelectors";
 
@@ -14,7 +16,10 @@ export const getModelValidation = (state) => {
   const components = getAllComponents(state);
   const { settings = {} } = state;
   const componentsToCheck = Object.values(components)
-    .filter(component => !("row" in component.address || "column" in component.address));
+    .filter(component => isTopLevelFormComponent(component, {
+      origin: "selector",
+      operation: "getModelValidation"
+    }));
 
   const isEmptyModel = componentsToCheck
     .filter(component => component.attributes.checkEmpty)

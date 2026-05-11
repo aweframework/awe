@@ -1,4 +1,4 @@
-import { getComponentData, getComponentId } from "../../utilities/components";
+import { getComponentData, getComponentId, isTopLevelFormComponent } from "../../utilities/components";
 import { getAllComponents } from "./componentSelectors";
 
 /**
@@ -13,7 +13,10 @@ export const getFormValues = (state, forPrinting = false, t = (o) => o) => {
   const components = getAllComponents(state);
   const { settings = {} } = state;
   return Object.values(components)
-    .filter(component => !("row" in component.address || "column" in component.address))
+    .filter(component => isTopLevelFormComponent(component, {
+      origin: "selector",
+      operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues"
+    }))
     .reduce((result, component) => {
       let values = getComponentData(component, { components, settings, t }, forPrinting);
       checkDuplicates(getComponentId(component.address), result, values);

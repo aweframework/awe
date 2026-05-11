@@ -58,6 +58,60 @@ export function getComponentIdentifierKey(component) {
 }
 
 /**
+ * Build diagnostic payload for malformed components
+ * @param {object} component Component data
+ * @param {object} metadata Diagnostic metadata
+ * @returns {object} Diagnostic payload
+ */
+export function getComponentTraceContext(component = {}, metadata = {}) {
+  const attributes = component?.attributes || {};
+  const address = component?.address;
+  const context = component?.context || {};
+  const {extra = {}, ...restMetadata} = metadata;
+
+  return {
+    ...restMetadata,
+    componentUid: component?.uid ?? null,
+    componentId: address?.component ?? null,
+    attributesId: attributes?.id ?? null,
+    view: address?.view ?? context?.view ?? null,
+    address,
+    context,
+    ...extra
+  };
+}
+
+/**
+ * Log malformed component diagnostics without breaking execution
+ * @param {object} component Component data
+ * @param {object} metadata Diagnostic metadata
+ * @returns {boolean} Always false to simplify filter guards
+ */
+export function warnMalformedComponent(component = {}, metadata = {}) {
+  const {origin = "unknown", operation = "unknown", reason = "Missing or invalid component.address"} = metadata;
+  console.warn(
+    `[AWE] Malformed component detected in ${origin}:${operation} - ${reason}`,
+    getComponentTraceContext(component, metadata)
+  );
+  return false;
+}
+
+/**
+ * Check whether component can be processed as a top-level form component
+ * @param {object} component Component data
+ * @param {object} metadata Diagnostic metadata
+ * @returns {boolean} True when the component is valid and not grid scoped
+ */
+export function isTopLevelFormComponent(component = {}, metadata = {}) {
+  const address = component?.address;
+  if (getAddressType(address) === ADDRESS_INVALID) {
+    return warnMalformedComponent(component, metadata);
+  }
+
+  return !("row" in address || "column" in address);
+}
+
+/**
  * Retrieve the validation nodes
  * @param {object|string} rule
  * @param {object} address
@@ -141,7 +195,10 @@ export function checkModelIsUnchanged(props) {
 function getAllFormValues(props, forPrinting) {
   const {components = {}, settings = {}} = props;
   return Object.values(components)
-    .filter(component => !("row" in component.address || "column" in component.address))
+    .filter(component => isTopLevelFormComponent(component, {
+      origin: "form-utilities",
+      operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues"
+    }))
     .reduce((result, component) => {
       let values = getComponentData(component, props, forPrinting);
       checkDuplicates(getComponentId(component.address), result, values);
@@ -163,7 +220,10 @@ function getAllFormValues(props, forPrinting) {
 function checkModelEmpty(props) {
   const {components = {}} = props;
   return Object.values(components)
-    .filter(component => !("row" in component.address || "column" in component.address))
+    .filter(component => isTopLevelFormComponent(component, {
+      origin: "form-utilities",
+      operation: "checkModelEmpty"
+    }))
     .filter(component => component.attributes.checkEmpty)
     .reduce((result, component) => {
       let values = getComponentData(component, props, false);
@@ -180,7 +240,10 @@ function checkModelEmpty(props) {
 function checkModelUpdated(props) {
   const {components = {}} = props;
   return Object.values(components)
-    .filter(component => !("row" in component.address || "column" in component.address))
+    .filter(component => isTopLevelFormComponent(component, {
+      origin: "form-utilities",
+      operation: "checkModelUpdated"
+    }))
     .reduce((result, component) => {
       let values = getComponentData(component, props, false);
       let storedValues = getComponentData(component, props, false, "storedModel");
@@ -197,7 +260,10 @@ function checkModelUpdated(props) {
 function checkModelUnchanged(props) {
   const {components = {}} = props;
   return Object.values(components)
-    .filter(component => !("row" in component.address || "column" in component.address))
+    .filter(component => isTopLevelFormComponent(component, {
+      origin: "form-utilities",
+      operation: "checkModelUnchanged"
+    }))
     .reduce((result, component) => {
       let values = getComponentData(component, props, false);
       let storedValues = getComponentData(component, props, false, "storedModel");
