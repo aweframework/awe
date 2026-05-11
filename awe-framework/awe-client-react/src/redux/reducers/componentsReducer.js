@@ -1910,12 +1910,12 @@ function clearComponents(state, view, settings) {
   if (useRegistry) {
     const clearedIds = new Set(ComponentRegistry.clear(view));
     return Object.fromEntries(Object.entries(state)
-      .filter(([id]) => !clearedIds.has(id)));
+      .filter(([id, component]) => !clearedIds.has(id) && (component?.address?.view ?? component?.context?.view) !== view));
   }
 
   // Legacy behavior
   return Object.fromEntries(Object.entries(state)
-    .filter((entry) => entry[1].address?.view !== view));
+    .filter(([, component]) => (component?.address?.view ?? component?.context?.view) !== view));
 }
 
 /**
@@ -1940,6 +1940,7 @@ const actionHandlers = {
         warnMalformedComponent({...component, uid: component?.uid ?? id}, {
           origin: 'reducer',
           operation: 'updateViewComponents',
+          componentKey: id,
           extra: {
             registryComponentId: id,
             useComponentRegistry: !!useRegistry,

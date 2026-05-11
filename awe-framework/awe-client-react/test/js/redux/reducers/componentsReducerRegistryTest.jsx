@@ -233,6 +233,7 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('[AWE] Malformed component detected in reducer:updateViewComponents'),
       expect.objectContaining({
+        componentKey: 'broken',
         componentUid: 'broken-list-uid',
         attributesId: 'broken-list',
         view: 'fallback-view',
@@ -240,5 +241,28 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerRegistryTest.
         targetView: 'target-view'
       })
     );
+  });
+
+  it('cleans redux orphan components by context.view when clearing a view with registry enabled', () => {
+    const state = {
+      orphan: {
+        uid: 'orphan-uid',
+        attributes: { id: 'orphan' },
+        context: { view: 'base' }
+      },
+      valid: {
+        address: { component: 'valid', view: 'other' },
+        attributes: { id: 'valid' }
+      }
+    };
+
+    const next = components(state, { type: CLEAR_COMPONENTS, view: 'base', settings });
+
+    expect(next).toEqual({
+      valid: {
+        address: { component: 'valid', view: 'other' },
+        attributes: { id: 'valid' }
+      }
+    });
   });
 });

@@ -67,10 +67,11 @@ export function getComponentTraceContext(component = {}, metadata = {}) {
   const attributes = component?.attributes || {};
   const address = component?.address;
   const context = component?.context || {};
-  const {extra = {}, ...restMetadata} = metadata;
+  const {componentKey = null, extra = {}, ...restMetadata} = metadata;
 
   return {
     ...restMetadata,
+    componentKey,
     componentUid: component?.uid ?? null,
     componentId: address?.component ?? null,
     attributesId: attributes?.id ?? null,
@@ -194,12 +195,13 @@ export function checkModelIsUnchanged(props) {
  */
 function getAllFormValues(props, forPrinting) {
   const {components = {}, settings = {}} = props;
-  return Object.values(components)
-    .filter(component => isTopLevelFormComponent(component, {
+  return Object.entries(components)
+    .filter(([componentKey, component]) => isTopLevelFormComponent(component, {
       origin: "form-utilities",
-      operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues"
+      operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues",
+      componentKey
     }))
-    .reduce((result, component) => {
+    .reduce((result, [, component]) => {
       let values = getComponentData(component, props, forPrinting);
       checkDuplicates(getComponentId(component.address), result, values);
       return {
@@ -219,13 +221,14 @@ function getAllFormValues(props, forPrinting) {
  */
 function checkModelEmpty(props) {
   const {components = {}} = props;
-  return Object.values(components)
-    .filter(component => isTopLevelFormComponent(component, {
+  return Object.entries(components)
+    .filter(([componentKey, component]) => isTopLevelFormComponent(component, {
       origin: "form-utilities",
-      operation: "checkModelEmpty"
+      operation: "checkModelEmpty",
+      componentKey
     }))
-    .filter(component => component.attributes.checkEmpty)
-    .reduce((result, component) => {
+    .filter(([, component]) => component.attributes.checkEmpty)
+    .reduce((result, [, component]) => {
       let values = getComponentData(component, props, false);
       return result && isEmpty(values[component.attributes.id]);
     }, true);
@@ -239,12 +242,13 @@ function checkModelEmpty(props) {
  */
 function checkModelUpdated(props) {
   const {components = {}} = props;
-  return Object.values(components)
-    .filter(component => isTopLevelFormComponent(component, {
+  return Object.entries(components)
+    .filter(([componentKey, component]) => isTopLevelFormComponent(component, {
       origin: "form-utilities",
-      operation: "checkModelUpdated"
+      operation: "checkModelUpdated",
+      componentKey
     }))
-    .reduce((result, component) => {
+    .reduce((result, [, component]) => {
       let values = getComponentData(component, props, false);
       let storedValues = getComponentData(component, props, false, "storedModel");
       return result || values[component.attributes.id] !== storedValues[component.attributes.id];
@@ -259,12 +263,13 @@ function checkModelUpdated(props) {
  */
 function checkModelUnchanged(props) {
   const {components = {}} = props;
-  return Object.values(components)
-    .filter(component => isTopLevelFormComponent(component, {
+  return Object.entries(components)
+    .filter(([componentKey, component]) => isTopLevelFormComponent(component, {
       origin: "form-utilities",
-      operation: "checkModelUnchanged"
+      operation: "checkModelUnchanged",
+      componentKey
     }))
-    .reduce((result, component) => {
+    .reduce((result, [, component]) => {
       let values = getComponentData(component, props, false);
       let storedValues = getComponentData(component, props, false, "storedModel");
       return result && values[component.attributes.id] === storedValues[component.attributes.id];

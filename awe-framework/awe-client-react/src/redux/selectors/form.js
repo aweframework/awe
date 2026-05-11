@@ -12,12 +12,13 @@ import { getAllComponents } from "./componentSelectors";
 export const getFormValues = (state, forPrinting = false, t = (o) => o) => {
   const components = getAllComponents(state);
   const { settings = {} } = state;
-  return Object.values(components)
-    .filter(component => isTopLevelFormComponent(component, {
+  return Object.entries(components)
+    .filter(([componentKey, component]) => isTopLevelFormComponent(component, {
       origin: "selector",
-      operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues"
+      operation: forPrinting ? "collectFormValuesForPrinting" : "collectFormValues",
+      componentKey
     }))
-    .reduce((result, component) => {
+    .reduce((result, [, component]) => {
       let values = getComponentData(component, { components, settings, t }, forPrinting);
       checkDuplicates(getComponentId(component.address), result, values);
       return {
