@@ -15,21 +15,22 @@ import { getAllComponents } from "./componentSelectors";
 export const getModelValidation = (state) => {
   const components = getAllComponents(state);
   const { settings = {} } = state;
-  const componentsToCheck = Object.values(components)
-    .filter(component => isTopLevelFormComponent(component, {
+  const componentsToCheck = Object.entries(components)
+    .filter(([componentKey, component]) => isTopLevelFormComponent(component, {
       origin: "selector",
-      operation: "getModelValidation"
+      operation: "getModelValidation",
+      componentKey
     }));
 
   const isEmptyModel = componentsToCheck
-    .filter(component => component.attributes.checkEmpty)
-    .reduce((result, component) => {
+    .filter(([, component]) => component.attributes.checkEmpty)
+    .reduce((result, [, component]) => {
       const values = getComponentData(component, { components, settings }, false);
       return result && isEmpty(values[component.attributes.id]);
     }, true);
 
   const isUpdatedModel = componentsToCheck
-    .reduce((result, component) => {
+    .reduce((result, [, component]) => {
       const values = getComponentData(component, { components, settings }, false);
       const storedValues = getComponentData(component, { components, settings }, false, "storedModel");
       return result || !_.isEqual(values[component.attributes.id], storedValues[component.attributes.id]);

@@ -37,6 +37,7 @@ describe('awe-react-client/test/js/redux/selectors/formSelectorsTest.js', () => 
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('[AWE] Malformed component detected in selector:collectFormValues'),
       expect.objectContaining({
+        componentKey: 'malformed',
         componentUid: 'broken-uid',
         attributesId: 'broken',
         view: 'broken-view'
@@ -72,6 +73,7 @@ describe('awe-react-client/test/js/redux/selectors/formSelectorsTest.js', () => 
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('[AWE] Malformed component detected in selector:getModelValidation'),
       expect.objectContaining({
+        componentKey: 'malformed',
         componentUid: 'broken-validation',
         attributesId: 'broken',
         view: 'validation-view'

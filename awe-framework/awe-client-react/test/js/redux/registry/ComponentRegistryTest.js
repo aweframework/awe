@@ -88,6 +88,7 @@ describe('awe-react-client/test/js/redux/registry/ComponentRegistryTest.js', () 
             expect(warnSpy).toHaveBeenCalledWith(
                 expect.stringContaining('[AWE] Malformed component detected in registry:registerComponent'),
                 expect.objectContaining({
+                    componentKey: 'broken',
                     componentUid: 'broken-uid',
                     attributesId: 'broken',
                     view: 'screen1',
@@ -175,6 +176,20 @@ describe('awe-react-client/test/js/redux/registry/ComponentRegistryTest.js', () 
 
             expect(ComponentRegistry.get('comp1')).toBeDefined();
             expect(ComponentRegistry.get('comp2')).toBeNull();
+        });
+
+        it('debería limpiar huérfanos sin address usando context.view como fallback', () => {
+            ComponentRegistry.register('orphan', {
+                uid: 'orphan-uid',
+                attributes: { id: 'orphan' },
+                context: { view: 'base' }
+            });
+            ComponentRegistry.register('comp2', mockComponent2);
+
+            ComponentRegistry.clear('base');
+
+            expect(ComponentRegistry.get('orphan')).toBeNull();
+            expect(ComponentRegistry.get('comp2')).toBeDefined();
         });
 
         it('debería manejar vista inexistente sin errores', () => {

@@ -29,6 +29,7 @@ class ComponentRegistry {
             warnMalformedComponent({...baseState, uid: baseState?.uid ?? componentId}, {
                 origin: 'registry',
                 operation: 'registerComponent',
+                componentKey: componentId,
                 extra: { registryComponentId: componentId }
             });
         }
@@ -36,7 +37,7 @@ class ComponentRegistry {
         this.baseComponents[componentId] = Object.freeze(_.cloneDeep({...baseState}));
 
         // Indexar por vista para limpieza eficiente
-        const view = baseState.address?.view;
+        const view = this.resolveView(baseState);
         if (view) {
             if (!this.viewIndex[view]) {
                 this.viewIndex[view] = new Set();
@@ -67,15 +68,22 @@ class ComponentRegistry {
      * @param {string} view - Nombre de la vista
      */
     clear(view) {
-        const componentIds = this.viewIndex[view] || new Set();
-        const ids = Array.from(componentIds);
+        const indexedComponentIds = this.viewIndex[view] || new Set();
+        const orphanIds = Object.entries(this.baseComponents)
+            .filter(([id, component]) => !indexedComponentIds.has(id) && this.resolveView(component) === view)
+            .map(([id]) => id);
+        const ids = [...new Set([...Array.from(indexedComponentIds), ...orphanIds])];
 
-        componentIds.forEach(id => {
+        ids.forEach(id => {
             delete this.baseComponents[id];
         });
 
         delete this.viewIndex[view];
         return ids;
+    }
+
+    resolveView(component = {}) {
+        return component?.address?.view ?? component?.context?.view ?? null;
     }
 
     /**
