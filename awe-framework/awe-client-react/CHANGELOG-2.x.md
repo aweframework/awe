@@ -1,3 +1,9 @@
+# Release notes for AWE React 2.2.3
+*11/05/2026*
+ 
+🐛 Bug fixes:
+- fix(client): trace and purge malformed component orphans. [MR #174](https://gitlab.com/aweframework/awe-react/-/merge_requests/174) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.2.2
 *11/05/2026*
  
