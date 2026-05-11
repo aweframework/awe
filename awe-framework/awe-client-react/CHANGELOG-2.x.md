@@ -1,3 +1,9 @@
+# Release notes for AWE React 2.2.2
+*11/05/2026*
+ 
+🐛 Bug fixes:
+- fix(client): harden malformed component diagnostics. [MR #173](https://gitlab.com/aweframework/awe-react/-/merge_requests/173) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.2.1
 *04/05/2026*
  
