@@ -75,6 +75,26 @@ describe('awe-react-client/test/js/redux/registry/ComponentRegistryTest.js', () 
             const stats = ComponentRegistry.getStats();
             expect(stats.componentsByView['base']).toBe(2);
         });
+
+        it('debería avisar cuando se registra un componente sin address', () => {
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            ComponentRegistry.register('broken', {
+                uid: 'broken-uid',
+                attributes: { id: 'broken' },
+                context: { view: 'screen1' }
+            });
+
+            expect(warnSpy).toHaveBeenCalledWith(
+                expect.stringContaining('[AWE] Malformed component detected in registry:registerComponent'),
+                expect.objectContaining({
+                    componentUid: 'broken-uid',
+                    attributesId: 'broken',
+                    view: 'screen1',
+                    registryComponentId: 'broken'
+                })
+            );
+        });
     });
 
     describe('get', () => {

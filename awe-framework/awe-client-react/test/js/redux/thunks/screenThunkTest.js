@@ -206,7 +206,47 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       const addTop = dispatch.mock.calls.map(a => a[0]).find(a => a.type === ADD_ACTIONS_TOP);
       expect(addTop).toBeDefined();
     });
+
+    it('navega sin mensaje UI cuando el estado contiene componentes malformados sin address', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          structure: {},
+          components: [],
+          messages: [],
+          screen: {}
+        })
+      });
+
+      await screenThunks.loadScreen('view-a', 'option-a', (key) => key)(dispatch, () => ({
+        settings: { token: 'TOK' },
+        components: {
+          malformed: {
+            uid: 'broken-load-screen',
+            attributes: { id: 'broken-load-screen', component: 'text' },
+            model: { values: [{ value: 'bad', selected: true }] },
+            storedModel: { values: [{ value: 'bad', selected: true }] },
+            context: { view: 'broken-view' }
+          }
+        }
+      }));
+
+      const addTop = dispatch.mock.calls
+        .map(a => a[0])
+        .find(a => a?.type === ADD_ACTIONS_TOP && Array.isArray(a.payload) && a.payload.some(item => item?.type === 'message'));
+
+      expect(addTop).toBeUndefined();
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[AWE] Malformed component detected in selector:collectFormValues'),
+        expect.objectContaining({
+          componentUid: 'broken-load-screen',
+          attributesId: 'broken-load-screen',
+          view: 'broken-view'
+        })
+      );
     });
+  });
 
   afterEach(() => {
     jest.restoreAllMocks();

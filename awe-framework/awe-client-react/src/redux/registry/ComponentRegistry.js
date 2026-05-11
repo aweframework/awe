@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import {warnMalformedComponent} from '../../utilities/components';
 
 /**
  * ComponentRegistry - Singleton para almacenar estado base de componentes
@@ -24,6 +25,14 @@ class ComponentRegistry {
      * @param {Object} baseState - Estado base inmutable
      */
     register(componentId, baseState) {
+        if (!baseState?.address) {
+            warnMalformedComponent({...baseState, uid: baseState?.uid ?? componentId}, {
+                origin: 'registry',
+                operation: 'registerComponent',
+                extra: { registryComponentId: componentId }
+            });
+        }
+
         this.baseComponents[componentId] = Object.freeze(_.cloneDeep({...baseState}));
 
         // Indexar por vista para limpieza eficiente

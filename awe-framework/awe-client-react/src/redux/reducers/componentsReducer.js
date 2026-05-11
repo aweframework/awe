@@ -41,7 +41,7 @@ import {
 import _ from 'lodash';
 import {validateComponent, validateRow} from "./validation";
 import {asArray, updateArrayElement} from "../../utilities";
-import {ComponentAddressType, getAddressType, getComponentId} from "../../utilities/components";
+import {ComponentAddressType, getAddressType, getComponentId, warnMalformedComponent} from "../../utilities/components";
 import {getFirstDefinedValue, isEmpty, isMultipleComponent} from "../../utilities/general";
 
 const { ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT } = ComponentAddressType;
@@ -980,7 +980,17 @@ function restoreValidationCell(state = {}, address = {}, _data = {}, settings) {
  * @returns {Object} Updated state
  */
 function updateComponentData(state, componentId, data, settings) {
-  if (componentId == null) return state;
+  if (componentId == null) {
+    warnMalformedComponent(data, {
+      origin: 'reducer',
+      operation: 'updateComponentData',
+      extra: {
+        useComponentRegistry: !!settings?.useComponentRegistry
+      }
+    });
+    return state;
+  }
+
   const useRegistry = settings?.useComponentRegistry;
 
   if (useRegistry) {
@@ -988,6 +998,15 @@ function updateComponentData(state, componentId, data, settings) {
     // Si no, es una actualización parcial que debe ir directamente a deltas
     if (data.address && data.attributes) {
       // Registrar en Registry (actualizar estado base)
+      if (!data.address) {
+        warnMalformedComponent({...data, uid: data?.uid ?? componentId}, {
+          origin: 'reducer',
+          operation: 'registerComponentBase',
+          extra: {
+            registryComponentId: componentId
+          }
+        });
+      }
       ComponentRegistry.register(componentId, data);
 
       // Calcular deltas
@@ -1915,6 +1934,20 @@ const actionHandlers = {
     const clearedState = action.view === "base" ? {} : clearComponents(state, action.view, action.settings);
     const updatedData = updateComponentFooters(action.data);
     const useRegistry = action.settings && action.settings.useComponentRegistry;
+
+    Object.entries(updatedData || {}).forEach(([id, component]) => {
+      if (getAddressType(component?.address) === ComponentAddressType.ADDRESS_INVALID) {
+        warnMalformedComponent({...component, uid: component?.uid ?? id}, {
+          origin: 'reducer',
+          operation: 'updateViewComponents',
+          extra: {
+            registryComponentId: id,
+            useComponentRegistry: !!useRegistry,
+            targetView: action.view
+          }
+        });
+      }
+    });
 
     if (useRegistry) {
       // Registrar componentes en el Registry y calcular deltas para Redux
