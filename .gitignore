@@ -129,6 +129,11 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 .atl/
 
 ######################
+# Pi local runtime
+######################
+.pi/
+
+######################
 # Playwright MCP
 ######################
 .playwright-mcp/
