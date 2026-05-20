@@ -16,19 +16,30 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(MockitoExtension.class)
 class ChartServiceTest {
@@ -42,8 +53,9 @@ class ChartServiceTest {
   @Mock
   private AweElements aweElements;
 
-  @Mock
   private RestTemplate restTemplate;
+
+  private MockRestServiceServer mockServer;
 
   @Mock
   private BaseConfigProperties baseConfigProperties;
@@ -129,125 +141,69 @@ class ChartServiceTest {
    */
   @BeforeEach
   public void initBeans() throws Exception {
+    restTemplate = new RestTemplate();
+    restTemplate.setErrorHandler(new org.springframework.web.client.ResponseErrorHandler() {
+      @Override
+      public boolean hasError(org.springframework.http.client.ClientHttpResponse response) {
+        return false;
+      }
+
+      @Override
+      public void handleError(java.net.URI url, org.springframework.http.HttpMethod method,
+                              org.springframework.http.client.ClientHttpResponse response) {
+        // Allow tests to assert on non-2xx responses through ChartService
+      }
+    });
+    mockServer = MockRestServiceServer.bindTo(restTemplate).ignoreExpectOrder(true).build();
+
     chartService.setApplicationContext(context);
     doReturn(aweElements).when(context).getBean(AweElements.class);
+    lenient().when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
+    lenient().when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
     given(aweElements.getScreen(anyString())).willReturn(testScreen);
   }
 
   @Test
   void renderChart() throws Exception {
-    when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
-    when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
-    when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(ResponseEntity.ok("Hello World"));
-    DataList data = new DataList();
-    Map<String, CellData> row = new HashMap<>();
-    row.put("dates", new CellData(1366927200000L));
-    row.put("id", new CellData(1));
-    row.put("serie1", new CellData(10));
-    row.put("serie2", new CellData(6));
-    row.put("serie3", new CellData(0));
-    data.addRow(row);
-    row = new HashMap<>();
-    row.put("dates", new CellData(1367013600000L));
-    row.put("id", new CellData(2));
-    row.put("serie1", new CellData(5));
-    row.put("serie2", new CellData(7));
-    row.put("serie3", new CellData(-2));
-    data.addRow(row);
-    row = new HashMap<>();
-    row.put("dates", new CellData(1367186400000L));
-    row.put("id", new CellData(3));
-    row.put("serie1", new CellData(10));
-    row.put("serie2", new CellData(6));
-    row.put("serie3", new CellData(10));
-    data.addRow(row);
+    mockServer.expect(requestTo("https://export.highcharts.com"))
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
 
-    assertEquals("Hello World", chartService.renderChart("Chart", "LineChartTest", data));
+    assertEquals("Hello World", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+    mockServer.verify();
   }
 
   @Test
   void renderChartWithDetails() throws AWException {
-    when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
-    when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
-    when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(ResponseEntity.ok("Hello World"));
-    DataList data = new DataList();
-    HashMap<String, CellData> row = new HashMap<>();
-    row.put("id", new CellData(1));
-    row.put("category", new CellData("asphalt"));
-    row.put("serie1", new CellData(3));
-    data.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(2));
-    row.put("category", new CellData("clean"));
-    row.put("serie1", new CellData(5));
-    data.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(3));
-    row.put("category", new CellData("default"));
-    row.put("serie1", new CellData(2));
-    data.addRow(row);
+    mockServer.expect(requestTo("https://export.highcharts.com"))
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
 
-    DataList detail = new DataList();
-    row = new HashMap<>();
-    row.put("id", new CellData(1));
-    row.put("parent", new CellData("asphalt"));
-    row.put("category", new CellData("asphalt1"));
-    row.put("subserie1", new CellData(1f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(2));
-    row.put("parent", new CellData("asphalt"));
-    row.put("category", new CellData("asphalt2"));
-    row.put("subserie1", new CellData(0.5f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(3));
-    row.put("parent", new CellData("asphalt"));
-    row.put("category", new CellData("asphalt3"));
-    row.put("subserie1", new CellData(1.5f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(4));
-    row.put("parent", new CellData("clean"));
-    row.put("category", new CellData("Don Limpio"));
-    row.put("subserie1", new CellData(4f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(5));
-    row.put("parent", new CellData("clean"));
-    row.put("category", new CellData("Mr Proper"));
-    row.put("subserie1", new CellData(1f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(6));
-    row.put("parent", new CellData("default"));
-    row.put("category", new CellData("Pépè"));
-    row.put("subserie1", new CellData(0.2f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(7));
-    row.put("parent", new CellData("default"));
-    row.put("category", new CellData("Blue"));
-    row.put("subserie1", new CellData(0.9f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(8));
-    row.put("parent", new CellData("default"));
-    row.put("category", new CellData("Vegeta666"));
-    row.put("subserie1", new CellData(0.4f));
-    detail.addRow(row);
-    row = new HashMap<>();
-    row.put("id", new CellData(9));
-    row.put("parent", new CellData("default"));
-    row.put("category", new CellData("El Rubius"));
-    row.put("subserie1", new CellData(0.5f));
-    detail.addRow(row);
+    DataList data = dataList(
+      row("id", 1, "category", "asphalt", "serie1", 3),
+      row("id", 2, "category", "clean", "serie1", 5),
+      row("id", 3, "category", "default", "serie1", 2)
+    );
 
-    Map<String, DataList> datasources = new HashMap<>();
-    datasources.put("main", data);
-    datasources.put("detail", detail);
+    DataList detail = dataList(
+      row("id", 1, "parent", "asphalt", "category", "asphalt1", "subserie1", 1f),
+      row("id", 2, "parent", "asphalt", "category", "asphalt2", "subserie1", 0.5f),
+      row("id", 3, "parent", "asphalt", "category", "asphalt3", "subserie1", 1.5f),
+      row("id", 4, "parent", "clean", "category", "Don Limpio", "subserie1", 4f),
+      row("id", 5, "parent", "clean", "category", "Mr Proper", "subserie1", 1f),
+      row("id", 6, "parent", "default", "category", "Pépè", "subserie1", 0.2f),
+      row("id", 7, "parent", "default", "category", "Blue", "subserie1", 0.9f),
+      row("id", 8, "parent", "default", "category", "Vegeta666", "subserie1", 0.4f),
+      row("id", 9, "parent", "default", "category", "El Rubius", "subserie1", 0.5f)
+    );
+
+    Map<String, DataList> datasources = Map.of(
+      "main", data,
+      "detail", detail
+    );
 
     assertEquals("Hello World", chartService.renderChart("Chart", "DrillDownTest", datasources));
+    mockServer.verify();
   }
 
   @Test
@@ -257,9 +213,74 @@ class ChartServiceTest {
 
   @Test
   void renderChartNot200() {
-    when(context.getBean(RestTemplate.class)).thenReturn(restTemplate);
-    when(baseConfigProperties.getHighchartsServerUrl()).thenReturn("https://export.highcharts.com");
-    when(restTemplate.postForEntity(anyString(), any(), eq(String.class))).thenReturn(ResponseEntity.notFound().build());
+    mockServer.expect(requestTo("https://export.highcharts.com"))
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withStatus(HttpStatus.NOT_FOUND));
+
     assertThrows(AWException.class, () -> chartService.renderChart("Chart", "LineChartTest", new DataList()));
+    mockServer.verify();
+  }
+
+  @Test
+  void renderChartDoesNotMutateSharedMessageConvertersOnRepeatedCalls() throws AWException {
+    int initialConverterCount = restTemplate.getMessageConverters().size();
+    long initialStringConverterCount = restTemplate.getMessageConverters().stream()
+      .filter(StringHttpMessageConverter.class::isInstance)
+      .count();
+
+    mockServer.expect(ExpectedCount.times(2), requestTo("https://export.highcharts.com"))
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
+
+    assertEquals("Hello World", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+    assertEquals("Hello World", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+
+    assertEquals(initialConverterCount, restTemplate.getMessageConverters().size());
+    assertEquals(initialStringConverterCount, restTemplate.getMessageConverters().stream()
+      .filter(StringHttpMessageConverter.class::isInstance)
+      .count());
+    mockServer.verify();
+  }
+
+  @Test
+  void renderChartUsesSharedInterceptorsOnlyOncePerRequest() throws AWException {
+    AtomicInteger interceptorCalls = new AtomicInteger();
+    restTemplate.getInterceptors().add((request, body, execution) -> {
+      interceptorCalls.incrementAndGet();
+      return execution.execute(request, body);
+    });
+
+    mockServer.expect(ExpectedCount.times(2), requestTo("https://export.highcharts.com"))
+      .andExpect(method(HttpMethod.POST))
+      .andRespond(withSuccess("Hello World", MediaType.valueOf("image/svg+xml")));
+
+    assertEquals("Hello World", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+    assertEquals("Hello World", chartService.renderChart("Chart", "LineChartTest", buildLineChartData()));
+
+    assertEquals(2, interceptorCalls.get());
+    mockServer.verify();
+  }
+
+  private DataList buildLineChartData() {
+    return dataList(
+      row("dates", 1366927200000L, "id", 1, "serie1", 10, "serie2", 6, "serie3", 0),
+      row("dates", 1367013600000L, "id", 2, "serie1", 5, "serie2", 7, "serie3", -2),
+      row("dates", 1367186400000L, "id", 3, "serie1", 10, "serie2", 6, "serie3", 10)
+    );
+  }
+
+  @SafeVarargs
+  private final DataList dataList(Map<String, CellData>... rows) {
+    DataList dataList = new DataList();
+    Arrays.stream(rows).forEach(dataList::addRow);
+    return dataList;
+  }
+
+  private Map<String, CellData> row(Object... values) {
+    Map<String, CellData> row = new LinkedHashMap<>();
+    for (int i = 0; i < values.length; i += 2) {
+      row.put((String) values[i], new CellData(values[i + 1]));
+    }
+    return row;
   }
 }
