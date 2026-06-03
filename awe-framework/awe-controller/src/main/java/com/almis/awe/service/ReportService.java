@@ -58,14 +58,14 @@ public class ReportService extends ServiceConfig {
    * @throws AWException Error generating reports
    */
   public ServiceData printScreen(String screenName, String printAction) throws AWException {
-    // Generate the files
-    List<FileData> reportFiles = reportGenerator.generateScreenReportFiles(menuService.getScreen(screenName));
+    // Generate the files and explicit report parameters
+    ReportGenerator.GeneratedScreenReportContext reportContext = reportGenerator.generateScreenReportContext(menuService.getScreen(screenName));
 
     // Launch the print action
     if (PrintActionType.valueOf(printAction) == PrintActionType.MAIL) {
-      return maintainService.launchMaintain("SndRep");
+      return maintainService.launchMaintain("SndRep", reportContext.parameters());
     }
-    return reportGenerator.downloadScreenReportFiles(reportFiles);
+    return reportGenerator.downloadScreenReportFiles(reportContext.reportFiles());
   }
 
   /**

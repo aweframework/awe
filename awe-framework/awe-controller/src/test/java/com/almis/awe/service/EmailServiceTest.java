@@ -4,7 +4,6 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.factory.MailSenderFactory;
 import com.almis.awe.model.component.AweElements;
-import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.User;
 import com.almis.awe.model.entities.email.Email;
@@ -61,9 +60,6 @@ class EmailServiceTest {
   private AweSession aweSession;
 
   @Mock
-  private AweRequest aweRequest;
-
-  @Mock
   private BaseConfigProperties baseConfigProperties;
 
   @Mock
@@ -84,6 +80,7 @@ class EmailServiceTest {
   @BeforeEach
   public void setUp() {
     emailService.setApplicationContext(context);
+    when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
   }
 
   /**
@@ -94,7 +91,6 @@ class EmailServiceTest {
   @Test
   void sendMail() throws Exception {
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
-    when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     given(mailSender.createMimeMessage()).willReturn(mimeMessage);
@@ -122,7 +118,6 @@ class EmailServiceTest {
   @Test
   void sendXMLMail() throws Exception {
     when(context.getBean(AweSession.class)).thenReturn(null);
-    when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     given(mailSenderFactory.getMailSender()).willReturn(mailSender);
     when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
@@ -174,7 +169,6 @@ class EmailServiceTest {
   @Test
   void sendXMLMailTwice() throws Exception {
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
-    when(context.getBean(AweRequest.class)).thenReturn(aweRequest);
     when(aweSession.getUser()).thenReturn("user");
     when(userDAO.findByUserName(anyString())).thenReturn(new User().setEmailServer("emailServer"));
     given(mailSenderFactory.getMailSender(anyString())).willReturn(mailSender);
@@ -244,5 +238,30 @@ class EmailServiceTest {
     assertEquals(2, parsedEmail.getTo().size());
     assertEquals(2, parsedEmail.getCc().size());
     assertEquals(1, parsedEmail.getCco().size());
+  }
+
+  @Test
+  void sendParsedMailUsesPropagatedUserFromQueryUtilWhenNoExplicitParameterIsPresent() throws Exception {
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweSession.getUser()).thenReturn(null);
+    when(queryUtil.getRequestParameter(eq("user"), any(ObjectNode.class))).thenReturn(JsonNodeFactory.instance.textNode("snapshot-user"));
+    when(userDAO.findByUserName("snapshot-user")).thenReturn(new User().setEmailServer("emailServer"));
+    given(mailSenderFactory.getMailSender("emailServer")).willReturn(mailSender);
+    given(mailSender.createMimeMessage()).willReturn(mimeMessage);
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
+
+    ParsedEmail email = new ParsedEmail()
+      .setFrom(new InternetAddress("test@almis.com"))
+      .setTo(singletonList(new InternetAddress("test@gmail.com")))
+      .setSubject("Test message")
+      .setBody("Test body");
+
+    emailService.sendEmail(email);
+
+    verify(mailSenderFactory).getMailSender("emailServer");
+    verify(queryUtil).getRequestParameter(eq("user"), any(ObjectNode.class));
+    verify(mailSender).send(mimeMessage);
   }
 }

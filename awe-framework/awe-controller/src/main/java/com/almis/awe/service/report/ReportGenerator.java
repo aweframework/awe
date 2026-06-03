@@ -54,6 +54,9 @@ public class ReportGenerator extends ServiceConfig {
     this.baseConfigProperties = baseConfigProperties;
   }
 
+  public record GeneratedScreenReportContext(List<FileData> reportFiles, ObjectNode parameters) {
+  }
+
   /**
    * Generate a report and return client actions to download it
    *
@@ -62,8 +65,19 @@ public class ReportGenerator extends ServiceConfig {
    * @throws AWException Error generating report
    */
   public List<FileData> generateScreenReportFiles(Screen screen) throws AWException {
+    return generateScreenReportContext(screen).reportFiles();
+  }
+
+  /**
+   * Generate report files and explicit report parameters for downstream operations.
+   *
+   * @param screen Screen to generate
+   * @return Generated files and parameters
+   * @throws AWException Error generating report
+   */
+  public GeneratedScreenReportContext generateScreenReportContext(Screen screen) throws AWException {
     // Get screen parameters
-    ObjectNode parameters = getRequest().getParametersSafe();
+    ObjectNode parameters = getMutableRequestParameters();
 
     // Retrieve print formats
     List<String> printFormats = StringUtil.asList(parameters.get(AweConstants.PRINT_FORMATS));
@@ -76,19 +90,23 @@ public class ReportGenerator extends ServiceConfig {
 
     // Generate file name
     String screenTitle = getLocale(screen.getLabel());
-    String fileName = StringUtil.fixFileName( screenTitle + "_" + currentDate);
+    String fileName = StringUtil.fixFileName(screenTitle + "_" + currentDate);
 
-    // Set screen title parameter
-    getRequest().setParameter("ScrTit", screenTitle);
-    getRequest().setParameter("ScrTitFil", fileName);
+    // Set report parameters in explicit parameter snapshot
+    putRequestParameter(parameters, "ScrTit", screenTitle);
+    putRequestParameter(parameters, "ScrTitFil", fileName);
 
     // Llamar a ADE con el bean creado
     TemplateExporterBuilder builderService = buildReport(printBean, fileName);
 
-
     // Generar los formatos que haya definido el usuario
     String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
-    return printFormats.stream().map(format -> generateReportFormat(builderService, format, fileName, basePath)).toList();
+    List<FileData> reportFiles = printFormats.stream()
+      .map(format -> generateReportFormat(builderService, format, fileName, basePath, parameters))
+      .toList();
+
+    mergePropagatedRequestParameters(parameters);
+    return new GeneratedScreenReportContext(reportFiles, parameters.deepCopy());
   }
 
   /**
@@ -155,7 +173,7 @@ public class ReportGenerator extends ServiceConfig {
    * @param basePath       base path
    * @return future with generate report action
    */
-  public FileData generateReportFormat(TemplateExporterBuilder builderService, String format, String fileName, String basePath) {
+  public FileData generateReportFormat(TemplateExporterBuilder builderService, String format, String fileName, String basePath, ObjectNode parameters) {
     String mimeType = MediaType.APPLICATION_PDF_VALUE;
     String fullFileName = fileName;
 
@@ -165,32 +183,32 @@ public class ReportGenerator extends ServiceConfig {
           builderService.toXlsx();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".xlsx";
-          getRequest().setParameter("XlsNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "XlsNam", Paths.get(basePath, fullFileName).toString());
           break;
         case CSV:
           builderService.toCsv();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".csv";
-          getRequest().setParameter("CsvNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "CsvNam", Paths.get(basePath, fullFileName).toString());
           break;
         case DOCX:
           builderService.toDocx();
           mimeType = AweConstants.APPLICATION_WORD;
           fullFileName += ".docx";
-          getRequest().setParameter("DocNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "DocNam", Paths.get(basePath, fullFileName).toString());
           break;
         case TEXT:
           builderService.toText();
           mimeType = MediaType.TEXT_PLAIN_VALUE;
           fullFileName += ".txt";
-          getRequest().setParameter("TxtNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "TxtNam", Paths.get(basePath, fullFileName).toString());
           break;
         case PDF:
         default:
           builderService.toPDF();
           mimeType = MediaType.APPLICATION_PDF_VALUE;
           fullFileName += ".pdf";
-          getRequest().setParameter("PdfNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "PdfNam", Paths.get(basePath, fullFileName).toString());
           break;
       }
     } catch (Exception exc) {

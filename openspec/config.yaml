@@ -1,0 +1,47 @@
+version: 1
+project:
+  name: AWE (Almis Web Engine)
+  root: /home/pvidal/projects/awe
+  stack:
+    backend: Java 17 + Spring Boot (multi-module Maven)
+    frontend: AngularJS (legacy module tests via Karma/Jasmine)
+sdd:
+  artifact_store: openspec
+  strict_tdd: true
+  phase_order:
+    - proposal
+    - spec
+    - design
+    - tasks
+    - apply
+    - verify
+  phase_rules:
+    init:
+      allow_code_changes: false
+      required_artifacts:
+        - openspec/config.yaml
+    apply:
+      require_failing_test_first: true
+      require_small_incremental_commits: true
+    verify:
+      require_targeted_tests: true
+      require_regression_check: true
+testing:
+  default_runner: maven
+  default_scope: module
+  module_under_change: awe-framework/awe-controller
+  frameworks:
+    - JUnit 5
+    - Mockito (junit-jupiter)
+    - AssertJ
+  commands:
+    module_unit: mvn test -pl awe-framework/awe-controller
+    single_test_class: mvn test -pl awe-framework/awe-controller -Dtest=<ClassName>
+    single_test_method: mvn test -pl awe-framework/awe-controller -Dtest=<ClassName>#<methodName>
+    full_verify: mvn verify
+context:
+  focus_area:
+    - awe-framework/awe-controller/src/main/java/com/almis/awe/component/AweMDCTaskDecorator.java
+  related_async_config:
+    - awe-framework/awe-starters/awe-spring-boot-starter/src/main/java/com/almis/awe/autoconfigure/TaskConfig.java
+    - awe-framework/awe-starters/awe-scheduler-spring-boot-starter/src/main/java/com/almis/awe/scheduler/autoconfigure/SchedulerTaskConfig.java

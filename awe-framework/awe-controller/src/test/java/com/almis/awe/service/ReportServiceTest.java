@@ -20,6 +20,9 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -33,6 +36,9 @@ class ReportServiceTest {
   ReportGenerator reportGenerator;
 
   @Mock
+  MaintainService maintainService;
+
+  @Mock
   MenuService menuService;
 
   @TempDir
@@ -41,6 +47,9 @@ class ReportServiceTest {
   @Test
   void printScreen() throws Exception {
     // Mock
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    ReportGenerator.GeneratedScreenReportContext reportContext = new ReportGenerator.GeneratedScreenReportContext(Arrays.asList(), parameters);
+    when(reportGenerator.generateScreenReportContext(any())).thenReturn(reportContext);
     when(reportGenerator.downloadScreenReportFiles(anyList())).thenReturn(new ServiceData().setClientActionList(Arrays.asList(new ClientAction(), new ClientAction())));
 
     // Test
@@ -48,8 +57,25 @@ class ReportServiceTest {
 
     // Verify
     verify(menuService, times(1)).getScreen(anyString());
-    verify(reportGenerator, times(1)).generateScreenReportFiles(any());
+    verify(reportGenerator, times(1)).generateScreenReportContext(any());
+    verify(reportGenerator, times(1)).downloadScreenReportFiles(reportContext.reportFiles());
+    verifyNoInteractions(maintainService);
     assertEquals(2, serviceData.getClientActionList().size());
+  }
+
+  @Test
+  void printScreenMailUsesExplicitReportParameters() throws Exception {
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode().put("PdfNam", "/tmp/report.pdf");
+    ReportGenerator.GeneratedScreenReportContext reportContext = new ReportGenerator.GeneratedScreenReportContext(Arrays.asList(), parameters);
+    when(reportGenerator.generateScreenReportContext(any())).thenReturn(reportContext);
+    when(maintainService.launchMaintain("SndRep", parameters)).thenReturn(new ServiceData());
+
+    ServiceData serviceData = reportService.printScreen("screen", "MAIL");
+
+    verify(reportGenerator).generateScreenReportContext(any());
+    verify(maintainService).launchMaintain("SndRep", parameters);
+    verify(reportGenerator, never()).downloadScreenReportFiles(anyList());
+    assertEquals(new ServiceData().getClientActionList(), serviceData.getClientActionList());
   }
 
   @Test

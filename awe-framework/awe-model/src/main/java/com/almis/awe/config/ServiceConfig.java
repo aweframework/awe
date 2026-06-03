@@ -3,9 +3,16 @@ package com.almis.awe.config;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.component.PrototypeRequestBeanHolder;
+import com.almis.awe.model.util.data.QueryUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import java.util.Optional;
 
 /**
  * Base class for all custom service
@@ -58,6 +65,169 @@ public abstract class ServiceConfig implements ApplicationContextAware {
     } catch (Exception exc) {
       return null;
     }
+  }
+
+  /**
+   * Retrieve query util helper.
+   *
+   * @return Query util bean
+   */
+  protected QueryUtil getQueryUtil() {
+    return getBean(QueryUtil.class);
+  }
+
+  /**
+   * Retrieve propagated request snapshot holder.
+   *
+   * @return Prototype request bean holder
+   */
+  protected PrototypeRequestBeanHolder getPrototypeRequestBeanHolder() {
+    return getBean(PrototypeRequestBeanHolder.class);
+  }
+
+  /**
+   * Retrieve request parameters using the async-safe fallback order implemented by QueryUtil.
+   *
+   * <p>This method is the preferred parameter access API for services extending {@link ServiceConfig},
+   * especially when the code may run in asynchronous threads.</p>
+   *
+   * @return Request parameters or an empty object when no live request or propagated snapshot exists
+   */
+  public ObjectNode getRequestParameters() {
+    return getQueryUtil().getParameters();
+  }
+
+  /**
+   * Retrieve a mutable request parameter snapshot using the async-safe fallback order implemented by QueryUtil.
+   *
+   * <p>Use this helper when the current service needs to add or modify parameters for downstream operations.</p>
+   *
+   * @return Mutable request parameter snapshot
+   */
+  public ObjectNode getMutableRequestParameters() {
+    return getRequestParameters();
+  }
+
+  /**
+   * Retrieve a request parameter using the async-safe fallback order implemented by QueryUtil.
+   *
+   * @param name Parameter identifier
+   * @return Parameter value or {@code null} when not present
+   */
+  public JsonNode getRequestParameter(String name) {
+    return getQueryUtil().getRequestParameter(name);
+  }
+
+  /**
+   * Retrieve a request parameter from a provided parameter snapshot.
+   *
+   * @param name       Parameter identifier
+   * @param parameters Parameter snapshot
+   * @return Parameter value or {@code null} when not present
+   */
+  public JsonNode getRequestParameter(String name, ObjectNode parameters) {
+    return getQueryUtil().getRequestParameter(name, parameters);
+  }
+
+  /**
+   * Retrieve a request parameter as string using the async-safe fallback order implemented by QueryUtil.
+   *
+   * @param name Parameter identifier
+   * @return Parameter value as string or {@code null} when not present
+   */
+  public String getRequestParameterAsString(String name) {
+    return Optional.ofNullable(getRequestParameter(name))
+      .filter(parameter -> !parameter.isNull())
+      .map(JsonNode::asText)
+      .orElse(null);
+  }
+
+  /**
+   * Retrieve a request parameter as string from a provided parameter snapshot.
+   *
+   * @param name       Parameter identifier
+   * @param parameters Parameter snapshot
+   * @return Parameter value as string or {@code null} when not present
+   */
+  public String getRequestParameterAsString(String name, ObjectNode parameters) {
+    return Optional.ofNullable(getRequestParameter(name, parameters))
+      .filter(parameter -> !parameter.isNull())
+      .map(JsonNode::asText)
+      .orElse(null);
+  }
+
+  /**
+   * Write a request parameter into an explicit parameter snapshot.
+   *
+   * <p>Use this helper to make local parameter writes explicit in async-safe code paths.</p>
+   *
+   * @param parameters Parameter snapshot to mutate
+   * @param name       Parameter identifier
+   * @param value      Parameter value
+   */
+  public void putRequestParameter(ObjectNode parameters, String name, JsonNode value) {
+    if (parameters == null || name == null) {
+      return;
+    }
+    parameters.set(name, Optional.ofNullable(value).orElse(JsonNodeFactory.instance.nullNode()));
+  }
+
+  /**
+   * Write a string request parameter into an explicit parameter snapshot.
+   *
+   * @param parameters Parameter snapshot to mutate
+   * @param name       Parameter identifier
+   * @param value      Parameter value
+   */
+  public void putRequestParameter(ObjectNode parameters, String name, String value) {
+    putRequestParameter(parameters, name, value == null
+      ? JsonNodeFactory.instance.nullNode()
+      : JsonNodeFactory.instance.textNode(value));
+  }
+
+  /**
+   * Write a request parameter into the propagated async snapshot of the current thread.
+   *
+   * <p>Use this helper only when descendant async hops must inherit a new parameter created or updated by the
+   * current service.</p>
+   *
+   * @param name  Parameter identifier
+   * @param value Parameter value
+   */
+  public void putPropagatedRequestParameter(String name, JsonNode value) {
+    if (name == null) {
+      return;
+    }
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    putRequestParameter(parameters, name, value);
+    mergePropagatedRequestParameters(parameters);
+  }
+
+  /**
+   * Write a string request parameter into the propagated async snapshot of the current thread.
+   *
+   * @param name  Parameter identifier
+   * @param value Parameter value
+   */
+  public void putPropagatedRequestParameter(String name, String value) {
+    if (name == null) {
+      return;
+    }
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    putRequestParameter(parameters, name, value);
+    mergePropagatedRequestParameters(parameters);
+  }
+
+  /**
+   * Merge parameters into the propagated async snapshot of the current thread.
+   *
+   * <p>Use this helper only when descendant async hops must inherit parameters created or updated by the
+   * current service.</p>
+   *
+   * @param parameters Parameter snapshot to merge into the propagated async snapshot
+   */
+  public void mergePropagatedRequestParameters(ObjectNode parameters) {
+    getPrototypeRequestBeanHolder().mergeRequestData(parameters);
   }
 
   /**
