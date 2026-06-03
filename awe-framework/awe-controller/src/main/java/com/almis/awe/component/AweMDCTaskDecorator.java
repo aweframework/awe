@@ -38,14 +38,14 @@ public class AweMDCTaskDecorator implements TaskDecorator {
     this.prototypeRequestBeanHolder = prototypeRequestBeanHolder;
   }
 
+  private static final String SCOPED_AWE_REQUEST_ATTRIBUTE = "scopedTarget.aweRequest";
+
   @NotNull
   @Override
   public Runnable decorate(@NotNull Runnable runnable) {
     Map<String, String> contextMap = MDC.getCopyOfContextMap();
-    // Retrieve awe request from context
     RequestDataHolder requestDataHolder = requestDataHolderProvider.getObject();
-    ObjectNode requestParameters = Optional.ofNullable(RequestContextHolder.getRequestAttributes()).map(requestAttr -> (AweRequest) requestAttr.getAttribute("scopedTarget.aweRequest", RequestAttributes.SCOPE_REQUEST)).map(AweRequest::getParametersSafe).orElse(JsonNodeFactory.instance.objectNode());
-    requestDataHolder.setRequestData(requestParameters);
+    requestDataHolder.setRequestData(resolveRequestSnapshot());
 
     return () -> {
       MDC.setContextMap(Optional.ofNullable(contextMap).orElse(Collections.emptyMap()));
@@ -58,5 +58,32 @@ public class AweMDCTaskDecorator implements TaskDecorator {
         prototypeRequestBeanHolder.clear();
       }
     };
+  }
+
+  private ObjectNode resolveRequestSnapshot() {
+    ObjectNode liveRequestSnapshot = resolveLiveRequestSnapshot();
+    if (liveRequestSnapshot != null) {
+      return liveRequestSnapshot;
+    }
+
+    ObjectNode ancestorSnapshot = prototypeRequestBeanHolder.getRequestDataSnapshot();
+    if (ancestorSnapshot != null) {
+      return ancestorSnapshot;
+    }
+
+    return JsonNodeFactory.instance.objectNode();
+  }
+
+  private ObjectNode resolveLiveRequestSnapshot() {
+    try {
+      return Optional.ofNullable(RequestContextHolder.getRequestAttributes())
+        .map(requestAttributes -> requestAttributes.getAttribute(SCOPED_AWE_REQUEST_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST))
+        .filter(AweRequest.class::isInstance)
+        .map(AweRequest.class::cast)
+        .map(AweRequest::getParametersSafe)
+        .orElse(null);
+    } catch (RuntimeException exc) {
+      return null;
+    }
   }
 }
