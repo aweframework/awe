@@ -66,6 +66,7 @@
         "guides/selenium-testing",
         "guides/print-engine",
         "guides/debugging",
+        "guides/parameter-handling",
         "guides/validation",
         "guides/v4-migration",
         "guides/default-screens"

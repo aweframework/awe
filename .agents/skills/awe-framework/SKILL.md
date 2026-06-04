@@ -1,5 +1,5 @@
 ---
-name: awe:awe-framework
+name: awe-framework
 description: |
   Guides AI agents through AWE (Almis Web Engine) framework development:
   XML descriptor authoring (screens, queries, maintain, services, actions),
