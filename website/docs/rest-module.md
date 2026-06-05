@@ -37,22 +37,105 @@ To activate this module, follow this steps:
 
 ## **AWE Rest configuration properties**
 
-This module provides the following properties to overwrite the `awe-rest-spring-boot-starter` starter:
+This module supports two REST authentication modes:
 
-| Key                               | Default value                                  | Description                        |
-|-----------------------------------|------------------------------------------------|------------------------------------|
-| awe.rest.api.authorization-header | `Authorization`                                | Authentication header name         |
-| awe.rest.api.jwt.prefix           | `Bearer`                                       | JWT token prefix                   |
-| awe.rest.api.jwt.secret           | `${awe.security.master.key}` security property | JWT secret password for sign token |
-| awe.rest.api.jwt.issuer           | `AWE ISSUER`                                   | JWT issuer name                    |
-| awe.rest.api.jwt.expiration-time  | `60m`                                          | JWT time valid token to expire     |
+- `local-jwt` (**default**): AWE issues and validates local JWTs through `/api/authenticate`.
+- `oauth2-resource-server` (opt-in): AWE validates externally issued OAuth2/OIDC access tokens (for example Entra ID, Keycloak), and `/api/authenticate` is **not** used.
+
+### Local JWT properties
+
+| Key | Default value | Description |
+|---|---|---|
+| `awe.rest.api.auth.mode` | `local-jwt` | REST authentication mode (`local-jwt` or `oauth2-resource-server`) |
+| `awe.rest.api.jwt.authorization-header` | `Authorization` | Authentication header name |
+| `awe.rest.api.jwt.prefix` | `Bearer` | JWT token prefix |
+| `awe.rest.api.jwt.secret` | `${awe.security.master.key}` | JWT secret for local token signing |
+| `awe.rest.api.jwt.issuer` | `AWE ISSUER` | Local JWT issuer |
+| `awe.rest.api.jwt.expiration-time` | `60m` | Local JWT expiration |
+
+### OAuth2 Resource Server and Swagger UI properties
+
+For the complete property list, defaults, and descriptions, see the [AWE Rest properties](properties.md#awe-rest-properties) documentation.
+
+### Microsoft Entra ID example
+
+Use two App registrations for local Swagger UI testing:
+
+1. **AWE REST API**: exposes the protected API scope and is the resource server audience.
+2. **AWE Swagger UI**: public SPA client used by Swagger UI to run Authorization Code + PKCE.
+
+#### Register the AWE REST API application
+
+In Azure Portal, open **Microsoft Entra ID** → **App registrations** → **New registration**.
+Create the API registration and note these values:
+
+- **Application (client) ID**: used as `<api-application-client-id>`.
+- **Directory (tenant) ID**: used as `<tenant-id>`.
+
+Then configure the API registration:
+
+1. Open **Expose an API**.
+2. Set the **Application ID URI**. The default value `api://<api-application-client-id>` is valid.
+3. Add an enabled scope, for example `access`. The full scope becomes `api://<api-application-client-id>/access`.
+4. In the app manifest, set `requestedAccessTokenVersion` to `2` so access tokens use the Entra ID v2 issuer.
+
+#### Register the Swagger UI client application
+
+Create a second App registration for Swagger UI, for example **AWE Swagger UI Dev**.
+In **Authentication**, add a **Single-page application** platform with this redirect URI:
+
+```text
+http://localhost:8080/swagger-ui/oauth2-redirect.html
+```
+
+If your local server uses another port or context path, adjust the URI accordingly.
+Do not configure a client secret for Swagger UI, and do not keep the same redirect URI under the **Web** platform, because browser token redemption must use the SPA client type.
+Implicit grant checkboxes such as **Access tokens** or **ID tokens** are not required for Authorization Code + PKCE.
+
+#### Grant Swagger UI permission to the API
+
+In the **AWE Swagger UI** registration:
+
+1. Open **API permissions** → **Add a permission** → **My APIs**.
+2. Select the **AWE REST API** registration.
+3. Select the `access` scope.
+4. Grant admin consent if your tenant policy requires it.
+
+Example configuration:
+
+```properties
+awe.rest.api.auth.mode=oauth2-resource-server
+
+# Match the token issuer exactly. Entra ID v2 tokens end with /v2.0.
+awe.rest.api.oauth2-resource-server.jwt.issuer-uri=https://login.microsoftonline.com/<tenant-id>/v2.0
+
+# Match the access token aud claim exactly. Entra ID may emit the bare API client id,
+# even when the requested scope uses api://<api-application-client-id>/access.
+awe.rest.api.oauth2-resource-server.jwt.audiences[0]=<api-application-client-id>
+
+awe.rest.api.openapi.oauth2.authorization-url=https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/authorize
+awe.rest.api.openapi.oauth2.token-url=https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+awe.rest.api.openapi.oauth2.client-id=<swagger-ui-application-client-id>
+awe.rest.api.openapi.oauth2.use-pkce=true
+
+# Escape ':' in .properties keys and keep the full scope key inside brackets.
+awe.rest.api.openapi.oauth2.scopes.[api\://<api-application-client-id>/access]=Access AWE REST API
+```
+
+If AWE returns `The iss claim is not valid`, decode the access token and verify that `issuer-uri` matches the token `iss` claim. If AWE returns `Token audience is not accepted`, configure `awe.rest.api.oauth2-resource-server.jwt.audiences` with the exact token `aud` claim.
 
 ## **Services**
 
-In this time AWE rest API has three services: `AUTHENTICATE`, `QUERY` and `MAINTAIN` group by `Protected API` (if it
-requires authentication) and `Public API` (if the queries or maintenance are public and do not require authentication).
+AWE REST API provides `AUTHENTICATE`, `QUERY` and `MAINTAIN`, grouped by `Protected API` (authentication required) and
+`Public API` (no authentication required).
 
-AWE REST module, uses [JWT](https://jwt.io/) (Json Web Token) as authentication method
+Authentication behavior depends on the configured mode:
+
+- **local-jwt**: authenticate against `/api/authenticate`, then use returned JWT in `Authorization: Bearer <token>`.
+- **oauth2-resource-server**: obtain access token from your identity provider and call AWE directly with `Authorization: Bearer <access_token>`.
+
+> `/api/authenticate` is local-jwt-only and is not an OAuth2 token endpoint.
+> OAuth2 Resource Server mode does not provision or synchronize local `ope` users, and it does not add fine-grained query/maintain authorization or a read/write REST permission model.
 
 :::info Complete *swagger* documentation of awe rest services is
 available [here](http://demo.aweframework.com/swagger-ui.html).
@@ -61,8 +144,8 @@ available [here](http://demo.aweframework.com/swagger-ui.html).
 | Service | Method |  Path | Require authentication  | Description                                        |
 | ----------- | -----| -------|------------------------|----------------------------------------------------|
 | [authenticate](#authenticate-service) | POST | `/api/authenticate` | false | Used to authentication. Provide a JWT token to set as http header (Default value `Authorization`) in protected services |
-| [data](#query-service) | POST | `/api/data/{queryId}` | true | Used to launch the queries of web application. Return JSON with data query -  **IMPORTANT:** If the query is private (needs jwt token) first you have to call `/api/authenticate` REST service |
-| [maintain](#maintain-service) | POST | `/api/maintain/{maintainId}` | true | Used to launch the maintains of web application. Return JSON with maintain result - **IMPORTANT:** If the maintain is private (needs jwt token) first you have to call `/api/authenticate` REST service |
+| [data](#query-service) | POST | `/api/data/{queryId}` | true | Used to launch application queries. In `local-jwt` mode authenticate first with `/api/authenticate`; in `oauth2-resource-server` mode send an external provider access token. |
+| [maintain](#maintain-service) | POST | `/api/maintain/{maintainId}` | true | Used to launch application maintains. In `local-jwt` mode authenticate first with `/api/authenticate`; in `oauth2-resource-server` mode send an external provider access token. |
 
 ### **Authenticate service**
 
@@ -137,7 +220,116 @@ The **maintain** service has the following **outputs**:
 
 ## **Client API Rest examples**
 
-* **Login client example**
+### OAuth2 Resource Server quick examples
+
+#### Delegated user flow (Swagger UI)
+
+1. Configure Swagger UI OAuth2 metadata (`authorization-url`, `token-url`, `scopes`, and public `client-id`).
+2. Open `/swagger-ui/`.
+3. Use **Authorize** and complete Authorization Code + PKCE login in your provider.
+4. Invoke protected `/api/data/**` or `/api/maintain/**` endpoints.
+
+#### Spring Boot web app with user login (Authorization Code)
+
+Use this flow when a Spring Boot web application calls AWE REST on behalf of the signed-in user.
+The Spring Boot application is a confidential **Web** client and uses a client secret.
+
+Identity provider setup:
+
+| Application | Required configuration |
+|---|---|
+| AWE REST API | Expose a delegated scope, for example `api://<api-application-client-id>/access`. |
+| Spring Boot web app | Add a **Web** redirect URI such as `http://localhost:9090/login/oauth2/code/entra`, create a client secret, and grant the delegated API scope. |
+
+Spring Boot client configuration example:
+
+```properties
+spring.security.oauth2.client.registration.entra.client-id=<spring-boot-client-id>
+spring.security.oauth2.client.registration.entra.client-secret=<spring-boot-client-secret>
+spring.security.oauth2.client.registration.entra.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.entra.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.entra.scope=openid,profile,email,api://<api-application-client-id>/access
+
+spring.security.oauth2.client.provider.entra.issuer-uri=https://login.microsoftonline.com/<tenant-id>/v2.0
+```
+
+Controller example using the authorized user's access token:
+
+```java
+@GetMapping("/call/simple-get-all")
+@ResponseBody
+String callSimpleGetAll(@RegisteredOAuth2AuthorizedClient("entra") OAuth2AuthorizedClient authorizedClient) {
+  return webClient.post()
+    .uri("http://localhost:8080/api/data/SimpleGetAll")
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(headers -> headers.setBearerAuth(authorizedClient.getAccessToken().getTokenValue()))
+    .bodyValue(Map.of("parameters", Map.of()))
+    .retrieve()
+    .bodyToMono(String.class)
+    .block();
+}
+```
+
+#### Backend service without user login (Client Credentials)
+
+Use this flow when a backend service calls AWE REST as the application itself, without a browser login or user context.
+The identity provider issues an application token after admin consent has been granted.
+
+Identity provider setup:
+
+| Application | Required configuration |
+|---|---|
+| AWE REST API | Define an application app role, for example `access_as_application`, with **Applications** as an allowed member type. |
+| Backend service | Create a client secret or certificate, assign the API app role under **Application permissions**, and grant admin consent. |
+
+Spring Boot client configuration example:
+
+```properties
+spring.security.oauth2.client.registration.entra-client.client-id=<backend-client-id>
+spring.security.oauth2.client.registration.entra-client.client-secret=<backend-client-secret>
+spring.security.oauth2.client.registration.entra-client.authorization-grant-type=client_credentials
+spring.security.oauth2.client.registration.entra-client.scope=api://<api-application-client-id>/.default
+
+spring.security.oauth2.client.provider.entra-client.token-uri=https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token
+```
+
+Programmatic token acquisition example:
+
+```java
+@Bean
+OAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository registrations,
+                                                      OAuth2AuthorizedClientService clients) {
+  OAuth2AuthorizedClientProvider provider = OAuth2AuthorizedClientProviderBuilder.builder()
+    .clientCredentials()
+    .build();
+  AuthorizedClientServiceOAuth2AuthorizedClientManager manager =
+    new AuthorizedClientServiceOAuth2AuthorizedClientManager(registrations, clients);
+  manager.setAuthorizedClientProvider(provider);
+  return manager;
+}
+
+@GetMapping("/call/simple-get-all-client")
+@ResponseBody
+String callSimpleGetAllClient() {
+  OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest.withClientRegistrationId("entra-client")
+    .principal("awe-rest-client")
+    .build();
+  OAuth2AuthorizedClient client = authorizedClientManager.authorize(request);
+
+  return webClient.post()
+    .uri("http://localhost:8080/api/data/SimpleGetAll")
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(headers -> headers.setBearerAuth(client.getAccessToken().getTokenValue()))
+    .bodyValue(Map.of("parameters", Map.of()))
+    .retrieve()
+    .bodyToMono(String.class)
+    .block();
+}
+```
+
+Application tokens usually contain `roles` instead of `scp` and do not contain user claims such as `preferred_username`. AWE REST builds a synthetic client principal from claims such as `azp`, `appid`, `client_id`, or `sub`.
+
+* **Login client example (local-jwt mode)**
 
 ```java
 // Authenticate
