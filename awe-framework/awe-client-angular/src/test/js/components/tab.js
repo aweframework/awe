@@ -46,8 +46,8 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope);
@@ -68,8 +68,8 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope);
@@ -91,12 +91,12 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     controller.maximize = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
-    spyOn($utilities, "timeout").and.callFake((fn) => fn());
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
+    jest.spyOn($utilities, "timeout").mockImplementation((fn) => fn());
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope);
@@ -111,7 +111,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
       $rootScope.$digest();
       $rootScope.$broadcast("resize");
       $rootScope.$digest();
-      done()
+      done();
     });
   });
 
@@ -120,11 +120,11 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     model.selected = "1";
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope.$new());
@@ -151,11 +151,11 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     model.selected = "3";
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope.$new());
@@ -170,11 +170,11 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     $rootScope.firstLoad = true;
     model.selected = "99";
 
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
 
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope.$new());
     $rootScope.$digest();
@@ -190,11 +190,11 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     model.selectedIndex = 0;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope.$new());
@@ -217,11 +217,11 @@ describe('awe-framework/awe-client-angular/src/test/js/components/tab.js', funct
     model.selectedIndex = 0;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-tab input-tab-id='tabId'></awe-input-tab>")($rootScope.$new());

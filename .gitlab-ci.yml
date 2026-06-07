@@ -18,7 +18,7 @@ variables:
   SONAR_OPTS: "-Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.organization=$SONAR_ORGANIZATION -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.token=$SONAR_TOKEN -Dsonar.qualitygate.wait=true"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
   SKIP_TESTS: "-DskipTests"
-  IT_OPTS: "-Dskip.junit=true -Dskip.karma=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
+  IT_OPTS: "-Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true"
   UT_OPTS: "-Dskip.frontend=true -DgenerateUnitReport=true -pl !awe-framework/awe-boot-angular-archetype -pl !awe-framework/awe-boot-react-archetype"
   DEPLOY_OPTS: "-f awe-framework/pom.xml -DskipTests -Darchetype.test.skip=true -Dskip.javadoc=false -Dbuild.environment=production"
   CI_PROJECT_URL_SSH: "origin git@gitlab.com:aweframework/awe.git"
@@ -284,11 +284,11 @@ Frontend UT:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
   artifacts:
     paths:
-      - awe-framework/awe-client-angular/target/reports/karma/
+      - awe-framework/awe-client-angular/target/reports/jest/
     expire_in: 1 day
     reports:
       junit:
-        - awe-framework/awe-client-angular/target/reports/junit/*.xml
+        - awe-framework/awe-client-angular/target/reports/jest/junit/*.xml
   rules:
     - if: '$CI_COMMIT_REF_NAME == "develop" || $CI_MERGE_REQUEST_IID'
       variables:

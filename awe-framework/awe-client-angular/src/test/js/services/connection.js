@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', function() {
-  let $injector, $ajax, $connection;
-  let originalTimeout;
-
+  let $injector, $ajax, $connection;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -12,18 +10,15 @@ describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', 
       $connection = $injector.get('Connection');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // Send a message
   it('should send a message', function() {
     // Mock
-    spyOn($ajax, "sendMessage");
+    jest.spyOn($ajax, "sendMessage");
 
     // Launch
     $connection.sendMessage({values: {serverAction: "test"}});
@@ -35,7 +30,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', 
   // Send a message
   it('should send', function() {
     // Mock
-    spyOn($ajax, "send");
+    jest.spyOn($ajax, "send");
 
     // Launch
     $connection.send({values: {serverAction: "test"}});
@@ -47,7 +42,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', 
   // Send a get request
   it('should launch a get request', function() {
     // Mock
-    spyOn($ajax, "get");
+    jest.spyOn($ajax, "get");
 
     // Launch
     $connection.get("http://server/action/test", "application/json");
@@ -59,7 +54,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', 
   // Send a post request
   it('should launch a post request', function() {
     // Mock
-    spyOn($ajax, "post");
+    jest.spyOn($ajax, "post");
 
     // Launch
     $connection.post("http://server/action/test", {}, "application/json");
@@ -71,7 +66,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', 
   // Get file request
   it('should launch a get file', function() {
     // Mock
-    spyOn($ajax, "getFile");
+    jest.spyOn($ajax, "getFile");
 
     // Launch
     $connection.getFile("http://server/action/test", {}, "application/pdf", "blob");
@@ -83,7 +78,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/connection.js', 
   // Serialize parameters
   it('should serialize parameters', function() {
     // Mock
-    spyOn($ajax, "serializeParameters");
+    jest.spyOn($ajax, "serializeParameters");
 
     // Launch
     $connection.serializeParameters({tutu:"lala"});

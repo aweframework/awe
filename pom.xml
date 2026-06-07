@@ -42,7 +42,7 @@
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     <sonar.coverage.jacoco.xmlReportPaths>${jacoco.joined.coverage.path}/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.testExecutionReportPaths>
-      ${project.basedir}/awe-framework/awe-client-angular/target/reports/karma/junit/javascriptUnitTests.xml
+      ${project.basedir}/awe-framework/awe-client-angular/target/reports/jest/sonar/javascriptUnitTests.xml
     </sonar.testExecutionReportPaths>
     <sonar.sources>${project.basedir}/src/main</sonar.sources>
     <sonar.binaries>${project.build.directory}/classes</sonar.binaries>

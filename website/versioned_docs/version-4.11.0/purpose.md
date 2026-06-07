@@ -111,5 +111,5 @@ Check our latest technology stack on [![StackShare](https://img.shields.io/badge
   * ESLint
   * Sonarcloud
   * JUnit
-  * Karma & Jasmine
+  * Jest
   * Selenium

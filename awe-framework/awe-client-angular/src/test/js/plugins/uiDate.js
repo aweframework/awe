@@ -34,7 +34,7 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiDate.js', funct
     visible: true
   };
   let model = {page:1, records:1, selected: "23/10/1978", total:1, values:[]};
-  let component = {controller: controller, model: model, api: {}, modelChange: jasmine.createSpy("modelChange")};
+  let component = {controller: controller, model: model, api: {}, modelChange: jest.fn().mockName("modelChange")};
 
   // Mock module
   beforeEach(function () {
@@ -71,7 +71,7 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiDate.js', funct
     $rootScope.component = component;
 
     // Spy on storage
-    spyOn($control, "checkComponent").and.returnValue(true);
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<input ui-date='" + datepickerOptions + "'/>")($rootScope);
@@ -85,8 +85,8 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiDate.js', funct
     $rootScope.component = component;
 
     // Spy on storage
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(component.model);
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(component.model);
 
     $rootScope.initialized = false;
     // Compile a piece of HTML containing the directive
@@ -110,8 +110,8 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiDate.js', funct
     $rootScope.component = component;
 
     // Spy on storage
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(component.model);
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(component.model);
 
     $rootScope.initialized = false;
     // Compile a piece of HTML containing the directive

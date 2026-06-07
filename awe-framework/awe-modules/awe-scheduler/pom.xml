@@ -16,7 +16,6 @@
 
   <properties>
     <application.acronym>awe-scheduler</application.acronym>
-    <skip.karma>true</skip.karma>
     <skip.delombok>false</skip.delombok>
   </properties>
 

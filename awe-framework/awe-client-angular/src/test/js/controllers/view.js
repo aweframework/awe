@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/controllers/view.js', function() {
-  let scope, controller, $utilities, $actionController, $loadingBar, $storage;
-  let originalTimeout;
-
+  let scope, controller, $utilities, $actionController, $loadingBar, $storage;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -18,7 +16,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/view.js', fun
       $storage = _Storage_;
 
       // Define storage
-      spyOn($storage, "get").and.returnValue({"base":{"components":[{"id":"cod_usr","controller":{"autoload":false,"checkEmpty":false,"checkInitial":true,"checkTarget":false,"checked":false,"component":"text","contextMenu":[],"dependencies":[],"icon":"user signin-form-icon","id":"cod_usr","loadAll":false,"optional":false,"placeholder":"SCREEN_TEXT_USER","printable":true,"readonly":false,"required":true,"showFutureDates":true,"showSlider":false,"showTodayButton":true,"showWeekends":true,"size":"lg","strict":true,"style":"no-label","validation":"required","visible":true},"model":{"selected":[],"defaultValues":[],"values":[],"page":1,"total":0,"records":0}},{"id":"pwd_usr","controller":{"autoload":false,"checkEmpty":false,"checkInitial":true,"checkTarget":false,"checked":false,"component":"password","contextMenu":[],"dependencies":[],"icon":"key signin-form-icon","id":"pwd_usr","loadAll":false,"optional":false,"placeholder":"SCREEN_TEXT_PASS","printable":true,"readonly":false,"required":true,"showFutureDates":true,"showSlider":false,"showTodayButton":true,"showWeekends":true,"size":"lg","strict":true,"style":"no-label","validation":"required","visible":true},"model":{"selected":[],"defaultValues":[],"values":[],"page":1,"total":0,"records":0}},{"id":"ButLogIn","controller":{"actions":[{"silent":false,"async":false,"type":"validate","parameters":{}},{"silent":false,"async":false,"type":"server","parameters":{"serverAction":"login"}}],"autoload":false,"buttonType":"submit","checkEmpty":false,"checkInitial":true,"checkTarget":false,"checked":false,"contextMenu":[],"dependencies":[],"icon":"sign-in","id":"ButLogIn","label":"BUTTON_LOGIN","loadAll":false,"optional":false,"printable":true,"readonly":false,"required":false,"showFutureDates":true,"showSlider":false,"showTodayButton":true,"showWeekends":true,"strict":true,"style":"no-class btn btn-primary signin-btn bg-primary","visible":true},"model":{"selected":[],"defaultValues":[],"values":[],"page":1,"total":0,"records":0}}],"messages":{},"actions":[],"screen":{"name":"signin","title":"SCREEN_TITLE_LOGIN","option":null}}});
+      jest.spyOn($storage, "get").mockReturnValue({"base":{"components":[{"id":"cod_usr","controller":{"autoload":false,"checkEmpty":false,"checkInitial":true,"checkTarget":false,"checked":false,"component":"text","contextMenu":[],"dependencies":[],"icon":"user signin-form-icon","id":"cod_usr","loadAll":false,"optional":false,"placeholder":"SCREEN_TEXT_USER","printable":true,"readonly":false,"required":true,"showFutureDates":true,"showSlider":false,"showTodayButton":true,"showWeekends":true,"size":"lg","strict":true,"style":"no-label","validation":"required","visible":true},"model":{"selected":[],"defaultValues":[],"values":[],"page":1,"total":0,"records":0}},{"id":"pwd_usr","controller":{"autoload":false,"checkEmpty":false,"checkInitial":true,"checkTarget":false,"checked":false,"component":"password","contextMenu":[],"dependencies":[],"icon":"key signin-form-icon","id":"pwd_usr","loadAll":false,"optional":false,"placeholder":"SCREEN_TEXT_PASS","printable":true,"readonly":false,"required":true,"showFutureDates":true,"showSlider":false,"showTodayButton":true,"showWeekends":true,"size":"lg","strict":true,"style":"no-label","validation":"required","visible":true},"model":{"selected":[],"defaultValues":[],"values":[],"page":1,"total":0,"records":0}},{"id":"ButLogIn","controller":{"actions":[{"silent":false,"async":false,"type":"validate","parameters":{}},{"silent":false,"async":false,"type":"server","parameters":{"serverAction":"login"}}],"autoload":false,"buttonType":"submit","checkEmpty":false,"checkInitial":true,"checkTarget":false,"checked":false,"contextMenu":[],"dependencies":[],"icon":"sign-in","id":"ButLogIn","label":"BUTTON_LOGIN","loadAll":false,"optional":false,"printable":true,"readonly":false,"required":false,"showFutureDates":true,"showSlider":false,"showTodayButton":true,"showWeekends":true,"strict":true,"style":"no-class btn btn-primary signin-btn bg-primary","visible":true},"model":{"selected":[],"defaultValues":[],"values":[],"page":1,"total":0,"records":0}}],"messages":{},"actions":[],"screen":{"name":"signin","title":"SCREEN_TITLE_LOGIN","option":null}}});
 
       // Generate controller
       controller = $controller('ViewController', {
@@ -35,13 +33,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/view.js', fun
         });
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // A simple test to verify the controller exists
   it('should exist', function() {
@@ -73,14 +68,14 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/view.js', fun
 
     // Call unload
     it('should unload the view with ie', function() {
-      spyOn($utilities, "getBrowser").and.returnValue("ie")
+      jest.spyOn($utilities, "getBrowser").mockReturnValue("ie");
       scope.$emit("unload", "base");
       expect(scope.visible).toBe(false);
     });
 
     // Call unload
     it('should unload the view with chrome', function() {
-      spyOn($utilities, "getBrowser").and.returnValue("chrome")
+      jest.spyOn($utilities, "getBrowser").mockReturnValue("chrome");
       scope.$emit("unload", "base");
     });
   });

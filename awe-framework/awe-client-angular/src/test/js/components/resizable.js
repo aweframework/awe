@@ -32,8 +32,8 @@ describe('awe-framework/awe-client-angular/src/test/js/components/resizable.js',
 
   it('replaces the element with the appropriate content', function () {
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, 'checkComponent').and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, 'checkComponent').mockReturnValue(true);
 
 
     // Compile a piece of HTML containing the directive
@@ -47,9 +47,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/resizable.js',
   it('checks drag start up', function (done) {
     // Spy on storage
     $scope = $rootScope.$new();
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, 'checkComponent').and.returnValue(true);
-    spyOn($utilities, "publish");
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, 'checkComponent').mockReturnValue(true);
+    jest.spyOn($utilities, "publish");
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-resizable resizable-id='Resizable'/>")($rootScope);
@@ -75,9 +75,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/resizable.js',
   it('checks drag start bottom', function (done) {
     // Spy on storage
     $scope = $rootScope.$new();
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, 'checkComponent').and.returnValue(true);
-    spyOn($utilities, "publish");
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, 'checkComponent').mockReturnValue(true);
+    jest.spyOn($utilities, "publish");
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-resizable resizable-id='Resizable'/>")($rootScope);
@@ -103,9 +103,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/resizable.js',
   it('checks drag start left', function (done) {
     // Spy on storage
     $scope = $rootScope.$new();
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, 'checkComponent').and.returnValue(true);
-    spyOn($utilities, "publish");
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, 'checkComponent').mockReturnValue(true);
+    jest.spyOn($utilities, "publish");
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-resizable resizable-id='Resizable'/>")($rootScope);
@@ -131,9 +131,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/resizable.js',
   it('checks drag start right', function (done) {
     // Spy on storage
     $scope = $rootScope.$new();
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, 'checkComponent').and.returnValue(true);
-    spyOn($utilities, "publish");
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, 'checkComponent').mockReturnValue(true);
+    jest.spyOn($utilities, "publish");
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-resizable resizable-id='Resizable'/>")($rootScope);

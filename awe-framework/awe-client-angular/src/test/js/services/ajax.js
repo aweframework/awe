@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', function() {
-  let $injector, $ajax, $settings, $httpBackend, $loadingBar, $actionController, Action, $log;
-  let originalTimeout;
-
+  let $injector, $ajax, $settings, $httpBackend, $loadingBar, $actionController, Action, $log;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -17,7 +15,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
       $log = $injector.get('$log');
 
       // Get settings
-      spyOn($settings, "get").and.returnValue("");
+      jest.spyOn($settings, "get").mockReturnValue("");
 
       // backend definition common for all tests
       $httpBackend.when('GET', 'http://server/action/test').respond({});
@@ -26,13 +24,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
       $httpBackend.when('POST', 'settings').respond({});
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // Check connection
   it('should be connected', function() {
@@ -47,10 +42,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Send a message
   it('should send a message', function() {
     // Mock
-    spyOn($ajax, "manageMessage");
-    spyOn($settings, "settingsLoaded");
-    spyOn($loadingBar, "endTask");
-    spyOn($loadingBar, "startTask");
+    jest.spyOn($ajax, "manageMessage");
+    jest.spyOn($settings, "settingsLoaded");
+    jest.spyOn($loadingBar, "endTask");
+    jest.spyOn($loadingBar, "startTask");
 
     // Launch
     let action = new Action();
@@ -67,10 +62,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Send a message with error retrieval
   it('should send a silent message with error', function() {
     // Mock
-    spyOn($ajax, "manageError");
-    spyOn($settings, "settingsLoaded");
-    spyOn($loadingBar, "endTask");
-    spyOn($loadingBar, "startTask");
+    jest.spyOn($ajax, "manageError");
+    jest.spyOn($settings, "settingsLoaded");
+    jest.spyOn($loadingBar, "endTask");
+    jest.spyOn($loadingBar, "startTask");
 
     // Launch
     let action = new Action();
@@ -87,10 +82,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Handler 401 error
   it('should redirect to "/" with error 401', function() {
     // Mock
-    spyOn($actionController, "closeAllActions");
-    spyOn($actionController, "addActionList");
-    spyOn($log, "error");
-    // $document[0].querySelector = jasmine.createSpy('HTML Element').and.returnValue({remove: () => null});
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($log, "error");
+    // $document[0].querySelector = jest.fn().mockName('HTML Element').mockReturnValue({remove: () => null});
 
     // Launch
     let action = new Action();
@@ -107,9 +102,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Handler 403 error
   it('should show error message 403', function() {
     // Mock
-    spyOn($actionController, "closeAllActions");
-    spyOn($actionController, "addActionList");
-    spyOn($log, "error");
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($log, "error");
 
     // Launch
     let action = new Action();
@@ -126,9 +121,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Handler default error
   it('should show default error message', function() {
     // Mock
-    spyOn($actionController, "closeAllActions");
-    spyOn($actionController, "addActionList");
-    spyOn($log, "error");
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($log, "error");
 
     // Launch
     let action = new Action();
@@ -145,7 +140,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should launch a get request
   it('should launch a get request', function() {
     // Mock
-    spyOn($settings, "settingsLoaded");
+    jest.spyOn($settings, "settingsLoaded");
 
     // Launch
     let request = $ajax.get("http://server/action/test", "application/json");
@@ -158,7 +153,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should launch a get request
   it('should launch a post request', function() {
     // Mock
-    spyOn($settings, "settingsLoaded");
+    jest.spyOn($settings, "settingsLoaded");
 
     // Launch
     let request = $ajax.post("http://server/action/test", {}, "application/json");
@@ -171,7 +166,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should launch a get request
   it('should launch a get file request', function() {
     // Mock
-    spyOn($settings, "settingsLoaded");
+    jest.spyOn($settings, "settingsLoaded");
 
     // Launch
     let request = $ajax.getFile("http://server/action/test", {}, "application/pdf", "blob");
@@ -203,7 +198,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should manage a message
   it('should manage a message', function() {
     // Mock
-    spyOn($actionController, "addActionList");
+    jest.spyOn($actionController, "addActionList");
 
     // Launch
     let message = {data: [{tutu: "lala"}]};
@@ -217,7 +212,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should manage a message
   it('should manage a message with a dead action', function() {
     // Mock
-    spyOn($actionController, "addActionList");
+    jest.spyOn($actionController, "addActionList");
 
     // Launch
     let message = {data: {tutu: "lala"}};
@@ -232,7 +227,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should manage a message
   it('should manage a message without an array', function() {
     // Mock
-    spyOn($actionController, "addActionList");
+    jest.spyOn($actionController, "addActionList");
 
     // Launch
     let message = {data: {tutu: "lala"}};
@@ -246,7 +241,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should manage an error
   it('should manage an error', function() {
     // Mock
-    spyOn($actionController, "addActionList");
+    jest.spyOn($actionController, "addActionList");
 
     // Launch
     let message = {data: [{tutu: "lala"}]};
@@ -260,7 +255,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/ajax.js', functi
   // Should manage an error
   it('should manage an error without data', function() {
     // Mock
-    spyOn($actionController, "addActionList");
+    jest.spyOn($actionController, "addActionList");
 
     // Launch
     let message = {};

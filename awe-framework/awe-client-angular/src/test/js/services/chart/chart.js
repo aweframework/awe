@@ -2,20 +2,18 @@ import {DefaultSettings} from "../../../../main/resources/js/awe/data/options";
 import Highcharts from "highcharts/highstock";
 
 describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js', function () {
-  let $injector, Chart, $rootScope, $compile, $httpBackend, Utilities, Control, Storage;
-  let originalTimeout;
-
+  let $injector, Chart, $rootScope, $compile, $httpBackend, Utilities, Control, Storage;
   function buildDirectiveScope(chartOptions) {
     let scope = $rootScope.$new();
     scope.chartOptions = chartOptions;
     scope.component = {
       initialized: false,
       model: {values: []},
-      initializeModel: jasmine.createSpy('initializeModel'),
-      translateLabels: jasmine.createSpy('translateLabels'),
-      onZoom: jasmine.createSpy('onZoom'),
-      onRedraw: jasmine.createSpy('onRedraw'),
-      onClick: jasmine.createSpy('onClick')
+      initializeModel: jest.fn().mockName('initializeModel'),
+      translateLabels: jest.fn().mockName('translateLabels'),
+      onZoom: jest.fn().mockName('onZoom'),
+      onRedraw: jest.fn().mockName('onRedraw'),
+      onClick: jest.fn().mockName('onClick')
     };
     return scope;
   }
@@ -24,7 +22,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     let scope = buildDirectiveScope(chartOptions);
     scope.component.chart = {
       container: {
-        bind: jasmine.createSpy('bind')
+        bind: jest.fn().mockName('bind')
       },
       scope: scope,
       id: 'ChartWrapper'
@@ -78,7 +76,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     chart.controller = {chartModel: chartModel || {}};
     chart.model = _.merge({selected: null, values: []}, model || {});
     chart.listeners = {};
-    chart.element = {bind: jasmine.createSpy('bind')};
+    chart.element = {bind: jest.fn().mockName('bind')};
     Control.setAddressApi(chart.address, {});
     chart.api = Control.getAddressApi(chart.address);
   }
@@ -105,26 +103,23 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     Storage.put('controller', {});
     Storage.put('api', {});
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function () {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function () {  });
 
   it('should reinitialize dark themed charts from a clean merge target', function () {
     let scope = buildDirectiveScope(buildChartOptions('dark-blue'));
     let mergeTargets = [];
     let merge = _.merge;
-    let chartSpy = jasmine.createSpy('chart').and.returnValue({
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+    let chartSpy = jest.fn().mockName('chart').mockReturnValue({
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     });
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.callFake(chartSpy);
-    spyOn(_, 'merge').and.callFake(function (target) {
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockImplementation(chartSpy);
+    jest.spyOn(_, 'merge').mockImplementation(function (target) {
       mergeTargets.push(_.cloneDeep(target));
       return merge.apply(_, arguments);
     });
@@ -143,10 +138,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     let chartOptions = buildChartOptions('dark-unica');
     let scope = buildDirectiveScope(chartOptions);
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue({
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue({
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     });
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
@@ -161,16 +156,16 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     let chartOptions = buildChartOptions('dark-unica');
     let scope = buildDirectiveScope(chartOptions);
 
-    scope.component.initializeModel.and.callFake(function (options) {
+    scope.component.initializeModel.mockImplementation(function (options) {
       _.each(options.series, function (serie) {
         serie.data = [];
       });
     });
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue({
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue({
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     });
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
@@ -181,13 +176,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
 
   it('should destroy initialized charts when the directive scope is destroyed', function () {
     let chart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
     let scope = buildDirectiveScope(buildChartOptions('dark-unica'));
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue(chart);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chart);
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     scope.$digest();
@@ -200,10 +195,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
   it('should not fail destroying charts before initialization completes', function () {
     let scope = buildDirectiveScope(undefined);
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue({
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue({
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     });
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
@@ -216,20 +211,20 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
   it('should keep the chart wrapper separate from the Highcharts instance', function () {
     let wrapper = {
       container: {
-        bind: jasmine.createSpy('bind')
+        bind: jest.fn().mockName('bind')
       },
       id: 'ChartWrapper'
     };
     let chartInstance = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
     let scope = buildDirectiveScopeWithWrapper(buildChartOptions('dark-unica'));
 
     scope.component.chart = wrapper;
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue(chartInstance);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chartInstance);
 
     expect(function () {
       $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
@@ -241,17 +236,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
 
   it('should destroy an existing chart before reinitializing in the same scope', function () {
     let existingChart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
     let replacementChart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
     let scope = buildDirectiveScope(buildChartOptions('dark-unica'));
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValues(existingChart, replacementChart);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValueOnce(existingChart).mockReturnValueOnce(replacementChart);
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     scope.$digest();
@@ -260,21 +255,21 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     scope.$digest();
 
     expect(existingChart.destroy).toHaveBeenCalledTimes(1);
-    expect(Highcharts.chart.calls.count()).toBe(2);
-    expect(existingChart.destroy.calls.first().invocationOrder)
-      .toBeLessThan(Highcharts.chart.calls.all()[1].invocationOrder);
+    expect(Highcharts.chart.mock.calls.length).toBe(2);
+    expect(existingChart.destroy.mock.invocationCallOrder[0])
+      .toBeLessThan(Highcharts.chart.mock.invocationCallOrder[1]);
     expect(scope.component.chartInstance).toBe(replacementChart);
   });
 
   it('should reinitialize safely when there is no existing chart instance', function () {
     let replacementChart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
     let scope = buildDirectiveScope(buildChartOptions('dark-blue'));
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue(replacementChart);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(replacementChart);
 
     expect(function () {
       $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
@@ -291,8 +286,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     let group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     let chartInstance = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy'),
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy'),
       renderer: {
         box: svg,
         url: 'http://localhost:8080/screen/private/home/chart-series-test'
@@ -306,8 +301,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     svg.appendChild(path);
     svg.appendChild(group);
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue(chartInstance);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chartInstance);
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     scope.$digest();
@@ -324,11 +319,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
 
     globalThis.structuredClone = undefined;
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(_, 'cloneDeep').and.callThrough();
-    spyOn(Highcharts, 'chart').and.returnValue({
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(_, 'cloneDeep');
+    jest.spyOn(Highcharts, 'chart').mockReturnValue({
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     });
 
     try {
@@ -336,7 +331,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
       scope.$digest();
     } finally {
       globalThis.structuredClone = originalStructuredClone;
-    }
+    };
 
     expect(_.cloneDeep).toHaveBeenCalled();
   });
@@ -346,13 +341,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     chartOptions.stockChart = true;
     let scope = buildDirectiveScope(chartOptions);
     let stockChart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'stockChart').and.returnValue(stockChart);
-    spyOn(Highcharts, 'chart');
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'stockChart').mockReturnValue(stockChart);
+    jest.spyOn(Highcharts, 'chart');
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     scope.$digest();
@@ -365,33 +360,33 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
   it('should update global language options when language changes', function () {
     let scope = buildDirectiveScope(buildChartOptions('dark-unica'));
     let chart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy')
     };
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue(chart);
-    spyOn(Highcharts, 'setOptions').and.callThrough();
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chart);
+    jest.spyOn(Highcharts, 'setOptions');
 
     $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     scope.$digest();
     scope.$broadcast('languageChanged');
 
     expect(chart.destroy).toHaveBeenCalled();
-    expect(Highcharts.setOptions.calls.count()).toBeGreaterThan(1);
-    expect(Highcharts.chart.calls.count()).toBe(2);
+    expect(Highcharts.setOptions.mock.calls.length).toBeGreaterThan(1);
+    expect(Highcharts.chart.mock.calls.length).toBe(2);
   });
 
   it('should reflow chart on resize when dimensions change', function () {
     let scope = buildDirectiveScope(buildChartOptions('dark-unica'));
     let chart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy'),
-      reflow: jasmine.createSpy('reflow')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy'),
+      reflow: jest.fn().mockName('reflow')
     };
 
-    spyOn(Utilities, 'isVisible').and.returnValues(true, true, true);
-    spyOn(Highcharts, 'chart').and.returnValue(chart);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValueOnce(true).mockReturnValueOnce(true, true);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chart);
 
     let element = $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     setElementSize(element, 300, 200);
@@ -406,13 +401,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
   it('should not reflow chart on resize when dimensions stay equal', function () {
     let scope = buildDirectiveScope(buildChartOptions('dark-unica'));
     let chart = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy'),
-      reflow: jasmine.createSpy('reflow')
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy'),
+      reflow: jest.fn().mockName('reflow')
     };
 
-    spyOn(Utilities, 'isVisible').and.returnValues(true, true, true);
-    spyOn(Highcharts, 'chart').and.returnValue(chart);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValueOnce(true).mockReturnValueOnce(true, true);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chart);
 
     let element = $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
     setElementSize(element, 300, 200);
@@ -426,14 +421,14 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
   it('should ignore svg normalization when chart container is missing', function () {
     let scope = buildDirectiveScope(buildChartOptions('dark-unica'));
     let chartInstance = {
-      redraw: jasmine.createSpy('redraw'),
-      destroy: jasmine.createSpy('destroy'),
+      redraw: jest.fn().mockName('redraw'),
+      destroy: jest.fn().mockName('destroy'),
       renderer: null,
       container: null
     };
 
-    spyOn(Utilities, 'isVisible').and.returnValue(false);
-    spyOn(Highcharts, 'chart').and.returnValue(chartInstance);
+    jest.spyOn(Utilities, 'isVisible').mockReturnValue(false);
+    jest.spyOn(Highcharts, 'chart').mockReturnValue(chartInstance);
 
     expect(function () {
       $compile('<div ui-chart="chartOptions" ng-model="component.model.values"></div>')(scope);
@@ -447,7 +442,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     let element = angular.element('<div></div>');
 
     scope.chartId = 'ChartDirective';
-    spyOn(Chart.prototype, 'init').and.callFake(function () {
+    jest.spyOn(Chart.prototype, 'init').mockImplementation(function () {
       this.component.controller = {chartModel: {title: {text: 'From controller'}}};
       return true;
     });
@@ -467,7 +462,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     let chart = new Chart(scope, 'ChartApiData', {bind:() => null});
 
     configureChartComponent(chart, 'ChartApiData');
-    spyOn(chart, 'asComponent').and.returnValue(true);
+    jest.spyOn(chart, 'asComponent').mockReturnValue(true);
 
     chart.asChart();
     chart.model.selected = {x: 10, y: 20};
@@ -487,10 +482,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
       values: []
     });
     let chart = new Chart(scope, 'ChartPrint', {bind:() => null});
-    let getSvg = jasmine.createSpy('getSVG').and.returnValue('<svg></svg>');
+    let getSvg = jest.fn().mockName('getSVG').mockReturnValue('<svg></svg>');
 
     configureChartComponent(chart, 'ChartPrint');
-    spyOn(chart, 'asComponent').and.returnValue(true);
+    jest.spyOn(chart, 'asComponent').mockReturnValue(true);
 
     chart.asChart();
     chart.chartInstance = {getSVG: getSvg};
@@ -511,12 +506,12 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
       values: []
     });
     let chart = new Chart(scope, 'ChartZoom', {bind:() => null});
-    let xSetExtremes = jasmine.createSpy('setExtremes');
-    let ySetExtremes = jasmine.createSpy('setExtremes');
-    let zoomOut = jasmine.createSpy('zoomOut');
+    let xSetExtremes = jest.fn().mockName('setExtremes');
+    let ySetExtremes = jest.fn().mockName('setExtremes');
+    let zoomOut = jest.fn().mockName('zoomOut');
 
     configureChartComponent(chart, 'ChartZoom');
-    spyOn(chart, 'asComponent').and.returnValue(true);
+    jest.spyOn(chart, 'asComponent').mockReturnValue(true);
 
     chart.asChart();
     chart.model.zoom = {
@@ -558,7 +553,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     };
 
     configureChartComponent(chart, 'ChartTranslate');
-    spyOn(chart, 'asComponent').and.returnValue(true);
+    jest.spyOn(chart, 'asComponent').mockReturnValue(true);
 
     chart.asChart();
     chart.translateLabels(highchartOptions);
@@ -579,13 +574,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
       values: []
     });
     let chart = new Chart(scope, 'ChartUpdateModel', {bind:() => null});
-    let chartSerie = {setData: jasmine.createSpy('setData')};
+    let chartSerie = {setData: jest.fn().mockName('setData')};
     let chartInstance = {
-      get: jasmine.createSpy('get').and.returnValue(chartSerie),
-      redraw: jasmine.createSpy('redraw'),
-      hasData: jasmine.createSpy('hasData').and.returnValue(false),
-      hideNoData: jasmine.createSpy('hideNoData'),
-      showNoData: jasmine.createSpy('showNoData'),
+      get: jest.fn().mockName('get').mockReturnValue(chartSerie),
+      redraw: jest.fn().mockName('redraw'),
+      hasData: jest.fn().mockName('hasData').mockReturnValue(false),
+      hideNoData: jest.fn().mockName('hideNoData'),
+      showNoData: jest.fn().mockName('showNoData'),
       options: {lang: {tooMuchData: 'tooMuchData'}}
     };
 
@@ -593,12 +588,12 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
       series: [{id: 'serie1', xValue: 'x', yValue: 'y'}],
       plotOptions: {}
     });
-    spyOn(chart, 'asComponent').and.returnValue(true);
+    jest.spyOn(chart, 'asComponent').mockReturnValue(true);
     chart.asChart();
     chart.initialized = true;
     chart.chartInstance = chartInstance;
-    spyOn(chart, 'resetChart').and.callFake(function () {});
-    spyOn($injector.get('AweSettings'), 'get').and.callFake(function (key) {
+    jest.spyOn(chart, 'resetChart').mockImplementation(function () {});
+    jest.spyOn($injector.get('AweSettings'), 'get').mockImplementation(function (key) {
       if (key === 'chartOptions') {
         return {limitPointsSerie: 1};
       }
@@ -619,10 +614,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     chart.controller = {chartModel: {}};
     chart.model = {};
     chart.listeners = {};
-    chart.chart.element = {bind: jasmine.createSpy('bind')};
-    spyOn(chart, "asComponent").and.returnValue(true);
+    chart.chart.element = {bind: jest.fn().mockName('bind')};
+    jest.spyOn(chart, "asComponent").mockReturnValue(true);
     chart.asChart();
-    spyOn(chart, "changeZoom").and.returnValue(null);
+    jest.spyOn(chart, "changeZoom").mockReturnValue(null);
 
     // Launch
     chart.checkParametersChanged ({chartOptions: {}});
@@ -639,17 +634,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     chart.controller = {chartModel: {series: [{id: "serie1"}, {id: "serie2", zValue: 12}, {id: "serie3"}]}};
     chart.model = {values: []};
     chart.listeners = {};
-    chart.chart.element = {bind: jasmine.createSpy('bind')};
-    const redrawSpy = jasmine.createSpy("redraw");
-    const addPointSpy = jasmine.createSpy("addPoint");
+    chart.chart.element = {bind: jest.fn().mockName('bind')};
+    const redrawSpy = jest.fn().mockName("redraw");
+    const addPointSpy = jest.fn().mockName("addPoint");
     chart.chartInstance = {
       redraw: redrawSpy,
       get: () => ({ addPoint: addPointSpy})
     };
 
-    spyOn(chart, "asComponent").and.returnValue(true);
+    jest.spyOn(chart, "asComponent").mockReturnValue(true);
     chart.asChart();
-    spyOn(chart, "changeZoom").and.returnValue(null);
+    jest.spyOn(chart, "changeZoom").mockReturnValue(null);
 
     // Launch
     chart.addPoints([{}, {}]);
@@ -666,22 +661,22 @@ describe('awe-framework/awe-client-angular/src/test/js/services/chart/chart.js',
     chart.controller = {chartModel: {}};
     chart.model = {};
     chart.listeners = {};
-    chart.chart.element = {bind: jasmine.createSpy('bind')};
+    chart.chart.element = {bind: jest.fn().mockName('bind')};
     const point = {
       graphic: $(document.createElement("div"))
-    }
+    };
     chart.series = [
       {id: "serie1", data: [point, point, point]},
       {id: "serie2", zValue: 12, data: [point, point, point]},
-      {id: "serie3", data: [point, point, point]}]
-    spyOn(chart, "asComponent").and.returnValue(true);
+      {id: "serie3", data: [point, point, point]}];
+    jest.spyOn(chart, "asComponent").mockReturnValue(true);
     chart.asChart();
-    spyOn(chart, "changeZoom").and.returnValue(null);
-    spyOn(Utilities, "timeout").and.callFake(fn => fn());
-    spyOn(Control, "publishModelChanged").and.returnValue(null);
-    spyOn(Utilities, "stopPropagation");
-    const contextMenuShowSpy = jasmine.createSpy("show");
-    $scope.contextMenu = {show: contextMenuShowSpy}
+    jest.spyOn(chart, "changeZoom").mockReturnValue(null);
+    jest.spyOn(Utilities, "timeout").mockImplementation(fn => fn());
+    jest.spyOn(Control, "publishModelChanged").mockReturnValue(null);
+    jest.spyOn(Utilities, "stopPropagation");
+    const contextMenuShowSpy = jest.fn().mockName("show");
+    $scope.contextMenu = {show: contextMenuShowSpy};
 
     // Launch
     chart.onRedraw();

@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.js', function() {
-  let $control, $settings, $rules;
-  let originalTimeout;
-
+  let $control, $settings, $rules;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -11,13 +9,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
       $settings = $injector.get("AweSettings");
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // A simple test to verify the controller exists
   it('should exist', function() {
@@ -48,27 +43,27 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
 
   // Require validation group
   it('should launch a group require validation OK', function() {
-    spyOn($control, "getAddressController").and.returnValue({group: "test"});
-    spyOn($control, "getAddressModel").and.returnValue({selected: "tutu"});
+    jest.spyOn($control, "getAddressController").mockReturnValue({group: "test"});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({selected: "tutu"});
     testValidation("required", null, true, null);
   });
 
   // Require validation group
   it('should launch a group require validation KO', function() {
-    spyOn($control, "getAddressController").and.returnValue({group: "test"});
-    spyOn($control, "getAddressModel").and.returnValue(null);
+    jest.spyOn($control, "getAddressController").mockReturnValue({group: "test"});
+    jest.spyOn($control, "getAddressModel").mockReturnValue(null);
     testValidation("required", null, {value: true}, { message: "VALIDATOR_MESSAGE_REQUIRED" } );
   });
 
   // Require validation multiple
   it('should launch a multiple require validation OK', function() {
-    spyOn($control, "getAddressController").and.returnValue({});
+    jest.spyOn($control, "getAddressController").mockReturnValue({});
     testValidation("required", ["tutu", "lala"], true, null);
   });
 
   // Require validation group
   it('should launch a multiple require validation KO', function() {
-    spyOn($control, "getAddressController").and.returnValue({});
+    jest.spyOn($control, "getAddressController").mockReturnValue({});
     testValidation("required", [], {value: true}, { message: "VALIDATOR_MESSAGE_REQUIRED" } );
   });
 
@@ -159,25 +154,25 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
 
   // Equal validation
   it('should launch an equal validation OK', function() {
-    spyOn($control, "getAddressModel").and.returnValue({selected: "asda"});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({selected: "asda"});
     testValidation("eq", "asda", {criterion: "tutu"}, null);
   });
 
   // Equal validation
   it('should launch an equal validation KO', function() {
-    spyOn($control, "getAddressModel").and.returnValue({selected: "aasdasd"});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({selected: "aasdasd"});
     testValidation("eq", "asda", {criterion: "tutu", message: "Naaaah, no es igual"}, { message: 'Naaaah, no es igual' });
   });
 
   // NE validation
   it('should launch a ne validation OK', function() {
-    spyOn($settings, "get").and.returnValue("askxlsa");
+    jest.spyOn($settings, "get").mockReturnValue("askxlsa");
     testValidation("ne", "asda", {setting: "lala"}, null);
   });
 
   // NE validation
   it('should launch a ne validation KO', function() {
-    spyOn($control, "getAddressModel").and.returnValue({selected: "asda"});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({selected: "asda"});
     testValidation("ne", "asda", {criterion: "tutu", message: "Naaaah, no es igual"}, { message: 'Naaaah, no es igual' });
   });
 
@@ -333,7 +328,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
 
   // Pattern validation
   it('should launch a password pattern validation OK', function() {
-    spyOn($settings, "get").and.returnValue("^[a-z]+$");
+    jest.spyOn($settings, "get").mockReturnValue("^[a-z]+$");
     testValidation("pattern", "aadrsasa", "", null);
   });
 
@@ -344,29 +339,29 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
 
   // Check at least validation
   it('should launch a checkAtLeast validation OK', function() {
-    spyOn($control, "getAddressViewController").and.returnValue({component1: {group: "test"}, component2: {group: "test"}});
-    spyOn($control, "getAddressModel").and.returnValue({selected: true});
+    jest.spyOn($control, "getAddressViewController").mockReturnValue({component1: {group: "test"}, component2: {group: "test"}});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({selected: true});
     testValidation("checkAtLeast", null, {value: "2"}, null);
   });
 
   // Check at least validation
   it('should launch a checkAtLeast validation OK because second parameter is not a number', function() {
-    spyOn($control, "getAddressViewController").and.returnValue({component1: {group: "test"}, component2: {group: "test"}});
-    spyOn($control, "getAddressModel").and.returnValue({selected: true});
+    jest.spyOn($control, "getAddressViewController").mockReturnValue({component1: {group: "test"}, component2: {group: "test"}});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({selected: true});
     testValidation("checkAtLeast", null, {value: null}, null);
   });
 
   // Check at least validation
   it('should launch a checkAtLeast validation KO', function() {
-    spyOn($control, "getAddressViewController").and.returnValue({component1: {group: "test"}, component2: {group: "test"}, component3: {group: "other"}});
-    spyOn($control, "getAddressModel").and.callFake((address) => ({selected: address.component === "component2"}));
+    jest.spyOn($control, "getAddressViewController").mockReturnValue({component1: {group: "test"}, component2: {group: "test"}, component3: {group: "other"}});
+    jest.spyOn($control, "getAddressModel").mockImplementation((address) => ({selected: address.component === "component2"}));
     testValidation("checkAtLeast", null, {value: "2"}, { message: 'VALIDATOR_MESSAGE_CHECK_AT_LEAST' });
   });
 
   // Check at maxRepeat validation
   it('should launch a maxRepeat validation KO', function() {
-    spyOn($control, "getAddressViewController").and.returnValue({Grid: {}});
-    spyOn($control, "getAddressModel").and.callFake((address) => ({values:[
+    jest.spyOn($control, "getAddressViewController").mockReturnValue({Grid: {}});
+    jest.spyOn($control, "getAddressModel").mockImplementation((address) => ({values:[
         {Col1: {value: 1.0}, Col2: {value: 10}},
         {Col1: 1.0, Col2: {value: 11}}
       ],
@@ -377,8 +372,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/validationRules.
   });
 
   it('should launch a maxRepeat validation OK', function() {
-    spyOn($control, "getAddressViewController").and.returnValue({Grid: {}});
-    spyOn($control, "getAddressModel").and.callFake((address) => ({values:[
+    jest.spyOn($control, "getAddressViewController").mockReturnValue({Grid: {}});
+    jest.spyOn($control, "getAddressModel").mockImplementation((address) => ({values:[
         {Col1: {value: 1.0}, Col2: {value: 10}},
         {Col1: 2.0, Col2: {value: 11}}
       ],

@@ -43,10 +43,9 @@
 
   <properties>
     <application.acronym>awe-tools</application.acronym>
-    <skip.karma>true</skip.karma>
     <skip.delombok>false</skip.delombok>
     <application.folder>.</application.folder>
-    <sonar.testExecutionReportPaths>../../awe-client-angular/target/reports/karma/junit/javascriptUnitTests.xml</sonar.testExecutionReportPaths>
+    <sonar.testExecutionReportPaths>../../awe-client-angular/target/reports/jest/junit/javascriptUnitTests.xml</sonar.testExecutionReportPaths>
   </properties>
 
   <build>

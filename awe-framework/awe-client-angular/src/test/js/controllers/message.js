@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', function() {
-  let scope, controller, $utilities, $settings, $actionController, $control, $injector, $storage;
-  let originalTimeout;
-
+  let scope, controller, $utilities, $settings, $actionController, $control, $injector, $storage;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -24,13 +22,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
         });
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // A simple test to verify the controller exists
   it('should exist', function() {
@@ -52,8 +47,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
      */
     function callMessageAction(actionName, actionMethod, parameters, async, silent, top, done) {
       // Spy screen action
-      spyOn(controller.MessageActions, actionMethod).and.callFake(done);
-      spyOn($utilities, "timeout").and.callFake((fn) => fn());
+      jest.spyOn(controller.MessageActions, actionMethod).mockImplementation(done);
+      jest.spyOn($utilities, "timeout").mockImplementation((fn) => fn());
 
       // Launch action
       $actionController.closeAllActions();
@@ -85,15 +80,15 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
      */
     function launchMessageAction(actionName, actionMethod, parameters, done = () => null) {
       let $actionController = $injector.get('ActionController');
-      spyOn($utilities, "timeout").and.callFake((fn) => fn());
+      jest.spyOn($utilities, "timeout").mockImplementation((fn) => fn());
 
       // Launch action
       $actionController.closeAllActions();
       let action = $actionController.generateAction({type: actionName, ...parameters}, {address: {view: "base"}}, true, true);
 
       // Spy screen action
-      spyOn(action, "accept").and.callFake(done);
-      spyOn(action, "isAlive").and.returnValue(true);
+      jest.spyOn(action, "accept").mockImplementation(done);
+      jest.spyOn(action, "isAlive").mockReturnValue(true);
 
       // Call action
       controller.MessageActions[actionMethod].call(this, action);
@@ -104,7 +99,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
 
     // Launch message action
     it('should launch a message action', function(done) {
-      spyOn(controller.alerts, "push").and.callFake((message) => {
+      jest.spyOn(controller.alerts, "push").mockImplementation((message) => {
         expect(message.type).toBe("success");
         expect(message.title).toBe("tutu");
         expect(message.msg).toBe("lala");
@@ -115,7 +110,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
 
     // Launch message action
     it('should launch a message action without message', function(done) {
-      spyOn(controller.alerts, "push").and.callFake((message) => {
+      jest.spyOn(controller.alerts, "push").mockImplementation((message) => {
         expect(message.type).toBe("danger");
         expect(message.title).not.toBeDefined();
         expect(message.msg).not.toBeDefined();
@@ -126,8 +121,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
 
     // Launch message action with a target message
     it('should launch a message action with a target message', function(done) {
-      spyOn($storage, "get").and.returnValue({base: {testMessage: {title: "lala", message: "tutu"}}});
-      spyOn(controller.alerts, "push").and.callFake((message) => {
+      jest.spyOn($storage, "get").mockReturnValue({base: {testMessage: {title: "lala", message: "tutu"}}});
+      jest.spyOn(controller.alerts, "push").mockImplementation((message) => {
         expect(message.type).toBe("warning");
         expect(message.title).toBe("lala");
         expect(message.msg).toBe("tutu");
@@ -143,8 +138,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
     // Launch target-message action
     it('should launch a target-message action', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this;});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this;});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
@@ -163,8 +158,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
     // Launch target-message action with address
     it('should launch a target-message action with a component address', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this;});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this;});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
@@ -183,8 +178,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
     // Launch target-message action with address
     it('should launch a target-message action with a grid cell address', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this;});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this;});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
@@ -203,10 +198,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/message.js', 
     // Launch target-message twice
     it('should launch a target-message action with a previous message defined', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this;});
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this;});
       controller.popover = {target: null};
-      spyOn($settings, "get").and.returnValue({"error": 1000});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($settings, "get").mockReturnValue({"error": 1000});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();

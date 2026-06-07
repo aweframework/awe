@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/column.js', function() {
-  let $injector, $control, $utilities, Column;
-  let originalTimeout;
-  let address = {"component": "grid", "view": "report", "row": "2", "column": "value"};
+  let $injector, $control, $utilities, Column;  let address = {"component": "grid", "view": "report", "row": "2", "column": "value"};
   let component = {controller: {}, model: {}, scope: {$on: () => null}, col: {grid: {appScope: {component: {model: {}}}}}};
   let attributes = {cellAddress: JSON.stringify(address), $observe: () => null};
 
@@ -16,13 +14,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/column.js', func
       Column = $injector.get('Column');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // Generate a column
   it('should generate a column', function() {
@@ -39,9 +34,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/column.js', func
   it('should initialize a column', function() {
     // Prepare
     let column = new Column(attributes);
-    component.col.grid.appScope.component.checkInitialized = jasmine.createSpy("checkInitialized");
-    component.col.grid.appScope.component.getModel = jasmine.createSpy("getModel");
-    component.col.grid.appScope.component.getController = jasmine.createSpy("getController");
+    component.col.grid.appScope.component.checkInitialized = jest.fn().mockName("checkInitialized");
+    component.col.grid.appScope.component.getModel = jest.fn().mockName("getModel");
+    component.col.grid.appScope.component.getController = jest.fn().mockName("getController");
     column.init(component);
 
     // Assert
@@ -54,12 +49,12 @@ describe('awe-framework/awe-client-angular/src/test/js/services/column.js', func
   it('should change column model', function() {
     // Prepare
     let column = new Column(attributes);
-    component.col.grid.appScope.component.checkInitialized = jasmine.createSpy("checkInitialized");
-    component.col.grid.appScope.component.getModel = jasmine.createSpy("getModel");
-    component.col.grid.appScope.component.getController = jasmine.createSpy("getController");
+    component.col.grid.appScope.component.checkInitialized = jest.fn().mockName("checkInitialized");
+    component.col.grid.appScope.component.getModel = jest.fn().mockName("getModel");
+    component.col.grid.appScope.component.getController = jest.fn().mockName("getController");
     column.init(component);
     component.model = {values: [], selected: null};
-    spyOn(component, "modelChange");
+    jest.spyOn(component, "modelChange");
 
     // Assert
     component.model.selected = "aaa";

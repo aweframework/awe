@@ -28,7 +28,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
 
       // backend definition common for all tests
       $httpBackend.when('POST', 'settings').respond(DefaultSettings);
-      spyOn($control, 'checkOnlyComponent').and.returnValue(true);
+      jest.spyOn($control, 'checkOnlyComponent').mockReturnValue(true);
     }]);
   });
 
@@ -47,8 +47,8 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
@@ -69,8 +69,8 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-input-wizard input-wizard-id='wizardId'/>")($rootScope);
@@ -93,7 +93,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
    * @returns {Spy}
    */
   function generateAction(done) {
-    let action = jasmine.createSpy('spy');
+    let action = jest.fn().mockName('spy');
     action.attr = (what) => {
       switch (what) {
         case "id": return "wizardId";
@@ -112,11 +112,11 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
    */
   function spyControls() {
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($control, "getAddressController").and.returnValue(controller);
-    spyOn($utilities, "checkAddress").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
+    jest.spyOn($utilities, "checkAddress").mockReturnValue(true);
   }
 
   it('selects next panel', function(done) {
@@ -400,7 +400,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/wizard.js', fu
 
     // Check data if printable is false
     let printable = controller.printable;
-    controller.printable = false
+    controller.printable = false;
     data = $scope.component.getPrintData();
     expect(data).toEqual({ wizardId: '1'});
     controller.printable = printable;

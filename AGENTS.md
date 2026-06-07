@@ -33,15 +33,18 @@ mvn test -Dtest=MyTestClass#myMethod
 # Run tests in specific module
 mvn test -pl awe-framework/awe-model -Dtest=MyTestClass
 
-# Skip Java tests, run only JavaScript (Karma)
-mvn test -Dskip.junit=true -Dskip.karma=false
+# Run only AngularJS frontend tests (Jest)
+mvn test -pl awe-framework/awe-client-angular
 ```
 
-### JavaScript Tests (Karma + Jasmine)
+### JavaScript Tests (Jest)
 
 ```bash
-# Run Karma tests via Maven
-mvn test -pl awe-framework/awe-client-angular -Dskip.junit=true -Dskip.karma=false
+# Run Jest tests directly
+npm test --prefix awe-framework/awe-client-angular
+
+# Run Jest tests via Maven
+mvn test -pl awe-framework/awe-client-angular
 ```
 
 ---
@@ -123,10 +126,10 @@ mvn test -pl awe-framework/awe-client-angular -Dskip.junit=true -Dskip.karma=fal
 - Use AssertJ assertions: `assertThat(result).isNotNull()`
 - Integration tests extend `AbstractSpringAppIntegrationTest`
 
-#### JavaScript Tests (Jasmine)
-- **Location**: `src/test/js/` directories
-- **Pattern**: Spec-style with `describe()`, `it()`, `beforeEach()`
-- Use Angular mocks: `angular.mock.module()`, `inject()`
+#### JavaScript Tests (Jest)
+- **Location**: `src/test/jest/` directories
+- **Pattern**: Jest tests with `describe()`, `it()`, `beforeEach()`
+- Use Angular mocks through the Jest setup bootstrap when AngularJS modules require injection
 
 ---
 

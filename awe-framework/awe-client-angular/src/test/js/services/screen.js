@@ -2,9 +2,7 @@ import {DefaultSettings} from "./../../../main/resources/js/awe/data/options";
 import {launchScreenAction} from "../utils";
 
 describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', function() {
-  let $injector, $utilities, $settings, $actionController, $windowMock, $control, $rootScope, $state, $storage, $httpBackend, $location;
-  let originalTimeout;
-
+  let $injector, $utilities, $settings, $actionController, $windowMock, $control, $rootScope, $state, $storage, $httpBackend, $location;
   // Mock module
   beforeEach(function() {
     $windowMock = {print: () => null, close: () => null, sessionStorage: {removeItem: () => null}, history: {back: () => null}};
@@ -28,18 +26,15 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
       $httpBackend.when('POST', 'settings').respond(DefaultSettings);
 
       // Catch clearToken && load
-      spyOn($settings, "clearToken");
-      spyOn($settings, "setToken");
-      spyOn($state, "go");
+      jest.spyOn($settings, "clearToken");
+      jest.spyOn($settings, "setToken");
+      jest.spyOn($state, "go");
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // Launch screen action
   it('should launch a screen action', function(done) {
@@ -53,21 +48,21 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch screen action
   it('should launch a screen action with screen', function(done) {
-    spyOn($settings, "get").and.returnValue(true);
-    spyOn($location, "url").and.returnValue("/epa/lala");
+    jest.spyOn($settings, "get").mockReturnValue(true);
+    jest.spyOn($location, "url").mockReturnValue("/epa/lala");
     launchScreenAction($injector, "screen", "screen", {parameters:{screen: "lala"}, context: "epa"}, done);
   });
 
   // Launch screen action
   it('should launch a screen action with screen and not reloading', function(done) {
-    spyOn($settings, "get").and.returnValue(false);
-    spyOn($location, "url").and.returnValue("/epa/lala");
+    jest.spyOn($settings, "get").mockReturnValue(false);
+    jest.spyOn($location, "url").mockReturnValue("/epa/lala");
     launchScreenAction($injector, "screen", "screen", {parameters:{screen: "lala"}, context: "epa"}, done);
   });
 
   // Launch screen action
   it('should launch a screen action with screen reloading', function(done) {
-    spyOn($location, "url").and.returnValue("/epa/lala");
+    jest.spyOn($location, "url").mockReturnValue("/epa/lala");
     launchScreenAction($injector, "screen", "screen", {parameters:{screen: "lala", reload: true}, context: "epa"}, done);
   });
 
@@ -83,48 +78,48 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch wait action
   it('should launch a wait action', function() {
-    jasmine.clock().install();
-    spyOn($utilities, "timeout");
+    jest.useFakeTimers();
+    jest.spyOn($utilities, "timeout");
     launchScreenAction($injector, "wait", "wait", {parameters:{target:5}}, () => null);
-    jasmine.clock().tick(6);
-    jasmine.clock().uninstall();
+    jest.advanceTimersByTime(6);
+    jest.useRealTimers();
     expect($utilities.timeout).toHaveBeenCalled();
   });
 
   // Launch change-language action
   it('should launch a change-language action', function(done) {
-    spyOn($storage, "get").and.returnValue({base:{language:{selected:"es"}}});
+    jest.spyOn($storage, "get").mockReturnValue({base:{language:{selected:"es"}}});
     return launchScreenAction($injector, "change-language", "changeLanguage", {target: "language", context: "base"}, done);
   });
 
   // Launch change-language action
   it('should launch a change-language action with a defined language', function(done) {
-    spyOn($storage, "get").and.returnValue({base:{language:{selected:"fr-FR"}}});
+    jest.spyOn($storage, "get").mockReturnValue({base:{language:{selected:"fr-FR"}}});
     //$control.changeComponent({component: "language", view: "base"}, {model: {values: [{selected: true, value: "fr", label: "Français"}]}});
     return launchScreenAction($injector, "change-language", "changeLanguage", {target: "language", context: "base"}, done);
   });
 
   // Launch change-theme action
   it('should launch a change-theme action', function(done) {
-    spyOn($settings, "get").and.returnValue("sky");
-    spyOn($settings, "update");
-    spyOn($storage, "get").and.returnValue({base:{}});
+    jest.spyOn($settings, "get").mockReturnValue("sky");
+    jest.spyOn($settings, "update");
+    jest.spyOn($storage, "get").mockReturnValue({base:{}});
     return launchScreenAction($injector, "change-theme", "changeTheme", {context: "base"}, done);
   });
 
   // Launch change-theme action
   it('should launch a change-theme action with a defined theme', function(done) {
-    spyOn($settings, "get").and.returnValue("sky");
-    spyOn($settings, "update");
-    spyOn($storage, "get").and.returnValue({base:{theme:{selected:"default"}}});
+    jest.spyOn($settings, "get").mockReturnValue("sky");
+    jest.spyOn($settings, "update");
+    jest.spyOn($storage, "get").mockReturnValue({base:{theme:{selected:"default"}}});
     return launchScreenAction($injector, "change-theme", "changeTheme", {target: "theme", context: "base"}, done);
   });
 
   // Launch screen-data action
   it('should launch a screen-data action', function(done) {
     $rootScope.firstLoad = true;
-    spyOn($actionController, "addActionList");
-    spyOn($storage, "get").and.returnValue({base: {}});
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($storage, "get").mockReturnValue({base: {}});
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [{type: "reload"}], components: [{
           id: "cod_usr",
           controller: {checkInitial: true, checkTarget:false, checked:false, component:"text", contextMenu:[], dependencies:[], icon:"user signin-form-icon", id:"cod_usr", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true},
@@ -150,8 +145,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
   // Launch screen-data action
   it('should launch a screen-data action without actions', function(done) {
     $rootScope.firstLoad = true;
-    spyOn($actionController, "addActionList");
-    spyOn($storage, "get").and.returnValue({base: {}});
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($storage, "get").mockReturnValue({base: {}});
     launchScreenAction($injector, "screen-data", "screenData", {parameters:{view: "base", screenData:{actions: [], components: [], screen: {name: "TEST"}, messages: []}}}, () => {
       done();
     });
@@ -159,13 +154,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch end load action
   it('should launch an end-load action', function() {
-    spyOn($control, "getAddressApi").and.returnValue({endLoad: () => null });
+    jest.spyOn($control, "getAddressApi").mockReturnValue({endLoad: () => null });
     return launchScreenAction($injector, "end-load", "endLoad", {parameters:{}}, () => null);
   });
 
   // Launch end load action without function
   it('should launch an end-load action without function', function() {
-    spyOn($control, "getAddressApi").and.returnValue({});
+    jest.spyOn($control, "getAddressApi").mockReturnValue({});
     return launchScreenAction($injector, "end-load", "endLoad", {parameters:{}}, () => null);
   });
 
@@ -176,13 +171,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch close action
   it('should launch a close action', function(done) {
-    spyOn($utilities, "timeout").and.callFake(done);
+    jest.spyOn($utilities, "timeout").mockImplementation(done);
     return launchScreenAction($injector, "close", "closeDialog", {parameters:{}}, () => null);
   });
 
   // Launch close-cancel action
   it('should launch a close-cancel action', function(done) {
-    spyOn($utilities, "timeout").and.callFake(done);
+    jest.spyOn($utilities, "timeout").mockImplementation(done);
     return launchScreenAction($injector, "close-cancel", "closeDialogAndCancel", {parameters:{}}, () => null);
   });
 
@@ -213,7 +208,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch print action
   it('should launch a print action', function(done) {
-    spyOn($windowMock, "print");
+    jest.spyOn($windowMock, "print");
     return launchScreenAction($injector, "print", "screenPrint", {id: 1, parameters:{}}, () => {
       expect($windowMock.print).toHaveBeenCalled();
       done();
@@ -233,7 +228,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
   it('should launch a redirect action in a new window', function(done) {
     $windowMock.location = { href : "" };
     $windowMock.open = () => null;
-    spyOn($windowMock, "open");
+    jest.spyOn($windowMock, "open");
     launchScreenAction($injector, "redirect", "redirect", {id: 2, target: "http://alla.que.voy", parameters: {newWindow: true}}, () => {
       expect($windowMock.open).toHaveBeenCalledTimes(1);
       done();
@@ -242,7 +237,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   it('should launch a redirect screen action on other screen', function(done) {
     $windowMock.location = { href : "" };
-    spyOn($storage, "get").and.returnValue({base: {name: "otherScreen"}});
+    jest.spyOn($storage, "get").mockReturnValue({base: {name: "otherScreen"}});
     launchScreenAction($injector, "redirect-screen", "redirectScreen", {id: 2, view: "base", target: "http://alla.que.voy", parameters: {screen: "currentScreen"}}, () => {
       expect($windowMock.location.href).toBe("");
       done();
@@ -251,7 +246,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   it('should launch a redirect screen action on current screen on report', function(done) {
     $windowMock.location = { href : "" };
-    spyOn($storage, "get").and.returnValue({base: {name: "otherScreen"}, report: {name: "currentScreen"}});
+    jest.spyOn($storage, "get").mockReturnValue({base: {name: "otherScreen"}, report: {name: "currentScreen"}});
     launchScreenAction($injector, "redirect-screen", "redirectScreen", {id: 2, view: "base", target: "http://alla.que.voy", parameters: {screen: "currentScreen"}}, () => {
       expect($windowMock.location.href).toBe("http://alla.que.voy");
       done();
@@ -260,7 +255,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   it('should launch a redirect screen action on current screen', function(done) {
     $windowMock.location = { href : "" };
-    spyOn($storage, "get").and.returnValue({base: {name: "currentScreen"}});
+    jest.spyOn($storage, "get").mockReturnValue({base: {name: "currentScreen"}});
     launchScreenAction($injector, "redirect-screen", "redirectScreen", {id: 2, view: "base", target: "http://alla.que.voy", parameters: {screen: "currentScreen"}}, () => {
       expect($windowMock.location.href).toBe("http://alla.que.voy");
       done();
@@ -269,7 +264,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/screen.js', func
 
   // Launch close-window action
   it('should launch a close-window action', function(done) {
-    spyOn($windowMock, "close").and.callFake(() => {
+    jest.spyOn($windowMock, "close").mockImplementation(() => {
       done();
     });
     launchScreenAction($injector, "close-window", "closeWindow", {id: 2, parameters:{}}, () => null);

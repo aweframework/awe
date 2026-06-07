@@ -45,9 +45,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressController").and.returnValue({style:"horizontal"});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressController").mockReturnValue({style:"horizontal"});
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-menu menu-id='menuId'></awe-menu>")($rootScope);
@@ -74,9 +74,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
     $("body").addClass("mmc");
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressController").and.returnValue({style:"horizontal"});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressController").mockReturnValue({style:"horizontal"});
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-menu menu-id='menuId'></awe-menu>")($rootScope);
@@ -103,9 +103,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
     $("body").removeClass("mmc");
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressController").and.returnValue({style:"vertical"});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressController").mockReturnValue({style:"vertical"});
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-menu menu-id='menuId'></awe-menu>")($rootScope);
@@ -132,9 +132,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
     $("body").addClass("mmc");
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressController").and.returnValue({style:"vertical"});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressController").mockReturnValue({style:"vertical"});
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-menu menu-id='menuId'></awe-menu>")($rootScope);
@@ -191,9 +191,9 @@ describe('awe-framework/awe-client-angular/src/test/js/components/menu.js', func
     };
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($control, "getAddressController").and.returnValue(controllerWithOptions);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($control, "getAddressController").mockReturnValue(controllerWithOptions);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<awe-menu menu-id='menuId'></awe-menu>")($rootScope);
