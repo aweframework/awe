@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', function() {
-  let $injector, $utilities, $settings, $control, $rootScope, $translate, $httpBackend, $log, $actionController, $criterion, $selector, $serverData;
-  let originalTimeout;
-  let controller = {};
+  let $injector, $utilities, $settings, $control, $rootScope, $translate, $httpBackend, $log, $actionController, $criterion, $selector, $serverData;  let controller = {};
   let model = {};
 
   // Mock module
@@ -23,18 +21,15 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $selector = $injector.get('Selector');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   it('should init as select', function() {
     let $scope = $rootScope.$new();
     let selector = new $selector($scope, "tutu", {});
-    spyOn(selector, "asCriterion").and.returnValue(true);
+    jest.spyOn(selector, "asCriterion").mockReturnValue(true);
     selector.api = {};
     selector.model = model;
     selector.controller = controller;
@@ -45,11 +40,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
     let currentModel = {values:[], selected: "lala"};
     let $scope = $rootScope.$new();
     let selector = new $selector($scope, "tutu", {});
-    spyOn($control, "getAddressModel").and.returnValue(currentModel);
-    spyOn($actionController, "generateAction").and.returnValue({});
-    spyOn($actionController, "addActionList").and.returnValue(null);
-    spyOn(selector, "asCriterion").and.returnValue(true);
-    spyOn(selector, "reload").and.returnValue(true);
+    jest.spyOn($control, "getAddressModel").mockReturnValue(currentModel);
+    jest.spyOn($actionController, "generateAction").mockReturnValue({});
+    jest.spyOn($actionController, "addActionList").mockReturnValue(null);
+    jest.spyOn(selector, "asCriterion").mockReturnValue(true);
+    jest.spyOn(selector, "reload").mockReturnValue(true);
     selector.api = {};
     selector.model = currentModel;
     selector.controller = controller;
@@ -59,7 +54,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
   it('should init as select multiple', function() {
     let $scope = $rootScope.$new();
     let selector = new $selector($scope, "tutu", {});
-    spyOn(selector, "asCriterion").and.returnValue(true);
+    jest.spyOn(selector, "asCriterion").mockReturnValue(true);
     selector.api = {};
     selector.model = model;
     selector.controller = controller;
@@ -69,7 +64,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
   it('should init as suggest multiple', function() {
     let $scope = $rootScope.$new();
     let selector = new $selector($scope, "tutu", {});
-    spyOn(selector, "asCriterion").and.returnValue(true);
+    jest.spyOn(selector, "asCriterion").mockReturnValue(true);
     selector.api = {};
     selector.model = model;
     selector.controller = controller;
@@ -85,9 +80,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       select = new $selector($scope, "tutu", {});
-      spyOn($control, "getAddressModel").and.returnValue({values: [], selected: []});
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue({values: [], selected: []});
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
       select.asSelect();
     });
 
@@ -133,17 +128,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       select = new $selector($scope, "tutu", {});
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
       select.asSelect();
     });
 
     it('should process change event setting selected to null when value is empty', function() {
       // Arrange a specific model reference so we can observe changes
       let modelRef = {values: [], selected: 'initial'};
-      spyOn($control, "getAddressModel").and.returnValue(modelRef);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(modelRef);
       // Ensure modelChange is called
-      select.modelChange = jasmine.createSpy('modelChange');
+      select.modelChange = jest.fn().mockName('modelChange');
       // Act: trigger plugin change with empty value
       select.onPluginChange({val: ''});
       // Assert
@@ -154,8 +149,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
     it('should process change event setting selected to provided value when not empty', function() {
       // Arrange
       let modelRef = {values: [], selected: null};
-      spyOn($control, "getAddressModel").and.returnValue(modelRef);
-      select.modelChange = jasmine.createSpy('modelChange');
+      jest.spyOn($control, "getAddressModel").mockReturnValue(modelRef);
+      select.modelChange = jest.fn().mockName('modelChange');
       // Act
       select.onPluginChange({val: 'ABC'});
       // Assert
@@ -165,8 +160,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
 
     it('should process change event setting selected to null when value is numeric zero', function() {
       let modelRef = {values: [], selected: 'initial'};
-      spyOn($control, "getAddressModel").and.returnValue(modelRef);
-      select.modelChange = jasmine.createSpy('modelChange');
+      jest.spyOn($control, "getAddressModel").mockReturnValue(modelRef);
+      select.modelChange = jest.fn().mockName('modelChange');
 
       select.onPluginChange({val: 0});
 
@@ -183,9 +178,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       select = new $selector($scope, "tutu", {});
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
-      spyOn($control, "getAddressModel").and.returnValue({values: [], selected: null});
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue({values: [], selected: null});
       select.asSelect();
     });
 
@@ -194,7 +189,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: "A", label: "Alpha"}, {value: "B", label: "Beta"}],
         selected: "C"
       };
-      $control.getAddressModel.and.returnValue(modelRef);
+      $control.getAddressModel.mockReturnValue(modelRef);
       select.onStart();
 
       expect(modelRef.selected).toBe("A");
@@ -206,7 +201,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "One"}, {value: 2, label: "Two"}],
         selected: "2"
       };
-      $control.getAddressModel.and.returnValue(modelRef);
+      $control.getAddressModel.mockReturnValue(modelRef);
 
       select.onStart();
 
@@ -219,8 +214,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "One"}, {value: "2", label: "Two"}],
         selected: [1, "2"]
       };
-      spyOn($translate, "instant").and.callFake(text => `T-${text}`);
-      $control.getAddressModel.and.returnValue(modelRef);
+      jest.spyOn($translate, "instant").mockImplementation(text => `T-${text}`);
+      $control.getAddressModel.mockReturnValue(modelRef);
 
       expect(select.getVisibleValue()).toBe("T-One, T-Two");
     });
@@ -230,9 +225,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "One"}, {value: "2", label: "Two"}, {value: 3, label: "Three"}],
         selected: [2, 4]
       };
-      spyOn($translate, "instant").and.callFake(text => `T-${text}`);
-      $control.getAddressModel.and.returnValue(modelRef);
-      let callback = jasmine.createSpy('callback');
+      jest.spyOn($translate, "instant").mockImplementation(text => `T-${text}`);
+      $control.getAddressModel.mockReturnValue(modelRef);
+      let callback = jest.fn().mockName('callback');
 
       select.scope.aweSelectOptions.initSelection(null, callback);
 
@@ -249,8 +244,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       suggest = new $selector($scope, "tutu", {});
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
       suggest.asSuggest();
     });
 
@@ -259,7 +254,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       suggest.model = {storedValues: [], values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
 
       // Update model values
-      spyOn($control, "getAddressModel").and.returnValue(suggest.model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(suggest.model);
       suggest.onModelChangedValues();
 
       // Check values updated
@@ -271,7 +266,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       suggest.model = {storedValues: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], values: [], selected: []};
 
       // Update model values
-      spyOn($control, "getAddressModel").and.returnValue(suggest.model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(suggest.model);
       suggest.onModelChangedValues();
 
       // Check values updated
@@ -287,7 +282,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       };
 
       // Update model values
-      spyOn($control, "getAddressModel").and.returnValue(suggest.model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(suggest.model);
       suggest.onModelChangedValues();
 
       // Check values updated
@@ -303,7 +298,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       };
 
       // Update model values
-      spyOn($control, "getAddressModel").and.returnValue(suggest.model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(suggest.model);
       suggest.onModelChangedSelected();
 
       // Check values updated
@@ -319,8 +314,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       };
 
       // Update model values
-      spyOn($control, "getAddressModel").and.returnValue(suggest.model);
-      spyOn(suggest, "reload").and.callFake(() => suggest.model.values = [{value: 3, label: "Another one bites the dust"}]);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(suggest.model);
+      jest.spyOn(suggest, "reload").mockImplementation(() => suggest.model.values = [{value: 3, label: "Another one bites the dust"}]);
       suggest.onModelChangedSelected();
 
       // Check values updated
@@ -333,7 +328,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: [2]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data = {values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
@@ -352,7 +347,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: [2]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data2 = {
@@ -376,7 +371,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: "B", label: "lala"}, {value: 2, label: "Other"}],
         selected: ["B"]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data = {values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
@@ -394,7 +389,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: [1]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data3 = {selected: [0]};
@@ -413,7 +408,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: null
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data = {values: []};
@@ -432,8 +427,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [],
         selected: null
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
-      spyOn(suggest, "reload").and.returnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn(suggest, "reload").mockReturnValue(true);
 
       suggest.api.updateModelValues({selected: ["DjrRepPth"]});
 
@@ -448,8 +443,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: "DjrRepPth", label: "5 (DjrRepPth)"}],
         selected: "DjrRepPth"
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
-      spyOn(suggest, "reload").and.returnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn(suggest, "reload").mockReturnValue(true);
 
       suggest.api.updateModelValues({selected: ["DjrHdgPag"]});
 
@@ -464,8 +459,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [],
         selected: "test"
       };
-      let callback = jasmine.createSpy('callback');
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      let callback = jest.fn().mockName('callback');
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       suggest.scope.aweSelectOptions.initSelection(null, callback);
 
@@ -478,8 +473,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: "other", label: "Other"}],
         selected: "test"
       };
-      let callback = jasmine.createSpy('callback');
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      let callback = jest.fn().mockName('callback');
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       suggest.scope.aweSelectOptions.initSelection(null, callback);
 
@@ -496,8 +491,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       suggest = new $selector($scope, "tutu", {});
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
       suggest.asSuggestMultiple();
     });
 
@@ -507,7 +502,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: [2]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data = {values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
@@ -527,7 +522,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: [2]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data2 = {
@@ -552,7 +547,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: "B", label: "lala"}, {value: 2, label: "Other"}],
         selected: ["B"]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data = {values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}], selected: [1]};
@@ -570,7 +565,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: [1]
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data3 = {selected: [0, 2]};
@@ -589,7 +584,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 0, label: "No"}, {value: 1, label: "Yes"}, {value: 2, label: "Other"}],
         selected: null
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
 
       // Define values to update
       let data = {values: []};
@@ -608,8 +603,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [],
         selected: null
       };
-      spyOn($control, "getAddressModel").and.returnValue(model);
-      spyOn(suggest, "reload").and.returnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn(suggest, "reload").mockReturnValue(true);
 
       suggest.api.updateModelValues({selected: ["test", "pei"]});
 
@@ -627,8 +622,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         ],
         selected: null
       };
-      spyOn($control, 'getAddressModel').and.returnValue(modelRef);
-      suggest.modelChange = jasmine.createSpy('modelChange');
+      jest.spyOn($control, 'getAddressModel').mockReturnValue(modelRef);
+      suggest.modelChange = jest.fn().mockName('modelChange');
 
       suggest.onPluginChange({val: 'a,test,t'});
 
@@ -642,8 +637,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         values: [{value: 'a,test', label: 'a,test'}, {value: 'x', label: 'x'}],
         selected: null
       };
-      spyOn($control, 'getAddressModel').and.returnValue(modelRef);
-      suggest.modelChange = jasmine.createSpy('modelChange');
+      jest.spyOn($control, 'getAddressModel').mockReturnValue(modelRef);
+      suggest.modelChange = jest.fn().mockName('modelChange');
 
       suggest.onPluginChange({val: 'a,test'});
 
@@ -659,8 +654,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
         ],
         selected: null
       };
-      spyOn($control, 'getAddressModel').and.returnValue(modelRef);
-      suggest.modelChange = jasmine.createSpy('modelChange');
+      jest.spyOn($control, 'getAddressModel').mockReturnValue(modelRef);
+      suggest.modelChange = jest.fn().mockName('modelChange');
 
       suggest.onPluginChange({val: ['a', 'test']});
 
@@ -675,9 +670,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       let modelRef = {values: [], selected: null};
-      spyOn($control, "getAddressModel").and.returnValue(modelRef);
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(modelRef);
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
       let select = new $selector($scope, "tutu", {});
       select.asSelectMultiple();
@@ -691,11 +686,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/selector.js', fu
       $scope.view = "report";
       $scope.context = "contexto";
       let modelRef = {values: [], selected: "A"};
-      spyOn($control, "getAddressModel").and.returnValue(modelRef);
-      spyOn($control, "getAddressController").and.returnValue({id: "tutu"});
-      spyOn($control, "checkComponent").and.returnValue(true);
-      spyOn($serverData, "getServerAction").and.returnValue({});
-      spyOn($actionController, "addActionList");
+      jest.spyOn($control, "getAddressModel").mockReturnValue(modelRef);
+      jest.spyOn($control, "getAddressController").mockReturnValue({id: "tutu"});
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
+      jest.spyOn($serverData, "getServerAction").mockReturnValue({});
+      jest.spyOn($actionController, "addActionList");
 
       let suggest = new $selector($scope, "tutu", {});
       suggest.asSuggestMultiple();

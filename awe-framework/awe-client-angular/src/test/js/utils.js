@@ -14,7 +14,7 @@ export function launchScreenAction($injector, actionName, actionMethod, paramete
   let action = $actionController.generateAction({type: actionName, ...parameters}, {address: {view: "base"}}, true, true);
 
   // Spy screen action
-  spyOn(action, "accept").and.callFake(done);
+  jest.spyOn(action, "accept").mockImplementation(done);
 
   // Call action
   $screen[actionMethod].call(this, action);

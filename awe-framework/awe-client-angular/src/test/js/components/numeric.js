@@ -26,7 +26,7 @@ describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', f
       $httpBackend.when('POST', 'settings').respond(DefaultSettings);
 
       // Spy on storage
-      spyOn($storage, "get").and.returnValue({'base': {}});
+      jest.spyOn($storage, "get").mockReturnValue({'base': {}});
     }]);
   });
 
@@ -47,8 +47,8 @@ describe('awe-framework/awe-client-angular/src/test/js/components/numeric.js', f
   it('initializes a component', function() {
     $rootScope.firstLoad = true;
 
-    spyOn($control, "getAddressModel").and.returnValue({defaultValues:[], page:1, records:0, selected:[], total:0, values:[]});
-    spyOn($control, "getAddressController").and.returnValue({numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"numeric", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true});
+    jest.spyOn($control, "getAddressModel").mockReturnValue({defaultValues:[], page:1, records:0, selected:[], total:0, values:[]});
+    jest.spyOn($control, "getAddressController").mockReturnValue({numberFormat: "{min: 0}", checkInitial: true, checkTarget:false, checked:false, component:"numeric", contextMenu:[], dependencies:[], icon:"search", id:"RefreshTime", loadAll:false, optional:false, placeholder:"SCREEN_TEXT_USER", printable:true, readonly:false, required:true, size:"lg", strict:true, style:"no-label", validation:"required", visible:true});
 
     // Compile a piece of HTML containing the directive
     let  element = $compile("<awe-input-numeric input-numeric-id='RefreshTime'></awe-input-numeric>")($rootScope);

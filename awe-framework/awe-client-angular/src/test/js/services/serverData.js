@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/serverData.js', function() {
-  let $injector, $serverData, $storage, $connection, $log, $actionController;
-  let originalTimeout;
-
+  let $injector, $serverData, $storage, $connection, $log, $actionController;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -15,34 +13,31 @@ describe('awe-framework/awe-client-angular/src/test/js/services/serverData.js', 
       $log = $injector.get('$log');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   it('should retrieve form values for printing (empty)', function() {
-    spyOn($storage, "get").and.returnValue({});
+    jest.spyOn($storage, "get").mockReturnValue({});
     expect($serverData.getFormValuesForPrinting()).toEqual({});
   });
 
   it('should retrieve form values for printing (some values)', function() {
-    spyOn($storage, "get").and.returnValue({report:{reportOrientation:{selected:"LANDSCAPE", getPrintData: () => ({tutu: "lala"})}, otro: {}}});
+    jest.spyOn($storage, "get").mockReturnValue({report:{reportOrientation:{selected:"LANDSCAPE", getPrintData: () => ({tutu: "lala"})}, otro: {}}});
     $log.debug($serverData.getFormValuesForPrinting());
     expect($serverData.getFormValuesForPrinting()).toEqual({tutu: "lala"});
   });
 
   it('should get template url', function() {
-    spyOn($connection, "getRawUrl").and.returnValue("");
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("");
     expect($serverData.getTemplateUrl("option", "view")).toBe("/template/screen/view/option");
     expect($serverData.getTemplateUrl("", "view")).toBe("/template/screen");
   });
 
   it('should get screen data', async function() {
-    spyOn($actionController, "addActionList");
-    spyOn($connection, "post").and.returnValue(Promise.reject({
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.reject({
       status: 500,
       data: { title: "Internal Error", message: "Something went wrong" }
     }));

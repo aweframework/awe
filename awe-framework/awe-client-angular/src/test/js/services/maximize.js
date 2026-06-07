@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/maximize.js', function() {
-  let $injector, Maximize, Utilities, Position;
-  let originalTimeout;
-
+  let $injector, Maximize, Utilities, Position;
   const controller = {
     maximize: true
   };
@@ -35,20 +33,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/maximize.js', fu
       Utilities = $injector.get('AweUtilities');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   it('should init maximize', function() {
     const element = {};
     const $scope = {
       controller,
       $root: {},
-      $on: jasmine.createSpy("$on")
+      $on: jest.fn().mockName("$on")
     };
     // Init
     Maximize.initMaximize($scope, element);
@@ -58,7 +53,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/maximize.js', fu
     const element = {};
     const $scope = {
       $root: {},
-      $on: jasmine.createSpy("$on")
+      $on: jest.fn().mockName("$on")
     };
     // Init
     Maximize.initMaximize($scope, element);
@@ -72,17 +67,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/maximize.js', fu
     const $scope = {
       controller,
       $root: {},
-      $on: jasmine.createSpy("$on"),
-      $emit: jasmine.createSpy("$emit"),
-      $broadcast: jasmine.createSpy("$broadcast")
+      $on: jest.fn().mockName("$on"),
+      $emit: jest.fn().mockName("$emit"),
+      $broadcast: jest.fn().mockName("$broadcast")
     };
     // Passthrough timeout
-    spyOn(Utilities, "timeout").and.callFake((fn) => fn());
-    spyOn(element, "val").and.returnValue(getNode(element, resizing, parent));
-    spyOn(resizing, "val").and.returnValue(getNode(resizing, resizing, resizing));
-    spyOn(parent, "val").and.returnValue(getNode(parent, parent, parent));
-    spyOn($.fn, "offset").and.returnValue({top: 0, left: 0});
-    spyOn(Utilities, "animateCSS").and.callFake((a, b, c, fn) => fn());
+    jest.spyOn(Utilities, "timeout").mockImplementation((fn) => fn());
+    jest.spyOn(element, "val").mockReturnValue(getNode(element, resizing, parent));
+    jest.spyOn(resizing, "val").mockReturnValue(getNode(resizing, resizing, resizing));
+    jest.spyOn(parent, "val").mockReturnValue(getNode(parent, parent, parent));
+    jest.spyOn($.fn, "offset").mockReturnValue({top: 0, left: 0});
+    jest.spyOn(Utilities, "animateCSS").mockImplementation((a, b, c, fn) => fn());
 
     // Init
     Maximize.initMaximize($scope, element);
@@ -101,17 +96,17 @@ describe('awe-framework/awe-client-angular/src/test/js/services/maximize.js', fu
     const $scope = {
       controller,
       $root: {},
-      $on: jasmine.createSpy("$on"),
-      $emit: jasmine.createSpy("$emit"),
-      $broadcast: jasmine.createSpy("$broadcast")
+      $on: jest.fn().mockName("$on"),
+      $emit: jest.fn().mockName("$emit"),
+      $broadcast: jest.fn().mockName("$broadcast")
     };
     // Passthrough timeout
-    spyOn(Utilities, "timeout").and.callFake((fn) => fn());
-    //spyOn($.fn, "val").and.callFake((e) => e);
-    spyOn(element, "val").and.returnValue(getNode(element, resizing, parent));
-    spyOn(resizing, "val").and.returnValue(getNode(resizing, resizing, resizing));
-    spyOn(parent, "val").and.returnValue(getNode(parent, parent, parent));
-    spyOn(Utilities, "animateCSS").and.callFake((a, b, c, fn) => fn());
+    jest.spyOn(Utilities, "timeout").mockImplementation((fn) => fn());
+    //jest.spyOn($.fn, "val").mockImplementation((e) => e);
+    jest.spyOn(element, "val").mockReturnValue(getNode(element, resizing, parent));
+    jest.spyOn(resizing, "val").mockReturnValue(getNode(resizing, resizing, resizing));
+    jest.spyOn(parent, "val").mockReturnValue(getNode(parent, parent, parent));
+    jest.spyOn(Utilities, "animateCSS").mockImplementation((a, b, c, fn) => fn());
 
     // Init
     Maximize.initMaximize($scope, element);

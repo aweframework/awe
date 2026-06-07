@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/grid/multioperation.js', function () {
-  let $injector, GridMultioperation, GridEditable, $rootScope, $control;
-  let originalTimeout;
-  const currentModel = {};
+  let $injector, GridMultioperation, GridEditable, $rootScope, $control;  const currentModel = {};
   const currentController = {columnModel: []};
 
   const getDefaultComponent = () => ({
@@ -50,19 +48,16 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/multioperat
       $rootScope = $injector.get('$rootScope');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function () {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function () {  });
 
   it('should initialize a multioperation grid', function () {
     // Mock
     let component = getDefaultComponent();
     let multioperation = new GridMultioperation(component);
-    spyOn(component.gridEditable, "init").and.returnValue(true);
+    jest.spyOn(component.gridEditable, "init").mockReturnValue(true);
     expect(multioperation.init()).toBe(true);
   });
 
@@ -74,13 +69,13 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/multioperat
       // Mock
       component = getDefaultComponent();
       let multioperation = new GridMultioperation(component);
-      spyOn(component.gridEditable, "init").and.returnValue(true);
+      jest.spyOn(component.gridEditable, "init").mockReturnValue(true);
       multioperation.init();
-      component.hideContextMenu = jasmine.createSpy("hideContextMenu");
-      component.deleteRowCells = jasmine.createSpy("deleteRowCells");
-      component.deleteRowSpecific = jasmine.createSpy("deleteRowSpecific");
-      component.addRowStyle = jasmine.createSpy("addRowStyle");
-      spyOn($control, "changeModelAttribute");
+      component.hideContextMenu = jest.fn().mockName("hideContextMenu");
+      component.deleteRowCells = jest.fn().mockName("deleteRowCells");
+      component.deleteRowSpecific = jest.fn().mockName("deleteRowSpecific");
+      component.addRowStyle = jest.fn().mockName("addRowStyle");
+      jest.spyOn($control, "changeModelAttribute");
       component.getSelectedRows = () => [4];
     });
 

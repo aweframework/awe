@@ -65,10 +65,6 @@
     <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
     <plugin-maven-archetype.version>3.2.1</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.1.1</plugin-maven-install.version>
-    <!-- Karma configuration -->
-    <karma.launch.edge>true</karma.launch.edge>
-    <karma.launch.gitlab>false</karma.launch.gitlab>
-
     <!-- Skip configuration -->
     <skip.selenium>true</skip.selenium>
     <skip.main>false</skip.main>

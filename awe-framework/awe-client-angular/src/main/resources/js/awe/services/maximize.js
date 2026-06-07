@@ -144,7 +144,7 @@ aweApplication.factory('Maximize',
               minimizeParentsAndSiblings();
               scope.$broadcast("resize");
             });
-          }
+          };
 
           /**
            * Animate restore
@@ -157,14 +157,13 @@ aweApplication.factory('Maximize',
               scope.iconMaximized = false;
               scope.$broadcast("resize");
             });
-          }
+          };
 
           /**
            * Calculate maximized size depending on maximize target
            * @returns {object} Resizing size
            */
           const maximizeTargetLayer = function () {
-            console.info(maximizeTarget);
             let finalSize = position.getInnerDimensions(maximizeTarget);
             // Get margins
             let margins = {
@@ -175,7 +174,6 @@ aweApplication.factory('Maximize',
             finalSize.height -= margins.height;
             // Apply maximize dimensions to target layer
             let elemSize = _.cloneDeep(finalSize);
-            console.info(elem);
             let offset = elem.offsetParent().offset();
             elemSize.top -= offset.top;
             elemSize.left -= offset.left;
@@ -233,7 +231,7 @@ aweApplication.factory('Maximize',
             scope.maximized = false;
 
             // Launch animation
-            Utilities.timeout(() => animateRestore(resizing), 150)
+            Utilities.timeout(() => animateRestore(resizing), 150);
           };
 
           /**

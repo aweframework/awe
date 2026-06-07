@@ -1,9 +1,7 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/js/services/component.js', function () {
-  let $rootScope, $injector, $control, $utilities, Component, $httpBackend;
-  let originalTimeout;
-  let address = {"component": "comp1", "view": "report"};
+  let $rootScope, $injector, $control, $utilities, Component, $httpBackend;  let address = {"component": "comp1", "view": "report"};
   let scopedFunctions = {};
   let scope = {view: "report", $parent: {$parent: {}}, $on: (k, fn) => scopedFunctions[k] = fn, $emit: () => null};
   let controller;
@@ -23,21 +21,18 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
       controller = {visible: true};
       model = {selected: "text", records: 14, values: [{value:"text", label:"Visible text"}]};
 
-      spyOn($control, "checkComponent").and.returnValue(true);
-      spyOn($control, "getAddressModel").and.returnValue(model);
-      spyOn($control, "getAddressController").and.returnValue(controller);
+      jest.spyOn($control, "checkComponent").mockReturnValue(true);
+      jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn($control, "getAddressController").mockReturnValue(controller);
 
       $httpBackend.when('POST', 'settings').respond(DefaultSettings);
     }]);
 
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function () {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function () {  });
 
   it('should generate a component', function () {
     // Prepare
@@ -117,11 +112,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
 
   it('should destroy a component', function () {
     // Prepare
-    spyOn($utilities, "clearListeners");
+    jest.spyOn($utilities, "clearListeners");
     delete model.records;
     let comp = new Component(scope, "comp2");
     comp.init();
-    comp.helpTargets = {comp2: {over: false, timer: null, node: {off: jasmine.createSpy('helpNodeOFF')}}};
+    comp.helpTargets = {comp2: {over: false, timer: null, node: {off: jest.fn().mockName('helpNodeOFF')}}};
 
     // Call destroy
     scopedFunctions["$destroy"]();
@@ -134,8 +129,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
 
   it('should initialize a help node', function () {
     // Prepare
-    spyOn($control, "publish");
-    spyOn($utilities, "timeout").and.callFake(fn => fn());
+    jest.spyOn($control, "publish");
+    jest.spyOn($utilities, "timeout").mockImplementation(fn => fn());
     delete model.records;
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
@@ -152,8 +147,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
 
   it('should call a help node with a destroyed object', function () {
     // Prepare
-    spyOn($control, "publish");
-    spyOn($utilities, "timeout").and.callFake(fn => fn());
+    jest.spyOn($control, "publish");
+    jest.spyOn($utilities, "timeout").mockImplementation(fn => fn());
     delete model.records;
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
@@ -170,11 +165,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
 
   it('should call a help node with a disabled object when showing', function () {
     // Prepare
-    spyOn($control, "publish");
+    jest.spyOn($control, "publish");
     delete model.records;
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
-    spyOn($utilities, "timeout").and.callFake(fn => {
+    jest.spyOn($utilities, "timeout").mockImplementation(fn => {
       comp.isDisabled = () => true;
       fn();
     });
@@ -191,11 +186,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/component.js', f
 
   it('should call a help node with a component not hover when showing', function () {
     // Prepare
-    spyOn($control, "publish");
+    jest.spyOn($control, "publish");
     delete model.records;
     let comp = new Component(scope, "comp2");
     let help = {node: document.createElement("div")};
-    spyOn($utilities, "timeout").and.callFake(fn => {
+    jest.spyOn($utilities, "timeout").mockImplementation(fn => {
       comp.helpTargets.comp2.over = false;
       fn();
     });

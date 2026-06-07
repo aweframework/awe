@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/controllers/screen.js', function() {
-  let scope, controller, $settings, $actionController, $dependencyController, $screen;
-  let originalTimeout;
-
+  let scope, controller, $settings, $actionController, $dependencyController, $screen;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -23,13 +21,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/screen.js', f
       });
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   // A simple test to verify the controller exists
   it('should exist', function() {
@@ -46,18 +41,18 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/screen.js', f
     // Check action information
     it('should log action information', function() {
       let action = {action: "miAccion", parameters: ["tutu", {lala: 1}]};
-      spyOn(console, 'info');
+      jest.spyOn(console, 'info');
       controller.showInfo(action);
       expect(console.info).toHaveBeenCalled();
     });
 
     // Trigger scope events
     it('should trigger scope events', function() {
-      spyOn($dependencyController, "checkAndLaunch");
-      spyOn($dependencyController, "start");
-      spyOn($dependencyController, "restart");
-      spyOn($dependencyController, "unregisterView");
-      spyOn($screen, "screen");
+      jest.spyOn($dependencyController, "checkAndLaunch");
+      jest.spyOn($dependencyController, "start");
+      jest.spyOn($dependencyController, "restart");
+      jest.spyOn($dependencyController, "unregisterView");
+      jest.spyOn($screen, "screen");
       scope.$emit("modelChanged");
       scope.$emit("compiled");
       scope.$emit("initialize-cell");

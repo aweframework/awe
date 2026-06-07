@@ -92,7 +92,7 @@ Add the build environment property and configure `frontend-maven-plugin` to exec
 </plugin>
 ```
 
-`npm ci --include=dev` explicitly installs development tooling such as Karma and `webpack-cli`
+`npm ci --include=dev` explicitly installs development tooling such as Jest and `webpack-cli`
 for CI, tests, and builds. `NODE_ENV=${build.environment}` is scoped to the build execution only,
 so production builds remain production builds.
 
@@ -103,12 +103,15 @@ Each frontend package that uses Webpack should expose these scripts:
   "scripts": {
     "build": "npm run build:production",
     "build:development": "webpack --config webpack.config.js --mode development",
-    "build:production": "webpack --config webpack.config.js --mode production"
+    "build:production": "webpack --config webpack.config.js --mode production",
+    "test": "jest --config jest.config.js",
+    "test:coverage": "jest --config jest.config.js --coverage"
   }
 }
 ```
 
 This keeps Maven releases and consumers on optimized bundles by default without changing the generated asset paths.
+Use `npm test` for local unit tests, and use `npm run test:coverage` for Maven, CI, Sonar, or any path that needs Jest JUnit and LCOV reports under `target/reports/jest/`.
 
 > **Note:** More info about less plugin [here](https://github.com/marceloverdijk/lesscss-maven-plugin)
 

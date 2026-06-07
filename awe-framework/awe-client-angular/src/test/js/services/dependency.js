@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/dependency.js', function() {
-  let $injector, Dependency, $storage, $utilities;
-  let originalTimeout;
-
+  let $injector, Dependency, $storage, $utilities;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -13,13 +11,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/dependency.js', 
       $utilities = $injector.get('AweUtilities');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   /**
    * Generate a dependency to test over it
@@ -29,7 +24,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/dependency.js', 
    */
   function generateDependency(dependencyValues, component) {
     let dependency = new Dependency(dependencyValues, component);
-    spyOn($storage, "get").and.callFake(action => {
+    jest.spyOn($storage, "get").mockImplementation(action => {
       switch (action) {
         case "model":
           return {report: {"tutu": {}, "lala":{"tutu":{"cells":{"tutu":"epa"}}}, "otro":{}, "lilo":{}, "otro2":{}, "eepa":{}}};
@@ -37,7 +32,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/dependency.js', 
           return {report: {"tutu": () => null, "lala": {getAttribute: () => "2"}, "otro": () => 3, "lilo": () => null,"otro2": () => null,"eepa": () => null}};
       }
     });
-    spyOn($utilities, "getAttribute").and.callFake((address, attribute) => {
+    jest.spyOn($utilities, "getAttribute").mockImplementation((address, attribute) => {
       switch (address.component) {
         case "tutu": return null;
         case "lala": return "1";

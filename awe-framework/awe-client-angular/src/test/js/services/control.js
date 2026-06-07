@@ -1,7 +1,5 @@
 describe('awe-framework/awe-client-angular/src/test/js/services/control.js', function () {
-  let $injector, $control, $utilities, $storage, $log;
-  let originalTimeout;
-
+  let $injector, $control, $utilities, $storage, $log;
   // Mock module
   beforeEach(function () {
     angular.mock.module('aweApplication');
@@ -14,13 +12,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
       $log = $injector.get('$log');
     }]);
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function () {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function () {  });
 
   // Get address type
   it('should retrieve address type', function () {
@@ -34,10 +29,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
   // Get target
   it('should retrieve a target from storage', function () {
     // Mock
-    spyOn($storage, "has").and.returnValue(true);
-    spyOn($storage, "get").and.returnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
-    spyOn($utilities, "getCellId").and.returnValue("tutu");
-    spyOn(_, "each").and.callThrough();
+    jest.spyOn($storage, "has").mockReturnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
+    jest.spyOn($utilities, "getCellId").mockReturnValue("tutu");
+    jest.spyOn(_, "each");
 
     // Assert
     expect($control.getTarget({component: "tutu", view: "lala", column: "Des", row: "2"}, "model")).toEqual("epa");
@@ -49,9 +44,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
   // Get target
   it('should retrieve a target from storage but storage has not the key', function () {
     // Mock
-    spyOn($storage, "has").and.returnValue(false);
-    spyOn($storage, "get").and.returnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
-    spyOn($utilities, "getCellId").and.returnValue("tutu");
+    jest.spyOn($storage, "has").mockReturnValue(false);
+    jest.spyOn($storage, "get").mockReturnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
+    jest.spyOn($utilities, "getCellId").mockReturnValue("tutu");
 
     // Assert
     expect($control.getTarget({component: "tutu", view: "lala", column: "Des", row: "2"}, "model")).toEqual(null);
@@ -63,9 +58,9 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
   // Get target
   it('should retrieve a target from storage but element is not found', function () {
     // Mock
-    spyOn($storage, "has").and.returnValue(true);
-    spyOn($storage, "get").and.returnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
-    spyOn($utilities, "getCellId").and.returnValue("lolo");
+    jest.spyOn($storage, "has").mockReturnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
+    jest.spyOn($utilities, "getCellId").mockReturnValue("lolo");
 
     // Assert
     expect($control.getTarget({component: "tutu", view: "lala", column: "Des", row: "2"}, "model")).toEqual(null);
@@ -80,11 +75,11 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
     let target = {};
 
     // Mock
-    spyOn($storage, "has").and.callFake(action => {
+    jest.spyOn($storage, "has").mockImplementation(action => {
       return action !== "otra";
     });
-    spyOn($storage, "get").and.returnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
-    spyOn($utilities, "getCellId").and.returnValue("lolo");
+    jest.spyOn($storage, "get").mockReturnValue({"lala": {"tutu": {"cells": {"tutu": "epa"}}, "otro": {}}});
+    jest.spyOn($utilities, "getCellId").mockReturnValue("lolo");
 
     // Assert
     expect($control.setTarget({
@@ -114,8 +109,8 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
         {value: "tutu", label: "Tutu"}
       ]
     };
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($storage, "get").and.returnValue({base: "loaded"});
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($storage, "get").mockReturnValue({base: "loaded"});
 
     $control.changeModelAttribute({component: "tutu", view: "base"}, newModel, false);
 
@@ -126,10 +121,10 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
 
   it('should persist model attributes even when updateModelValues api is missing', function () {
     let model = {previous: null, selected: null, values: []};
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($storage, "get").and.returnValue({base: "loaded"});
-    spyOn($control, "getAddressApi").and.returnValue({});
-    spyOn($log, "warn");
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($storage, "get").mockReturnValue({base: "loaded"});
+    jest.spyOn($control, "getAddressApi").mockReturnValue({});
+    jest.spyOn($log, "warn");
 
     $control.changeModelAttribute({component: "Sug", view: "base"}, {selected: "test"}, false);
 
@@ -140,12 +135,12 @@ describe('awe-framework/awe-client-angular/src/test/js/services/control.js', fun
 
   it('should delegate to updateModelValues without direct fallback when api exists', function () {
     let model = {previous: null, selected: null, values: []};
-    let updateModelValues = jasmine.createSpy('updateModelValues').and.callFake(function (data) {
+    let updateModelValues = jest.fn().mockName('updateModelValues').mockImplementation(function (data) {
       model.selected = data.selected;
     });
-    spyOn($control, "getAddressModel").and.returnValue(model);
-    spyOn($storage, "get").and.returnValue({base: "loaded"});
-    spyOn($control, "getAddressApi").and.returnValue({updateModelValues});
+    jest.spyOn($control, "getAddressModel").mockReturnValue(model);
+    jest.spyOn($storage, "get").mockReturnValue({base: "loaded"});
+    jest.spyOn($control, "getAddressApi").mockReturnValue({updateModelValues});
 
     $control.changeModelAttribute({component: "Sug", view: "base"}, {selected: "test"}, false);
 

@@ -1,9 +1,7 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', function() {
-  let $scope, $compile, $utilities, $settings, $actionController, $control, $serverData, $validator, $httpBackend, $connection;
-  let originalTimeout;
-
+  let $scope, $compile, $utilities, $settings, $actionController, $control, $serverData, $validator, $httpBackend, $connection;
   // Mock module
   beforeEach(function() {
     angular.mock.module('aweApplication');
@@ -27,13 +25,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     $httpBackend.when('POST', 'settings').respond(DefaultSettings);
     $httpBackend.when('POST', 'http://server/action/screen-data').respond({});
 
-    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    jest.setTimeout(10000);
   });
 
-  afterEach(function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-  });
+  afterEach(function() {  });
 
   /**
    * Define form element for tests
@@ -73,8 +68,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       let action = $actionController.generateAction({type: actionName, ...parameters}, {}, true, true);
 
       // Spy screen action
-      spyOn(action, "accept").and.callFake(done);
-      spyOn(action, "launchAction").and.callThrough();
+      jest.spyOn(action, "accept").mockImplementation(done);
+      jest.spyOn(action, "launchAction");
 
       // Call action
       action.run();
@@ -90,9 +85,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should launch a server-download action', function(done) {
       // Prepare
       defineForm();
-      spyOn($serverData, "getFormValues");
-      spyOn($serverData, "getFileData").and.returnValue({});
-      spyOn($control, "getAddressApi").and.returnValue({getSpecificFields: done});
+      jest.spyOn($serverData, "getFormValues");
+      jest.spyOn($serverData, "getFileData").mockReturnValue({});
+      jest.spyOn($control, "getAddressApi").mockReturnValue({getSpecificFields: done});
 
       // Run
       launchFormAction("server-download", "serverDownload", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{message:{message: "This field is required", id: "cod_usr", uid: "6a2bda7a-03dd-8106-d906-ecd029f5c6fa"}}});
@@ -107,10 +102,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should launch a server-download action without target', function() {
       // Prepare
       defineForm();
-      spyOn($serverData, "getFormValues");
-      spyOn($serverData, "getFileData").and.returnValue({});
-      spyOn($utilities, "downloadFile");
-      spyOn($control, "getAddressApi");
+      jest.spyOn($serverData, "getFormValues");
+      jest.spyOn($serverData, "getFileData").mockReturnValue({});
+      jest.spyOn($utilities, "downloadFile");
+      jest.spyOn($control, "getAddressApi");
 
       // Run
       launchFormAction("server-download", "serverDownload", {parameters:{message:{message: "This field is required", id: "cod_usr", uid: "6a2bda7a-03dd-8106-d906-ecd029f5c6fa"}}});
@@ -126,9 +121,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should launch a server-download action without specific fields', function() {
       // Prepare
       defineForm();
-      spyOn($serverData, "getFormValues");
-      spyOn($serverData, "getFileData").and.returnValue({});
-      spyOn($control, "getAddressApi").and.returnValue({});
+      jest.spyOn($serverData, "getFormValues");
+      jest.spyOn($serverData, "getFileData").mockReturnValue({});
+      jest.spyOn($control, "getAddressApi").mockReturnValue({});
 
       // Run
       launchFormAction("server-download", "serverDownload", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{message:{message: "This field is required", id: "cod_usr", uid: "6a2bda7a-03dd-8106-d906-ecd029f5c6fa"}}});
@@ -143,9 +138,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should launch a copy-criterion-value-clipboard action', function() {
       // Prepare
       defineForm();
-      spyOn($control, "getAddressModel").and.returnValue({selected: "test"});
-      spyOn(navigator.clipboard, "writeText").and.returnValue(null);
-      spyOn($actionController, "acceptAction").and.returnValue({});
+      jest.spyOn($control, "getAddressModel").mockReturnValue({selected: "test"});
+      jest.spyOn(navigator.clipboard, "writeText").mockReturnValue(null);
+      jest.spyOn($actionController, "acceptAction").mockReturnValue({});
 
       // Run
       launchFormAction("copy-criterion-value-clipboard", "copyCriterionValueClipboard", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{message:{message: "This field is required", id: "cod_usr", uid: "6a2bda7a-03dd-8106-d906-ecd029f5c6fa"}}});
@@ -160,20 +155,20 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should perform logout by disconnecting, submitting form and destroying views', function() {
       // Prepare
       defineForm();
-      spyOn($actionController, "deleteStack");
-      const thenSpy = jasmine.createSpy("thenSpy");
-      spyOn($connection, "disconnect").and.returnValue({ then: (cb) => { cb(); return { then: thenSpy }; } });
-      spyOn($connection, "getActionUrl").and.callFake((action) => {
+      jest.spyOn($actionController, "deleteStack");
+      const thenSpy = jest.fn().mockName("thenSpy");
+      jest.spyOn($connection, "disconnect").mockReturnValue({ then: (cb) => { cb(); return { then: thenSpy }; } });
+      jest.spyOn($connection, "getActionUrl").mockImplementation((action) => {
         expect(action).toBe("logout");
         return "http://server/action/logout";
       });
 
       // Mock DOM form creation and submission
-      const submitSpy = jasmine.createSpy("submit");
+      const submitSpy = jest.fn().mockName("submit");
       const fakeForm = { method: "", action: "", submit: submitSpy };
-      spyOn(document, "createElement").and.returnValue(fakeForm);
-      spyOn(document.body, "appendChild");
-      spyOn($control, "destroyAllViews");
+      jest.spyOn(document, "createElement").mockReturnValue(fakeForm);
+      jest.spyOn(document.body, "appendChild");
+      jest.spyOn($control, "destroyAllViews");
 
       // Run
       launchFormAction("logout", "logout", {address:{view: "base"}});
@@ -191,26 +186,26 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should call an update-controller action', function() {
       // Prepare
       defineForm();
-      spyOn($control, "changeControllerAttribute").and.returnValue({});
-      spyOn($actionController, "acceptAction").and.returnValue({});
+      jest.spyOn($control, "changeControllerAttribute").mockReturnValue({});
+      jest.spyOn($actionController, "acceptAction").mockReturnValue({});
 
       // Run
       launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "lala", datalist: {rows:[{value: "tutu"}]}}});
       launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "lele", value: "lolo"}});
 
       // Assert
-      expect($control.changeControllerAttribute.calls.allArgs()).toEqual([
+      expect($control.changeControllerAttribute.mock.calls).toEqual([
         [{view: "base", component:"tutu"}, {"lala": "tutu"}],
         [{view: "base", component:"tutu"}, {"lele": "lolo"}]
       ]);
-      expect($actionController.acceptAction.calls.count()).toBe(2);
+      expect($actionController.acceptAction.mock.calls.length).toBe(2);
     });
 
     it('should preserve falsy explicit values in update-controller actions', function() {
       // Prepare
       defineForm();
-      spyOn($control, "changeControllerAttribute").and.returnValue({});
-      spyOn($actionController, "acceptAction").and.returnValue({});
+      jest.spyOn($control, "changeControllerAttribute").mockReturnValue({});
+      jest.spyOn($actionController, "acceptAction").mockReturnValue({});
 
       // Run
       launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "zero", value: 0}});
@@ -218,7 +213,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       launchFormAction("update-controller", "updateController", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{attribute: "empty", value: ""}});
 
       // Assert
-      expect($control.changeControllerAttribute.calls.allArgs()).toEqual([
+      expect($control.changeControllerAttribute.mock.calls).toEqual([
         [{view: "base", component:"tutu"}, {"zero": 0}],
         [{view: "base", component:"tutu"}, {"flag": false}],
         [{view: "base", component:"tutu"}, {"empty": ""}]
@@ -228,8 +223,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should set update-controller attribute to undefined when neither explicit value nor datalist rows exist', function() {
       // Prepare
       defineForm();
-      spyOn($control, "changeControllerAttribute").and.returnValue({});
-      spyOn($actionController, "acceptAction").and.returnValue({});
+      jest.spyOn($control, "changeControllerAttribute").mockReturnValue({});
+      jest.spyOn($actionController, "acceptAction").mockReturnValue({});
 
       // Run
       expect(function () {
@@ -248,9 +243,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       defineForm();
       let address = {view: "base", component: "tutu"};
       let values = ["A", "B"];
-      spyOn($utilities, "formatSelectedValues").and.returnValue(["A", "B"]);
-      spyOn($control, "changeModelAttribute").and.returnValue({});
-      spyOn($actionController, "acceptAction").and.callThrough();
+      jest.spyOn($utilities, "formatSelectedValues").mockReturnValue(["A", "B"]);
+      jest.spyOn($control, "changeModelAttribute").mockReturnValue({});
+      jest.spyOn($actionController, "acceptAction");
 
       // Run
       launchFormAction("select", "select", {address: address, parameters: {values: values}});
@@ -266,9 +261,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       defineForm();
       let address = {view: "base", component: "tutu"};
       let values = [{value: 1, label: "One"}, {value: 2, label: "Two"}];
-      spyOn($utilities, "formatSelectedValues").and.returnValue([1, 2]);
-      spyOn($control, "changeModelAttribute").and.returnValue({});
-      spyOn($actionController, "acceptAction").and.callThrough();
+      jest.spyOn($utilities, "formatSelectedValues").mockReturnValue([1, 2]);
+      jest.spyOn($control, "changeModelAttribute").mockReturnValue({});
+      jest.spyOn($actionController, "acceptAction");
 
       // Run
       launchFormAction("select", "select", {address: address, parameters: {values: values}});
@@ -284,9 +279,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
       defineForm();
       let address = {view: "base", component: "tutu"};
       let values = [{value: "A", label: "Alpha"}, {value: "B", label: "Beta"}];
-      spyOn($utilities, "formatSelectedValues").and.returnValue(["A", "B"]);
-      spyOn($control, "changeModelAttribute").and.returnValue({});
-      spyOn($actionController, "acceptAction").and.callThrough();
+      jest.spyOn($utilities, "formatSelectedValues").mockReturnValue(["A", "B"]);
+      jest.spyOn($control, "changeModelAttribute").mockReturnValue({});
+      jest.spyOn($actionController, "acceptAction");
 
       // Run
       launchFormAction("fill-suggest", "fillSuggest", {address: address, parameters: {values: values}});
@@ -301,8 +296,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     it('should call a validate action', function() {
       // Prepare
       defineForm();
-      spyOn($validator, "validateNode").and.returnValues([], ["error1", "error2"]);
-      spyOn($actionController, "finishAction").and.returnValue({});
+      jest.spyOn($validator, "validateNode").mockReturnValueOnce([]).mockReturnValueOnce(["error1", "error2"]);
+      jest.spyOn($actionController, "finishAction").mockReturnValue({});
 
       // Run
       launchFormAction("validate", "validate", {target:"tutu", address:{view: "base", component:"tutu"}, parameters:{}});
@@ -408,7 +403,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     /*function launchFormAction(actionName, actionMethod, parameters, done = () => null) {
       // Spy screen action
       let acceptAction = $actionController.acceptAction.bind($actionController);
-      spyOn($actionController, "acceptAction").and.callFake((action) => {
+      jest.spyOn($actionController, "acceptAction").mockImplementation((action) => {
         acceptAction(action);
         done();
       });
@@ -422,7 +417,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
 
     // Launch message action
     /*it('should launch a message action', function(done) {
-      spyOn(scope.alerts, "push").and.callFake((message) => {
+      jest.spyOn(scope.alerts, "push").mockImplementation((message) => {
         expect(message.type).toBe("success");
         expect(message.title).toBe("tutu");
         expect(message.msg).toBe("lala");
@@ -433,7 +428,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
 
     // Launch message action
     it('should launch a message action without message', function(done) {
-      spyOn(scope.alerts, "push").and.callFake((message) => {
+      jest.spyOn(scope.alerts, "push").mockImplementation((message) => {
         expect(message.type).toBe("danger");
         expect(message.title).not.toBeDefined();
         expect(message.msg).not.toBeDefined();
@@ -444,7 +439,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
 
     // Launch message action with a target message
     it('should launch a message action with a target message', function(done) {
-      spyOn(scope.alerts, "push").and.callFake((message) => {
+      jest.spyOn(scope.alerts, "push").mockImplementation((message) => {
         expect(message.type).toBe("warning");
         expect(message.title).toBe("lala");
         expect(message.msg).toBe("tutu");
@@ -463,8 +458,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     // Launch target-message action
     it('should launch a target-message action', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
@@ -483,9 +478,9 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     // Launch target-message action with address
     it('should launch a target-message action with a component address', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this});
-      spyOn($actionController, "isAlive").and.returnValue(true);
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this});
+      jest.spyOn($actionController, "isAlive").mockReturnValue(true);
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
@@ -504,8 +499,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     // Launch target-message action with address
     it('should launch a target-message action with a grid cell address', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
@@ -524,10 +519,10 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/form.js', fun
     // Launch target-message twice
     it('should launch a target-message action with a previous message defined', function(done) {
       let finished = false;
-      spyOn($.fn, "popover").and.callFake(function() {return this});
+      jest.spyOn($.fn, "popover").mockImplementation(function() {return this});
       controller.popover = {target: null};
-      spyOn($settings, "get").and.returnValue({"error": 1000});
-      spyOn(scope, "$on").and.callFake((event, func) => {
+      jest.spyOn($settings, "get").mockReturnValue({"error": 1000});
+      jest.spyOn(scope, "$on").mockImplementation((event, func) => {
         if (!finished) {
           finished = true;
           expect(controller.popover).toBeDefined();
