@@ -16,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -132,8 +133,7 @@ public class ChartService extends ServiceConfig {
    * @return Chart in server
    */
   private String generateChartInServer(Chart chart) throws AWException {
-    RestTemplate restTemplate = getBean(RestTemplate.class);
-    restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    RestTemplate restTemplate = buildChartRestTemplate(getBean(RestTemplate.class));
 
     // Generate parameters
     Map<String, Object> chartData = new HashMap<>();
@@ -152,6 +152,25 @@ public class ChartService extends ServiceConfig {
     }
 
     return responseEntity.getBody();
+  }
+
+  /**
+   * Build a request-local rest template for chart rendering without mutating the shared bean
+   *
+   * @param sharedRestTemplate Shared rest template bean
+   * @return Chart rendering rest template
+   */
+  private RestTemplate buildChartRestTemplate(RestTemplate sharedRestTemplate) {
+    RestTemplate chartRestTemplate = new RestTemplate(sharedRestTemplate.getRequestFactory());
+    chartRestTemplate.setUriTemplateHandler(sharedRestTemplate.getUriTemplateHandler());
+    chartRestTemplate.setErrorHandler(sharedRestTemplate.getErrorHandler());
+
+    List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+    messageConverters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    messageConverters.addAll(sharedRestTemplate.getMessageConverters());
+    chartRestTemplate.setMessageConverters(messageConverters);
+
+    return chartRestTemplate;
   }
 
   /**

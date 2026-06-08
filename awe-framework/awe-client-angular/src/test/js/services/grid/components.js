@@ -31,7 +31,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/components.
     grid.init();
 
     // Spy publishModelChanged
-    spyOn(Control, 'publishModelChanged').and.callFake(function(){});
+    jest.spyOn(Control, 'publishModelChanged').mockImplementation(function(){});
 
     // Build a fake cell located in row with id 2 and column colA
     let cell = {
@@ -50,7 +50,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/components.
     expect(component.model.values[1].colA).toBe('changed');
     // Assert publish was called with values
     expect(Control.publishModelChanged).toHaveBeenCalled();
-    const args = Control.publishModelChanged.calls.mostRecent().args;
+    const args = Control.publishModelChanged.mock.calls.at(-1);
     expect(args[0]).toEqual(component.address);
     expect(args[1]).toEqual({values: component.model.values});
   });
@@ -73,7 +73,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/components.
     let grid = new GridComponents(component);
     grid.init();
 
-    spyOn(Control, 'publishModelChanged').and.callFake(function(){});
+    jest.spyOn(Control, 'publishModelChanged').mockImplementation(function(){});
 
     // address.row that is not present -> getRowIndex should be -1
     let cell = {
@@ -82,7 +82,7 @@ describe('awe-framework/awe-client-angular/src/test/js/services/grid/components.
     };
 
     // Force getRowIndex to -1 to emulate footer behavior
-    spyOn(AweUtilities, 'getRowIndex').and.returnValue(-1);
+    jest.spyOn(AweUtilities, 'getRowIndex').mockReturnValue(-1);
 
     component.updateCellModel(cell);
 

@@ -12,6 +12,107 @@ require("highcharts/modules/boost.src")(Highcharts);
 require("highcharts/modules/no-data-to-display.src")(Highcharts);
 require("highcharts/modules/exporting.src")(Highcharts);
 
+function normalizeSvgReference(value) {
+  if (value?.indexOf('url(') !== 0) {
+    return value;
+  }
+  let match = value.match(/#([^)'"]+)\)?/);
+  return match ? 'url(#' + match[1] + ')' : value;
+}
+
+function normalizeSvgNodeAttribute(node, attribute) {
+  if (!node?.hasAttribute?.(attribute)) {
+    return;
+  }
+  let value = node.getAttribute(attribute);
+  let normalized = normalizeSvgReference(value);
+  if (normalized !== value) {
+    node.setAttribute(attribute, normalized);
+  }
+}
+
+function cloneChartOptions(options) {
+  return typeof structuredClone === 'function'
+    ? structuredClone(options)
+    : JSON.parse(JSON.stringify(options));
+}
+
+function normalizeSvgReferences(chartInstance) {
+  let container = chartInstance?.renderer?.box || chartInstance?.container;
+  if (!container) {
+    return;
+  }
+
+  if (chartInstance.renderer) {
+    chartInstance.renderer.url = '';
+  }
+
+  _.each(container.getElementsByTagName('*'), function (node) {
+    _.each(['fill', 'stroke', 'clip-path'], function (attribute) {
+      normalizeSvgNodeAttribute(node, attribute);
+    });
+  });
+}
+
+function destroyChartInstance(component) {
+  if (component.chartInstance) {
+    component.chartInstance.destroy();
+    component.chartInstance = null;
+  }
+}
+
+function updateChartDimensions(elem, Utilities) {
+  if (!Utilities.isVisible(elem[0])) {
+    return null;
+  }
+
+  return {
+    width: elem[0].clientWidth,
+    height: elem[0].clientHeight
+  };
+}
+
+function applyChartTheme(highchartOptions, themeChart) {
+  if (themeChart === undefined || themeChart === "" || !Highcharts.theme[themeChart]) {
+    return;
+  }
+
+  _.merge(highchartOptions, Highcharts.theme[themeChart]);
+  _.each(highchartOptions.xAxis, function (xAxis) {
+    _.merge(xAxis, Highcharts.theme[themeChart].xAxis);
+  });
+  _.each(highchartOptions.yAxis, function (yAxis) {
+    _.merge(yAxis, Highcharts.theme[themeChart].yAxis);
+  });
+}
+
+function getChartEvents(scope, elem) {
+  return {
+    chart: {
+      renderTo: elem[0],
+      events: {
+        selection: scope.component.onZoom,
+        redraw: scope.component.onRedraw,
+        load: scope.component.onRedraw
+      }
+    },
+    plotOptions: {
+      series: {
+        cursor: 'pointer',
+        point: {
+          events: {
+            click: scope.component.onClick
+          }
+        }
+      }
+    }
+  };
+}
+
+function buildChartInstance(highchartOptions, isStockChart) {
+  return isStockChart ? Highcharts.stockChart(highchartOptions) : Highcharts.chart(highchartOptions);
+}
+
 // Highcharts plugin
 aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
   /**
@@ -33,7 +134,6 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
       restrict: 'A',
       require: ['ngModel'],
       link: function (scope, elem, attrs, modelController) {
-
         // Flag chart all ready initialized
         let  chartDimensions = {
           width: 0,
@@ -48,87 +148,47 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
          * @param {object} oldValue plugin parameters
          */
         let  initPlugin = function (newValue, oldValue) {
-          if (newValue && (!scope.component.initialized || newValue !== oldValue)) {
-            chartOptions = newValue;
-            // Initialize chart with options
-            scope.component.initializeModel(newValue, modelController);
-            // Check flag stockChart
-            let  isStockChart = newValue.stockChart;
-            // Add specific options
-            _.merge(highchartOptions, newValue);
-            // Disable export button
-            highchartOptions.exporting = {
-              enabled: false
-            };
-            // Translate labels
-            scope.component.translateLabels(highchartOptions);
-            // Get theme
-            let  themeChart = chartOptions.theme;
-            // Mix options with chart theme
-            if (themeChart !== undefined && themeChart !== "" && Highcharts.theme[themeChart]) {
-              // Mix general options
-              _.merge(highchartOptions, Highcharts.theme[themeChart]);
-              // Mix theme options for multiple axis
-              _.each(highchartOptions.xAxis, function (xAxis) {
-                _.merge(xAxis, Highcharts.theme[themeChart].xAxis);
-              });
-              _.each(highchartOptions.yAxis, function (yAxis) {
-                _.merge(yAxis, Highcharts.theme[themeChart].yAxis);
-              });
+          if (!(newValue && (!scope.component.initialized || newValue !== oldValue))) {
+            if (scope.component.chartInstance) {
+              scope.component.chartInstance.redraw();
             }
-
-            // Add events to highcharts options
-            let  events = {
-              chart: {
-                renderTo: elem[0],
-                events: {
-                  selection: scope.component.onZoom,
-                  redraw: scope.component.onRedraw,
-                  load: scope.component.onRedraw
-                }
-              },
-              plotOptions: {
-                series: {
-                  cursor: 'pointer',
-                  point: {
-                    events: {
-                      click: scope.component.onClick
-                    }
-                  }
-                }
-              }
-            };
-            // Add events
-            _.merge(highchartOptions, events);
-            // Build chart
-            if (isStockChart) {
-              // Create stock chart
-              scope.component.chart = Highcharts.stockChart(highchartOptions);
-            } else {
-              // Create normal chart
-              scope.component.chart = Highcharts.chart(highchartOptions);
-            }
-
-            if (Utilities.isVisible(elem[0])) {
-              chartDimensions = {
-                width: elem[0].clientWidth,
-                height: elem[0].clientHeight
-              };
-            }
-            scope.component.initialized = true;
-          } else if (scope.component.chart) {
-            // Redraw chart
-            scope.component.chart.redraw();
+            return;
           }
+
+          highchartOptions = {};
+          chartOptions = cloneChartOptions(newValue);
+          scope.component.initializeModel(chartOptions, modelController);
+
+          _.merge(highchartOptions, chartOptions);
+          highchartOptions.exporting = {
+            enabled: false
+          };
+
+          scope.component.translateLabels(highchartOptions);
+          applyChartTheme(highchartOptions, chartOptions.theme);
+          _.merge(highchartOptions, getChartEvents(scope, elem));
+
+          destroyChartInstance(scope.component);
+          scope.component.chartInstance = buildChartInstance(highchartOptions, newValue.stockChart);
+          normalizeSvgReferences(scope.component.chartInstance);
+
+          Utilities.timeout(function () {
+            normalizeSvgReferences(scope.component.chartInstance);
+          }, 0);
+
+          let currentDimensions = updateChartDimensions(elem, Utilities);
+          if (currentDimensions) {
+            chartDimensions = currentDimensions;
+          }
+
+          scope.component.initialized = true;
         };
         /**
          * Update global options
          */
         let  updateGlobalOptions = function () {
           // Update element as date with options
-          if (scope.component.initialized) {
-             scope.component.chart.destroy();
-          }
+          destroyChartInstance(scope.component);
           scope.component.initialized = false;
           // Get lenguage
           let  language = global.HighchartsLocale[$settings.get("language")];
@@ -163,8 +223,8 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
          */
         let  onResize = function () {
           if (scope.component.initialized && Utilities.isVisible(elem[0])) {
-            if (scope.component.chart && changedDimensions()) {
-              scope.component.chart.reflow();
+            if (scope.component.chartInstance && changedDimensions()) {
+              scope.component.chartInstance.reflow();
             }
           }
         };
@@ -176,6 +236,12 @@ aweApplication.directive('uiChart', ['AweSettings', 'AweUtilities',
         scope.$on("resize-action", onResize);
         // Watch for language change
         scope.$on('languageChanged', updateGlobalOptions);
+        scope.$on('$destroy', function () {
+          if (scope.component.initialized && scope.component.chartInstance) {
+            scope.component.chartInstance.destroy();
+            scope.component.chartInstance = null;
+          }
+        });
       }
     };
   }]);

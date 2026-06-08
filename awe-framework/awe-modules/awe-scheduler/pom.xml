@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
-    <version>4.11.15</version>
+    <version>4.12.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -16,7 +16,6 @@
 
   <properties>
     <application.acronym>awe-scheduler</application.acronym>
-    <skip.karma>true</skip.karma>
     <skip.delombok>false</skip.delombok>
   </properties>
 

@@ -67,10 +67,10 @@ describe('awe-framework/awe-client-angular/src/test/js/components/grid.js', func
 
   it('replaces the element with the appropriate content', function () {
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, 'checkComponent').and.returnValue(true);
-    spyOn($utilities, "timeout").and.callFake(fn => fn());
-    spyOn($control, "getAddressController").and.returnValue(controller);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, 'checkComponent').mockReturnValue(true);
+    jest.spyOn($utilities, "timeout").mockImplementation(fn => fn());
+    jest.spyOn($control, "getAddressController").mockReturnValue(controller);
 
     // Compile a piece of HTML containing the directive
     let  element = $compile("<awe-grid grid-id='Grid'/>")($rootScope);

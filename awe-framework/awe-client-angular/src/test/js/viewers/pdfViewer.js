@@ -33,7 +33,7 @@ describe('awe-framework/awe-client-angular/src/test/js/viewers/pdfViewer.js', fu
         $httpBackend.when('POST', 'settings').respond(200, DefaultSettings);
         $httpBackend.when('POST', 'http://server/file/stream/maintain/test').respond(200, "");
 
-        spyOn($control, 'checkOnlyComponent').and.returnValue(true);
+        jest.spyOn($control, 'checkOnlyComponent').mockReturnValue(true);
       }]);
   });
 
@@ -50,8 +50,8 @@ describe('awe-framework/awe-client-angular/src/test/js/viewers/pdfViewer.js', fu
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
 
     // Compile a piece of HTML containing the directive
     $compile("<awe-pdf-viewer pdf-viewer-id='viewerId'></awe-pdf-viewer>")($rootScope);
@@ -72,14 +72,14 @@ describe('awe-framework/awe-client-angular/src/test/js/viewers/pdfViewer.js', fu
     $rootScope.firstLoad = true;
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($serverData, "getFormValues").and.returnValue({});
-    spyOn($utilities, "timeout").and.callFake(fn => setTimeout(fn, 0));
-    spyOn($control, "getAddressController").and.returnValue({autoload: true, targetAction: "test"});
-    spyOn($connection, "getFile").and.returnValue({then: (fn) => fn({data: ""})});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({});
+    jest.spyOn($utilities, "timeout").mockImplementation(fn => setTimeout(fn, 0));
+    jest.spyOn($control, "getAddressController").mockReturnValue({autoload: true, targetAction: "test"});
+    jest.spyOn($connection, "getFile").mockReturnValue({then: (fn) => fn({data: ""})});
     $window.URL = {createObjectURL: () => null};
-    spyOn(PDFObject, "embed").and.callFake(() => null);
+    jest.spyOn(PDFObject, "embed").mockImplementation(() => null);
 
     // Compile a piece of HTML containing the directive
     $compile("<awe-pdf-viewer pdf-viewer-id='viewerId'></awe-pdf-viewer>")($rootScope);

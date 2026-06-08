@@ -238,12 +238,10 @@ public class EmailService extends ServiceConfig {
    * @return Java Mail server
    */
   private JavaMailSender getMailServer(ObjectNode parameters) {
-    String userName = Optional.ofNullable(parameters.get(SESSION_USER))
-            .map(JsonNode::asText)
-            .orElse(Optional.ofNullable(getRequest())
-                    .map(r -> r.getParameterAsString(SESSION_USER))
-                    .orElse(Optional.ofNullable(getSession()).map(AweSession::getUser)
-                            .orElse(null)));
+    String userName = Optional.ofNullable(getRequestParameterAsString(SESSION_USER, parameters))
+      .filter(parameter -> !parameter.isEmpty())
+      .orElse(Optional.ofNullable(getSession()).map(AweSession::getUser)
+        .orElse(null));
 
     if (userName != null) {
       User user = userDAO.findByUserName(userName);

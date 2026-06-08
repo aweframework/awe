@@ -39,11 +39,11 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSlider.js', fun
       model: model,
       controller: controller
     });
-    spyOn($scope, "$on").and.callFake(() => null);
-    spyOn($utilities, "defineModelChangeListeners").and.callFake(() => null);
+    jest.spyOn($scope, "$on").mockImplementation(() => null);
+    jest.spyOn($utilities, "defineModelChangeListeners").mockImplementation(() => null);
 
     let element = $compile("<input ui-slider='"+ numericOptions +"'></input>")($scope);
-    spyOn(element, "on").and.callFake(() => null);
+    jest.spyOn(element, "on").mockImplementation(() => null);
 
     // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
     $rootScope.$digest();
@@ -59,10 +59,10 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSlider.js', fun
     });
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($scope, "$on").and.callFake(() => null);
-    spyOn($utilities, "defineModelChangeListeners").and.callFake(() => null);
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($scope, "$on").mockImplementation(() => null);
+    jest.spyOn($utilities, "defineModelChangeListeners").mockImplementation(() => null);
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<input ui-slider='{enabled:true, value: 100}'></input>")($scope);
@@ -81,10 +81,10 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSlider.js', fun
     });
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($utilities, "defineModelChangeListeners").and.callFake(() => null);
-    spyOn($rootScope, '$broadcast').and.callThrough();
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($utilities, "defineModelChangeListeners").mockImplementation(() => null);
+    jest.spyOn($rootScope, '$broadcast');
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<input ui-slider='" + numericOptions + "'></input>")($scope);

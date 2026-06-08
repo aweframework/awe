@@ -96,7 +96,6 @@ aweApplication.factory('ValidationRules',
        */
       function getElementRepetition(addressElement, values) {
         let value = $control.getAddressModel(addressElement).selected;
-        console.info()
         let repeated = {elem: value, repeats: 0};
         angular.forEach(values, function (element) {
           if (this.elem === element) {

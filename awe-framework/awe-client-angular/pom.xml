@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.11.15</version>
+    <version>4.12.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -21,10 +21,10 @@
     <!-- Sonar properties -->
     <application.folder>.</application.folder>
     <sonar.sources>src/main/resources/js/awe</sonar.sources>
-    <sonar.tests>src/test/js</sonar.tests>
+    <sonar.tests>src/test/jest</sonar.tests>
     <sonar.inclusions>src/main/resources/js/awe/**,src/main/resources/less/awe/**</sonar.inclusions>
-    <sonar.testExecutionReportPaths>target/reports/karma/junit/javascriptUnitTests.xml</sonar.testExecutionReportPaths>
-    <sonar.javascript.lcov.reportPaths>target/reports/karma/coverage/lcov.info</sonar.javascript.lcov.reportPaths>
+    <sonar.testExecutionReportPaths>target/reports/jest/sonar/javascriptUnitTests.xml</sonar.testExecutionReportPaths>
+    <sonar.javascript.lcov.reportPaths>target/reports/jest/coverage/lcov.info</sonar.javascript.lcov.reportPaths>
     <performancetest.host>localhost</performancetest.host>
     <performancetest.port>18080</performancetest.port>
     <performancetest.path/>
@@ -75,16 +75,13 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>karma</id>
+            <id>jest</id>
             <goals>
-              <goal>karma</goal>
+              <goal>npm</goal>
             </goals>
             <phase>test</phase>
             <configuration>
-              <environmentVariables>
-                <launch.edge>${karma.launch.edge}</launch.edge>
-                <launch.gitlab>${karma.launch.gitlab}</launch.gitlab>
-              </environmentVariables>
+              <arguments>run test:coverage</arguments>
             </configuration>
           </execution>
         </executions>

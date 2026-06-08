@@ -65,9 +65,9 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSelect.js', fun
     $rootScope["aweSelectOptions"] = {placeholder: "tutu"};
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($.fn, "select2");
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($.fn, "select2");
 
     // Compile a piece of HTML containing the directive
     let element = $compile("<input ui-select2='aweSelectOptions' initialized='true'/>")($rootScope);
@@ -83,10 +83,10 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSelect.js', fun
     let select2Content = {opts: {}};
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($translate, "instant").and.returnValue("lala");
-    spyOn($.fn, "select2").and.returnValue({});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($translate, "instant").mockReturnValue("lala");
+    jest.spyOn($.fn, "select2").mockReturnValue({});
 
     // Compile a piece of HTML containing the directive
     let element = angular.element("<input ui-select2='aweSelectOptions' initialized='true'/>");
@@ -112,10 +112,10 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSelect.js', fun
     let select2Content = {opts: {}};
 
     // Spy on storage
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($translate, "instant").and.returnValue("lala");
-    spyOn($.fn, "select2").and.returnValue({});
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($translate, "instant").mockReturnValue("lala");
+    jest.spyOn($.fn, "select2").mockReturnValue({});
 
     // Compile a piece of HTML containing the directive
     let element = angular.element("<input ui-select2='aweSelectOptions' initialized='true'/>");
@@ -125,7 +125,7 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSelect.js', fun
     $rootScope.$digest();
 
     // Update language
-    spyOn($.fn, "data").and.returnValue(select2Content);
+    jest.spyOn($.fn, "data").mockReturnValue(select2Content);
     $rootScope.$broadcast("languageChanged");
 
     // fire all the watches
@@ -142,11 +142,11 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSelect.js', fun
     let select2Content = {opts: {}, setPlaceholder: () => null};
 
     // Spies
-    spyOn($storage, "get").and.returnValue({'base': {}});
-    spyOn($control, "checkComponent").and.returnValue(true);
-    spyOn($translate, "instant").and.returnValue("lala");
-    spyOn($.fn, "select2").and.returnValue({});
-    spyOn(select2Content, "setPlaceholder");
+    jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+    jest.spyOn($control, "checkComponent").mockReturnValue(true);
+    jest.spyOn($translate, "instant").mockReturnValue("lala");
+    jest.spyOn($.fn, "select2").mockReturnValue({});
+    jest.spyOn(select2Content, "setPlaceholder");
 
     // Compile a piece of HTML containing the directive
     let element = angular.element("<input ui-select2='aweSelectOptions' initialized='true'/>");
@@ -156,7 +156,7 @@ describe('awe-framework/awe-client-angular/src/test/js/plugins/uiSelect.js', fun
     $rootScope.$digest();
 
     // Update language
-    spyOn($.fn, "data").and.returnValue(select2Content);
+    jest.spyOn($.fn, "data").mockReturnValue(select2Content);
     $rootScope.$broadcast("languageChanged");
 
     // fire all the watches

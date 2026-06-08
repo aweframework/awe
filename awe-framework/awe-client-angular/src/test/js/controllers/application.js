@@ -50,7 +50,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
 
     // Check keypress event
     it('checks event keypress with a Alt+Shift+1 key', function(done) {
-      spyOn($settings, "update").and.callFake((changes) => {
+      jest.spyOn($settings, "update").mockImplementation((changes) => {
         expect(changes).toEqual({actionsStack: 1000});
         done();
       });
@@ -67,7 +67,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
 
     // Check keypress event
     it('checks event keypress with a Alt+Shift+0 key', function(done) {
-      spyOn($settings, "update").and.callFake((changes) => {
+      jest.spyOn($settings, "update").mockImplementation((changes) => {
         expect(changes).toEqual({actionsStack: 0});
         done();
       });
@@ -123,14 +123,14 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
 
     // Check state change start
     it('should launch a state change', function() {
-      spyOn(_, "merge").and.returnValue({base: {}, report: {}});
+      jest.spyOn(_, "merge").mockReturnValue({base: {}, report: {}});
       scope.$emit("$stateChangeStart", {}, {}, {}, {});
     });
 
     // Check state change start
     it('should launch a state change with connection', function() {
-      spyOn($storage, "getRoot").and.returnValue({});
-      spyOn($storage, "get").and.returnValue({base: {screen: "ee"}, report: {screen: "sasasd", onunload: "asdasd"}});
+      jest.spyOn($storage, "getRoot").mockReturnValue({});
+      jest.spyOn($storage, "get").mockReturnValue({base: {screen: "ee"}, report: {screen: "sasasd", onunload: "asdasd"}});
       scope.$emit("$stateChangeStart", {views: {base: {}, report: {}}}, {}, {views: {base: {}}}, {});
     });
 
@@ -142,7 +142,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
 
     // Check state change error
     it('should launch a state change error', function() {
-      spyOn($log, "warn");
+      jest.spyOn($log, "warn");
       scope.$emit("$stateChangeError", {}, {}, {}, {});
       expect(scope.status.loading).toBe(false);
       expect(scope.resizing).toBe(false);
@@ -151,7 +151,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
 
     // Check state change error
     it('should launch a state not found error', function() {
-      spyOn($log, "warn");
+      jest.spyOn($log, "warn");
       scope.$emit("$stateNotFound", {}, {}, {}, {});
       expect(scope.status.loading).toBe(false);
       expect($log.warn).toHaveBeenCalled();
@@ -171,7 +171,7 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
 
     // Call window resize
     it('should call window resize', function() {
-      spyOn($utilities, "publish");
+      jest.spyOn($utilities, "publish");
       $($window).trigger("resize");
       expect($utilities.publish).toHaveBeenCalled();
     });
@@ -179,8 +179,8 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
     // Call resize action
     it('should call resize action', function() {
       let action = {attr: () => ({delay: 500}), accept: () => null};
-      spyOn($utilities, "timeout").and.callFake((fn) => fn());
-      spyOn(action, "accept");
+      jest.spyOn($utilities, "timeout").mockImplementation((fn) => fn());
+      jest.spyOn(action, "accept");
       scope.$emit("/action/resize", action);
       expect(action.accept).toHaveBeenCalled();
     });
@@ -188,24 +188,24 @@ describe('awe-framework/awe-client-angular/src/test/js/controllers/application.j
     // Call resize action without delay
     it('should call resize action without delay', function() {
       let action = {attr: () => ({}), accept: () => null};
-      spyOn($utilities, "timeout").and.callFake((fn) => fn());
-      spyOn(action, "accept");
+      jest.spyOn($utilities, "timeout").mockImplementation((fn) => fn());
+      jest.spyOn(action, "accept");
       scope.$emit("/action/resize", action);
       expect(action.accept).toHaveBeenCalled();
     });
 
     // Initialize application
     it('should initialize application', function() {
-      spyOn($utilities, "timeout").and.callFake((fn) => fn());
-      spyOn($loadingBar, "endTask");
+      jest.spyOn($utilities, "timeout").mockImplementation((fn) => fn());
+      jest.spyOn($loadingBar, "endTask");
       scope.$emit("initialised");
       expect($loadingBar.endTask).toHaveBeenCalled();
     });
 
     // Before unload call
     it('should call on before unload', function() {
-      spyOn($storage, "get").and.returnValue({base: {screen: "ee"}, report: {screen: "sasasd", onunload: "asdasd"}});
-      spyOn($serverData, "send");
+      jest.spyOn($storage, "get").mockReturnValue({base: {screen: "ee"}, report: {screen: "sasasd", onunload: "asdasd"}});
+      jest.spyOn($serverData, "send");
       controller.beforeUnload();
       expect($serverData.send).toHaveBeenCalled();
     });

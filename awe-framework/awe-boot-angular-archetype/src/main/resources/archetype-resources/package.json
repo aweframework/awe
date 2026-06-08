@@ -4,8 +4,10 @@
   "description": "Javascript webpack libraries",
   "main": "./src/main/resources/webpack",
   "scripts": {
-  	"global-install": "npm prune && npm install --no-optional -g webpack webpack-dev-server",
-    "build": "webpack --config webpack.config.js"
+    "global-install": "npm prune && npm install --no-optional -g webpack webpack-dev-server",
+    "build": "npm run build:production",
+    "build:development": "webpack --config webpack.config.js --mode development",
+    "build:production": "webpack --config webpack.config.js --mode production"
   },
   "license": "ISC",
   "dependencies": {
