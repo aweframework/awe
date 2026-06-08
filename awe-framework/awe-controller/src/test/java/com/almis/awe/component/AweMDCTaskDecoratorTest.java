@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -106,7 +107,7 @@ class AweMDCTaskDecoratorTest {
     assertEquals("bar", seenSnapshot.get().get("foo").asText());
     assertTrue(seenSnapshot.get().size() > 0);
     assertNotNull(seenHolder.get());
-    assertTrue(seenHolder.get() != ancestorHolder);
+    assertNotSame(ancestorHolder, seenHolder.get());
   }
 
   @Test

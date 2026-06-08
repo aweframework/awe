@@ -292,6 +292,7 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
    *
    * @return Query util
    */
+  @Override
   public QueryUtil getQueryUtil() {
     return queryUtil;
   }

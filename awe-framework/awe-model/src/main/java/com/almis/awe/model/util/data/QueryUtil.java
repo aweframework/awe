@@ -523,6 +523,7 @@ public class QueryUtil extends ServiceConfig {
    * @param parameters Parameters list
    * @return Parameter
    */
+  @Override
   public JsonNode getRequestParameter(String name, ObjectNode parameters) {
     ObjectNode safeParameters = Optional.ofNullable(parameters).orElse(JsonNodeFactory.instance.objectNode());
     return safeParameters.has(name) ? safeParameters.get(name) : getRequestParameter(name);
@@ -534,6 +535,7 @@ public class QueryUtil extends ServiceConfig {
    * @param name Parameter name
    * @return Parameter
    */
+  @Override
   public JsonNode getRequestParameter(String name) {
     return getParametersFromRequest().get(name);
   }

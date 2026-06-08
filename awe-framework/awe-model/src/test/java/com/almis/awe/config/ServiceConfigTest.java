@@ -78,7 +78,7 @@ class ServiceConfigTest {
 
     serviceConfig.putRequestParameter(parameters, "report", nestedValue);
 
-    assertEquals("async", parameters.with("report").get("mode").asText());
+    assertEquals("async", parameters.get("report").get("mode").asText());
   }
 
   @Test
@@ -101,7 +101,7 @@ class ServiceConfigTest {
     serviceConfig.putPropagatedRequestParameter("report", nestedValue);
 
     verify(prototypeRequestBeanHolder).mergeRequestData(parametersCaptor.capture());
-    assertEquals("async", parametersCaptor.getValue().with("report").get("mode").asText());
+    assertEquals("async", parametersCaptor.getValue().get("report").get("mode").asText());
   }
 
   @Test

@@ -13,7 +13,7 @@ require("highcharts/modules/no-data-to-display.src")(Highcharts);
 require("highcharts/modules/exporting.src")(Highcharts);
 
 function normalizeSvgReference(value) {
-  if (!value || value.indexOf('url(') !== 0) {
+  if (value?.indexOf('url(') !== 0) {
     return value;
   }
   let match = value.match(/#([^)'"]+)\)?/);
@@ -21,7 +21,7 @@ function normalizeSvgReference(value) {
 }
 
 function normalizeSvgNodeAttribute(node, attribute) {
-  if (!(node?.hasAttribute && node.hasAttribute(attribute))) {
+  if (!node?.hasAttribute?.(attribute)) {
     return;
   }
   let value = node.getAttribute(attribute);
@@ -32,10 +32,9 @@ function normalizeSvgNodeAttribute(node, attribute) {
 }
 
 function cloneChartOptions(options) {
-  if (typeof structuredClone === 'function') {
-    return structuredClone(options);
-  }
-  return _.cloneDeep(options);
+  return typeof structuredClone === 'function'
+    ? structuredClone(options)
+    : JSON.parse(JSON.stringify(options));
 }
 
 function normalizeSvgReferences(chartInstance) {
