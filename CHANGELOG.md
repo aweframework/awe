@@ -1,3 +1,17 @@
+# Release notes for AWE 4.12.0
+*08/06/2026*
+ 
+🐛 Bug fixes:
+- feat: add REST OAuth2 Resource Server support. [MR #635](https://gitlab.com/aweframework/awe/-/merge_requests/635) (Pablo Vidal Otero)
+- fix(async): preserve propagated request snapshots in nested tasks. [MR #634](https://gitlab.com/aweframework/awe/-/merge_requests/634) (Pablo Vidal Otero)
+- Fix ChartService shared RestTemplate mutation on chart export. [MR #633](https://gitlab.com/aweframework/awe/-/merge_requests/633) (Pablo Vidal Otero)
+- fix(charts): preserve dark themes across screen navigation. [MR #632](https://gitlab.com/aweframework/awe/-/merge_requests/632) (Pablo Javier García Mora)
+- fix(charts): render dark-unica plot area correctly. [MR #631](https://gitlab.com/aweframework/awe/-/merge_requests/631) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** [HAS IMPACTS] Align frontend build modes for Webpack modules. [MR #630](https://gitlab.com/aweframework/awe/-/merge_requests/630) (Pablo Vidal Otero)
+
+🧪 Tests:
+- test(angular): migrate frontend tests to Jest. [MR #636](https://gitlab.com/aweframework/awe/-/merge_requests/636) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.11.15
 *28/04/2026*
  
