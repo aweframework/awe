@@ -7,6 +7,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.maintain.Insert;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.Field;
@@ -22,6 +23,7 @@ import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLBindings;
@@ -280,6 +282,14 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       .setVariables(parameterMap)
       .setParameters(parameters);
 
+    if (isAuditedInsertQuery(query)) {
+      List<Tuple> insertQueryRows = builder.getMaterializedInsertQueryRows();
+      if (insertQueryRows.isEmpty()) {
+        maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), 0L, parameterMap));
+        return maintainOut;
+      }
+    }
+
     // Launch as a single operation
     rowsUpdated = launchAsSingleOperation(builder.build(), null, false, query);
     maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), rowsUpdated, parameterMap));
@@ -292,6 +302,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     }
 
     return maintainOut;
+  }
+
+  private boolean isAuditedInsertQuery(MaintainQuery query) {
+    return query instanceof Insert insert
+      && insert.getQuery() != null
+      && databaseConfigProperties.isAuditEnable()
+      && query.getAuditTable() != null;
   }
 
   /**

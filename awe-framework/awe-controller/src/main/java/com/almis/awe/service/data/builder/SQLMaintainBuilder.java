@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -49,6 +50,9 @@ public class SQLMaintainBuilder extends SQLBuilder {
   private static final String ERROR_TITLE_NOT_DEFINED = "ERROR_TITLE_NOT_DEFINED";
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
   private final DatabaseConfigProperties databaseConfigProperties;
+  private List<Tuple> materializedInsertQueryRows;
+  private boolean materializedInsertQueryRowsLoaded;
+  private final Map<QueryBackedFieldKey, Expression<?>> materializedQueryFieldValues = new HashMap<>();
 
   /**
    * Autowired constructor
@@ -138,6 +142,20 @@ public class SQLMaintainBuilder extends SQLBuilder {
     return this;
   }
 
+  public List<Tuple> getMaterializedInsertQueryRows() throws AWException {
+    if (!materializedInsertQueryRowsLoaded && hasInsertQuerySource()) {
+      materializedInsertQueryRows = getSubquery(((Insert) getQuery()).getQuery()).fetch();
+      materializedInsertQueryRowsLoaded = true;
+    }
+    return materializedInsertQueryRows == null ? Collections.emptyList() : materializedInsertQueryRows;
+  }
+
+  public SQLMaintainBuilder setMaterializedInsertQueryRows(List<Tuple> materializedInsertQueryRows) {
+    this.materializedInsertQueryRows = materializedInsertQueryRows;
+    this.materializedInsertQueryRowsLoaded = true;
+    return this;
+  }
+
   private void validateBuilder() throws AWException {
     // Throws exception if elements are not assigned
     if (getElements() == null) {
@@ -175,56 +193,73 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
     // Prepare query variables
     queryUtil.addToVariableMap(getVariables(), getQuery(), getParameters());
-    AbstractSQLClause<?> finalQuery;
+    return this.audit ? buildAuditClause() : buildMaintainClause();
+  }
 
-    if (this.audit) {
-      switch (operation) {
-        case BATCH_INITIAL_DEFINITION:
-          return getFactory().insert(new RelationalPathBase<>(Object.class, "", "", ((MaintainQuery) getQuery()).getAuditTable()));
-        case BATCH_INCREASING_ELEMENTS:
-          finalQuery = previousQuery;
-          break;
-        default:
-          finalQuery = getFactory().insert(new RelationalPathBase<>(Object.class, "", "", ((MaintainQuery) getQuery()).getAuditTable()));
-          break;
-      }
-      SQLInsertClause auditInsertClause = (SQLInsertClause) finalQuery;
-      auditInsertClause.columns(getAuditFieldPaths());
-      List<Expression> auditFieldValues = getAuditFieldValues(variableIndex != null ? variableIndex : 0);
-      for (Expression value : auditFieldValues) {
-        auditInsertClause.values(value);
-      }
-    } else {
-      // Builds the basic query
-      RelationalPath tablePath = getTable();
+  private AbstractSQLClause<?> buildAuditClause() throws AWException {
+    AbstractSQLClause<?> finalQuery = getAuditOperationClause();
+    if (operation == MaintainBuildOperation.BATCH_INITIAL_DEFINITION) {
+      return finalQuery;
+    }
+    SQLInsertClause auditInsertClause = (SQLInsertClause) finalQuery;
+    auditInsertClause.columns(getAuditFieldPaths());
+    addAuditValues(auditInsertClause);
+    return finalQuery;
+  }
 
-      switch (operation) {
-        case BATCH_INITIAL_DEFINITION:
-          return buildOperation(tablePath);
-        case BATCH_INCREASING_ELEMENTS:
-          finalQuery = previousQuery;
-          break;
-        default:
-          finalQuery = buildOperation(tablePath);
-          break;
-      }
+  private AbstractSQLClause<?> getAuditOperationClause() {
+    return switch (operation) {
+      case BATCH_INITIAL_DEFINITION -> getFactory().insert(new RelationalPathBase<>(Object.class, "", "", ((MaintainQuery) getQuery()).getAuditTable()));
+      case BATCH_INCREASING_ELEMENTS -> previousQuery;
+      default -> getFactory().insert(new RelationalPathBase<>(Object.class, "", "", ((MaintainQuery) getQuery()).getAuditTable()));
+    };
+  }
 
-      MaintainQuery maintainQuery = (MaintainQuery) getQuery();
-      switch (maintainQuery.getMaintainType()) {
-        case INSERT:
-          doInsert((SQLInsertClause) finalQuery);
-          break;
-        case UPDATE:
-          doUpdate((SQLUpdateClause) finalQuery);
-          break;
-        case DELETE:
-          doDelete((SQLDeleteClause) finalQuery);
-          break;
-        default:
-      }
+  private void addAuditValues(SQLInsertClause auditInsertClause) throws AWException {
+    if (shouldBuildAuditedInsertQueryFromRows()) {
+      addAuditInsertQueryRows(auditInsertClause);
+      return;
     }
 
+    List<Expression> auditFieldValues = getAuditFieldValues(variableIndex != null ? variableIndex : 0);
+    for (Expression value : auditFieldValues) {
+      auditInsertClause.values(value);
+    }
+  }
+
+  private AbstractSQLClause<?> buildMaintainClause() throws AWException {
+    RelationalPath<?> tablePath = getTable();
+    AbstractSQLClause<?> finalQuery = getMaintainOperationClause(tablePath);
+    if (operation == MaintainBuildOperation.BATCH_INITIAL_DEFINITION) {
+      return finalQuery;
+    }
+    applyMaintainOperation(finalQuery);
     return finalQuery;
+  }
+
+  private AbstractSQLClause<?> getMaintainOperationClause(RelationalPath<?> tablePath) throws AWException {
+    return switch (operation) {
+      case BATCH_INITIAL_DEFINITION -> buildOperation(tablePath);
+      case BATCH_INCREASING_ELEMENTS -> previousQuery;
+      default -> buildOperation(tablePath);
+    };
+  }
+
+  private void applyMaintainOperation(AbstractSQLClause<?> finalQuery) throws AWException {
+    MaintainQuery maintainQuery = (MaintainQuery) getQuery();
+    switch (maintainQuery.getMaintainType()) {
+      case INSERT:
+        doInsert((SQLInsertClause) finalQuery);
+        break;
+      case UPDATE:
+        doUpdate((SQLUpdateClause) finalQuery);
+        break;
+      case DELETE:
+        doDelete((SQLDeleteClause) finalQuery);
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -237,7 +272,11 @@ public class SQLMaintainBuilder extends SQLBuilder {
     List<Path> fieldPaths = getFieldPaths(true);
     insertClause.columns(fieldPaths.toArray(new Path[0]));
     if (((Insert) getQuery()).getQuery() != null) {
-      insertClause.select(getSubquery(((Insert) getQuery()).getQuery()));
+      if (materializedInsertQueryRowsLoaded) {
+        addBaseInsertQueryRows(insertClause);
+      } else {
+        insertClause.select(getSubquery(((Insert) getQuery()).getQuery()));
+      }
     } else {
       List<Expression> fieldValues = getFieldValues();
       for (Expression value : fieldValues) {
@@ -425,6 +464,126 @@ public class SQLMaintainBuilder extends SQLBuilder {
     return values;
   }
 
+  private boolean hasInsertQuerySource() {
+    return getQuery() instanceof Insert insert && insert.getQuery() != null;
+  }
+
+  private boolean shouldBuildAuditedInsertQueryFromRows() {
+    return hasInsertQuerySource() && ((MaintainQuery) getQuery()).getAuditTable() != null;
+  }
+
+  private void addBaseInsertQueryRows(SQLInsertClause insertClause) throws AWException {
+    List<Tuple> rows = getMaterializedInsertQueryRows();
+    List<SqlField> insertFields = getInsertableFields();
+
+    for (Tuple row : rows) {
+      Object[] values = getMaterializedRowValues(row);
+      validateMaterializedInsertQueryRowWidth(insertFields, values);
+      addInsertValues(insertClause, mapMaterializedRowValues(values));
+    }
+
+    if (rows.size() > 1) {
+      insertClause.setBatchToBulk(true);
+    }
+  }
+
+  private void addAuditInsertQueryRows(SQLInsertClause insertClause) throws AWException {
+    List<Tuple> rows = getMaterializedInsertQueryRows();
+    List<SqlField> insertFields = getInsertableFields();
+
+    for (Tuple row : rows) {
+      Object[] values = getMaterializedRowValues(row);
+      validateMaterializedInsertQueryRowWidth(insertFields, values);
+
+      addAuditInsertQueryRow(insertClause, insertFields, values);
+    }
+
+    if (rows.size() > 1) {
+      insertClause.setBatchToBulk(true);
+    }
+  }
+
+  private List<SqlField> getInsertableFields() throws AWException {
+    List<SqlField> insertFields = new ArrayList<>();
+    for (SqlField field : getQuery().getSqlFieldList()) {
+      if (field.isNotAudit() && !isIncrementalKey(field)) {
+        insertFields.add(field);
+      }
+    }
+    return insertFields;
+  }
+
+  private void validateMaterializedInsertQueryRowWidth(List<SqlField> insertFields, Object[] values) throws AWException {
+    if (values.length != insertFields.size()) {
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN),
+        MessageFormat.format("Insert query for maintain '{0}' returned {1} columns, but {2} fields are defined", getQuery().getId(), values.length, insertFields.size()));
+    }
+  }
+
+  private List<Expression> mapMaterializedRowValues(Object[] values) {
+    List<Expression> expressions = new ArrayList<>();
+    for (Object value : values) {
+      expressions.add(toExpression(value));
+    }
+    return expressions;
+  }
+
+  protected Object[] getMaterializedRowValues(Tuple row) {
+    return row.toArray();
+  }
+
+  protected List<Object> getBaseInsertQueryRowValues(Tuple row) {
+    return Arrays.asList(getMaterializedRowValues(row));
+  }
+
+  protected List<Object> getAuditInsertQueryRowValues(Tuple row) throws AWException {
+    List<Object> auditValues = new ArrayList<>();
+    auditValues.add(getUser());
+    auditValues.add(((MaintainQuery) getQuery()).getMaintainType().toString());
+
+    List<SqlField> insertFields = getInsertableFields();
+    Object[] values = getMaterializedRowValues(row);
+    validateMaterializedInsertQueryRowWidth(insertFields, values);
+
+    for (int index = 0; index < insertFields.size(); index++) {
+      if (insertFields.get(index).isAudit()) {
+        auditValues.add(values[index]);
+      }
+    }
+
+    return auditValues;
+  }
+
+  private void addAuditInsertQueryRow(SQLInsertClause insertClause, List<SqlField> insertFields, Object[] values) throws AWException {
+    List<Expression> auditValues = new ArrayList<>();
+    auditValues.add(getStringExpression(getUser()));
+    auditValues.add(Expressions.asDateTime(new Timestamp(new Date().getTime())));
+    auditValues.add(getStringExpression(((MaintainQuery) getQuery()).getMaintainType().toString()));
+
+    for (int index = 0; index < insertFields.size(); index++) {
+      if (insertFields.get(index).isAudit()) {
+        auditValues.add(toExpression(values[index]));
+      }
+    }
+
+    addInsertValues(insertClause, auditValues);
+  }
+
+  private void addInsertValues(SQLInsertClause insertClause, List<Expression> values) throws AWException {
+    insertClause.values((Object[]) values.toArray(new Expression[0]));
+    if (shouldAddBatch()) {
+      insertClause.addBatch();
+    }
+  }
+
+  private boolean shouldAddBatch() throws AWException {
+    return hasInsertQuerySource() && getMaterializedInsertQueryRows().size() > 1;
+  }
+
+  private Expression toExpression(Object value) {
+    return value == null ? Expressions.nullExpression() : Expressions.constant(value);
+  }
+
 
   /**
    * Retrieves the list of values defined by audit fields
@@ -461,7 +620,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
    *
    * @return Session user or Anonymous
    */
-  private String getUser() {
+  protected String getUser() {
     try {
       return getSession().getUser();
     } catch (Exception exc) {
@@ -581,11 +740,60 @@ public class SQLMaintainBuilder extends SQLBuilder {
    * @throws AWException
    */
   private Expression getSqlFieldExpression(SqlField field, Integer index) throws AWException {
+    if (shouldMaterializeQueryBackedAuditField(field)) {
+      return getMaterializedQueryFieldValue((Field) field, index);
+    }
+
     if (field.getVariable() != null) {
       return getFieldValue(field, index);
     } else {
       return getOperandExpression(field);
     }
+  }
+
+  private boolean shouldMaterializeQueryBackedAuditField(SqlField field) {
+    return field instanceof Field queryField
+      && queryField.getQuery() != null
+      && field.isAudit()
+      && field.isNotAudit();
+  }
+
+  private Expression<?> getMaterializedQueryFieldValue(Field field, Integer index) throws AWException {
+    QueryBackedFieldKey key = new QueryBackedFieldKey(
+      Optional.ofNullable(field.getTable()).orElse(""),
+      Optional.ofNullable(field.getId()).orElse(""),
+      Optional.ofNullable(field.getAlias()).orElse(""),
+      field.getQuery(),
+      Optional.ofNullable(index).orElse(0));
+
+    Expression<?> materializedValue = materializedQueryFieldValues.get(key);
+    if (materializedValue == null) {
+      materializedValue = materializeQueryFieldValue(field);
+      materializedQueryFieldValues.put(key, materializedValue);
+    }
+
+    return materializedValue;
+  }
+
+  private Expression<?> materializeQueryFieldValue(Field field) throws AWException {
+    List<Tuple> rows = getSubquery(field.getQuery()).fetch();
+
+    if (rows.size() != 1) {
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN),
+        MessageFormat.format("Query-backed audited field '{0}' must return exactly one row, but returned {1}", field.getIdentifier(), rows.size()));
+    }
+
+    Object[] values = rows.get(0).toArray();
+    if (values.length != 1) {
+      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN),
+        MessageFormat.format("Query-backed audited field '{0}' must return exactly one column, but returned {1}", field.getIdentifier(), values.length));
+    }
+
+    Object value = values[0];
+    return value == null ? Expressions.nullExpression() : Expressions.constant(value);
+  }
+
+  private record QueryBackedFieldKey(String table, String id, String alias, String query, Integer variableIndex) {
   }
 
   /**

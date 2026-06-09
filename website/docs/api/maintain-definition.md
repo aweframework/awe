@@ -201,7 +201,7 @@ Insert element in maintains has the following attributes:
 | multiple   | Optional  | Boolean | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                     |
 | label      | Optional  | String  | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)     | 
 | audit      | Optional  | String  | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                               |
-| query      | Optional  | String  | Name of a query to retrieve data from an [INSERT INTO SELECT](#insert-into-select) statement                                                                                             | **Note:** audit table will not be considered for INSERT INTO SELECT statements |
+| query      | Optional  | String  | Name of a query to retrieve data from an [INSERT INTO SELECT](#insert-into-select) statement                                                                                             | **Note:** If `audit` is also defined, AWE reuses the same source rowset for the base insert and the audit rows |
 | batch      | Optional  | Boolean | Do the operation in batch chunks                                                                                                                                                         | Default value is `false`                                                       |
 | batch-size | Optional  | Integer | Batch chunk size                                                                                                                                                                         | Default value is the defined in properties                                     |
 
@@ -347,6 +347,8 @@ The `INSERT INTO SELECT` statement is another way to make an insert statement, b
 ```
 
 >**Note:** The number of fields defined on `INSERT INTO SELECT` statement and subquery must match.
+
+>**Note:** When `audit` is defined together with `query`, the audit rows are generated from the same source rows used by the base insert. Empty source queries insert zero base rows and zero audit rows.
 
 ### **`INSERT INTO SELECT` examples**
 
