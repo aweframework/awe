@@ -31,20 +31,6 @@ public class Insert extends MaintainQuery {
   @XStreamAsAttribute
   private String query;
 
-  /**
-   * Returns the audit table name (cancels audit in case of INSERT INTO SELECT statements)
-   *
-   * @return Audit table name
-   */
-  @Override
-  public String getAuditTable() {
-    String auditTable = null;
-    if (this.getQuery() == null) {
-      auditTable = super.getAuditTable();
-    }
-    return auditTable;
-  }
-
   @Override
   public MaintainType getMaintainType() {
     return MaintainType.INSERT;

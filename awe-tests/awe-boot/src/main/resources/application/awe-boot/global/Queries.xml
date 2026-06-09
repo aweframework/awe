@@ -182,6 +182,152 @@
     <order-by field="Nam" type="ASC"/>
   </query>
 
+  <query id="NextThemeIdForAuditQuery">
+    <table id="AweThm"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="IdeThm" function="MAX"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+  </query>
+
+  <query id="QueryBackedInsertedThemes">
+    <table id="AweThm"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="themePrefix"/>
+      </and>
+    </where>
+    <variable id="themePrefix" type="STRINGR" name="themePrefix"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="QueryBackedInsertedThemeAuditRows">
+    <table id="HISAweThm"/>
+    <field id="HISope"/>
+    <field id="HISact"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="themePrefix"/>
+      </and>
+    </where>
+    <variable id="themePrefix" type="STRINGR" name="themePrefix"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="QueryBackedInsertedThemesByIdRange">
+    <table id="AweThm"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="ge" right-variable="minThemeId"/>
+        <filter left-field="IdeThm" condition="le" right-variable="maxThemeId"/>
+      </and>
+    </where>
+    <variable id="minThemeId" type="INTEGER" name="minThemeId"/>
+    <variable id="maxThemeId" type="INTEGER" name="maxThemeId"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="QueryBackedInsertedThemeAuditRowsByIdRange">
+    <table id="HISAweThm"/>
+    <field id="HISope"/>
+    <field id="HISact"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="ge" right-variable="minThemeId"/>
+        <filter left-field="IdeThm" condition="le" right-variable="maxThemeId"/>
+      </and>
+    </where>
+    <variable id="minThemeId" type="INTEGER" name="minThemeId"/>
+    <variable id="maxThemeId" type="INTEGER" name="maxThemeId"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="InsertQueryAuditSingleSource">
+    <table id="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <constant value="AWEBOOT-TEST-INSERT-QUERY-SINGLE" alias="Nam"/>
+    <constant value="1" type="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="ThmKey"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="InsertQueryAuditMultipleSource">
+    <table id="AweKey" alias="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <operation operator="CONCAT" alias="Nam">
+      <constant value="AWEBOOT-TEST-INSERT-QUERY-MULTI-" type="STRING"/>
+      <constant value="33330" type="INTEGER" cast="STRING"/>
+    </operation>
+    <constant value="1" type="INTEGER" cast="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="ThmKey"/>
+    <union query="InsertQueryAuditMultipleSourceNext"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="InsertQueryAuditMultipleSourceNext">
+    <table id="AweKey" alias="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="2" type="INTEGER"/>
+    </operation>
+    <operation operator="CONCAT" alias="Nam">
+      <constant value="AWEBOOT-TEST-INSERT-QUERY-MULTI-" type="STRING"/>
+      <constant value="33331" type="INTEGER" cast="STRING"/>
+    </operation>
+    <constant value="0" type="INTEGER" cast="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="ThmKey"/>
+  </query>
+
+  <query id="InsertQueryAuditZeroRowsSource">
+    <table id="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <constant value="AWEBOOT-TEST-INSERT-QUERY-ZERO" alias="Nam"/>
+    <constant value="1" type="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="MissingThmKey"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
   <query id="SimpleGetAllNoAlias">
     <table id="AweDbs"/>
     <field id="Drv"/>
