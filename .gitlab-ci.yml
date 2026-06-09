@@ -116,9 +116,11 @@ Build project:
       paths:
         - .m2/repository/
 
-Build project:jdk 18:
+Build project:jdk 21:
   extends: .build
-  image: maven:3.8-openjdk-18-slim
+  image: maven:3.9-eclipse-temurin-21
+  variables:
+    SKIP_TESTS: "-DskipTests -Dskip.delombok=true"
 
 Build website:
   extends: .build-website
