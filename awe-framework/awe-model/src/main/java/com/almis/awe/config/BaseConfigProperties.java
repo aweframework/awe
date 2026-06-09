@@ -392,7 +392,7 @@ public class BaseConfigProperties {
     private String iconTablet = images + FAVICON_ICON;
 
     /**
-     * Home screen logo. Uses application.paths.images as parent path.
+     * Sign-in screen logo. Uses application.paths.images as parent path.
      * Default value ../images/logo/logo-awe-nuevo.svg
      */
     private String imageStartupLogo = "../" + images + "logo/logo-awe-nuevo.svg";
@@ -404,8 +404,8 @@ public class BaseConfigProperties {
     private String imageNavbarLogo = "../" + images + "logo/logo-awe-nuevo2.svg";
 
     /**
-     * Home screen background image. Uses application.paths.images as parent path.
-     * Default value ../images/background/signin-bg-1.jp
+     * Sign-in screen background image. Uses application.paths.images as parent path.
+     * Default value ../images/background/signin-bg-1.jpg
      */
     private String imageStartupBackground = "../" + images + "background/signin-bg-1.jpg";
   }
