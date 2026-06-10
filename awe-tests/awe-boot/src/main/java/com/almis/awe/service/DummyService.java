@@ -284,6 +284,50 @@ public class DummyService extends ServiceConfig {
     return out;
   }
 
+  /**
+   * Validates maintain serve list contracts for single and multiple values.
+   *
+   * @param stringList Submitted string values
+   * @param integerList Submitted integer values
+   * @param dateList Submitted date values
+   * @return ServiceData
+   * @throws AWException Invalid list binding
+   */
+  public ServiceData returnMaintainOkForListContract(List<String> stringList, List<Integer> integerList, List<Date> dateList) throws AWException {
+    if (stringList == null || integerList == null || dateList == null) {
+      throw new AWException("List contract failure", "Maintain serve list parameters must be bound as non-null lists");
+    }
+
+    if (stringList.isEmpty() || integerList.isEmpty() || dateList.isEmpty()) {
+      throw new AWException("List contract failure", "Maintain serve list parameters must contain the submitted values");
+    }
+
+    if (stringList.size() != integerList.size() || integerList.size() != dateList.size()) {
+      throw new AWException("List contract failure", "Maintain serve list parameters must preserve aligned list sizes");
+    }
+
+    return returnMaintainOkNoParams();
+  }
+
+  /**
+   * Validates maintain serve list contracts when service parameter names differ from maintain variable ids.
+   *
+   * @param serviceIntegerList Submitted integer values
+   * @return ServiceData
+   * @throws AWException Invalid list binding
+   */
+  public ServiceData returnMaintainOkForMappedListContract(List<Integer> serviceIntegerList) throws AWException {
+    if (serviceIntegerList == null) {
+      throw new AWException("List contract failure", "Maintain serve mapped list parameter must be bound as a non-null list");
+    }
+
+    if (serviceIntegerList.isEmpty()) {
+      throw new AWException("List contract failure", "Maintain serve mapped list parameter must contain the submitted values: " + serviceIntegerList);
+    }
+
+    return returnMaintainOkNoParams();
+  }
+
   public ServiceData sendMail() {
     ServiceData out = new ServiceData();
     try {

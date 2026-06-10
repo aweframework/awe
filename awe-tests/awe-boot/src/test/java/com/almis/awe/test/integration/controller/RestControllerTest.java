@@ -350,6 +350,46 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
+     * Rest test: Maintain serve list contracts preserve a single submitted value
+     *
+     * @throws Exception Test error
+     */
+    @Test
+    void testPostParameterListSingleValue() throws Exception {
+      doRestTest("TestComplexRestPostParametersSingleList", "maintain", "\"stringList\":\"tutu\",\"integerList\":4,\"dateList\":\"23/04/2014\",", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+    }
+
+    /**
+     * Rest test: Maintain serve list contracts preserve multiple submitted values
+     *
+     * @throws Exception Test error
+     */
+    @Test
+    void testPostParameterListMultipleValuesWithDedicatedFixture() throws Exception {
+      doRestTest("TestComplexRestPostParametersSingleList", "maintain", "\"stringList\":[\"tutu\", \"lala\", \"yoyo\"],\"integerList\":[4, 6, 7],\"dateList\":[\"23/04/2014\", \"22/05/2017\", \"07/01/2019\"],", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+    }
+
+    /**
+     * Rest test: Maintain serve mapped list contracts preserve a single submitted value
+     *
+     * @throws Exception Test error
+     */
+    @Test
+    void testPostParameterListSingleValueWhenServiceParameterNameDiffersFromVariableId() throws Exception {
+      doRestTest("TestComplexRestPostParametersMappedSingleList", "maintain", "\"frontendIntegerList\":4,", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+    }
+
+    /**
+     * Rest test: Maintain serve mapped list contracts preserve multiple submitted values
+     *
+     * @throws Exception Test error
+     */
+    @Test
+    void testPostParameterListMultipleValuesWhenServiceParameterNameDiffersFromVariableId() throws Exception {
+      doRestTest("TestComplexRestPostParametersMappedSingleList", "maintain", "\"frontendIntegerList\":[4, 6, 7],", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+    }
+
+    /**
      * Test a REST POST
      *
      * @param name       Target action
