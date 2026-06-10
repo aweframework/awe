@@ -1,0 +1,10 @@
+changeName: fix-selenium-login-wait
+artifactStore: openspec
+phases:
+  proposal: done
+  spec: done
+  design: done
+  tasks: done
+  apply: done
+  verify: done
+  archive: done

@@ -7,6 +7,7 @@ import com.almis.awe.testing.model.SeleniumModel;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
@@ -177,6 +178,16 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public By getButton(String buttonId) {
     return By.cssSelector(String.format("#%s:not([disabled])", buttonId));
+  }
+
+  public List<By> getRequiredPostLoginShellControls() {
+    return List.of(By.id("ButUsrAct"));
+  }
+
+  public List<By> getOptionalPostLoginShellControls() {
+    return List.of(
+      By.id("ButLogOut")
+    );
   }
 
   public By getInfoButton(String buttonId) {

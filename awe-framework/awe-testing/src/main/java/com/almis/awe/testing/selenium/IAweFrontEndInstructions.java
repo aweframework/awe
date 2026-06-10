@@ -5,6 +5,8 @@ import com.almis.awe.testing.enumerated.RowEditBehavior;
 import com.almis.awe.testing.enumerated.SuggestBehavior;
 import org.openqa.selenium.By;
 
+import java.util.List;
+
 public interface IAweFrontEndInstructions extends IAweInstructions {
 
   /**
@@ -117,6 +119,20 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Button selector
    */
   By getButton(String buttonId);
+
+  /**
+   * Get shell controls that must be actionable after successful login.
+   *
+   * @return Required post-login shell control selectors
+   */
+  List<By> getRequiredPostLoginShellControls();
+
+  /**
+   * Get shell controls that must be actionable when present after successful login.
+   *
+   * @return Post-login shell control selectors
+   */
+  List<By> getOptionalPostLoginShellControls();
 
   /**
    * Get info button
