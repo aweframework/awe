@@ -100,6 +100,20 @@
     </java>
   </service>
 
+  <service id="returnMaintainOkForListContract">
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkForListContract">
+      <service-parameter type="STRING" name="stringList" list="true"/>
+      <service-parameter type="INTEGER" name="integerList" list="true"/>
+      <service-parameter type="DATE" name="dateList" list="true"/>
+    </java>
+  </service>
+
+  <service id="returnMaintainOkForMappedListContract">
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkForMappedListContract">
+      <service-parameter type="INTEGER" name="serviceIntegerList" list="true"/>
+    </java>
+  </service>
+
   <service id="ValidateBankAccount">
     <java classname="com.almis.awe.test.Validation" method="validateBankAccount">
       <service-parameter type="STRING" name="BankAccount" />

@@ -907,6 +907,20 @@
     </serve>
   </target>
 
+  <target name="TestComplexRestPostParametersSingleList">
+    <serve service="returnMaintainOkForListContract">
+      <variable id="integerList" type="INTEGER" name="integerList"/>
+      <variable id="stringList" type="STRING" name="stringList"/>
+      <variable id="dateList" type="DATE" name="dateList"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexRestPostParametersMappedSingleList">
+    <serve service="returnMaintainOkForMappedListContract">
+      <variable id="backendIntegerList" type="INTEGER" name="frontendIntegerList"/>
+    </serve>
+  </target>
+
   <target name="TestComplexJavaParametersPOJO">
     <serve service="TestComplexJavaParametersPOJO">
       <variable id="name" type="STRING" value="name"/>
