@@ -119,14 +119,13 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param condition Expected condition
    */
   private void waitUntil(ExpectedCondition<?> condition) {
-    String message = condition.toString();
     try {
       new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout()).until(condition);
       // Assert true on condition
-      assertTrue(true, message);
-      log.debug(message);
+      assertTrue(true, condition.toString());
+      log.debug(condition.toString());
     } catch (Exception exc) {
-      assertWithScreenshot(message, false, exc);
+      assertWithScreenshot(condition.toString(), false, exc);
     }
   }
 
@@ -166,6 +165,246 @@ public class SeleniumUtilities implements IAweInstructions {
       return true;
     } catch (Exception exc) {
       return false;
+    }
+  }
+
+  /**
+   * Checks whether a located element can receive Selenium input.
+   *
+   * @param selector Element selector
+   * @param diagnosticLabel Wait label used for diagnostics
+   * @return Condition for element actionability
+   */
+  private ExpectedCondition<Boolean> inputToBeActionable(By selector, String diagnosticLabel) {
+    return new ExpectedCondition<Boolean>() {
+      @Override
+      public Boolean apply(WebDriver driver) {
+        try {
+          WebElement element = Objects.requireNonNull(driver).findElement(selector);
+          return element.isDisplayed() && element.isEnabled();
+        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return false;
+        }
+      }
+
+      @Override
+      public String toString() {
+        return diagnosticLabel + ": input is visible and enabled for selector " + selector;
+      }
+    };
+  }
+
+  /**
+   * Checks whether a located element is ready for Selenium click actions.
+   *
+   * @param selector Element selector
+   * @param diagnosticLabel Wait label used for diagnostics
+   * @return Condition for element clickability
+   */
+  private ExpectedCondition<Boolean> elementToBeActionableForClick(By selector, String diagnosticLabel) {
+    return new ExpectedCondition<Boolean>() {
+      @Override
+      public Boolean apply(WebDriver driver) {
+        try {
+          WebElement element = elementToBeClickable(selector).apply(driver);
+          return element != null;
+        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return false;
+        }
+      }
+
+      @Override
+      public String toString() {
+        return diagnosticLabel + ": element is clickable for selector " + selector;
+      }
+    };
+  }
+
+  /**
+   * Checks whether a selector is visible and contains the expected text.
+   *
+   * @param selector     Element selector
+   * @param expectedText Expected text
+   * @param diagnosticLabel Wait label used for diagnostics
+   * @return Condition for selector text readiness
+   */
+  private ExpectedCondition<Boolean> selectorVisibleWithText(By selector, String expectedText, String diagnosticLabel) {
+    return new ExpectedCondition<Boolean>() {
+      @Override
+      public Boolean apply(WebDriver driver) {
+        try {
+          WebElement element = visibilityOfElementLocated(selector).apply(driver);
+          return element != null && element.getText().contains(expectedText);
+        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return false;
+        }
+      }
+
+      @Override
+      public String toString() {
+        return diagnosticLabel + ": selector " + selector + " is visible with expected text: '" + expectedText + "'";
+      }
+    };
+  }
+
+  /**
+   * Checks whether the matched selector has at least one visible control and every visible control is enabled.
+   *
+   * @param selector Control selector
+   * @return Control readiness
+   */
+  private boolean visibleControlReady(By selector) {
+    try {
+      List<WebElement> elements = getElements(selector);
+      boolean visibleControlFound = false;
+      for (WebElement element : elements) {
+        if (element.isDisplayed()) {
+          visibleControlFound = true;
+          if (!element.isEnabled()) {
+            return false;
+          }
+        }
+      }
+      return visibleControlFound;
+    } catch (StaleElementReferenceException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Checks whether all visible shell controls from the provided selectors are enabled.
+   * Selectors with no visible matches are treated as optional for the current shell.
+   *
+   * @return Whether every visible shell control is actionable
+   */
+  private boolean visibleShellControlsReady() {
+    try {
+      for (By selector : frontEndInstructions.getRequiredPostLoginShellControls()) {
+        if (!visibleControlReady(selector)) {
+          return false;
+        }
+      }
+
+      for (By selector : frontEndInstructions.getOptionalPostLoginShellControls()) {
+        if (hasVisibleElement(selector) && !visibleControlReady(selector)) {
+          return false;
+        }
+      }
+      return true;
+    } catch (StaleElementReferenceException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Checks whether any visible element matched by the selector exists.
+   *
+   * @param selector Element selector
+   * @return Whether a visible element exists
+   */
+  private boolean hasVisibleElement(By selector) {
+    try {
+      return getElements(selector).stream().anyMatch(WebElement::isDisplayed);
+    } catch (StaleElementReferenceException exc) {
+      return true;
+    }
+  }
+
+  /**
+   * Waits until a criterion is ready to receive input.
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void waitForInputActionability(String criterionName) {
+    By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
+    waitUntil(inputToBeActionable(selector, "Input actionability [" + criterionName + "]"));
+  }
+
+  /**
+   * Waits until a button is ready to be clicked.
+   *
+   * @param buttonName Button identifier
+   */
+  protected void waitForButtonClickability(String buttonName) {
+    waitUntil(elementToBeActionableForClick(frontEndInstructions.getButton(buttonName), "Button clickability [" + buttonName + "]"));
+  }
+
+  /**
+   * Checks if the expected login result is still displayed in the login form.
+   * This preserves wrong-login flows that intentionally assert login-screen alerts.
+   *
+   * @param resultSelector Login result selector
+   * @param expectedText   Expected result text
+   * @return Condition for login-screen result readiness
+   */
+  private ExpectedCondition<Boolean> loginFormResultReady(By resultSelector, String expectedText) {
+    return new ExpectedCondition<Boolean>() {
+      @Override
+      public Boolean apply(WebDriver driver) {
+        return hasVisibleElement(By.id("ButLogIn"))
+          && Boolean.TRUE.equals(selectorVisibleWithText(resultSelector, expectedText, "Login form result").apply(driver));
+      }
+
+      @Override
+      public String toString() {
+        return "Login form result: selector " + resultSelector + " is visible with expected text: '" + expectedText + "'";
+      }
+    };
+  }
+
+  /**
+   * Waits until the authenticated shell is ready after successful login.
+   *
+   * @param postLoginSelector Selector expected in the authenticated shell
+   * @param expectedText      Expected text inside the selector
+   */
+  private void waitForAuthenticatedShell(By postLoginSelector, String expectedText) {
+    waitUntil(authenticatedShellReady(postLoginSelector, expectedText));
+  }
+
+  /**
+   * Checks if authenticated shell signals are ready after login.
+   *
+   * @param postLoginSelector Selector expected in the authenticated shell
+   * @param expectedText      Expected text inside the selector
+   * @return Authenticated shell readiness condition
+   */
+  private ExpectedCondition<Boolean> authenticatedShellReady(By postLoginSelector, String expectedText) {
+    return new ExpectedCondition<Boolean>() {
+      @Override
+      public Boolean apply(WebDriver driver) {
+        try {
+          return Boolean.TRUE.equals(invisibilityOfElementLocated(frontEndInstructions.getLoadingBar()).apply(driver))
+            && !hasVisibleElement(By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input"))
+            && Boolean.TRUE.equals(selectorVisibleWithText(postLoginSelector, expectedText, "Post-login selector readiness").apply(driver))
+            && visibleShellControlsReady();
+        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return false;
+        }
+      }
+
+      @Override
+      public String toString() {
+        return "Authenticated shell readiness: loading bar invisible, login form hidden, post-login selector "
+          + postLoginSelector + " contains text: '" + expectedText
+          + "', and visible frontend shell controls are actionable";
+      }
+    };
+  }
+
+  /**
+   * Waits for the login result without over-constraining expected login-screen errors.
+   *
+   * @param cssSelector Selector to check
+   * @param expectedText Expected text inside selector
+   */
+  private void waitForExpectedSelectorResult(String cssSelector, String expectedText) {
+    By resultSelector = By.cssSelector(cssSelector);
+    waitForLoadingBar();
+    waitUntil(or(loginFormResultReady(resultSelector, expectedText), authenticatedShellReady(resultSelector, expectedText)));
+
+    if (!hasVisibleElement(By.id("ButLogIn"))) {
+      waitForAuthenticatedShell(resultSelector, expectedText);
     }
   }
 
@@ -2435,8 +2674,9 @@ public class SeleniumUtilities implements IAweInstructions {
     // Test title
     setTestTitle("Login test: Log into the application");
 
-    // Wait for element present
-    waitForButton("ButLogIn");
+    // Wait for login form inputs to be actionable
+    waitForInputActionability("cod_usr");
+    waitForInputActionability("pwd_usr");
 
     // Write username
     writeText("cod_usr", username);
@@ -2444,11 +2684,14 @@ public class SeleniumUtilities implements IAweInstructions {
     // Write password
     writeText("pwd_usr", password);
 
+    // Wait for login button to be clickable
+    waitForButtonClickability("ButLogIn");
+
     // Click button
     clickButton("ButLogIn", true);
 
-    // Wait for element present
-    waitForSelector(By.cssSelector(cssSelector));
+    // Wait for login result or authenticated shell readiness
+    waitForExpectedSelectorResult(cssSelector, checkText);
 
     // Assertion
     checkText(cssSelector, checkText);
