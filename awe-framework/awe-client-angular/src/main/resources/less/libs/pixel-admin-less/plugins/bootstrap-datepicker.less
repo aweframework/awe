@@ -136,7 +136,7 @@
     }
   }
 
-  // Days
+    // Days
   table tr td {
     border-bottom: 1px solid @border-color;
     border-right: 1px solid @border-color;
@@ -145,29 +145,57 @@
       border-right: none;
     }
 
+    // Selectable days: explicit color so dark themes render them legibly
+    &.day {
+      color: var(--text-color, #333);
+    }
+
     &.day:hover {
       background: @secondary-background-color;
+      box-shadow: inset 0 0 0 1px @border-color;
       cursor: pointer;
       position: relative;
     }
 
     &.old,
     &.new {
-      color: #bbb;
+      // Muted but theme-aware; falls back to a neutral grey
+      color: var(--disabled-text-color, #999);
     }
 
+    // Disabled/unavailable dates: use theme-aware disabled tokens so they
+    // contrast clearly against selectable days in both light and dark themes.
+    // box-shadow: none cancels the inset hover outline from &.day:hover for
+    // dates that carry both .day and .disabled classes simultaneously.
+    // opacity is intentionally omitted here so that .selected.disabled and
+    // .active.disabled (which set color: #fff) are not muted incorrectly.
     &.disabled,
     &.disabled:hover {
-      background: none;
-      color: #eee;
+      background: var(--disabled-color, #ccc);
+      box-shadow: none;
+      color: var(--disabled-text-color, #999);
       cursor: default;
     }
 
+    // Today uses existing theme tokens so it works in all light and dark themes
+    // without requiring new per-theme variable definitions.
+    // --required-color is an accent tint defined for every theme (light + dark);
+    // --primary-color is the theme accent used for the border ring.
     &.today,
-    &.today:hover,
+    &.today:hover {
+      background: var(--required-color, #dfd);
+      box-shadow: inset 0 0 0 1px var(--primary-color, #1d89cf);
+      font-weight: 700 !important;
+    }
+
+    // Today + disabled: keep today's accent background but suppress the hover
+    // outline and inherit the disabled cursor so it is clearly unavailable.
     &.today.disabled,
     &.today.disabled:hover {
-      background: lighten(#eee, 2%);
+      background: var(--required-color, #dfd);
+      box-shadow: none;
+      color: var(--disabled-text-color, #999);
+      cursor: default;
       font-weight: 700 !important;
     }
 
@@ -220,13 +248,15 @@
       width: 23%;
 
       &:hover {
-        background: #eee;
+        background: var(--secondary-background-color, #eee);
       }
 
+      // Disabled months/years: theme-aware contrast (mirrors td.disabled treatment).
+      // No opacity so that span.active.disabled is not incorrectly muted.
       &.disabled,
       &.disabled:hover {
-        background: none;
-        color: #eee;
+        background: var(--disabled-color, #ccc);
+        color: var(--disabled-text-color, #999);
         cursor: default;
       }
 
@@ -240,7 +270,7 @@
 
       &.old,
       &.new {
-        color: #eee;
+        color: var(--disabled-text-color, #999);
       }
     }
   }
