@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -203,6 +204,26 @@ class MaintainServiceConnectionTest {
   @Nested
   @DisplayName("Error paths — connection lifecycle (regression guard for pool exhaustion)")
   class ErrorPaths {
+
+    @Test
+    @DisplayName("Rethrows the same AWException instance for controlled maintain errors")
+    void rethrowsControlledMaintainAWExceptionUnchanged() throws Exception {
+      AWException expectedException = new AWException("maintain error title", "maintain error message",
+        new IllegalStateException("missing non-audit list variable"));
+      when(maintainLauncher.launchMaintain(any(MaintainQuery.class), any(), any()))
+        .thenThrow(expectedException);
+
+      try (MockedStatic<DataSourceUtils> dsu = mockStatic(DataSourceUtils.class)) {
+        AWException thrown = catchThrowableOfType(
+          () -> maintainService.launchMaintain(targetWithInsert("t-maintain-error"), emptyParams(), databaseConnection, false),
+          AWException.class);
+
+        assertThat(thrown).isSameAs(expectedException);
+        assertThat(thrown.getTitle()).isEqualTo("maintain error title");
+        assertThat(thrown.getMessage()).isEqualTo("maintain error message");
+        dsu.verify(() -> DataSourceUtils.releaseConnection(connection, dataSource), times(1));
+      }
+    }
 
     @Test
     @DisplayName("Releases connection when AWException is thrown during maintain execution")
