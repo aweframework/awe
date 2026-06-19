@@ -178,10 +178,12 @@ public class EmailService extends ServiceConfig {
   protected void generateMultipartAttachments(ParsedEmail email, Multipart multipart) throws MessagingException, IOException {
     for (String fileName : email.getAttachments().keySet()) {
       File file = email.getAttachments().get(fileName);
+      String attachmentExtension = getFileExtension(fileName);
+      String fileExtension = getFileExtension(file.getName());
 
       // If extension is not the same as the one of the file, force extension
-      if (!getFileExtension(fileName).equalsIgnoreCase(getFileExtension(file.getName()))) {
-        fileName += getFileExtension(file.getName());
+      if (!fileExtension.isEmpty() && !attachmentExtension.equalsIgnoreCase(fileExtension)) {
+        fileName += fileExtension;
       }
 
       MimeBodyPart attachFilePart = new MimeBodyPart();
@@ -230,7 +232,8 @@ public class EmailService extends ServiceConfig {
    * @return Extension
    */
   private String getFileExtension(String fileName) {
-    return fileName.substring(fileName.lastIndexOf('.'));
+    int extensionIndex = fileName.lastIndexOf('.');
+    return extensionIndex >= 0 ? fileName.substring(extensionIndex) : "";
   }
 
   /**

@@ -17,10 +17,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +30,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import static java.util.Collections.singletonList;
@@ -80,7 +84,7 @@ class EmailServiceTest {
   @BeforeEach
   public void setUp() {
     emailService.setApplicationContext(context);
-    when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
+    lenient().when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
   }
 
   /**
@@ -263,5 +267,53 @@ class EmailServiceTest {
     verify(mailSenderFactory).getMailSender("emailServer");
     verify(queryUtil).getRequestParameter(eq("user"), any(ObjectNode.class));
     verify(mailSender).send(mimeMessage);
+  }
+
+  @Test
+  void generateMultipartAttachmentsAddsRealExtensionWhenVisibleNameHasNone(@TempDir Path tempDir) throws Exception {
+    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+    Path attachmentPath = Files.writeString(tempDir.resolve("report.pdf"), "content");
+
+    ParsedEmail email = new ParsedEmail()
+      .setBody("Test body")
+      .addAttachment("report", attachmentPath.toFile());
+
+    MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
+
+    assertEquals("report.pdf", attachmentPart.getFileName());
+  }
+
+  @Test
+  void generateMultipartAttachmentsKeepsVisibleNameWhenRealFileHasNoExtension(@TempDir Path tempDir) throws Exception {
+    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+    Path attachmentPath = Files.writeString(tempDir.resolve("report"), "content");
+
+    ParsedEmail email = new ParsedEmail()
+      .setBody("Test body")
+      .addAttachment("visible-name.pdf", attachmentPath.toFile());
+
+    MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
+
+    assertEquals("visible-name.pdf", attachmentPart.getFileName());
+  }
+
+  @Test
+  void generateMultipartAttachmentsKeepsVisibleNameWhenExtensionAlreadyMatches(@TempDir Path tempDir) throws Exception {
+    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+    Path attachmentPath = Files.writeString(tempDir.resolve("report.pdf"), "content");
+
+    ParsedEmail email = new ParsedEmail()
+      .setBody("Test body")
+      .addAttachment("visible-name.pdf", attachmentPath.toFile());
+
+    MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
+
+    assertEquals("visible-name.pdf", attachmentPart.getFileName());
   }
 }
