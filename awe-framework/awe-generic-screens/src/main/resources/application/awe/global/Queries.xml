@@ -2426,7 +2426,14 @@
     <variable id="generate" type="BOOLEAN" value="false"/>
   </query>
 
-  <query id="force-qr-code" service="qr-code">
+  <!-- public="true" allows FORCE-mode pending-enrollment users to call this query
+       before AweSession.isAuthenticated() is true (i.e. before TOTP enrollment completes).
+       Safety is enforced server-side by TotpService.enforceGenerateAccess():
+         - allowed: pendingTotpEnrollment=true  (FORCE bootstrap — generates the first secret)
+         - allowed: fullyAuthenticated=true      (private settings flow)
+         - denied:  all other states, including enrolled users not yet TOTP-verified
+       Do NOT rely on public="true" alone for security. The XML flag is transport-layer only. -->
+  <query id="force-qr-code" service="qr-code" public="true">
     <variable id="generate" type="BOOLEAN" value="true"/>
   </query>
 
