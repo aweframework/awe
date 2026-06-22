@@ -121,7 +121,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/plugins/uiNumeric.js', 
   it('should rebuild derived numeric values after api updates without relying on merge semantics', function() {
     $rootScope.firstLoad = true;
     $rootScope.component = component;
-    let currentModel = {values: [{}], selected: "3", meta: {foo: "bar"}};
+    let currentModel = {values: [{}], selected: 3, meta: {foo: "bar"}};
 
     jest.spyOn($control, "checkComponent").mockReturnValue(true);
     jest.spyOn($control, "getAddressModel").mockReturnValue(currentModel);

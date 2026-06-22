@@ -23,6 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -269,51 +271,25 @@ class EmailServiceTest {
     verify(mailSender).send(mimeMessage);
   }
 
-  @Test
-  void generateMultipartAttachmentsAddsRealExtensionWhenVisibleNameHasNone(@TempDir Path tempDir) throws Exception {
+  @ParameterizedTest
+  @CsvSource({
+    "report, report.pdf, report.pdf",
+    "visible-name.pdf, report, visible-name.pdf",
+    "visible-name.pdf, report.pdf, visible-name.pdf"
+  })
+  void generateMultipartAttachmentsPreservesExpectedVisibleName(String visibleName, String storedFileName,
+                                                                String expectedFileName, @TempDir Path tempDir) throws Exception {
     given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
     when(context.getBean(AweElements.class)).thenReturn(aweElements);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
-    Path attachmentPath = Files.writeString(tempDir.resolve("report.pdf"), "content");
+    Path attachmentPath = Files.writeString(tempDir.resolve(storedFileName), "content");
 
     ParsedEmail email = new ParsedEmail()
       .setBody("Test body")
-      .addAttachment("report", attachmentPath.toFile());
+      .addAttachment(visibleName, attachmentPath.toFile());
 
     MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
 
-    assertEquals("report.pdf", attachmentPart.getFileName());
-  }
-
-  @Test
-  void generateMultipartAttachmentsKeepsVisibleNameWhenRealFileHasNoExtension(@TempDir Path tempDir) throws Exception {
-    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
-    when(context.getBean(AweElements.class)).thenReturn(aweElements);
-    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
-    Path attachmentPath = Files.writeString(tempDir.resolve("report"), "content");
-
-    ParsedEmail email = new ParsedEmail()
-      .setBody("Test body")
-      .addAttachment("visible-name.pdf", attachmentPath.toFile());
-
-    MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
-
-    assertEquals("visible-name.pdf", attachmentPart.getFileName());
-  }
-
-  @Test
-  void generateMultipartAttachmentsKeepsVisibleNameWhenExtensionAlreadyMatches(@TempDir Path tempDir) throws Exception {
-    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
-    when(context.getBean(AweElements.class)).thenReturn(aweElements);
-    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
-    Path attachmentPath = Files.writeString(tempDir.resolve("report.pdf"), "content");
-
-    ParsedEmail email = new ParsedEmail()
-      .setBody("Test body")
-      .addAttachment("visible-name.pdf", attachmentPath.toFile());
-
-    MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
-
-    assertEquals("visible-name.pdf", attachmentPart.getFileName());
+    assertEquals(expectedFileName, attachmentPart.getFileName());
   }
 }

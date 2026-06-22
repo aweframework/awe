@@ -1,6 +1,7 @@
 package com.almis.awe.service.data.builder;
 
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.maintain.Insert;
 import com.almis.awe.model.entities.queries.Field;
@@ -20,11 +21,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -125,6 +130,45 @@ class SQLMaintainBuilderTest {
     assertEquals(0, builder.getSubqueryInvocationCount());
   }
 
+  @Test
+  void queryBackedAuditedFieldValueIsMaterializedOnlyOncePerKey() throws Exception {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    Field field = queryBackedAuditField("CachedAuditValue");
+    builder.registerSubqueryRows("CachedAuditValueQuery", List.of(tuple("AUDIT-VALUE")));
+
+    var firstValue = invokeMaterializedQueryFieldValue(builder, field, 0);
+    var secondValue = invokeMaterializedQueryFieldValue(builder, field, 0);
+
+    assertSame(firstValue, secondValue);
+    assertEquals(1, builder.getSubqueryInvocationCount());
+  }
+
+  @Test
+  void queryBackedAuditedFieldValuePropagatesWrongRowCountException() {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    Field field = queryBackedAuditField("RowCountAuditValue");
+    builder.registerSubqueryRows("RowCountAuditValueQuery", List.of(tupleWithoutValues(), tupleWithoutValues()));
+
+    AWException exception = assertThrows(AWException.class,
+      () -> invokeMaterializedQueryFieldValue(builder, field, 0));
+
+    assertEquals("Query-backed audited field 'RowCountAuditValue' must return exactly one row, but returned 2",
+      exception.getMessage());
+  }
+
+  @Test
+  void queryBackedAuditedFieldValuePropagatesWrongColumnCountException() {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    Field field = queryBackedAuditField("ColumnCountAuditValue");
+    builder.registerSubqueryRows("ColumnCountAuditValueQuery", List.of(tuple("AUDIT-VALUE", "UNEXPECTED-COLUMN")));
+
+    AWException exception = assertThrows(AWException.class,
+      () -> invokeMaterializedQueryFieldValue(builder, field, 0));
+
+    assertEquals("Query-backed audited field 'ColumnCountAuditValue' must return exactly one column, but returned 2",
+      exception.getMessage());
+  }
+
   private SQLQueryFactory sqlQueryFactory() {
     return new SQLQueryFactory(new Configuration(new HSQLDBTemplates()), () -> connection);
   }
@@ -155,16 +199,55 @@ class SQLMaintainBuilderTest {
     when(tuple.toArray()).thenReturn(values);
     return tuple;
   }
+
+  private Tuple tupleWithoutValues() {
+    return mock(Tuple.class);
+  }
+
+  private Field queryBackedAuditField(String identifier) {
+    return Field.builder()
+      .id(identifier)
+      .query(identifier + "Query")
+      .build();
+  }
+
+  private Object invokeMaterializedQueryFieldValue(TrackingSQLMaintainBuilder builder, Field field, int index) throws Exception {
+    Method method = SQLMaintainBuilder.class.getDeclaredMethod("getMaterializedQueryFieldValue", Field.class, Integer.class);
+    method.setAccessible(true);
+    try {
+      return method.invoke(builder.setMaintain(insertQueryMaintain()), field, index);
+    } catch (InvocationTargetException exc) {
+      Throwable cause = exc.getCause();
+      if (cause instanceof AWException awException) {
+        throw awException;
+      }
+      if (cause instanceof RuntimeException runtimeException) {
+        throw runtimeException;
+      }
+      throw new AssertionError("Unexpected reflection failure", cause);
+    }
+  }
+
   private static class TrackingSQLMaintainBuilder extends SQLMaintainBuilder {
     private int subqueryInvocationCount;
+    private final Map<String, SQLQuery<Tuple>> subqueries = new HashMap<>();
 
     TrackingSQLMaintainBuilder(QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
       super(queryUtil, mock(EncodeService.class), databaseConfigProperties);
     }
 
+    void registerSubqueryRows(String queryId, List<Tuple> rows) {
+      SQLQuery<Tuple> query = mock(SQLQuery.class);
+      when(query.fetch()).thenReturn(rows);
+      subqueries.put(queryId, query);
+    }
+
     @Override
     protected SQLQuery<Tuple> getSubquery(String queryId) {
       subqueryInvocationCount++;
+      if (subqueries.containsKey(queryId)) {
+        return subqueries.get(queryId);
+      }
       throw new UnsupportedOperationException("Subquery execution should not happen when rows are already materialized");
     }
 
