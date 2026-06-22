@@ -516,7 +516,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   private void validateMaterializedInsertQueryRowWidth(List<SqlField> insertFields, Object[] values) throws AWException {
     if (values.length != insertFields.size()) {
       throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN),
-        MessageFormat.format("Insert query for maintain '{0}' returned {1} columns, but {2} fields are defined", getQuery().getId(), values.length, insertFields.size()));
+        MessageFormat.format("Insert query for maintain ''{0}'' returned {1} columns, but {2} fields are defined", getQuery().getId(), values.length, insertFields.size()));
     }
   }
 
@@ -766,13 +766,17 @@ public class SQLMaintainBuilder extends SQLBuilder {
       field.getQuery(),
       Optional.ofNullable(index).orElse(0));
 
-    Expression<?> materializedValue = materializedQueryFieldValues.get(key);
-    if (materializedValue == null) {
-      materializedValue = materializeQueryFieldValue(field);
-      materializedQueryFieldValues.put(key, materializedValue);
+    try {
+      return materializedQueryFieldValues.computeIfAbsent(key, ignored -> {
+        try {
+          return materializeQueryFieldValue(field);
+        } catch (AWException exc) {
+          throw new MaterializedQueryFieldValueException(exc);
+        }
+      });
+    } catch (MaterializedQueryFieldValueException exc) {
+      throw exc.getAwException();
     }
-
-    return materializedValue;
   }
 
   private Expression<?> materializeQueryFieldValue(Field field) throws AWException {
@@ -780,13 +784,13 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
     if (rows.size() != 1) {
       throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN),
-        MessageFormat.format("Query-backed audited field '{0}' must return exactly one row, but returned {1}", field.getIdentifier(), rows.size()));
+        MessageFormat.format("Query-backed audited field ''{0}'' must return exactly one row, but returned {1}", field.getIdentifier(), rows.size()));
     }
 
     Object[] values = rows.get(0).toArray();
     if (values.length != 1) {
       throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN),
-        MessageFormat.format("Query-backed audited field '{0}' must return exactly one column, but returned {1}", field.getIdentifier(), values.length));
+        MessageFormat.format("Query-backed audited field ''{0}'' must return exactly one column, but returned {1}", field.getIdentifier(), values.length));
     }
 
     Object value = values[0];
@@ -794,6 +798,19 @@ public class SQLMaintainBuilder extends SQLBuilder {
   }
 
   private record QueryBackedFieldKey(String table, String id, String alias, String query, Integer variableIndex) {
+  }
+
+  private static final class MaterializedQueryFieldValueException extends RuntimeException {
+    private final AWException awException;
+
+    private MaterializedQueryFieldValueException(AWException awException) {
+      super(awException);
+      this.awException = awException;
+    }
+
+    private AWException getAwException() {
+      return awException;
+    }
   }
 
   /**
