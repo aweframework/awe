@@ -172,17 +172,33 @@ public class AweSession implements Serializable {
   }
 
   /**
-   * Check if user is authenticated
+   * Check if user is authenticated.
+   * <p>
+   * Policy (evaluated in order):
+   * <ol>
+   *   <li>FORCE-mode pre-enrollment ({@link AweUserDetails#isAwaitingTotpEnrollment()}) → denied.
+   *       The user may only access the 2FA enrollment flow.</li>
+   *   <li>2FA enrolled: requires completed TOTP verification
+   *       ({@link AweUserDetails#hasTotpVerified()}).</li>
+   *   <li>No 2FA (DISABLED or OPTIONAL without enrollment): delegates to Spring's
+   *       {@code Authentication.isAuthenticated()}.</li>
+   *   <li>Non-{@link AweUserDetails} principal: delegates to Spring.</li>
+   *   <li>Anonymous or null authentication: denied.</li>
+   * </ol>
    *
-   * @return User is authenticated
+   * @return true only when the user has completed all required authentication steps
    */
   public boolean isAuthenticated() {
     boolean authenticated = false;
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken))  {
       if (authentication.getPrincipal() instanceof AweUserDetails aweUserDetails) {
-        if (aweUserDetails.isEnabled2fa()) {
-          authenticated = aweUserDetails.isFullyAuthenticated();
+        if (aweUserDetails.isAwaitingTotpEnrollment()) {
+          // FORCE-mode pre-enrollment: user may only access the enrollment flow.
+          authenticated = false;
+        } else if (aweUserDetails.isEnabled2fa()) {
+          // Enrolled 2FA: require successful TOTP verification.
+          authenticated = aweUserDetails.hasTotpVerified();
         } else {
           authenticated = authentication.isAuthenticated();
         }

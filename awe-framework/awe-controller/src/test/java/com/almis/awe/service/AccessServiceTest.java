@@ -9,6 +9,7 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.type.SecondFactorStatusType;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
@@ -110,6 +112,9 @@ class AccessServiceTest {
   @BeforeEach
   void setUp() {
     aweUserDetails = new AweUserDetails();
+    aweUserDetails.setLanguage("es-ES");
+    aweUserDetails.setTheme("awe-theme");
+    aweUserDetails.setInitialScreen("home");
     lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
     lenient().when(authentication.getPrincipal()).thenReturn(aweUserDetails);
     SecurityContextHolder.setContext(securityContext);
@@ -120,30 +125,124 @@ class AccessServiceTest {
   @EnumSource(SecondFactorStatusType.class)
   void loginUser2FA(SecondFactorStatusType statusType) throws Exception {
     aweUserDetails.setEnabled2fa(true).setSecret2fa("SECRET");
-    lenient().when(menuService.getMenu()).thenReturn(new Menu());
-    lenient().when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(totpConfigProperties.getEnabled()).thenReturn(statusType);
+
+    if (statusType == SecondFactorStatusType.DISABLED) {
+      Menu menu = new Menu();
+      menu.setScreenContext("private");
+      when(menuService.getMenu()).thenReturn(menu);
+      when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    } else {
+      when(totpConfigProperties.getInitialScreen()).thenReturn("check-2fa");
+    }
+
     ServiceData serviceData = accessService.login();
+
     assertEquals(3, serviceData.getClientActionList().size());
+
+    ClientAction firstAction = serviceData.getClientActionList().get(0);
+    if (statusType == SecondFactorStatusType.DISABLED) {
+      assertEquals(SCREEN, firstAction.getType());
+      assertEquals("/private/home", ((CellData) firstAction.getParameters().get(JSON_SCREEN)).getStringValue());
+      verify(aweSessionDetails).onLoginSuccess(aweUserDetails);
+      verify(aweSession).setParameter(SESSION_INITIAL_URL, "/private/home");
+    } else {
+      assertEquals(SCREEN, firstAction.getType());
+      assertEquals(SCREEN, firstAction.getContext());
+      assertEquals("check-2fa", ((CellData) firstAction.getParameters().get(JSON_SCREEN)).getStringValue());
+      verify(aweSessionDetails, never()).onLoginSuccess(any());
+      verify(aweSession, never()).setParameter(anyString(), any());
+    }
   }
 
   @ParameterizedTest
   @EnumSource(SecondFactorStatusType.class)
   void loginUserNot2FA(SecondFactorStatusType statusType) throws Exception {
-    lenient().when(menuService.getMenu()).thenReturn(new Menu());
-    lenient().when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(totpConfigProperties.getEnabled()).thenReturn(statusType);
+
+    if (statusType == SecondFactorStatusType.OPTIONAL || statusType == SecondFactorStatusType.DISABLED) {
+      Menu menu = new Menu();
+      menu.setScreenContext("private");
+      when(menuService.getMenu()).thenReturn(menu);
+      when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    }
+    if (statusType == SecondFactorStatusType.FORCE) {
+      when(totpConfigProperties.getActivateScreen()).thenReturn("activate-2fa");
+    }
+
     ServiceData serviceData = accessService.login();
+
     assertEquals(3, serviceData.getClientActionList().size());
+
+    ClientAction firstAction = serviceData.getClientActionList().get(0);
+    if (statusType == SecondFactorStatusType.FORCE) {
+      assertEquals(SCREEN, firstAction.getType());
+      assertEquals(SCREEN, firstAction.getContext());
+      assertEquals("activate-2fa", ((CellData) firstAction.getParameters().get(JSON_SCREEN)).getStringValue());
+      verify(aweSessionDetails, never()).onLoginSuccess(any());
+      verify(aweSession, never()).setParameter(anyString(), any());
+      // FORCE mode with no secret must mark the user as pending enrollment
+      assertTrue(aweUserDetails.isPendingTotpEnrollment(),
+        "FORCE mode login with no secret must set pendingTotpEnrollment=true on the principal");
+    } else {
+      assertEquals(SCREEN, firstAction.getType());
+      assertEquals("/private/home", ((CellData) firstAction.getParameters().get(JSON_SCREEN)).getStringValue());
+      verify(aweSessionDetails).onLoginSuccess(aweUserDetails);
+      verify(aweSession).setParameter(SESSION_INITIAL_URL, "/private/home");
+      assertFalse(aweUserDetails.isPendingTotpEnrollment(),
+        "Non-FORCE mode login must not set pendingTotpEnrollment");
+    }
+  }
+
+  @Test
+  void loginForceMode_noSecret_setsPendingEnrollment_preventsGeneralAccess() throws Exception {
+    // In FORCE mode, a user without a secret is redirected to activation and their
+    // pendingTotpEnrollment flag is set. AweSession.isAuthenticated() must return false
+    // for such a session, preventing access to general private endpoints.
+    aweUserDetails.setEnabled2fa(false);
+    aweUserDetails.setSecret2fa(null);
+    when(totpConfigProperties.getEnabled()).thenReturn(SecondFactorStatusType.FORCE);
+    when(totpConfigProperties.getActivateScreen()).thenReturn("activate-2fa");
+
+    accessService.login();
+
+    assertTrue(aweUserDetails.isPendingTotpEnrollment(),
+      "FORCE mode login without a secret must mark the session as pending enrollment");
+    assertFalse(aweUserDetails.isFullyAuthenticated(),
+      "FORCE mode login without a secret must not set fullyAuthenticated");
+  }
+
+  @Test
+  void loginForceMode_withSecret_doesNotSetPendingEnrollment() throws Exception {
+    // FORCE mode with existing secret goes to the 2FA verification screen, not enrollment.
+    aweUserDetails.setEnabled2fa(true);
+    aweUserDetails.setSecret2fa("EXISTING_SECRET");
+    when(totpConfigProperties.getEnabled()).thenReturn(SecondFactorStatusType.FORCE);
+    when(totpConfigProperties.getInitialScreen()).thenReturn("check-2fa");
+
+    accessService.login();
+
+    assertFalse(aweUserDetails.isPendingTotpEnrollment(),
+      "FORCE mode login with existing secret must not set pendingTotpEnrollment");
   }
 
   @Test
   void verify2faCodeOk() throws Exception {
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(totpService.verify2faCode(anyString())).thenReturn(true);
-    when(menuService.getMenu()).thenReturn(new Menu());
+    when(menuService.getMenu()).thenReturn(menu);
+
     ServiceData serviceData = accessService.verify2faCode("code");
+
     assertEquals(3, serviceData.getClientActionList().size());
+    ClientAction firstAction = serviceData.getClientActionList().get(0);
+    assertEquals(SCREEN, firstAction.getType());
+    assertThatUuid(((CellData) firstAction.getParameters().get(SESSION_CONNECTION_TOKEN)).getStringValue());
+    assertEquals("/private/home", ((CellData) firstAction.getParameters().get(JSON_SCREEN)).getStringValue());
+    verify(aweSessionDetails).onLoginSuccess(aweUserDetails);
+    verify(aweSession).setParameter(SESSION_INITIAL_URL, "/private/home");
   }
 
   @Test
@@ -152,6 +251,11 @@ class AccessServiceTest {
     when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
     when(totpService.verify2faCode(anyString())).thenReturn(false);
     assertThrows(AWException.class, () -> accessService.verify2faCode("code"));
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+  }
+
+  private void assertThatUuid(String value) {
+    assertDoesNotThrow(() -> UUID.fromString(value));
   }
 
   @Test

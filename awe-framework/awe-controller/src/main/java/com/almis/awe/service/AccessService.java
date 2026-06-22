@@ -124,6 +124,10 @@ public class AccessService extends ServiceConfig {
         if (StringUtils.isNotBlank(userDetails.getSecret2fa())) {
           return goTo2faScreen(userDetails);
         } else {
+          // User has no TOTP secret yet: mark as pending enrollment so that
+          // AweSession.isAuthenticated() denies general private access until
+          // enrollment and verification complete.
+          userDetails.setPendingTotpEnrollment(true);
           return goToActivate2faScreen(userDetails);
         }
       case DISABLED:

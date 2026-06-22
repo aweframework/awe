@@ -76,10 +76,12 @@ public class AweSessionDetails extends ServiceConfig {
    */
   public void onLoginSuccess(AweUserDetails userDetails) {
 
-    // Set user as fully authenticated
+    // Set user as fully authenticated and clear any in-progress enrollment state
     if (userDetails.isEnabled2fa()) {
       userDetails.setFullyAuthenticated(true);
     }
+    // Fresh enrollment window closes on successful login completion
+    userDetails.setFreshEnrollment(false);
 
     // Store user in session
     sessionService.setSessionParameter(SESSION_USER, userDetails.getUsername());
