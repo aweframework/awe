@@ -28,6 +28,11 @@ import static com.almis.awe.model.type.ParameterType.LIST_TO_STRING;
 public abstract class SQLBuilder extends AbstractQueryBuilder {
 
   private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
+  private static final String ERROR_TITLE_LAUNCHING_SQL_QUERY = "ERROR_TITLE_LAUNCHING_SQL_QUERY";
+  private static final String ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE = "ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE";
+  private static final String TYPE_INTEGER = "INTEGER";
+  private static final String TYPE_LONG = "LONG";
+
   private SQLQueryFactory factory;
   private final EncodeService encodeService;
 
@@ -177,7 +182,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
       JsonNode variableValue = variables.get(variable.getId()).getValue();
       boolean isList = variables.get(variable.getId()).isList();
       if (isList) {
-        throw new AWException(getLocale("ERROR_TITLE_LAUNCHING_SQL_QUERY"),
+        throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
           getLocale("ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD", variableName));
       }
       variableExpression = getVariableAsExpression(variableValue, ParameterType.valueOf(variable.getType()));
@@ -214,6 +219,9 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     List<Expression> operands = new ArrayList<>();
 
     if (operation.getOperandList() != null) {
+      if ("SUBSTRING".equals(operation.getOperator())) {
+        validateSubstringOperation(operation);
+      }
       for (SqlField operand : operation.getOperandList()) {
         operands.add(getOperandExpression(operand));
       }
@@ -221,6 +229,107 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     }
 
     return operationExpression;
+  }
+
+  /**
+   * Validate a SUBSTRING operation.
+   * <p>
+   * Accepted operand counts:
+   * <ul>
+   *   <li>2 operands — {@code SUBSTRING(source, beginIndex)}: extracts from {@code beginIndex} to end of string.
+   *       Delegates to QueryDSL {@code Ops.SUBSTR_1ARG}.</li>
+   *   <li>3 operands — {@code SUBSTRING(source, beginIndex, endIndex)}: extracts {@code [beginIndex, endIndex)}.
+   *       Delegates to QueryDSL {@code Ops.SUBSTR_2ARGS}.</li>
+   * </ul>
+   * Both forms follow Java/QueryDSL semantics: {@code beginIndex} is 0-based and inclusive;
+   * {@code endIndex} is exclusive. This differs from SQL {@code SUBSTRING(str, start, length)} convention.
+   *
+   * @param operation SUBSTRING operation to validate
+   * @throws AWException if the operand count is not 2 or 3, or if an index operand is not integer-compatible
+   */
+  private void validateSubstringOperation(Operation operation) throws AWException {
+    List<SqlField> operandList = operation.getOperandList();
+    int count = operandList.size();
+    if (count != 2 && count != 3) {
+      throw new AWException(
+        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
+        getLocale("ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT", String.valueOf(count)));
+    }
+    validateIntegerCompatibleOperand(operandList.get(1), 2);
+    if (count == 3) {
+      validateIntegerCompatibleOperand(operandList.get(2), 3);
+    }
+  }
+
+  /**
+   * Check that a single SUBSTRING index operand is integer-compatible.
+   * Accepted forms:
+   * <ul>
+   *   <li>A {@link Constant} whose type is {@code INTEGER} or {@code LONG}</li>
+   *   <li>A {@link Field} that references a variable of type {@code INTEGER} or {@code LONG}</li>
+   * </ul>
+   *
+   * @param operand  The operand to validate (position 2 or 3 in SUBSTRING)
+   * @param position Human-readable position label used in the error message (2 or 3)
+   * @throws AWException if the operand is not integer-compatible
+   */
+  private void validateIntegerCompatibleOperand(SqlField operand, int position) throws AWException {
+    if (operand instanceof Constant) {
+      validateConstantIntegerOperand((Constant) operand, position);
+    } else if (operand instanceof Field) {
+      validateFieldIntegerOperand((Field) operand, position);
+      // A Field referencing a database column (e.g. an integer column) is allowed through
+    } else {
+      throw new AWException(
+        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
+        getLocale(ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE, String.valueOf(position),
+          operand == null ? "null" : operand.getClass().getSimpleName()));
+    }
+  }
+
+  /**
+   * Validate that a Constant operand used as a SUBSTRING index has an integer-compatible type.
+   *
+   * @param operand  Constant operand
+   * @param position Human-readable position (2 or 3) for the error message
+   * @throws AWException if the constant type is not {@code INTEGER} or {@code LONG}
+   */
+  private void validateConstantIntegerOperand(Constant operand, int position) throws AWException {
+    String type = operand.getType();
+    if (!TYPE_INTEGER.equals(type) && !TYPE_LONG.equals(type)) {
+      throw new AWException(
+        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
+        getLocale(ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE, String.valueOf(position),
+          type == null ? "STRING (no type)" : type));
+    }
+  }
+
+  /**
+   * Validate that a Field operand used as a SUBSTRING index references a variable of integer-compatible type.
+   * <p>
+   * If the field does not reference a variable, or the variable definition is not available at
+   * validation time (runtime parameter), the check is skipped — type enforcement happens at
+   * expression build time.
+   *
+   * @param operand  Field operand
+   * @param position Human-readable position (2 or 3) for the error message
+   * @throws AWException if the referenced variable type is not {@code INTEGER} or {@code LONG}
+   */
+  private void validateFieldIntegerOperand(Field operand, int position) throws AWException {
+    if (operand.getVariable() == null) {
+      return;
+    }
+    Variable varDef = getQuery().getVariableDefinition(operand.getVariable());
+    if (varDef == null) {
+      // Variable may be a runtime parameter; allow through
+      return;
+    }
+    String type = varDef.getType();
+    if (!TYPE_INTEGER.equals(type) && !TYPE_LONG.equals(type)) {
+      throw new AWException(
+        getLocale(ERROR_TITLE_LAUNCHING_SQL_QUERY),
+        getLocale(ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE, String.valueOf(position), type));
+    }
   }
 
   /**
@@ -242,6 +351,15 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
         return result;
       case "REPLACE":
         return Expressions.stringTemplate("replace({0},{1},{2})", operands[0], operands[1], operands[2]);
+      case "SUBSTRING":
+        // Uses QueryDSL native substring ops — semantics match Java String.substring().
+        // 2-arg form: SUBSTRING(source, beginIndex)         → Ops.SUBSTR_1ARG
+        // 3-arg form: SUBSTRING(source, beginIndex, endIndex) → Ops.SUBSTR_2ARGS
+        // Both are 0-based, beginIndex inclusive, endIndex exclusive.
+        if (operands.length == 2) {
+          return Expressions.stringOperation(Ops.SUBSTR_1ARG, operands[0], operands[1]);
+        }
+        return Expressions.stringOperation(Ops.SUBSTR_2ARGS, operands[0], operands[1], operands[2]);
       case "NULLIF":
         return Expressions.simpleOperation(Object.class, Ops.NULLIF, operands);
       case "COALESCE":
@@ -710,7 +828,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
         return Expressions.asString(fieldExpression).castToNum(Float.class);
       case "DOUBLE":
         return Expressions.asString(fieldExpression).castToNum(Double.class);
-      case "INTEGER":
+      case TYPE_INTEGER:
       default:
         return Expressions.asString(fieldExpression).castToNum(Integer.class);
     }

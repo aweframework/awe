@@ -309,4 +309,97 @@ class QueryTest {
     assertEquals(expected, xmlOutput);
     assertNull(transitionField.getField());
   }
+
+  /**
+   * SUBSTRING operation toString and XML round-trip.
+   * Contract: operand-1 = source string, operand-2 = beginIndex (INTEGER), operand-3 = endIndex (INTEGER).
+   * toString format follows the same pattern as all other operations.
+   */
+  @Test
+  void testSubstringOperationToString() {
+    Operation substringOp = new Operation()
+      .setOperator("SUBSTRING")
+      .setOperandList(Arrays.asList(
+        new Constant().setValue("Hello World").setType("STRING"),
+        new Constant().setValue("6").setType("INTEGER"),
+        new Constant().setValue("11").setType("INTEGER")
+      ));
+    substringOp.setAlias("result");
+
+    // toString: SUBSTRING("Hello World", 6, 11) as result
+    assertEquals("SUBSTRING(\"Hello World\", 6, 11) as result", substringOp.toString());
+  }
+
+  /**
+   * SUBSTRING operation serialises to and parses from XML correctly.
+   */
+  @Test
+  void testSubstringOperationXml() {
+    Operation substringOp = new Operation()
+      .setOperator("SUBSTRING")
+      .setOperandList(Arrays.asList(
+        new Constant().setValue("Hello World").setType("STRING"),
+        new Constant().setValue("6").setType("INTEGER"),
+        new Constant().setValue("11").setType("INTEGER")
+      ));
+    substringOp.setAlias("result");
+
+    String expectedXml =
+      "<operation alias=\"result\" operator=\"SUBSTRING\">\n" +
+      "  <constant type=\"STRING\" value=\"Hello World\"/>\n" +
+      "  <constant type=\"INTEGER\" value=\"6\"/>\n" +
+      "  <constant type=\"INTEGER\" value=\"11\"/>\n" +
+      "</operation>";
+
+    XStream streamMarshaller = new XStream();
+    streamMarshaller.autodetectAnnotations(true);
+    streamMarshaller.processAnnotations(Query.class);
+    streamMarshaller.aliasSystemAttribute(null, "class");
+
+    assertEquals(expectedXml, streamMarshaller.toXML(substringOp));
+  }
+
+  /**
+   * SUBSTRING 1-arg form toString: SUBSTRING("Hello World", 6) as result.
+   * Contract: operand-1 = source string, operand-2 = beginIndex (INTEGER).
+   */
+  @Test
+  void testSubstringOneArgOperationToString() {
+    Operation substringOp = new Operation()
+      .setOperator("SUBSTRING")
+      .setOperandList(Arrays.asList(
+        new Constant().setValue("Hello World").setType("STRING"),
+        new Constant().setValue("6").setType("INTEGER")
+      ));
+    substringOp.setAlias("result");
+
+    assertEquals("SUBSTRING(\"Hello World\", 6) as result", substringOp.toString());
+  }
+
+  /**
+   * SUBSTRING 1-arg form serialises to and parses from XML correctly.
+   */
+  @Test
+  void testSubstringOneArgOperationXml() {
+    Operation substringOp = new Operation()
+      .setOperator("SUBSTRING")
+      .setOperandList(Arrays.asList(
+        new Constant().setValue("Hello World").setType("STRING"),
+        new Constant().setValue("6").setType("INTEGER")
+      ));
+    substringOp.setAlias("result");
+
+    String expectedXml =
+      "<operation alias=\"result\" operator=\"SUBSTRING\">\n" +
+      "  <constant type=\"STRING\" value=\"Hello World\"/>\n" +
+      "  <constant type=\"INTEGER\" value=\"6\"/>\n" +
+      "</operation>";
+
+    XStream streamMarshaller = new XStream();
+    streamMarshaller.autodetectAnnotations(true);
+    streamMarshaller.processAnnotations(Query.class);
+    streamMarshaller.aliasSystemAttribute(null, "class");
+
+    assertEquals(expectedXml, streamMarshaller.toXML(substringOp));
+  }
 }
