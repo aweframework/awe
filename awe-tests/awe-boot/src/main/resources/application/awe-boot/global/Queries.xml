@@ -3321,6 +3321,95 @@
     <order-by field="l1_nom" type="ASC"/>
   </query>
 
+  <!-- SUBSTRING: uses Java/QueryDSL semantics — 0-based beginIndex, exclusive endIndex -->
+  <query id="testSubstring">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <!-- "Hello World" from index 6 (inclusive) to 11 (exclusive) → "World" -->
+    <operation operator="SUBSTRING" alias="substringResult">
+      <constant value="Hello World"/>
+      <constant value="6" type="INTEGER"/>
+      <constant value="11" type="INTEGER"/>
+    </operation>
+    <!-- "test" from index 0 to 2 → "te" -->
+    <operation operator="SUBSTRING" alias="substringShort">
+      <constant value="test"/>
+      <constant value="0" type="INTEGER"/>
+      <constant value="2" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
+  <!-- SUBSTRING 1-arg form: uses Java/QueryDSL semantics — beginIndex only, extracts to end of string -->
+  <query id="testSubstringOneArg">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <!-- "Hello World" from index 6 → "World" (to end of string) -->
+    <operation operator="SUBSTRING" alias="substringFromIndex">
+      <constant value="Hello World"/>
+      <constant value="6" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
+  <!-- Malformed SUBSTRING: only 1 operand — triggers validation error (needs 2 or 3) -->
+  <query id="testSubstringBadOperandCount">
+    <table id="ope"/>
+    <operation operator="SUBSTRING" alias="bad">
+      <constant value="Hello"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+  </query>
+
+  <!-- Malformed SUBSTRING: operand 2 is a STRING constant — triggers type validation error -->
+  <query id="testSubstringBadOperandType">
+    <table id="ope"/>
+    <operation operator="SUBSTRING" alias="bad">
+      <constant value="Hello"/>
+      <constant value="notAnInt"/>
+      <constant value="5" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+  </query>
+
   <query id="testOperationWithComputed">
     <table id="ope"/>
     <field id="l1_nom" alias="name"/>

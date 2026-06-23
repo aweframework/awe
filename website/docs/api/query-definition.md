@@ -319,6 +319,7 @@ These are the possible values for the `operator` attribute:
 
 * `CONCAT`: Concats some string fields
 * `REPLACE`: Replace on the first field the string defined on second place with the string defined on third place
+* `SUBSTRING`: Extracts a substring from a string field (see [SUBSTRING](#substring-operation))
 * `NULLIF`: Sets null if equals to second operand
 * `COALESCE`: Given a set of fields, returns the first one which is **NOT NULL**
 * `ADD`: Sums two fields (`+`)
@@ -350,6 +351,43 @@ These are the possible values for the `operator` attribute:
 * `SUB_WEEKS`: Substracts weeks from a date field
 * `SUB_MONTHS`: Substracts months from a date field
 * `SUB_YEARS`: Substracts years from a date field
+
+#### SUBSTRING operation
+
+`SUBSTRING` extracts part of a string. It accepts **2 or 3 operands**:
+
+| Form | Operands | Result |
+|------|----------|--------|
+| `SUBSTRING(source, beginIndex)` | source + beginIndex | From `beginIndex` to the end of the string |
+| `SUBSTRING(source, beginIndex, endIndex)` | source + beginIndex + endIndex | From `beginIndex` (inclusive) to `endIndex` (exclusive) |
+
+> **Semantics follow Java / QueryDSL**, not SQL `SUBSTRING(str, start, length)`:
+> - Indexes are **0-based**.
+> - `beginIndex` is **inclusive**.
+> - `endIndex` is **exclusive** (i.e. the character at `endIndex` is not included).
+>
+> QueryDSL automatically translates these semantics to the correct SQL for each supported database dialect.
+
+**2-arg example** — extract from index 6 to end: `"Hello World" → "World"`
+
+```xml
+<operation operator="SUBSTRING" alias="result">
+  <field id="description" />
+  <constant value="6" type="INTEGER"/>
+</operation>
+```
+
+**3-arg example** — extract `[6, 11)`: `"Hello World" → "World"`
+
+```xml
+<operation operator="SUBSTRING" alias="result">
+  <field id="description" />
+  <constant value="6" type="INTEGER"/>
+  <constant value="11" type="INTEGER"/>
+</operation>
+```
+
+Both `beginIndex` and `endIndex` can be integer-typed constants, integer-typed variables, or integer database columns.
 
 #### Operation examples
 

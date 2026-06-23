@@ -796,6 +796,73 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * SUBSTRING operation: "Hello World".substring(6, 11) == "World",
+   * "test".substring(0, 2) == "te".
+   * Contract follows Java/QueryDSL semantics: 0-based beginIndex, exclusive endIndex.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstring() throws Exception {
+    String queryName = "testSubstring";
+    String result = performRequest(queryName, "", DATABASE);
+    ArrayNode rows = assertResultJson(queryName, result, 1);
+    for (JsonNode element : rows) {
+      ObjectNode row = (ObjectNode) element;
+      assertEquals("World", row.get("substringResult").asText(),
+        "SUBSTRING('Hello World', 6, 11) should return 'World'");
+      assertEquals("te", row.get("substringShort").asText(),
+        "SUBSTRING('test', 0, 2) should return 'te'");
+      assertEquals("test", row.get("name").asText());
+    }
+  }
+
+  /**
+   * SUBSTRING 1-arg form: "Hello World".substring(6) == "World" (extracts to end of string).
+   * Contract follows Java/QueryDSL semantics: 0-based beginIndex, extracts to end.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstringOneArg() throws Exception {
+    String queryName = "testSubstringOneArg";
+    String result = performRequest(queryName, "", DATABASE);
+    ArrayNode rows = assertResultJson(queryName, result, 1);
+    for (JsonNode element : rows) {
+      ObjectNode row = (ObjectNode) element;
+      assertEquals("World", row.get("substringFromIndex").asText(),
+        "SUBSTRING('Hello World', 6) should return 'World'");
+      assertEquals("test", row.get("name").asText());
+    }
+  }
+
+  /**
+   * SUBSTRING with wrong operand count (1 instead of 2 or 3) must return a query error.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstringBadOperandCount() throws Exception {
+    String result = performRequest("testSubstringBadOperandCount", "", DATABASE);
+    assertQueryErrorMessage(result,
+      "Error in query",
+      "SUBSTRING operation requires 2 or 3 operands");
+  }
+
+  /**
+   * SUBSTRING with a STRING constant for beginIndex (operand 2) must return a type validation error.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstringBadOperandType() throws Exception {
+    String result = performRequest("testSubstringBadOperandType", "", DATABASE);
+    assertQueryErrorMessage(result,
+      "Error in query",
+      "SUBSTRING operand 2 must be an integer-compatible");
+  }
+
+  /**
    * Test of adding numbers with strings (cast?)
    *
    * @throws Exception Test error
