@@ -1,8 +1,13 @@
 package com.almis.awe.model.util.data;
 
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.dto.*;
+import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.CompareRow;
+import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.FilterColumn;
+import com.almis.awe.model.dto.SortColumn;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -31,6 +36,8 @@ import java.util.stream.IntStream;
 public final class DataListUtil {
 
   private static final String CANT_CREATE_INSTANCE = "Can't create instance of ";
+  private static final String INVALID_KEY_COLUMN = "Invalid key column: ";
+  private static final String KEY_SEPARATOR = "\u0000";
   private static final ObjectMapper mapper = new Jackson2ObjectMapperBuilder()
     .failOnUnknownProperties(false)
     .defaultViewInclusion(false)
@@ -380,6 +387,53 @@ public final class DataListUtil {
   }
 
   /**
+   * Merge several datalists into one, unifying rows by a composite key.
+   * First source wins per key; later sources fill only columns the accumulated
+   * row still lacks. Existing non-empty cells are never overwritten. The emitted
+   * rows expose the union of all contributing rows' columns. Sources are not
+   * mutated. Emitted cells are copied; structural object payloads that can be
+   * safely detached by this utility ({@link JsonNode}, {@link Map}, {@link List},
+   * {@link Date}) are copied, while arbitrary object payloads keep their original
+   * runtime type and reference.
+   *
+   * The merge fails fast if any source row is missing a declared key column or
+   * carries a null/empty value for one.
+   *
+   * @param keyColumns ordered, non-empty key column names
+   * @param sources    datalists to merge, in precedence order
+   * @return new DataList with one copied row per key; records = unique rows,
+   * page = 1, total = 1
+   * @throws IllegalArgumentException if keyColumns is null/empty, or if any source
+   *                                  row is missing a declared key column or has a null/empty key value
+   */
+  public static DataList mergeByKey(List<String> keyColumns, DataList... sources) {
+    validateKeyColumns(keyColumns);
+
+    LinkedHashMap<String, Map<String, CellData>> mergedRows = new LinkedHashMap<>();
+    LinkedHashSet<String> mergedColumns = new LinkedHashSet<>();
+
+    if (sources != null) {
+      for (DataList source : sources) {
+        if (source == null || source.getRows() == null || source.getRows().isEmpty()) {
+          continue;
+        }
+
+        for (Map<String, CellData> row : source.getRows()) {
+          String compositeKey = buildCompositeKey(keyColumns, row);
+          mergedColumns.addAll(Optional.ofNullable(row).orElse(Collections.emptyMap()).keySet());
+
+          Map<String, CellData> mergedRow = mergedRows.computeIfAbsent(compositeKey, key -> copyRow(row));
+          if (mergedRow != row) {
+            mergeRowInto(mergedRow, row, keyColumns);
+          }
+        }
+      }
+    }
+
+    return rebuildMergedDataList(mergedRows, mergedColumns);
+  }
+
+  /**
    * Retrieve a column data as QueryParameter
    *
    * @param list       DataList
@@ -538,5 +592,113 @@ public final class DataListUtil {
    */
   private static boolean in(List<Map<String, CellData>> list, Map<String, CellData> rowToCheck, CompareRow comparator) {
     return list.stream().anyMatch(row -> comparator.compare(row, rowToCheck) == 0);
+  }
+
+  private static void validateKeyColumns(List<String> keyColumns) {
+    if (keyColumns == null || keyColumns.isEmpty()) {
+      throw new IllegalArgumentException("keyColumns must not be null or empty");
+    }
+  }
+
+  private static String buildCompositeKey(List<String> keyColumns, Map<String, CellData> row) {
+    return keyColumns.stream()
+      .map(keyColumn -> getValidatedKeyPart(row, keyColumn))
+      .collect(Collectors.joining(KEY_SEPARATOR));
+  }
+
+  private static String getValidatedKeyPart(Map<String, CellData> row, String keyColumn) {
+    CellData cell = Optional.ofNullable(row)
+      .orElse(Collections.emptyMap())
+      .get(keyColumn);
+
+    if (cell == null || cell.isEmpty()) {
+      throw new IllegalArgumentException(INVALID_KEY_COLUMN + keyColumn);
+    }
+
+    return cell.getStringValue();
+  }
+
+  private static void mergeRowInto(Map<String, CellData> targetRow, Map<String, CellData> sourceRow, List<String> keyColumns) {
+    if (sourceRow == null) {
+      return;
+    }
+
+    for (Map.Entry<String, CellData> entry : sourceRow.entrySet()) {
+      if (keyColumns.contains(entry.getKey())) {
+        continue;
+      }
+
+      CellData targetCell = targetRow.get(entry.getKey());
+      CellData sourceCell = entry.getValue();
+      if ((targetCell == null || targetCell.isEmpty()) && sourceCell != null && !sourceCell.isEmpty()) {
+        targetRow.put(entry.getKey(), copyCell(sourceCell));
+      }
+    }
+  }
+
+  private static Map<String, CellData> copyRow(Map<String, CellData> row) {
+    Map<String, CellData> copy = new LinkedHashMap<>();
+    Optional.ofNullable(row).orElse(Collections.emptyMap())
+      .forEach((column, cell) -> copy.put(column, copyCell(cell)));
+    return copy;
+  }
+
+  private static CellData copyCell(CellData cell) {
+    if (cell == null) {
+      return null;
+    }
+
+    CellData copy = new CellData(cell);
+    setObjectValue(copy, copyObjectValue(cell.getObjectValue()));
+    return copy;
+  }
+
+  private static Object copyObjectValue(Object value) {
+    if (value instanceof JsonNode jsonNode) {
+      return jsonNode.deepCopy();
+    }
+    if (value instanceof Map<?, ?> map) {
+      return mapper.convertValue(map, LinkedHashMap.class);
+    }
+    if (value instanceof List<?> list) {
+      return mapper.convertValue(list, ArrayList.class);
+    }
+    if (value instanceof Date date) {
+      return new Date(date.getTime());
+    }
+
+    return value;
+  }
+
+  private static void setObjectValue(CellData cell, Object objectValue) {
+    try {
+      Field field = CellData.class.getDeclaredField("objectValue");
+      field.setAccessible(true);
+      field.set(cell, objectValue);
+    } catch (NoSuchFieldException | IllegalAccessException exc) {
+      throw new IllegalStateException(CANT_CREATE_INSTANCE + CellData.class.getName(), exc);
+    }
+  }
+
+  private static DataList rebuildMergedDataList(LinkedHashMap<String, Map<String, CellData>> mergedRows,
+                                                LinkedHashSet<String> mergedColumns) {
+    DataList merged = new DataList();
+    List<Map<String, CellData>> rows = new ArrayList<>();
+
+    for (Map<String, CellData> row : mergedRows.values()) {
+      Map<String, CellData> copiedRow = new LinkedHashMap<>();
+      for (String column : mergedColumns) {
+        copiedRow.put(column, Optional.ofNullable(row.get(column))
+          .map(DataListUtil::copyCell)
+          .orElseGet(CellData::new));
+      }
+      rows.add(copiedRow);
+    }
+
+    merged.setRows(rows);
+    merged.setRecords(rows.size());
+    merged.setPage(1);
+    merged.setTotal(1);
+    return merged;
   }
 }
