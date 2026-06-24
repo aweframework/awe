@@ -3,17 +3,21 @@ package com.almis.awe.scheduler.builder.cron;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.TriggerBuilder;
 
 import javax.naming.NamingException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -24,8 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 class CronPatternBuilderTest {
 
-  @InjectMocks
   private CronPatternBuilder cronPatternBuilder;
+
+  @BeforeEach
+  void setUp() {
+    cronPatternBuilder = new CronPatternBuilder(new Schedule());
+  }
 
   /**
    * Test context loaded
@@ -159,5 +167,40 @@ class CronPatternBuilderTest {
 
     // Assert not null
     assertNotNull(scheduleBuilder.build());
+  }
+
+  @Test
+  void buildYearPatternKeepsPastDate() throws Exception {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(2000, Calendar.JANUARY, 1, 10, 15, 30);
+    calendar.set(Calendar.MILLISECOND, 0);
+
+    Schedule schedule = new Schedule();
+    schedule.setRepeatType(5);
+    schedule.setRepeatNumber(1);
+    schedule.setDate(calendar.getTime());
+    schedule.setTime("10:15:30");
+    cronPatternBuilder.setSchedule(schedule);
+
+    CronTrigger trigger = TriggerBuilder.newTrigger()
+      .withSchedule(cronPatternBuilder.build())
+      .build();
+
+    assertEquals("30 15 10 1 1 ? 2000", trigger.getCronExpression());
+  }
+
+  @Test
+  void buildPatternUsesDoNothingMisfirePolicy() throws Exception {
+    Schedule schedule = new Schedule();
+    schedule.setRepeatType(6);
+    schedule.setDate(new Date());
+    schedule.setTime("00:00:01");
+    cronPatternBuilder.setSchedule(schedule);
+
+    CronTrigger trigger = TriggerBuilder.newTrigger()
+      .withSchedule(cronPatternBuilder.build())
+      .build();
+
+    assertEquals(CronTrigger.MISFIRE_INSTRUCTION_DO_NOTHING, trigger.getMisfireInstruction());
   }
 }

@@ -95,7 +95,8 @@ public class CronPatternBuilder implements Serializable {
         throw new AWException("The selected option is not valid");
     }
 
-    return CronScheduleBuilder.cronSchedule(cronPattern.buildCronString());
+    return CronScheduleBuilder.cronSchedule(cronPattern.buildCronString())
+      .withMisfireHandlingInstructionDoNothing();
   }
 
   /**
@@ -189,11 +190,6 @@ public class CronPatternBuilder implements Serializable {
     String defaultDayOfWeek;
     // Get execution date criterion value
     Date date = schedule.getDateTime();
-
-    // Check if the date is before current date
-    if (date != null && date.before(new Date())) {
-      date = new Date();
-    } // if the value is null then check values from individual values
 
     if (date == null) {
       year = getListAsString(schedule.getYearList(), option);
