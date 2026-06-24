@@ -198,6 +198,40 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     // Store component data
     storeColumnTargetData(taskColumnMap, componentMap, data);
+
+    // Hydrate pending suggest labels once selected/default values are known
+    hydratePendingSuggestLabels(componentMap, data);
+  }
+
+  /**
+   * Hydrate unresolved suggest labels after initial selected/default data is available.
+   *
+   * @param componentMap Component map
+   * @param data         Screen data
+   * @throws AWException Error launching hydration lookups
+   */
+  private void hydratePendingSuggestLabels(Map<String, ScreenComponent> componentMap, ScreenData data) throws AWException {
+    Map<ScreenComponent, Map<String, Future<ServiceData>>> hydrationTaskMap = new LinkedHashMap<>();
+
+    for (ScreenComponent component : componentMap.values()) {
+      List<String> missingSelectedValues = getMissingSuggestSelectedValues(component);
+      String hydrationTarget = getSuggestHydrationTarget(component.getController());
+      if (missingSelectedValues.isEmpty() || hydrationTarget == null) {
+        continue;
+      }
+
+      Map<String, Future<ServiceData>> componentTasks = new LinkedHashMap<>();
+      for (String selectedValue : missingSelectedValues) {
+        componentTasks.put(selectedValue, initialLoadDao.launchInitialLoad(buildSuggestHydrationInitialization(component, hydrationTarget, selectedValue)));
+      }
+      hydrationTaskMap.put(component, componentTasks);
+    }
+
+    for (Entry<ScreenComponent, Map<String, Future<ServiceData>>> hydrationEntry : hydrationTaskMap.entrySet()) {
+      for (Entry<String, Future<ServiceData>> taskEntry : hydrationEntry.getValue().entrySet()) {
+        mergeHydratedSuggestValues(hydrationEntry.getKey(), taskEntry.getKey(), taskEntry.getValue(), data);
+      }
+    }
   }
 
   /**
@@ -331,6 +365,56 @@ public class ScreenModelGenerator extends ServiceConfig {
   }
 
   /**
+   * Build a hydration initialization request for a selected suggest value.
+   *
+   * @param component     Screen component
+   * @param target        Hydration query target
+   * @param selectedValue Selected value to resolve
+   * @return Thread initialization
+   */
+  private AweThreadInitialization buildSuggestHydrationInitialization(ScreenComponent component, String target, String selectedValue) {
+    ObjectNode parameters = getRequest().getParametersSafe();
+    parameters.put("suggest", selectedValue);
+
+    return new AweThreadInitialization()
+      .setComponentId(component.getId())
+      .setTarget(target)
+      .setParameters(parameters)
+      .setInitialLoadType(LoadType.QUERY);
+  }
+
+  /**
+   * Merge hydrated suggest values into the component model without overwriting existing rows.
+   *
+   * @param component     Screen component
+   * @param selectedValue Selected value being resolved
+   * @param futureData    Future hydrated data
+   * @param data          Screen data
+   */
+  private void mergeHydratedSuggestValues(ScreenComponent component, String selectedValue,
+                                          Future<ServiceData> futureData, ScreenData data) {
+    String target = getSuggestHydrationTarget(component.getController());
+    try {
+      ServiceData componentTargetOutput = futureData.get();
+      DataList componentData = (DataList) componentTargetOutput.getVariableMap().get(AweConstants.ACTION_DATA).getObjectValue();
+
+      if (componentData != null) {
+        componentData.getRows().stream()
+          .filter(this::hasSuggestValue)
+          .filter(row -> selectedValue.equals(row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue()))
+          .filter(row -> !containsModelValue(component.getModel(), selectedValue))
+          .findFirst()
+          .ifPresent(row -> component.getModel().getValues().add(new LinkedHashMap<>(row)));
+      }
+    } catch (InterruptedException | ExecutionException exc) {
+      String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
+      data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
+      log.error(errorMessage, exc);
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
    * Apply restricted value list from screen configuration
    *
    * @param component     Component
@@ -399,6 +483,67 @@ public class ScreenModelGenerator extends ServiceConfig {
       }
     }
     return selectedData;
+  }
+
+  /**
+   * Resolve missing selected suggest values that still need label hydration.
+   *
+   * @param component Screen component
+   * @return Missing selected values
+   */
+  private List<String> getMissingSuggestSelectedValues(ScreenComponent component) {
+    if (!(component.getController() instanceof AbstractCriteria criteria)
+      || !isSpecificComponent(Arrays.asList(SUGGEST, SUGGEST_MULTIPLE), criteria.getComponentType())) {
+      return Collections.emptyList();
+    }
+
+    return component.getModel().getSelected().stream()
+      .map(CellData::getStringValue)
+      .filter(value -> !value.isBlank())
+      .filter(value -> !containsModelValue(component.getModel(), value))
+      .distinct()
+      .toList();
+  }
+
+  /**
+   * Resolve the backend target used for suggest hydration.
+   *
+   * @param component Component controller
+   * @return Target query or null when none is available
+   */
+  private String getSuggestHydrationTarget(Component component) {
+    if (component instanceof AbstractCriteria criteria && criteria.getCheckTarget() != null && !criteria.getCheckTarget().isBlank()) {
+      return criteria.getCheckTarget();
+    }
+
+    return component != null && component.getTargetAction() != null && !component.getTargetAction().isBlank()
+      ? component.getTargetAction()
+      : null;
+  }
+
+  /**
+   * Check whether a component model already contains a resolved value row.
+   *
+   * @param model Component model
+   * @param value Value to search
+   * @return True when the value is already present in the model
+   */
+  private boolean containsModelValue(ComponentModel model, String value) {
+    return model.getValues().stream()
+      .filter(this::hasSuggestValue)
+      .anyMatch(row -> value.equals(row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue()));
+  }
+
+  /**
+   * Check if a suggest row contains a value cell.
+   *
+   * @param row Suggest row
+   * @return True when the row contains a value cell
+   */
+  private boolean hasSuggestValue(Map<String, CellData> row) {
+    return row.containsKey(AweConstants.JSON_VALUE_PARAMETER)
+      && row.get(AweConstants.JSON_VALUE_PARAMETER) != null
+      && !row.get(AweConstants.JSON_VALUE_PARAMETER).getStringValue().isBlank();
   }
 
   /**

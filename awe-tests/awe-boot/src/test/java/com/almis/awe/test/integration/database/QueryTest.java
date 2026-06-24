@@ -3278,9 +3278,19 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
-    assertEquals(9, screenDataComponents.size());
+    assertEquals(10, screenDataComponents.size());
     assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").textValue());
     assertEquals("test-initial-values-load", screenData.get("screen").get("option").textValue());
+
+    ObjectNode hydratedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitial");
+    assertEquals("3", hydratedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals(1, hydratedSuggest.get("model").get("values").size());
+    assertEquals("3", hydratedSuggest.get("model").get("values").get(0).get("value").asText());
+    assertTrue(!hydratedSuggest.get("model").get("values").get(0).get("label").asText().isBlank());
+
+    ObjectNode unresolvedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitialMissing");
+    assertEquals("999", unresolvedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals(0, unresolvedSuggest.get("model").get("values").size());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
@@ -3292,6 +3302,14 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     logger.debug("-------------------------------------------");
     logger.debug("There are " + screenDataComponents.size() + " component in the screen " + screenData.get("screen").get("name"));
     logger.debug("-------------------------------------------");
+  }
+
+  private ObjectNode findScreenComponent(ArrayNode screenDataComponents, String componentId) {
+    return StreamSupport.stream(screenDataComponents.spliterator(), false)
+      .map(ObjectNode.class::cast)
+      .filter(component -> componentId.equals(component.get("id").asText()))
+      .findFirst()
+      .orElseThrow(() -> new AssertionError("Missing component " + componentId));
   }
 
   /**
