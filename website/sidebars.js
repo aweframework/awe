@@ -89,6 +89,7 @@ module.exports = {
 				"api/query",
 				"api/maintain",
 				"api/service",
+				"api/datalist-java",
 				"api/queues",
 				"api/email",
 				"api/i18n-internationalization",
