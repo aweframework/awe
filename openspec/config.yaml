@@ -1,47 +1,86 @@
-version: 1
-project:
-  name: AWE (Almis Web Engine)
-  root: /home/pvidal/projects/awe
-  stack:
-    backend: Java 17 + Spring Boot (multi-module Maven)
-    frontend: AngularJS (legacy module tests via Karma/Jasmine)
-sdd:
-  artifact_store: openspec
-  strict_tdd: true
-  phase_order:
-    - proposal
-    - spec
-    - design
-    - tasks
-    - apply
-    - verify
-  phase_rules:
-    init:
-      allow_code_changes: false
-      required_artifacts:
-        - openspec/config.yaml
-    apply:
-      require_failing_test_first: true
-      require_small_incremental_commits: true
-    verify:
-      require_targeted_tests: true
-      require_regression_check: true
+schema: spec-driven
+
+project: awe
+
+context: |
+  Tech stack: Java 17 + Spring Boot multi-module Maven repo with AngularJS frontend packages and a Docusaurus website.
+  Architecture: AWE uses XML descriptors under src/main/resources/application/{acronym}/{global,screen,locale,menu,profile} wired to Spring services.
+  Testing: JUnit 5 + Mockito + AssertJ, Spring integration suites, Selenium integration flows, Jest, Karma/Jasmine, and JaCoCo coverage.
+  Style: Follow com.almis.awe Java conventions, Lombok + SLF4J usage, no wildcard imports, and AngularJS array DI.
+
+strict_tdd: true
+
 testing:
-  default_runner: maven
+  detected: 2026-06-23
+  default_runner: mvn
   default_scope: module
-  module_under_change: awe-framework/awe-controller
-  frameworks:
-    - JUnit 5
-    - Mockito (junit-jupiter)
-    - AssertJ
   commands:
+    unit: mvn test
     module_unit: mvn test -pl awe-framework/awe-controller
     single_test_class: mvn test -pl awe-framework/awe-controller -Dtest=<ClassName>
     single_test_method: mvn test -pl awe-framework/awe-controller -Dtest=<ClassName>#<methodName>
-    full_verify: mvn verify
-context:
-  focus_area:
-    - awe-framework/awe-controller/src/main/java/com/almis/awe/component/AweMDCTaskDecorator.java
-  related_async_config:
-    - awe-framework/awe-starters/awe-spring-boot-starter/src/main/java/com/almis/awe/autoconfigure/TaskConfig.java
-    - awe-framework/awe-starters/awe-scheduler-spring-boot-starter/src/main/java/com/almis/awe/scheduler/autoconfigure/SchedulerTaskConfig.java
+    frontend_unit: mvn test -pl awe-framework/awe-client-angular
+    frontend_coverage: npm --prefix awe-framework/awe-client-angular run test:coverage
+    integration: mvn verify
+    selenium_integration: mvn verify -Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true
+    coverage: mvn verify -DgenerateCoverageReport=true
+  layers:
+    unit:
+      available: true
+      tools:
+        - JUnit 5
+        - Mockito
+        - AssertJ
+        - Spring Test
+    integration:
+      available: true
+      tools:
+        - AbstractSpringAppIntegrationTest
+        - AbstractSpringFixedEnvironmentIT
+        - Maven Surefire profile matrix
+    e2e:
+      available: true
+      tools:
+        - Selenium WebDriver
+        - Maven Failsafe
+    frontend:
+      available: true
+      tools:
+        - Jest (awe-client-angular)
+        - Karma + Jasmine (awe-tools)
+  quality:
+    linter:
+      available: true
+      command: ""
+      notes: ESLint is installed in awe-client-angular and awe-tools, but no dedicated lint script is configured.
+    type_checker:
+      available: false
+      command: ""
+      notes: No dedicated TypeScript or static type-check command was detected.
+    formatter:
+      available: false
+      command: ""
+      notes: No formatter command or formatter tool configuration was detected.
+
+rules:
+  proposal:
+    - Include rollback and compatibility notes for framework-level behavior changes.
+  specs:
+    - Use Given/When/Then scenarios.
+    - Use RFC 2119 keywords for requirements.
+  design:
+    - Document XML descriptor impact and Java service touchpoints.
+    - Call out cross-module and database-profile consequences.
+  tasks:
+    - Group tasks by phase and keep each task reviewable in one session.
+  apply:
+    - Follow existing AWE module patterns and naming conventions.
+    - Add or update tests before implementation changes whenever feasible.
+    tdd: true
+    test_command: mvn test -pl <module> -Dtest=<ClassName>
+  verify:
+    test_command: mvn verify
+    build_command: mvn clean install
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas into main specs.
