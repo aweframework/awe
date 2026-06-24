@@ -26,7 +26,8 @@ public class SimplePatternBuilder {
    * @throws AWException AWE exception
    */
   public SimpleScheduleBuilder build() throws AWException {
-    SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule();
+    SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+      .withMisfireHandlingInstructionNextWithRemainingCount();
 
     // get the repeat number for the selected parameter
     Integer repeatNumber = schedule.getRepeatNumber();
