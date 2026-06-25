@@ -22,34 +22,20 @@ AWE is a light-weight Java web framework. Allows you build web applications in t
 Please visit us at [https://www.aweframework.com](https://www.aweframework.com)
 
 
-## Prerequisites
-You must have Maven 3.x installed on your computer and **JDK 17** or higher
-
 ## Getting Started
 
-This is a multi-module maven project. Import as maven project with your favorite IDE to contribute. If you want to create your first AWE project, use maven archetype `awe-boot-angular-archetype` or `awe-boot-react-archetype` with version [![Version](https://img.shields.io/maven-central/v/com.almis.awe/awe-starter-parent.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.almis.awe%22%20AND%20a:%22awe-starter-parent%22)
+If you are new to AWE, follow the dedicated [Getting Started](getting-started.md) guide.
 
-### AWE with AngularJS
-```bash
-mvn -B archetype:generate \
- -DarchetypeGroupId=com.almis.awe \
- -DarchetypeArtifactId=awe-boot-angular-archetype \
- -DarchetypeVersion=[Archetype version]
- -DgroupId=com.mycompany.app \
- -DartifactId=my-app \
- -Dversion=1.0-SNAPSHOT 
-```
+It is the canonical onboarding path for:
 
-### AWE with ReactJS
-```bash
-mvn -B archetype:generate \
- -DarchetypeGroupId=com.almis.awe \
- -DarchetypeArtifactId=awe-boot-react-archetype \
- -DarchetypeVersion=[Archetype version]
- -DgroupId=com.mycompany.app \
- -DartifactId=my-app \
- -Dversion=1.0-SNAPSHOT
-```
+- prerequisites
+- choosing the AngularJS or React archetype
+- generating your first project
+- running it locally
+- understanding what you should expect after startup
+- finding the next reference docs
+
+If you want to contribute to AWE itself, import this repository as a multi-module Maven project in your preferred IDE.
 
 ## Built With
 * [Maven](https://maven.apache.org/) - Dependency Management

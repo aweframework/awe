@@ -22,13 +22,34 @@ Please visit us at [https://docs.aweframework.com](https://docs.aweframework.com
 
 ## Getting Started
 
-This is a multi module maven project. Import as maven project with your favorite IDE to contribute. If you want create your first AWE project, use maven archetype `awe-boot-angular-archetype`.
+Start with the dedicated [Getting Started guide](website/docs/getting-started.md). It is the canonical onboarding path for prerequisites, archetype selection, project generation, first run, and next steps.
+
+If you want to contribute to AWE itself, import this repository as a multi-module Maven project in your preferred IDE.
+
+If you want to create your first AWE project, choose one of the current Maven archetypes:
+
+- `awe-boot-angular-archetype`
+- `awe-boot-react-archetype`
+
+### AngularJS archetype
 
 ```
 mvn -B archetype:generate \
  -DarchetypeGroupId=com.almis.awe \
- -DarchetypeArtifactId=awe-boot-archetype \
- -DarchetypeVersion=[Archetype version]
+ -DarchetypeArtifactId=awe-boot-angular-archetype \
+ -DarchetypeVersion=[Archetype version] \
+ -DgroupId=com.mycompany.app \
+ -DartifactId=my-app \
+ -Dversion=1.0-SNAPSHOT
+```
+
+### React archetype
+
+```
+mvn -B archetype:generate \
+ -DarchetypeGroupId=com.almis.awe \
+ -DarchetypeArtifactId=awe-boot-react-archetype \
+ -DarchetypeVersion=[Archetype version] \
  -DgroupId=com.mycompany.app \
  -DartifactId=my-app \
  -Dversion=1.0-SNAPSHOT 
@@ -49,6 +70,7 @@ You must have Maven 3.x installed on your computer as well as a **JDK 17** or hi
 ## Main guides
 
 * **[Introduction](website/docs/intro.md)**
+* **[Getting Started](website/docs/getting-started.md)**
 * **[Installation](website/docs/installation.md)**
 * **Guides**
   * [Developer tools](website/docs/devtools-module.md)
