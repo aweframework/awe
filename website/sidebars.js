@@ -32,6 +32,7 @@ module.exports = {
 			label: "Getting Started",
 			collapsed: true,
 			items: [
+				"getting-started",
 				"installation",
 				{
 					Configuration: [
