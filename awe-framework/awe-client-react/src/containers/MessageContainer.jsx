@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {acceptAction, rejectAction} from "../redux/actions/actions";
 import {removeConfirm, removeMessage, showMessages as showMessagesAction} from "../redux/actions/messages";
@@ -23,6 +23,15 @@ function MessageContainer() {
   }));
   const { confirm } = messages;
   const messageRef = useRef(null);
+  // Track whether the Toast instance is mounted and exposes its imperative API.
+  // Messages queued before the toast is ready are held until this flag becomes true.
+  const [isToastReady, setIsToastReady] = useState(false);
+
+  // Callback ref: updates messageRef and marks the toast as ready once its API is available.
+  const setMessageRef = useCallback((instance) => {
+    messageRef.current = instance;
+    setIsToastReady(typeof instance?.show === "function");
+  }, []);
 
   const onClick = (data) => {
     const {message = {}} = data;
@@ -56,19 +65,19 @@ function MessageContainer() {
   };
 
   useEffect(() => {
-    if (messages.showing && messages.showing.length > 0) {
+    if (isToastReady && messages.showing && messages.showing.length > 0) {
       const newMessages = messages.showing.filter(msg => !msg.show);
-      if (newMessages.length > 0) {
-        messageRef.current?.show?.(newMessages);
+      if (newMessages.length > 0 && typeof messageRef.current?.show === "function") {
+        messageRef.current.show(newMessages);
         dispatch(showMessagesAction(newMessages));
       }
     }
-  }, [messages.showing]);
+  }, [dispatch, isToastReady, messages.showing]);
 
 
   const {title, message, visible = true} = confirm ?? {visible: false};
   return <>
-    <Toast ref={messageRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition}/>
+    <Toast ref={setMessageRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition}/>
     <Dialog visible={visible} header={translateLabel(title, t)} footer={confirmFooter()} focusOnShow={false}
             modal={true} closable={false} closeOnEscape={false}>
       <i className="pi pi-exclamation-triangle m-3 text-center text-warning" style={{fontSize: '8rem'}}/>
