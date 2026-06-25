@@ -313,6 +313,21 @@ The *operation* element allows to define operations between fields and will be r
 | function  |  Optional  |   String    | To apply sql function to field                                           | The possible values are defined in [field functions](#field-functions)                               |
 | cast      |  Optional  |   String    | Change the field format                                                  | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                            |
 
+#### Function attribute
+
+The `function` attribute can also be applied directly to an `operation`. In that case, AWE first resolves the
+operation and then applies the selected SQL function to the resulting value.
+
+Example: calculate the absolute value of the result of an addition.
+
+```xml
+<operation function="ABS" operator="ADD" alias="AbsIde">
+  <field id="IdeSitModDbs" function="SUM"/>
+</operation>
+```
+
+In SQL terms, this behaves like applying `ABS(...)` to the generated operation result.
+
 #### Operator attribute
 
 These are the possible values for the `operator` attribute:
