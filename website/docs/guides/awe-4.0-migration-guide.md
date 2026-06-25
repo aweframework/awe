@@ -807,11 +807,18 @@ or
   getRequest().getParameterAsString(AweConstants.PARAMETER_MAX);
 ```
 
-* You can also add some variables to the request:
+* To prepare variables for a query or maintain call from a service that extends `ServiceConfig`, build an explicit
+  parameter snapshot and pass it to the launcher:
 
 ```java
-  getRequest().setParameter("someList",someList);
+  ObjectNode parameters = getMutableRequestParameters();
+  putRequestParameter(parameters, "opeId", id);
+
+  queryService.launchQuery("MyQuery", parameters);
+  maintainService.launchMaintain("MyMaintain", parameters);
 ```
+
+Use `QueryUtil` directly only from lower-level code that does not extend `ServiceConfig`.
 
 ### Datalist type
 
