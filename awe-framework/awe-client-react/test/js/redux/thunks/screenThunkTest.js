@@ -207,6 +207,48 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       expect(addTop).toBeDefined();
     });
 
+    it('dispatches response.actions on initial screen load', async () => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          structure: {},
+          components: [],
+          messages: [],
+          screen: {},
+          actions: [
+            {
+              type: 'message',
+              parameters: {
+                type: 'error',
+                title: 'Initial load failed',
+                message: 'Backend action should be shown'
+              }
+            }
+          ]
+        })
+      });
+
+      await screenThunks.loadScreen('view-a', 'option-a', (key) => key)(dispatch, () => ({
+        settings: { token: 'TOK' },
+        components: {}
+      }));
+
+      const actionDispatch = dispatch.mock.calls
+        .map(a => a[0])
+        .find(a => a?.type === ADD_ACTIONS_TOP && a.payload?.[0]?.type === 'message');
+
+      expect(actionDispatch).toBeDefined();
+      expect(actionDispatch.payload).toEqual([
+        expect.objectContaining({
+          type: 'message',
+          parameters: expect.objectContaining({
+            title: 'Initial load failed',
+            message: 'Backend action should be shown'
+          })
+        })
+      ]);
+    });
+
     it('navega sin mensaje UI cuando el estado contiene componentes malformados sin address', async () => {
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       jest.spyOn(window, 'fetch').mockResolvedValue({

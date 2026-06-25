@@ -56,7 +56,6 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
     const { settings } = state;
     const token = settings.token;
 
-    // Función para manejar errores al cargar los datos de la pantalla
     const manageScreenError = (option, error = {}) => {
       console.error(`Error retrieving screen structure: ${option}`, error);
       const { status } = error;
@@ -86,11 +85,10 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
 
     const componentStructure = inspectComponentStructure(response.structure, [], {});
 
-    // Limpiar componentes de la vista anterior antes de cargar los nuevos
-    // Esto limpia tanto Redux como el ComponentRegistry (si está habilitado)
+    // Clear previous view components before loading the new ones.
     dispatch({ ...clearComponents(view), settings });
 
-    // Almacenar los componentes
+    // Register components with their dependencies.
     dispatch(updateViewComponentsWithDependencies(view, response.components.reduce((list = {}, component = {}) => {
       const isGrid = "columnModel" in component.controller;
       const address = { view, component: component.id };
@@ -124,6 +122,10 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
     }
     dispatch(updateMessages(view, response.messages));
     ViewRegistry.setView(view, { ...response.screen, structure: produce(response.structure, draft => draft), loading: false });
+    if (response.actions?.length) {
+      // Dispatch server-provided actions (e.g. initial messages) after the screen is fully registered.
+      dispatch(addActionsTop(response.actions));
+    }
 
     if (settings.debug === "INFO" || settings.debug === "DEBUG") {
       const safeSize = (value) => {
@@ -146,7 +148,7 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
     }
   } catch (error) {
     dispatch(addActionsTop([
-      generateMessageAction("error", "Error", error.message || "Fallo al cargar pantalla")
+      generateMessageAction("error", "Error", error.message || "Failed to load screen")
     ]));
   }
 };
