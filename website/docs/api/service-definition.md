@@ -363,9 +363,10 @@ public class DummyService extends ServiceConfig {
 }
 ```
 
-### How to set parameter values from Java
+### How to prepare parameter values from Java
 
-There is the procedure to set set query and maintain variable values in Java.
+In services that extend `ServiceConfig`, prepare query and maintain parameters with an explicit mutable snapshot.
+Do not mutate the live request as the default pattern.
 
 **Java Service**
 
@@ -383,8 +384,10 @@ There is the procedure to set set query and maintain variable values in Java.
       DataList userData = null;
       ServiceData srvDat = null;
 
-      getRequest().setParameter("opeId", id);
-      return getBean(QueryService.class).launchQuery("getUserData");
+      ObjectNode parameters = getMutableRequestParameters();
+      putRequestParameter(parameters, "opeId", id);
+
+      return getBean(QueryService.class).launchQuery("getUserData", parameters);
     }
   }
 
@@ -401,7 +404,7 @@ There is the procedure to set set query and maintain variable values in Java.
   <field id="OpeNam" alias="nam" table="o" />
   <where>
     <and>
-      <filter field="IdeOpe" table="o" condition="=" variable="OpeId">
+      <filter left-field="IdeOpe" left-table="o" condition="eq" right-variable="OpeId" />
     </and>
   </where>
   <variable id="OpeId" type="STRING" name="opeId" />
@@ -409,7 +412,8 @@ There is the procedure to set set query and maintain variable values in Java.
 
 ```
 
->**Note:** This method of setting values of query and maintain variables is not recommended. It only has to be used in exceptional cases.
+Use the same `ObjectNode` pattern with `launchMaintain("targetName", parameters)` when calling maintain targets.
+`QueryUtil` is the lower-level API for classes that do not extend `ServiceConfig`.
 
 ## **Microservices**
 
