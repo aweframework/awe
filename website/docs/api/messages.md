@@ -3,15 +3,15 @@ id: messages
 title: Messages
 ---
 
-Message elements are messages to show after execute one action. Usually these message are described in the hidden section of the window.
+Message elements define the messages that are shown after executing an action. They are usually declared in the hidden section of the window.
 
-This message element is referenced from target attribute in a button action.
+This element is usually referenced from the `target` attribute of a button action.
 
-<img alt="Messages" src={require('@docusaurus/useBaseUrl').default('img/Messages.png')} />
+<img alt="Dialog displayed when a message is triggered (confirm dialog)" src={require('@docusaurus/useBaseUrl').default('img/Messages.png')} />
 
-## Xml structure
+## XML structure
 
-The xml structure of message element is the following:
+The XML structure of a message element is the following:
 
 ```xml
   <tag source="hidden">
@@ -25,12 +25,12 @@ The xml structure of message element is the following:
 | Name |  Type | Use | Description     | Values |
 | ------ | -------| ---------------------- | ----------------------------------|---------------------------------------- |
 |`id`| String | **Required**| Message identifier | |
-|`title`| String | **Required**| Is the title of message | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
+|`title`| String | **Required**| Message title | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 |`message`| String | **Required**| Content of message  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  |
 
 ## Examples
 
-- Show a confirm message before insert new data
+- Show a confirmation message before inserting new data
 
 ```xml
 ...
