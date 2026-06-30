@@ -2,6 +2,7 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.ade.api.ADE;
 import com.almis.awe.component.AweLoggingFilter;
+import com.almis.awe.component.AwePropagationCleanupFilter;
 import com.almis.awe.config.*;
 import com.almis.awe.dao.InitialLoadDao;
 import com.almis.awe.model.component.*;
@@ -722,6 +723,28 @@ public class AweAutoConfiguration {
   @Bean
   public AweLoggingFilter aweLoggingFilter(AweSession aweSession, BaseConfigProperties baseConfigProperties) {
     return new AweLoggingFilter(aweSession, baseConfigProperties);
+  }
+
+  /**
+   * Propagation cleanup filter.
+   *
+   * <p>Clears the {@code pendingPropagation} ThreadLocal overlay at the end of every
+   * request so that stale state cannot leak onto the next request that reuses the same
+   * servlet thread.</p>
+   *
+   * <p>This filter is the <strong>sole and authoritative</strong> cleanup point for the
+   * overlay. {@link com.almis.awe.component.AweMDCTaskDecorator} only takes immutable
+   * deep-copy snapshots of the overlay on each {@code decorate()} call and deliberately
+   * does <em>not</em> clear it — this allows all sibling async tasks submitted within
+   * the same request to receive consistent propagated parameters without re-writing.</p>
+   *
+   * @param prototypeRequestBeanHolder the singleton holder that owns the overlay
+   * @return servlet filter
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AwePropagationCleanupFilter awePropagationCleanupFilter(PrototypeRequestBeanHolder prototypeRequestBeanHolder) {
+    return new AwePropagationCleanupFilter(prototypeRequestBeanHolder);
   }
 
 

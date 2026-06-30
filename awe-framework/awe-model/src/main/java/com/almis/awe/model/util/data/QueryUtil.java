@@ -292,11 +292,34 @@ public class QueryUtil extends ServiceConfig {
   }
 
   private ObjectNode getParametersFromRequest() {
-    return Optional.ofNullable(getRequest())
+    // Two sources: live AweRequest and decorated-worker snapshot
+    ObjectNode base = Optional.ofNullable(getRequest())
         .map(AweRequest::getParametersSafe)
-        .orElse(Optional.ofNullable(prototypeRequestBeanHolder.getPrototypeBean())
-            .map(RequestDataHolder::getRequestData)
-            .orElse(JsonNodeFactory.instance.objectNode()));
+        .orElse(null);
+
+    ObjectNode propagatedSnapshot = Optional.ofNullable(prototypeRequestBeanHolder.getPrototypeBean())
+        .map(RequestDataHolder::getRequestData)
+        .orElse(null);
+
+    if (base == null && propagatedSnapshot == null) {
+      log.trace("[QUERY] getParametersFromRequest: both sources null");
+      return JsonNodeFactory.instance.objectNode();
+    }
+    if (base == null) {
+      log.trace("[QUERY] getParametersFromRequest: live request null, using propagated snapshot");
+      return propagatedSnapshot.deepCopy();
+    }
+    if (propagatedSnapshot == null) {
+      log.trace("[QUERY] getParametersFromRequest: no propagated snapshot, using live request");
+      return base;
+    }
+
+    // Both available: propagated overlay wins on conflict
+    log.trace("[QUERY] getParametersFromRequest: merging {} propagated keys over live request",
+        propagatedSnapshot.size());
+    ObjectNode merged = base.deepCopy();
+    merged.setAll(propagatedSnapshot);
+    return merged;
   }
 
   /**

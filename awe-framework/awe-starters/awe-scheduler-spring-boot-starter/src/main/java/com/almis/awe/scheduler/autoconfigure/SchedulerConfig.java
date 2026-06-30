@@ -1,5 +1,6 @@
 package com.almis.awe.scheduler.autoconfigure;
 
+import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
@@ -430,8 +431,9 @@ public class SchedulerConfig {
   }
 
   @Bean
-  public SchedulerJobListener schedulerJobListener(ApplicationEventPublisher eventPublisher) {
-    return new SchedulerJobListener(eventPublisher);
+  public SchedulerJobListener schedulerJobListener(ApplicationEventPublisher eventPublisher,
+                                                    PrototypeRequestBeanHolder prototypeRequestBeanHolder) {
+    return new SchedulerJobListener(eventPublisher, prototypeRequestBeanHolder);
   }
 
   @Bean
