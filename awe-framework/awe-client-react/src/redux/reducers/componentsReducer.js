@@ -121,10 +121,7 @@ function updateComponentProperty(state, componentId, propertyName, updates, sett
       // Get current merged state
       const currentFull = mergeComponentState(base, state[componentId]);
       // Apply property update
-      currentFull[propertyName] = {
-        ...currentFull?.[propertyName],
-        ...updates
-      };
+      currentFull[propertyName] = mergeComponentPropertyValue(propertyName, currentFull?.[propertyName], updates);
       // Calculate new delta
       const newDelta = calculateDeltas(base, currentFull);
       return {
@@ -140,10 +137,43 @@ function updateComponentProperty(state, componentId, propertyName, updates, sett
     ...state,
     [componentId]: {
       ...state[componentId],
-      [propertyName]: {
-        ...state[componentId][propertyName],
-        ...updates
-      }
+      [propertyName]: mergeComponentPropertyValue(propertyName, state[componentId][propertyName], updates)
+    }
+  };
+}
+
+/**
+ * Merge updates for a component property while preserving nested numberFormat defaults.
+ * @param {string} propertyName Target property name
+ * @param {Object} currentValue Current property value
+ * @param {Object} updates Partial updates
+ * @returns {Object} Merged property value
+ */
+function mergeComponentPropertyValue(propertyName, currentValue = {}, updates = {}) {
+  if (propertyName !== 'attributes') {
+    return {
+      ...currentValue,
+      ...updates
+    };
+  }
+
+  const hasNumberFormatUpdate = Object.prototype.hasOwnProperty.call(updates, 'numberFormat')
+    && typeof updates.numberFormat === 'object'
+    && updates.numberFormat !== null;
+
+  if (!hasNumberFormatUpdate) {
+    return {
+      ...currentValue,
+      ...updates
+    };
+  }
+
+  return {
+    ...currentValue,
+    ...updates,
+    numberFormat: {
+      ...(currentValue?.numberFormat || {}),
+      ...updates.numberFormat
     }
   };
 }

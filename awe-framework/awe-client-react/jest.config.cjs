@@ -13,6 +13,7 @@ module.exports = {
     '**/redux/thunks/validateThunkTest.{js,jsx}',
     '**/redux/thunks/componentsThunkTest.{js,jsx}',
     '**/utilities/utilsTest.{js,jsx}',
+    '**/utilities/numbersTest.{js,jsx}',
     '**/utilities/componentsTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',

@@ -94,6 +94,28 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerTest.jsx', fu
     });
   });
 
+  it('should preserve existing number format separators when partial numberFormat attributes are updated', function () {
+    state.components.component.attributes.numberFormat = {
+      digitGroupSeparator: ',',
+      decimalCharacter: '.',
+      precision: 2
+    };
+
+    const newState = components(state.components, {
+      type: UPDATE_ATTRIBUTES,
+      view: "base",
+      data: { numberFormat: { min: 0, precision: 0 } },
+      address: { component: 'component', view: 'base' }
+    });
+
+    expect(newState.component.attributes.numberFormat).toEqual({
+      digitGroupSeparator: ',',
+      decimalCharacter: '.',
+      precision: 0,
+      min: 0
+    });
+  });
+
   it('should update a component specific attributes', function () {
     const attributes = { test: true };
     const newState = components(state.components, { type: UPDATE_SPECIFIC_ATTRIBUTES, view: "base", data: attributes, address: { component: 'component', view: 'base' } });

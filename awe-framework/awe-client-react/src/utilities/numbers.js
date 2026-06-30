@@ -1,4 +1,4 @@
-import { getFirstDefinedAndNotNullValue, isEmpty } from "./general";
+import {getFirstDefinedAndNotNullValue, isEmpty} from "./general";
 
 /**
  * Number utility functions
@@ -16,24 +16,48 @@ export function getFirstDefinedValueAsNumber() {
   return !isNaN(Number(value)) ? Number(value) : undefined;
 }
 
+const DEFAULT_GROUP_SEPARATOR = ",";
+const DEFAULT_DECIMAL_SEPARATOR = ".";
+const ENGLISH_LOCALE = "en-US";
+const GERMAN_LOCALE = "de";
+
 /**
- * Get locale from separator
- * @param separator Separator
- * @returns {string} Locale
+ * Resolve decimal/grouping separators from the number format contract.
+ * Partial formats keep the default English-style separators.
+ * @param {object} numberFormat Number format contract
+ * @returns {{decimalSeparator: string, groupSeparator: string}}
  * @memberOf Numbers
  */
-function getLocaleFromSeparator(separator) {
-  switch (separator) {
-    case ",":
-      return "en-US";
-    case ".":
-    default:
-      return "de";
-  }
+function resolveNumberSeparators(numberFormat = {}) {
+  return {
+    groupSeparator: getFirstDefinedAndNotNullValue(numberFormat.digitGroupSeparator, numberFormat.aSep, DEFAULT_GROUP_SEPARATOR),
+    decimalSeparator: getFirstDefinedAndNotNullValue(numberFormat.decimalCharacter, numberFormat.aDec, DEFAULT_DECIMAL_SEPARATOR)
+  };
 }
 
 /**
- * Translate a number format into parts
+ * Resolve a PrimeReact locale from decimal/grouping separator semantics.
+ * Unsupported combinations fall back to the closest built-in locale.
+ * @param {{decimalSeparator: string, groupSeparator: string}} separators Number separators
+ * @returns {string} Locale
+ * @memberOf Numbers
+ */
+function getLocaleFromSeparators({ groupSeparator, decimalSeparator }) {
+  if (groupSeparator === "." && decimalSeparator === ",") {
+    return GERMAN_LOCALE;
+  }
+
+  if (groupSeparator === "," && decimalSeparator === ".") {
+    return ENGLISH_LOCALE;
+  }
+
+  return decimalSeparator === "," ? GERMAN_LOCALE : ENGLISH_LOCALE;
+}
+
+/**
+ * Translate a number format into PrimeReact-compatible parts.
+ * Decimal and grouping separators are resolved together so parsing/formatting
+ * keeps the intended numeric magnitude even for partial numeric formats.
  * @param {object} numberFormat number format
  * @returns {{minFractionDigits: *, min: *, max: *, maxFractionDigits: *, locale: string, suffix: *, step: *}}
  * @memberOf Numbers
@@ -42,10 +66,10 @@ export function translateNumberFormat(numberFormat = {}) {
   let decimals = getFirstDefinedValueAsNumber(numberFormat.precision, numberFormat.mDec, numberFormat.decimalPlaces, 0);
   let isPrefix = numberFormat.pSign === "p";
   let prefixSuffix = getFirstDefinedAndNotNullValue(numberFormat.currencySymbol, numberFormat.aSign, "");
-  const separator = getFirstDefinedAndNotNullValue(numberFormat.digitGroupSeparator, numberFormat.aSep, undefined);
-  const useGrouping = separator !== "";
+  const separators = resolveNumberSeparators(numberFormat);
+  const useGrouping = separators.groupSeparator !== "";
   return {
-    locale: getLocaleFromSeparator(separator),
+    locale: getLocaleFromSeparators(separators),
     useGrouping,
     maxFractionDigits: decimals,
     minFractionDigits: getFirstDefinedAndNotNullValue(numberFormat.allowDecimalPadding, numberFormat.aPad, true) ? decimals : 0,
