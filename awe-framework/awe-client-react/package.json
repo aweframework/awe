@@ -1,6 +1,6 @@
 {
   "name": "awe-react-client",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "main": "main.jsx",
   "scripts": {
     "lint": "eslint eslint.config.js webpack.common.js webpack.dev.js webpack.prod.js postcss.config.js",
