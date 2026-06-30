@@ -44,7 +44,7 @@
           </dependency>
         </criteria>
         <criteria left-label="18" id="NumHid" variable="NumHid" component="hidden" value="4" />
-        <criteria left-label="18" label="PARAMETER_NUMERIC" id="Num" variable="Num" component="numeric" style="col-xs-6 col-sm-3 col-lg-2" number-format="{vMin: '-999999', mDec: 2, aSign:' EUR', pSign:'s', aPad:true}" value="-123456.1">
+        <criteria left-label="18" label="PARAMETER_NUMERIC" id="Num" variable="Num" component="numeric" style="col-xs-6 col-sm-3 col-lg-2" number-format="{min: 0, precision: 2}">
           <dependency source-type="formule" target-type="format-number" initial="true" formule="{vMin: '-999999', mDec: [NumHid], aSign:' JPY', pSign:'s', aPad:true}">
             <dependency-element id="NumHid" />
             <dependency-element id="Txt" condition="eq" value="4decimales" />
