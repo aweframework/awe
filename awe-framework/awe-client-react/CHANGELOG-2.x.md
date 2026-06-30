@@ -1,3 +1,11 @@
+# Release notes for AWE React 2.2.4
+*30/06/2026*
+ 
+🐛 Bug fixes:
+- Corrección de mensajes. [MR #177](https://gitlab.com/aweframework/awe-react/-/merge_requests/177) (Pablo Javier García Mora)
+- fix(criteria): numeric format misparses decimal input after thousands separator. [MR #176](https://gitlab.com/aweframework/awe-react/-/merge_requests/176) (Pablo Javier García Mora)
+- fix(client): surface initial screen-data messages. [MR #175](https://gitlab.com/aweframework/awe-react/-/merge_requests/175) (Pablo Vidal Otero)
+
 # Release notes for AWE React 2.2.3
 *11/05/2026*
  
