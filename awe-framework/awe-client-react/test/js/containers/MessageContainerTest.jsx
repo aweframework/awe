@@ -8,17 +8,16 @@ import { MemoryRouter } from 'react-router';
 
 const mockShow = jest.fn();
 const mockRemove = jest.fn();
-let mockToastReady = true;
 
 jest.mock('primereact/toast', () => {
   const React = require('react');
 
   return {
     Toast: React.forwardRef((props, ref) => {
-      React.useImperativeHandle(ref, () => (mockToastReady ? {
+      React.useImperativeHandle(ref, () => ({
         show: mockShow,
         remove: mockRemove
-      } : null), [mockToastReady]);
+      }), []);
 
       return <div className="p-toast" data-position={props.position}/>;
     })
@@ -36,7 +35,6 @@ describe('awe-react-client/test/js/containers/MessageContainerTest.jsx', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     mockShow.mockClear();
     mockRemove.mockClear();
-    mockToastReady = true;
   });
 
   afterEach(() => {
@@ -62,26 +60,26 @@ describe('awe-react-client/test/js/containers/MessageContainerTest.jsx', () => {
     expect(document.querySelector(".p-toast")).not.toBeNull();
   });
 
-  it('marks messages as shown only when toast is ready', async () => {
-    mockToastReady = false;
+  it('does not show the same toast twice after it is marked as shown', async () => {
     const message = {
       severity: 'warn', summary: 'Invalid credentials', detail: 'The credentials entered for the user -test- are not valid',
       sticky: false, life: 4000, id: 1, closable: true
     };
 
-    const {store, rerender} = renderWithProviders(<MessageContainer/>, {
+    const {store} = renderWithProviders(<MessageContainer/>, {
       preloadedState: {...preloadedState, messages: {showing: [message]}}
     });
 
-    expect(mockShow).not.toHaveBeenCalled();
-    expect(store.getState().messages.showing[0].show).toBeUndefined();
-
-    mockToastReady = true;
-    rerender(<MessageContainer/>);
-
     await waitFor(() => {
+      expect(mockShow).toHaveBeenCalledTimes(1);
       expect(mockShow).toHaveBeenCalledWith([message]);
       expect(store.getState().messages.showing[0].show).toBe(true);
+    });
+
+    store.dispatch(updateSettings({ messagePosition: 'bottom-left' }));
+
+    await waitFor(() => {
+      expect(mockShow).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -104,7 +102,6 @@ describe('Issue 667 regression: message shown under render storm without request
   beforeEach(() => {
     mockShow.mockClear();
     mockRemove.mockClear();
-    mockToastReady = true;
   });
 
   afterEach(() => {
