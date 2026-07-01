@@ -17,10 +17,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +32,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import static java.util.Collections.singletonList;
@@ -80,7 +86,7 @@ class EmailServiceTest {
   @BeforeEach
   public void setUp() {
     emailService.setApplicationContext(context);
-    when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
+    lenient().when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
   }
 
   /**
@@ -263,5 +269,27 @@ class EmailServiceTest {
     verify(mailSenderFactory).getMailSender("emailServer");
     verify(queryUtil).getRequestParameter(eq("user"), any(ObjectNode.class));
     verify(mailSender).send(mimeMessage);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "report, report.pdf, report.pdf",
+    "visible-name.pdf, report, visible-name.pdf",
+    "visible-name.pdf, report.pdf, visible-name.pdf"
+  })
+  void generateMultipartAttachmentsPreservesExpectedVisibleName(String visibleName, String storedFileName,
+                                                                String expectedFileName, @TempDir Path tempDir) throws Exception {
+    given(baseConfigProperties.getEncoding()).willReturn("UTF-8");
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("LOCALE");
+    Path attachmentPath = Files.writeString(tempDir.resolve(storedFileName), "content");
+
+    ParsedEmail email = new ParsedEmail()
+      .setBody("Test body")
+      .addAttachment(visibleName, attachmentPath.toFile());
+
+    MimeBodyPart attachmentPart = (MimeBodyPart) emailService.generateMultipartMessage(email).getBodyPart(1);
+
+    assertEquals(expectedFileName, attachmentPart.getFileName());
   }
 }

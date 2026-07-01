@@ -435,6 +435,15 @@
       <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
     </delete>
     <delete>
+      <table id="HISAweThm"/>
+      <where>
+        <and>
+          <filter left-field="Nam" condition="like" right-variable="variable"/>
+        </and>
+      </where>
+      <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
+    </delete>
+    <delete>
       <table id="AweUsrFav"/>
     </delete>
   </target>
@@ -634,6 +643,55 @@
       <field id="Act" variable="varAct"/>
       <variable id="varNam" type="STRING" name="nam"/>
       <variable id="varAct" type="INTEGER" name="act"/>
+    </insert>
+  </target>
+
+  <target name="InsertAuditQueryBackedField">
+    <insert audit="HISAweThm">
+      <table id="AweThm"/>
+      <field id="IdeThm" query="NextThemeIdForAuditQuery"/>
+      <field id="Nam" variable="varNam"/>
+      <field id="Act" variable="varAct"/>
+      <variable id="varNam" type="STRING" name="nam"/>
+      <variable id="varAct" type="INTEGER" name="act"/>
+    </insert>
+  </target>
+
+  <target name="InsertAuditQueryBackedFieldMultiple">
+    <insert audit="HISAweThm" multiple="true">
+      <table id="AweThm"/>
+      <field id="IdeThm" query="NextThemeIdForAuditQuery"/>
+      <field id="Nam" variable="varNam"/>
+      <field id="Act" variable="varAct"/>
+      <variable id="varNam" type="STRING" name="nam"/>
+      <variable id="varAct" type="INTEGER" name="act"/>
+    </insert>
+  </target>
+
+  <target name="InsertAuditInsertQuerySingle">
+    <insert audit="HISAweThm" query="InsertQueryAuditSingleSource">
+      <table id="AweThm"/>
+      <field id="IdeThm"/>
+      <field id="Nam"/>
+      <field id="Act"/>
+    </insert>
+  </target>
+
+  <target name="InsertAuditInsertQueryMultiple">
+    <insert audit="HISAweThm" query="InsertQueryAuditMultipleSource">
+      <table id="AweThm"/>
+      <field id="IdeThm"/>
+      <field id="Nam"/>
+      <field id="Act"/>
+    </insert>
+  </target>
+
+  <target name="InsertAuditInsertQueryZeroRows">
+    <insert audit="HISAweThm" query="InsertQueryAuditZeroRowsSource">
+      <table id="AweThm"/>
+      <field id="IdeThm"/>
+      <field id="Nam"/>
+      <field id="Act"/>
     </insert>
   </target>
 
@@ -846,6 +904,20 @@
       <variable id="integerList" type="INTEGER" name="integerList"/>
       <variable id="stringList" type="STRING" name="stringList"/>
       <variable id="dateList" type="DATE" name="dateList"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexRestPostParametersSingleList">
+    <serve service="returnMaintainOkForListContract">
+      <variable id="integerList" type="INTEGER" name="integerList"/>
+      <variable id="stringList" type="STRING" name="stringList"/>
+      <variable id="dateList" type="DATE" name="dateList"/>
+    </serve>
+  </target>
+
+  <target name="TestComplexRestPostParametersMappedSingleList">
+    <serve service="returnMaintainOkForMappedListContract">
+      <variable id="backendIntegerList" type="INTEGER" name="frontendIntegerList"/>
     </serve>
   </target>
 

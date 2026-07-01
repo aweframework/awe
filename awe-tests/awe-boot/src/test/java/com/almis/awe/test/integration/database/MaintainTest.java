@@ -26,6 +26,7 @@ import java.util.Set;
 import static com.almis.awe.test.integration.util.TestUtil.assertResultJson;
 import static com.almis.awe.test.integration.util.TestUtil.readFileAsText;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -116,6 +117,18 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(content().json(expected))
+      .andReturn();
+    return mvcResult.getResponse().getContentAsString();
+  }
+
+  private String launchPostRequest(String type, String name, String variables) throws Exception {
+    MvcResult mvcResult = mockMvc.perform(post("/action/" + type + "/" + name)
+        .with(csrf())
+        .session(session)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{" + variables + "\"max\":30}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
       .andReturn();
     return mvcResult.getResponse().getContentAsString();
   }
@@ -290,10 +303,11 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
   void testSimpleSingleDelete() throws Exception {
     String maintainName = "CleanUp";
     String variables = "";
-    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0},{\"operationType\":\"DELETE\",\"rowsAffected\":0}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
     String result = launchMaintain(maintainName, variables, expected);
     logger.debug(result);
-    assertResultJson(maintainName, result, 3, new MaintainResultDetails[]{
+    assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.DELETE, 0L),
       new MaintainResultDetails(MaintainType.DELETE, 0L),
       new MaintainResultDetails(MaintainType.DELETE, 0L),
       new MaintainResultDetails(MaintainType.DELETE, 0L)
@@ -368,6 +382,82 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     });
 
 
+  }
+
+  @Test
+  void testSimpleSingleInsertAuditWithQueryBackedField() throws Exception {
+    String maintainName = "InsertAuditQueryBackedField";
+    String variables = "\"nam\": \"AWEBOOT-TEST-QUERY-AUDIT-SINGLE\", \"act\": 1,";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    logger.info(result);
+    assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
+    });
+
+    assertQueryBackedAuditRows("AWEBOOT-TEST-QUERY-AUDIT-SINGLE", 1);
+  }
+
+  @Test
+  void testSimpleMultipleInsertAuditWithQueryBackedField() throws Exception {
+    String maintainName = "InsertAuditQueryBackedFieldMultiple";
+    String variables = "\"nam\": [\"AWEBOOT-TEST-QUERY-AUDIT-MULTI-0\", \"AWEBOOT-TEST-QUERY-AUDIT-MULTI-1\"], \"act\": [1, 0],";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, variables, expected);
+    logger.info(result);
+    assertResultJson(maintainName, result, 4, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
+    });
+
+    assertQueryBackedAuditRows("AWEBOOT-TEST-QUERY-AUDIT-MULTI", 2);
+  }
+
+  @Test
+  void testInsertQueryAuditSingle() throws Exception {
+    String maintainName = "InsertAuditInsertQuerySingle";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, "", expected);
+    logger.info(result);
+    assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.AUDIT, 1L)
+    });
+
+    assertInsertQueryAuditRows("InsertQueryAuditSingleSource",
+      new String[]{"AWEBOOT-TEST-INSERT-QUERY-SINGLE"}, new int[]{1});
+  }
+
+  @Test
+  void testInsertQueryAuditMultiple() throws Exception {
+    String maintainName = "InsertAuditInsertQueryMultiple";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, "", expected);
+    logger.info(result);
+    assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 2L),
+      new MaintainResultDetails(MaintainType.AUDIT, 2L)
+    });
+
+    assertInsertQueryAuditRows("InsertQueryAuditMultipleSource",
+      new String[]{"AWEBOOT-TEST-INSERT-QUERY-MULTI-33330", "AWEBOOT-TEST-INSERT-QUERY-MULTI-33331"},
+      new int[]{1, 0});
+  }
+
+  @Test
+  void testInsertQueryAuditZeroRows() throws Exception {
+    String maintainName = "InsertAuditInsertQueryZeroRows";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, "", expected);
+    logger.info(result);
+    assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 0L)
+    });
+
+    assertInsertQueryAuditRows("InsertQueryAuditZeroRowsSource", new String[0], new int[0]);
   }
 
   /**
@@ -932,6 +1022,65 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
     return (ArrayNode) dataList.get("rows");
+  }
+
+  private void assertQueryBackedAuditRows(String themePrefix, int expectedRows) throws Exception {
+    String baseQueryResult = launchPostRequest("data", "QueryBackedInsertedThemes",
+      String.format("\"themePrefix\":\"%s\",", themePrefix));
+    ArrayNode baseRows = extractQueryRows(baseQueryResult);
+
+    String auditQueryResult = launchPostRequest("data", "QueryBackedInsertedThemeAuditRows",
+      String.format("\"themePrefix\":\"%s\",", themePrefix));
+    ArrayNode auditRows = extractQueryRows(auditQueryResult);
+
+    assertEquals(expectedRows, baseRows.size());
+    assertEquals(expectedRows, auditRows.size());
+    for (int i = 0; i < expectedRows; i++) {
+      assertEquals(baseRows.get(i).get("IdeThm").asInt(), auditRows.get(i).get("IdeThm").asInt());
+      assertEquals(baseRows.get(i).get("Nam").asText(), auditRows.get(i).get("Nam").asText());
+      assertEquals(baseRows.get(i).get("Act").asInt(), auditRows.get(i).get("Act").asInt());
+    }
+
+    if (expectedRows > 1) {
+      assertNotEquals(baseRows.get(0).get("IdeThm").asInt(), baseRows.get(1).get("IdeThm").asInt());
+      assertNotEquals(auditRows.get(0).get("IdeThm").asInt(), auditRows.get(1).get("IdeThm").asInt());
+    }
+  }
+
+  private void assertInsertQueryAuditRows(String sourceQueryName, String[] expectedNames, int[] expectedActValues)
+      throws Exception {
+    String sourceQueryResult = launchPostRequest("data", sourceQueryName, "");
+    ArrayNode sourceRows = extractQueryRows(sourceQueryResult);
+    int expectedRows = expectedNames.length;
+
+    assertEquals(expectedRows, sourceRows.size());
+    assertEquals(expectedRows, expectedActValues.length);
+
+    if (expectedRows == 0) {
+      return;
+    }
+
+    int minThemeId = sourceRows.get(0).get("IdeThm").asInt();
+    int maxThemeId = sourceRows.get(sourceRows.size() - 1).get("IdeThm").asInt();
+
+    String baseQueryResult = launchPostRequest("data", "QueryBackedInsertedThemesByIdRange",
+      String.format("\"minThemeId\":%d,\"maxThemeId\":%d,", minThemeId, maxThemeId));
+    ArrayNode baseRows = extractQueryRows(baseQueryResult);
+
+    String auditQueryResult = launchPostRequest("data", "QueryBackedInsertedThemeAuditRowsByIdRange",
+      String.format("\"minThemeId\":%d,\"maxThemeId\":%d,", minThemeId, maxThemeId));
+    ArrayNode auditRows = extractQueryRows(auditQueryResult);
+
+    assertEquals(expectedRows, baseRows.size());
+    assertEquals(expectedRows, auditRows.size());
+    for (int i = 0; i < expectedRows; i++) {
+      assertEquals(sourceRows.get(i).get("IdeThm").asInt(), baseRows.get(i).get("IdeThm").asInt());
+      assertEquals(sourceRows.get(i).get("IdeThm").asInt(), auditRows.get(i).get("IdeThm").asInt());
+      assertEquals(expectedNames[i], baseRows.get(i).get("Nam").asText());
+      assertEquals(expectedNames[i], auditRows.get(i).get("Nam").asText());
+      assertEquals(expectedActValues[i], baseRows.get(i).get("Act").asInt());
+      assertEquals(expectedActValues[i], auditRows.get(i).get("Act").asInt());
+    }
   }
 
   // *****************************************************************************************************************//

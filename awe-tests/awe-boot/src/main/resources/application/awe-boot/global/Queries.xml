@@ -117,11 +117,11 @@
     <field id="l1_nom" alias="label"/>
     <where>
       <and>
-        <filter left-field="IdeOpe" condition="eq" right-variable="test" trim="true"/>
+        <filter left-field="IdeOpe" condition="eq" right-variable="test"/>
       </and>
     </where>
     <variable id="one" type="INTEGER" value="1"/>
-    <variable id="test" type="STRING" name="suggest"/>
+    <variable id="test" type="INTEGER" name="suggest"/>
   </query>
 
   <query id="QueryValueInField">
@@ -180,6 +180,152 @@
     </where>
     <variable id="backendThemePrefix" type="STRINGR" name="frontendThemePrefix"/>
     <order-by field="Nam" type="ASC"/>
+  </query>
+
+  <query id="NextThemeIdForAuditQuery">
+    <table id="AweThm"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="IdeThm" function="MAX"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+  </query>
+
+  <query id="QueryBackedInsertedThemes">
+    <table id="AweThm"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="themePrefix"/>
+      </and>
+    </where>
+    <variable id="themePrefix" type="STRINGR" name="themePrefix"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="QueryBackedInsertedThemeAuditRows">
+    <table id="HISAweThm"/>
+    <field id="HISope"/>
+    <field id="HISact"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="themePrefix"/>
+      </and>
+    </where>
+    <variable id="themePrefix" type="STRINGR" name="themePrefix"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="QueryBackedInsertedThemesByIdRange">
+    <table id="AweThm"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="ge" right-variable="minThemeId"/>
+        <filter left-field="IdeThm" condition="le" right-variable="maxThemeId"/>
+      </and>
+    </where>
+    <variable id="minThemeId" type="INTEGER" name="minThemeId"/>
+    <variable id="maxThemeId" type="INTEGER" name="maxThemeId"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="QueryBackedInsertedThemeAuditRowsByIdRange">
+    <table id="HISAweThm"/>
+    <field id="HISope"/>
+    <field id="HISact"/>
+    <field id="IdeThm"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="ge" right-variable="minThemeId"/>
+        <filter left-field="IdeThm" condition="le" right-variable="maxThemeId"/>
+      </and>
+    </where>
+    <variable id="minThemeId" type="INTEGER" name="minThemeId"/>
+    <variable id="maxThemeId" type="INTEGER" name="maxThemeId"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="InsertQueryAuditSingleSource">
+    <table id="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <constant value="AWEBOOT-TEST-INSERT-QUERY-SINGLE" alias="Nam"/>
+    <constant value="1" type="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="ThmKey"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="InsertQueryAuditMultipleSource">
+    <table id="AweKey" alias="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <operation operator="CONCAT" alias="Nam">
+      <constant value="AWEBOOT-TEST-INSERT-QUERY-MULTI-" type="STRING"/>
+      <constant value="33330" type="INTEGER" cast="STRING"/>
+    </operation>
+    <constant value="1" type="INTEGER" cast="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="ThmKey"/>
+    <union query="InsertQueryAuditMultipleSourceNext"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+  <query id="InsertQueryAuditMultipleSourceNext">
+    <table id="AweKey" alias="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="2" type="INTEGER"/>
+    </operation>
+    <operation operator="CONCAT" alias="Nam">
+      <constant value="AWEBOOT-TEST-INSERT-QUERY-MULTI-" type="STRING"/>
+      <constant value="33331" type="INTEGER" cast="STRING"/>
+    </operation>
+    <constant value="0" type="INTEGER" cast="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="ThmKey"/>
+  </query>
+
+  <query id="InsertQueryAuditZeroRowsSource">
+    <table id="AweKey"/>
+    <operation alias="IdeThm" operator="ADD">
+      <field id="KeyVal"/>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+    <constant value="AWEBOOT-TEST-INSERT-QUERY-ZERO" alias="Nam"/>
+    <constant value="1" type="INTEGER" alias="Act"/>
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="sequenceName"/>
+      </and>
+    </where>
+    <variable id="sequenceName" type="STRING" value="MissingThmKey"/>
+    <order-by field="IdeThm" type="ASC"/>
   </query>
 
   <query id="SimpleGetAllNoAlias">
@@ -3173,6 +3319,95 @@
       </filter>
     </where>
     <order-by field="l1_nom" type="ASC"/>
+  </query>
+
+  <!-- SUBSTRING: uses Java/QueryDSL semantics — 0-based beginIndex, exclusive endIndex -->
+  <query id="testSubstring">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <!-- "Hello World" from index 6 (inclusive) to 11 (exclusive) → "World" -->
+    <operation operator="SUBSTRING" alias="substringResult">
+      <constant value="Hello World"/>
+      <constant value="6" type="INTEGER"/>
+      <constant value="11" type="INTEGER"/>
+    </operation>
+    <!-- "test" from index 0 to 2 → "te" -->
+    <operation operator="SUBSTRING" alias="substringShort">
+      <constant value="test"/>
+      <constant value="0" type="INTEGER"/>
+      <constant value="2" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
+  <!-- SUBSTRING 1-arg form: uses Java/QueryDSL semantics — beginIndex only, extracts to end of string -->
+  <query id="testSubstringOneArg">
+    <table id="ope"/>
+    <field id="l1_nom" alias="name"/>
+    <!-- "Hello World" from index 6 → "World" (to end of string) -->
+    <operation operator="SUBSTRING" alias="substringFromIndex">
+      <constant value="Hello World"/>
+      <constant value="6" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+    <order-by field="l1_nom" type="ASC"/>
+  </query>
+
+  <!-- Malformed SUBSTRING: only 1 operand — triggers validation error (needs 2 or 3) -->
+  <query id="testSubstringBadOperandCount">
+    <table id="ope"/>
+    <operation operator="SUBSTRING" alias="bad">
+      <constant value="Hello"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
+  </query>
+
+  <!-- Malformed SUBSTRING: operand 2 is a STRING constant — triggers type validation error -->
+  <query id="testSubstringBadOperandType">
+    <table id="ope"/>
+    <operation operator="SUBSTRING" alias="bad">
+      <constant value="Hello"/>
+      <constant value="notAnInt"/>
+      <constant value="5" type="INTEGER"/>
+    </operation>
+    <where>
+      <filter condition="eq" ignorecase="true">
+        <left-operand>
+          <field id="l1_nom"/>
+        </left-operand>
+        <right-operand>
+          <constant value="test"/>
+        </right-operand>
+      </filter>
+    </where>
   </query>
 
   <query id="testOperationWithComputed">

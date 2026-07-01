@@ -162,6 +162,7 @@ describe("Selector", function () {
     $rootScope.$broadcast("modelChanged", [suggest.component.address]);
 
     expect(suggest.controller.targetAction).toBe("checkTags");
+    expect(suggest.component.reload).toHaveBeenCalledTimes(1);
     expect(suggest.scope.initialized).toBe(false);
   });
 });

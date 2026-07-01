@@ -4,67 +4,73 @@ title: Print engine
 sidebar_label: Print engine
 ---
 
-AWE has a generic printing engine in order to print the content of a screen. This printing engine allows printing the content of a screen in pdf, excel and doc formats.
+AWE includes a generic printing engine that allows generating the content of a screen in PDF, Excel and DOC formats.
 
 ## Printing a screen
 
-For printing a screen we need to include the generic AWE printing dialog in the screen we want to print: 
+To enable printing in a screen, include the generic AWE printing dialog:
 
 ```xml
 <include target-screen="PrnOpt" target-source="center" />
 ```
 
-The second step is to add a print button, that opens the dialog we have included: 
+Then add a button that opens the included dialog:
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/Boton.png')} />
+<img alt="Print button" src={require('@docusaurus/useBaseUrl').default('img/Boton.png')} />
 
-Once we have followed these two steps we are ready to print the screen. If we click in "Print" button the following dialog will be shown and we'll be able to select the printing options and generate the document we want:
+Once these two steps are completed, the user can open the printing dialog and choose the output format and options:
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/DialogImagePrint.png')} />
+<img alt="Print dialog" src={require('@docusaurus/useBaseUrl').default('img/DialogImagePrint.png')} />
 
 ## Configure title
 
-By default, the title of a printed report is generated with the pattern "report title : report subtitle", being the
-report title and subtitle the label of the tabcontainer, window, grid or whatever we have in the screen.
+By default, the title of a printed report is generated with the pattern:
 
-If we have the following screen:
+```text
+report title : report subtitle
+```
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+The values used for the title and subtitle are taken from the labels defined in the screen, such as the screen label, tabcontainer label, window label or grid label.
 
-If we print it without any configuration, as mentioned before, the title with be generated with the screen title (Bond cash blotter) and the tabcontainer title (Detail blotter):
+The following example shows a screen before printing:
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+<img alt="Example screen before printing" src={require('@docusaurus/useBaseUrl').default('img/print-01-screen-default.png')} />
 
-If we need to set a different subtitle for the first `tabcontainer`, we just need to define the `label` attribute with a
-locale:
+If no additional configuration is applied, AWE uses the existing screen labels to build the printed title.
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+The printed result for the previous screen is the following:
 
-The screen does not change but if we print it we'll see the title is different:
+<img alt="Printed output with default title" src={require('@docusaurus/useBaseUrl').default('img/print-02-output-default-title.png')} />
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+You can customize this behavior in the following ways:
 
-Furthermore, we could have another case in which we'd need to remove the main title from the report and generate the
-report just with the subreport title. For doing this, we just need to set an empty value to the `label` attribute of the
-screen:
+- **Default behavior**: if you do not add any additional configuration, AWE uses the labels already defined in the screen.
+- **Custom subtitle**: define the `label` attribute in the corresponding `tabcontainer` and use a locale entry if needed.
+- **Remove the main title**: set the screen `label` to an empty value if you want the printed report to show only the subtitle.
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+For example, after defining a custom subtitle in the tabcontainer label, the screen configuration looks like this:
 
-As we can see in the following picture, this will set the title composed with the subtitle we have previously configured for the tabcontainer:
+<img alt="Example screen with custom subtitle" src={require('@docusaurus/useBaseUrl').default('img/print-03-screen-with-subtitle.png')} />
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />
+In short, the printed title is controlled by the same labels used in the screen structure, so title customization is done through normal screen configuration.
 
 ## Configure printing data
 
-For AWE 3.2 and upper versions, the printing engine prints the content of the screen the user is viewing currently. It takes the data from the client side and sends it to the printing engine. 
+Since AWE 3.2, the printing engine uses the data that is currently available in the client and sends it to the printing engine.
 
-This can be a issue in some cases. For example, if a grid pagination is delegated to the server-side (load-all="false"). This is meant to retrieve 30 rows of the entire query to the client to avoid performance issues. How to solve this problem if we want to print all the results of the query? There are two options:
+This is important when a grid uses server-side pagination (`load-all="false"`). In that case, the client only has the rows currently loaded in the page, so the printed document will only include that data.
 
-1. Change pagination to local-pagination (load-all="true"). This is meant to retrieve all the query results to the client, so we can print all. 
+If you need to print the complete result set, the simplest option is to use local pagination:
+
+```xml
+load-all="true"
+```
+
+This makes all rows available in the client, so the printing engine can include the full dataset.
+
 :::warning
-In some cases, this will lead to a serious performance issue. Specially if the query returns a big amount of rows. It has to be taken into consideration.
+This approach can cause serious performance problems if the query returns a large number of rows.
 :::
 
-2. The second options is to execute the query of the grid again when printing the screen. The difference in this case is that the data of the database might be modified and the data the user is viewing in the screen and the data being printed could be different. For using this solution we need to add an additional hidden criterion to our screen: 
+If you need to keep server-side pagination and still print the full dataset, you should implement a project-specific printing flow that reloads the required data before generating the document. That scenario depends on the application and is outside the scope of this generic guide.
 
-<img alt="image" src={require('@docusaurus/useBaseUrl').default('img/image.png')} />

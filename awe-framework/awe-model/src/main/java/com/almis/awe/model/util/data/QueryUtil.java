@@ -14,12 +14,14 @@ import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.queries.Variable;
+import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.type.ParameterType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -230,6 +232,41 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
+   * Prepare maintain service variables using the declared service contract as list authority.
+   *
+   * @param query             Maintain query
+   * @param parameters        Request parameters
+   * @param serviceParameters Declared service parameters
+   * @return Query parameter map
+   * @throws AWException Error generating variables
+   */
+  public Map<String, QueryParameter> getVariableMap(MaintainQuery query, ObjectNode parameters,
+                                                     List<ServiceInputParameter> serviceParameters) throws AWException {
+    List<Variable> variables = query.getVariableDefinitionList() == null ? new ArrayList<>() : query.getVariableDefinitionList();
+    Map<String, Boolean> serviceListMap = getMaintainServiceListMap(variables, serviceParameters);
+
+    Map<String, QueryParameter> variableMap = getDefaultVariableMap(parameters);
+
+    for (Variable variable : variables) {
+      if (query.getVariableIndex() == null) {
+        JsonNode value = normalizeMaintainServiceValue(getParameter(variable, parameters), serviceListMap.get(variable.getId()));
+        boolean isList = resolveMaintainServiceList(variable, value, serviceListMap);
+        if (!variableMap.containsKey(variable.getId()) || allowVariable(variable, value)) {
+          variableMap.put(variable.getId(), new QueryParameter(value, isList, ParameterType.valueOf(variable.getType())));
+        }
+      } else {
+        JsonNode parameter = normalizeMaintainServiceValue(getParameter(variable, parameters), serviceListMap.get(variable.getId()));
+        if (resolveMaintainServiceList(variable, parameter, serviceListMap) && parameter != null && parameter.isArray()) {
+          parameter = parameter.get(query.getVariableIndex());
+        }
+        variableMap.put(variable.getId(), new QueryParameter(parameter, false, ParameterType.valueOf(variable.getType())));
+      }
+    }
+
+    return variableMap;
+  }
+
+  /**
    * Prepare query variables if not defined previously
    *
    * @param query Query
@@ -255,11 +292,34 @@ public class QueryUtil extends ServiceConfig {
   }
 
   private ObjectNode getParametersFromRequest() {
-    return Optional.ofNullable(getRequest())
+    // Two sources: live AweRequest and decorated-worker snapshot
+    ObjectNode base = Optional.ofNullable(getRequest())
         .map(AweRequest::getParametersSafe)
-        .orElse(Optional.ofNullable(prototypeRequestBeanHolder.getPrototypeBean())
-            .map(RequestDataHolder::getRequestData)
-            .orElse(JsonNodeFactory.instance.objectNode()));
+        .orElse(null);
+
+    ObjectNode propagatedSnapshot = Optional.ofNullable(prototypeRequestBeanHolder.getPrototypeBean())
+        .map(RequestDataHolder::getRequestData)
+        .orElse(null);
+
+    if (base == null && propagatedSnapshot == null) {
+      log.trace("[QUERY] getParametersFromRequest: both sources null");
+      return JsonNodeFactory.instance.objectNode();
+    }
+    if (base == null) {
+      log.trace("[QUERY] getParametersFromRequest: live request null, using propagated snapshot");
+      return propagatedSnapshot.deepCopy();
+    }
+    if (propagatedSnapshot == null) {
+      log.trace("[QUERY] getParametersFromRequest: no propagated snapshot, using live request");
+      return base;
+    }
+
+    // Both available: propagated overlay wins on conflict
+    log.trace("[QUERY] getParametersFromRequest: merging {} propagated keys over live request",
+        propagatedSnapshot.size());
+    ObjectNode merged = base.deepCopy();
+    merged.setAll(propagatedSnapshot);
+    return merged;
   }
 
   /**
@@ -559,6 +619,43 @@ public class QueryUtil extends ServiceConfig {
     list = ParameterType.MULTIPLE_SEQUENCE.equals(ParameterType.valueOf(variable.getType())) || list;
 
     return list;
+  }
+
+  private Map<String, Boolean> getMaintainServiceListMap(List<Variable> variables, List<ServiceInputParameter> serviceParameters) {
+    Map<String, Boolean> serviceListMap = new HashMap<>();
+    List<ServiceInputParameter> safeServiceParameters = Optional.ofNullable(serviceParameters).orElse(Collections.emptyList());
+    int mappedParameters = Math.min(variables.size(), safeServiceParameters.size());
+
+    for (int index = 0; index < mappedParameters; index++) {
+      serviceListMap.put(variables.get(index).getId(), safeServiceParameters.get(index).isList());
+    }
+
+    return serviceListMap;
+  }
+
+  private boolean resolveMaintainServiceList(Variable variable, JsonNode value, Map<String, Boolean> serviceListMap) {
+    return Boolean.TRUE.equals(serviceListMap.get(variable.getId()))
+        || (value != null && value.isArray())
+        || ParameterType.MULTIPLE_SEQUENCE.equals(ParameterType.valueOf(variable.getType()));
+  }
+
+  private JsonNode normalizeMaintainServiceValue(JsonNode value, Boolean declaredAsList) {
+    if (!Boolean.TRUE.equals(declaredAsList) || value == null || value.isNull() || value.isArray()) {
+      return value;
+    }
+
+    if (value instanceof POJONode pojoNode) {
+      Object pojo = pojoNode.getPojo();
+      if (pojo instanceof Collection<?> || pojo != null && pojo.getClass().isArray()) {
+        return value;
+      }
+    }
+
+    if (value.isTextual() && value.asText().isEmpty()) {
+      return value;
+    }
+
+    return JsonNodeFactory.instance.arrayNode().add(value);
   }
 
   /**

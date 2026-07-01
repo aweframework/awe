@@ -1,3 +1,31 @@
+# Release notes for AWE 4.12.1
+*01/07/2026*
+ 
+✨ Features:
+- feat(screen): hydrate suggest labels on initial load. [MR #651](https://gitlab.com/aweframework/awe/-/merge_requests/651) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- fix(awe-controller): async parameter propagation lost on first async hop after putPropagatedRequestParameter. [MR #657](https://gitlab.com/aweframework/awe/-/merge_requests/657) (Pablo Vidal Otero)
+- docs(website): refresh print and message guides. [MR #656](https://gitlab.com/aweframework/awe/-/merge_requests/656) (Pablo Javier García Mora)
+- docs(training): refresh first-steps onboarding tutorials. [MR #655](https://gitlab.com/aweframework/awe/-/merge_requests/655) (Pablo Javier García Mora)
+- docs(query): document SQL functions on operations. [MR #654](https://gitlab.com/aweframework/awe/-/merge_requests/654) (Pablo Javier García Mora)
+- fix(scheduler): prevent startup trigger catch-up. [MR #652](https://gitlab.com/aweframework/awe/-/merge_requests/652) (Pablo Vidal Otero)
+- feat(model): add datalist merge by key. [MR #649](https://gitlab.com/aweframework/awe/-/merge_requests/649) (Pablo Javier García Mora)
+- feat(query): add substring operation support. [MR #648](https://gitlab.com/aweframework/awe/-/merge_requests/648) (Pablo Vidal Otero)
+- build(dependencies): update Spring Boot and Spring Cloud. [MR #646](https://gitlab.com/aweframework/awe/-/merge_requests/646) (Pablo Vidal Otero)
+- fix(auth): replace TOTP library and harden 2fa flows. [MR #645](https://gitlab.com/aweframework/awe/-/merge_requests/645) (Pablo Vidal Otero)
+- fix(controller): handle attachment names without extension. [MR #644](https://gitlab.com/aweframework/awe/-/merge_requests/644) (Pablo Vidal Otero)
+- fix: validate multiple maintain list inputs. [MR #643](https://gitlab.com/aweframework/awe/-/merge_requests/643) (Pablo Vidal Otero)
+- fix(client-angular): improve filtered calendar theme contrast. [MR #642](https://gitlab.com/aweframework/awe/-/merge_requests/642) (Pablo Vidal Otero)
+- fix(testing): harden selenium login readiness. [MR #641](https://gitlab.com/aweframework/awe/-/merge_requests/641) (Pablo Vidal Otero)
+- fix suggest-multiple maintain single-value handling. [MR #640](https://gitlab.com/aweframework/awe/-/merge_requests/640) (Pablo Javier García Mora)
+- ci: validate build with JDK 21. [MR #638](https://gitlab.com/aweframework/awe/-/merge_requests/638) (Pablo Vidal Otero)
+- fix: audit insert query maintains. [MR #637](https://gitlab.com/aweframework/awe/-/merge_requests/637) (Pablo Javier García Mora)
+
+📄 Documentation:
+- docs(query): document QueryUtil parameter snapshots. [MR #653](https://gitlab.com/aweframework/awe/-/merge_requests/653) (Pablo Javier García Mora)
+- docs(api): add DataList Java guide. [MR #650](https://gitlab.com/aweframework/awe/-/merge_requests/650) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.12.0
 *08/06/2026*
  

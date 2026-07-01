@@ -7,6 +7,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.maintain.Insert;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.Field;
@@ -22,6 +23,7 @@ import com.almis.awe.service.data.builder.SQLMaintainBuilder;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.SQLBindings;
@@ -69,12 +71,15 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     Map<String, QueryParameter> parameterMap = queryUtil.getDefaultVariableMap(parameters);
     queryUtil.addToVariableMap(parameterMap, query, parameters);
 
+    validateMultipleMaintainList(query, parameterMap);
+
     final Connection connection = databaseConnection.getConnection();
     Supplier<Connection> supplierConnection = () -> connection;
 
     Configuration configurationBean = (Configuration) getBean(databaseConnection.getConfigurationBean());
 
-    // Multiple (multiple maintain and multiple AUDIT)
+    // Multiple maintain requires a declared non-audit list input. Missing list input is a
+    // controlled configuration error and must not fall back to single-maintain execution.
     if ("true".equalsIgnoreCase(query.getMultiple())) {
       mntOut = launchMultipleMaintain(query, supplierConnection, configurationBean, parameterMap, parameters);
       // Multiple for AUDIT (single maintain and multiple AUDIT)
@@ -280,6 +285,14 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       .setVariables(parameterMap)
       .setParameters(parameters);
 
+    if (isAuditedInsertQuery(query)) {
+      List<Tuple> insertQueryRows = builder.getMaterializedInsertQueryRows();
+      if (insertQueryRows.isEmpty()) {
+        maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), 0L, parameterMap));
+        return maintainOut;
+      }
+    }
+
     // Launch as a single operation
     rowsUpdated = launchAsSingleOperation(builder.build(), null, false, query);
     maintainOut.addResultDetails(new MaintainResultDetails(query.getMaintainType(), rowsUpdated, parameterMap));
@@ -292,6 +305,13 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     }
 
     return maintainOut;
+  }
+
+  private boolean isAuditedInsertQuery(MaintainQuery query) {
+    return query instanceof Insert insert
+      && insert.getQuery() != null
+      && databaseConfigProperties.isAuditEnable()
+      && query.getAuditTable() != null;
   }
 
   /**
@@ -492,14 +512,46 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
 
     if (query.getVariableDefinitionList() != null) {
       for (Variable variable : query.getVariableDefinitionList()) {
-        // If the variable is not an AUDIT variable AND is a list
-        if (parameterMap.get(variable.getId()).isList() && (!variable.isAudit() || audit)) {
+        QueryParameter parameter = parameterMap.get(variable.getId());
+
+        // If the variable is available and can drive the current iteration
+        if (parameter != null && parameter.isList() && (!variable.isAudit() || audit)) {
           // Get total
-          total = Math.max(parameterMap.get(variable.getId()).getValue().size(), total);
+          total = Math.max(parameter.getValue().size(), total);
         }
       }
     }
     return (index < total);
+  }
+
+  /**
+   * Validates that a multiple maintain has at least one declared non-audit list variable in the
+   * normalized parameter map. Empty lists are valid; missing or scalar-only inputs are a
+   * controlled configuration error.
+   *
+   * @param query        Maintain query
+   * @param parameterMap Normalized maintain parameters
+   * @throws AWException Error if a multiple maintain has no valid non-audit list variable
+   */
+  private void validateMultipleMaintainList(MaintainQuery query, Map<String, QueryParameter> parameterMap) throws AWException {
+    if (!"true".equalsIgnoreCase(query.getMultiple())) {
+      return;
+    }
+
+    boolean hasValidNonAuditList = Optional.ofNullable(query.getVariableDefinitionList())
+      .orElse(Collections.emptyList())
+      .stream()
+      .filter(variable -> !variable.isAudit())
+      .map(variable -> parameterMap.get(variable.getId()))
+      .anyMatch(parameter -> parameter != null && parameter.isList());
+
+    if (!hasValidNonAuditList) {
+      String maintainId = Optional.ofNullable(query.getOperationId()).orElse(query.getId());
+      String detail = String.format("Multiple maintain '%s' (%s) requires a non-audit list variable in the request",
+        maintainId, query.getMaintainType());
+      throw new AWException(getLocale("ERROR_TITLE_DURING_MAINTAIN"),
+        getLocale("ERROR_MESSAGE_DURING_MAINTAIN"), new IllegalStateException(detail));
+    }
   }
 
   /**

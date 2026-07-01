@@ -796,6 +796,73 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * SUBSTRING operation: "Hello World".substring(6, 11) == "World",
+   * "test".substring(0, 2) == "te".
+   * Contract follows Java/QueryDSL semantics: 0-based beginIndex, exclusive endIndex.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstring() throws Exception {
+    String queryName = "testSubstring";
+    String result = performRequest(queryName, "", DATABASE);
+    ArrayNode rows = assertResultJson(queryName, result, 1);
+    for (JsonNode element : rows) {
+      ObjectNode row = (ObjectNode) element;
+      assertEquals("World", row.get("substringResult").asText(),
+        "SUBSTRING('Hello World', 6, 11) should return 'World'");
+      assertEquals("te", row.get("substringShort").asText(),
+        "SUBSTRING('test', 0, 2) should return 'te'");
+      assertEquals("test", row.get("name").asText());
+    }
+  }
+
+  /**
+   * SUBSTRING 1-arg form: "Hello World".substring(6) == "World" (extracts to end of string).
+   * Contract follows Java/QueryDSL semantics: 0-based beginIndex, extracts to end.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstringOneArg() throws Exception {
+    String queryName = "testSubstringOneArg";
+    String result = performRequest(queryName, "", DATABASE);
+    ArrayNode rows = assertResultJson(queryName, result, 1);
+    for (JsonNode element : rows) {
+      ObjectNode row = (ObjectNode) element;
+      assertEquals("World", row.get("substringFromIndex").asText(),
+        "SUBSTRING('Hello World', 6) should return 'World'");
+      assertEquals("test", row.get("name").asText());
+    }
+  }
+
+  /**
+   * SUBSTRING with wrong operand count (1 instead of 2 or 3) must return a query error.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstringBadOperandCount() throws Exception {
+    String result = performRequest("testSubstringBadOperandCount", "", DATABASE);
+    assertQueryErrorMessage(result,
+      "Error in query",
+      "SUBSTRING operation requires 2 or 3 operands");
+  }
+
+  /**
+   * SUBSTRING with a STRING constant for beginIndex (operand 2) must return a type validation error.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testDatabaseOperationSubstringBadOperandType() throws Exception {
+    String result = performRequest("testSubstringBadOperandType", "", DATABASE);
+    assertQueryErrorMessage(result,
+      "Error in query",
+      "SUBSTRING operand 2 must be an integer-compatible");
+  }
+
+  /**
    * Test of adding numbers with strings (cast?)
    *
    * @throws Exception Test error
@@ -3211,9 +3278,19 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
-    assertEquals(9, screenDataComponents.size());
+    assertEquals(10, screenDataComponents.size());
     assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").textValue());
     assertEquals("test-initial-values-load", screenData.get("screen").get("option").textValue());
+
+    ObjectNode hydratedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitial");
+    assertEquals("3", hydratedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals(1, hydratedSuggest.get("model").get("values").size());
+    assertEquals("3", hydratedSuggest.get("model").get("values").get(0).get("value").asText());
+    assertTrue(!hydratedSuggest.get("model").get("values").get(0).get("label").asText().isBlank());
+
+    ObjectNode unresolvedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitialMissing");
+    assertEquals("999", unresolvedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals(0, unresolvedSuggest.get("model").get("values").size());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
@@ -3225,6 +3302,14 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     logger.debug("-------------------------------------------");
     logger.debug("There are " + screenDataComponents.size() + " component in the screen " + screenData.get("screen").get("name"));
     logger.debug("-------------------------------------------");
+  }
+
+  private ObjectNode findScreenComponent(ArrayNode screenDataComponents, String componentId) {
+    return StreamSupport.stream(screenDataComponents.spliterator(), false)
+      .map(ObjectNode.class::cast)
+      .filter(component -> componentId.equals(component.get("id").asText()))
+      .findFirst()
+      .orElseThrow(() -> new AssertionError("Missing component " + componentId));
   }
 
   /**

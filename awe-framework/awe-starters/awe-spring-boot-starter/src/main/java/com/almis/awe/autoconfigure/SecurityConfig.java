@@ -3,31 +3,31 @@ package com.almis.awe.autoconfigure;
 import com.almis.awe.config.*;
 import com.almis.awe.security.accessbean.LoginAccessControl;
 import com.almis.awe.service.*;
+import com.almis.awe.service.totp.AweTotpOperations;
+import com.almis.awe.service.totp.OtpJavaTotpOperations;
+import com.almis.awe.service.totp.ZxingQrPngGenerator;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
-import dev.samstevens.totp.code.CodeVerifier;
-import dev.samstevens.totp.qr.QrDataFactory;
-import dev.samstevens.totp.qr.QrGenerator;
-import dev.samstevens.totp.secret.SecretGenerator;
-import dev.samstevens.totp.spring.autoconfigure.TotpAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.time.Clock;
 import java.util.Objects;
 
 @Configuration
 @Slf4j
 @EnableConfigurationProperties({SecurityConfigProperties.class, TotpConfigProperties.class})
-@Import(TotpAutoConfiguration.class) // Work around for https://github.com/samdjstevens/java-totp/issues/53
 public class SecurityConfig extends ServiceConfig {
+
+  public static final String TOTP_CLOCK_BEAN = "aweTotpClock";
 
   // Autowired services
   private final SecurityConfigProperties securityConfigProperties;
@@ -107,17 +107,44 @@ public class SecurityConfig extends ServiceConfig {
   }
 
   /**
-   * Totp service
+   * TOTP clock bean.
    *
-   * @param secretGenerator Secret generator
-   * @param qrDataFactory   QR data factory
-   * @param qrGenerator     QR Generator
-   * @param codeVerifier    TOTP Code verifier
-   * @return TOTP Service
+   * @return UTC system clock
+   */
+  @Bean(name = TOTP_CLOCK_BEAN)
+  @ConditionalOnMissingBean(name = TOTP_CLOCK_BEAN)
+  public Clock totpClock() {
+    return Clock.systemUTC();
+  }
+
+  /**
+   * QR PNG generator bean.
+   *
+   * @return ZXing QR PNG generator
    */
   @Bean
   @ConditionalOnMissingBean
-  public TotpService totpService(SecretGenerator secretGenerator, QrDataFactory qrDataFactory, QrGenerator qrGenerator, CodeVerifier codeVerifier) {
-    return new TotpService(secretGenerator, qrDataFactory, qrGenerator, codeVerifier);
+  public ZxingQrPngGenerator zxingQrPngGenerator() {
+    return new ZxingQrPngGenerator();
+  }
+
+  /**
+   * TOTP operations bean.
+   *
+   * @param totpClock UTC clock for TOTP time-step calculations
+   * @param zxingQrPngGenerator QR PNG generator
+   * @return TOTP operations
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AweTotpOperations aweTotpOperations(@Qualifier(TOTP_CLOCK_BEAN) Clock totpClock,
+                                             ZxingQrPngGenerator zxingQrPngGenerator) {
+    return new OtpJavaTotpOperations(totpClock, zxingQrPngGenerator);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public TotpService totpService(AweTotpOperations aweTotpOperations) {
+    return new TotpService(aweTotpOperations);
   }
 }

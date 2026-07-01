@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.12.0</version>
+    <version>4.12.1</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -94,11 +94,10 @@
     </dependency>
     <!-- 2fa -->
     <dependency>
-      <groupId>dev.samstevens.totp</groupId>
-      <artifactId>totp</artifactId>
+      <groupId>com.github.bastiaanjansen</groupId>
+      <artifactId>otp-java</artifactId>
     </dependency>
     <dependency>
-      <!-- Used to avoid totp transitive vulnerability-->
       <groupId>com.google.zxing</groupId>
       <artifactId>javase</artifactId>
     </dependency>

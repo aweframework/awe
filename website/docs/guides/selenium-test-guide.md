@@ -205,6 +205,25 @@ If the button name is another one, just set it as first argument:
 searchAndWait("mySearchButton");
 ``` 
 
+### Wait for actionable inputs and buttons
+
+When a custom flow needs to wait until a criterion can safely receive input or until a button becomes clickable, `SeleniumUtilities` exposes two protected helpers for subclasses:
+
+- `waitForInputActionability(String criterionName)`
+- `waitForButtonClickability(String buttonName)`
+
+These helpers are generic and can be reused in any UI flow that needs actionable inputs or clickable buttons.
+
+```java
+// Wait until a criterion can receive input
+waitForInputActionability("cod_usr");
+
+// Wait until a button is clickable
+waitForButtonClickability("ButLogIn");
+```
+
+Use them when the UI renders the element early but a later frontend update is still enabling the control.
+
 ### Wait for a grid to load
 
 To wait a grid to load, call the `waitForLoadingGrid` method:

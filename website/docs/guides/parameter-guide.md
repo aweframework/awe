@@ -71,11 +71,22 @@ String userName = getRequestParameterAsString("user", parameters);
 JsonNode report = getRequestParameter("report", parameters);
 ```
 
-How it resolves parameters:
+How it resolves parameters — two-source merge at read time:
 
-1. if a live request exists, it reads from that request;
-2. otherwise, it reads from the propagated async snapshot;
-3. if neither exists, it returns an empty object.
+| Source | Description | Priority |
+|--------|-------------|----------|
+| Live request (`AweRequest`) | HTTP parameters from the current request bean | Base — lowest |
+| Propagated snapshot | Pre-merged worker snapshot installed by `AweMDCTaskDecorator` on async threads | Overlay — wins on conflict |
+
+The propagated snapshot is the snapshot that `AweMDCTaskDecorator` assembled at task submission
+time from the live request, any ancestor snapshot, and any pending overlay written via
+`putPropagatedRequestParameter`.  By the time `getRequestParameters()` runs on an async thread,
+all three sources are already collapsed into one snapshot — `getRequestParameters()` itself only
+merges two things: the live request (if any) and that pre-assembled snapshot.
+
+When no live request is active (async threads, scheduler jobs), only the propagated snapshot
+is used and the result is never `null`.  If neither source is present the method returns an
+empty object.
 
 Use this API for safe reads in services, especially when the method can be called from `@Async`, scheduler jobs, child threads, or reusable service flows.
 
@@ -123,6 +134,13 @@ The common Spring annotation is:
 Async propagation gives you a parameter snapshot, not a live `AweRequest`.
 :::
 
+**Sibling tasks**: multiple async tasks submitted within the same request all receive the same
+propagated overlay — no rewriting is needed between submissions.
+
+**Lifecycle**: the propagated overlay is request-scoped.  It is written on the request thread,
+inherited by every `decorate()` call as an immutable snapshot, and cleared exactly once at
+request end by `AwePropagationCleanupFilter`.  It never leaks onto a subsequent unrelated request.
+
 ## Updating the propagated snapshot
 
 Most code should pass an explicit `ObjectNode` to the next operation. That is usually enough.
@@ -142,6 +160,10 @@ For a single value, you can write directly to the propagated snapshot:
 putPropagatedRequestParameter("PdfNam", reportPath);
 ```
 
+The overlay is request-scoped: once written it remains available to every async task decorated
+within the same request (sibling tasks included), without any re-write between submissions.
+It is cleared automatically at request end — no manual cleanup is required.
+
 ## Scenario guide
 
 | Scenario | Read with | Write / prepare with |
@@ -149,6 +171,7 @@ putPropagatedRequestParameter("PdfNam", reportPath);
 | Synchronous code that needs the request object | `getRequest()` | `getRequest()` if live request mutation is intended |
 | Synchronous service that only needs parameters | `getRequestParameters()` / `getRequestParameter(...)` | `getMutableRequestParameters()` + `putRequestParameter(...)` |
 | Async service using an AWE executor | `getRequestParameters()` / `getRequestParameter(...)` | `getMutableRequestParameters()` + `putRequestParameter(...)` |
+| Multiple sibling async tasks in the same request | `getRequestParameters()` on each task | write overlay once on request thread with `putPropagatedRequestParameter(...)` — all siblings inherit it |
 | Async flow that calls another async flow | `getRequestParameters()` / `getRequestParameter(...)` | explicit `ObjectNode`; optionally update propagated snapshot |
 | Maintain, mail, report, or print after thread work | explicit `ObjectNode` | `getMutableRequestParameters()` + `putRequestParameter(...)` |
 | Class that does not extend `ServiceConfig` | `QueryUtil` | `QueryUtil` / explicit `ObjectNode` |
@@ -197,10 +220,10 @@ Before choosing an API, ask:
 ## Summary
 
 - Use `getRequest()` only for live request-specific work.
-- Use `getRequestParameters()` when the intent is safe parameter reading.
+- Use `getRequestParameters()` when the intent is safe parameter reading — it merges the live request with the pre-assembled propagated snapshot (built by `AweMDCTaskDecorator` at submission time) and works on both sync and async threads.
 - Use `getMutableRequestParameters()` when the intent is to modify a parameter snapshot.
 - Use `putRequestParameter(...)` to add values to that `ObjectNode`.
-- Use `mergePropagatedRequestParameters(...)` or `putPropagatedRequestParameter(...)` only when descendant async hops must inherit new values.
+- Use `mergePropagatedRequestParameters(...)` or `putPropagatedRequestParameter(...)` only when descendant async hops must inherit new values; the overlay is shared by all sibling tasks and is cleaned up at request end.
 - Use `QueryUtil` directly only outside `ServiceConfig` or for lower-level infrastructure code.
 
 ## Next step

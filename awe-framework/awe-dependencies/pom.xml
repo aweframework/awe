@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.12.0</version>
+    <version>4.12.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -18,9 +18,9 @@
   <properties>
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
-    <ade.version>2.2.5</ade.version>
-    <spring-boot.version>3.5.9</spring-boot.version>
-    <spring-cloud.version>2025.0.1</spring-cloud.version>
+    <ade.version>2.2.7</ade.version>
+    <spring-boot.version>3.5.15</spring-boot.version>
+    <spring-cloud.version>2025.0.3</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v24.14.0</node.version>
     <npm.version>11.11.1</npm.version>
@@ -40,8 +40,9 @@
     <webdrivermanager.version>5.6.4</webdrivermanager.version>
     <modelmapper.version>2.4.5</modelmapper.version>
     <janino.version>3.1.12</janino.version>
-    <totp.version>1.7.1</totp.version>
-    <javase.version>3.5.3</javase.version> <!-- Used to overwrite totp vulnerability -->
+    <otp-java.version>2.1.0</otp-java.version>
+    <javase.version>3.5.3</javase.version>
+    <commons-codec.version>1.18.0</commons-codec.version>
     <guava.version>33.3.0-jre</guava.version>
     <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
     <!-- Compilation -->
@@ -304,21 +305,14 @@
 
       <!-- 2fa -->
       <dependency>
-        <groupId>dev.samstevens.totp</groupId>
-        <artifactId>totp-spring-boot-starter</artifactId>
-        <version>${totp.version}</version>
-        <exclusions>
-          <exclusion>
-            <!-- Transitive vulnerability dependency jcommander -->
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-          </exclusion>
-        </exclusions>
+        <groupId>com.github.bastiaanjansen</groupId>
+        <artifactId>otp-java</artifactId>
+        <version>${otp-java.version}</version>
       </dependency>
       <dependency>
-        <groupId>dev.samstevens.totp</groupId>
-        <artifactId>totp</artifactId>
-        <version>${totp.version}</version>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.version}</version>
       </dependency>
 
       <!-- Aspects -->

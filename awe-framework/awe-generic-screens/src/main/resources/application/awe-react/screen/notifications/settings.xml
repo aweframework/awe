@@ -50,7 +50,6 @@
                 </dependency>
                 <dependency>
                     <dependency-element id="enable2fa" condition="eq" value="1"/>
-                    <dependency-action type="server" server-action="maintain-silent" target-action="update2faStatus"/>
                     <dependency-action type="server" server-action="maintain-silent" target-action="generate2faSecret"/>
                     <dependency-action type="filter" target="2fa-code-list"/>
                 </dependency>

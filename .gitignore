@@ -137,3 +137,8 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 # Playwright MCP
 ######################
 .playwright-mcp/
+
+######################
+# CodeGraph
+######################
+.codegraph/

@@ -1,5 +1,16 @@
 package com.almis.awe.model.util.data;
 
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.model.component.PrototypeRequestBeanHolder;
+import com.almis.awe.model.dto.QueryParameter;
+import com.almis.awe.model.entities.maintain.Serve;
+import com.almis.awe.model.entities.queries.Variable;
+import com.almis.awe.model.entities.services.ServiceInputParameter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -7,9 +18,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Query Util class
@@ -22,7 +34,127 @@ class QueryUtilTest {
 
   @BeforeEach
   void setUp() {
-    queryUtil = new QueryUtil(null, null, null, null);
+    queryUtil = new QueryUtil(new BaseConfigProperties(), new DatabaseConfigProperties(), new ObjectMapper(), new PrototypeRequestBeanHolder());
+  }
+
+  /**
+   * Test maintain serve list contracts preserve single submitted values as one-item lists
+   */
+  @Test
+  void testGetMaintainServiceVariableMapNormalizesSingleScalarAsOneItemList() throws Exception {
+    Serve query = Serve.builder()
+        .service("testComplexRestPostParametersSingleList")
+        .variableDefinitionList(List.of(
+            Variable.builder().id("integerList").type("INTEGER").name("integerList").build()))
+        .build();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.put("integerList", 4);
+
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
+        query,
+        parameters,
+        List.of(ServiceInputParameter.builder().name("integerList").type("INTEGER").list(true).build()));
+
+    assertTrue(variableMap.get("integerList").isList());
+    assertEquals("[4]", variableMap.get("integerList").getValue().toString());
+  }
+
+  /**
+   * Test maintain serve non-list contracts keep scalar request values unchanged
+   */
+  @Test
+  void testGetMaintainServiceVariableMapKeepsScalarForNonListContracts() throws Exception {
+    Serve query = Serve.builder()
+        .service("ServeTitleMessageParams")
+        .variableDefinitionList(List.of(
+            Variable.builder().id("message").type("STRING").name("message").build()))
+        .build();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.put("message", "single-value");
+
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
+        query,
+        parameters,
+        List.of(ServiceInputParameter.builder().name("message").type("STRING").build()));
+
+    assertFalse(variableMap.get("message").isList());
+    assertEquals("\"single-value\"", variableMap.get("message").getValue().toString());
+  }
+
+  /**
+   * Test maintain serve list contracts preserve existing multi-value arrays
+   */
+  @Test
+  void testGetMaintainServiceVariableMapKeepsExistingArraysForListContracts() throws Exception {
+    Serve query = Serve.builder()
+        .service("testComplexRestPostParametersSingleList")
+        .variableDefinitionList(List.of(
+            Variable.builder().id("integerList").type("INTEGER").name("integerList").build()))
+        .build();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("integerList", JsonNodeFactory.instance.arrayNode().add(4).add(6));
+
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
+        query,
+        parameters,
+        List.of(ServiceInputParameter.builder().name("integerList").type("INTEGER").list(true).build()));
+
+    assertTrue(variableMap.get("integerList").isList());
+    assertEquals("[4,6]", variableMap.get("integerList").getValue().toString());
+  }
+
+  /**
+   * Test maintain serve list contracts do not depend on service parameter and variable id equality
+   */
+  @Test
+  void testGetMaintainServiceVariableMapUsesServiceContractWhenVariableIdDiffersFromServiceParameterName() throws Exception {
+    Serve query = Serve.builder()
+        .service("returnMaintainOkForMappedListContract")
+        .variableDefinitionList(List.of(
+            Variable.builder().id("backendIntegerList").type("INTEGER").name("frontendIntegerList").build()))
+        .build();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.put("frontendIntegerList", 9);
+
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
+        query,
+        parameters,
+        List.of(ServiceInputParameter.builder().name("serviceIntegerList").type("INTEGER").list(true).build()));
+
+    assertTrue(variableMap.get("backendIntegerList").isList());
+    assertEquals("[9]", variableMap.get("backendIntegerList").getValue().toString());
+    assertFalse(variableMap.containsKey("serviceIntegerList"));
+  }
+
+  /**
+   * Test maintain serve POJO list contracts keep request-body collections flat instead of nesting them again
+   */
+  @Test
+  void testGetMaintainServiceVariableMapKeepsPojoCollectionsFlatForListContracts() throws Exception {
+    Serve query = Serve.builder()
+        .service("TestComplexRestParametersPOJOList")
+        .variableDefinitionList(List.of(
+            Variable.builder().id("concertList").type("OBJECT").name("concertList").build()))
+        .build();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.putPOJO("concertList", List.of(
+        Map.of("name", "concert a"),
+        Map.of("name", "concert b")));
+
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
+        query,
+        parameters,
+        List.of(ServiceInputParameter.builder()
+            .name("concertList")
+            .type("OBJECT")
+            .beanClass("com.almis.awe.model.Concert")
+            .list(true)
+            .build()));
+
+    assertTrue(variableMap.get("concertList").isList());
+    assertFalse(variableMap.get("concertList").getValue().isArray());
+    assertTrue(variableMap.get("concertList").getValue() instanceof POJONode);
+    assertEquals(2, ((List<?>) ((POJONode) variableMap.get("concertList").getValue()).getPojo()).size());
   }
 
   /**

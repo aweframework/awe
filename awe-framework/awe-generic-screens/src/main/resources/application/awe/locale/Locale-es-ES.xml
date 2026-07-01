@@ -472,6 +472,8 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="La operación de mantenimiento -{0}- no ha sido definida"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Query mal formada, se está utilizando una variable de lista como campo: {0}"/>
+   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="La operación SUBSTRING requiere 2 o 3 operandos (fuente, beginIndex) o (fuente, beginIndex, endIndex), pero se recibieron {0}"/>
+  <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="El operando {0} de SUBSTRING debe ser una constante o variable compatible con entero, pero se obtuvo: {1}"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="El menú actual no puede ser clonado"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="El método que se quiere invocar no está definido"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="El mantenimiento de la sentencia individual con auditoría múltiple ha fallado. [{0}]"/>
