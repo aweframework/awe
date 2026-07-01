@@ -62,4 +62,35 @@ describe('awe-react-client/test/js/criteria/AweInputNumericTest.jsx', () => {
     });
   });
 
+  it('commits zero as a valid value for a required numeric criterion', async () => {
+    const numericState = {
+      ...preloadedState,
+      components: {
+        numeric: {
+          ...preloadedState.components.numeric,
+          model: { values: [] },
+          validationRules: { required: true, ge: 0 },
+          attributes: {
+            ...preloadedState.components.numeric.attributes,
+            numberFormat: { vMin: '0', mDec: 2, aPad: true }
+          }
+        }
+      }
+    };
+
+    const { store } = renderWithProviders(<AweInputNumeric id="numeric"/>, { preloadedState: numericState });
+    const input = document.querySelector("input.p-inputnumber-input");
+
+    fireEvent.change(input, { target: { value: '0' } });
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', charCode: 13 });
+
+    await waitFor(() => {
+      expect(store.getState().components.numeric.model.values[0]).toEqual({
+        value: 0,
+        label: '0.00',
+        selected: true
+      });
+    });
+  });
+
 });

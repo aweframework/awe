@@ -3,6 +3,7 @@ import { InputNumber } from "primereact/inputnumber";
 import { translateLabel } from "../utilities";
 import { formatNumber, translateNumberFormat } from "../utilities/numbers";
 import { classNames } from "../utilities/components";
+import { isEmpty } from "../utilities/general";
 
 import "./AweInputNumeric.less";
 import { Slider } from "primereact/slider";
@@ -12,6 +13,18 @@ import { useDispatch } from "react-redux";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
+
+/**
+ * Normalize the text-model value into a number the numeric input can compare against.
+ * Must go through isEmpty() instead of a raw `Number(value)` call: Number('') is 0,
+ * so an empty model value would otherwise be indistinguishable from an actual 0,
+ * silently dropping the first '0' a user types into a blank required field.
+ * @param {*} value Raw value coming from the text model (string, number, null or undefined)
+ * @return {number|null} Parsed number, or null when the model has no value
+ */
+function getModelNumberValue(value) {
+  return isEmpty(value) ? null : Number(value);
+}
 
 function AweInputNumeric(props) {
   const { id } = props;
@@ -27,7 +40,7 @@ function AweInputNumeric(props) {
 
   const nf = useMemo(() => translateNumberFormat(numberFormat), [numberFormat]);
 
-  const currentValue = sliding ? number : (valueFromModel === "" || valueFromModel == null ? null : Number(valueFromModel));
+  const currentValue = sliding ? number : getModelNumberValue(valueFromModel);
 
   const commit = useCallback((val) => {
     const v = val == null || val === "" ? null : Number(val);
@@ -38,7 +51,7 @@ function AweInputNumeric(props) {
 
   const onValueChange = useCallback((e) => {
     const v = sliding ? number : e.value;
-    if (v !== (valueFromModel == null ? null : Number(valueFromModel))) {
+    if (v !== getModelNumberValue(valueFromModel)) {
       commit(v);
       setSliding(false);
     }
