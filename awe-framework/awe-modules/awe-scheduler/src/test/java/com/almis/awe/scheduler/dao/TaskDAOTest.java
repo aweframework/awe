@@ -99,7 +99,7 @@ class TaskDAOTest {
   @Test
   void changeTask() throws Exception {
     // Mock and spy
-    given(queryUtil.getParameters((String) isNull())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     TaskExecution execution = new TaskExecution();
     execution.setStatus(TaskStatus.JOB_OK.getValue());
     execution.setDescription("Allright");
@@ -229,6 +229,31 @@ class TaskDAOTest {
   }
 
   /**
+   * Get task execution preserves the task name (D7 regression - see #685).
+   * The AweSchExe-only query keeps the execution row even when the matching AweSchTsk row is
+   * missing; name is preserved via the getTaskName scalar subquery (NULL-tolerant). This test
+   * verifies the DAO maps the returned {@code name} field onto {@code TaskExecution.name}, so
+   * the execution-screen selector (refreshExecutionScreen) still receives a name.
+   */
+  @Test
+  void getTaskExecutionPreservesName() throws Exception {
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    DataList dataList = new DataList();
+    Map<String, CellData> row = new HashMap<>();
+    row.put(TASK_IDE, new CellData(1));
+    row.put("name", new CellData("MyTaskName"));
+    row.put("executionId", new CellData(1));
+    row.put("status", new CellData(TaskStatus.JOB_OK.getValue()));
+    dataList.addRow(row);
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
+
+    TaskExecution execution = taskDAO.getTaskExecution(1, 1);
+
+    assertNotNull(execution);
+    assertEquals("MyTaskName", execution.getName());
+  }
+
+  /**
    * Check task finish ok
    */
   @Test
@@ -256,7 +281,7 @@ class TaskDAOTest {
     doReturn(aweElements).when(context).getBean(any(Class.class));
     given(aweElements.getLocaleWithLanguage(anyString(), eq(null), any(Object[].class))).willReturn("LOCALE");
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryUtil.getParameters((String) isNull())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
 
     DataList taskDataList = getTaskDataList(true);
     Task task = mockTask();
@@ -356,7 +381,7 @@ class TaskDAOTest {
   @Test
   void startTask() throws Exception {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryUtil.getParameters((String) isNull())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
     Task task = new Task();
     task.setTrigger(TriggerBuilder.newTrigger().withIdentity("1", "TEST_GROUP").build());

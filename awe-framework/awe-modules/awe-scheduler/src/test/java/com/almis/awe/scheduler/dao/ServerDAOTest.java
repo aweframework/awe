@@ -58,7 +58,7 @@ class ServerDAOTest {
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
 
     // Assert called
-    assertNull(serverDAO.findServer(121, null));
+    assertNull(serverDAO.findServer(121));
   }
 
   /**
@@ -78,7 +78,7 @@ class ServerDAOTest {
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Collections.singletonList(server))));
 
     // Assert called
-    assertEquals(server, serverDAO.findServer(121, null));
+    assertEquals(server, serverDAO.findServer(121));
   }
 
   /**
@@ -97,6 +97,6 @@ class ServerDAOTest {
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(DataListUtil.fromBeanList(Collections.singletonList(server))));
 
     // Assert called
-    assertEquals(server, serverDAO.findServer(122, null));
+    assertEquals(server, serverDAO.findServer(122));
   }
 }
