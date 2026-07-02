@@ -53,7 +53,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
 
   public void execute(Task task, TaskExecution taskExecution) {
     // Store task and execution in parameters
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+    ObjectNode parameters = queryUtil.getParameters();
     parameters.set(REPORT_DESTINATION_EMAILS, mapper.valueToTree(task.getReport().getReportEmailDestination()));
     parameters.put(REPORT_TITLE, task.getReport().getReportTitle());
     parameters.put(REPORT_MESSAGE_HTML, constructHTMLMessage(task, taskExecution));

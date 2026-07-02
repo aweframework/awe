@@ -66,7 +66,7 @@ public class FileDAO extends ServiceConfig {
    */
   public void insertModification(Task task, String filepath, Date lastModification) {
     try {
-      ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+      ObjectNode parameters = queryUtil.getParameters();
       parameters.put(TASK_IDE, task.getTaskId());
       parameters.put(FILE_PATH, filepath);
       parameters.put(UPDATE_DATE, DateUtil.dat2WebTimestamp(lastModification));
@@ -86,7 +86,7 @@ public class FileDAO extends ServiceConfig {
    */
   public void updateModification(Task task, String filepath, Date lastModification) {
     try {
-      ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+      ObjectNode parameters = queryUtil.getParameters();
       parameters.put(TASK_IDE, task.getTaskId());
       parameters.put(FILE_PATH, filepath);
       parameters.put(UPDATE_DATE, DateUtil.dat2WebTimestamp(lastModification));
@@ -107,7 +107,7 @@ public class FileDAO extends ServiceConfig {
    */
   public void deleteModification(Task task, String filepath) {
     try {
-      ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+      ObjectNode parameters = queryUtil.getParameters();
       parameters.put(TASK_IDE, task.getTaskId());
       parameters.put(FILE_PATH, filepath);
       maintainService.launchPrivateMaintain(FILE_DELETE_MODIFICATION_QUERY, parameters);

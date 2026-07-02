@@ -89,7 +89,7 @@ class SchedulerEmailReportServiceTest {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getLanguage()).willReturn("ES");
     given(aweElements.getLocaleWithLanguage(anyString(), anyString())).willReturn("LOCALE");
-    given(queryUtil.getParameters((String) eq(null))).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.findLabel(anyString(), anyString())).willReturn("LABEL");
     executeEmailJob(status);
   }

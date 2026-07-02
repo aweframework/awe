@@ -76,21 +76,20 @@ public class CalendarDAO extends ServiceConfig {
 
     for (Calendar calendar : calendarList) {
       // load a calendar with the given ide
-      insertSchedulerCalendar(null, calendar.getCalendarId(), true, false);
+      insertSchedulerCalendar(calendar.getCalendarId(), true, false);
     }
   }
 
   /**
-   * Get calendar for the given ID on the given database
+   * Get calendar for the given ID
    *
-   * @param alias      Calendar alias
    * @param calendarId Calendar identifier
    * @return Calendar
    * @throws AWException Error retrieving calendar
    */
-  public Calendar getCalendar(String alias, Integer calendarId) throws AWException {
+  public Calendar getCalendar(Integer calendarId) throws AWException {
     // Set context parameters to execute queries
-    ObjectNode parameters = queryUtil.getParameters(alias, "1", "0");
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put("calendarId", calendarId);
 
     // Execute queries
@@ -116,25 +115,11 @@ public class CalendarDAO extends ServiceConfig {
    * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(Integer calendarIde, boolean replace, boolean updateTriggers) throws AWException {
-    return insertSchedulerCalendar(null, calendarIde, replace, updateTriggers);
-  }
-
-  /**
-   * Insert and schedule a new calendar
-   *
-   * @param calendarId     Calendar identifier
-   * @param replace        Replace calendar
-   * @param updateTriggers Update task triggers
-   * @param alias          Calendar alias
-   * @return ServiceData
-   * @throws AWException Error inserting scheduler calendar
-   */
-  public ServiceData insertSchedulerCalendar(String alias, Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
     try {
-      Calendar calendar = getCalendar(alias, calendarId);
+      Calendar calendar = getCalendar(calendarIde);
 
       // Add calendar to the scheduler if its active
-      scheduler.addCalendar(calendarId.toString(), calendar, replace, updateTriggers);
+      scheduler.addCalendar(calendarIde.toString(), calendar, replace, updateTriggers);
       log.debug("[SCHEDULER][CALENDARS][CALENDAR {}] Calendar correctly " + (replace ? "updated" : "added") + " to the scheduler", calendar.getCalendarId());
     } catch (Exception exc) {
       throw new AWException("Error adding calendar", exc);
@@ -226,8 +211,8 @@ public class CalendarDAO extends ServiceConfig {
       for (TriggerKey key : scheduler.getTriggerKeys(GroupMatcher.anyTriggerGroup())) {
         Trigger oldTrigger = scheduler.getTrigger(key);
         if (oldTrigger.getCalendarName() != null) {
-          for (Integer calendarId : calendarIdList) {
-            Calendar calendar = getCalendar(null, calendarId);
+            for (Integer calendarId : calendarIdList) {
+            Calendar calendar = getCalendar(calendarId);
             if (calendar.getCalendarId().toString().equals(oldTrigger.getCalendarName())) {
               triggerContainsCalendar = true;
               break;
@@ -385,7 +370,7 @@ public class CalendarDAO extends ServiceConfig {
 
     if (calendarId != null) {
       try {
-        Calendar calendar = getCalendar(null, calendarId);
+        Calendar calendar = getCalendar(calendarId);
         if (calendar.isActive()) {
           quartzCalendar = scheduler.getCalendar(calendarId.toString());
         }

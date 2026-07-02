@@ -14,7 +14,6 @@ public class CalendarConstants {
   public static final String CALENDAR_ACTIVE = "Act";
   public static final String CALENDAR_NAME = "Nom";
   public static final String CALENDAR_DATABASE ="db";
-  public static final String CALENDAR_SITE = "site";
 
   // Calendar dates constants
   public static final String DATE = "Dat";

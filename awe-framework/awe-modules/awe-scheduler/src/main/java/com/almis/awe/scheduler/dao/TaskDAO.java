@@ -129,21 +129,20 @@ public class TaskDAO extends ServiceConfig {
    */
   @Async("schedulerTaskPool")
   public Future<Task> getTask(Integer taskId) throws AWException {
-    return CompletableFuture.completedFuture(getTask(taskId, null));
+    return CompletableFuture.completedFuture(loadTask(taskId));
   }
 
   /**
-   * Load task from task id
+   * Load task from task id (synchronous)
    *
-   * @param taskId     Task id
-   * @param database   Database
+   * @param taskId Task id
    * @return Generated task
    * @throws AWException Error retrieving task
    */
-  public Task getTask(Integer taskId, String database) throws AWException {
+  private Task loadTask(Integer taskId) throws AWException {
 
     // Retrieve task data
-    ObjectNode parameters = queryUtil.getParameters(database, "1", "0");
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put(TASK_ID, taskId);
     ServiceData taskParameters = queryService.launchPrivateQuery(SCHEDULER_TASK_QUERY, parameters);
     TaskBuilder taskBuilder = TaskFactory.getInstance(generateTask(taskParameters), generateFile(taskParameters), scheduler);
@@ -156,13 +155,13 @@ public class TaskDAO extends ServiceConfig {
 
     // Retrieve task calendar
     if (taskBuilder.getCalendarId() != null) {
-      taskBuilder.setCalendar(calendarDAO.getCalendar(database, taskBuilder.getCalendarId()));
+      taskBuilder.setCalendar(calendarDAO.getCalendar(taskBuilder.getCalendarId()));
     }
 
     // Fill file if defined
     if (taskBuilder.getFile() != null) {
       // Generate server if file is defined
-      taskBuilder.setFileServer(serverDAO.findServer(taskBuilder.getFile().getFileServerId(), taskBuilder.getTask().getDatabase()));
+      taskBuilder.setFileServer(serverDAO.findServer(taskBuilder.getFile().getFileServerId()));
 
       // Generate file modifications if defined
       setFileModificationsFromDb(taskBuilder.getTask());
@@ -193,7 +192,7 @@ public class TaskDAO extends ServiceConfig {
    */
   private void setFileModificationsFromDb(Task task) throws AWException {
     // Set server ip to the context
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase(), "1", "0");
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put(TASK_IDE, task.getTaskId());
     DataList modificationsDataList = queryService.launchPrivateQuery(SCHEDULER_FILE_MODIFICATIONS_QUERY, parameters).getDataList();
     log.debug("[File] Last modification files loaded from database on task #{}", task.getTaskId());
@@ -235,7 +234,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Task execution
    */
   public TaskExecution startTask(Task task) throws AWException {
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+    ObjectNode parameters = queryUtil.getParameters();
     parameters.put(TASK_ID, task.getTaskId());
     parameters.put(TASK_GROUP, task.getGroup());
     parameters.put(TASK_LAUNCHER, task.getLauncher());
@@ -261,7 +260,7 @@ public class TaskDAO extends ServiceConfig {
    * @return Task execution
    */
   public TaskExecution endTask(Task task, TaskExecution execution) throws AWException {
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+    ObjectNode parameters = queryUtil.getParameters();
     parameters.put(TASK_ID, task.getTaskId());
     parameters.put(TASK_JOB_EXECUTION, execution.getExecutionId());
     parameters.put("status", task.getStatus().getValue());
@@ -394,7 +393,7 @@ public class TaskDAO extends ServiceConfig {
     execution.setDescription(reason);
 
     // Update execution status
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+    ObjectNode parameters = queryUtil.getParameters();
     parameters.put(TASK_ID, execution.getTaskId());
     parameters.put(TASK_JOB_EXECUTION, execution.getExecutionId());
     parameters.put("status", status.getValue());
@@ -432,7 +431,7 @@ public class TaskDAO extends ServiceConfig {
   public ServiceData insertTask(Integer taskId) throws AWException {
     ServiceData serviceData = new ServiceData();
     try {
-      Task task = getTask(taskId, null);
+      Task task = loadTask(taskId);
 
       // Clear file modification table from database
       if (TaskLaunchType.FILE_TRACKING.getValue().equals(task.getLaunchType())) {
@@ -726,7 +725,7 @@ public class TaskDAO extends ServiceConfig {
    */
   private void executeImmediateTask(Integer taskId, TriggerType triggerType, String launcher, TaskExecution parent) throws AWException {
     try {
-      Task task = getTask(taskId, null);
+      Task task = loadTask(taskId);
       task.setLauncher(launcher);
       task.setParentExecution(parent);
 
@@ -1036,7 +1035,12 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving task execution from database
    */
   public TaskExecution getTaskExecution(Integer taskId, Integer executionId) throws AWException {
-    return getTaskExecution(taskId, null, executionId);
+    // Set context from the query
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    parameters.put(TASK_ID, taskId);
+    parameters.put(TASK_JOB_EXECUTION, executionId);
+
+    return getTaskExecution(SCHEDULER_TASK_EXECUTION, parameters);
   }
 
   /**
@@ -1048,25 +1052,7 @@ public class TaskDAO extends ServiceConfig {
    * @throws AWException Error retrieving task execution from database
    */
   public TaskExecution getTaskExecution(Task task, Integer executionId) throws AWException {
-    return getTaskExecution(task.getTaskId(), task.getDatabase(), executionId);
-  }
-
-  /**
-   * Get execution from Database
-   *
-   * @param taskId      Task id
-   * @param database    Database
-   * @param executionId Execution id
-   * @return Task execution
-   * @throws AWException Error retrieving task execution from database
-   */
-  private TaskExecution getTaskExecution(Integer taskId, String database, Integer executionId) throws AWException {
-    // Set context from the query
-    ObjectNode parameters = queryUtil.getParameters(database, "1", "0");
-    parameters.put(TASK_ID, taskId);
-    parameters.put(TASK_JOB_EXECUTION, executionId);
-
-    return getTaskExecution(SCHEDULER_TASK_EXECUTION, parameters);
+    return getTaskExecution(task.getTaskId(), executionId);
   }
 
   /**
@@ -1079,7 +1065,7 @@ public class TaskDAO extends ServiceConfig {
    */
   private TaskExecution getLastExecutionFromDB(Task task, String taskGroup) throws AWException {
     // Set context from the query
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase(), "1", "0");
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put(TASK_ID, task.getTaskId());
     parameters.put(TASK_GROUP, taskGroup);
 
@@ -1179,7 +1165,7 @@ public class TaskDAO extends ServiceConfig {
   private void updateParentStatus(TaskExecution execution) throws AWException {
     if (execution.getParentExecution() != null) {
       try {
-        Task parentTask = getTask(execution.getParentExecution().getTaskId(), null);
+        Task parentTask = loadTask(execution.getParentExecution().getTaskId());
         if (TaskStatus.JOB_ERROR.equals(TaskStatus.valueOf(execution.getStatus())) && parentTask.isSetTaskOnWarningIfDependencyError()) {
           changeStatus(parentTask, execution.getParentExecution(), TaskStatus.JOB_WARNING,
             getLocale(WARNING_MESSAGE_TASK_DEPENDENCY_ERROR, execution.getTaskId().toString(), execution.getExecutionId().toString()));

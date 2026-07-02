@@ -276,12 +276,11 @@
     <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
-  <!-- Get task last execution -->
+  <!-- Get task last execution (AweSchExe-only - see #685: drop the AweSchTsk join so
+       orphaned/legacy executions still surface instead of returning zero rows) -->
   <query id="getLastExecution">
-    <table id="AweSchTsk" alias="Tsk"/>
     <table id="AweSchExe" alias="Exe"/>
     <field id="IdeTsk" alias="taskId" table="Exe"/>
-    <field id="Nam" alias="name" table="Tsk"/>
     <field id="GrpTsk" alias="groupId" table="Exe"/>
     <field id="ExeTsk" alias="executionId" table="Exe"/>
     <field id="IniDat" alias="initialDate" table="Exe"/>
@@ -292,7 +291,6 @@
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
-        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
         <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-variable="taskId"/>
         <filter left-field="GrpTsk" left-table="Exe" condition="eq" right-variable="taskGroup"/>
         <filter left-field="IniDat" left-table="Exe" condition="eq" query="getMaxDate"/>
@@ -302,12 +300,14 @@
     <variable id="taskGroup" type="STRING" name="taskGroup"/>
   </query>
 
-  <!-- Get task execution -->
+  <!-- Get task execution (AweSchExe-only + scalar getTaskName subquery - see #685:
+       drop the AweSchTsk INNER join so orphaned executions still surface; name is
+       preserved via a null-tolerant scalar subquery that yields NULL when the task
+       row is missing instead of dropping the whole execution row) -->
   <query id="getTaskExecution">
-    <table id="AweSchTsk" alias="Tsk"/>
     <table id="AweSchExe" alias="Exe"/>
     <field id="IdeTsk" alias="taskId" table="Exe"/>
-    <field id="Nam" alias="name" table="Tsk"/>
+    <field query="getTaskName" alias="name"/>
     <field id="GrpTsk" alias="groupId" table="Exe"/>
     <field id="ExeTsk" alias="executionId" table="Exe"/>
     <field id="IniDat" alias="initialDate" table="Exe"/>
@@ -318,13 +318,27 @@
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
-        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
         <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-variable="taskId"/>
         <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-variable="taskExecution"/>
       </and>
     </where>
     <variable id="taskId" type="INTEGER" name="taskId"/>
     <variable id="taskExecution" type="INTEGER" name="taskExecution"/>
+  </query>
+
+  <!-- Scalar subquery: retrieve the task name for a given taskId.
+       Used by getTaskExecution as a null-tolerant SELECT field (SQLBuilder.getFieldExpression
+       renders field.query as a scalar subquery inheriting the outer parameters). Returns NULL
+       when the AweSchTsk row is missing instead of dropping the execution row. -->
+  <query id="getTaskName">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Nam" alias="name" table="Tsk"/>
+    <where>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
   <query id="getLastExecutionDateByTask">

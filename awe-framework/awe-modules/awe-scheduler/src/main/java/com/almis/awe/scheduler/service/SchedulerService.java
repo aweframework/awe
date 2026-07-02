@@ -408,22 +408,7 @@ public class SchedulerService extends ServiceConfig {
    * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
-    return calendarDAO.insertSchedulerCalendar(null, calendarId, replace, updateTriggers);
-  }
-
-  /**
-   * Insert and schedule a new calendar
-   * Requires QUARTZ
-   *
-   * @param calendarId     Calendar identifier
-   * @param replace        Replace calendar
-   * @param updateTriggers Update task triggers
-   * @param alias          Calendar alias
-   * @return ServiceData
-   * @throws AWException Error inserting scheduler calendar
-   */
-  public ServiceData insertSchedulerCalendar(String alias, Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
-    return calendarDAO.insertSchedulerCalendar(alias, calendarId, replace, updateTriggers);
+    return calendarDAO.insertSchedulerCalendar(calendarId, replace, updateTriggers);
   }
 
   /**

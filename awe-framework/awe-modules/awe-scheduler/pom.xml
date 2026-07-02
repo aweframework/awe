@@ -111,7 +111,7 @@
               <resources>
                 <!-- Awe generic screens -->
                 <resource>
-                  <directory>../awe-generic-screens/src/main/resources</directory>
+                  <directory>../../awe-generic-screens/src/main/resources</directory>
                   <includes>
                     <include>schemas/**</include>
                   </includes>

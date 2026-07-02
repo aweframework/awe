@@ -38,7 +38,7 @@ public class SchedulerMaintainReportService implements ISchedulerReportService {
 
   public void execute(Task task, TaskExecution taskExecution) {
     // Store task and execution in parameters
-    ObjectNode parameters = queryUtil.getParameters(task.getDatabase());
+    ObjectNode parameters = queryUtil.getParameters();
     parameters.set(TASK, JsonNodeFactory.instance.pojoNode(task));
     parameters.set(TASK_JOB_EXECUTION, JsonNodeFactory.instance.pojoNode(taskExecution));
 
