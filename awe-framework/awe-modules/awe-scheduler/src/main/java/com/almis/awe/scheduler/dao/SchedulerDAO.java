@@ -319,7 +319,7 @@ public class SchedulerDAO extends ServiceConfig {
         Map<String, CellData> row = new HashMap<>();
         row.put("taskKey", new CellData(executingJob.getTrigger().getKey().getName()));
         row.put("triggerKey", new CellData(executingJob.getTrigger().getKey().toString()));
-        row.put("calendar", new CellData(executingJob.getTrigger().getCalendarName() != null ? scheduler.getCalendar(executingJob.getTrigger().getCalendarName()) : ""));
+        row.put("calendar", new CellData(retrieveCalendarName(executingJob.getTrigger().getCalendarName())));
         row.put("executionTime", new CellData(executingJob.getFireTime() != null ? DateUtil.dat2WebTimestamp(executingJob.getFireTime()) : ""));
         row.put("scheduledExecutionTime", new CellData(executingJob.getScheduledFireTime() != null ? DateUtil.dat2WebTimestamp(executingJob.getScheduledFireTime()) : ""));
         row.put("nextExecutionTime", new CellData(executingJob.getNextFireTime() != null ? DateUtil.dat2WebTimestamp(executingJob.getNextFireTime()) : ""));
@@ -360,7 +360,7 @@ public class SchedulerDAO extends ServiceConfig {
         Map<String, CellData> row = new HashMap<>();
         row.put("taskKey", new CellData(currentTrigger.getKey().getName()));
         row.put("triggerKey", new CellData(currentTrigger.getKey().toString()));
-        row.put("taskCalendar", new CellData(currentTrigger.getCalendarName() != null ? scheduler.getCalendar(currentTrigger.getCalendarName()) : ""));
+        row.put("taskCalendar", new CellData(retrieveCalendarName(currentTrigger.getCalendarName())));
         row.put("taskStartTime", new CellData(currentTrigger.getStartTime() == null ? "-" : DateUtil.dat2WebTimestamp(currentTrigger.getStartTime())));
         row.put("taskEndTime", new CellData(currentTrigger.getEndTime() == null ? "-" : DateUtil.dat2WebTimestamp(currentTrigger.getEndTime())));
         row.put("taskFinalExecutionTime", new CellData(currentTrigger.getFinalFireTime() == null ? "-" : DateUtil.dat2WebTimestamp(currentTrigger.getFinalFireTime())));
@@ -373,6 +373,33 @@ public class SchedulerDAO extends ServiceConfig {
     } catch (Exception exc) {
       throw new AWException("[SCHEDULER-MANAGER] Error loading currently executing tasks", exc);
     }
+  }
+
+  /**
+   * Retrieve the readable calendar name for a trigger calendar name.
+   * <p>
+   * The trigger calendar name holds the calendar identifier (stored as a string).
+   * The scheduler registers the AWE {@code Calendar} bean under that identifier,
+   * so we retrieve it and return its human-readable name. If the calendar is not
+   * found or is not an AWE calendar, the raw trigger calendar name is returned
+   * as a fallback so the column never renders empty for an assigned calendar.
+   *
+   * @param triggerCalendarName Trigger calendar name (calendar identifier as string)
+   * @return Calendar readable name, or empty string if the trigger has no calendar
+   */
+  private String retrieveCalendarName(String triggerCalendarName) {
+    if (triggerCalendarName == null) {
+      return "";
+    }
+    try {
+      org.quartz.Calendar quartzCalendar = scheduler.getCalendar(triggerCalendarName);
+      if (quartzCalendar instanceof com.almis.awe.scheduler.bean.calendar.Calendar aweCalendar) {
+        return aweCalendar.getName();
+      }
+    } catch (SchedulerException exc) {
+      log.warn("[SCHEDULER-MANAGER] Could not retrieve calendar '{}'", triggerCalendarName, exc);
+    }
+    return triggerCalendarName;
   }
 
   /**
