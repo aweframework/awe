@@ -52,3 +52,29 @@ awe.application.module-list = APP, ..., awe-scheduler, ..., awe
 ```properties
 awe.database.migration-modules=AWE,...,SCHEDULER,...
 ```
+
+## SSH remote command execution
+
+Command tasks can run on a remote host over SSH (see the **[Scheduler guide](guides/scheduler-guide.md#command-execution-local-and-remote)**). The SSH client used for remote execution is configured with the following properties:
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `awe.scheduler.ssh-host-key-policy` | Host-key verification policy. See the values below. | `ACCEPT_ON_FIRST_USE` |
+| `awe.scheduler.ssh-known-hosts-path` | Path to the `known_hosts` file used to persist and read trusted host keys | `${user.home}/.ssh/known_hosts` |
+| `awe.scheduler.ssh-connect-timeout` | SSH connect and authentication timeout, in seconds | `30s` |
+
+The host-key policy accepts three values:
+
+| Value | Behaviour |
+|-------|-----------|
+| `ACCEPT_ON_FIRST_USE` | Trust-on-first-use: a host not yet present in `known_hosts` is accepted and stored on its first connection, and validated against the stored key afterwards. |
+| `STRICT` | Only hosts already present in `known_hosts` are accepted; unknown hosts are rejected. |
+| `ACCEPT_ALL` | Every host key is accepted without verification. Insecure — for development and testing only. |
+
+```properties
+awe.scheduler.ssh-host-key-policy=ACCEPT_ON_FIRST_USE
+awe.scheduler.ssh-known-hosts-path=/opt/awe/.ssh/known_hosts
+awe.scheduler.ssh-connect-timeout=30s
+```
+
+> **Note:** For production use prefer `STRICT` with a pre-provisioned `known_hosts`, or the default `ACCEPT_ON_FIRST_USE`. Avoid `ACCEPT_ALL` outside development.

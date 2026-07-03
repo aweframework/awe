@@ -55,6 +55,7 @@
   <locale name="CONFIRM_TITLE_TASK_LAUNCH" value="Task launch confirmation"/>
   <locale name="CONFIRM_TITLE_TRIGGER_WITH_CALENDAR_EXIST" value="Confirmation of calendar associated to one or several tasks."/>
   <locale name="CONFIRM_TITLE_UNBLOCK_BATCH" value="Unblock batch confirmation"/>
+  <locale name="CONNECTION_TYPE_SSH" value="SSH"/>
   <locale name="ENUM_LAUNCH_DEPENDENCY" value="Dependency"/>
   <locale name="ENUM_LAUNCH_FILE" value="File"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manual"/>
@@ -125,6 +126,12 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Batch launched"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="This task has been cancelled because it has exceeded the time limit established ({0})"/>
   <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Next executions"/>
+  <locale name="SCHEDULER_REMOTE_EXECUTION" value="Run on remote server"/>
+  <locale name="SCHEDULER_REMOTE_SERVER" value="Remote server"/>
+  <locale name="SCHEDULER_SERVER_KEY" value="Private key"/>
+  <locale name="SCHEDULER_SERVER_KEY_PASS" value="Private key passphrase"/>
+  <locale name="SCHEDULER_SERVER_PASSWORD" value="Server password"/>
+  <locale name="SCHEDULER_SERVER_USER" value="Server user"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Show execution log"/>
   <locale name="SCREEN_TEXT_END_TIME" value="End time"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="Execution"/>

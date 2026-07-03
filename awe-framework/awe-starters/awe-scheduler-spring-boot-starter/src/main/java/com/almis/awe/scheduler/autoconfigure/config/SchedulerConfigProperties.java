@@ -1,11 +1,13 @@
 package com.almis.awe.scheduler.autoconfigure.config;
 
+import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 
 import java.net.URI;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -78,4 +80,23 @@ public class SchedulerConfigProperties {
    * Remote password
    */
   private String remoteCallbackPassword;
+
+  /**
+   * SSH host-key verification policy for remote command execution.
+   * Default value ACCEPT_ON_FIRST_USE (trust-on-first-use)
+   */
+  private SshHostKeyPolicy sshHostKeyPolicy = SshHostKeyPolicy.ACCEPT_ON_FIRST_USE;
+
+  /**
+   * Path to the known_hosts file used to persist/read trusted SSH host keys.
+   * Default value ${user.home}/.ssh/known_hosts
+   */
+  private String sshKnownHostsPath = Paths.get(System.getProperty("user.home"), ".ssh", "known_hosts").toString();
+
+  /**
+   * SSH connect and authentication timeout in seconds
+   * Default value 30s
+   */
+  @DurationUnit(ChronoUnit.SECONDS)
+  private Duration sshConnectTimeout = Duration.ofSeconds(30);
 }

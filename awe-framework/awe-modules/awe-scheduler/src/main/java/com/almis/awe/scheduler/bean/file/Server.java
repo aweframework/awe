@@ -1,6 +1,8 @@
 package com.almis.awe.scheduler.bean.file;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -25,6 +27,22 @@ public class Server implements Serializable {
   private Integer port;
   // Server is active
   boolean active = false;
+  // SSH user (decrypted in memory only at point of use -- never logged)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private String user = null;
+  // SSH password (decrypted in memory only at point of use -- never logged)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private String password = null;
+  // SSH private key (decrypted in memory only at point of use -- never logged)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private String key = null;
+  // SSH private key passphrase (decrypted in memory only at point of use -- never logged)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private String keyPassphrase = null;
 
   public int getPort() {
     return port == null ? getPortForProtocol(0, getTypeOfConnection()) : port;

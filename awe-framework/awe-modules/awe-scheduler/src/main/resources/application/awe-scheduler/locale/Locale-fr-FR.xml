@@ -55,6 +55,7 @@
   <locale name="CONFIRM_TITLE_TASK_LAUNCH" value="Confirmation de lancement des taches"/>
   <locale name="CONFIRM_TITLE_TRIGGER_WITH_CALENDAR_EXIST" value="La confirmation de calendrier associé à une ou plusieurs tâches."/>
   <locale name="CONFIRM_TITLE_UNBLOCK_BATCH" value="Confirmation de deblocage de batch"/>
+  <locale name="CONNECTION_TYPE_SSH" value="SSH"/>
   <locale name="ENUM_LAUNCH_DEPENDENCY" value="Dépendance"/>
   <locale name="ENUM_LAUNCH_FILE" value="Par fichier"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manuelle"/>
@@ -125,6 +126,12 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Lot exécuté"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Cette tâche a été annulée parce qu&apos;il a dépassé le temps imparti ({0})"/>
   <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Prochaines exécutions"/>
+  <locale name="SCHEDULER_REMOTE_EXECUTION" value="Exécuter sur un serveur distant"/>
+  <locale name="SCHEDULER_REMOTE_SERVER" value="Serveur distant"/>
+  <locale name="SCHEDULER_SERVER_KEY" value="Clé privée"/>
+  <locale name="SCHEDULER_SERVER_KEY_PASS" value="Phrase secrète de la clé privée"/>
+  <locale name="SCHEDULER_SERVER_PASSWORD" value="Mot de passe du serveur"/>
+  <locale name="SCHEDULER_SERVER_USER" value="Utilisateur du serveur"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Afficher journal d&apos;exécution"/>
   <locale name="SCREEN_TEXT_END_TIME" value="Heure de fin"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="L&apos;exécution"/>
