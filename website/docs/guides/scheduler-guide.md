@@ -66,9 +66,18 @@ A task can also be concatenated with other tasks in order to create a workflow. 
 
 There are two type of tasks that the scheduler can work with, the maintain tasks and the command tasks.
 
-| Maintain Task                                                        | Command Task                                                                        |
-|----------------------------------------------------------------------|:------------------------------------------------------------------------------------|
-| A maintain task executes a public maintain with a defined schedule.  | A command task executes a batch on the selected server with the defined schedule.   |
+| Maintain Task                                                        | Command Task                                                                                                          |
+|----------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------|
+| A maintain task executes a public maintain with a defined schedule.  | A command task runs a shell command with a defined schedule, either on the local AWE host or on a remote host over SSH. |
+
+### Command execution: local and remote
+
+A command task runs the value entered in the **Command** field as a shell command. The **Execution path**, when set, is used as the *working directory* the command runs in; the command itself is resolved from the host `PATH`. To run a script that lives in the execution path, invoke it explicitly (for example, `./my-script.sh`).
+
+- **Local execution** (default): when **Run on remote server** is left unchecked, the command runs on the AWE host itself.
+- **Remote execution over SSH**: when **Run on remote server** is checked, a **Remote server** must be selected. The command is executed on that host through an SSH exec channel, and both its standard output and standard error are captured into the task execution log.
+
+Remote command execution requires the selected server to use the `ssh` connection type. Authentication is done with the server user together with either a password, a private key (optionally passphrase-protected), or both. See **[Servers](#servers)** for how to configure them, and the **[Configuration guide](../scheduler-module.md#ssh-remote-command-execution)** for the SSH host-key verification options.
 
 ### Configuration
 
@@ -88,8 +97,10 @@ In this step we have to add the task basic configuration.
 | Max. stored executions                    | Maximum number of executions to be stored in the database (Used to calculate the average time). The default value is 10.                         |                       Optional                       |
 | Timeout                                   | Maximum time for the task to finish. If the task execution time exceeds the timeout time (represented in seconds) the task will be interrupted   |                       Optional                       |
 | Execute                                   | The task execution type (Command or Maintain)                                                                                                    |                     **Required**                     |
-| Execute at                                | Server in which the command task has to be launched                                                                                              |   Optional (Only needed in `Command` launch type)    |
 | Command                                   | Command to launch                                                                                                                                | **Required** (Only needed in `Command` launch type)  |
+| Execution path                            | Working directory the command runs in. The command is resolved from the host `PATH`; use `./<script>` to run a script located in this path       |   Optional (Only needed in `Command` launch type)    |
+| Run on remote server                      | When checked, the command runs on a remote host over SSH instead of on the local AWE host                                                        |   Optional (Only needed in `Command` launch type)    |
+| Remote server                             | The SSH server on which the command is executed                                                                                                  | **Required** when `Run on remote server` is checked  |
 | Maintain                                  | Maintain to launch                                                                                                                               | **Required** (Only needed in `Maintain` launch type) |
 | Launch dependencies in case of warning    | Launch the task dependencies in case of warning                                                                                                  |                       Optional                       |
 | Launch dependencies in case of error      | Launch the task dependencies in case of error                                                                                                    |                       Optional                       |
@@ -233,9 +244,11 @@ The servers created for the Scheduler module are mainly used to execute tasks, a
 
 The servers can be instantiated multiple times, and each instantiation can use its own user and password to connect to the server with the selected protocol.
 
-The scheduler servers are used with two purposes, to launch a batch on a remote server, and to check for file modifications in an FTP server.
+The scheduler servers are used with two purposes: to run command tasks on a remote host over SSH, and to check for file modifications on an FTP server.
 
-Regarding to the FTP servers, the same server can be used as many times as needed, in different tasks, with different credentials.
+For remote command execution choose the `ssh` connection type and provide the connection user together with a password and/or a private key (which may be passphrase-protected); for file checking use the `ftp` connection type.
+
+Regarding the FTP servers, the same server can be used as many times as needed, in different tasks, with different credentials.
 
 ### Configuration
 
@@ -247,9 +260,19 @@ When creating a new server, the next fields have to be filled:
 | Server             | Server IP address                                   | **Required** |
 | Port               | Server port                                         | **Required** |
 | Type of connection | The protocol to be used to connect to the server    | **Required** |
+| User               | User for the SSH connection (shown when the connection type is `ssh`)     | **Required** for `ssh` |
+| Password           | Password for the SSH connection (shown when the connection type is `ssh`) |   Optional   |
+| Private key        | Private key for SSH key-based authentication (shown when the connection type is `ssh`) |   Optional   |
+| Private key passphrase | Passphrase that unlocks the private key, if it is encrypted (shown when the connection type is `ssh`) |   Optional   |
 | Active             | Server status                                       | **Required** |
 
 > **Note:** If a server is deactivated, the task using it won't even try to connect to it.
+
+> **Note:** An SSH server authenticates with the user plus a password, a private key (optionally unlocked with its passphrase), or both. Only the user is mandatory; provide at least one of password or key.
+
+> **Note:** SSH authentication is handled by [Apache MINA SSHD](https://mina.apache.org/sshd-project/). The most common private-key algorithms are supported — **RSA**, **ECDSA** and **Ed25519** — in OpenSSH and PEM formats.
+
+> **Note:** SSH credentials (password, private key and passphrase) are stored encrypted, per server instance, so the same host can be registered several times with different credentials. On the edit screen they are never sent back to the client: leave a secret field blank to keep the stored value, or type a new value to replace it.
 
 ### Management
 

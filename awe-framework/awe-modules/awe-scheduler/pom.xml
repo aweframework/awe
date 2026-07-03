@@ -49,6 +49,17 @@
       <artifactId>commons-net</artifactId>
       <version>20030805.205232</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.sshd</groupId>
+      <artifactId>sshd-core</artifactId>
+    </dependency>
+    <!-- Enables MINA SSHD Ed25519 key support (optional dependency of sshd-common,
+         required to load ed25519 private keys and parse ed25519 known_hosts entries) -->
+    <dependency>
+      <groupId>net.i2p.crypto</groupId>
+      <artifactId>eddsa</artifactId>
+      <version>0.3.0</version>
+    </dependency>
     <!-- Test dependencies -->
     <!-- Junit 5 -->
     <dependency>

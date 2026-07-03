@@ -1,28 +1,27 @@
 package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.scheduler.bean.task.Task;
-import com.almis.awe.scheduler.bean.task.TaskParameter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
+import com.almis.awe.scheduler.executor.CommandExecutor;
+import com.almis.awe.scheduler.executor.CommandExecutorResolver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.TriggerBuilder;
 
-import javax.naming.NamingException;
-import java.util.ArrayList;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 /**
- * Class used for testing CommandDao class
+ * Class used for testing CommandDAO: it is a thin delegator to
+ * CommandExecutorResolver.resolve(task).execute(...). Execution-path
+ * behaviour (local process, SSH) is covered by LocalCommandExecutorTest and
+ * SshCommandExecutorTest.
  */
-@Slf4j
 @ExtendWith(MockitoExtension.class)
 class CommandDAOTest {
 
@@ -30,57 +29,40 @@ class CommandDAOTest {
   private CommandDAO commandDAO;
 
   @Mock
-  private Runtime runtime;
+  private CommandExecutorResolver commandExecutorResolver;
 
   @Mock
-  private Process process;
+  private CommandExecutor commandExecutor;
 
-  /**
-   * Check triggers contains calendars without calendar list
-   *
-   * @throws NamingException Test error
-   */
   @Test
-  void runExeCommand() throws Exception {
-    // Mock
-    given(runtime.exec(ArgumentMatchers.anyString(), ArgumentMatchers.any())).willReturn(process);
-    given(process.getErrorStream()).willReturn(IOUtils.toInputStream("error stream data", "UTF-8"));
-    given(process.getInputStream()).willReturn(IOUtils.toInputStream("output stream data", "UTF-8"));
-
+  void delegatesExecutionToResolvedExecutor() {
     Task task = generateTask();
-    task.setAction("test.exe");
+    String[] envp = new String[0];
+    given(commandExecutorResolver.resolve(task)).willReturn(commandExecutor);
+    given(commandExecutor.execute(task, envp, 1000)).willReturn(0);
 
-    // Run action
-    commandDAO.runCommand(task, new String[0], 1000);
+    Integer exitCode = commandDAO.runCommand(task, envp, 1000);
 
-    // Check that controller are active
-    verify(runtime, Mockito.times(1)).exec(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    assertEquals(0, exitCode);
+    verify(commandExecutorResolver).resolve(task);
+    verify(commandExecutor).execute(same(task), eq(envp), eq(1000L));
   }
 
-  /**
-   * Check triggers contains calendars without calendar list
-   *
-   * @throws NamingException Test error
-   */
   @Test
-  void runCmdCommand() throws Exception {
-    // Mock
-    given(runtime.exec(ArgumentMatchers.anyString(), ArgumentMatchers.any())).willReturn(process);
+  void propagatesNonZeroExitCodeFromResolvedExecutor() {
     Task task = generateTask();
-    task.setAction("test.cmd");
-    task.getParameterList().add(new TaskParameter().setValue("tutu"));
+    String[] envp = new String[0];
+    given(commandExecutorResolver.resolve(task)).willReturn(commandExecutor);
+    given(commandExecutor.execute(task, envp, 1000)).willReturn(1);
 
-    // Run action
-    commandDAO.runCommand(task, new String[]{}, 1000);
+    Integer exitCode = commandDAO.runCommand(task, envp, 1000);
 
-    // Check mock called
-    verify(runtime, Mockito.times(1)).exec(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    assertEquals(1, exitCode);
   }
 
   private Task generateTask() {
     Task task = new Task();
     task.setCommandPath("/test/command/");
-    task.setParameterList(new ArrayList<>());
     task.setTrigger(TriggerBuilder.newTrigger().build());
     return task;
   }

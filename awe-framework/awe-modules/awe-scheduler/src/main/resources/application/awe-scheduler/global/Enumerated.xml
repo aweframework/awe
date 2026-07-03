@@ -133,6 +133,7 @@
   <group id="conType">
     <option label="CONNECTION_TYPE_FTP" value="ftp"/>
     <option label="CONNECTION_TYPE_FOLDER" value="folder"/>
+    <option label="CONNECTION_TYPE_SSH" value="ssh"/>
   </group>
   <group id="RptTyp">
     <option label="ENUM_REPEAT_SECONDS" value="0"/>

@@ -45,6 +45,7 @@
     <commons-codec.version>1.18.0</commons-codec.version>
     <guava.version>33.3.0-jre</guava.version>
     <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
+    <sshd.version>2.13.2</sshd.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -220,6 +221,11 @@
         <groupId>com.github.ulisesbocchio</groupId>
         <artifactId>jasypt-spring-boot-starter</artifactId>
         <version>${jasypt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.sshd</groupId>
+        <artifactId>sshd-core</artifactId>
+        <version>${sshd.version}</version>
       </dependency>
       <dependency>
         <groupId>org.antlr</groupId>
