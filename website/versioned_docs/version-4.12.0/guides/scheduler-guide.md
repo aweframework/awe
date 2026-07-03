@@ -4,6 +4,9 @@ title: Scheduler
 sidebar_label: Scheduler
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 This document gives a minimum base to start with the AWE Scheduler module, and explains how to automate and schedule tasks inside AWE in a simple way.
 
 The Scheduler module is based on the Quartz Scheduler library. 
@@ -78,6 +81,70 @@ A command task runs the value entered in the **Command** field as a shell comman
 - **Remote execution over SSH**: when **Run on remote server** is checked, a **Remote server** must be selected. The command is executed on that host through an SSH exec channel, and both its standard output and standard error are captured into the task execution log.
 
 Remote command execution requires the selected server to use the `ssh` connection type. Authentication is done with the server user together with either a password, a private key (optionally passphrase-protected), or both. See **[Servers](#servers)** for how to configure them, and the **[Configuration guide](../scheduler-module.md#ssh-remote-command-execution)** for the SSH host-key verification options.
+
+### Task execution database
+
+A **maintain task** runs against the datasource configured through Spring Boot's `spring.datasource.*` properties. This is the case in **both** execution modes:
+
+- **Local (embedded) scheduler** &mdash; the maintain runs on the same datasource as the main AWE application.
+- **Remote scheduler instance** &mdash; the maintain runs on the datasource configured for *that* scheduler instance.
+
+:::info Why always the configured datasource?
+Scheduler tasks run on a Quartz worker thread with **no bound HTTP session**. The interactive multi-database routing that a normal web request relies on reads its target from session/screen state, which simply does not exist here. The scheduler therefore resolves the connection from the configured `spring.datasource` instead of any session value.
+:::
+
+:::tip A remote scheduler's database is a deployment decision
+There is no per-task switch to "run this task on the main application's database". A remote scheduler instance uses **its own** `spring.datasource`. To make it target the same database as your main application, point that instance's `spring.datasource.url` (and user, password, &hellip;) at the same database.
+:::
+
+#### Targeting a different database
+
+If a specific maintain task must run against a **different** database than the configured default, add a **task parameter** (see [Task parameters](#2-task-parameters)) whose **name is the database criterion** and whose **value is the target datasource alias**.
+
+The parameter name is **not** hardcoded to `database`: it is the value of [`awe.database.parameter-name`](../properties.md#awe.database.parameter-name), which defaults to `_database_`.
+
+<Tabs>
+<TabItem value="single" label="Single-database (default)" default>
+
+Nothing to configure. With [`awe.database.multidatabase-enable`](../properties.md#awe.database.multidatabase-enable) set to `false` (the default), every task runs against the single configured `spring.datasource`, and a parameter named `_database_` is treated as an ordinary parameter with **no** routing effect.
+
+</TabItem>
+<TabItem value="multi" label="Multi-database">
+
+On a deployment with `awe.database.multidatabase-enable=true`, add a task parameter in **step 2 (Task parameters)** of the wizard:
+
+| Field  | Value                                                        |
+|--------|-------------------------------------------------------------|
+| Name   | `_database_` (or your configured `awe.database.parameter-name`) |
+| Source | `Value`                                                      |
+| Value  | The **alias** of the target datasource (e.g. `reporting`)   |
+
+When the task executes, its maintain is routed to the datasource registered under that alias instead of the default one.
+
+</TabItem>
+</Tabs>
+
+The connection is resolved as follows:
+
+```mermaid
+flowchart TD
+    A["Maintain task executes"] --> B{"_database_ parameter present?"}
+    B -- No --> D["Configured spring.datasource"]
+    B -- Yes --> C{"multidatabase-enable = true?"}
+    C -- No --> D
+    C -- Yes --> E{"Alias registered as a datasource?"}
+    E -- No --> F["Error: undefined datasource"]
+    E -- Yes --> G["Target datasource (by alias)"]
+```
+
+:::warning Requirements for routing to another database
+- [`awe.database.multidatabase-enable`](../properties.md#awe.database.multidatabase-enable) must be `true`. When it is `false`, the parameter is ignored and the task always uses the default datasource.
+- The **value must be a registered datasource alias**, not a raw JDBC URL. An unknown alias raises an *undefined datasource* error at execution time.
+:::
+
+:::note Command tasks are not affected
+This applies to **maintain** tasks only. A **command** task runs a shell command and has no database connection; see [Command execution: local and remote](#command-execution-local-and-remote).
+:::
 
 ### Configuration
 
