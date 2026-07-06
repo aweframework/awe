@@ -18,6 +18,16 @@ import java.time.temporal.ChronoUnit;
 @ConfigurationProperties(prefix = "awe.scheduler")
 public class SchedulerConfigProperties {
   /**
+   * Default sender address used for scheduler report emails.
+   */
+  public static final String DEFAULT_REPORT_EMAIL_FROM_VALUE = "scheduler@almis.com";
+  /**
+   * Fully-qualified property key (relaxed-binding canonical form) for the
+   * scheduler report email sender address.
+   */
+  public static final String REPORT_EMAIL_FROM_VALUE_PROPERTY = "awe.scheduler.report-email-from-value";
+
+  /**
    * Flag to load tasks on start application
    * Default value true
    */
@@ -30,7 +40,7 @@ public class SchedulerConfigProperties {
   /**
    * Scheduler report email
    */
-  private String reportEmailFromValue = "scheduler@almis.com";
+  private String reportEmailFromValue = DEFAULT_REPORT_EMAIL_FROM_VALUE;
   /**
    * Scheduler execution log path
    */
