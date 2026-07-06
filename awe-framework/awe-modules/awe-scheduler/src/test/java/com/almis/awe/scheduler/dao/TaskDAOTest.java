@@ -9,6 +9,8 @@ import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.enums.TaskLaunchType;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.filechecker.FileChecker;
@@ -28,9 +30,11 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
@@ -449,6 +453,84 @@ class TaskDAOTest {
 
     // Assert
     assertEquals(13, serviceData.getClientActionList().size());
+  }
+
+  /**
+   * Operator supplied values must override the stored value of VARIABLE (source="1") parameters
+   * present in the map, while leaving VALUE (source="0") and PROPERTY (source="2") parameters,
+   * as well as VARIABLE parameters not present in the map, untouched.
+   */
+  @Test
+  void applyOperatorValuesOverridesVariableParameters() {
+    TaskParameter variableInMap = new TaskParameter().setName("date").setSource(String.valueOf(ParameterConstants.VARIABLE)).setValue("2020-01-01");
+    TaskParameter variableNotInMap = new TaskParameter().setName("other").setSource(String.valueOf(ParameterConstants.VARIABLE)).setValue("keepMe");
+    TaskParameter valueParameter = new TaskParameter().setName("value").setSource(String.valueOf(ParameterConstants.VALUE)).setValue("staticValue");
+    TaskParameter propertyParameter = new TaskParameter().setName("property").setSource(String.valueOf(ParameterConstants.PROPERTY)).setValue("staticProperty");
+
+    Task task = new Task().setParameterList(Arrays.asList(variableInMap, variableNotInMap, valueParameter, propertyParameter));
+
+    Map<String, String> variables = new HashMap<>();
+    variables.put("date", "2026-07-06");
+    // These entries must be ignored because the matching parameters are not VARIABLE parameters
+    variables.put("value", "hackedValue");
+    variables.put("property", "hackedProperty");
+
+    // Run method
+    taskDAO.applyOperatorValues(task, variables);
+
+    // Assert
+    assertEquals("2026-07-06", variableInMap.getValue());
+    assertEquals("keepMe", variableNotInMap.getValue());
+    assertEquals("staticValue", valueParameter.getValue());
+    assertEquals("staticProperty", propertyParameter.getValue());
+  }
+
+  /**
+   * A null operator values map must be a no-op and leave every parameter value untouched.
+   */
+  @Test
+  void applyOperatorValuesNullMapIsNoOp() {
+    TaskParameter variableParameter = new TaskParameter().setName("date").setSource(String.valueOf(ParameterConstants.VARIABLE)).setValue("2020-01-01");
+    Task task = new Task().setParameterList(List.of(variableParameter));
+
+    // Run method
+    taskDAO.applyOperatorValues(task, null);
+
+    // Assert
+    assertEquals("2020-01-01", variableParameter.getValue());
+  }
+
+  /**
+   * A non-null but empty operator values map must be a no-op (short-circuits before iterating).
+   */
+  @Test
+  void applyOperatorValuesEmptyMapIsNoOp() {
+    TaskParameter variableParameter = new TaskParameter().setName("date").setSource(String.valueOf(ParameterConstants.VARIABLE)).setValue("2020-01-01");
+    Task task = new Task().setParameterList(List.of(variableParameter));
+
+    // Run method
+    taskDAO.applyOperatorValues(task, new HashMap<>());
+
+    // Assert
+    assertEquals("2020-01-01", variableParameter.getValue());
+  }
+
+  /**
+   * A variable parameter with a null name must not raise a NPE and must keep its stored value.
+   */
+  @Test
+  void applyOperatorValuesNullParameterNameIsNotOverridden() {
+    TaskParameter nullNameParameter = new TaskParameter().setName(null).setSource(String.valueOf(ParameterConstants.VARIABLE)).setValue("keepMe");
+    Task task = new Task().setParameterList(List.of(nullNameParameter));
+
+    Map<String, String> variables = new HashMap<>();
+    variables.put("date", "2026-07-06");
+
+    // Run method
+    assertDoesNotThrow(() -> taskDAO.applyOperatorValues(task, variables));
+
+    // Assert
+    assertEquals("keepMe", nullNameParameter.getValue());
   }
 
   /**

@@ -563,7 +563,7 @@
         <dependency-element id="RepTyp" condition="eq" value="1"/>
       </dependency>
     </criteria>
-    <criteria label="PARAMETER_MESSAGE" component="textarea" id="RepMsg" style="col-xs-12">
+    <criteria label="PARAMETER_MESSAGE" component="textarea" id="RepMsg" style="col-xs-12" validation="{maxlength: 250}">
       <dependency target-type="show" initial="true">
         <dependency-element id="RepTyp" condition="in" value="1,2"/>
       </dependency>

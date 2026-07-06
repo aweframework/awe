@@ -8,6 +8,7 @@ import com.almis.awe.scheduler.service.SchedulerService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/scheduler/api/v1")
@@ -86,13 +87,15 @@ public class SchedulerController {
   /**
    * Execute the selected task now
    *
-   * @param taskId Task identifier
+   * @param taskId    Task identifier
+   * @param user      Launch user
+   * @param variables Operator supplied values for variable parameters
    * @return ServiceData
    * @throws AWException Error executing task
    */
   @PostMapping("/task/{taskId}/execute")
-  ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user) throws AWException {
-    return schedulerService.executeTaskNow(taskId, user);
+  ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user, @RequestBody(required = false) Map<String, String> variables) throws AWException {
+    return schedulerService.executeTaskNow(taskId, user, variables);
   }
 
   /**

@@ -23,6 +23,7 @@ import com.almis.awe.scheduler.bean.file.File;
 import com.almis.awe.scheduler.bean.report.Report;
 import com.almis.awe.scheduler.bean.task.*;
 import com.almis.awe.scheduler.builder.task.TaskBuilder;
+import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.enums.TaskLaunchType;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.enums.TriggerType;
@@ -686,18 +687,52 @@ public class TaskDAO extends ServiceConfig {
    * Execute the selected task now
    *
    * @param taskId Task identifier
+   * @param user   Launch user
    * @return ServiceData
    * @throws AWException Error executing immediate task
    */
   public ServiceData executeTaskNow(Integer taskId, String user) throws AWException {
+    return executeTaskNow(taskId, user, null);
+  }
+
+  /**
+   * Execute the selected task now, applying the operator supplied values for its variable parameters
+   *
+   * @param taskId    Task identifier
+   * @param user      Launch user
+   * @param variables Operator supplied values (parameter name -&gt; value) for variable parameters
+   * @return ServiceData
+   * @throws AWException Error executing immediate task
+   */
+  public ServiceData executeTaskNow(Integer taskId, String user, Map<String, String> variables) throws AWException {
     // Creates a task that is executed at the moment it is added to the scheduler
-    executeImmediateTask(taskId, TriggerType.MANUAL, user, null);
+    executeImmediateTask(taskId, TriggerType.MANUAL, user, null, variables);
 
     // Log launched task
     log.info("Task launched manually: {}", taskId);
 
     // Return ok service data
     return new ServiceData();
+  }
+
+  /**
+   * Apply the operator supplied values to the task variable parameters.
+   * Only parameters whose source is {@link ParameterConstants#VARIABLE} and whose name is present
+   * in the provided map are overridden; every other parameter keeps its stored value.
+   *
+   * @param task      Task holding the parameter list to update
+   * @param variables Operator supplied values (parameter name -&gt; value); null or empty is a no-op
+   */
+  void applyOperatorValues(Task task, Map<String, String> variables) {
+    if (variables == null || variables.isEmpty() || task.getParameterList() == null) {
+      return;
+    }
+
+    for (TaskParameter parameter : task.getParameterList()) {
+      if (String.valueOf(ParameterConstants.VARIABLE).equals(parameter.getSource()) && variables.containsKey(parameter.getName())) {
+        parameter.setValue(variables.get(parameter.getName()));
+      }
+    }
   }
 
   /**
@@ -709,7 +744,7 @@ public class TaskDAO extends ServiceConfig {
    */
   public void executeDependency(Integer taskId, TaskExecution parentExecution) throws AWException {
     // Creates a task that is executed at the moment it is added to the scheduler
-    executeImmediateTask(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution);
+    executeImmediateTask(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution, null);
 
     // Log launched task
     log.info("Task #{} launched as dependency from task #{}", taskId, parentExecution.getTaskId());
@@ -721,13 +756,18 @@ public class TaskDAO extends ServiceConfig {
    * @param taskId      Task id
    * @param triggerType Trigger type
    * @param launcher    Task launcher
+   * @param parent      Parent execution
+   * @param variables   Operator supplied values for variable parameters (null when not applicable)
    * @throws AWException Error executing immediate task
    */
-  private void executeImmediateTask(Integer taskId, TriggerType triggerType, String launcher, TaskExecution parent) throws AWException {
+  private void executeImmediateTask(Integer taskId, TriggerType triggerType, String launcher, TaskExecution parent, Map<String, String> variables) throws AWException {
     try {
       Task task = loadTask(taskId);
       task.setLauncher(launcher);
       task.setParentExecution(parent);
+
+      // Override variable parameters with the operator supplied values
+      applyOperatorValues(task, variables);
 
       JobDataMap dataMap = new JobDataMap();
       dataMap.put(TASK, task);

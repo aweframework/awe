@@ -186,10 +186,22 @@ These parameters are loaded to the application context when the task is going to
 | Name          | Parameter name                                                                                                                                                 | **Required** |
 | Source        | Parameter source, the place from which the parameter will take its value                                                                                       | **Required** |
 | Type          | The parameter type (Only used to give extra information to the user)                                                                                           | **Required** |
-| Value         | The parameter value, it can be directly the parameter value if the source is `Value`, or the parameter name to take the value from if the source is `Variable` |   Optional   |
+| Value         | For `Value`, the literal value used. For `Property`, the key of the application property to resolve. For `Variable`, the default value pre-filled in the manual-launch dialog (may be left empty) |   Optional   |
 
 
 > **Note:** If the task launch type is `Maintain`, the needed parameters for the selected maintain will be automatically added to the task parameters screen.
+
+##### Parameter sources #####
+
+The **Source** determines where each parameter takes its value from at execution time:
+
+- **Value** &mdash; the parameter uses the literal value typed in the **Value** field.
+- **Property** &mdash; the value is resolved at execution time from the application property whose key is in the **Value** field (for example a value configured in `application.yml`). Use it to keep environment-specific values out of the task definition.
+- **Variable** &mdash; the value is supplied by the operator **when the task is launched manually**. This is for inputs that are only known at run time (a business date, an entity id, a run mode&hellip;) and should not be hardcoded in the task.
+
+When a task has one or more `Variable` parameters, launching it from the task list opens a dialog with an editable grid listing exactly those parameters. Each row is pre-filled with its configured **Value** as an editable default; the operator reviews or changes the values and presses **Launch**, and the task runs with them. Tasks without `Variable` parameters launch directly, with no dialog.
+
+> **Note:** The dialog only appears on **manual** launch, where an operator is present to fill it in. On **scheduled**, **file** and **dependency** launches there is nobody to prompt, so a `Variable` parameter falls back to its configured **Value**.
 
 #### 3. Task launch ###
 
