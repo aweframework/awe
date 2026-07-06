@@ -269,6 +269,42 @@ This option will send an email with the task information, and it will also add t
 
 > **Note:** The email will also add basic information about the task itself and its dependencies.
 
+###### Dynamic variables in Title and Message
+
+The **Title** and **Message** fields support `${variable}` placeholders that are resolved with per-execution values before the email is sent. This lets a single template produce a customized email for every task execution.
+
+Placeholders can reference two kinds of values: **task/execution metadata** (reserved names) and **task parameters** (by name).
+
+**Metadata variables**
+
+| Variable             | Description                                             |
+|----------------------|--------------------------------------------------------|
+| `${taskName}`        | Name of the task                                       |
+| `${taskId}`          | Task identifier                                        |
+| `${taskDescription}` | Task description                                       |
+| `${status}`          | Final execution status label (e.g. `OK`, `ERROR`)      |
+| `${statusDetail}`    | Additional detail about the execution status           |
+| `${executionId}`     | Execution identifier                                   |
+| `${command}`         | Command/action executed by the task                    |
+
+**Task parameter variables**
+
+Any placeholder whose name matches a task parameter (from the task **Parameters** tab) is replaced with that parameter's value. For example, `${env}` resolves to the value of the `env` parameter.
+
+**Resolution rules**
+
+- **Reserved names take precedence.** If a task parameter has the same name as a metadata variable (e.g. `status`), the metadata value wins and a warning is logged naming the shadowed parameter.
+- **Unknown placeholders are kept literally.** A `${variable}` with no matching metadata key or task parameter is left untouched in the output; it is never blanked or removed.
+- **HTML is escaped safely.** In the HTML body, substituted values are HTML-escaped so they cannot break the markup or inject content; the plain-text body receives the raw values. The template text itself is never escaped.
+- **Backward compatible.** A Title or Message without any `${...}` placeholder is sent exactly as written.
+
+**Example**
+
+- Title: `Task ${taskName} finished: ${status}`
+- Message: `Execution ${executionId} for environment ${env} ended with status ${status}.`
+
+> **Note:** Variable substitution applies only to the **Title** and **Message** fields, not to the fixed task-details block that the report appends automatically.
+
 ##### 3.3 Broadcast ####
 
 This option will send a broadcast message with the given message to the selected users only.

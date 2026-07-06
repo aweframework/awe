@@ -13,6 +13,10 @@ import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.almis.awe.scheduler.constant.ReportConstants.*;
 
@@ -25,6 +29,19 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
   private static final String BOLD_END = ":</b> ";
   private static final String COLON_SPACE = ": ";
   private static final String NEW_LINE = "\n";
+  private static final String EMPTY = "";
+
+  // Reserved report variable keys (metadata always wins over same-named task parameters)
+  private static final String VAR_TASK_NAME = "taskName";
+  private static final String VAR_TASK_ID = "taskId";
+  private static final String VAR_TASK_DESCRIPTION = "taskDescription";
+  private static final String VAR_STATUS = "status";
+  private static final String VAR_STATUS_DETAIL = "statusDetail";
+  private static final String VAR_EXECUTION_ID = "executionId";
+  private static final String VAR_COMMAND = "command";
+  private static final String VARIABLE_PREFIX = "${";
+  private static final String VARIABLE_SUFFIX = "}";
+  private static final String STATUS_LABEL_RESOURCE = "StaTyp";
 
   // Autowired services
   private final QueryUtil queryUtil;
@@ -52,12 +69,39 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
   }
 
   public void execute(Task task, TaskExecution taskExecution) {
+    // Resolve report title and message placeholders (${variable}) before building any output
+    String reportTitle = task.getReport().getReportTitle();
+    String reportMessage = task.getReport().getReportMessage();
+
+    // Short-circuit substitution: only build the variable catalog and resolve placeholders when
+    // at least one template actually contains a ${...} marker. This preserves byte-identical
+    // legacy behavior for reports without placeholders and avoids building the catalog (and its
+    // failure surface) when it would never be used.
+    String resolvedTitle;
+    String resolvedMessage;
+    String resolvedHtmlTitle;
+    String resolvedHtmlMessage;
+    if (containsPlaceholder(reportTitle) || containsPlaceholder(reportMessage)) {
+      Map<String, String> variableCatalog = buildVariableCatalog(task, taskExecution);
+      Map<String, String> htmlVariableCatalog = buildHtmlVariableCatalog(variableCatalog);
+
+      resolvedTitle = applyVariables(reportTitle, variableCatalog);
+      resolvedMessage = applyVariables(reportMessage, variableCatalog);
+      resolvedHtmlTitle = applyVariables(reportTitle, htmlVariableCatalog);
+      resolvedHtmlMessage = applyVariables(reportMessage, htmlVariableCatalog);
+    } else {
+      resolvedTitle = reportTitle;
+      resolvedMessage = reportMessage;
+      resolvedHtmlTitle = reportTitle;
+      resolvedHtmlMessage = reportMessage;
+    }
+
     // Store task and execution in parameters
     ObjectNode parameters = queryUtil.getParameters();
     parameters.set(REPORT_DESTINATION_EMAILS, mapper.valueToTree(task.getReport().getReportEmailDestination()));
-    parameters.put(REPORT_TITLE, task.getReport().getReportTitle());
-    parameters.put(REPORT_MESSAGE_HTML, constructHTMLMessage(task, taskExecution));
-    parameters.put(REPORT_MESSAGE_TEXT, constructTextMessage(task, taskExecution));
+    parameters.put(REPORT_TITLE, resolvedTitle);
+    parameters.put(REPORT_MESSAGE_HTML, constructHTMLMessage(resolvedHtmlTitle, resolvedHtmlMessage, task, taskExecution));
+    parameters.put(REPORT_MESSAGE_TEXT, constructTextMessage(resolvedTitle, resolvedMessage, task, taskExecution));
 
     try {
       maintainService.launchPrivateMaintain(REPORT_MAINTAIN_TARGET, parameters);
@@ -68,16 +112,192 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
   }
 
   /**
+   * Build the ordered raw variable catalog used to resolve ${variable} placeholders in the
+   * report title and message. Metadata keys are inserted first (reserved) and always take
+   * precedence over a task parameter with the same name; on collision the metadata value is
+   * kept and a warning is logged naming the shadowed parameter. Null values are coalesced to
+   * an empty string.
+   *
+   * @param task      Task being reported
+   * @param execution Task execution
+   * @return Ordered raw catalog of variable name to value
+   */
+  private Map<String, String> buildVariableCatalog(Task task, TaskExecution execution) {
+    Map<String, String> catalog = new LinkedHashMap<>();
+    catalog.put(VAR_TASK_NAME, coalesce(task.getName()));
+    catalog.put(VAR_TASK_ID, coalesce(task.getTaskId() != null ? task.getTaskId().toString() : null));
+    catalog.put(VAR_TASK_DESCRIPTION, coalesce(task.getDescription()));
+    catalog.put(VAR_STATUS, coalesce(resolveStatusLabel(execution)));
+    catalog.put(VAR_STATUS_DETAIL, coalesce(execution.getDescription()));
+    catalog.put(VAR_EXECUTION_ID, coalesce(execution.getExecutionId() != null ? execution.getExecutionId().toString() : null));
+    catalog.put(VAR_COMMAND, coalesce(task.getAction()));
+
+    appendTaskParameters(catalog, task);
+    return catalog;
+  }
+
+  /**
+   * Append task parameter values to the catalog. Parameters with a null name are skipped, and
+   * names that collide with an already-present key (reserved metadata or an earlier parameter)
+   * are not overwritten; the collision is logged.
+   *
+   * @param catalog Catalog being built, with reserved metadata already inserted
+   * @param task    Task providing the parameter list
+   */
+  private void appendTaskParameters(Map<String, String> catalog, Task task) {
+    if (task.getParameterList() == null) {
+      return;
+    }
+    for (TaskParameter parameter : task.getParameterList()) {
+      String parameterName = parameter.getName();
+      if (parameterName == null) {
+        log.warn("Ignoring task parameter with a null name for placeholder resolution");
+      } else if (catalog.containsKey(parameterName)) {
+        logSkippedParameter(parameterName);
+      } else {
+        catalog.put(parameterName, coalesce(parameter.getValue()));
+      }
+    }
+  }
+
+  /**
+   * Log the reason a colliding task parameter name is skipped: shadowed by reserved metadata
+   * or a duplicate parameter name.
+   *
+   * @param parameterName Colliding task parameter name
+   */
+  private void logSkippedParameter(String parameterName) {
+    if (isReservedMetadataKey(parameterName)) {
+      log.warn("Task parameter '{}' is shadowed by a reserved report metadata variable and will not be used for placeholder resolution", parameterName);
+    } else {
+      log.warn("Duplicate task parameter name '{}' for placeholder resolution; the first value is kept and later values are ignored", parameterName);
+    }
+  }
+
+  /**
+   * Whether the given key is one of the reserved report metadata variable names.
+   *
+   * @param key Candidate variable name
+   * @return {@code true} if the key is a reserved metadata variable name
+   */
+  private boolean isReservedMetadataKey(String key) {
+    return VAR_TASK_NAME.equals(key)
+      || VAR_TASK_ID.equals(key)
+      || VAR_TASK_DESCRIPTION.equals(key)
+      || VAR_STATUS.equals(key)
+      || VAR_STATUS_DETAIL.equals(key)
+      || VAR_EXECUTION_ID.equals(key)
+      || VAR_COMMAND.equals(key);
+  }
+
+  /**
+   * Whether the given template contains at least one ${...} placeholder marker.
+   *
+   * @param template Template to inspect (may be null)
+   * @return {@code true} if the template contains the placeholder prefix
+   */
+  private boolean containsPlaceholder(String template) {
+    return template != null && template.contains(VARIABLE_PREFIX);
+  }
+
+  /**
+   * Resolve the localized status label for the given execution, matching the same source
+   * used in the fixed task-details block.
+   *
+   * @param execution Task execution
+   * @return Localized status label, or {@code null} if the label cannot be resolved
+   */
+  private String resolveStatusLabel(TaskExecution execution) {
+    if (execution.getStatus() == null) {
+      return EMPTY;
+    }
+    try {
+      return getLocale(queryService.findLabel(STATUS_LABEL_RESOURCE, execution.getStatus().toString()));
+    } catch (Exception exc) {
+      log.error("Error resolving status label for task execution #{}", execution.getExecutionId(), exc);
+      return null;
+    }
+  }
+
+  /**
+   * Derive an HTML-safe copy of the raw variable catalog by escaping every value.
+   * The template itself is never escaped, only the substituted values.
+   *
+   * @param catalog Raw variable catalog
+   * @return HTML-escaped variable catalog
+   */
+  private Map<String, String> buildHtmlVariableCatalog(Map<String, String> catalog) {
+    Map<String, String> htmlCatalog = new LinkedHashMap<>();
+    catalog.forEach((key, value) -> htmlCatalog.put(key, StringEscapeUtils.escapeHtml4(value)));
+    return htmlCatalog;
+  }
+
+  /**
+   * Coalesce a possibly null value to an empty string.
+   *
+   * @param value Value
+   * @return Value, or an empty string if null
+   */
+  private String coalesce(String value) {
+    return value == null ? EMPTY : value;
+  }
+
+  /**
+   * Resolve every ${key} placeholder in a single left-to-right pass over the original template.
+   * Each placeholder is looked up in the catalog: when the key is known its value is appended
+   * verbatim and is never re-scanned, so a substituted value that itself contains a ${...} marker
+   * is emitted as-is. Unknown placeholders and any unterminated ${ (with no closing brace) are
+   * copied literally. Text outside placeholders is copied verbatim.
+   *
+   * @param template Template containing zero or more ${key} placeholders
+   * @param catalog  Variable catalog
+   * @return Resolved template, or {@code null} if template is null
+   */
+  private String applyVariables(String template, Map<String, String> catalog) {
+    if (template == null) {
+      return null;
+    }
+    StringBuilder result = new StringBuilder(template.length());
+    int cursor = 0;
+    while (cursor < template.length()) {
+      int start = template.indexOf(VARIABLE_PREFIX, cursor);
+      int end = start < 0 ? -1 : template.indexOf(VARIABLE_SUFFIX, start + VARIABLE_PREFIX.length());
+      if (start < 0 || end < 0) {
+        // No further complete placeholder: copy the rest verbatim (including any unterminated ${).
+        result.append(template, cursor, template.length());
+        cursor = template.length();
+      } else {
+        // Copy the literal text preceding the placeholder.
+        result.append(template, cursor, start);
+        String key = template.substring(start + VARIABLE_PREFIX.length(), end);
+        if (catalog.containsKey(key)) {
+          // Append the resolved value verbatim; it is never re-scanned.
+          result.append(catalog.get(key));
+        } else {
+          // Unknown placeholder: keep the literal ${key}.
+          result.append(VARIABLE_PREFIX).append(key).append(VARIABLE_SUFFIX);
+        }
+        cursor = end + VARIABLE_SUFFIX.length();
+      }
+    }
+    return result.toString();
+  }
+
+  /**
    * Get HTML string with report message with title
    *
+   * @param resolvedTitle   Resolved (HTML-escaped) report title
+   * @param resolvedMessage Resolved (HTML-escaped) report message
+   * @param task            Task
+   * @param execution       Task execution
    * @return
    * @throws AWException
    */
-  private String constructHTMLMessage(Task task, TaskExecution execution) {
+  private String constructHTMLMessage(String resolvedTitle, String resolvedMessage, Task task, TaskExecution execution) {
     String msg = "";
     msg += "<html>";
-    msg += constructHTMLHeader(task.getReport().getReportTitle() != null ? task.getReport().getReportTitle() : getLocale(PARAMETER_TASK_DETAILS));
-    msg += constructHTMLBody(task, execution);
+    msg += constructHTMLHeader(resolvedTitle != null ? resolvedTitle : getLocale(PARAMETER_TASK_DETAILS));
+    msg += constructHTMLBody(resolvedMessage, task, execution);
     msg += "</html>";
     return msg;
   }
@@ -102,12 +322,15 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
   /**
    * Get HTML message body
    *
+   * @param resolvedMessage Resolved (HTML-escaped) report message
+   * @param task            Task
+   * @param execution       Task execution
    * @return String
    */
-  private String constructHTMLBody(Task task, TaskExecution execution) {
+  private String constructHTMLBody(String resolvedMessage, Task task, TaskExecution execution) {
     String msg = "";
     // Construct HTML body
-    msg += "<p>" + task.getReport().getReportMessage() + "</p>";
+    msg += "<p>" + resolvedMessage + "</p>";
     msg += "<div style=\"border:1px solid black;\">";
     try {
       msg += "<br><b><u>" + getLocale(PARAMETER_TASK_DETAILS) + "</u></b>";
@@ -131,7 +354,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
 
     String launchType = queryService.findLabel("LchTxtTyp", execution.getGroupId());
     String statusColor = queryService.findLabel("StaColor", execution.getStatus().toString());
-    String statusText = queryService.findLabel("StaTyp", execution.getStatus().toString());
+    String statusText = queryService.findLabel(STATUS_LABEL_RESOURCE, execution.getStatus().toString());
 
     // Construct HTML task details message
     builder.append("<div><ul>");
@@ -142,7 +365,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
     builder.append("<li style=\"margin-top:12px;\"><b>")
       .append(getLocale(PARAMETER_STATUS)).append(BOLD_END)
       .append("<span style = \"padding:10px;color:white;-moz-border-radius: 20px; -webkit-border-radius: 20px; border-radius: 20px;background-color:")
-      .append(statusColor).append("\">").append(getLocale(statusText)).append("</span></li>)");
+      .append(statusColor).append("\">").append(getLocale(statusText)).append("</span></li>");
 
     switch (TaskStatus.valueOf(execution.getStatus())) {
       case JOB_ERROR:
@@ -170,25 +393,32 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
   /**
    * Get text string with report message with title
    *
+   * @param resolvedTitle   Resolved (raw) report title
+   * @param resolvedMessage Resolved (raw) report message
+   * @param task            Task
+   * @param execution       Task execution
    * @return
    * @throws AWException
    */
-  private String constructTextMessage(Task task, TaskExecution execution) {
+  private String constructTextMessage(String resolvedTitle, String resolvedMessage, Task task, TaskExecution execution) {
     String msg = "";
-    msg += task.getReport().getReportTitle() != null ? task.getReport().getReportTitle() : getLocale(PARAMETER_TASK_DETAILS) + NEW_LINE;
-    msg += constructTextBody(task, execution);
+    msg += resolvedTitle != null ? resolvedTitle : getLocale(PARAMETER_TASK_DETAILS) + NEW_LINE;
+    msg += constructTextBody(resolvedMessage, task, execution);
     return msg;
   }
 
   /**
    * Get Text message body
    *
+   * @param resolvedMessage Resolved (raw) report message
+   * @param task            Task
+   * @param execution       Task execution
    * @return String
    */
-  private String constructTextBody(Task task, TaskExecution execution) {
+  private String constructTextBody(String resolvedMessage, Task task, TaskExecution execution) {
     String msg = "";
     // Construct text body
-    msg += task.getReport().getReportMessage() + "\n\n";
+    msg += resolvedMessage + "\n\n";
     try {
       msg += getLocale(PARAMETER_TASK_DETAILS) + NEW_LINE;
       msg += getTextTaskDetailsMessage(task, execution);
@@ -209,7 +439,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
     StringBuilder builder = new StringBuilder();
 
     String launchType = queryService.findLabel("LchTxtTyp", execution.getGroupId());
-    String statusText = queryService.findLabel("StaTyp", execution.getStatus().toString());
+    String statusText = queryService.findLabel(STATUS_LABEL_RESOURCE, execution.getStatus().toString());
 
     // Construct HTML task details message
     builder.append(getLocale(PARAMETER_NAME)).append(COLON_SPACE).append(task.getName()).append(NEW_LINE);
@@ -232,7 +462,7 @@ public class SchedulerEmailReportService extends ServiceConfig implements ISched
     builder.append(getLocale(PARAMETER_EXECUTED_COMMAND)).append(COLON_SPACE).append(task.getAction()).append(NEW_LINE);
     builder.append(getLocale(PARAMETER_PARAMETERS)).append(NEW_LINE);
     for (TaskParameter parameter : task.getParameterList()) {
-      builder.append("  - " + parameter.getName()).append(COLON_SPACE).append(parameter.getValue()).append(NEW_LINE);
+      builder.append("  - ").append(parameter.getName()).append(COLON_SPACE).append(parameter.getValue()).append(NEW_LINE);
     }
 
     return builder.toString();
