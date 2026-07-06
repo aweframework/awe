@@ -9,6 +9,7 @@
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_CLEAR_AND_STOP" value="Nettoyer et arrêter"/>
   <locale name="BUTTON_RESTART" value="Redémarrer"/>
+  <locale name="BUTTON_LAUNCH" value="Lancer"/>
   <locale name="BUTTON_STOP" value="Arrêter"/>
   <locale name="COLUMN_DATE" value="Date"/>
   <locale name="COLUMN_SCHEDULER_INSTANCE_ID" value="Id d&apos;instance du planificateur"/>
@@ -78,6 +79,7 @@
   <locale name="HELP_ACTIVATE_BUTTON" value="Permet à l&apos;élément sélectionné"/>
   <locale name="HELP_DEACTIVATE_BUTTON" value="Désactive l&apos;élément sélectionné"/>
   <locale name="HELP_LAUNCH_STOP_BUTTON" value="Interruption de l&apos;élément sélectionné"/>
+  <locale name="HELP_LAUNCH_VARIABLES_BUTTON" value="Définit les paramètres variables et lance la tâche sélectionnée"/>
   <locale name="HELP_RUN_BUTTON" value="Exécute l&apos;élément sélectionné"/>
   <locale name="HELP_SCREEN_EXECUTION_DATA" value="Cette dialogue indique les données de l&apos;exécution selectionèe de la tâche"/>
   <locale name="HELP_SCREEN_NEW_SCHEDULER_CALENDAR" value="Dans cet écran, vous pouvez définir la configuration d&apos;un nouveau calendrier"/>
@@ -136,6 +138,7 @@
   <locale name="SCREEN_TEXT_END_TIME" value="Heure de fin"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="L&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Les détails de l&apos;exécution"/>
+  <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Paramètres de lancement"/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Temps d&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Exécutions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Lancé par"/>

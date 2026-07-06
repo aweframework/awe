@@ -40,6 +40,17 @@
       <service-parameter name="user" type="STRING"/>
     </java>
   </service>
+  <!-- Manual launch applying operator-supplied values to the variable (source = "1") parameters.
+       The bean-class + list="true" parameter is bound by the JavaConnector as List.class, resolving
+       RemoteSchedulerService.executeTaskNow(Integer, String, List<TaskVariable>). The TaskVariable
+       field names (name/value) must match the modal grid column names. -->
+  <service id="executeTaskNowVariables">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="executeTaskNow">
+      <service-parameter name="taskIde" type="INTEGER"/>
+      <service-parameter name="user" type="STRING"/>
+      <service-parameter name="variables" type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.TaskVariable" list="true"/>
+    </java>
+  </service>
 
   <service id="insertSchedulerTask">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="insertSchedulerTask">

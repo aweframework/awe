@@ -1002,8 +1002,12 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // Select the scheduled task
     clickRowContents("Test scheduled");
 
-    // Execute task now
-    clickButton("ButRun", true);
+    // The task has variable parameters (its maintain variables), so manual launch opens
+    // the values modal instead of launching directly.
+    clickButton("ButRunVar");
+
+    // Launch from the modal (values are pre-filled with the stored defaults)
+    clickButton("ButLchTskVar", true);
 
     // Wait 5 seconds to finish the task
     pause(5000);

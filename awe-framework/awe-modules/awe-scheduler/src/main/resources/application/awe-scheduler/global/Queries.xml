@@ -573,6 +573,50 @@
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
   </query>
 
+  <!-- Scheduler variable task parameter list (source = "1", Variable). Feeds the manual launch modal
+       grid and drives the conditional RUN button. Canonical name/value aliases match the TaskVariable
+       bean fields so the send-all grid binds to List<TaskVariable>. -->
+  <query id="taskVariableParameters" public="true">
+    <table id="AweSchTskPar"/>
+    <field id="Ide" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Src" alias="source"/>
+    <field id="Typ" alias="type"/>
+    <field id="Val" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
+        <filter left-field="Src" condition="eq">
+          <right-operand>
+            <constant value="1" type="INTEGER"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdeTsk" type="INTEGER" name="taskId" optional="true"/>
+    <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Whether the selected task has variable (source = "1") parameters. Returns a single row with
+       value = 1 when it has at least one, and no row otherwise. Fills the hidden hasVarParams criterion
+       via server-action="value" to drive the conditional RUN button. -->
+  <query id="taskHasVariableParameters" public="true" distinct="true">
+    <table id="AweSchTskPar"/>
+    <field id="Src" alias="value"/>
+    <field id="Src" alias="label"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
+        <filter left-field="Src" condition="eq">
+          <right-operand>
+            <constant value="1" type="INTEGER"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+
   <!-- Scheduler server list -->
   <query id="SchSrvLst">
     <table id="AweSchSrv" alias="Srv"/>

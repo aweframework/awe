@@ -504,6 +504,20 @@
     </serve>
   </target>
 
+  <!-- Manual launch with operator-supplied values for the variable (source = "1") parameters,
+       collected from the send-all modal grid (GrdTskVar). The name/value variables carry the grid
+       column arrays; ServiceMaintainConnector leaves the bean-class service-parameter un-remapped and
+       carries the name/value keys through so getParameterBeanListValue assembles List<TaskVariable>.
+       -->
+  <target name="LchTskVar">
+    <serve service="executeTaskNowVariables">
+      <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="name" type="STRING" name="name"/>
+      <variable id="value" type="STRING" name="value"/>
+    </serve>
+  </target>
+
   <!-- Delete scheduled task -->
   <target name="DeleteSchedulerTask">
     <delete multiple="true">
