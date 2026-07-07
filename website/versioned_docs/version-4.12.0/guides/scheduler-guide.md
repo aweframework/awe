@@ -201,7 +201,7 @@ The **Source** determines where each parameter takes its value from at execution
 
 When a task has one or more `Variable` parameters, launching it from the task list opens a dialog with an editable grid listing exactly those parameters. Each row is pre-filled with its configured **Value** as an editable default; the operator reviews or changes the values and presses **Launch**, and the task runs with them. Tasks without `Variable` parameters launch directly, with no dialog.
 
-> **Note:** The dialog only appears on **manual** launch, where an operator is present to fill it in. On **scheduled**, **file** and **dependency** launches there is nobody to prompt, so a `Variable` parameter falls back to its configured **Value**.
+> **Note:** The dialog only appears on **manual** launch, where an operator is present to fill it in. On **scheduled** and **file** launches there is nobody to prompt, so a `Variable` parameter falls back to its configured **Value**. On **dependency** launch the value is inherited from the parent task &mdash; see [Parameter propagation to dependencies](#parameter-propagation-to-dependencies).
 
 #### 3. Task launch ###
 
@@ -252,6 +252,28 @@ Playing with these options, we can create a workflow.
 
 
 > **Note:** The dependencies can also have their own dependencies to create a workflow.
+
+##### Parameter propagation to dependencies
+
+When a task launches its dependent (child) tasks, the parent's parameter values at execution time are propagated to each child. The **child defines the contract**: only the child's `Variable` parameters whose **name matches** a parent parameter are overridden with the parent's value. Every other parent parameter is ignored by that child, and the child's non-`Variable` parameters are never touched.
+
+- **What propagates** &mdash; the parent's value for a given name, regardless of the parent parameter's source (`Value`, `Property` or `Variable`). Where the parent obtained the value is irrelevant; only the name matters.
+- **Default when absent** &mdash; if the parent does not supply a matching name, the child keeps its own configured **Value** as the default (no regression versus previous behavior).
+- **Cascade** &mdash; at each hop the propagation map is rebuilt from the current task's own parameter list, so a value only continues past an intermediate task if that task **also declares a parameter with that name**. A value the parent supplies for a name an intermediate child does not declare stops at that child and is not passed on to the grandchild.
+
+Example, with a parent task that holds `database = "prod"` (source `Value`):
+
+| Child parameter declaration | Effective value in the child | Why |
+|---|---|---|
+| `database` as `Variable` | `"prod"` | Name matches a parent parameter and the child opted in via `Variable` |
+| `database` as `Value` = `"test"` | `"test"` | Not a `Variable`; never overridden |
+| `region` as `Variable` (parent has no `region`) | its configured default | Parent supplies no matching name |
+
+This reuses the same mechanism as the operator-supplied values on manual launch, so a value an operator typed into the parent's launch dialog also flows down to its dependents.
+
+:::warning Trust boundary for sensitive values
+Propagation is name-based: any dependent task that declares a `Variable` parameter matching a parent parameter name receives the parent's value at execution time &mdash; including values that may be sensitive (credentials, connection strings). Task configuration is an administrator-trusted boundary; do not attach dependencies of untrusted provenance to tasks holding sensitive parameters.
+:::
 
 #### 3. Task report ###
 
