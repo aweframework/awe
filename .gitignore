@@ -134,11 +134,16 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 .pi/
 
 ######################
-# Playwright MCP
+# Playwright
 ######################
 .playwright-mcp/
+.playwright-cli/
 
 ######################
 # CodeGraph
 ######################
 .codegraph/
+
+# AI assistant skill symlinks (agentskills.io — source in /skills)
+/.claude/skills
+/.agents/skills
