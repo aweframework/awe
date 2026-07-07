@@ -40,7 +40,7 @@ mvn test -pl awe-framework/awe-client-angular
 ### Integration & Selenium Tests
 
 For AWE's Spring integration (DB-backed) tests and Selenium browser suites, follow the
-`awe-integration-tests` skill (`.claude/skills/awe-integration-tests/SKILL.md`). Selenium example:
+`awe-integration-tests` skill (`skills/awe-integration-tests/SKILL.md`). Selenium example:
 
 ```bash
 # Selenium suite (add `xvfb-run -a` when there is no X11 display, e.g. WSL)

@@ -3,7 +3,7 @@ name: awe-integration-tests
 description: "Trigger: run integration tests, selenium IT, spring integration tests, awe-boot verify, run a test suite. Exact commands to run AWE's Spring integration and Selenium tests locally."
 license: Apache-2.0
 metadata:
-  author: pablo-vidal
+  author: awe-team
   version: "1.0"
 ---
 
@@ -15,7 +15,8 @@ Use when running or debugging AWE's integration tests locally: Spring/JUnit DB-b
 
 - Selenium ITs are ordered and stateful (`t000`→`t999`); run the whole suite tag, never a single method.
 - `verify` on awe-boot starts its own app (`spring-boot:start`, port 8080) and stops it after — free 8080 first; do not leave a manual `spring-boot:run` instance up.
-- Prefix `xvfb-run -a` when there is no X11 `DISPLAY` (WSL / headless host): the test video recorder calls AWT `getScreenSize` and throws `HeadlessException` without a display. CI has a virtual display.
+- **Linux / WSL:** prefix `xvfb-run -a` when there is no X11 `DISPLAY`: the FFmpeg video recorder (forced by `video.properties` `recorder.type=FFMPEG`, `video.mode=ALL`) queries AWT `getScreenSize` and throws `HeadlessException` without a display. CI has a virtual display.
+- **Windows:** no `xvfb-run` — the desktop session is a real display, so no `HeadlessException`. Instead `ffmpeg` must be on the `PATH` (`WindowsFFmpegRecorder` shells out to `ffmpeg gdigrab`), run the command on a single line (`\` is bash-only), and do NOT pass `-Djava.awt.headless=true`. To skip recording entirely (no ffmpeg needed), unset `video.mode` / disable recording in `video.properties`.
 - Selenium Manager / WebDriverManager auto-resolves the driver for the installed `google-chrome`; no manual chromedriver needed (needs network on first run).
 - Run `mvn install -DskipTests` (or `-pl <module>`) before testing so awe-boot bundles your latest module resources.
 
@@ -29,7 +30,11 @@ xvfb-run -a mvn -f awe-tests/awe-boot/pom.xml verify \
 ```
 - `<SUITE_TAG>` (JUnit `@Tag`): `SchedulerIT`, `ApplicationIntegrationIT`, `CRUDCriteriaMatrixIT`, `RegressionWebsocketPrintIT`.
 - Browser: `headless-chrome` or `headless-firefox`.
-- Drop `xvfb-run -a` on a host with a real display.
+- Drop `xvfb-run -a` on a host with a real display (macOS, or Linux with X11).
+- On **Windows** (PowerShell / cmd), no `xvfb-run` and single line — needs `ffmpeg` on the `PATH`:
+```powershell
+mvn -f awe-tests/awe-boot/pom.xml verify -Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true -Dawe.test.browser=headless-chrome -Dgroups=<SUITE_TAG>
+```
 
 ### Spring / JUnit integration + unit tests (DB-backed)
 ```bash

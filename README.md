@@ -87,6 +87,53 @@ You must have Maven 3.x installed on your computer as well as a **JDK 17** or hi
 
 Latest changelog file: [CHANGELOG.md](CHANGELOG.md)
 
+## 🤖 AI Skills for Development
+
+AWE ships a set of **AI Skills** that help AI coding assistants understand the framework's codebase patterns and conventions.
+
+### What are AI Skills?
+
+Skills are structured instructions that give AI assistants the context they need to write code that follows AWE's standards. They include:
+
+- **XML descriptor patterns** (screens, queries, maintain, services, actions)
+- **Java service conventions** and project structure
+- **Build & test workflows** (Maven, Jest, Selenium integration tests)
+- **Framework-specific rules** for the Almis Web Engine
+
+### Available Skills
+
+| Category | Skills |
+|----------|--------|
+| **AWE** | `awe-framework`, `awe-integration-tests` |
+
+### Setup
+
+**Linux / macOS** (also works under WSL and Git Bash on Windows):
+
+```bash
+./skills/setup.sh
+```
+
+**Windows** (native PowerShell):
+
+```powershell
+./skills/setup.ps1
+```
+
+This configures skills for AI coding assistants that follow the [agentskills.io](https://agentskills.io) standard:
+
+| Tool | Configuration |
+|------|---------------|
+| **Claude Code** | `.claude/skills/` (symlink) |
+| **Agents (AGENTS.md)** | `.agents/skills/` (symlink) |
+| **Gemini CLI** | `.gemini/skills/` (symlink) |
+| **Codex (OpenAI)** | `.codex/skills/` (symlink) |
+
+> **Note:** Restart your AI coding assistant after running setup to load the skills.
+> On Windows, creating symlinks requires Developer Mode enabled or an elevated PowerShell session.
+
+See [`skills/README.md`](skills/README.md) for the full skills workflow.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
