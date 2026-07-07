@@ -736,15 +736,29 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
-   * Execute the task ask dependency
+   * Execute the task as dependency, without propagating any parent parameter value.
    *
    * @param taskId          Task identifier
    * @param parentExecution Parent execution
    * @throws AWException Error executing dependency task
    */
   public void executeDependency(Integer taskId, TaskExecution parentExecution) throws AWException {
+    executeDependency(taskId, parentExecution, Collections.emptyMap());
+  }
+
+  /**
+   * Execute the task as dependency, propagating the given parent parameter values to the child.
+   * The child defines the contract: {@link #applyOperatorValues(Task, Map)} only overrides the
+   * child's VARIABLE (source="1") parameters whose name is present in the map.
+   *
+   * @param taskId          Task identifier
+   * @param parentExecution Parent execution
+   * @param variables       Parent parameter values (name -&gt; value) to propagate; empty for none
+   * @throws AWException Error executing dependency task
+   */
+  public void executeDependency(Integer taskId, TaskExecution parentExecution, Map<String, String> variables) throws AWException {
     // Creates a task that is executed at the moment it is added to the scheduler
-    executeImmediateTask(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution, null);
+    executeImmediateTask(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution, variables);
 
     // Log launched task
     log.info("Task #{} launched as dependency from task #{}", taskId, parentExecution.getTaskId());
@@ -1241,10 +1255,49 @@ public class TaskDAO extends ServiceConfig {
    * @param execution Task execution
    */
   private void executeDependencies(Task task, TaskExecution execution) throws AWException {
+    // Propagate the parent parameter values to each dependent child (#724). The child decides which
+    // apply: applyOperatorValues only overrides the child's VARIABLE parameters whose name matches.
+    // Building the map from all parent parameters keeps the origin (value/property/variable)
+    // irrelevant — the contract is defined by the child. Cascading is automatic: the child's mutated
+    // task travels in the JobDataMap, so its own dependents inherit the accumulated values.
+    Map<String, String> parentValues = getParameterValues(task);
+
     // Iterate dependencies and create a new task for each.
     for (TaskDependency dependency : task.getDependencyList()) {
       // Execute task dependency
-      executeDependency(dependency.getTaskId(), execution);
+      executeDependency(dependency.getTaskId(), execution, parentValues);
     }
+  }
+
+  /**
+   * Build a name -&gt; value map from a task's parameter list. PROPERTY-source ({@link ParameterConstants#PROPERTY})
+   * parameters store the property KEY rather than the value; resolution normally happens at consumption
+   * (see MaintainJobService), so such parameters are resolved here via {@link #getProperty(String)} and the
+   * RESOLVED value is propagated. Any other source propagates its stored value verbatim.
+   * A parameter with a null name or a null value is treated as "not supplied" and skipped, so it never
+   * overrides a child's stored default (the child keeps its own value as the fallback); a PROPERTY parameter
+   * whose key resolves to null is likewise treated as "not supplied".
+   *
+   * @param task Task holding the parameters
+   * @return Ordered map of parameter name to value; empty when the task has no parameters
+   */
+  private Map<String, String> getParameterValues(Task task) {
+    Map<String, String> values = new LinkedHashMap<>();
+    if (task.getParameterList() != null) {
+      for (TaskParameter parameter : task.getParameterList()) {
+        if (parameter.getName() != null && parameter.getValue() != null) {
+          String value = parameter.getValue();
+          // PROPERTY-source parameters hold the property KEY; resolve it to the actual value so the
+          // child receives the resolved value instead of the raw key.
+          if (String.valueOf(ParameterConstants.PROPERTY).equals(parameter.getSource())) {
+            value = getProperty(parameter.getValue());
+          }
+          if (value != null) {
+            values.put(parameter.getName(), value);
+          }
+        }
+      }
+    }
+    return values;
   }
 }
