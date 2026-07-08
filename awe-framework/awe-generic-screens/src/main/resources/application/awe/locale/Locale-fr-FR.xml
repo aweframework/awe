@@ -870,6 +870,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_REPORT_ASSIGN" value="Generation des rapports"/>
   <locale name="MENU_REPORT_LIST" value="Visualisation des rapports"/>
   <locale name="MENU_REPORTS" value="Rapports"/>
+  <locale name="MENU_SEARCH_EMPTY" value="Aucune option trouvée"/>
   <locale name="MENU_SEL_PRN" value="Select printer"/>
   <locale name="MENU_SETTINGS" value="Réglages"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extracteur"/>

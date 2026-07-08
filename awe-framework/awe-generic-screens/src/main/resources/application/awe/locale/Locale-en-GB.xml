@@ -870,6 +870,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_REPORT_ASSIGN" value="Report assign"/>
   <locale name="MENU_REPORT_LIST" value="Report list"/>
   <locale name="MENU_REPORTS" value="Reports"/>
+  <locale name="MENU_SEARCH_EMPTY" value="No options found"/>
   <locale name="MENU_SEL_PRN" value="Select printer"/>
   <locale name="MENU_SETTINGS" value="Settings"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extractor"/>

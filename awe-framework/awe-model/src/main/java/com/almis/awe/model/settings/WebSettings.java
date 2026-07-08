@@ -31,6 +31,7 @@ public class WebSettings {
   private Integer pixelsPerCharacter;
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;
+  private Boolean menuSearchEnabled;
   private long suggestTimeout;
   // Connection
   private Integer connectionTimeout;

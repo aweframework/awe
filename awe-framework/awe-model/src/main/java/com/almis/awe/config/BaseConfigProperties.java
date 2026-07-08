@@ -80,6 +80,12 @@ public class BaseConfigProperties {
   private MenuType menuType = MenuType.HORIZONTAL;
 
   /**
+   * Enable the menu option search box.
+   * Default value true
+   */
+  private boolean menuSearchEnabled = true;
+
+  /**
    * Application address parameter name.
    * Default value address
    */
