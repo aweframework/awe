@@ -213,6 +213,60 @@ module.exports = (env = {}, argv = {}) => {
 
 For Babel, keep Istanbul instrumentation only for non-release flows such as development or test, and remove it from production builds so distributed artifacts are not instrumented.
 
+### Development mode with hot reload
+
+> Available for the AngularJS client only.
+
+AWE projects expose two launch scripts:
+
+| Command | What it does |
+| --- | --- |
+| `npm start` | Starts the application normally (`mvn spring-boot:run`). |
+| `npm run start:hot-reload` | Fast development loop: runs webpack in watch mode and the application together, so front-end edits (LESS/JS) are rebuilt incrementally (~50 ms) and served **without a JVM restart**. |
+
+With `npm run start:hot-reload`, the loop is: edit LESS/JS → the watcher rebuilds → refresh the browser. Java and screen/locale/menu XML changes still trigger a `spring-boot-devtools` restart.
+
+It relies on three pieces (all shipped by the archetype and `awe-boot`):
+
+- **npm scripts**: a `build:watch` script (`webpack --config webpack.config.js --watch --mode development`) and `concurrently` (devDependency) to run the watcher and the app in parallel.
+- **Maven `hot-reload` profile**: unbinds the Maven-driven `frontend-maven-plugin` executions so the watcher owns the bundles (otherwise `mvn spring-boot:run` would run `npm ci` and a second webpack, colliding with the watcher), while keeping `spring-boot-devtools`.
+
+  ```xml
+  <profile>
+    <id>hot-reload</id>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <executions>
+            <execution><id>install node and npm</id><phase>none</phase></execution>
+            <execution><id>npm ci</id><phase>none</phase></execution>
+            <execution><id>npm run build</id><phase>none</phase></execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </build>
+  </profile>
+  ```
+
+- **Relaxed static-resource handling in development** so rebuilt bundles are served immediately (no content hashing, no caching):
+
+  ```properties
+  spring.web.resources.cache.period=0
+  spring.web.resources.chain.cache=false
+  spring.web.resources.chain.strategy.content.enabled=false
+  ```
+
+  In generated projects this lives in an `application-hot-reload.properties` Spring profile, activated by the `start:hot-reload` script (`-Dspring-boot.run.profiles=hot-reload`), so the main `application.properties` keeps production-safe caching.
+
 ## React Frontend
 
 To use the new React frontend you must add the following dependency on the `package.json` file:
