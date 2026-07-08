@@ -873,6 +873,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_REPORT_ASSIGN" value="Generación de informes"/>
   <locale name="MENU_REPORT_LIST" value="Visualización de informes"/>
   <locale name="MENU_REPORTS" value="Informes"/>
+  <locale name="MENU_SEARCH_EMPTY" value="No se han encontrado opciones"/>
   <locale name="MENU_SEL_PRN" value="Seleccionar impresora"/>
   <locale name="MENU_SETTINGS" value="Configuración"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extractor"/>

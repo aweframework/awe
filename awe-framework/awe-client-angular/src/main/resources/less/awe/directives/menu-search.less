@@ -1,0 +1,132 @@
+//
+// Menu option search (command palette)
+// --------------------------------------------------
+// Colours mirror the menu option styling (see .navigation-colors in mixins.less)
+// so the search toggle, input and results match the rest of the menu, including
+// the same hover feedback.
+
+@awe-menu-search-width: 260px;
+
+// The custom element is the positioning context for the search panel
+awe-menu {
+  position: relative;
+  display: block;
+}
+
+.awe-menu-search {
+  &-toggle {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 6px 12px;
+    line-height: 1;
+    // !important + icon inherit to win over the theme's menu-button colouring,
+    // matching how .navigation-colors styles the option links.
+    color: @menu-text-color !important;
+
+    i {
+      color: inherit !important;
+    }
+
+    &:hover,
+    &:focus {
+      color: color-mix(in srgb, @menu-text-color, @secondary-menu-color 80%) !important;
+    }
+  }
+
+  &-panel {
+    position: absolute;
+    z-index: @zindex-main-menu + 20;
+    width: @awe-menu-search-width;
+    max-width: 90vw;
+    background-color: @primary-menu-color;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .05), 0 1px 0 rgba(0, 0, 0, .05);
+  }
+
+  .awe-menu-search-input {
+    width: 100%;
+    color: @menu-text-color;
+    // Darken the panel colour instead of using @secondary-menu-color (which is
+    // near-white on some themes and washes out the light text). This keeps a
+    // legible field on any theme, matching the menu text contrast.
+    background-color: rgba(0, 0, 0, 0.18);
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, @menu-text-color, transparent 65%);
+    border-radius: 0;
+    box-shadow: none;
+
+    &::placeholder {
+      color: color-mix(in srgb, @menu-text-color, transparent 45%);
+    }
+
+    &:focus {
+      color: @menu-text-color;
+      background-color: rgba(0, 0, 0, 0.25);
+      box-shadow: none;
+      outline: none;
+    }
+  }
+
+  &-results {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    max-height: 60vh;
+    overflow-y: auto;
+
+    > li {
+      padding: 6px 12px;
+      cursor: pointer;
+      color: @menu-text-color;
+
+      &.active,
+      &:hover {
+        background-color: color-mix(in srgb, @secondary-menu-color, transparent 90%);
+        color: color-mix(in srgb, @menu-text-color, @secondary-menu-color 80%);
+      }
+    }
+  }
+
+  &-label {
+    display: block;
+    white-space: nowrap;
+  }
+
+  &-breadcrumb {
+    display: block;
+    font-size: 85%;
+    white-space: nowrap;
+    color: inherit;
+    .opacity(0.65);
+  }
+
+  &-empty {
+    padding: 8px 12px;
+    font-size: 90%;
+    color: @menu-text-color;
+    .opacity(0.65);
+  }
+}
+
+// Vertical menu: search bar shown above the options
+.awe-menu-search-vertical {
+  display: block;
+
+  .awe-menu-search-panel {
+    left: 0;
+    right: 0;
+    width: auto;
+  }
+}
+
+// Horizontal menu: search shown at the right end of the bar
+.awe-menu-search-horizontal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: @zindex-main-menu + 20;
+
+  .awe-menu-search-panel {
+    right: 0;
+  }
+}
