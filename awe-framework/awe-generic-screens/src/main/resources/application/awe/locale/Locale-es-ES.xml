@@ -374,6 +374,7 @@
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="Ha habido un problema añadiendo los campos calculados de una consulta"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Ha habido un error añadiendo los totalizadores de la consulta {1} en la fila {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="Ha habido un problema realizando la autenticación"/>
+  <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="La imagen seleccionada supera el tamaño máximo permitido para el avatar de 2 MB"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="La etiqueta &apos;include&apos; en la pantalla {0} no ha encontrado los siguientes elementos: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="No se ha definido un mensaje de envío en la cola {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="No se ha definido un mensaje de recepción en la cola {0}"/>
@@ -453,6 +454,7 @@
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="Ha habido un problema al lanzar la inicialización del motor de documentos"/>
   <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="El código de autenticación del segundo factor no es válido, verifique su aplicación de autenticación o envíe un mensaje al gestor de la aplicación para restablecer su cuenta."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="Los argumentos introducidos son inválidos"/>
+  <locale name="ERROR_MESSAGE_INVALID_AVATAR_MIME_TYPE" value="El tipo de archivo seleccionado no es una imagen de avatar admitida. Los tipos permitidos son PNG, JPEG y GIF"/>
   <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Ha habido un problema a la hora de realizar la conexión ejecutando [{0}]"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="Las credenciales introducidas para el usuario -{0}- no son válidas"/>
   <locale name="ERROR_MESSAGE_INVALID_DATABASE_ARGUMENTS" value="Los siguientes argumentos de la conexión a base de datos no son correctos [Tipo:{0}, Alias:{1}, Url: {2}]"/>
@@ -573,6 +575,7 @@
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Error añadiendo los campos calculados"/>
   <locale name="ERROR_TITLE_ADDING_TOTALS" value="Error añadiendo totalizadores"/>
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Error en la autenticación"/>
+  <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Imagen de avatar demasiado grande"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Definición de &apos;include&apos; incorrecta"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Error en el formato de la cola"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Error de autenticación de base de datos"/>
@@ -638,6 +641,7 @@
   <locale name="ERROR_TITLE_INITIALIZING_JASPER" value="Error inicializando Jasper"/>
   <locale name="ERROR_TITLE_INVALID_2FA_CODE" value="Código incorrecto"/>
   <locale name="ERROR_TITLE_INVALID_ARGUMENTS" value="Argumentos inválidos"/>
+  <locale name="ERROR_TITLE_INVALID_AVATAR_MIME_TYPE" value="Tipo de archivo de avatar no válido"/>
   <locale name="ERROR_TITLE_INVALID_CONNECTION" value="Conexión inválida"/>
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Credenciales inválidas"/>
   <locale name="ERROR_TITLE_INVALID_PASSWORD" value="Clave incorrecta"/>
@@ -944,6 +948,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_ATTRIBUTE" value="Atributo"/>
   <locale name="PARAMETER_AUD_TYPE" value="T. auditoría"/>
   <locale name="PARAMETER_AUTH" value="Autenticación"/>
+  <locale name="PARAMETER_AVATAR" value="Avatar"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="T. promedio"/>
   <locale name="PARAMETER_BACKGROUND" value="Fondos"/>
   <locale name="PARAMETER_BACKGROUND_COLOR" value="Color de fondo"/>

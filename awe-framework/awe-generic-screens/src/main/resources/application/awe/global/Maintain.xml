@@ -1554,6 +1554,46 @@
   </target>
 
   <!--
+  User settings (avatar)
+  -->
+
+  <target name="insertUserAvatar">
+    <insert>
+      <table id="AweUserSettings"/>
+      <field id="IdeUsrSet" query="nextIdForUserSettings"/>
+      <field id="Ope" variable="user"/>
+      <field id="AvatarImage" variable="avatarToken"/>
+      <variable id="user" type="STRING" name="user"/>
+      <variable id="avatarToken" type="STRING" name="avatarToken"/>
+    </insert>
+  </target>
+
+  <target name="updateUserAvatar">
+    <update>
+      <table id="AweUserSettings"/>
+      <field id="AvatarImage" variable="avatarToken"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="user" type="STRING" name="user"/>
+      <variable id="avatarToken" type="STRING" name="avatarToken"/>
+    </update>
+  </target>
+
+  <target name="upsertUserAvatar">
+    <serve service="upsertUserAvatar">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="avatarToken" type="STRING" name="avatarToken"/>
+    </serve>
+  </target>
+
+  <target name="saveUserAvatar">
+    <serve service="saveUserAvatar">
+      <variable id="avatarToken" type="STRING" name="CrtAvatar"/>
+    </serve>
+  </target>
+
+  <!--
   Theme management
   -->
 

@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -3438,6 +3439,250 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       .andReturn();
     String result = mvcResult.getResponse().getContentAsString();
     assertResultSecurityJson(queryName, result, 12, 1, 1, 12);
+  }
+
+  /**
+   * connectedUser must return a null image when the connected user has no AweUserSettings row,
+   * while value/name/label remain unchanged.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testConnectedUserWithoutAvatarReturnsNullImage() throws Exception {
+    setParameter("user", "test");
+    String queryName = "connectedUser";
+    String variables = "";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
+
+    String result = performRequest(queryName, variables, DATABASE, expected);
+    assertResultJson(queryName, result, 1);
+  }
+
+  /**
+   * connectedUser must return a cache-busting "/avatar?v=&lt;hash&gt;" image URL — not the
+   * constant "/avatar" — when the connected user has an AweUserSettings row with a non-null
+   * AvatarImage token, while value/name/label remain unchanged. The version suffix is a
+   * non-cryptographic hash of the stored token (never the raw token itself, which would be a
+   * replayable capability reference), so it changes only when the avatar changes and forces the
+   * browser to refetch the &lt;img&gt; after a re-upload.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testConnectedUserWithAvatarReturnsAvatarImagePath() throws Exception {
+    setParameter("user", "test");
+    insertUserSettingsRow(9001, "test", "fake-avatar-token");
+    try {
+      String queryName = "connectedUser";
+      String variables = "";
+      String expectedImage = "/avatar?v=" + avatarTokenHash("fake-avatar-token");
+      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"" + expectedImage + "\"}]}}},{\"type\":\"end-load\"}]";
+
+      String result = performRequest(queryName, variables, DATABASE, expected);
+      assertResultJson(queryName, result, 1);
+    } finally {
+      deleteUserSettingsRow(9001);
+    }
+  }
+
+  /**
+   * Freshness regression: {@code connectedUser} is {@code cacheable="true"}, so its result for a
+   * given user is cached by the query layer. Uploading a new avatar (an {@code upsertUserAvatar}
+   * maintain call) must still be visible on the next {@code connectedUser} read through the SAME
+   * cached path, because {@code MaintainLauncher.launchMaintain} carries a global
+   * {@code @CacheEvict(cacheNames = "queryData", allEntries = true)} that flushes the whole
+   * queryData cache (including connectedUser and getAvatarToken) on every maintain. This test
+   * locks in that behavior: prime the cache, upsert a new token, then read again through the
+   * cached path and confirm the new value — not a stale cached one — is returned. It also proves
+   * the cache-buster contract: the {@code ?v=} suffix is STABLE when the same token is re-saved,
+   * and DIFFERS when the token actually changes — proving the URL forces a refetch only when the
+   * avatar really changed.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testAvatarUpdateIsVisibleAfterCacheEvictOnUpsert() throws Exception {
+    setParameter("user", "test");
+    try {
+      // Prime the queryData cache with the "no avatar" state for both connectedUser and
+      // getAvatarToken.
+      String noAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
+      performRequest("connectedUser", "", DATABASE, noAvatarExpected);
+      performRequest("getAvatarToken", "", DATABASE);
+
+      // Upsert a new avatar token for the same user (a maintain call, which triggers the global
+      // queryData cache evict).
+      mockMvc.perform(post("/action/maintain/upsertUserAvatar")
+          .with(csrf())
+          .session(session)
+          .content("{\"avatarToken\":\"fresh-avatar-token\",\"max\":30}")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+      // Re-read through the SAME cached query path: the cache evict must make the new value
+      // visible, not a stale "no avatar" result from the primed cache above.
+      String firstVersion = avatarTokenHash("fresh-avatar-token");
+      String withAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"/avatar?v=" + firstVersion + "\"}]}}},{\"type\":\"end-load\"}]";
+      performRequest("connectedUser", "", DATABASE, withAvatarExpected);
+
+      String tokenExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"avatarToken\":\"fresh-avatar-token\"}]}}},{\"type\":\"end-load\"}]";
+      performRequest("getAvatarToken", "", DATABASE, tokenExpected);
+
+      // STABILITY: re-saving the SAME token (forcing another cache evict + recompute) must
+      // yield the SAME ?v= value.
+      mockMvc.perform(post("/action/maintain/upsertUserAvatar")
+          .with(csrf())
+          .session(session)
+          .content("{\"avatarToken\":\"fresh-avatar-token\",\"max\":30}")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+      performRequest("connectedUser", "", DATABASE, withAvatarExpected);
+
+      // FRESHNESS: saving a genuinely DIFFERENT token must yield a DIFFERENT ?v= value.
+      mockMvc.perform(post("/action/maintain/upsertUserAvatar")
+          .with(csrf())
+          .session(session)
+          .content("{\"avatarToken\":\"fresh-avatar-token-v2\",\"max\":30}")
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+      String secondVersion = avatarTokenHash("fresh-avatar-token-v2");
+      assertNotEquals(firstVersion, secondVersion, "cache-buster version must change when the avatar token changes");
+      String withNewAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"/avatar?v=" + secondVersion + "\"}]}}},{\"type\":\"end-load\"}]";
+      performRequest("connectedUser", "", DATABASE, withNewAvatarExpected);
+    } finally {
+      deleteUserSettingsRowByOpe("test");
+    }
+  }
+
+  /**
+   * Reproduces, in Java, the non-cryptographic djb2 string hash (base36-encoded) that the
+   * {@code connectedUser} query's {@code image} computed applies to the stored avatar token, so
+   * tests can assert against the exact expected {@code ?v=} value instead of a loose "starts
+   * with" check. Algebraically, the JS expression {@code h = (((h&lt;&lt;5)+h)+charCode) >>> 0}
+   * reduces to {@code h = (33*h + charCode) mod 2^32} for every iteration (h stays within the
+   * unsigned 32-bit range throughout, so no precision is lost representing it as a Java
+   * {@code long}), which is what this method computes directly.
+   *
+   * @param token Raw avatar token (the same string the query reads from AweUserSettings)
+   * @return Base36-encoded djb2 hash, identical to what the production {@code eval="true"}
+   * computed in {@code connectedUser} produces for the same input
+   */
+  private static String avatarTokenHash(String token) {
+    long hash = 5381;
+    for (int i = 0; i < token.length(); i++) {
+      hash = (33 * hash + token.charAt(i)) & 0xFFFFFFFFL;
+    }
+    return Long.toString(hash, 36);
+  }
+
+  /**
+   * Deletes a row from AweUserSettings by Ope (username), used to clean up test fixtures created
+   * through the real maintain path (no known IdeUsrSet to key on).
+   *
+   * @param user Ope (username) value
+   * @throws Exception Error deleting row
+   */
+  private void deleteUserSettingsRowByOpe(String user) throws Exception {
+    try (java.sql.Connection connection = dataSource.getConnection();
+         java.sql.PreparedStatement statement = connection.prepareStatement(
+           "DELETE FROM AweUserSettings WHERE Ope = ?")) {
+      statement.setString(1, user);
+      statement.executeUpdate();
+    }
+  }
+
+  /**
+   * Inserts a row into AweUserSettings for test fixture purposes.
+   *
+   * @param id          IdeUsrSet value
+   * @param user        Ope (username) value
+   * @param avatarToken AvatarImage token value
+   * @throws Exception Error inserting row
+   */
+  private void insertUserSettingsRow(int id, String user, String avatarToken) throws Exception {
+    try (java.sql.Connection connection = dataSource.getConnection();
+         java.sql.PreparedStatement statement = connection.prepareStatement(
+           "INSERT INTO AweUserSettings (IdeUsrSet, Ope, AvatarImage) VALUES (?, ?, ?)")) {
+      statement.setInt(1, id);
+      statement.setString(2, user);
+      statement.setString(3, avatarToken);
+      statement.executeUpdate();
+    }
+  }
+
+  /**
+   * Deletes a row from AweUserSettings by IdeUsrSet, used to clean up test fixtures.
+   *
+   * @param id IdeUsrSet value
+   * @throws Exception Error deleting row
+   */
+  private void deleteUserSettingsRow(int id) throws Exception {
+    try (java.sql.Connection connection = dataSource.getConnection();
+         java.sql.PreparedStatement statement = connection.prepareStatement(
+           "DELETE FROM AweUserSettings WHERE IdeUsrSet = ?")) {
+      statement.setInt(1, id);
+      statement.executeUpdate();
+    }
+  }
+
+  /**
+   * nextIdForUserSettings must return 1 when the AweUserSettings table is empty, mirroring
+   * nextIdForFavourites's COALESCE(MAX(...),0)+1 semantics.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testNextIdForUserSettingsWhenTableEmpty() throws Exception {
+    String queryName = "nextIdForUserSettings";
+    String variables = "";
+    String result = performRequest(queryName, variables, DATABASE);
+    assertResultServiceJson(queryName, result, 1);
+  }
+
+  /**
+   * nextIdForUserSettings must return MAX(IdeUsrSet)+1 when rows exist.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testNextIdForUserSettingsWhenRowsExist() throws Exception {
+    insertUserSettingsRow(9002, "nextIdFixtureUser", "some-token");
+    try {
+      String queryName = "nextIdForUserSettings";
+      String variables = "";
+      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":9003}]}}},{\"type\":\"end-load\"}]";
+      String result = performRequest(queryName, variables, DATABASE, expected);
+      assertResultServiceJson(queryName, result, 1);
+    } finally {
+      deleteUserSettingsRow(9002);
+    }
+  }
+
+  /**
+   * getAvatarToken must return the AvatarImage token for the connected user when a row exists.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testGetAvatarTokenReturnsStoredToken() throws Exception {
+    setParameter("user", "test");
+    insertUserSettingsRow(9004, "test", "fake-avatar-token");
+    try {
+      String queryName = "getAvatarToken";
+      String variables = "";
+      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"avatarToken\":\"fake-avatar-token\"}]}}},{\"type\":\"end-load\"}]";
+      String result = performRequest(queryName, variables, DATABASE, expected);
+      assertResultJson(queryName, result, 1);
+    } finally {
+      deleteUserSettingsRow(9004);
+    }
   }
 
   /**
