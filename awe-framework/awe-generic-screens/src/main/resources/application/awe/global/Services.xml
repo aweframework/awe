@@ -269,6 +269,18 @@
       <service-parameter type="STRING" name="option" />
     </java>
   </service>
+  <!-- User settings (avatar) -->
+  <service id="upsertUserAvatar">
+    <java classname="com.almis.awe.service.UserSettingsService" method="upsertUserAvatar">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="avatarToken" />
+    </java>
+  </service>
+  <service id="saveUserAvatar">
+    <java classname="com.almis.awe.service.UserSettingsService" method="saveUserAvatar">
+      <service-parameter type="STRING" name="avatarToken" />
+    </java>
+  </service>
   <!-- Themes -->
   <service id="changeUserMode">
     <java classname="com.almis.awe.service.UserService" method="changeUserMode">
