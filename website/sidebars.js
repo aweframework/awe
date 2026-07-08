@@ -78,6 +78,7 @@ module.exports = {
 				"guides/validation",
 				"guides/v4-migration",
 				"guides/default-screens",
+				"guides/custom-widgets",
 			],
 		},
 		{
@@ -126,6 +127,7 @@ module.exports = {
 				"api/include",
 				"api/dialog",
 				"api/chart",
+				"api/widget",
 				"api/actions",
 				"api/dependencies",
 				"api/icons",

@@ -79,6 +79,12 @@
   <locale name="MENU_TEST_CRITERIA" value="Criterios"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criterios Reset"/>
   <locale name="MENU_TEST_FILEMANAGER" value="Gestor de ficheros"/>
+  <locale name="MENU_TEST_EVENT_CALENDAR" value="Calendario de eventos"/>
+  <locale name="SCR_EVENT_CALENDAR_NEW" value="Nuevo evento"/>
+  <locale name="SCR_EVENT_CALENDAR_EDIT" value="Editar evento"/>
+  <locale name="SCR_EVENT_CALENDAR_TITLE" value="Título del evento"/>
+  <locale name="SCR_EVENT_CALENDAR_DATE" value="Fecha"/>
+  <locale name="SCR_EVENT_CALENDAR_TIME" value="Hora"/>
   <locale name="MENU_TEST_GRIDS" value="Grids"/>
   <locale name="MENU_TEST_LAYOUT" value="Layout"/>
   <locale name="MENU_TEST_MATRIX" value="Matrices"/>

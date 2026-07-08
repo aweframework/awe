@@ -30,5 +30,6 @@ To change a screen it's only necessary to update the *XML descriptor* of the scr
 ### [`Include`](include.md)
 ### [`Dialog`](dialog.md)
 ### [`Charts`](chart.md)
+### [`Widget`](widget.md)
 ### [`Actions`](actions.md)
 ### [`Dependencies`](dependencies.md)
