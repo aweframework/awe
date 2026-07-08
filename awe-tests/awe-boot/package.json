@@ -7,7 +7,10 @@
   "scripts": {
     "build": "npm run build:production",
     "build:development": "webpack --config webpack.config.js --mode development",
-    "build:production": "webpack --config webpack.config.js --mode production"
+    "build:watch": "webpack --config webpack.config.js --watch --mode development",
+    "build:production": "webpack --config webpack.config.js --mode production",
+    "start": "mvn spring-boot:run",
+    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload\""
   },
   "dependencies": {
     "@babel/core": "^7.8.4",
@@ -34,5 +37,8 @@
     "mini-css-extract-plugin": "^1.5.0",
     "webpack": "^5.72.1",
     "webpack-cli": "^5.1.4"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
   }
 }
