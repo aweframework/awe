@@ -1,0 +1,276 @@
+//
+// Event calendar widget
+// --------------------------------------------------
+// Styles for the aweEventCalendar widget. FullCalendar v6 injects its own base
+// CSS at runtime; here we only override its CSS custom properties (scoped to
+// .awe-ec) so it blends with the awe-boot look, plus style the event composer.
+
+@ec-accent:        #569e1b;
+@ec-accent-dark:   #156880;
+@ec-surface:       #ffffff;
+@ec-surface-soft:  #f5f7f9;
+@ec-border:        #e2e8ec;
+@ec-text:          #2d3a41;
+@ec-text-soft:     #6b7c85;
+@ec-radius:        10px;
+@ec-shadow:        0 1px 3px rgba(27, 128, 158, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+
+.awe-ec {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+  color: @ec-text;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  // ---- FullCalendar surface, adapted to the awe-boot palette ----
+  .awe-ec-mount {
+    flex: 1 1 auto;
+    min-height: 0;
+    background: @ec-surface;
+    border: 1px solid @ec-border;
+    border-radius: @ec-radius;
+    box-shadow: @ec-shadow;
+    padding: 14px;
+
+    // FullCalendar v6 custom properties
+    --fc-border-color: @ec-border;
+    --fc-page-bg-color: @ec-surface;
+    --fc-neutral-bg-color: @ec-surface-soft;
+    --fc-today-bg-color: fade(@ec-accent, 8%);
+    --fc-now-indicator-color: @ec-accent-dark;
+    --fc-event-bg-color: @ec-accent;
+    --fc-event-border-color: @ec-accent;
+    --fc-list-event-hover-bg-color: @ec-surface-soft;
+
+    // NOTE: FullCalendar puts the `.fc` class on THIS mount element itself
+    // (class="awe-ec-mount fc ..."), so selectors are `.fc-*` descendants of the
+    // mount, NOT `.fc .fc-*` (which would require a nested `.fc` that never exists).
+
+    // Toolbar
+    .fc-toolbar-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: @ec-text;
+    }
+
+    // Buttons themed to the accent
+    .fc-button {
+      background: @ec-surface;
+      border: 1px solid @ec-border;
+      color: @ec-text-soft;
+      text-transform: capitalize;
+      font-weight: 500;
+      box-shadow: none;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+      &:hover {
+        background: @ec-surface-soft;
+        color: @ec-text;
+        border-color: darken(@ec-border, 6%);
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 3px fade(@ec-accent, 25%);
+      }
+    }
+
+    .fc-button-primary:not(:disabled).fc-button-active,
+    .fc-button-primary:not(:disabled):active {
+      background: @ec-accent !important;
+      border-color: @ec-accent !important;
+      color: #fff !important;
+    }
+
+    // Weekday header row. The awe theme paints <th> with a brown background and
+    // renders the cushion <a> in link-blue, which is unreadable. Override both,
+    // scoped to the widget, with !important to beat the third-party theme rules.
+    .fc-col-header-cell {
+      background: @ec-surface-soft !important;
+      border-color: @ec-border;
+    }
+
+    .fc-col-header-cell-cushion {
+      color: @ec-text !important;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+      padding: 8px 4px;
+    }
+
+    .fc-daygrid-day-number {
+      color: @ec-text;
+      font-weight: 500;
+      padding: 6px 8px;
+    }
+
+    .fc-day-today .fc-daygrid-day-number {
+      color: @ec-accent-dark;
+      font-weight: 700;
+    }
+
+    // Events
+    .fc-event {
+      border-radius: 6px;
+      border: none;
+      padding: 1px 4px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+    }
+
+    .fc-daygrid-event:hover {
+      filter: brightness(0.95);
+    }
+  }
+
+  // ---- Event composer (our own UI around the library) ----
+  .awe-ec-composer {
+    flex: 0 0 auto;
+    background: @ec-surface;
+    border: 1px solid @ec-border;
+    border-radius: @ec-radius;
+    box-shadow: @ec-shadow;
+    padding: 14px 16px;
+  }
+
+  .awe-ec-composer-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: @ec-text;
+    margin-bottom: 10px;
+
+    i {
+      color: @ec-accent;
+    }
+  }
+
+  .awe-ec-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .awe-ec-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: @ec-text-soft;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  .awe-ec-input {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid @ec-border;
+    border-radius: 8px;
+    background: @ec-surface-soft;
+    color: @ec-text;
+    font-size: 0.9rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+
+    &:focus {
+      outline: none;
+      background: @ec-surface;
+      border-color: @ec-accent;
+      box-shadow: 0 0 0 3px fade(@ec-accent, 18%);
+    }
+  }
+
+  .awe-ec-input-title {
+    flex: 1 1 220px;
+    min-width: 180px;
+  }
+
+  // Color picker
+  .awe-ec-colors {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  .awe-ec-color {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08) inset;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+      transform: scale(1.12);
+    }
+  }
+
+  .awe-ec-color-on {
+    border-color: @ec-text;
+    transform: scale(1.12);
+  }
+
+  // Actions
+  .awe-ec-form-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .awe-ec-btn {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid @ec-border;
+    background: @ec-surface;
+    color: @ec-text;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+
+    &:hover {
+      background: @ec-surface-soft;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .awe-ec-btn-primary {
+    background: @ec-accent;
+    border-color: @ec-accent;
+    color: #fff;
+
+    &:hover {
+      background: @ec-accent-dark;
+      border-color: @ec-accent-dark;
+    }
+  }
+
+  .awe-ec-btn-danger {
+    background: #fff;
+    border-color: #e6b3b3;
+    color: #c0392b;
+
+    &:hover {
+      background: #fdf0ef;
+    }
+  }
+}

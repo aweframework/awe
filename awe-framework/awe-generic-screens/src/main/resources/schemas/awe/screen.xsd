@@ -328,7 +328,7 @@
   <xs:attributeGroup name="widgetAttr">
     <xs:attributeGroup ref="serverCallAttr" />
     <xs:attribute name="type" type="xs:string" />
-    <xs:attribute name="component" type="widgetComponentType" />
+    <xs:attribute name="component" type="xs:string" />
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
@@ -1392,13 +1392,6 @@
       <xs:enumeration value="button" />
       <xs:enumeration value="formatted-text" />
       <xs:enumeration value="link" />
-    </xs:restriction>
-  </xs:simpleType>
-
-  <!-- Widget component attribute values -->
-  <xs:simpleType name="widgetComponentType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="file-viewer" />
     </xs:restriction>
   </xs:simpleType>
 
