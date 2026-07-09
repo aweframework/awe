@@ -224,4 +224,21 @@
     </plugins>
   </reporting>
 
+  <profiles>
+    <profile>
+      <id>hot-reload</id>
+      <!--
+        webpack watch is the SOLE writer of the frontend bundles here.
+        skip.frontend is the switch awe-starter-parent binds to frontend-maven-plugin's <skip>,
+        so it skips node install, npm ci, and the inherited compile-phase production build.
+        If Maven also built the frontend it would overwrite the watch's dev bundle.js/commons.js
+        split-chunk pair with a prod pair, the webpack chunk handshake would never resolve, and
+        the app would hang on the splash screen.
+      -->
+      <properties>
+        <skip.frontend>true</skip.frontend>
+      </properties>
+    </profile>
+  </profiles>
+
 </project>
