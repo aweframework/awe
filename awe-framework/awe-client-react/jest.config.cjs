@@ -13,6 +13,7 @@ module.exports = {
     '**/redux/thunks/validateThunkTest.{js,jsx}',
     '**/redux/thunks/componentsThunkTest.{js,jsx}',
     '**/utilities/utilsTest.{js,jsx}',
+    '**/utilities/menuSearchTest.{js,jsx}',
     '**/utilities/numbersTest.{js,jsx}',
     '**/utilities/componentsTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
@@ -52,6 +53,7 @@ module.exports = {
     '**/components/AweTagListTest.{js,jsx}',
     '**/components/AweChartTest.{js,jsx}',
     '**/components/AweMenuTest.{js,jsx}',
+    '**/components/AweMenuSearchTest.{js,jsx}',
     '**/components/AwePivotTableTest.{js,jsx}',
     '**/components/AweTreeGridTest.{js,jsx}',
     '**/components/AweGridTest.{js,jsx}'

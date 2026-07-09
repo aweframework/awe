@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { Menubar } from "primereact/menubar";
 import { PanelMenu } from "primereact/panelmenu";
@@ -12,6 +12,7 @@ import { getIconCode, translateLabel } from "../utilities";
 import { useView } from "../hooks/useViewRegistry";
 import MenuRegistry from "../redux/registry/MenuRegistry";
 import { useMenuOptions } from "../hooks/useMenuRegistry";
+import AweMenuSearch from "./AweMenuSearch";
 
 /**
  * Check if option has children or is a final option
@@ -137,6 +138,8 @@ function AweMenu(props) {
   const currentOption = useView("report") || {};
   const options = useMenuOptions();
   const disabled = useSelector(state => state.actions.running);
+  // Menu option search is enabled unless the 'menuSearchEnabled' setting is explicitly false
+  const searchEnabled = useSelector(state => state.settings.menuSearchEnabled) !== false;
   const module = componentModule?.model ? componentModule : { model: { values: [] } };
 
   const [expandedKeys, setExpandedKeys] = useState({});
@@ -172,12 +175,41 @@ function AweMenu(props) {
 
   const model = (optionsToItems(options, helperProps) || []).filter(o => o.display);
 
-  if (style.includes("vertical")) {
-    return <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
-      expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
-      model={model} />;
+  const menuType = style.includes("vertical") ? "vertical" : "horizontal";
+  // Reuse the exact predicate the menu applies while rendering options, so the
+  // search only surfaces options navigable in the current module.
+  const moduleValue = (module.model.values.find(item => item.selected) || {}).value || null;
+  const isOptionAllowed = useCallback(
+    (option) => (moduleValue === option.module || !option.module) && option.visible && !option.restricted,
+    [moduleValue]
+  );
+  // Launch a selected option exactly as clicking the leaf in the menu would
+  const onSelectOption = useCallback((option) => {
+    dispatch(deleteStack());
+    dispatch(addActionsTop(option.actions));
+  }, [dispatch]);
+
+  const search = searchEnabled && model.length > 0 ? (
+    <AweMenuSearch options={options} menuType={menuType}
+      isAllowed={isOptionAllowed} onSelect={onSelectOption} />
+  ) : null;
+
+  if (menuType === "vertical") {
+    return (
+      <div className="awe-menu-container awe-menu-container-vertical">
+        {search}
+        <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
+          expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
+          model={model} />
+      </div>
+    );
   } else {
-    return <Menubar aria-disabled={disabled} model={model} />;
+    return (
+      <div className="awe-menu-container awe-menu-container-horizontal">
+        {search}
+        <Menubar aria-disabled={disabled} model={model} />
+      </div>
+    );
   }
 }
 

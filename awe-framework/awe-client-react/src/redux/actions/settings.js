@@ -107,7 +107,9 @@ export const DEFAULT_SETTINGS = {
     limitPointsSerie: 1000000
   },
   activeDependencies: true,
-  useComponentRegistry: true
+  useComponentRegistry: true,
+  // Menu option search (command palette) is enabled unless explicitly disabled
+  menuSearchEnabled: true
 };
 
 /*

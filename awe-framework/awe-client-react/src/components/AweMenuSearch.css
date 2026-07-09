@@ -1,0 +1,168 @@
+/*
+ * Menu option search (command palette)
+ * --------------------------------------------------
+ * Colours reuse the app's own menu/input tokens (--text-color, --component-bg-color,
+ * --border-color, --surface-*, --highlight-*) so the toggle, input and results match
+ * the rest of the menu on every theme, light or dark, with proper text contrast.
+ */
+
+.awe-menu-search-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--text-color);
+  font: inherit;
+  padding: 0.75rem 1.25rem;
+  line-height: 1.25;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.awe-menu-search-toggle i {
+  color: var(--text-color-secondary);
+  transition: color 0.2s;
+}
+
+.awe-menu-search-toggle:hover,
+.awe-menu-search-toggle:focus {
+  background-color: var(--surface-hover);
+  color: var(--text-color);
+  outline: none;
+}
+
+.awe-menu-search-toggle:hover i,
+.awe-menu-search-toggle:focus i {
+  color: var(--text-color);
+}
+
+.awe-menu-search-toggle-label {
+  white-space: nowrap;
+}
+
+.awe-menu-search-panel {
+  position: absolute;
+  z-index: 1100;
+  width: 280px;
+  max-width: 90vw;
+  padding: 0.5rem;
+  background-color: var(--menu-bg, var(--surface-overlay));
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.awe-menu-search-input {
+  width: 100%;
+  color: var(--text-color);
+  background-color: var(--component-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  box-shadow: none;
+}
+
+.awe-menu-search-input::placeholder {
+  color: var(--text-color-secondary);
+}
+
+.awe-menu-search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+  outline: none;
+}
+
+.awe-menu-search-results {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.awe-menu-search-results > li {
+  margin: 0;
+  padding: 0;
+}
+
+.awe-menu-search-result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-color);
+  font: inherit;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.awe-menu-search-result.active,
+.awe-menu-search-result:hover,
+.awe-menu-search-result:focus {
+  background-color: var(--highlight-bg);
+  color: var(--highlight-text-color);
+  outline: none;
+}
+
+.awe-menu-search-label {
+  display: block;
+  white-space: nowrap;
+}
+
+.awe-menu-search-breadcrumb {
+  display: block;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--text-color-secondary);
+}
+
+.awe-menu-search-result.active .awe-menu-search-breadcrumb,
+.awe-menu-search-result:hover .awe-menu-search-breadcrumb,
+.awe-menu-search-result:focus .awe-menu-search-breadcrumb {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.awe-menu-search-empty {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+
+/* Vertical menu: full-width search bar shown above the options */
+.awe-menu-search-vertical {
+  display: block;
+  position: relative;
+}
+
+.awe-menu-search-vertical .awe-menu-search-toggle {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.awe-menu-search-vertical .awe-menu-search-panel {
+  left: 0;
+  right: 0;
+  width: auto;
+}
+
+/* Horizontal menu: compact icon toggle at the right end of the bar */
+.awe-menu-search-horizontal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1100;
+}
+
+.awe-menu-search-horizontal .awe-menu-search-toggle {
+  justify-content: center;
+}
+
+.awe-menu-search-horizontal .awe-menu-search-panel {
+  right: 0;
+}
