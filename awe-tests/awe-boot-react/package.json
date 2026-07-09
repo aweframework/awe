@@ -9,13 +9,21 @@
     "lint": "eslint eslint.config.js webpack.config.js webpack.dev.js webpack.prod.js",
     "lint:fix": "eslint eslint.config.js webpack.config.js webpack.dev.js webpack.prod.js --fix",
     "build:dev": "webpack --config webpack.dev.js",
+    "build:watch": "webpack --config webpack.dev.js --watch",
     "build": "npm run build:prod",
     "build:prod": "webpack --config webpack.prod.js",
     "start": "mvn spring-boot:run",
+    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload\"",
     "test-dev": "npm run build:dev",
     "test-prod": "npm run build:prod"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.21",
+    "@fullcalendar/daygrid": "^6.1.21",
+    "@fullcalendar/interaction": "^6.1.21",
+    "@fullcalendar/list": "^6.1.21",
+    "@fullcalendar/react": "^6.1.21",
+    "@fullcalendar/timegrid": "^6.1.21",
     "awe-react-client": "file:../awe-react-client/dist"
   },
   "overrides": {
@@ -32,6 +40,7 @@
     "autoprefixer": "^10.4.20",
     "babel-loader": "8.4.1",
     "babel-plugin-istanbul": "7.0.0",
+    "concurrently": "^10.0.3",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.2",
     "edge-launcher": "1.2.2",
