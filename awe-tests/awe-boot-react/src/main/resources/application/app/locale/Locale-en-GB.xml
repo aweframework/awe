@@ -79,6 +79,7 @@
   <locale name="MENU_TEST_CRITERIA" value="Criteria"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criteria Reset"/>
   <locale name="MENU_TEST_EMPTY" value="Empty screen"/>
+  <locale name="MENU_TEST_EVENT_CALENDAR" value="Event calendar"/>
   <locale name="MENU_TEST_FILEMANAGER" value="File Manager"/>
   <locale name="MENU_TEST_GRIDS" value="Grids"/>
   <locale name="MENU_TEST_LAYOUT" value="Layout"/>
@@ -176,6 +177,11 @@
   <locale name="SCREEN_TITLE_TABS_VERTICAL" value="Vertical tabs"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Wizard"/>
   <locale name="SCREEN_TITLE_WIZARD_VERTICAL" value="Vertical wizard"/>
+  <locale name="SCR_EVENT_CALENDAR_NEW" value="New event"/>
+  <locale name="SCR_EVENT_CALENDAR_EDIT" value="Edit event"/>
+  <locale name="SCR_EVENT_CALENDAR_TITLE" value="Event title"/>
+  <locale name="SCR_EVENT_CALENDAR_DATE" value="Date"/>
+  <locale name="SCR_EVENT_CALENDAR_TIME" value="Time"/>
   <locale name="TEXT_NEW" value="NEW!"/>
   <locale name="WARNING_MESSAGE_LOGOUT" value="You are about to log out from the application. Are you sure?"/>
   <locale name="WARNING_TITLE_LOGOUT" value="Logout from application"/>

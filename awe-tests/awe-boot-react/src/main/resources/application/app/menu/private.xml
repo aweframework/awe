@@ -131,6 +131,7 @@
     <option name="tabs-vertical" label="MENU_TEST_TABS_VERTICAL" screen="tabs-vertical" icon="mdi:vertical_split"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
     <option name="carousel-test" label="MENU_TEST_CAROUSEL" screen="carousel" icon="mdi:view_carousel" />
+    <option name="event-calendar-test" label="MENU_TEST_EVENT_CALENDAR" screen="event-calendar-test" icon="calendar" />
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>
     <option name="pivot-test" label="MENU_TEST_PIVOT" screen="pivot-test" icon="table"/>
     <option name="filemanager-test" label="MENU_TEST_FILEMANAGER" screen="filemanager-test" icon="folder"/>

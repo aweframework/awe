@@ -1,0 +1,276 @@
+/*
+ * Event calendar custom widget (FullCalendar)
+ * CSS port of the awe-boot event-calendar.less. FullCalendar v6 injects its own
+ * base CSS at runtime; here we only override its CSS custom properties (scoped
+ * to .awe-ec) plus style the event composer.
+ */
+.awe-ec {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+  padding: 4px;
+  box-sizing: border-box;
+  color: #2d3a41;
+}
+
+.awe-ec * {
+  box-sizing: border-box;
+}
+
+/* ---- FullCalendar surface ---- */
+.awe-ec-mount {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #e2e8ec;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(27, 128, 158, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 14px;
+
+  /* FullCalendar v6 custom properties */
+  --fc-border-color: #e2e8ec;
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f5f7f9;
+  --fc-today-bg-color: rgba(86, 158, 27, 0.08);
+  --fc-now-indicator-color: #156880;
+  --fc-event-bg-color: #569e1b;
+  --fc-event-border-color: #569e1b;
+  --fc-list-event-hover-bg-color: #f5f7f9;
+}
+
+.awe-ec-mount .fc {
+  flex: 1;
+  min-height: 0;
+}
+
+.awe-ec-mount .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3a41;
+}
+
+/* Keep prev/next and today on one row: the app theme sets FullCalendar buttons
+   to display:flex, which turns them block-level and stacks them in the block
+   toolbar chunk. Making the chunk a flex row lays them out horizontally. */
+.awe-ec-mount .fc-toolbar-chunk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons themed to the accent. The PrimeReact theme paints the toolbar buttons
+   with the app primary color via `.fc .fc-toolbar .fc-button` (specificity 3),
+   so these overrides match `.fc .fc-toolbar` too, plus the mount class, to win. */
+.awe-ec-mount .fc .fc-toolbar .fc-button {
+  background: #ffffff;
+  border: 1px solid #e2e8ec;
+  color: #6b7c85;
+  text-transform: capitalize;
+  font-weight: 500;
+  box-shadow: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.awe-ec-mount .fc .fc-toolbar .fc-button:hover {
+  background: #f5f7f9;
+  color: #2d3a41;
+  border-color: #d3dbe1;
+}
+
+.awe-ec-mount .fc .fc-toolbar .fc-button:focus {
+  box-shadow: 0 0 0 3px rgba(86, 158, 27, 0.25);
+}
+
+.awe-ec-mount .fc .fc-toolbar .fc-button-primary:not(:disabled).fc-button-active,
+.awe-ec-mount .fc .fc-toolbar .fc-button-primary:not(:disabled):active {
+  background: #569e1b;
+  border-color: #569e1b;
+  color: #fff;
+}
+
+.awe-ec-mount .fc-col-header-cell {
+  background: #f5f7f9 !important;
+  border-color: #e2e8ec;
+}
+
+.awe-ec-mount .fc-col-header-cell-cushion {
+  color: #2d3a41 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  padding: 8px 4px;
+}
+
+.awe-ec-mount .fc-daygrid-day-number {
+  color: #2d3a41;
+  font-weight: 500;
+  padding: 6px 8px;
+}
+
+.awe-ec-mount .fc-day-today .fc-daygrid-day-number {
+  color: #156880;
+  font-weight: 700;
+}
+
+.awe-ec-mount .fc-event {
+  border-radius: 6px;
+  border: none;
+  padding: 1px 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+.awe-ec-mount .fc-daygrid-event:hover {
+  filter: brightness(0.95);
+}
+
+/* ---- Event composer (our own UI around the library) ---- */
+.awe-ec-composer {
+  flex: 0 0 auto;
+  background: #ffffff;
+  border: 1px solid #e2e8ec;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(27, 128, 158, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 14px 16px;
+}
+
+.awe-ec-composer-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #2d3a41;
+  margin-bottom: 10px;
+}
+
+.awe-ec-composer-head i {
+  color: #569e1b;
+}
+
+.awe-ec-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.awe-ec-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.awe-ec-field label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7c85;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+
+.awe-ec-input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e2e8ec;
+  border-radius: 8px;
+  background: #f5f7f9;
+  color: #2d3a41;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.awe-ec-input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #569e1b;
+  box-shadow: 0 0 0 3px rgba(86, 158, 27, 0.18);
+}
+
+.awe-ec-input-title {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+/* Color picker */
+.awe-ec-colors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.awe-ec-color {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08) inset;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.awe-ec-color:hover {
+  transform: scale(1.12);
+}
+
+.awe-ec-color-on {
+  border-color: #2d3a41;
+  transform: scale(1.12);
+}
+
+/* Actions */
+.awe-ec-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.awe-ec-btn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8ec;
+  background: #ffffff;
+  color: #2d3a41;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.awe-ec-btn:hover {
+  background: #f5f7f9;
+}
+
+.awe-ec-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.awe-ec-btn-primary {
+  background: #569e1b;
+  border-color: #569e1b;
+  color: #fff;
+}
+
+.awe-ec-btn-primary:hover {
+  background: #156880;
+  border-color: #156880;
+}
+
+.awe-ec-btn-danger {
+  background: #fff;
+  border-color: #e6b3b3;
+  color: #c0392b;
+}
+
+.awe-ec-btn-danger:hover {
+  background: #fdf0ef;
+}

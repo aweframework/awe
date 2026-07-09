@@ -526,6 +526,51 @@
                 </plugins>
             </build>
         </profile>
+
+        <!-- Frontend hot-reload dev profile: activated by `npm run start:hot-reload`.
+             Webpack watch mode owns the bundles, so Maven must not rebuild the
+             frontend; spring-boot-devtools restarts the JVM on Java changes, and
+             the hot-reload Spring profile disables static resource caching. -->
+        <profile>
+            <id>hot-reload</id>
+            <!-- Webpack watch (npm run build:watch) is the SOLE owner of the
+                 frontend bundles under this profile. skip.frontend is the switch the
+                 awe-starter-parent binds to frontend-maven-plugin's <skip>, so setting
+                 it here skips every frontend goal (install-node-and-npm, npm ci and the
+                 inherited "npm run build" that runs build:prod at the compile phase).
+                 Otherwise that production build overwrites the watch's dev bundles at
+                 startup, leaving a mismatched dev bundle.js / prod commons.js split-chunk
+                 pair; the webpack chunk handshake then never resolves and the app hangs
+                 on the splash. Deps are already installed by `npm run dev:hot-reload`. -->
+            <properties>
+                <skip.frontend>true</skip.frontend>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!-- The base spring-boot-maven-plugin config pins the active
+                         Spring profiles, which takes precedence over the
+                         spring-boot.run.profiles CLI property. Activate the
+                         hot-reload Spring profile here instead. -->
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <profiles combine.self="override">
+                                <profile>gitlab-ci</profile>
+                                <profile>hot-reload</profile>
+                            </profiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <dependencyManagement>
