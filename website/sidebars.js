@@ -79,6 +79,7 @@ module.exports = {
 				"guides/v4-migration",
 				"guides/default-screens",
 				"guides/custom-widgets",
+				"guides/custom-widgets-react",
 			],
 		},
 		{

@@ -547,6 +547,13 @@
          watcher during `npm run start:hot-reload`. -->
     <profile>
       <id>hot-reload</id>
+      <!-- webpack watch owns the frontend bundles here; skip.frontend (bound by
+           awe-starter-parent to frontend-maven-plugin's <skip>) skips node install,
+           npm ci and the inherited production build in one property, so Maven never
+           overwrites the watcher's bundles. -->
+      <properties>
+        <skip.frontend>true</skip.frontend>
+      </properties>
       <!-- Keep devtools here too: activating -Phot-reload deactivates the activeByDefault
            'devtools' profile, and we still want hot-restart for Java/XML changes. -->
       <dependencies>
@@ -556,28 +563,6 @@
           <scope>provided</scope>
         </dependency>
       </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>install node and npm</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>npm ci</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>npm run build</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
     <!-- HSQL Flyway profile -->
     <profile>

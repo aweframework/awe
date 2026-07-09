@@ -23,9 +23,10 @@ The `type` attribute is the **key that resolves the client component**. The back
 ```
 
 - **Angular client (`awe-client-angular`)**: the element resolves against the AngularJS directive registry. A directive named `aweEventCalendar` (element `awe-event-calendar`) renders the widget. Applications register their own directives in their bundle, so widgets are extensible at the application level with no changes to the framework core.
+- **React client (`awe-react-client`)**: the `type` resolves against a client-side widget registry. Applications register their own components with `registerWidget(type, component)` (exported by `awe-react-client`), so widgets are extensible at the application level with no changes to the framework core. See the [Custom widgets (React) guide](../guides/custom-widgets-react).
 - If no component matches `type`, the client renders a graceful placeholder (`The widget <type> has not been created yet.`) instead of failing.
 
-To build and register your own widget, see the [Custom widgets guide](../guides/custom-widgets).
+To build and register your own widget, see the [Custom widgets guide](../guides/custom-widgets) (Angular) or the [Custom widgets (React) guide](../guides/custom-widgets-react).
 
 ## Built-in widgets
 
@@ -38,6 +39,10 @@ The Angular client ships these widget types out of the box:
 | `log-viewer`   | Streaming log viewer                 |
 | `help-viewer`  | Help content viewer                  |
 | `carousel`     | Image / content carousel             |
+
+### React client
+
+The React client (`awe-react-client`) resolves the same `type` against a client-side registry and ships the same built-in widget types. Applications add their own by calling `registerWidget(type, component)` (exported by `awe-react-client`) once at startup; the built-in widgets use that same mechanism. The widget node attributes (`id`, `style`, ...) are passed to the component as props. See the [Custom widgets (React) guide](../guides/custom-widgets-react).
 
 ## Attributes
 

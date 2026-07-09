@@ -215,7 +215,7 @@ For Babel, keep Istanbul instrumentation only for non-release flows such as deve
 
 ### Development mode with hot reload
 
-> Available for the AngularJS client only.
+> Available for both the AngularJS and React clients. The launch command is the same on both — `npm run start:hot-reload` (homogenized across clients) — with a small per-client difference in how the Maven profile skips the production frontend build (noted below).
 
 AWE projects expose two launch scripts:
 
@@ -229,7 +229,9 @@ With `npm run start:hot-reload`, the loop is: edit LESS/JS → the watcher rebui
 It relies on three pieces (all shipped by the archetype and `awe-boot`):
 
 - **npm scripts**: a `build:watch` script (`webpack --config webpack.config.js --watch --mode development`) and `concurrently` (devDependency) to run the watcher and the app in parallel.
-- **Maven `hot-reload` profile**: unbinds the Maven-driven `frontend-maven-plugin` executions so the watcher owns the bundles (otherwise `mvn spring-boot:run` would run `npm ci` and a second webpack, colliding with the watcher), while keeping `spring-boot-devtools`.
+- **Maven `hot-reload` profile**: keeps the watcher as the sole bundle writer so the Maven-driven production build does not overwrite the dev bundles (otherwise `mvn spring-boot:run` would run `npm ci` and a second webpack, colliding with the watcher and leaving the app hanging on the splash screen), while keeping `spring-boot-devtools`. The two clients achieve this differently:
+  - **AngularJS client**: unbinds the individual `frontend-maven-plugin` executions (`install node and npm`, `npm ci`, `npm run build`) by setting their phase to `none`.
+  - **React client**: sets `<skip.frontend>true</skip.frontend>` in the profile, which skips the whole inherited frontend build (node install, `npm ci` and the production build) in one property rather than unbinding each execution.
 
   ```xml
   <profile>
