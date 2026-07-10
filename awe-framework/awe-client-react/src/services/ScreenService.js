@@ -133,6 +133,19 @@ const useScreenService = () => {
   };
 
   /**
+   * Reload the whole page (full browser refresh)
+   *
+   * Unlike the "reload" action (a soft SPA reload), this performs a full
+   * page reload so structural screen changes are picked up. Used by the dev
+   * hot-reload watcher, which broadcasts a "reload-page" client action.
+   * @param {Action} action Action received
+   */
+  const reloadPage = (action) => {
+    window.location.reload();
+    dispatch(acceptAction(action));
+  };
+
+  /**
    * Logout from the application
    */
   const logout = () => dispatch(logoutAction());
@@ -158,6 +171,7 @@ const useScreenService = () => {
     "toggle-class": toggleClass,
     "screen-print": screenPrint,
     "close-window": closeWindow,
+    "reload-page": reloadPage,
     "logout": logout,
     "redirect": redirect,
   });

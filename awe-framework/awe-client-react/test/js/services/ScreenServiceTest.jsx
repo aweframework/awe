@@ -52,7 +52,7 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Get all screen actions
   it('should get all screen actions', async function() {
-    expect(Object.keys(actions).length).toBe(15);
+    expect(Object.keys(actions).length).toBe(16);
   });
 
   // Launch screen action erasing the token
@@ -216,6 +216,18 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
     // Verify window.location.href was set correctly
     await waitFor(() => expect(window.open).toHaveBeenCalled());
+  });
+
+  // Reload the whole page (full browser refresh, dev hot-reload)
+  it('should reload the whole page', async function() {
+    // window.location.reload() is a silent no-op under jsdom (non-configurable,
+    // so it can't be spied); assert the handler is registered under the
+    // "reload-page" key and completes by accepting the action.
+    actions["reload-page"]({parameters: {}}, props);
+
+    await waitFor(() => expect(dispatchSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "ACCEPT_ACTION" })
+    ));
   });
 
 });
