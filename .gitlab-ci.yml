@@ -7,7 +7,7 @@ include:
   - template: DAST.gitlab-ci.yml
   - template: Dependency-Scanning.gitlab-ci.yml
 
-image: maven:3.8-openjdk-17-slim
+image: maven:3.9-eclipse-temurin-21
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -279,7 +279,7 @@ SQL Server Tests:
 
 Frontend UT:
   stage: test
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk17-node-maven:latest
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest
   needs: [ ]
   cache: { }
   script:
@@ -318,8 +318,7 @@ Javadoc test:
 
 # Browser testing extension
 .browser-testing:
-  # Important! Do not use slim version (it doesn't have the necessary fonts)
-  image: maven:3.8-openjdk-17
+  image: maven:3.9-eclipse-temurin-21
   stage: integration test
   allow_failure: true
   variables:
@@ -329,6 +328,10 @@ Javadoc test:
   needs:
     - job: Build project
       artifacts: false
+  # Important! Print/PDF IT tests render server-side and need system fonts.
+  # eclipse-temurin is a minimal image, so install fontconfig + fonts here.
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq fontconfig fonts-dejavu >/dev/null
   script:
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"

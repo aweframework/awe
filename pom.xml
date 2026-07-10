@@ -47,6 +47,9 @@
     <sonar.sources>${project.basedir}/src/main</sonar.sources>
     <sonar.binaries>${project.build.directory}/classes</sonar.binaries>
     <sonar.java.source>${java.version}</sonar.java.source>
+    <!-- Binary web fonts are not source; excluding them silences the
+         "Invalid character encountered ... for encoding UTF-8" analysis warnings. -->
+    <sonar.exclusions>**/fonts/**</sonar.exclusions>
 
     <!-- plugin versions -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
