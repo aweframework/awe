@@ -10,7 +10,7 @@
     "build:production": "webpack --config webpack.prod.js",
     "build:watch": "webpack --config webpack.dev.js --watch",
     "start": "mvn spring-boot:run",
-    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload -Dspring-boot.run.profiles=hot-reload\"",
+    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload -Dspring-boot.run.profiles=hot-reload -Dspring-boot.run.jvmArguments=-Dspring.output.ansi.enabled=always\"",
     "test-dev": "npm run build:development",
     "test-prod": "npm run build:production"
   },

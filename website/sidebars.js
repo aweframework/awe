@@ -37,6 +37,7 @@ module.exports = {
 				{
 					Configuration: [
 						"maven",
+						"dev-tools",
 						{
 							type: "category",
 							label: "Modules",

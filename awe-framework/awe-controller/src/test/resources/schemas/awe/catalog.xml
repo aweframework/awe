@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- Minimal OASIS catalog for XmlSchemaValidator tests: mirrors the runtime
+     schemas/awe/catalog.xml shipped by awe-generic-screens, mapping the schema
+     systemId declared by the XML to a local XSD. -->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <system systemId="https://awe.test/schemas/widget.xsd" uri="./widget.xsd"/>
+</catalog>

@@ -4,7 +4,14 @@ title: Maven and Frontend
 sidebar_label: Maven and Frontend
 ---
 
-The maven dependency needed to run an application with AWE engine is the next one:
+An AWE application is a Spring Boot project: add the AWE starter, pick a frontend client
+(AngularJS or React), and build the frontend assets with Webpack through Maven. This page covers
+that setup and the commands to run and package the application. For the fast edit-and-reload
+development loop, see [Dev Tools](dev-tools).
+
+## Maven setup
+
+Add the AWE starter dependency:
 
 ```xml
 <dependency>
@@ -14,7 +21,7 @@ The maven dependency needed to run an application with AWE engine is the next on
 </dependency>
 ```
 
-Add the maven dependency plugin to retrieve the generic screens:
+Add the dependency plugin that unpacks the generic screens shipped with AWE:
 
 ```xml
 <plugin>
@@ -38,15 +45,22 @@ Add the maven dependency plugin to retrieve the generic screens:
 </plugin>
 ```
 
-We use `webpack` in the `pom.xml` file to compile all javascript and less files. By default, AWE now builds frontend assets in `production` mode and keeps `npm run build` as a production alias.
+Where **PROJECT-ACRONYM** is the acronym of the project in uppercase, and **project-acronym** is the
+same acronym in lowercase.
 
-If you need a local development bundle, override the Maven property:
+## Frontend build
+
+AWE compiles all JavaScript and LESS files with Webpack, driven from `pom.xml` by the
+`frontend-maven-plugin`. Builds default to **production** mode; `npm run build` is the production
+alias.
+
+To produce a local development bundle, override the Maven property:
 
 ```bash
 mvn compile -Dbuild.environment=development
 ```
 
-Add the build environment property and configure `frontend-maven-plugin` to execute the mode-specific npm script:
+Add the build-environment property and configure the plugin to run the mode-specific npm script:
 
 ```xml
 <properties>
@@ -92,9 +106,9 @@ Add the build environment property and configure `frontend-maven-plugin` to exec
 </plugin>
 ```
 
-`npm ci --include=dev` explicitly installs development tooling such as Jest and `webpack-cli`
-for CI, tests, and builds. `NODE_ENV=${build.environment}` is scoped to the build execution only,
-so production builds remain production builds.
+`npm ci --include=dev` explicitly installs development tooling (such as Jest and `webpack-cli`) for
+CI, tests, and builds. `NODE_ENV=${build.environment}` is scoped to the build execution only, so
+production builds stay production builds.
 
 Each frontend package that uses Webpack should expose these scripts:
 
@@ -110,18 +124,24 @@ Each frontend package that uses Webpack should expose these scripts:
 }
 ```
 
-This keeps Maven releases and consumers on optimized bundles by default without changing the generated asset paths.
-Use `npm test` for local unit tests, and use `npm run test:coverage` for Maven, CI, Sonar, or any path that needs Jest JUnit and LCOV reports under `target/reports/jest/`.
+This keeps Maven releases and consumers on optimized bundles by default, without changing the
+generated asset paths. Use `npm test` for local unit tests, and `npm run test:coverage` for Maven,
+CI, Sonar, or any path that needs Jest JUnit and LCOV reports under `target/reports/jest/`.
 
-> **Note:** More info about less plugin [here](https://github.com/marceloverdijk/lesscss-maven-plugin)
+> **Note:** more info about the LESS plugin [here](https://github.com/marceloverdijk/lesscss-maven-plugin).
 
-Where **PROJECT-ACRONYM** is the acronym of the project in uppercase, and **project-acronym** is the same acronym but in lowercase.
+## Choosing a frontend client
 
-Depending on the frontend engine you want to use on your project, you must follow one of the following instructions:
+AWE offers two frontend clients. Pick one per project; the server side is identical.
 
-## Angular JS Frontend
+| Client | Add it via | Notes |
+| --- | --- | --- |
+| **AngularJS** | Maven dependency `awe-client-angular` | The long-standing client; single `webpack.config.js`. |
+| **React** | npm dependency `awe-react-client` | The newer client; split Webpack config (`dev`/`prod`). |
 
-To use the AngularJS frontend, you must add the following dependency:
+### AngularJS client
+
+Add the dependency:
 
 ```xml
 <dependency>
@@ -131,7 +151,7 @@ To use the AngularJS frontend, you must add the following dependency:
 </dependency>
 ```
 
-In the previously added `maven-dependency-plugin` you must add the following execution after the `unpack awe-generic-screens` section:
+In the `maven-dependency-plugin` above, add this execution after `unpack awe-generic-screens`:
 
 ```xml
 <execution>
@@ -149,7 +169,8 @@ In the previously added `maven-dependency-plugin` you must add the following exe
 </execution>
 ```
 
-The `webpack.config.js` file must resolve the mode from CLI arguments or `NODE_ENV`, disable sourcemaps for production packaging, and preserve the existing output directory and `publicPath`:
+The `webpack.config.js` file resolves the mode from CLI arguments or `NODE_ENV`, disables sourcemaps
+for production packaging, and preserves the output directory and `publicPath`:
 
 ```javascript
 const path = require("path");
@@ -211,67 +232,12 @@ module.exports = (env = {}, argv = {}) => {
 };
 ```
 
-For Babel, keep Istanbul instrumentation only for non-release flows such as development or test, and remove it from production builds so distributed artifacts are not instrumented.
+For Babel, keep Istanbul instrumentation only for non-release flows (development or test) and remove
+it from production builds so distributed artifacts are not instrumented.
 
-### Development mode with hot reload
+### React client
 
-> Available for both the AngularJS and React clients. The launch command is the same on both — `npm run start:hot-reload` (homogenized across clients) — with a small per-client difference in how the Maven profile skips the production frontend build (noted below).
-
-AWE projects expose two launch scripts:
-
-| Command | What it does |
-| --- | --- |
-| `npm start` | Starts the application normally (`mvn spring-boot:run`). |
-| `npm run start:hot-reload` | Fast development loop: runs webpack in watch mode and the application together, so front-end edits (LESS/JS) are rebuilt incrementally (~50 ms) and served **without a JVM restart**. |
-
-With `npm run start:hot-reload`, the loop is: edit LESS/JS → the watcher rebuilds → refresh the browser. Java and screen/locale/menu XML changes still trigger a `spring-boot-devtools` restart.
-
-It relies on three pieces (all shipped by the archetype and `awe-boot`):
-
-- **npm scripts**: a `build:watch` script (`webpack --config webpack.config.js --watch --mode development`) and `concurrently` (devDependency) to run the watcher and the app in parallel.
-- **Maven `hot-reload` profile**: keeps the watcher as the sole bundle writer so the Maven-driven production build does not overwrite the dev bundles (otherwise `mvn spring-boot:run` would run `npm ci` and a second webpack, colliding with the watcher and leaving the app hanging on the splash screen), while keeping `spring-boot-devtools`. The two clients achieve this differently:
-  - **AngularJS client**: unbinds the individual `frontend-maven-plugin` executions (`install node and npm`, `npm ci`, `npm run build`) by setting their phase to `none`.
-  - **React client**: sets `<skip.frontend>true</skip.frontend>` in the profile, which skips the whole inherited frontend build (node install, `npm ci` and the production build) in one property rather than unbinding each execution.
-
-  ```xml
-  <profile>
-    <id>hot-reload</id>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-devtools</artifactId>
-        <scope>provided</scope>
-      </dependency>
-    </dependencies>
-    <build>
-      <plugins>
-        <plugin>
-          <groupId>com.github.eirslett</groupId>
-          <artifactId>frontend-maven-plugin</artifactId>
-          <executions>
-            <execution><id>install node and npm</id><phase>none</phase></execution>
-            <execution><id>npm ci</id><phase>none</phase></execution>
-            <execution><id>npm run build</id><phase>none</phase></execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </build>
-  </profile>
-  ```
-
-- **Relaxed static-resource handling in development** so rebuilt bundles are served immediately (no content hashing, no caching):
-
-  ```properties
-  spring.web.resources.cache.period=0
-  spring.web.resources.chain.cache=false
-  spring.web.resources.chain.strategy.content.enabled=false
-  ```
-
-  In generated projects this lives in an `application-hot-reload.properties` Spring profile, activated by the `start:hot-reload` script (`-Dspring-boot.run.profiles=hot-reload`), so the main `application.properties` keeps production-safe caching.
-
-## React Frontend
-
-To use the new React frontend you must add the following dependency on the `package.json` file:
+Add the client to `package.json`:
 
 ```json
 "dependencies": {
@@ -279,10 +245,13 @@ To use the new React frontend you must add the following dependency on the `pack
 }
 ```
 
-where `AWE-REACT-VERSION` is the awe-react-client version you want to use (not the same versions as 
-AWE Framework).
+where `AWE-REACT-VERSION` is the `awe-react-client` version you want to use (these versions are not
+the same as the AWE Framework versions).
 
-The React frontend keeps the same production-default contract. `npm run build` should remain an alias of `build:production`, while development bundles should be generated explicitly with `build:development`.
+The React client keeps the same production-default contract, with a Webpack config split by
+environment: `webpack.config.js` holds the common configuration, `webpack.dev.js` the development
+bundle, and `webpack.prod.js` the production bundle. Production builds should disable sourcemaps
+(`devtool: false`) and avoid optional documentation-generation side effects during packaging.
 
 ```json
 {
@@ -294,8 +263,17 @@ The React frontend keeps the same production-default contract. `npm run build` s
 }
 ```
 
-Keep the React Webpack split by environment: `webpack.config.js` contains the common
-configuration, `webpack.dev.js` enables the development bundle, and `webpack.prod.js`
-enables the production bundle. Production builds should disable sourcemaps with
-`devtool: false` and avoid optional documentation-generation side effects during normal
-application packaging.
+## Running and building the application
+
+| Goal | Command |
+| --- | --- |
+| Run the application | `npm start` (runs `mvn spring-boot:run`) |
+| Run with hot reload (development) | `npm run start:hot-reload` — see [Dev Tools](dev-tools) |
+| Build a development bundle | `mvn compile -Dbuild.environment=development` |
+| Build / package for production | `npm run build` or `mvn package` |
+
+Production is the default for `mvn package` and `npm run build`, so releases and consumers stay on
+optimized, hashed bundles unless you explicitly ask for a development build.
+
+For the fast development loop — incremental JS/LESS rebuilds and live XML reload without restarting
+the JVM — continue to [Dev Tools](dev-tools).

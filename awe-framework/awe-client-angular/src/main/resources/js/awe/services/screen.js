@@ -73,6 +73,18 @@ aweApplication.factory("Screen",
           $actionController.acceptAction(action);
         },
         /**
+         * Fully reload the browser page (equivalent to a manual refresh). Used by the XML
+         * hot-reload development workflow to pick up structural screen changes
+         * @param {object} action Action received
+         */
+        reloadPage: function (action) {
+          // Finish screen action before the reload discards the current context
+          $actionController.acceptAction(action);
+
+          // Reload the whole page from the server
+          $window.location.reload();
+        },
+        /**
          * Return to the previous screen
          * @param {object} action Action received
          */
