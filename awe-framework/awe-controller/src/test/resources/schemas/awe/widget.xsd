@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal no-namespace schema used by XmlSchemaValidatorTest. AWE definitions
+     declare their schema through xsi:noNamespaceSchemaLocation, so the test schema
+     is a no-namespace one too. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="widget">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="size" type="xs:integer"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

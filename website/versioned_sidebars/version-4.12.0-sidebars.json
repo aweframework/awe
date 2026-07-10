@@ -29,6 +29,7 @@
         {
           "Configuration": [
             "maven",
+            "dev-tools",
             {
               "type": "category",
               "label": "Modules",

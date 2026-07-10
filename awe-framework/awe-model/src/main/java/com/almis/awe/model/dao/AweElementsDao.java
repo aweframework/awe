@@ -95,6 +95,12 @@ public class AweElementsDao {
     if (resource.exists()) {
       try (InputStream inputStream = resource.getInputStream()) {
         XMLFile fullXml = fromXML(rootClass, inputStream);
+        if (fullXml == null) {
+          // Parse failure: keep the storage untouched and report the offending file
+          log.error(ERROR_PARSING_XML, logPath);
+          return MessageFormat.format(READING, logPath, KO,
+            DurationFormatUtils.formatDuration(System.currentTimeMillis() - startTime, LOG_SECONDS_FORMAT, false));
+        }
 
         // Read all XML elements
         readXmlElements(fullXml, storage);
@@ -104,7 +110,7 @@ public class AweElementsDao {
         }
         return MessageFormat.format(READING, logPath, OK,
           DurationFormatUtils.formatDuration(elapsedTime, LOG_SECONDS_FORMAT, false));
-      } catch (IOException exc) {
+      } catch (Exception exc) {
         log.error(ERROR_PARSING_XML, logPath, exc);
       }
     }
@@ -120,6 +126,11 @@ public class AweElementsDao {
    * @param storage Storage map
    */
   private <N extends XMLNode> void readXmlElements(XMLFile fullXml, Map<String, N> storage) {
+    // Guard against unparseable files
+    if (fullXml == null || fullXml.getBaseElementList() == null) {
+      return;
+    }
+
     // Read XML Elements and store them
     List<N> elementList = fullXml.getBaseElementList();
     elementList.stream()
@@ -161,13 +172,50 @@ public class AweElementsDao {
       Resource[] resources = loader.getResources("classpath:" + basePath + "**/" + fileName);
       return Arrays.stream(resources)
         .filter(resource -> fileName.equalsIgnoreCase(resource.getFilename()))
-        .map(resource -> basePath)
+        .map(resource -> findResourceFolder(resource, basePath))
+        .filter(Objects::nonNull)
         .findFirst()
         .orElse(null);
     } catch (Exception exc) {
       log.warn(ERROR_READING_XML, fileName, exc);
     }
 
+    return null;
+  }
+
+  /**
+   * Retrieve the classpath-relative folder of a matched resource. The folder is derived
+   * from the resource URL by locating the base path inside it, so files stored in
+   * subdirectories keep their real location (both for {@code file:} and {@code jar:file:...!/} URLs).
+   *
+   * @param resource Matched resource
+   * @param basePath Classpath-relative base path (e.g. /application/module/screen/)
+   * @return Classpath-relative folder of the resource ending with '/', or null if it cannot be derived
+   */
+  private String findResourceFolder(Resource resource, String basePath) {
+    try {
+      return findResourceFolder(resource.getURL().toString(), basePath);
+    } catch (IOException exc) {
+      log.warn(ERROR_READING_XML, resource.getFilename(), exc);
+    }
+    return null;
+  }
+
+  /**
+   * Retrieve the classpath-relative folder of a resource URL by locating the base path inside it
+   *
+   * @param resourceUrl Resource URL
+   * @param basePath    Classpath-relative base path (e.g. /application/module/screen/)
+   * @return Classpath-relative folder of the resource ending with '/', or null if it cannot be derived
+   */
+  static String findResourceFolder(String resourceUrl, String basePath) {
+    // Anchor to the last occurrence: absolute URLs may repeat the base path segments earlier
+    int basePathIndex = resourceUrl.lastIndexOf(basePath);
+    int lastSlashIndex = resourceUrl.lastIndexOf('/');
+    if (basePathIndex >= 0 && lastSlashIndex >= basePathIndex) {
+      return resourceUrl.substring(basePathIndex, lastSlashIndex + 1);
+    }
+    log.warn(ERROR_READING_XML, resourceUrl);
     return null;
   }
 
@@ -195,7 +243,7 @@ public class AweElementsDao {
         if (elapsedTime > LONG_FILE_TIME_TO_LOAD) {
           log.warn(WARNING_FILE_TOO_BIG, logFilePath);
         }
-      } catch (IOException exc) {
+      } catch (Exception exc) {
         log.error(ERROR_PARSING_XML, logFilePath, exc);
       }
     }
@@ -261,6 +309,11 @@ public class AweElementsDao {
     if (resource.exists()) {
       try (InputStream inputStream = resource.getInputStream()) {
         T file = fromXML(clazz, inputStream);
+        if (file == null) {
+          // Parse failure: never store a null value (it would break the whole folder scan)
+          log.error(ERROR_PARSING_XML, resource.getFilename());
+          return Collections.emptyMap();
+        }
         String fileName = Objects.requireNonNull(resource.getFilename()).replace(baseConfigProperties.getExtensionXml(), "");
         storage.put(fileName, file);
         String logFilePath = Paths.get(basePath, Optional.ofNullable(resource.getURL().getPath())

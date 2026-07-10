@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locales>
+  <locale name="SHARED_KEY" value="Module one value"/>
+  <locale name="MODULE_ONE_KEY" value="Module one key"/>
+</locales>

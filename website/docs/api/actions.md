@@ -89,6 +89,7 @@ Navigation actions are used to move from one screen to another.
 | `back`            | Go to the previous screen. Same as navigator back button. Does **not** need `target` attribute.                                                          |
 | `screen`          | Go to a screen. **Needs** `target` attribute.                                                                                                            |                         
 | `reload`          | Reload current screen                                                                                                                                    |
+| `reload-page`     | Fully reload the browser page, like a manual refresh. Unlike `reload` (which re-runs the current screen inside the SPA), it re-fetches everything from the server, so it also picks up structural changes. Used by the development [hot reload](../dev-tools) to refresh the browser automatically. Does **not** need `target` attribute. |
 | `logout`          | Log out and exit the private menu.  Does **not** need `target` attribute.                                                                                |  
 | `redirect`        | Redirects the current screen to a new URL defined in `target` attribute. If parameter `newWindow` is set to `true`, the URL will be open in a new window |  
 | `redirect-screen` | Launches a `redirect` action if the current screen matches the `screen` parameter                                                                        |

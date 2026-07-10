@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu screen="signin">
+  <option name="public-option" screen="flat-screen"/>
+</menu>
