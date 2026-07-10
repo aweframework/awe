@@ -26,3 +26,5 @@ com.almis.awe.controller.LocalesController
 com.almis.awe.controller.StaticResourcesController
 com.almis.awe.controller.UploadController
 com.almis.awe.controller.TotpController
+com.almis.awe.controller.AvatarController
+com.almis.awe.autoconfigure.XmlHotReloadConfig

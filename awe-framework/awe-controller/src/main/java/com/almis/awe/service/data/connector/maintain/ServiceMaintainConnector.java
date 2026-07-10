@@ -10,6 +10,7 @@ import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
+import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.ServiceBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,7 +41,7 @@ public class ServiceMaintainConnector extends ServiceConfig implements MaintainC
     List<ServiceInputParameter> serviceParameters = getServiceParameters(query.getService());
     Map<String, QueryParameter> variableMap = remapVariablesByServiceContract(
         query,
-        getBean(com.almis.awe.model.util.data.QueryUtil.class).getVariableMap(query, parameters, serviceParameters),
+        getBean(QueryUtil.class).getVariableMap(query, parameters, serviceParameters),
         serviceParameters);
     builder
       .setQuery(query)
@@ -79,32 +80,24 @@ public class ServiceMaintainConnector extends ServiceConfig implements MaintainC
 
   private Map<String, QueryParameter> remapVariablesByServiceContract(MaintainQuery query,
                                                                       Map<String, QueryParameter> variableMap,
-                                                                      List<ServiceInputParameter> serviceParameters) {
+                                                                      List<ServiceInputParameter> serviceParameters) throws AWException {
     Map<String, QueryParameter> remappedVariableMap = new LinkedHashMap<>();
     List<Variable> variables = query.getVariableDefinitionList() == null ? Collections.emptyList() : query.getVariableDefinitionList();
-    int mappedParameters = Math.min(variables.size(), serviceParameters.size());
 
-    for (int index = 0; index < mappedParameters; index++) {
-      String variableId = variables.get(index).getId();
-      ServiceInputParameter serviceParameter = serviceParameters.get(index);
-      String serviceParameterName = serviceParameter.getName();
-      if (shouldRemapVariable(variableId, serviceParameter, variableMap)) {
-        remappedVariableMap.put(serviceParameterName, variableMap.get(variableId));
-      }
-    }
+    // Bind each variable value under its service parameter name, matching strictly by name (see
+    // QueryUtil#pairVariablesToServiceContract). Order is irrelevant and never guessed positionally;
+    // a service parameter not informed by the maintain raises an AWException.
+    getBean(QueryUtil.class).pairVariablesToServiceContract(variables, serviceParameters)
+        .forEach((variableId, serviceParameter) -> {
+          String serviceParameterName = serviceParameter.getName();
+          if (StringUtils.isNotBlank(serviceParameterName) && variableMap.containsKey(variableId)) {
+            remappedVariableMap.put(serviceParameterName, variableMap.get(variableId));
+          }
+        });
 
+    // Preserve any variable values not bound to a service parameter (defaults, extra variables)
     variableMap.forEach(remappedVariableMap::putIfAbsent);
 
     return remappedVariableMap;
-  }
-
-  private boolean shouldRemapVariable(String variableId,
-                                      ServiceInputParameter serviceParameter,
-                                      Map<String, QueryParameter> variableMap) {
-    String serviceParameterName = serviceParameter.getName();
-    return StringUtils.isNotBlank(serviceParameterName)
-        && variableMap.containsKey(variableId)
-        && (!StringUtils.isNotBlank(serviceParameter.getBeanClass())
-        || StringUtils.equals(variableId, serviceParameterName));
   }
 }

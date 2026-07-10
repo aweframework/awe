@@ -77,6 +77,34 @@
         </dependency>
       </criteria>
     </tag>
+    <criteria label="SCHEDULER_REMOTE_EXECUTION" component="checkbox" id="Rmt" style="col-xs-12 no-label">
+      <dependency source-type="formule" target-type="input" initial="true" type="or"
+                  formule="'[IdeSrvExe]' != 'null' &amp;&amp; '[IdeSrvExe]' != '' ? 1 : 0">
+        <dependency-element id="IdeSrvExe" condition="ne" value=""/>
+        <dependency-element id="IdeSrvExe" condition="eq" value=""/>
+      </dependency>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="TypExe" condition="eq" value="0"/>
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TypExe" condition="ne" value="0"/>
+        <dependency-action type="reset" target="Rmt"/>
+      </dependency>
+    </criteria>
+    <criteria label="SCHEDULER_REMOTE_SERVER" component="select" id="IdeSrvExe"
+              server-action="data" initial-load="query" target-action="SchSrvSshLst" optional="true"
+              style="col-xs-6 col-sm-3">
+      <dependency target-type="show" initial="true">
+        <dependency-element id="Rmt" condition="eq" value="1"/>
+      </dependency>
+      <dependency target-type="set-required" initial="true">
+        <dependency-element id="Rmt" condition="eq" value="1"/>
+      </dependency>
+      <dependency>
+        <dependency-element id="Rmt" condition="eq" value="0"/>
+        <dependency-action type="reset" target="IdeSrvExe"/>
+      </dependency>
+    </criteria>
     <criteria label="PARAMETER_LAUNCH_DEPENDENCIES_WARN" component="checkbox" id="LchDepWrn"
               style="col-xs-12 no-label"/>
     <criteria label="PARAMETER_LAUNCH_DEPENDENCIES_ERROR" component="checkbox" id="LchDepErr"
@@ -535,7 +563,7 @@
         <dependency-element id="RepTyp" condition="eq" value="1"/>
       </dependency>
     </criteria>
-    <criteria label="PARAMETER_MESSAGE" component="textarea" id="RepMsg" style="col-xs-12">
+    <criteria label="PARAMETER_MESSAGE" component="textarea" id="RepMsg" style="col-xs-12" validation="{maxlength: 250}">
       <dependency target-type="show" initial="true">
         <dependency-element id="RepTyp" condition="in" value="1,2"/>
       </dependency>

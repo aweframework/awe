@@ -114,4 +114,102 @@ class SchedulerQueriesTest extends AbstractSpringAppIntegrationTest {
     logger.warn(result);
     assertResultJson(queryName, result, 0, 1, 1, 0);
   }
+
+  // ====================================================================================
+  // GitLab #685 regression: the AweSchTsk INNER JOIN was removed from getLastExecution
+  // and getTaskExecution. The HSQLDB seed (testdata-hsqldb.sql) inserts 10 AweSchExe rows
+  // for taskId=2 / group 'MANUAL' but NO AweSchTsk rows, so taskId=2 executions are
+  // naturally orphaned. Before #685 the INNER JOIN silently dropped these rows (zero
+  // results); after the fix they must still surface. These tests prove the SQL behaviour
+  // at runtime (the unit tests only check DAO mapping from mocked rows).
+  // ====================================================================================
+
+  /**
+   * Performs the mock request asserting only HTTP 200 (no strict content match) and
+   * returns the response body, so callers can assert row counts / fields flexibly.
+   *
+   * @param queryName Query ID
+   * @param variables Variables JSON fragment (without braces)
+   * @return Response body
+   * @throws Exception Error performing request
+   */
+  private String performRequestStatusOnly(String queryName, String variables) throws Exception {
+    MvcResult mvcResult = mockMvc.perform(post("/action/data/" + queryName)
+            .with(csrf())
+            .content("{" + variables + "}")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn();
+    return mvcResult.getResponse().getContentAsString();
+  }
+
+  /**
+   * Extracts the datalist rows array from a fill action response.
+   *
+   * @param result Raw response body
+   * @return Rows array
+   * @throws Exception Parse error
+   */
+  private ArrayNode extractRows(String result) throws Exception {
+    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    ObjectNode fillAction = (ObjectNode) resultList.get(0);
+    assertEquals("fill", fillAction.get("type").textValue());
+    ObjectNode dataList = (ObjectNode) ((ObjectNode) fillAction.get("parameters")).get("datalist");
+    return (ArrayNode) dataList.get("rows");
+  }
+
+  /**
+   * #685: getLastExecution must return exactly the single latest execution row for an
+   * orphaned task (no AweSchTsk row). Before the fix the AweSchTsk INNER JOIN dropped it.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testGetLastExecutionOrphanReturnsSingleLatestRow() throws Exception {
+    String result = performRequestStatusOnly("getLastExecution", "\"taskId\":2,\"taskGroup\":\"MANUAL\"");
+    ArrayNode rows = extractRows(result);
+    assertEquals(1, rows.size(), "getLastExecution must return exactly 1 row for the orphaned task");
+    // The latest execution (max IniDat) for taskId=2 is executionId=10
+    assertEquals(10, rows.get(0).get("executionId").asInt());
+    // taskId column preserved
+    assertEquals(2, rows.get(0).get("taskId").asInt());
+    logger.warn("getLastExecution orphan row: {}", rows.get(0));
+  }
+
+  /**
+   * #685: getTaskExecution must return exactly the requested execution row for an
+   * orphaned task (no AweSchTsk row), with a null-tolerant name produced by the
+   * {@code <field query="getTaskName"/>} scalar subquery instead of dropping the row.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testGetTaskExecutionOrphanReturnsSingleRowWithNullName() throws Exception {
+    String result = performRequestStatusOnly("getTaskExecution", "\"taskId\":2,\"taskExecution\":5");
+    ArrayNode rows = extractRows(result);
+    assertEquals(1, rows.size(), "getTaskExecution must return exactly 1 row for the orphaned task");
+    assertEquals(5, rows.get(0).get("executionId").asInt());
+    assertEquals(2, rows.get(0).get("taskId").asInt());
+    // name comes from the scalar subquery; NULL when the AweSchTsk row is missing
+    // (the row must NOT be dropped just because name is unavailable)
+    assertTrue(rows.get(0).get("name") == null || rows.get(0).get("name").isNull(),
+        "name must be null for an orphaned task, but the row must still be returned");
+    logger.warn("getTaskExecution orphan row: {}", rows.get(0));
+  }
+
+  /**
+   * #685: getTaskExecution parameterised row selection still works after the join
+   * removal — a different executionId returns that specific single row.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testGetTaskExecutionReturnsRequestedExecutionRow() throws Exception {
+    String result = performRequestStatusOnly("getTaskExecution", "\"taskId\":2,\"taskExecution\":3");
+    ArrayNode rows = extractRows(result);
+    assertEquals(1, rows.size());
+    assertEquals(3, rows.get(0).get("executionId").asInt());
+    logger.warn("getTaskExecution requested row: {}", rows.get(0));
+  }
 }

@@ -7,7 +7,10 @@
     "global-install": "npm prune && npm install --no-optional -g webpack webpack-dev-server",
     "build": "npm run build:production",
     "build:development": "webpack --config webpack.config.js --mode development",
-    "build:production": "webpack --config webpack.config.js --mode production"
+    "build:watch": "webpack --config webpack.config.js --watch --mode development",
+    "build:production": "webpack --config webpack.config.js --mode production",
+    "start": "mvn spring-boot:run",
+    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload -Dspring-boot.run.profiles=hot-reload -Dspring-boot.run.jvmArguments=-Dspring.output.ansi.enabled=always\""
   },
   "license": "ISC",
   "dependencies": {
@@ -30,5 +33,8 @@
     "@babel/plugin-transform-object-assign": "^7.8.3",
     "@babel/preset-env": "^7.8.4",
     "@babel/types": "^7.8.3"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
   }
 }

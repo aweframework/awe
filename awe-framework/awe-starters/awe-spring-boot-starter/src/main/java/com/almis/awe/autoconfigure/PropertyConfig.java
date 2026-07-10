@@ -112,6 +112,7 @@ public class PropertyConfig {
             .suggestTimeout(baseConfigProperties.getComponent().getSuggestTimeout().toMillis())
             .defaultComponentSize(baseConfigProperties.getComponent().getSize().toString().toLowerCase())
             .reloadCurrentScreen(baseConfigProperties.isReloadCurrentScreen())
+            .menuSearchEnabled(baseConfigProperties.isMenuSearchEnabled())
             .loadingTimeout(baseConfigProperties.getLoadingTimeout().toMillis())
             .uploadIdentifier(baseConfigProperties.getComponent().getUploadFileId())
             .uploadMaxSize(baseConfigProperties.getComponent().getUploadMaxFileSize().toMegabytes())

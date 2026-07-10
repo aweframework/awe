@@ -1,3 +1,35 @@
+# Release notes for AWE 4.12.2
+*10/07/2026*
+ 
+✨ Features:
+- **[HAS IMPACTS]** feat(awe): XML definition hot reload for development. [MR #676](https://gitlab.com/aweframework/awe/-/merge_requests/676) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** chore(dev): fast frontend hot-reload workflow (awe-boot + Angular archetype). [MR #671](https://gitlab.com/aweframework/awe/-/merge_requests/671) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- fix(ci): align test job JDK with sonar scanner to restore coverage. [MR #678](https://gitlab.com/aweframework/awe/-/merge_requests/678) (Pablo Vidal Otero)
+- fix(build): override delombok Lombok to 1.18.46 for JDK 21. [MR #677](https://gitlab.com/aweframework/awe/-/merge_requests/677) (Pablo Vidal Otero)
+- fix(archetype): point react archetype package-lock at public npm registry. [MR #675](https://gitlab.com/aweframework/awe/-/merge_requests/675) (Pablo Vidal Otero)
+- feat(react): archetype hot-reload workflow and custom-widget docs. [MR #674](https://gitlab.com/aweframework/awe/-/merge_requests/674) (Pablo Vidal Otero)
+- feat(awe-client-angular): add menu option search (#9). [MR #672](https://gitlab.com/aweframework/awe/-/merge_requests/672) (Pablo Javier García Mora)
+- feat(awe-scheduler): propagate parent task parameters to dependent tasks (#724). [MR #668](https://gitlab.com/aweframework/awe/-/merge_requests/668) (Pablo Vidal Otero)
+- chore: adopt agentskills.io skills/ layout with per-tool symlinks. [MR #667](https://gitlab.com/aweframework/awe/-/merge_requests/667) (Pablo Vidal Otero)
+- feat(awe-scheduler): operator-supplied VARIABLE task params via modal grid on manual launch. [MR #666](https://gitlab.com/aweframework/awe/-/merge_requests/666) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** feat(awe-model): add per-user avatar image via AweUserSettings (#572). [MR #665](https://gitlab.com/aweframework/awe/-/merge_requests/665) (Pablo Javier García Mora)
+- feat(awe-scheduler): email report notification variables (#382). [MR #664](https://gitlab.com/aweframework/awe/-/merge_requests/664) (Pablo Vidal Otero)
+- docs(awe-scheduler): document task target database selection (#718). [MR #663](https://gitlab.com/aweframework/awe/-/merge_requests/663) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** feat(awe-scheduler): run scheduler command tasks locally or remotely via SSH (#623). [MR #662](https://gitlab.com/aweframework/awe/-/merge_requests/662) (Pablo Vidal Otero)
+- chore(awe-dependencies): update ADE to version 2.2.8. [MR #661](https://gitlab.com/aweframework/awe/-/merge_requests/661) (Pablo Javier García Mora)
+- fix(awe-scheduler): show calendar name in configured/executing tasks columns (#720). [MR #660](https://gitlab.com/aweframework/awe/-/merge_requests/660) (Pablo Vidal Otero)
+- chore: archive scheduler datasource routing. [MR #659](https://gitlab.com/aweframework/awe/-/merge_requests/659) (Pablo Vidal Otero)
+- fix(awe-scheduler): drop dead datasource alias routing and AweSchTsk join (#685). [MR #658](https://gitlab.com/aweframework/awe/-/merge_requests/658) (Pablo Vidal Otero)
+
+📄 Documentation:
+- feat(widgets): open component type, add Angular calendar example (awe-boot) and docs. [MR #670](https://gitlab.com/aweframework/awe/-/merge_requests/670) (Pablo Vidal Otero)
+- docs(website): document all pending client actions. [MR #669](https://gitlab.com/aweframework/awe/-/merge_requests/669) (Pablo Javier García Mora)
+
+🧪 Tests:
+- fix(awe-controller): bind maintain serve variables to service parameters by name (#730). [MR #673](https://gitlab.com/aweframework/awe/-/merge_requests/673) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.12.1
 *01/07/2026*
  

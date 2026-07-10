@@ -105,8 +105,8 @@ public class MaintainJobService extends JobService {
     // Log job start
     log.info("[{}] Maintain job started: {}", task.getTrigger().getKey().toString(), task.getAction());
 
-    // Initialize database to the one stored on the current task
-    ObjectNode parameters = getQueryUtil().getParameters(task.getDatabase(), "1", "0");
+    // Initialize query parameters (no per-task datasource routing - see #685)
+    ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
 
     // Insert task parameters
     for (TaskParameter taskParameter : task.getParameterList()) {
@@ -118,7 +118,6 @@ public class MaintainJobService extends JobService {
     }
 
     // Set default parameters
-    parameters.put("database", task.getDatabase());
     parameters.put("launcher", (String) dataMap.get(TASK_LAUNCHER));
 
     try {

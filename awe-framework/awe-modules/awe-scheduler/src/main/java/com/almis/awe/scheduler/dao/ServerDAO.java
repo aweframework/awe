@@ -33,12 +33,12 @@ public class ServerDAO {
   /**
    * Find server on database
    *
-   * @param serverId
-   * @return
+   * @param serverId Server identifier
+   * @return Server
    */
-  public Server findServer(Integer serverId, String database) throws AWException {
+  public Server findServer(Integer serverId) throws AWException {
     // Generate parameters
-    ObjectNode parameters = queryUtil.getParameters(database, "1", "0");
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put("serverId", serverId);
 
     // Retrieve server

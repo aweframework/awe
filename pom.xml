@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.12.1</version>
+  <version>4.12.2</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.12.1</revision>
+    <revision>4.12.2</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -33,7 +33,7 @@
     <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
-    <plugin-sonar.version>3.11.0.3922</plugin-sonar.version>
+    <plugin-sonar.version>4.0.0.4121</plugin-sonar.version>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.links.homepage>https://gitlab.com/aweframework/awe</sonar.links.homepage>
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
@@ -47,6 +47,9 @@
     <sonar.sources>${project.basedir}/src/main</sonar.sources>
     <sonar.binaries>${project.build.directory}/classes</sonar.binaries>
     <sonar.java.source>${java.version}</sonar.java.source>
+    <!-- Binary web fonts are not source; excluding them silences the
+         "Invalid character encountered ... for encoding UTF-8" analysis warnings. -->
+    <sonar.exclusions>**/fonts/**</sonar.exclusions>
 
     <!-- plugin versions -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>

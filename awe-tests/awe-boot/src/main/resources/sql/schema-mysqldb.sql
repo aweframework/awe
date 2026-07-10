@@ -371,7 +371,11 @@ CREATE TABLE IF NOT EXISTS AweSchSrv
     Pro VARCHAR(10) not NULL,
     Hst VARCHAR(40) not NULL,
     Prt VARCHAR(10) not NULL,
-    Act INTEGER DEFAULT 1 not NULL
+    Act INTEGER DEFAULT 1 not NULL,
+    SshUsr VARCHAR(200),
+    SshPwd VARCHAR(200),
+    SshKey VARCHAR(4000),
+    SshKeyPass VARCHAR(200)
 );
 
 --------------------------------------------------------
@@ -500,7 +504,11 @@ CREATE TABLE IF NOT EXISTS HisAweSchSrv
     Pro    VARCHAR(10),
     Hst    VARCHAR(40),
     Prt    VARCHAR(10),
-    Act    INTEGER
+    Act    INTEGER,
+    SshUsr VARCHAR(200),
+    SshPwd VARCHAR(200),
+    SshKey VARCHAR(4000),
+    SshKeyPass VARCHAR(200)
 );
 
 CREATE TABLE IF NOT EXISTS HisAweSchTsk
@@ -586,6 +594,14 @@ CREATE TABLE IF NOT EXISTS AweUsrFav
     Ope varchar(20) NOT NULL,           --  Username
     Opt varchar(100) NOT NULL,          --  Option name
     Ord int DEFAULT 0 NOT NULL          --  Option position
+);
+
+CREATE TABLE IF NOT EXISTS AweUserSettings
+(
+    IdeUsrSet int NOT NULL PRIMARY KEY,    --  Table identifier
+    Ope varchar(20) NOT NULL,              --  Username
+    AvatarImage varchar(4000),             --  Avatar image reference token
+    CONSTRAINT uk_AweUserSettings_Ope UNIQUE (Ope)
 );
 
 --------------------------------------------------------

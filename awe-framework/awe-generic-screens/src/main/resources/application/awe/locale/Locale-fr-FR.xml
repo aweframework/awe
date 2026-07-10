@@ -371,6 +371,7 @@
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="Il y avait une erreur composés en champs calculés dans une requête"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Il y avait une erreur ajoutant totalisateurs pour la requête {1} en ligne {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="Il y a eu un problème pour essayer d&apos;authentifier l&apos;utilisateur"/>
+  <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="L&apos;image sélectionnée dépasse la taille maximale autorisée pour l&apos;avatar de 2 Mo"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="Le &quot;include&quot; balise à l`écran {0} n&apos;a pas trouvé les suivantes composants: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Le format du message pour l&apos;envoy à la queue {0} n&apos;a pas été définie"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Le format de message pour la réception de la queue {0} n&apos;a pas été définie"/>
@@ -450,6 +451,7 @@
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="There has been a problem launching document engine initialization"/>
   <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="Le code d&amp;#39;authentification du deuxième facteur n&amp;#39;est pas valide, veuillez vérifier votre application d&amp;#39;authentification ou envoyer un message au responsable de l&amp;#39;application pour réinitialiser votre compte."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="Les arguments introduits sont invalides"/>
+  <locale name="ERROR_MESSAGE_INVALID_AVATAR_MIME_TYPE" value="Le type de fichier sélectionné n&apos;est pas une image d&apos;avatar prise en charge. Les types autorisés sont PNG, JPEG et GIF"/>
   <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="Un problème est survenu lors de la tentative de connexion lors du lancement [{0}]"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="Les informations d&apos;identification saisies par l&apos;utilisateur -{0}- ne sont pas valides"/>
   <locale name="ERROR_MESSAGE_INVALID_DATABASE_ARGUMENTS" value="The selected arguments of database connections are no valid. [Type:{0}, Alias:{1}, Url: {2}]"/>
@@ -482,6 +484,8 @@
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="Option {0} n&apos;a pas été défini. Veuillez vérifier les fichiers de menu."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="Session a expiré. S&apos;il vous plait recharger la page"/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parametre non trouvé: {0}"/>
+  <locale name="ERROR_TITLE_SERVICE_PARAMETER_NOT_INFORMED" value="Paramètre de service non renseigné"/>
+  <locale name="ERROR_MESSAGE_SERVICE_PARAMETER_NOT_INFORMED" value="Le paramètre de service [{0}] n''est pas renseigné par le maintain ou la requête. Déclarez une variable dont l''id correspond au nom du paramètre de service."/>
   <locale name="ERROR_MESSAGE_PARSE_EXCEPTION" value="There has been generated a parse Exception"/>
   <locale name="ERROR_MESSAGE_PARSING_COLUMN_TYPE" value="Il y a été un problème analysant la liste entière des données"/>
   <locale name="ERROR_MESSAGE_PARSING_COMPLETE_LINE" value="Il y a été un problème analysant la liste entière des données"/>
@@ -570,6 +574,7 @@
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Erreur dapos;ajout de champs calculés"/>
   <locale name="ERROR_TITLE_ADDING_TOTALS" value="Erreur d&apos;ajout totalisateurs"/>
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Erreur d&apos;authentification"/>
+  <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Image d&apos;avatar trop volumineuse"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Mauvais &quot;include&quot; définition"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Erreur dans le format de la queue"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Erreur d&apos;authentification de la base de données"/>
@@ -635,6 +640,7 @@
   <locale name="ERROR_TITLE_INITIALIZING_JASPER" value="Error initilizing Jasper"/>
   <locale name="ERROR_TITLE_INVALID_2FA_CODE" value="Code non valide"/>
   <locale name="ERROR_TITLE_INVALID_ARGUMENTS" value="Arguments invalides"/>
+  <locale name="ERROR_TITLE_INVALID_AVATAR_MIME_TYPE" value="Type de fichier d&apos;avatar invalide"/>
   <locale name="ERROR_TITLE_INVALID_CONNECTION" value="Conexion invalide"/>
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Informations d&apos;identification non valides"/>
   <locale name="ERROR_TITLE_INVALID_PASSWORD" value="Mot de passe incorrect"/>
@@ -866,6 +872,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_REPORT_ASSIGN" value="Generation des rapports"/>
   <locale name="MENU_REPORT_LIST" value="Visualisation des rapports"/>
   <locale name="MENU_REPORTS" value="Rapports"/>
+  <locale name="MENU_SEARCH_EMPTY" value="Aucune option trouvée"/>
   <locale name="MENU_SEL_PRN" value="Select printer"/>
   <locale name="MENU_SETTINGS" value="Réglages"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extracteur"/>
@@ -941,6 +948,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_ATTRIBUTE" value="Attribute"/>
   <locale name="PARAMETER_AUD_TYPE" value="T. audit"/>
   <locale name="PARAMETER_AUTH" value="Authentification"/>
+  <locale name="PARAMETER_AVATAR" value="Avatar"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="Moyenne temps"/>
   <locale name="PARAMETER_BACKGROUND" value="Arrière plan"/>
   <locale name="PARAMETER_BACKGROUND_COLOR" value="Couleur arrière-plan"/>

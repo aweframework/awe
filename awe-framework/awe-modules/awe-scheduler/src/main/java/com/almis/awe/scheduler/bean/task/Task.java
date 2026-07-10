@@ -25,6 +25,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class Task implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   // Task
   private Integer taskId;
   private String name;
@@ -53,8 +55,6 @@ public class Task implements Serializable {
   // Reporting
   private Integer reportType;
   private Report report;
-
-  private String database;
 
   // Dependencies list and configuration values
   private List<TaskDependency> dependencyList;

@@ -57,6 +57,9 @@ Actions retrieved by the application to execute a generic action. These actions 
 | `value`                    | Set a value to a criterion                                                                                                                    |
 | `wait`                     | Wait an amount of milliseconds defined on `target` attribute                                                                                  |
 | `close-window`             | Tries to close the current browser window (sometimes it'll ask to the user)                                                                   |
+| `update-theme`             | Reload the theme stylesheet to retrieve theme changes without reloading the screen                                                            |
+| `get-file`                 | Download a file from the server. The file to retrieve is identified by the `filename` parameter                                               |
+| `change-menu`              | Replace the current menu options with the options received on the `options` parameter                                                        |
 
 ### Message
 
@@ -83,13 +86,13 @@ Navigation actions are used to move from one screen to another.
 
 | Action           | Description                                                                                                                                              |
 |------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `back`           | Go to the previous screen. Same as navigator back button. Does **not** need `target` attribute.                                                          |
-| `forward`        | Go to the next screen. Same as navigator forward button. Does **not** need `target` attribute.                                                           |
-| `screen`         | Go to a screen. **Needs** `target` attribute.                                                                                                            |                         
-| `reload`         | Reload current screen                                                                                                                                    |
-| `logout`         | Log out and exit the private menu.  Does **not** need `target` attribute.                                                                                |  
-| `redirect`       | Redirects the current screen to a new URL defined in `target` attribute. If parameter `newWindow` is set to `true`, the URL will be open in a new window |  
-| `redirectScreen` | Launches a `redirect` action if the current screen matches the `screen` parameter                                                                        |
+| `back`            | Go to the previous screen. Same as navigator back button. Does **not** need `target` attribute.                                                          |
+| `screen`          | Go to a screen. **Needs** `target` attribute.                                                                                                            |                         
+| `reload`          | Reload current screen                                                                                                                                    |
+| `reload-page`     | Fully reload the browser page, like a manual refresh. Unlike `reload` (which re-runs the current screen inside the SPA), it re-fetches everything from the server, so it also picks up structural changes. Used by the development [hot reload](../dev-tools) to refresh the browser automatically. Does **not** need `target` attribute. |
+| `logout`          | Log out and exit the private menu.  Does **not** need `target` attribute.                                                                                |  
+| `redirect`        | Redirects the current screen to a new URL defined in `target` attribute. If parameter `newWindow` is set to `true`, the URL will be open in a new window |  
+| `redirect-screen` | Launches a `redirect` action if the current screen matches the `screen` parameter                                                                        |
 
 #### Navigation attributes
 
@@ -98,7 +101,7 @@ Navigation actions are used to move from one screen to another.
 | `target`    | *Depends* on action | String  | Option identifier                                                                          |                                                                       |
 | `context`   |      Optional       | String  | Context of the screen. If not defined, the context is the same as the launcher screen has. | `screen/public` for public options, `screen/home` for private options |
 | `newWindow` |      Optional       | Boolean | Open the redirect url in a new window.                                                     |                                                                       |
-| `screen`    | *Depends* on action | String  | Screen to check when launching the `redirectScreen` action.                                |                                                                       |
+| `screen`    | *Depends* on action | String  | Screen to check when launching the `redirect-screen` action.                              |                                                                       |
 
 ### Component
 
@@ -116,8 +119,13 @@ Actions which works over components in the screen.
 | `start-load`                     | Sets a component as *loading*                                                                            | `criteria`, `grid`, `chart` |
 | `copy-criterion-value-clipboard` | Copy a criterion value to the clipboard                                                                  | `criteria`                  |
 | `validate`                       | Launch a validation on the criterion or criteria inside the `target` tag                                 | `tag`, `criteria`           |
+| `set-valid`                      | Set a criterion as valid, clearing its previous validation error                                         | `criteria`                  |
+| `set-invalid`                    | Set a criterion as invalid, showing the message defined on the `message` parameter                       | `criteria`                  |
+| `fill-suggest`                   | Fill the available and selected values of a suggest criterion with the `values` parameter                | `criteria`                  |
+| `update-controller`              | Update the controller attribute defined on the `attribute` parameter with the value received             | Any component               |
 | `dialog`                         | Opens a modal dialog                                                                                     | `dialog`                    |
 | `close`                          | Closes a dialog                                                                                          | `dialog`                    |
+| `close-cancel`                   | Closes a dialog cancelling the actions stack which opened it                                             | `dialog`                    |
 | `filter`                         | Reload a grid                                                                                            | `grid`                      |
 | `add-row`                        | Add an empty row at the bottom of the grid                                                               | `grid`                      |
 | `add-row-top`                    | Add an empty row at the top of the grid                                                                  | `grid`                      |
@@ -129,6 +137,7 @@ Actions which works over components in the screen.
 | `copy-row-down`                  | Copy the selected row below the selected row                                                             | `grid`                      |
 | `delete-row`                     | Delete the selected row                                                                                  | `grid`                      | 
 | `save-row`                       | Save the selected row                                                                                    | `grid`                      |
+| `cancel-row`                     | Cancel the edition of the selected row                                                                   | `grid` (editable)           |
 | `check-one-selected`             | Checks if there is one row selected                                                                      | `grid`                      |
 | `check-some-selected`            | Checks if there is one or more rows selected                                                             | `grid`                      |
 | `check-records-saved`            | Checks if all records are stored (user is not editing a row)                                             | `grid`                      |
@@ -139,6 +148,9 @@ Actions which works over components in the screen.
 | `unselect-all-rows`              | Unselect all rows of the grid                                                                            | `grid`                      |
 | `validate-selected-row`          | Launch a validation on the selected row of the grid                                                      | `grid`                      |
 | `copy-selected-rows-clipboard`   | Copy the selected rows on the grid to the clipboard                                                      | `grid`                      |
+| `show-columns`                   | Show the grid columns defined on the `columns` parameter                                                 | `grid`                      |
+| `hide-columns`                   | Hide the grid columns defined on the `columns` parameter                                                 | `grid`                      |
+| `tree-branch`                    | Add the rows received on the `datalist` parameter as children of the expanding branch                    | `grid` (tree)               |
 | `change-theme`                   | Changes the theme to the value defined on the `target` criterion                                         | `criteria`                  |
 | `change-language`                | Changes the language to the value defined on the `target` criterion                                      | `criteria`                  |
 | `reload-language`                | Reload the language searching for changes                                                                | `criteria`                  |
@@ -147,6 +159,13 @@ Actions which works over components in the screen.
 | `first-step`                     | Move to the first step of the wizard                                                                     | `wizard`                    |
 | `last-step`                      | Move to the last step of the wizard                                                                      | `wizard`                    |
 | `nth-step`                       | Move to the nth step of the wizard                                                                       | `wizard`                    |
+| `add-points`                     | Add the points received on the `data` parameter to the chart series                                      | `chart`                     |
+| `set-pivot-sorters`              | Set the field sort order of a pivot table with the `sorters` parameter                                   | `pivot`                     |
+| `set-pivot-group-rows`           | Set the fields used as row groups, defined as a comma-separated list on the `rows` parameter             | `pivot`                     |
+| `set-pivot-group-cols`           | Set the fields used as column groups, defined as a comma-separated list on the `cols` parameter          | `pivot`                     |
+| `clear-file`                     | Clear the uploaded file, resetting the uploader component                                                | `uploader`                  |
+| `taglist-data`                   | Load the content of a taglist with the HTML and component data received from the server                  | `taglist`                   |
+| `polyline`                       | Draw a polyline on a map with the points received on the `rows` parameter (`Lat` and `Lon` fields)       | `map`                       |
 
 
 #### Component attributes
@@ -174,6 +193,27 @@ Actions which works over components in the screen.
 | `context`       |   Optional   | String | Context of the component for callback. If not defined, the context is the same as the launcher component has. | `base` for the menu container screen, `report@home` for the menu options                 |
 | `server-action` | **Required** | String | Action to launch on server.                                                                                   | See [server actions](#server-actions)                                                    |
 | `target-action` | **Required** | String | Target for the server action                                                                                  | [Query identifier](query-definition.md) or [Maintain identifier](maintain-definition.md) |
+
+### Internal actions
+
+These actions are dispatched by the framework itself as part of the screen and component lifecycle. They are documented here for reference, and are not normally used in application XML.
+
+#### Internal action list
+
+| Action             | Description                                                                                   |
+|--------------------|-----------------------------------------------------------------------------------------------|
+| `screen-data`      | Store the screen configuration received from the server and launch the actions attached to it |
+| `end-load`         | Notify a component that its data load has finished                                            |
+| `end-dependency`   | Notify the dependency controller that a dependency has finished                               |
+| `file-status`      | Update the upload progress of an uploader component                                           |
+| `file-uploaded`    | Store the uploaded file data in the uploader model when an upload finishes                    |
+| `file-downloaded`  | Notify a downloader component that the file download has finished                             |
+| `locals-retrieved` | Store the translations retrieved from the server for a language                               |
+| `log-delta`        | Append new log lines to a log viewer component and scroll it down                             |
+| `after-add-row`    | Launched after a row has been added to a grid                                                 |
+| `after-delete-row` | Launched after a row has been deleted from a grid                                             |
+| `after-save-row`   | Launched after a row has been saved on an editable grid                                       |
+| `after-cancel-row` | Launched after the edition of a row has been cancelled on an editable grid                    |
 
 ## Server actions
  
@@ -208,10 +248,19 @@ These kind of actions are used to execute client actions from java services in t
 
 ### General actions from java services
 
-| Action           | Description                                   | Parameters                                                                                                        |
-|------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| `message`        | Send a message to the client (without target) | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
-| `target-message` | Send a message to a client component          | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
+| Action            | Description                                                                           | Parameters                                                                                                        |
+|-------------------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `message`         | Send a message to the client (without target)                                         | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
+| `target-message`  | Send a message to a client component                                                  | `type` - Message type (`ok`, `info`, `warning`, `error`), `title` - Message title, `message`- Message description |
+| `screen`          | Navigate to a screen option. The option is defined as the action `target`             | `reload` - Force the screen reload (optional)                                                                     |
+| `redirect`        | Redirect the browser to the URL defined as the action `target`                        | `newWindow` - Open the URL in a new window (optional)                                                             |
+| `redirect-screen` | Launch a `redirect` action only if the current screen matches the `screen` parameter  | `screen` - Screen name to check against the current screen                                                        |
+| `dialog`          | Open a modal dialog. The dialog identifier is defined as the action `target`          |                                                                                                                   |
+| `confirm`         | Launch a confirm dialog                                                               | `title` - Confirm title, `message` - Confirm description                                                          |
+| `get-file`        | Download a file from the server                                                       | `filename` - Serialized file data of the file to download                                                         |
+| `add-class`       | Add css classes to the elements matching the selector defined as the action `target`  | `targetAction` - Space-separated css class list                                                                   |
+| `remove-class`    | Remove css classes from the elements matching the selector defined as the action `target` | `targetAction` - Space-separated css class list                                                               |
+| `toggle-class`    | Toggle css classes on the elements matching the selector defined as the action `target`   | `targetAction` - Space-separated css class list                                                               |
 
 **message**
 
@@ -246,12 +295,97 @@ messageAction.setAddress(address);
 serviceData.addClientAction(messageAction);
 ```
 
+**screen**
+
+```java
+public ServiceData goToScreen() {
+  return new ServiceData()
+    .addClientAction(new ScreenActionBuilder("MyOption").build());
+}
+```
+
+**redirect**
+
+```java
+public ServiceData redirectToUrl() {
+  // Open the URL in a new window
+  return new ServiceData()
+    .addClientAction(new RedirectActionBuilder("https://www.example.com", true).build());
+}
+```
+
+**redirect-screen**
+
+```java
+public ServiceData redirectFromScreen() {
+  // Redirect only if the current screen is "currentScreen"
+  return new ServiceData()
+    .addClientAction(new RedirectScreenActionBuilder("currentScreen", "https://www.example.com").build());
+}
+```
+
+**dialog**
+
+```java
+public ServiceData openDialog() {
+  return new ServiceData()
+    .addClientAction(new DialogActionBuilder("MyDialog").build());
+}
+```
+
+**confirm**
+
+```java
+public ServiceData confirmChanges() {
+  return new ServiceData()
+    .addClientAction(new ConfirmActionBuilder("CONFIRM_TITLE", "CONFIRM_MESSAGE").build());
+}
+```
+
+**get-file**
+
+```java
+public ServiceData downloadFile(FileData fileData) {
+  return new ServiceData()
+    .addClientAction(new DownloadActionBuilder(fileData).build());
+}
+```
+
+**add-class**
+
+```java
+public ServiceData highlightPanel() {
+  return new ServiceData()
+    .addClientAction(new AddCssClassActionBuilder(".panel-header", "highlight").build());
+}
+```
+
+**remove-class**
+
+```java
+public ServiceData removeHighlight() {
+  return new ServiceData()
+    .addClientAction(new RemoveCssClassActionBuilder(".panel-header", "highlight").build());
+}
+```
+
+**toggle-class**
+
+```java
+public ServiceData togglePanel() {
+  return new ServiceData()
+    .addClientAction(new ToggleCssClassActionBuilder(".panel-header", "expanded").build());
+}
+```
+
 ### Criteria actions from java services
 
-| Action   | Description                               | Parameters                                                                 |
-|----------|-------------------------------------------|----------------------------------------------------------------------------|
-| `select` | Fill a criterion selected values          | `values` - Datalist with criteria value                                    |
-| `fill`   | Fill a criterion list of available values | `rows` -  rows of datalist (at least must have `value` and `label` fields) |
+| Action              | Description                                                   | Parameters                                                                                                              |
+|---------------------|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `select`            | Fill a criterion selected values                              | `values` - Datalist with criteria value                                                                                 |
+| `fill`              | Fill a criterion list of available values                     | `rows` -  rows of datalist (at least must have `value` and `label` fields)                                              |
+| `fill-suggest`      | Fill the available and selected values of a suggest criterion | `values` - List of suggest values (with `value` and `label` fields)                                                     |
+| `update-controller` | Update an attribute of a component controller                 | `attribute` - Controller attribute to update, `value` - Value to set (or `datalist` - DataList whose first row `value` field is used) |
 
 **select**
 
@@ -275,6 +409,28 @@ ServiceData setCriteriaValue() {
  return serviceData;
 }
 ``` 
+
+**fill-suggest**
+
+```java
+public ServiceData fillSuggestValues() {
+  return new ServiceData()
+    .addClientAction(new FillSuggestActionBuilder("SuggestCriterion",
+      new SuggestValue("TR001", "Transaction 001"),
+      new SuggestValue("TR002", "Transaction 002"))
+      .build());
+}
+```
+
+**update-controller**
+
+```java
+public ServiceData updateButtonLabel() {
+  // Update the "label" attribute of the "ButPrn" component controller
+  return new ServiceData()
+    .addClientAction(new UpdateControllerActionBuilder("ButPrn", "label", "BUTTON_PRINT_ALL").build());
+}
+```
 
 ### Grid actions from java services
 
@@ -301,6 +457,11 @@ ServiceData setCriteriaValue() {
 | `copy-row-down`   | Copy the selected row below the selected row                                          | `selectedRow` - Selected row identifier (optional)                                                                                                     |
 | `update-row`      | Update the selected row values                                                        | `row` - row values, `rowId` - id of row to be updated (if none given, selected one will be selected), `style` - CSS class to add to the row (optional) |
 | `delete-row`      | Delete the selected row                                                               |                                                                                                                                                        | 
+| `filter`          | Reload the grid data                                                                  |                                                                                                                                                        |
+| `show-columns`    | Show grid columns                                                                     | `columns` - List of column identifiers to show                                                                                                         |
+| `hide-columns`    | Hide grid columns                                                                     | `columns` - List of column identifiers to hide                                                                                                         |
+| `select-all-rows` | Select all rows of the grid                                                           |                                                                                                                                                        |
+| `unselect-all-rows` | Unselect all rows of the grid                                                       |                                                                                                                                                        |
 
 **fill**
 
@@ -453,6 +614,51 @@ columnList.add(columnType );
 
 > **Note:** If you want to change only a value, only passing the value to the `data` parameter inside a `CellData` is necessary. If you want to change anything more, then there'll be necessary to generate a JSON object with the model you want to update. In this model you must include the `value` and `label` attributes.
 
+**filter**
+
+```java
+public ServiceData reloadGrid() {
+  return new ServiceData()
+    .addClientAction(new FilterActionBuilder("GrdLst").build());
+}
+```
+
+**show-columns**
+
+```java
+public ServiceData showColumns() {
+  return new ServiceData()
+    .addClientAction(new ShowColumnsActionBuilder("GrdLst", "name", "type").build());
+}
+```
+
+**hide-columns**
+
+```java
+public ServiceData hideColumns() {
+  return new ServiceData()
+    .addClientAction(new HideColumnsActionBuilder("GrdLst", "name", "type").build());
+}
+```
+
+**select-all-rows**
+
+```java
+public ServiceData selectAllRows() {
+  return new ServiceData()
+    .addClientAction(new SelectAllRowsActionBuilder("GrdLst").build());
+}
+```
+
+**unselect-all-rows**
+
+```java
+public ServiceData unselectAllRows() {
+  return new ServiceData()
+    .addClientAction(new UnselectAllRowsActionBuilder("GrdLst").build());
+}
+```
+
 ### Chart actions from java services
 
 | Action                 | Description                        | Parameters                             |
@@ -460,6 +666,7 @@ columnList.add(columnType );
 | `replace-chart-series` | Replace the series of one chart    | `series` - ArrayNode with chart series |
 | `add-chart-series`     | Add one serie to chart             | `series` - ArrayNode with chart serie  |
 | `remove-chart-series`  | Remove the series of one chart     | `series` - ArrayNode with chart series |
+| `add-points`           | Add points to the chart series     | `data` - DataList with the points to add to each serie |
 
 **replace-chart-series**
 
@@ -600,6 +807,20 @@ columnList.add(columnType );
 
     return serviceData;
   }
+```
+
+**add-points**
+
+```java
+public ServiceData addPointsToChart() {
+  // Build the points to add: each row holds the value for each serie
+  DataList dataList = new DataList();
+  DataListUtil.addColumn(dataList, "date", Arrays.asList("2020-01"));
+  DataListUtil.addColumn(dataList, "serie1", Arrays.asList(4));
+
+  return new ServiceData()
+    .addClientAction(new AddPointsActionBuilder("ChrLin", dataList).build());
+}
 ```
 
 ## Actions stack

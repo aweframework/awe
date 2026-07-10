@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Verifies the open widget mechanism: a custom Angular widget (FullCalendar)
+  embedded through <widget type="event-calendar">. The "type" is a free string
+  resolved on the client against the aweEventCalendar directive, so no schema
+  enumeration or component-by-component enabling is required.
+-->
+<screen template="full" label="MENU_TEST_EVENT_CALENDAR"
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xsi:noNamespaceSchemaLocation='https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd'>
+  <tag source="center">
+    <widget type="event-calendar" id="eventCalendar" style="expand"/>
+  </tag>
+</screen>

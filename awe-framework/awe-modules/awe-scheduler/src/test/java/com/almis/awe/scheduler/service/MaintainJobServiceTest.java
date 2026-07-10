@@ -21,6 +21,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobDataMap;
@@ -257,5 +258,44 @@ class MaintainJobServiceTest {
 
     assertNotNull(serviceData);
     assertEquals(AnswerType.ERROR, serviceData.get().getType());
+  }
+
+  /**
+   * Regression test for GitLab #685: a task parameter named {@code database} must reach the
+   * maintain unchanged. Previously the forced {@code parameters.put("database", task.getDatabase())}
+   * (now removed) ran AFTER the TaskParameter loop and clobbered any user-supplied {@code database}
+   * parameter with the dead {@code task.getDatabase()} value (always null). With the alias-free
+   * routing the user value survives and no {@code _database_} routing key is forced.
+   */
+  @Test
+  void testExecuteJobDatabaseParameterPassthrough() throws Exception {
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), Duration.ofSeconds(5), false, null, false, null, null, restTemplate);
+    maintainJobService.setApplicationContext(context);
+
+    Trigger trigger = mock(Trigger.class);
+    when(queryUtil.getParameters(isNull(), any(), any())).thenReturn(JsonNodeFactory.instance.objectNode());
+    when(trigger.getKey()).thenReturn(new TriggerKey("DummyTrigger"));
+    when(maintainService.launchPrivateMaintain(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData());
+
+    Future<ServiceData> serviceData = maintainJobService.executeJob(new Task()
+        .setTaskId(1)
+        .setAction("maintainId")
+        .setTrigger(trigger)
+        .setParameterList(Arrays.asList(
+          new TaskParameter().setSource("1").setName("database").setValue("myDbValue").setType("STRING")
+        )),
+      new TaskExecution(), new JobDataMap());
+
+    assertNotNull(serviceData);
+    assertEquals(AnswerType.OK, serviceData.get().getType());
+
+    // The "database" task parameter value must survive (not overwritten by the removed forced put)
+    ArgumentCaptor<ObjectNode> paramsCaptor = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService, times(1)).launchPrivateMaintain(eq("maintainId"), paramsCaptor.capture());
+    ObjectNode captured = paramsCaptor.getValue();
+    assertEquals("myDbValue", captured.get("database").asText());
+    // The launcher default parameter is still set
+    assertNotNull(captured.get("launcher"));
   }
 }

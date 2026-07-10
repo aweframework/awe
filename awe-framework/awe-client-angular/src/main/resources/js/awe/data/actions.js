@@ -4,6 +4,7 @@ export const ClientActions = {
   screen: {
     "screen": {method: "screen"},
     "reload": {method: "reload"},
+    "reload-page": {method: "reloadPage"},
     "back": {method: "back"},
     "wait": {method: "wait"},
     "screen-data": {method: "screenData"},

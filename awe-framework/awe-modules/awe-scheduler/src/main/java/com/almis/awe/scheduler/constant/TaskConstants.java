@@ -51,7 +51,6 @@ public class TaskConstants {
   public static final String TASK_PARAMETER_TYPE = "ParTyp";
   public static final String TASK_PARAMETER_VALUE = "ParVal";
   public static final String TASK_DATABASE = "db";
-  public static final String TASK_SITE = "site";
   public static final String FILE_PATH = "filePath";
   public static final String UPDATE_DATE = "date";
 

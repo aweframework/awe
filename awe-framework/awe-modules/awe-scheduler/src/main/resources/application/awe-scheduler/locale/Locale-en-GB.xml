@@ -9,6 +9,7 @@
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
   <locale name="BUTTON_CLEAR_AND_STOP" value="Clear and stop"/>
   <locale name="BUTTON_RESTART" value="Restart"/>
+  <locale name="BUTTON_LAUNCH" value="Launch"/>
   <locale name="BUTTON_STOP" value="Stop"/>
   <locale name="COLUMN_DATE" value="Date"/>
   <locale name="COLUMN_SCHEDULER_INSTANCE_ID" value="Scheduler instance id"/>
@@ -55,6 +56,7 @@
   <locale name="CONFIRM_TITLE_TASK_LAUNCH" value="Task launch confirmation"/>
   <locale name="CONFIRM_TITLE_TRIGGER_WITH_CALENDAR_EXIST" value="Confirmation of calendar associated to one or several tasks."/>
   <locale name="CONFIRM_TITLE_UNBLOCK_BATCH" value="Unblock batch confirmation"/>
+  <locale name="CONNECTION_TYPE_SSH" value="SSH"/>
   <locale name="ENUM_LAUNCH_DEPENDENCY" value="Dependency"/>
   <locale name="ENUM_LAUNCH_FILE" value="File"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manual"/>
@@ -77,6 +79,7 @@
   <locale name="HELP_ACTIVATE_BUTTON" value="Enables the selected item"/>
   <locale name="HELP_DEACTIVATE_BUTTON" value="Disables the selected item"/>
   <locale name="HELP_LAUNCH_STOP_BUTTON" value="Interrupt the selected item"/>
+  <locale name="HELP_LAUNCH_VARIABLES_BUTTON" value="Set the variable parameters and launch the selected task"/>
   <locale name="HELP_RUN_BUTTON" value="Run the selected item"/>
   <locale name="HELP_SCREEN_EXECUTION_DATA" value="This dialog shows the selected execution data from task"/>
   <locale name="HELP_SCREEN_NEW_SCHEDULER_CALENDAR" value="In this screen you can define the configuration of a new calendar"/>
@@ -125,10 +128,17 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Batch launched"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="This task has been cancelled because it has exceeded the time limit established ({0})"/>
   <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Next executions"/>
+  <locale name="SCHEDULER_REMOTE_EXECUTION" value="Run on remote server"/>
+  <locale name="SCHEDULER_REMOTE_SERVER" value="Remote server"/>
+  <locale name="SCHEDULER_SERVER_KEY" value="Private key"/>
+  <locale name="SCHEDULER_SERVER_KEY_PASS" value="Private key passphrase"/>
+  <locale name="SCHEDULER_SERVER_PASSWORD" value="Server password"/>
+  <locale name="SCHEDULER_SERVER_USER" value="Server user"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Show execution log"/>
   <locale name="SCREEN_TEXT_END_TIME" value="End time"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="Execution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Execution details"/>
+  <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Launch parameters"/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Execution time"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Executions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Launched by"/>

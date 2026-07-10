@@ -1,11 +1,13 @@
 package com.almis.awe.scheduler.autoconfigure.config;
 
+import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
 
 import java.net.URI;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -15,6 +17,16 @@ import java.time.temporal.ChronoUnit;
 @Data
 @ConfigurationProperties(prefix = "awe.scheduler")
 public class SchedulerConfigProperties {
+  /**
+   * Default sender address used for scheduler report emails.
+   */
+  public static final String DEFAULT_REPORT_EMAIL_FROM_VALUE = "scheduler@almis.com";
+  /**
+   * Fully-qualified property key (relaxed-binding canonical form) for the
+   * scheduler report email sender address.
+   */
+  public static final String REPORT_EMAIL_FROM_VALUE_PROPERTY = "awe.scheduler.report-email-from-value";
+
   /**
    * Flag to load tasks on start application
    * Default value true
@@ -28,7 +40,7 @@ public class SchedulerConfigProperties {
   /**
    * Scheduler report email
    */
-  private String reportEmailFromValue = "scheduler@almis.com";
+  private String reportEmailFromValue = DEFAULT_REPORT_EMAIL_FROM_VALUE;
   /**
    * Scheduler execution log path
    */
@@ -78,4 +90,23 @@ public class SchedulerConfigProperties {
    * Remote password
    */
   private String remoteCallbackPassword;
+
+  /**
+   * SSH host-key verification policy for remote command execution.
+   * Default value ACCEPT_ON_FIRST_USE (trust-on-first-use)
+   */
+  private SshHostKeyPolicy sshHostKeyPolicy = SshHostKeyPolicy.ACCEPT_ON_FIRST_USE;
+
+  /**
+   * Path to the known_hosts file used to persist/read trusted SSH host keys.
+   * Default value ${user.home}/.ssh/known_hosts
+   */
+  private String sshKnownHostsPath = Paths.get(System.getProperty("user.home"), ".ssh", "known_hosts").toString();
+
+  /**
+   * SSH connect and authentication timeout in seconds
+   * Default value 30s
+   */
+  @DurationUnit(ChronoUnit.SECONDS)
+  private Duration sshConnectTimeout = Duration.ofSeconds(30);
 }

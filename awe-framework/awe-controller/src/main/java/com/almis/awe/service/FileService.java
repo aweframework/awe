@@ -296,6 +296,46 @@ public class FileService extends ServiceConfig {
   }
 
   /**
+   * Check whether the given (untrusted) {@link FileData} refers to a file inside the configured
+   * upload area. A legitimately staged file always has {@code basePath} set to the configured
+   * {@code uploadFilePath} (see {@link #uploadFile(MultipartFile, String)}), a simple destination
+   * {@code relativePath}, and a sanitized {@code fileName}. This guard therefore requires
+   * {@code basePath} to equal the configured upload root exactly, and rejects any parent-directory
+   * traversal ({@code ..}) or absolute override in {@code relativePath}/{@code fileName} — the only
+   * two ways to escape a fixed base. The checks are pure string comparisons on purpose: canonical
+   * path resolution ({@code File#getCanonicalPath}, {@code File.separator}) behaves differently on
+   * Windows and Linux, which made an earlier canonical-containment implementation pass locally but
+   * fail (or, worse, mis-accept traversal) on the Linux CI runners.
+   *
+   * @param fileData Decoded (untrusted) file data
+   * @return {@code true} if the file is inside the configured upload area
+   */
+  public boolean isPathWithinUploadArea(FileData fileData) {
+    String expectedBase = baseConfigProperties.getComponent().getUploadFilePath();
+    if (fileData.getBasePath() == null || !fileData.getBasePath().equals(expectedBase)) {
+      return false;
+    }
+    return isSafePathSegment(fileData.getRelativePath()) && isSafePathSegment(fileData.getFileName());
+  }
+
+  /**
+   * True if a path segment is safe to append under a fixed base: no parent-directory traversal and
+   * not an absolute path. An absent (null/empty) segment is safe.
+   *
+   * @param value Untrusted path segment
+   * @return {@code true} if the segment cannot escape the base
+   */
+  private boolean isSafePathSegment(String value) {
+    if (value == null || value.isEmpty()) {
+      return true;
+    }
+    if (value.contains("..")) {
+      return false;
+    }
+    return !value.startsWith("/") && !value.startsWith("\\") && !value.matches("^[A-Za-z]:.*");
+  }
+
+  /**
    * Retrieves a previously uploaded file from upload path
    * @param fileData File data
    * @param create Create path

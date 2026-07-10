@@ -371,6 +371,22 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * User settings service (avatar)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @param fileService     File service
+   * @return User settings service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public UserSettingsService userSettingsService(QueryService queryService, QueryUtil queryUtil,
+                                                 MaintainService maintainService, FileService fileService) {
+    return new UserSettingsService(queryService, queryUtil, maintainService, fileService);
+  }
+
+  /**
    * Screen service
    *
    * @param menuService              Menu service

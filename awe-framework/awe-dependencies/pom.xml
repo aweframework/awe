@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-framework</artifactId>
-    <version>4.12.1</version>
+    <version>4.12.2</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -18,7 +18,7 @@
   <properties>
     <!-- dependency versions -->
     <awe.version>${revision}</awe.version>
-    <ade.version>2.2.7</ade.version>
+    <ade.version>2.2.8</ade.version>
     <spring-boot.version>3.5.15</spring-boot.version>
     <spring-cloud.version>2025.0.3</spring-cloud.version>
     <javax.activation.version>1.2.0</javax.activation.version>
@@ -45,6 +45,7 @@
     <commons-codec.version>1.18.0</commons-codec.version>
     <guava.version>33.3.0-jre</guava.version>
     <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
+    <sshd.version>2.13.2</sshd.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -64,6 +65,10 @@
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
     <plugin-resources.version>3.3.1</plugin-resources.version>
     <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
+    <!-- Lombok engine bundled inside lombok-maven-plugin 1.18.20.0 predates JDK 17+ and breaks
+         delombok on newer JDKs (NoSuchFieldError JCImport.qualid). Override it with a JDK 21+
+         compatible Lombok. Keep aligned with the version managed by the Spring Boot BOM. -->
+    <delombok-lombok.version>1.18.46</delombok-lombok.version>
     <plugin-maven-archetype.version>3.2.1</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.1.1</plugin-maven-install.version>
     <!-- Skip configuration -->
@@ -220,6 +225,11 @@
         <groupId>com.github.ulisesbocchio</groupId>
         <artifactId>jasypt-spring-boot-starter</artifactId>
         <version>${jasypt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.sshd</groupId>
+        <artifactId>sshd-core</artifactId>
+        <version>${sshd.version}</version>
       </dependency>
       <dependency>
         <groupId>org.antlr</groupId>
@@ -389,6 +399,14 @@
             <outputDirectory>${project.build.directory}/delombok</outputDirectory>
             <addOutputDirectory>false</addOutputDirectory>
           </configuration>
+          <dependencies>
+            <!-- Force a JDK 21+ compatible Lombok engine; the one bundled in the plugin is too old. -->
+            <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${delombok-lombok.version}</version>
+            </dependency>
+          </dependencies>
           <executions>
             <execution>
               <phase>generate-sources</phase>

@@ -4,6 +4,9 @@ title: Scheduler
 sidebar_label: Scheduler
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 This document gives a minimum base to start with the AWE Scheduler module, and explains how to automate and schedule tasks inside AWE in a simple way.
 
 The Scheduler module is based on the Quartz Scheduler library. 
@@ -66,9 +69,82 @@ A task can also be concatenated with other tasks in order to create a workflow. 
 
 There are two type of tasks that the scheduler can work with, the maintain tasks and the command tasks.
 
-| Maintain Task                                                        | Command Task                                                                        |
-|----------------------------------------------------------------------|:------------------------------------------------------------------------------------|
-| A maintain task executes a public maintain with a defined schedule.  | A command task executes a batch on the selected server with the defined schedule.   |
+| Maintain Task                                                        | Command Task                                                                                                          |
+|----------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------|
+| A maintain task executes a public maintain with a defined schedule.  | A command task runs a shell command with a defined schedule, either on the local AWE host or on a remote host over SSH. |
+
+### Command execution: local and remote
+
+A command task runs the value entered in the **Command** field as a shell command. The **Execution path**, when set, is used as the *working directory* the command runs in; the command itself is resolved from the host `PATH`. To run a script that lives in the execution path, invoke it explicitly (for example, `./my-script.sh`).
+
+- **Local execution** (default): when **Run on remote server** is left unchecked, the command runs on the AWE host itself.
+- **Remote execution over SSH**: when **Run on remote server** is checked, a **Remote server** must be selected. The command is executed on that host through an SSH exec channel, and both its standard output and standard error are captured into the task execution log.
+
+Remote command execution requires the selected server to use the `ssh` connection type. Authentication is done with the server user together with either a password, a private key (optionally passphrase-protected), or both. See **[Servers](#servers)** for how to configure them, and the **[Configuration guide](../scheduler-module.md#ssh-remote-command-execution)** for the SSH host-key verification options.
+
+### Task execution database
+
+A **maintain task** runs against the datasource configured through Spring Boot's `spring.datasource.*` properties. This is the case in **both** execution modes:
+
+- **Local (embedded) scheduler** &mdash; the maintain runs on the same datasource as the main AWE application.
+- **Remote scheduler instance** &mdash; the maintain runs on the datasource configured for *that* scheduler instance.
+
+:::info Why always the configured datasource?
+Scheduler tasks run on a Quartz worker thread with **no bound HTTP session**. The interactive multi-database routing that a normal web request relies on reads its target from session/screen state, which simply does not exist here. The scheduler therefore resolves the connection from the configured `spring.datasource` instead of any session value.
+:::
+
+:::tip A remote scheduler's database is a deployment decision
+There is no per-task switch to "run this task on the main application's database". A remote scheduler instance uses **its own** `spring.datasource`. To make it target the same database as your main application, point that instance's `spring.datasource.url` (and user, password, &hellip;) at the same database.
+:::
+
+#### Targeting a different database
+
+If a specific maintain task must run against a **different** database than the configured default, add a **task parameter** (see [Task parameters](#2-task-parameters)) whose **name is the database criterion** and whose **value is the target datasource alias**.
+
+The parameter name is **not** hardcoded to `database`: it is the value of [`awe.database.parameter-name`](../properties.md#awe.database.parameter-name), which defaults to `_database_`.
+
+<Tabs>
+<TabItem value="single" label="Single-database (default)" default>
+
+Nothing to configure. With [`awe.database.multidatabase-enable`](../properties.md#awe.database.multidatabase-enable) set to `false` (the default), every task runs against the single configured `spring.datasource`, and a parameter named `_database_` is treated as an ordinary parameter with **no** routing effect.
+
+</TabItem>
+<TabItem value="multi" label="Multi-database">
+
+On a deployment with `awe.database.multidatabase-enable=true`, add a task parameter in **step 2 (Task parameters)** of the wizard:
+
+| Field  | Value                                                        |
+|--------|-------------------------------------------------------------|
+| Name   | `_database_` (or your configured `awe.database.parameter-name`) |
+| Source | `Value`                                                      |
+| Value  | The **alias** of the target datasource (e.g. `reporting`)   |
+
+When the task executes, its maintain is routed to the datasource registered under that alias instead of the default one.
+
+</TabItem>
+</Tabs>
+
+The connection is resolved as follows:
+
+```mermaid
+flowchart TD
+    A["Maintain task executes"] --> B{"_database_ parameter present?"}
+    B -- No --> D["Configured spring.datasource"]
+    B -- Yes --> C{"multidatabase-enable = true?"}
+    C -- No --> D
+    C -- Yes --> E{"Alias registered as a datasource?"}
+    E -- No --> F["Error: undefined datasource"]
+    E -- Yes --> G["Target datasource (by alias)"]
+```
+
+:::warning Requirements for routing to another database
+- [`awe.database.multidatabase-enable`](../properties.md#awe.database.multidatabase-enable) must be `true`. When it is `false`, the parameter is ignored and the task always uses the default datasource.
+- The **value must be a registered datasource alias**, not a raw JDBC URL. An unknown alias raises an *undefined datasource* error at execution time.
+:::
+
+:::note Command tasks are not affected
+This applies to **maintain** tasks only. A **command** task runs a shell command and has no database connection; see [Command execution: local and remote](#command-execution-local-and-remote).
+:::
 
 ### Configuration
 
@@ -88,8 +164,10 @@ In this step we have to add the task basic configuration.
 | Max. stored executions                    | Maximum number of executions to be stored in the database (Used to calculate the average time). The default value is 10.                         |                       Optional                       |
 | Timeout                                   | Maximum time for the task to finish. If the task execution time exceeds the timeout time (represented in seconds) the task will be interrupted   |                       Optional                       |
 | Execute                                   | The task execution type (Command or Maintain)                                                                                                    |                     **Required**                     |
-| Execute at                                | Server in which the command task has to be launched                                                                                              |   Optional (Only needed in `Command` launch type)    |
 | Command                                   | Command to launch                                                                                                                                | **Required** (Only needed in `Command` launch type)  |
+| Execution path                            | Working directory the command runs in. The command is resolved from the host `PATH`; use `./<script>` to run a script located in this path       |   Optional (Only needed in `Command` launch type)    |
+| Run on remote server                      | When checked, the command runs on a remote host over SSH instead of on the local AWE host                                                        |   Optional (Only needed in `Command` launch type)    |
+| Remote server                             | The SSH server on which the command is executed                                                                                                  | **Required** when `Run on remote server` is checked  |
 | Maintain                                  | Maintain to launch                                                                                                                               | **Required** (Only needed in `Maintain` launch type) |
 | Launch dependencies in case of warning    | Launch the task dependencies in case of warning                                                                                                  |                       Optional                       |
 | Launch dependencies in case of error      | Launch the task dependencies in case of error                                                                                                    |                       Optional                       |
@@ -108,10 +186,22 @@ These parameters are loaded to the application context when the task is going to
 | Name          | Parameter name                                                                                                                                                 | **Required** |
 | Source        | Parameter source, the place from which the parameter will take its value                                                                                       | **Required** |
 | Type          | The parameter type (Only used to give extra information to the user)                                                                                           | **Required** |
-| Value         | The parameter value, it can be directly the parameter value if the source is `Value`, or the parameter name to take the value from if the source is `Variable` |   Optional   |
+| Value         | For `Value`, the literal value used. For `Property`, the key of the application property to resolve. For `Variable`, the default value pre-filled in the manual-launch dialog (may be left empty) |   Optional   |
 
 
 > **Note:** If the task launch type is `Maintain`, the needed parameters for the selected maintain will be automatically added to the task parameters screen.
+
+##### Parameter sources #####
+
+The **Source** determines where each parameter takes its value from at execution time:
+
+- **Value** &mdash; the parameter uses the literal value typed in the **Value** field.
+- **Property** &mdash; the value is resolved at execution time from the application property whose key is in the **Value** field (for example a value configured in `application.yml`). Use it to keep environment-specific values out of the task definition.
+- **Variable** &mdash; the value is supplied by the operator **when the task is launched manually**. This is for inputs that are only known at run time (a business date, an entity id, a run mode&hellip;) and should not be hardcoded in the task.
+
+When a task has one or more `Variable` parameters, launching it from the task list opens a dialog with an editable grid listing exactly those parameters. Each row is pre-filled with its configured **Value** as an editable default; the operator reviews or changes the values and presses **Launch**, and the task runs with them. Tasks without `Variable` parameters launch directly, with no dialog.
+
+> **Note:** The dialog only appears on **manual** launch, where an operator is present to fill it in. On **scheduled** and **file** launches there is nobody to prompt, so a `Variable` parameter falls back to its configured **Value**. On **dependency** launch the value is inherited from the parent task &mdash; see [Parameter propagation to dependencies](#parameter-propagation-to-dependencies).
 
 #### 3. Task launch ###
 
@@ -163,6 +253,28 @@ Playing with these options, we can create a workflow.
 
 > **Note:** The dependencies can also have their own dependencies to create a workflow.
 
+##### Parameter propagation to dependencies
+
+When a task launches its dependent (child) tasks, the parent's parameter values at execution time are propagated to each child. The **child defines the contract**: only the child's `Variable` parameters whose **name matches** a parent parameter are overridden with the parent's value. Every other parent parameter is ignored by that child, and the child's non-`Variable` parameters are never touched.
+
+- **What propagates** &mdash; the parent's value for a given name, regardless of the parent parameter's source (`Value`, `Property` or `Variable`). Where the parent obtained the value is irrelevant; only the name matters.
+- **Default when absent** &mdash; if the parent does not supply a matching name, the child keeps its own configured **Value** as the default (no regression versus previous behavior).
+- **Cascade** &mdash; at each hop the propagation map is rebuilt from the current task's own parameter list, so a value only continues past an intermediate task if that task **also declares a parameter with that name**. A value the parent supplies for a name an intermediate child does not declare stops at that child and is not passed on to the grandchild.
+
+Example, with a parent task that holds `database = "prod"` (source `Value`):
+
+| Child parameter declaration | Effective value in the child | Why |
+|---|---|---|
+| `database` as `Variable` | `"prod"` | Name matches a parent parameter and the child opted in via `Variable` |
+| `database` as `Value` = `"test"` | `"test"` | Not a `Variable`; never overridden |
+| `region` as `Variable` (parent has no `region`) | its configured default | Parent supplies no matching name |
+
+This reuses the same mechanism as the operator-supplied values on manual launch, so a value an operator typed into the parent's launch dialog also flows down to its dependents.
+
+:::warning Trust boundary for sensitive values
+Propagation is name-based: any dependent task that declares a `Variable` parameter matching a parent parameter name receives the parent's value at execution time &mdash; including values that may be sensitive (credentials, connection strings). Task configuration is an administrator-trusted boundary; do not attach dependencies of untrusted provenance to tasks holding sensitive parameters.
+:::
+
 #### 3. Task report ###
 
 The last step is to choose a report type.
@@ -190,6 +302,42 @@ This option will send an email with the task information, and it will also add t
 | Message           | The message to be added in the email                                        | **Required** |
 
 > **Note:** The email will also add basic information about the task itself and its dependencies.
+
+###### Dynamic variables in Title and Message
+
+The **Title** and **Message** fields support `${variable}` placeholders that are resolved with per-execution values before the email is sent. This lets a single template produce a customized email for every task execution.
+
+Placeholders can reference two kinds of values: **task/execution metadata** (reserved names) and **task parameters** (by name).
+
+**Metadata variables**
+
+| Variable             | Description                                             |
+|----------------------|--------------------------------------------------------|
+| `${taskName}`        | Name of the task                                       |
+| `${taskId}`          | Task identifier                                        |
+| `${taskDescription}` | Task description                                       |
+| `${status}`          | Final execution status label (e.g. `OK`, `ERROR`)      |
+| `${statusDetail}`    | Additional detail about the execution status           |
+| `${executionId}`     | Execution identifier                                   |
+| `${command}`         | Command/action executed by the task                    |
+
+**Task parameter variables**
+
+Any placeholder whose name matches a task parameter (from the task **Parameters** tab) is replaced with that parameter's value. For example, `${env}` resolves to the value of the `env` parameter.
+
+**Resolution rules**
+
+- **Reserved names take precedence.** If a task parameter has the same name as a metadata variable (e.g. `status`), the metadata value wins and a warning is logged naming the shadowed parameter.
+- **Unknown placeholders are kept literally.** A `${variable}` with no matching metadata key or task parameter is left untouched in the output; it is never blanked or removed.
+- **HTML is escaped safely.** In the HTML body, substituted values are HTML-escaped so they cannot break the markup or inject content; the plain-text body receives the raw values. The template text itself is never escaped.
+- **Backward compatible.** A Title or Message without any `${...}` placeholder is sent exactly as written.
+
+**Example**
+
+- Title: `Task ${taskName} finished: ${status}`
+- Message: `Execution ${executionId} for environment ${env} ended with status ${status}.`
+
+> **Note:** Variable substitution applies only to the **Title** and **Message** fields, not to the fixed task-details block that the report appends automatically.
 
 ##### 3.3 Broadcast ####
 
@@ -233,9 +381,11 @@ The servers created for the Scheduler module are mainly used to execute tasks, a
 
 The servers can be instantiated multiple times, and each instantiation can use its own user and password to connect to the server with the selected protocol.
 
-The scheduler servers are used with two purposes, to launch a batch on a remote server, and to check for file modifications in an FTP server.
+The scheduler servers are used with two purposes: to run command tasks on a remote host over SSH, and to check for file modifications on an FTP server.
 
-Regarding to the FTP servers, the same server can be used as many times as needed, in different tasks, with different credentials.
+For remote command execution choose the `ssh` connection type and provide the connection user together with a password and/or a private key (which may be passphrase-protected); for file checking use the `ftp` connection type.
+
+Regarding the FTP servers, the same server can be used as many times as needed, in different tasks, with different credentials.
 
 ### Configuration
 
@@ -247,9 +397,19 @@ When creating a new server, the next fields have to be filled:
 | Server             | Server IP address                                   | **Required** |
 | Port               | Server port                                         | **Required** |
 | Type of connection | The protocol to be used to connect to the server    | **Required** |
+| User               | User for the SSH connection (shown when the connection type is `ssh`)     | **Required** for `ssh` |
+| Password           | Password for the SSH connection (shown when the connection type is `ssh`) |   Optional   |
+| Private key        | Private key for SSH key-based authentication (shown when the connection type is `ssh`) |   Optional   |
+| Private key passphrase | Passphrase that unlocks the private key, if it is encrypted (shown when the connection type is `ssh`) |   Optional   |
 | Active             | Server status                                       | **Required** |
 
 > **Note:** If a server is deactivated, the task using it won't even try to connect to it.
+
+> **Note:** An SSH server authenticates with the user plus a password, a private key (optionally unlocked with its passphrase), or both. Only the user is mandatory; provide at least one of password or key.
+
+> **Note:** SSH authentication is handled by [Apache MINA SSHD](https://mina.apache.org/sshd-project/). The most common private-key algorithms are supported — **RSA**, **ECDSA** and **Ed25519** — in OpenSSH and PEM formats.
+
+> **Note:** SSH credentials (password, private key and passphrase) are stored encrypted, per server instance, so the same host can be registered several times with different credentials. On the edit screen they are never sent back to the client: leave a secret field blank to keep the stored value, or type a new value to replace it.
 
 ### Management
 

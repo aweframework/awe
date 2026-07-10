@@ -67,6 +67,32 @@
         </criteria>
         <criteria label="PARAMETER_CONN_TYPE" component="select" id="Pro" initial-load="enum" target-action="conType" style="col-xs-6 col-sm-4 col-lg-2" validation="required"/>
         <criteria label="PARAMETER_ACTIVE" component="select"  id="Act" initial-load="enum" target-action="Es1Es0" value="1" style="col-xs-6 col-sm-4 col-lg-2" validation="required"/>
+        <criteria label="SCHEDULER_SERVER_USER" component="text" id="SshUsr" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Pro" condition="eq" value="ssh"/>
+          </dependency>
+          <dependency target-type="set-required" initial="true">
+            <dependency-element id="Pro" condition="eq" value="ssh"/>
+          </dependency>
+        </criteria>
+        <!-- Password and key are both optional: an SSH server can authenticate with user/password,
+             with a private key (optionally passphrase-protected), or provide both. Only the user is
+             always required. -->
+        <criteria label="SCHEDULER_SERVER_PASSWORD" component="password" id="SshPwd" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Pro" condition="eq" value="ssh"/>
+          </dependency>
+        </criteria>
+        <criteria label="SCHEDULER_SERVER_KEY" component="textarea" id="SshKey" style="col-xs-12">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Pro" condition="eq" value="ssh"/>
+          </dependency>
+        </criteria>
+        <criteria label="SCHEDULER_SERVER_KEY_PASS" component="password" id="SshKeyPass" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Pro" condition="eq" value="ssh"/>
+          </dependency>
+        </criteria>
       </tag>
     </window>
   </tag>

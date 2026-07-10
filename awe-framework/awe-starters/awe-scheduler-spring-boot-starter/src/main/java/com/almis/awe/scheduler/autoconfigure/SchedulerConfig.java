@@ -5,6 +5,10 @@ import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
 import com.almis.awe.scheduler.dao.*;
+import com.almis.awe.scheduler.executor.CommandExecutorResolver;
+import com.almis.awe.scheduler.executor.CommandStreamLogger;
+import com.almis.awe.scheduler.executor.LocalCommandExecutor;
+import com.almis.awe.scheduler.executor.SshCommandExecutor;
 import com.almis.awe.scheduler.factory.ReportServiceFactory;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
 import com.almis.awe.scheduler.filechecker.FTPFileChecker;
@@ -43,6 +47,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -379,13 +384,62 @@ public class SchedulerConfig {
   }
 
   /**
-   * Server Data Object Access
+   * Command DAO
    *
-   * @return File DAO
+   * @return Command DAO
    */
   @Bean
-  public CommandDAO commandDAO(Runtime runtime) {
-    return new CommandDAO(runtime);
+  public CommandDAO commandDAO(CommandExecutorResolver commandExecutorResolver) {
+    return new CommandDAO(commandExecutorResolver);
+  }
+
+  /*
+   * COMMAND EXECUTORS
+   */
+
+  /**
+   * Command output/error stream logger, shared by local and SSH executors
+   * so both emit output in the exact same format.
+   *
+   * @return Command stream logger
+   */
+  @Bean
+  public CommandStreamLogger commandStreamLogger() {
+    return new CommandStreamLogger();
+  }
+
+  /**
+   * Local command executor (JVM process API)
+   *
+   * @return Local command executor
+   */
+  @Bean
+  public LocalCommandExecutor localCommandExecutor(Runtime runtime, CommandStreamLogger commandStreamLogger) {
+    return new LocalCommandExecutor(runtime, commandStreamLogger);
+  }
+
+  /**
+   * SSH command executor (Apache MINA SSHD)
+   *
+   * @return Ssh command executor
+   */
+  @Bean
+  public SshCommandExecutor sshCommandExecutor(CommandStreamLogger commandStreamLogger, ServerDAO serverDAO) {
+    return new SshCommandExecutor(commandStreamLogger, serverDAO,
+      schedulerConfigProperties.getSshHostKeyPolicy(),
+      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      schedulerConfigProperties.getSshConnectTimeout());
+  }
+
+  /**
+   * Command executor resolver: chooses the local or SSH executor per task
+   *
+   * @return Command executor resolver
+   */
+  @Bean
+  public CommandExecutorResolver commandExecutorResolver(LocalCommandExecutor localCommandExecutor,
+                                                         SshCommandExecutor sshCommandExecutor, ServerDAO serverDAO) {
+    return new CommandExecutorResolver(localCommandExecutor, sshCommandExecutor, serverDAO);
   }
 
   /*

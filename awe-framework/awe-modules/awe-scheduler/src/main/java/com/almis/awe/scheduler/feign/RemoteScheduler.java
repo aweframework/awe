@@ -7,6 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(name = "remote-scheduler", url = "${awe.scheduler.remote-scheduler-url:http://localhost:8000/scheduler/api/v1}")
 public interface RemoteScheduler {
@@ -46,12 +47,13 @@ public interface RemoteScheduler {
   /**
    * Execute the selected task now
    *
-   * @param taskId Task identifier
-   * @param user   Launch user
+   * @param taskId    Task identifier
+   * @param user      Launch user
+   * @param variables Operator supplied values for variable parameters
    * @return Service Data
    */
   @PostMapping("/task/{taskId}/execute")
-  ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user);
+  ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user, @RequestBody(required = false) Map<String, String> variables);
 
   /**
    * Insert and schedule a new task

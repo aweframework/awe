@@ -371,6 +371,7 @@
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="There has been a problem adding computed fields for one query"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="There was an error adding totalizers for the query {1} in line {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="There was a problem trying to authenticate the user"/>
+  <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="The selected image exceeds the maximum allowed avatar size of 2 MB"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="The &apos;include&apos; tag inside {0} screen hasn`t found the following screen source: screen: {1}, source: {2}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Bad request definition format for queue {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Bad response definition format for queue {0}"/>
@@ -450,6 +451,7 @@
   <locale name="ERROR_MESSAGE_INITIALIZING_JASPER" value="There has been a problem launching document engine initialization"/>
   <locale name="ERROR_MESSAGE_INVALID_2FA_CODE" value="The second factor authentication code is invalid, please check your authentication application or send a message to the application maintainer to reset your account."/>
   <locale name="ERROR_MESSAGE_INVALID_ARGUMENTS" value="The selected arguments are not valid"/>
+  <locale name="ERROR_MESSAGE_INVALID_AVATAR_MIME_TYPE" value="The selected file type is not a supported avatar image. Allowed types are PNG, JPEG and GIF"/>
   <locale name="ERROR_MESSAGE_INVALID_CONNECTION" value="There was a problem trying to connect during launch [{0}]"/>
   <locale name="ERROR_MESSAGE_INVALID_CREDENTIALS" value="The credentials entered for the user -{0}- are not valid"/>
   <locale name="ERROR_MESSAGE_INVALID_DATABASE_ARGUMENTS" value="The selected arguments of database connections are no valid. [Type:{0}, Alias:{1}, Url: {2}]"/>
@@ -482,6 +484,8 @@
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="Option {0} has not been defined. Please check menu files."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="Session has expired. Please reload"/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parameter not found: {0}"/>
+  <locale name="ERROR_TITLE_SERVICE_PARAMETER_NOT_INFORMED" value="Service parameter not informed"/>
+  <locale name="ERROR_MESSAGE_SERVICE_PARAMETER_NOT_INFORMED" value="The service parameter [{0}] is not informed by the maintain or query. Declare a variable whose id matches the service parameter name."/>
   <locale name="ERROR_MESSAGE_PARSE_EXCEPTION" value="There has been generated a parse Exception"/>
   <locale name="ERROR_MESSAGE_PARSING_COLUMN_TYPE" value="There was a problem parsing the column datatype"/>
   <locale name="ERROR_MESSAGE_PARSING_COMPLETE_LINE" value="There was a problem parsing the full response datalist"/>
@@ -570,6 +574,7 @@
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Error adding computed fields"/>
   <locale name="ERROR_TITLE_ADDING_TOTALS" value="Error adding totalizers"/>
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Authenticate error"/>
+  <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Avatar image too large"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Bad &apos;include&apos; definition"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Bad queue definition format"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Database authenticate error"/>
@@ -635,6 +640,7 @@
   <locale name="ERROR_TITLE_INITIALIZING_JASPER" value="Error initilizing Jasper"/>
   <locale name="ERROR_TITLE_INVALID_2FA_CODE" value="Invalid code"/>
   <locale name="ERROR_TITLE_INVALID_ARGUMENTS" value="Invalid arguments"/>
+  <locale name="ERROR_TITLE_INVALID_AVATAR_MIME_TYPE" value="Invalid avatar file type"/>
   <locale name="ERROR_TITLE_INVALID_CONNECTION" value="Invalid connection"/>
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Invalid credentials"/>
   <locale name="ERROR_TITLE_INVALID_PASSWORD" value="Wrong password"/>
@@ -866,6 +872,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_REPORT_ASSIGN" value="Report assign"/>
   <locale name="MENU_REPORT_LIST" value="Report list"/>
   <locale name="MENU_REPORTS" value="Reports"/>
+  <locale name="MENU_SEARCH_EMPTY" value="No options found"/>
   <locale name="MENU_SEL_PRN" value="Select printer"/>
   <locale name="MENU_SETTINGS" value="Settings"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extractor"/>
@@ -941,6 +948,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_ATTRIBUTE" value="Attribute"/>
   <locale name="PARAMETER_AUD_TYPE" value="Audit type"/>
   <locale name="PARAMETER_AUTH" value="Authentication"/>
+  <locale name="PARAMETER_AVATAR" value="Avatar"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="Average time"/>
   <locale name="PARAMETER_BACKGROUND" value="Background"/>
   <locale name="PARAMETER_BACKGROUND_COLOR" value="Background color"/>

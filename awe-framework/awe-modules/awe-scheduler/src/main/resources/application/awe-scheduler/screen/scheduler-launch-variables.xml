@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-launch-variables.xml
+    Description: Manual launch modal. Lists ONLY the variable (source = "1") parameters of the
+                 selected task with an editable value column, and launches the task applying the
+                 operator-supplied values.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_TASKS" help="HELP_SCREEN_SCHEDULER_TASKS">
+  <tag source="center">
+    <dialog id="task-variables" modal="true" style="modal-md" label="SCREEN_TEXT_LAUNCH_PARAMETERS">
+      <!-- no-border + panel-transparent strip the window's themed (maroon) panel border so the grid
+           doesn't show a naked colored box inside the dialog; padding-sm spaces it below the header. -->
+      <window style="padding-sm no-border panel-transparent">
+        <!-- send-all transmits the name/value columns as parallel arrays; the JavaConnector assembles
+             them into a List<TaskVariable> for executeTaskNowVariables. The name column is read-only,
+             the value column is pre-filled with the stored value and editable. -->
+        <grid id="GrdTskVar" editable="true" send-all="true" row-numbers="false"
+              server-action="data" target-action="taskVariableParameters" initial-load="query"
+              pagination-disabled="true">
+          <column label="PARAMETER_NAME" name="name" align="left" charlength="30" sortable="false"/>
+          <column label="PARAMETER_VALUE" name="value" align="left" component="text" charlength="40" sortable="false"/>
+        </grid>
+      </window>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button id="ButCanTskVar" label="BUTTON_CANCEL" icon="remove-sign">
+            <button-action type="close" target="task-variables"/>
+          </button>
+          <button button-type="submit" id="ButLchTskVar" label="BUTTON_LAUNCH" icon="play"
+                  help="HELP_LAUNCH_VARIABLES_BUTTON">
+            <button-action type="validate" target="task-variables"/>
+            <button-action type="server" server-action="maintain-silent" target-action="LchTskVar" silent="true"/>
+            <button-action type="close" target="task-variables"/>
+            <button-action type="filter" target="GrdTskLst" silent="true"/>
+          </button>
+        </tag>
+      </tag>
+    </dialog>
+  </tag>
+</screen>

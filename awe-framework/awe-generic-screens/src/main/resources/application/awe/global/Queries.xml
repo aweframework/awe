@@ -1810,6 +1810,22 @@
     <field id="l1_nom" alias="value" />
     <field id="OpeNam" alias="name" />
     <computed format="[name] ([value])" alias="label" />
+    <field id="AvatarImage" table="aus" alias="avatarToken" noprint="true"/>
+    <!-- Cache-buster: [avatarToken] is substituted post-SQL (GraalVM JS, ComputedColumnProcessor),
+         so this is dialect-independent. The version is a non-cryptographic djb2 hash (base36) of
+         the stored token, never the raw token itself (the raw token is a replayable /file/download
+         capability reference and must not appear in a client-visible URL). Hashing only when a
+         token exists keeps the constant/non-constant shape ("null" vs "/avatar?v=<hash>") while
+         forcing a browser refetch whenever the underlying avatar actually changes. -->
+    <computed alias="image" eval="true" nullValue="null"
+      format="'[avatarToken]' === 'null' ? null : '/avatar?v=' + (function(s){var h=5381;for(var i=0;i&lt;s.length;i++){h=(((h&lt;&lt;5)+h)+s.charCodeAt(i))&gt;&gt;&gt;0;}return h.toString(36);})('[avatarToken]')"/>
+    <join type="LEFT">
+      <table id="AweUserSettings" alias="aus" />
+      <and>
+        <!-- trim: ope.l1_nom is char(20) (blank-padded on Oracle); without trim the varchar2 vs char comparison never matches on Oracle -->
+        <filter condition="eq" left-field="Ope" left-table="aus" right-field="l1_nom" right-table="ope" trim="true" ignorecase="true" />
+      </and>
+    </join>
     <where>
       <and>
         <filter left-field="l1_nom" condition="eq" right-variable="Usr" ignorecase="true" />
@@ -2488,6 +2504,35 @@
       <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
     </where>
     <variable id="user" type="STRING" name="user"/>
+  </query>
+
+  <!--
+  User settings (avatar)
+  -->
+
+  <query id="nextIdForUserSettings">
+    <table query="getAllUserSettings" alias="usi"/>
+    <operation alias="value" operator="ADD">
+      <operation operator="COALESCE">
+        <field id="IdeUsrSet" table="usi" function="MAX"/>
+        <constant value="0" type="INTEGER"/>
+      </operation>
+      <constant value="1" type="INTEGER"/>
+    </operation>
+  </query>
+
+  <query id="getAllUserSettings">
+    <table id="AweUserSettings"/>
+    <field id="IdeUsrSet"/>
+  </query>
+
+  <query id="getAvatarToken" cacheable="true">
+    <table id="AweUserSettings"/>
+    <field id="AvatarImage" alias="avatarToken"/>
+    <where>
+      <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+    </where>
+    <variable id="user" type="STRING" session="user"/>
   </query>
 
   <!--

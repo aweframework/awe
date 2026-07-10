@@ -56,24 +56,26 @@ import static com.almis.awe.model.constant.AweConstants.*;
 public class AweElements {
 
   private static final String NOT_FOUND = " not found: ";
+  private static final String PROFILE = "profile";
+  private static final String SCREEN = "screen";
   // Autowired services
   private final WebApplicationContext context;
   private final AweElementsDao elementsDao;
   private final Environment environment;
   private final BaseConfigProperties baseConfigProperties;
-  // Elements
-  private Map<String, EnumeratedGroup> enumeratedList;
-  private Map<String, Query> queryList;
-  private Map<String, Queue> queueList;
-  private Map<String, Target> maintainList;
-  private Map<String, Email> emailList;
-  private Map<String, Service> serviceList;
-  private Map<String, Action> actionList;
-  private Map<String, Profile> profileList;
-  private Map<String, Menu> menuList;
-  private Map<String, Screen> screenMap;
+  // Elements (volatile so reloads can atomically swap the whole map while requests keep reading)
+  private volatile Map<String, EnumeratedGroup> enumeratedList;
+  private volatile Map<String, Query> queryList;
+  private volatile Map<String, Queue> queueList;
+  private volatile Map<String, Target> maintainList;
+  private volatile Map<String, Email> emailList;
+  private volatile Map<String, Service> serviceList;
+  private volatile Map<String, Action> actionList;
+  private volatile Map<String, Profile> profileList;
+  private volatile Map<String, Menu> menuList;
+  private volatile Map<String, Screen> screenMap;
   // Locale list
-  private Map<String, Map<String, String>> localeList;
+  private volatile Map<String, Map<String, String>> localeList;
 
   /**
    * Autowired constructor
@@ -105,53 +107,235 @@ public class AweElements {
 
     // Initialize global files
     log.info(" ===== Initializing global, screen and locale files ===== ");
-    waitForTermination(initGlobalScreenAndLocaleFiles());
+    waitForTermination(launchGlobalScreenAndLocaleFiles());
     log.info(" ===== Finished loading global, screen and locale files  ===== ");
 
     // Initialize menu files
     log.info(" ===== Initializing menu files ===== ");
-    initMenuFiles();
+    reloadMenus();
     log.info(" ===== Finished loading menu files  ===== ");
   }
 
   /**
-   * Wait executor for termination
+   * Reload all element maps (global files, screens, locales, profiles and menus).
+   * Each map is fully rebuilt before being swapped in, so concurrent readers never
+   * observe a partially loaded state.
+   */
+  public void reloadAll() {
+    waitForTermination(launchGlobalScreenAndLocaleFiles());
+    reloadMenus();
+  }
+
+  /**
+   * Reload the enumerated map from the XML sources
+   */
+  public void reloadEnumerated() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchEnumerated(initData));
+    enumeratedList = keepPreviousOnEmptyRebuild(initData.getEnumerated(), enumeratedList, "enumerated");
+  }
+
+  /**
+   * Reload the query map from the XML sources
+   */
+  public void reloadQueries() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchQueries(initData));
+    queryList = keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query");
+  }
+
+  /**
+   * Reload the queue map from the XML sources
+   */
+  public void reloadQueues() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchQueues(initData));
+    queueList = keepPreviousOnEmptyRebuild(initData.getQueues(), queueList, "queue");
+  }
+
+  /**
+   * Reload the maintain map from the XML sources
+   */
+  public void reloadMaintains() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchMaintains(initData));
+    maintainList = keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain");
+  }
+
+  /**
+   * Reload the email map from the XML sources
+   */
+  public void reloadEmails() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchEmails(initData));
+    emailList = keepPreviousOnEmptyRebuild(initData.getEmails(), emailList, "email");
+  }
+
+  /**
+   * Reload the service map from the XML sources
+   */
+  public void reloadServices() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchServices(initData));
+    serviceList = keepPreviousOnEmptyRebuild(initData.getServices(), serviceList, "service");
+  }
+
+  /**
+   * Reload the action map from the XML sources
+   */
+  public void reloadActions() {
+    XMLInitData initData = new XMLInitData();
+    waitForFuture(launchActions(initData));
+    actionList = keepPreviousOnEmptyRebuild(initData.getActions(), actionList, "action");
+  }
+
+  /**
+   * Reload the profile map from the XML sources
+   */
+  public void reloadProfiles() {
+    profileList = keepPreviousOnEmptyRebuild(mergeModuleResults(launchProfiles(), PROFILE), profileList, PROFILE);
+  }
+
+  /**
+   * Reload the whole screen map from the XML sources. The full per-module folder scan
+   * is repeated because include targets are embedded into containing screens at read
+   * time, so evicting a single screen is not enough.
+   */
+  public void reloadScreens() {
+    screenMap = keepPreviousOnEmptyRebuild(mergeModuleResults(launchScreens(), SCREEN), screenMap, SCREEN);
+  }
+
+  /**
+   * Reload the locale maps from the XML sources
+   */
+  public void reloadLocales() {
+    localeList = keepPreviousLocalesOnEmptyRebuild(mergeLocaleResults(launchLocales()), localeList);
+  }
+
+  /**
+   * Reload the menu map from the XML sources
+   */
+  public void reloadMenus() {
+    // Init menus in cache
+    Map<String, Menu> newMenuList = new ConcurrentHashMap<>();
+    // Public menu
+    reloadMenu(newMenuList, baseConfigProperties.getFiles().getMenuPublic());
+    // Private menu
+    reloadMenu(newMenuList, baseConfigProperties.getFiles().getMenuPrivate());
+    menuList = newMenuList;
+  }
+
+  /**
+   * Read a menu file into the new menu map. When the menu cannot be read, keep the
+   * previously loaded menu (never store a null menu)
+   *
+   * @param newMenuList New menu map being built
+   * @param menuId      Menu identifier
+   */
+  private void reloadMenu(Map<String, Menu> newMenuList, String menuId) {
+    Menu menu = null;
+    try {
+      menu = readMenuFile(menuId);
+    } catch (AWException exc) {
+      log.error("Error reading menu '{}'", menuId, exc);
+      exc.log();
+    }
+    if (menu != null) {
+      newMenuList.put(menuId, menu);
+      return;
+    }
+
+    // Keep the previous menu definition when available
+    Map<String, Menu> currentMenuList = menuList;
+    if (currentMenuList != null && currentMenuList.containsKey(menuId)) {
+      log.error("Menu '{}' could not be read: keeping previous definitions", menuId);
+      newMenuList.put(menuId, currentMenuList.get(menuId));
+    } else {
+      log.error("Menu '{}' could not be read and there is no previous definition to keep", menuId);
+    }
+  }
+
+  /**
+   * Wait executor for termination and swap the element maps once fully built
    *
    * @param initData Initialize data threads
    */
   protected void waitForTermination(XMLInitData initData) {
     for (Future<String> result : initData.getGeneral()) {
-      try {
-        result.get();
-      } catch (InterruptedException | ExecutionException exc) {
-        log.error(" ===== ERROR loading XML initialization files  ===== ", exc);
-        Thread.currentThread().interrupt();
-      }
+      waitForFuture(result);
     }
 
+    // Swap global maps (fully built at this point, empty rebuilds keep the previous maps)
+    enumeratedList = keepPreviousOnEmptyRebuild(initData.getEnumerated(), enumeratedList, "enumerated");
+    queryList = keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query");
+    queueList = keepPreviousOnEmptyRebuild(initData.getQueues(), queueList, "queue");
+    maintainList = keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain");
+    emailList = keepPreviousOnEmptyRebuild(initData.getEmails(), emailList, "email");
+    serviceList = keepPreviousOnEmptyRebuild(initData.getServices(), serviceList, "service");
+    actionList = keepPreviousOnEmptyRebuild(initData.getActions(), actionList, "action");
+
     // Read profile list
-    profileList = new ConcurrentHashMap<>();
-    initData.getProfileResults()
-      .stream()
-      .map(r -> waitForMap(r, "profile"))
-      .forEach(m -> m.forEach(profileList::putIfAbsent));
+    profileList = keepPreviousOnEmptyRebuild(mergeModuleResults(initData.getProfileResults(), PROFILE), profileList, PROFILE);
 
     // Read screen list
-    screenMap = new ConcurrentHashMap<>();
-    initData.getScreenResults()
-      .stream()
-      .map(r -> waitForMap(r, "screen"))
-      .forEach(m -> m.forEach(screenMap::putIfAbsent));
+    screenMap = keepPreviousOnEmptyRebuild(mergeModuleResults(initData.getScreenResults(), SCREEN), screenMap, SCREEN);
 
     // Read locale list
-    localeList = new ConcurrentHashMap<>();
-    initData.getLocaleResults()
-      .forEach(result -> baseConfigProperties.getLanguageList()
-        .forEach(language -> {
-          Map<String, String> mergedLocales = Optional.ofNullable(localeList.get(language)).orElse(new ConcurrentHashMap<>());
-          waitForMap(result.get(language), "locale").forEach(mergedLocales::putIfAbsent);
-          localeList.put(language, mergedLocales);
-        }));
+    localeList = keepPreviousLocalesOnEmptyRebuild(mergeLocaleResults(initData.getLocaleResults()), localeList);
+  }
+
+  /**
+   * Keep the previous map when a rebuild produced an empty map while the current one has
+   * definitions: a completely empty rebuild means the reload failed, and replacing the live
+   * definitions would leave the application unusable
+   *
+   * @param newMap     Newly built map
+   * @param currentMap Currently active map
+   * @param fileType   File type (for logging)
+   * @return Map to swap in
+   */
+  private <T> Map<String, T> keepPreviousOnEmptyRebuild(Map<String, T> newMap, Map<String, T> currentMap, String fileType) {
+    if (newMap.isEmpty() && currentMap != null && !currentMap.isEmpty()) {
+      log.error("XML reload produced no {} definitions: keeping previous definitions", fileType);
+      return currentMap;
+    }
+    return newMap;
+  }
+
+  /**
+   * Keep the previous locale maps when a rebuild produced no locale at all for any language
+   * while the current maps have definitions
+   *
+   * @param newLocales     Newly built locale maps per language
+   * @param currentLocales Currently active locale maps per language
+   * @return Locale maps to swap in
+   */
+  private Map<String, Map<String, String>> keepPreviousLocalesOnEmptyRebuild(Map<String, Map<String, String>> newLocales,
+                                                                             Map<String, Map<String, String>> currentLocales) {
+    boolean newEmpty = newLocales.values().stream().allMatch(Map::isEmpty);
+    boolean currentEmpty = currentLocales == null || currentLocales.values().stream().allMatch(Map::isEmpty);
+    if (newEmpty && !currentEmpty) {
+      log.error("XML reload produced no locale definitions: keeping previous definitions");
+      return currentLocales;
+    }
+    return newLocales;
+  }
+
+  /**
+   * Wait for a future termination
+   *
+   * @param result Future result
+   */
+  private void waitForFuture(Future<String> result) {
+    try {
+      result.get();
+    } catch (InterruptedException exc) {
+      log.error(" ===== ERROR loading XML initialization files  ===== ", exc);
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException exc) {
+      // Never interrupt the calling thread on a load failure: reloads must keep it usable
+      log.error(" ===== ERROR loading XML initialization files  ===== ", exc);
+    }
   }
 
   /**
@@ -163,74 +347,192 @@ public class AweElements {
   protected <T> Map<String, T> waitForMap(Future<Map<String, T>> result, String fileType) {
     try {
       return result.get();
-    } catch (InterruptedException | ExecutionException exc) {
+    } catch (InterruptedException exc) {
       log.error(" ===== ERROR loading {} files  ===== ", fileType, exc);
       Thread.currentThread().interrupt();
+    } catch (ExecutionException exc) {
+      // Never interrupt the calling thread on a load failure: reloads must keep it usable
+      log.error(" ===== ERROR loading {} files  ===== ", fileType, exc);
     }
     return Collections.emptyMap();
   }
 
   /**
-   * Read all XML files and store them in the component
+   * Merge per-module results into a new map keeping module precedence (first module wins)
+   *
+   * @param results  Per-module future results, in module order
+   * @param fileType File type (for logging)
+   * @return Merged map
    */
-  private XMLInitData initGlobalScreenAndLocaleFiles() {
+  private <T> Map<String, T> mergeModuleResults(List<Future<Map<String, T>>> results, String fileType) {
+    Map<String, T> merged = new ConcurrentHashMap<>();
+    results.stream()
+      .map(result -> waitForMap(result, fileType))
+      .forEach(map -> map.forEach(merged::putIfAbsent));
+    return merged;
+  }
+
+  /**
+   * Merge per-module locale results into a new map keeping module precedence per language
+   *
+   * @param results Per-module locale future results, in module order
+   * @return Merged locale map
+   */
+  private Map<String, Map<String, String>> mergeLocaleResults(List<Map<String, Future<Map<String, String>>>> results) {
+    Map<String, Map<String, String>> merged = new ConcurrentHashMap<>();
+    results
+      .forEach(result -> baseConfigProperties.getLanguageList()
+        .forEach(language -> {
+          Map<String, String> mergedLocales = Optional.ofNullable(merged.get(language)).orElse(new ConcurrentHashMap<>());
+          waitForMap(result.get(language), "locale").forEach(mergedLocales::putIfAbsent);
+          merged.put(language, mergedLocales);
+        }));
+    return merged;
+  }
+
+  /**
+   * Launch the read of all global, screen and locale XML files into new maps
+   *
+   * @return Initialization data with the new maps and the futures that fill them
+   */
+  private XMLInitData launchGlobalScreenAndLocaleFiles() {
     XMLInitData initData = new XMLInitData();
 
-    // Init enumerated
-    enumeratedList = new ConcurrentHashMap<>();
-    String path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEnumerated() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Enumerated.class, enumeratedList, path));
-
-    // Init queries
-    queryList = new ConcurrentHashMap<>();
-    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQuery() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Queries.class, queryList, path));
-
-    // Init queues
-    queueList = new ConcurrentHashMap<>();
-    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getQueue() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Queues.class, queueList, path));
-
-    // Init maintains
-    maintainList = new ConcurrentHashMap<>();
-    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getMaintain() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Maintain.class, maintainList, path));
-
-    // Init emails
-    emailList = new ConcurrentHashMap<>();
-    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getEmail() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Emails.class, emailList, path));
-
-    // Init service
-    serviceList = Collections.synchronizedMap(new LinkedHashMap<>());
-    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getServices() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Services.class, serviceList, path));
-
-    // Init actions
-    actionList = new ConcurrentHashMap<>();
-    path = baseConfigProperties.getPaths().getGlobal() + baseConfigProperties.getFiles().getActions() + baseConfigProperties.getExtensionXml();
-    initData.getGeneral().add(elementsDao.readXmlFilesAsync(Actions.class, actionList, path));
+    // Init global files
+    initData.getGeneral().add(launchEnumerated(initData));
+    initData.getGeneral().add(launchQueries(initData));
+    initData.getGeneral().add(launchQueues(initData));
+    initData.getGeneral().add(launchMaintains(initData));
+    initData.getGeneral().add(launchEmails(initData));
+    initData.getGeneral().add(launchServices(initData));
+    initData.getGeneral().add(launchActions(initData));
 
     // Init profiles
-    initData.setProfileResults(Arrays.stream(baseConfigProperties.getModuleList())
+    initData.setProfileResults(launchProfiles());
+
+    // Init screens
+    initData.setScreenResults(launchScreens());
+
+    // For each language read local files
+    initData.setLocaleResults(launchLocales());
+    return initData;
+  }
+
+  /**
+   * Compose a global file path
+   *
+   * @param fileName File name
+   * @return Global file path
+   */
+  private String getGlobalFilePath(String fileName) {
+    return baseConfigProperties.getPaths().getGlobal() + fileName + baseConfigProperties.getExtensionXml();
+  }
+
+  /**
+   * Launch the read of the enumerated files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchEnumerated(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Enumerated.class, initData.getEnumerated(), getGlobalFilePath(baseConfigProperties.getFiles().getEnumerated()));
+  }
+
+  /**
+   * Launch the read of the query files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchQueries(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Queries.class, initData.getQueries(), getGlobalFilePath(baseConfigProperties.getFiles().getQuery()));
+  }
+
+  /**
+   * Launch the read of the queue files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchQueues(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Queues.class, initData.getQueues(), getGlobalFilePath(baseConfigProperties.getFiles().getQueue()));
+  }
+
+  /**
+   * Launch the read of the maintain files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchMaintains(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Maintain.class, initData.getMaintains(), getGlobalFilePath(baseConfigProperties.getFiles().getMaintain()));
+  }
+
+  /**
+   * Launch the read of the email files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchEmails(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Emails.class, initData.getEmails(), getGlobalFilePath(baseConfigProperties.getFiles().getEmail()));
+  }
+
+  /**
+   * Launch the read of the service files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchServices(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Services.class, initData.getServices(), getGlobalFilePath(baseConfigProperties.getFiles().getServices()));
+  }
+
+  /**
+   * Launch the read of the action files
+   *
+   * @param initData Initialization data
+   * @return Read future
+   */
+  private Future<String> launchActions(XMLInitData initData) {
+    return elementsDao.readXmlFilesAsync(Actions.class, initData.getActions(), getGlobalFilePath(baseConfigProperties.getFiles().getActions()));
+  }
+
+  /**
+   * Launch the read of the profile folders per module
+   *
+   * @return Per-module read futures, in module order
+   */
+  private List<Future<Map<String, Profile>>> launchProfiles() {
+    return Arrays.stream(baseConfigProperties.getModuleList())
       .sequential()
       .map(module -> elementsDao.readModuleFolderXmlFile(Profile.class, baseConfigProperties.getPaths().getApplication() +
         module +
         baseConfigProperties.getPaths().getProfile()))
-      .toList());
+      .toList();
+  }
 
-    // Init screens
-    if (baseConfigProperties.isPreloadScreens()) {
-      initData.setScreenResults(Arrays.stream(baseConfigProperties.getModuleList())
-        .sequential()
-        .map(module -> elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
-          module +
-          baseConfigProperties.getPaths().getScreen()))
-        .toList());
-    }
+  /**
+   * Launch the read of the screen folders per module
+   *
+   * @return Per-module read futures, in module order
+   */
+  private List<Future<Map<String, Screen>>> launchScreens() {
+    return Arrays.stream(baseConfigProperties.getModuleList())
+      .sequential()
+      .map(module -> elementsDao.readModuleFolderXmlFile(Screen.class, baseConfigProperties.getPaths().getApplication() +
+        module +
+        baseConfigProperties.getPaths().getScreen()))
+      .toList();
+  }
 
-    // For each language read local files
-    initData.setLocaleResults(Arrays.stream(baseConfigProperties.getModuleList())
+  /**
+   * Launch the read of the locale files per module and language
+   *
+   * @return Per-module locale read futures, in module order
+   */
+  private List<Map<String, Future<Map<String, String>>>> launchLocales() {
+    return Arrays.stream(baseConfigProperties.getModuleList())
       .sequential()
       .map(module -> baseConfigProperties.getLanguageList()
         .stream()
@@ -246,25 +548,7 @@ public class AweElements {
           return languageMap.entrySet().stream();
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
-      .toList());
-    return initData;
-  }
-
-  /**
-   * Read all XML files and store them in the component
-   */
-  private void initMenuFiles() {
-    // Init menus in cache
-    try {
-      menuList = new ConcurrentHashMap<>();
-      // Public menu
-      menuList.put(baseConfigProperties.getFiles().getMenuPublic(), readMenuFile(baseConfigProperties.getFiles().getMenuPublic()));
-      // Private menu
-      menuList.put(baseConfigProperties.getFiles().getMenuPrivate(), readMenuFile(baseConfigProperties.getFiles().getMenuPrivate()));
-    } catch (AWException exc) {
-      log.error("Error initializing menus", exc);
-      exc.log();
-    }
+      .toList();
   }
 
   /**
@@ -388,8 +672,10 @@ public class AweElements {
    */
   public Screen getScreen(String screenId) throws AWException {
     Screen screen;
-    if (screenMap.containsKey(screenId) && screenMap.get(screenId).getId() != null) {
-      screen = screenMap.get(screenId);
+    // Capture the current map reference: a concurrent reload may swap the field
+    Map<String, Screen> currentScreenMap = screenMap;
+    if (currentScreenMap.containsKey(screenId) && currentScreenMap.get(screenId).getId() != null) {
+      screen = currentScreenMap.get(screenId);
     } else {
       // Get Action
       screen = readScreen(screenId, new HashSet<>());
@@ -433,9 +719,10 @@ public class AweElements {
     String path = baseConfigProperties.getPaths().getScreen();
     String file = screenId + baseConfigProperties.getExtensionXml();
 
-    // Clone from list
-    if (screenMap.containsKey(screenId)) {
-      screen = screenMap.get(screenId);
+    // Clone from list (capture the current map reference: a concurrent reload may swap the field)
+    Map<String, Screen> currentScreenMap = screenMap;
+    if (currentScreenMap.containsKey(screenId)) {
+      screen = currentScreenMap.get(screenId);
     } else {
       screen = elementsDao.readXmlFile(Screen.class, path, file);
     }
@@ -617,7 +904,8 @@ public class AweElements {
   }
 
   /**
-   * Returns all locales
+   * Returns all locales. Do not cache the returned reference across reloads: a hot reload
+   * swaps the whole map object, so cached references would keep serving stale definitions
    *
    * @return locales
    */

@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author pgarcia
@@ -180,11 +181,28 @@ public class SchedulerService extends ServiceConfig {
    * Requires QUARTZ
    *
    * @param taskId Task identifier
+   * @param user   Launch user
    * @return ServiceData
    * @throws AWException Error executing task
    */
   public ServiceData executeTaskNow(Integer taskId, String user) throws AWException {
-    return taskDAO.executeTaskNow(taskId, user);
+    // Backward-compatible signature bound by the AWE JavaConnector from Services.xml (LchTsk manual launch, 2 params).
+    // Do not remove: the connector resolves the target method by EXACT parameter types.
+    return executeTaskNow(taskId, user, null);
+  }
+
+  /**
+   * Execute the selected task now, applying the operator supplied values for its variable parameters
+   * Requires QUARTZ
+   *
+   * @param taskId    Task identifier
+   * @param user      Launch user
+   * @param variables Operator supplied values for variable parameters
+   * @return ServiceData
+   * @throws AWException Error executing task
+   */
+  public ServiceData executeTaskNow(Integer taskId, String user, Map<String, String> variables) throws AWException {
+    return taskDAO.executeTaskNow(taskId, user, variables);
   }
 
   /**
@@ -408,22 +426,7 @@ public class SchedulerService extends ServiceConfig {
    * @throws AWException Error inserting scheduler calendar
    */
   public ServiceData insertSchedulerCalendar(Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
-    return calendarDAO.insertSchedulerCalendar(null, calendarId, replace, updateTriggers);
-  }
-
-  /**
-   * Insert and schedule a new calendar
-   * Requires QUARTZ
-   *
-   * @param calendarId     Calendar identifier
-   * @param replace        Replace calendar
-   * @param updateTriggers Update task triggers
-   * @param alias          Calendar alias
-   * @return ServiceData
-   * @throws AWException Error inserting scheduler calendar
-   */
-  public ServiceData insertSchedulerCalendar(String alias, Integer calendarId, boolean replace, boolean updateTriggers) throws AWException {
-    return calendarDAO.insertSchedulerCalendar(alias, calendarId, replace, updateTriggers);
+    return calendarDAO.insertSchedulerCalendar(calendarId, replace, updateTriggers);
   }
 
   /**

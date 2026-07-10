@@ -18,6 +18,7 @@
         <dependency-action type="filter" target="GrdExeLst" async="true" silent="true"/>
       </dependency>
     </criteria>
+    <criteria id="hasVarParams" component="hidden" value="0"/>
   </tag>
   <tag source="buttons">
     <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
@@ -43,14 +44,21 @@
         <dependency-element id="GrdTskLst" condition="lt" value="1" />
       </dependency>
     </button>
+    <!-- Direct launch: shown when the selected task has no variable parameters. -->
     <button label="BUTTON_RUN" icon="play" id="ButRun" help="HELP_RUN_BUTTON">
       <button-action type="server" server-action="maintain-silent" target-action="LchTsk" silent="true"/>
       <button-action type="filter" target="GrdTskLst" silent="true"/>
-      <dependency target-type="hide" initial="true">
-        <dependency-element id="GrdTskLst" condition="eq" value="0" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="GrdTskLst" condition="eq" value="1" />
+        <dependency-element id="hasVarParams" condition="ne" value="1" />
       </dependency>
-      <dependency target-type="disable" initial="true">
-        <dependency-element id="GrdTskLst" condition="ne" value="1" />
+    </button>
+    <!-- Variable launch: shown when the selected task has variable parameters, opens the values modal. -->
+    <button label="BUTTON_RUN" icon="play" id="ButRunVar" help="HELP_LAUNCH_VARIABLES_BUTTON">
+      <button-action type="dialog" target="task-variables"/>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="GrdTskLst" condition="eq" value="1" />
+        <dependency-element id="hasVarParams" condition="eq" value="1" />
       </dependency>
     </button>
     <button label="BUTTON_STOP" icon="stop" id="ButStp" help="HELP_LAUNCH_STOP_BUTTON">
@@ -119,6 +127,10 @@
             <dependency-element id="GrdTskLst" condition="eq" value="1" />
             <dependency-action type="remove-class" target="[window-id='ExecutionsWindow']" target-action="hidden" async="true" silent="true"/>
             <dependency-action type="filter" target="GrdExeLst" async="true" silent="true"/>
+            <dependency-action type="filter" target="GrdTskVar" async="true" silent="true"/>
+            <!-- Fill hasVarParams for the selected task to drive the direct/variable RUN button. -->
+            <dependency-action type="reset" target="hasVarParams" async="true" silent="true"/>
+            <dependency-action type="server" server-action="value" target-action="taskHasVariableParameters" target="hasVarParams" async="true" silent="true"/>
           </dependency>
           <dependency>
             <dependency-element id="GrdTskLst" condition="ne" value="1" />
@@ -147,5 +159,6 @@
     <include target-screen="PrnOpt" target-source="center" />
     <include target-screen="screen-help" target-source="center"/>
     <include target-screen="scheduler-execution-data" target-source="center"/>
+    <include target-screen="scheduler-launch-variables" target-source="center"/>
   </tag>
 </screen>

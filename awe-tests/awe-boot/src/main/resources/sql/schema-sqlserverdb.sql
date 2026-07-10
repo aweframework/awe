@@ -798,7 +798,11 @@ CREATE TABLE AweSchSrv
     Pro VARCHAR(10)   not NULL,
     Hst VARCHAR(40)   not NULL,
     Prt VARCHAR(10)   not NULL,
-    Act INT DEFAULT 1 not NULL
+    Act INT DEFAULT 1 not NULL,
+    SshUsr VARCHAR(200),
+    SshPwd VARCHAR(200),
+    SshKey VARCHAR(4000),
+    SshKeyPass VARCHAR(200)
 );
 
 --------------------------------------------------------
@@ -929,7 +933,11 @@ CREATE TABLE HISAweSchSrv
     Pro    VARCHAR(10),
     Hst    VARCHAR(40),
     Prt    VARCHAR(10),
-    Act    INT
+    Act    INT,
+    SshUsr VARCHAR(200),
+    SshPwd VARCHAR(200),
+    SshKey VARCHAR(4000),
+    SshKeyPass VARCHAR(200)
 );
 
 CREATE TABLE HISAweSchTsk
@@ -1018,6 +1026,17 @@ CREATE TABLE AweUsrFav (
    Ope varchar(20) NOT NULL,             --  User id
    Opt varchar(100) NOT NULL,            --   Option name
    Ord int DEFAULT 0 NOT NULL            --   Option position
+);
+
+IF NOT EXISTS(SELECT *
+              FROM sys.tables
+              WHERE name = 'AweUserSettings'
+                AND type = 'U')
+CREATE TABLE AweUserSettings (
+   IdeUsrSet int NOT NULL PRIMARY KEY,      --  Table identifier
+   Ope varchar(20) NOT NULL,                --  User id
+   AvatarImage varchar(4000),               --  Avatar image reference token
+   CONSTRAINT uk_AweUserSettings_Ope UNIQUE (Ope)
 );
 
 --------------------------------------------------------

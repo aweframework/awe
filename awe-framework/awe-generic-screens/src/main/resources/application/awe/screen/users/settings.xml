@@ -6,6 +6,12 @@
     <tag type="div" style="panel-padding">
       <tag type="h3" label="SCREEN_TEXT_USER_DATA"/>
       <tag type="hr" style="no-margin-t"/>
+      <criteria label="PARAMETER_AVATAR" component="uploader" id="CrtAvatar" destination="avatar" icon="image"/>
+      <tag type="div" style="text-right">
+        <button id="updateAvatar" label="BUTTON_CONFIRM" type="button" style="btn-primary">
+          <button-action type="server" server-action="maintain-silent" target-action="saveUserAvatar"/>
+        </button>
+      </tag>
       <tag id="update-user-data" type="div">
         <criteria label="PARAMETER_NAME" component="text" id="name" icon="file-text-o"/>
         <criteria label="PARAMETER_EMAIL" component="text" id="email" icon="envelope-o" validation="email"/>

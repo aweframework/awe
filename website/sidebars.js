@@ -37,6 +37,7 @@ module.exports = {
 				{
 					Configuration: [
 						"maven",
+						"dev-tools",
 						{
 							type: "category",
 							label: "Modules",
@@ -78,6 +79,8 @@ module.exports = {
 				"guides/validation",
 				"guides/v4-migration",
 				"guides/default-screens",
+				"guides/custom-widgets",
+				"guides/custom-widgets-react",
 			],
 		},
 		{
@@ -126,6 +129,7 @@ module.exports = {
 				"api/include",
 				"api/dialog",
 				"api/chart",
+				"api/widget",
 				"api/actions",
 				"api/dependencies",
 				"api/icons",

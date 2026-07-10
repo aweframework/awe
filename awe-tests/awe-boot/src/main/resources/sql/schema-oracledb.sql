@@ -264,6 +264,14 @@ CREATE TABLE AweKey
     Act    number(5) default 1           not NULL  --- Active (1) or not (0)
 );
 
+CREATE TABLE AweUserSettings
+(
+    IdeUsrSet number(5) CONSTRAINT pk_AweUserSettings PRIMARY KEY NOT NULL,    --  Table identifier
+    Ope varchar2(20) NOT NULL,                                                 --  User id
+    AvatarImage varchar2(4000),                                                --  Avatar image reference token
+    CONSTRAINT uk_AweUserSettings_Ope UNIQUE (Ope)
+);
+
 CREATE TABLE AweUsrFav
 (
     IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier
@@ -593,7 +601,10 @@ CREATE TABLE "AWESCHSRV"
     "PRO" VARCHAR2(10 BYTE),
     "HST" VARCHAR2(40 BYTE),
     "PRT" VARCHAR2(10 BYTE),
-    "ACT" NUMBER(*, 0) DEFAULT 1
+    "ACT" NUMBER(*, 0) DEFAULT 1,
+    "SSHUSR" VARCHAR2(200 BYTE),
+    "SSHPWD" VARCHAR2(200 BYTE),
+    "SSHKEY" VARCHAR2(4000 BYTE)
 );
 
 --------------------------------------------------------
@@ -722,7 +733,10 @@ CREATE TABLE "HISAWESCHSRV"
     "PRO"    VARCHAR2(10 BYTE),
     "HST"    VARCHAR2(40 BYTE),
     "PRT"    VARCHAR2(10 BYTE),
-    "ACT"    NUMBER(*, 0)
+    "ACT"    NUMBER(*, 0),
+    "SSHUSR" VARCHAR2(200 BYTE),
+    "SSHPWD" VARCHAR2(200 BYTE),
+    "SSHKEY" VARCHAR2(4000 BYTE)
 );
 
 CREATE TABLE "HISAWESCHTSK"

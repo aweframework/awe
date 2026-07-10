@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.12.1</version>
+    <version>4.12.2</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -540,6 +540,53 @@
           <scope>provided</scope>
         </dependency>
       </dependencies>
+    </profile>
+    <!-- Hot-reload profile (activated by `npm run start:hot-reload`): skip the frontend
+         build (install-node/npm ci/webpack) so that `npm run build:watch` owns the bundles.
+         Avoids `npm ci` wiping node_modules and a second webpack colliding with the
+         watcher during `npm run start:hot-reload`. -->
+    <profile>
+      <id>hot-reload</id>
+      <!-- webpack watch owns the frontend bundles here; skip.frontend (bound by
+           awe-starter-parent to frontend-maven-plugin's <skip>) skips node install,
+           npm ci and the inherited production build in one property, so Maven never
+           overwrites the watcher's bundles. -->
+      <properties>
+        <skip.frontend>true</skip.frontend>
+      </properties>
+      <!-- Keep devtools here too: activating -Phot-reload deactivates the activeByDefault
+           'devtools' profile, and we still want hot-restart for Java/XML changes. -->
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-devtools</artifactId>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+      <!-- Activate the 'hot-reload' Spring profile (application-hot-reload.properties,
+           enables XML hot reload). The base spring-boot-maven-plugin configuration
+           already sets <profiles> (gitlab-ci), and an explicit pom configuration
+           overrides the -Dspring-boot.run.profiles user property, so the Spring
+           profile must be added here instead of on the command line. -->
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <profiles combine.self="override">
+                <profile>gitlab-ci</profile>
+                <profile>hot-reload</profile>
+              </profiles>
+              <!-- Force ANSI colour on the forked app JVM. It must be a system property (read
+                   at startup by Spring's AnsiOutputApplicationListener) rather than a profile
+                   property, which is loaded too late; and `npm run start:hot-reload` pipes stdout
+                   through concurrently, so Spring's default DETECT would otherwise drop colour. -->
+              <jvmArguments>-Dspring.output.ansi.enabled=always</jvmArguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <!-- HSQL Flyway profile -->
     <profile>

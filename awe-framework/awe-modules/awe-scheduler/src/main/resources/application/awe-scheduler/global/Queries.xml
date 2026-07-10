@@ -276,12 +276,11 @@
     <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
-  <!-- Get task last execution -->
+  <!-- Get task last execution (AweSchExe-only - see #685: drop the AweSchTsk join so
+       orphaned/legacy executions still surface instead of returning zero rows) -->
   <query id="getLastExecution">
-    <table id="AweSchTsk" alias="Tsk"/>
     <table id="AweSchExe" alias="Exe"/>
     <field id="IdeTsk" alias="taskId" table="Exe"/>
-    <field id="Nam" alias="name" table="Tsk"/>
     <field id="GrpTsk" alias="groupId" table="Exe"/>
     <field id="ExeTsk" alias="executionId" table="Exe"/>
     <field id="IniDat" alias="initialDate" table="Exe"/>
@@ -292,7 +291,6 @@
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
-        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
         <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-variable="taskId"/>
         <filter left-field="GrpTsk" left-table="Exe" condition="eq" right-variable="taskGroup"/>
         <filter left-field="IniDat" left-table="Exe" condition="eq" query="getMaxDate"/>
@@ -302,12 +300,14 @@
     <variable id="taskGroup" type="STRING" name="taskGroup"/>
   </query>
 
-  <!-- Get task execution -->
+  <!-- Get task execution (AweSchExe-only + scalar getTaskName subquery - see #685:
+       drop the AweSchTsk INNER join so orphaned executions still surface; name is
+       preserved via a null-tolerant scalar subquery that yields NULL when the task
+       row is missing instead of dropping the whole execution row) -->
   <query id="getTaskExecution">
-    <table id="AweSchTsk" alias="Tsk"/>
     <table id="AweSchExe" alias="Exe"/>
     <field id="IdeTsk" alias="taskId" table="Exe"/>
-    <field id="Nam" alias="name" table="Tsk"/>
+    <field query="getTaskName" alias="name"/>
     <field id="GrpTsk" alias="groupId" table="Exe"/>
     <field id="ExeTsk" alias="executionId" table="Exe"/>
     <field id="IniDat" alias="initialDate" table="Exe"/>
@@ -318,13 +318,27 @@
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
-        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
         <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-variable="taskId"/>
         <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-variable="taskExecution"/>
       </and>
     </where>
     <variable id="taskId" type="INTEGER" name="taskId"/>
     <variable id="taskExecution" type="INTEGER" name="taskExecution"/>
+  </query>
+
+  <!-- Scalar subquery: retrieve the task name for a given taskId.
+       Used by getTaskExecution as a null-tolerant SELECT field (SQLBuilder.getFieldExpression
+       renders field.query as a scalar subquery inheriting the outer parameters). Returns NULL
+       when the AweSchTsk row is missing instead of dropping the execution row. -->
+  <query id="getTaskName">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Nam" alias="name" table="Tsk"/>
+    <where>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
   <query id="getLastExecutionDateByTask">
@@ -559,6 +573,50 @@
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
   </query>
 
+  <!-- Scheduler variable task parameter list (source = "1", Variable). Feeds the manual launch modal
+       grid and drives the conditional RUN button. Canonical name/value aliases match the TaskVariable
+       bean fields so the send-all grid binds to List<TaskVariable>. -->
+  <query id="taskVariableParameters" public="true">
+    <table id="AweSchTskPar"/>
+    <field id="Ide" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Src" alias="source"/>
+    <field id="Typ" alias="type"/>
+    <field id="Val" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
+        <filter left-field="Src" condition="eq">
+          <right-operand>
+            <constant value="1" type="INTEGER"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdeTsk" type="INTEGER" name="taskId" optional="true"/>
+    <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Whether the selected task has variable (source = "1") parameters. Returns a single row with
+       value = 1 when it has at least one, and no row otherwise. Fills the hidden hasVarParams criterion
+       via server-action="value" to drive the conditional RUN button. -->
+  <query id="taskHasVariableParameters" public="true" distinct="true">
+    <table id="AweSchTskPar"/>
+    <field id="Src" alias="value"/>
+    <field id="Src" alias="label"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
+        <filter left-field="Src" condition="eq">
+          <right-operand>
+            <constant value="1" type="INTEGER"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+
   <!-- Scheduler server list -->
   <query id="SchSrvLst">
     <table id="AweSchSrv" alias="Srv"/>
@@ -598,6 +656,7 @@
     <field id="Hst" alias="Hst" table="Srv"/>
     <field id="Prt" alias="Prt" table="Srv"/>
     <field id="Act" alias="Act" table="Srv" transform="NUMBER"/>
+    <field id="SshUsr" alias="SshUsr" table="Srv"/>
     <where>
       <and>
         <filter left-field="Ide" left-table="Srv" condition="eq" right-variable="Ide" optional="false"/>
@@ -615,6 +674,10 @@
     <field id="Hst" alias="host" table="Srv"/>
     <field id="Prt" alias="port" table="Srv"/>
     <field id="Act" alias="active" table="Srv" transform="BOOLEAN"/>
+    <field id="SshUsr" alias="user" table="Srv"/>
+    <field id="SshPwd" alias="password" table="Srv" transform="DECRYPT"/>
+    <field id="SshKey" alias="key" table="Srv" transform="DECRYPT"/>
+    <field id="SshKeyPass" alias="keyPassphrase" table="Srv" transform="DECRYPT"/>
     <where>
       <and>
         <filter left-field="Ide" left-table="Srv" condition="eq" right-variable="Ide"/>
@@ -640,6 +703,30 @@
     <variable id="suggest" type="STRINGB" name="suggest"/>
     <variable id="active" type="INTEGER" value="1"/>
     <variable id="key" type="INTEGER" name="suggest" />
+  </query>
+
+  <!-- Active SSH scheduler servers, for the task remote-server selector.
+       Always includes the currently bound IdeSrvExe, even if it has since
+       been deactivated or switched away from ssh, so editing a task never
+       drops the stored reference. -->
+  <query id="SchSrvSshLst">
+    <table id="AweSchSrv"/>
+    <field id="Ide" alias="value"/>
+    <field id="Nom" alias="label"/>
+    <where>
+      <and>
+        <or>
+          <and>
+            <filter left-field="Pro" condition="eq" right-variable="conType"/>
+            <filter left-field="Act" condition="eq" right-variable="active"/>
+          </and>
+          <filter left-field="Ide" condition="eq" right-variable="boundId" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <variable id="conType" type="STRING" value="ssh"/>
+    <variable id="active" type="INTEGER" value="1"/>
+    <variable id="boundId" type="INTEGER" name="IdeSrvExe" optional="true"/>
   </query>
 
   <!-- Active scheduler task suggest without parents (only with manual launch) -->

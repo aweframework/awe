@@ -48,7 +48,7 @@ class FileDAOTest {
   @Test
   void addModificationInsert() throws Exception {
     // Mock
-    given(queryUtil.getParameters((String) null)).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     Task task = new Task().setFile(new File());
 
     // Call method
@@ -66,7 +66,7 @@ class FileDAOTest {
   @Test
   void addModificationUpdate() throws Exception {
     // Mock
-    given(queryUtil.getParameters((String) null)).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     Task task = new Task().setFile(new File());
 
     // Call method

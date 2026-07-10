@@ -181,3 +181,27 @@ the first position on the menu:
 
 To remove it from the `Favourites` option, simply navigate to the screen and unmark it 
 on the **star** button.
+
+## Menu option search **(NEW)**
+
+The menu includes a **search box** to quickly find any option in large or deeply nested
+menus. A search icon is shown on the opposite edge to where the options expand: at the
+**top** of a vertical menu and on the **right** of a horizontal menu.
+
+Clicking the icon reveals a text input. As you type, the menu shows a **flat list of the
+matching options** together with their breadcrumb path (`Parent › Child › Option`), so you
+can locate an option without navigating the tree. Selecting a result launches that option
+exactly as if it had been clicked in the menu.
+
+Matching is case- and accent-insensitive, token based (every typed word must match), and
+runs against the **translated** option labels as well as the breadcrumb path. Use the arrow
+keys to move through the results, `Enter` to open the highlighted one and `Escape` (or a
+click outside) to close the panel.
+
+The search is enabled by default. To hide it, set the
+[`awe.application.menu-search-enabled`](../properties.md#awe.application.menu-search-enabled)
+property to `false`:
+
+```properties
+awe.application.menu-search-enabled=false
+```

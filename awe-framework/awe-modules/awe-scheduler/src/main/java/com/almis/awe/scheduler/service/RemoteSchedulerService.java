@@ -6,13 +6,16 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
+import com.almis.awe.scheduler.bean.task.TaskVariable;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.almis.awe.scheduler.constant.CronConstants.*;
 
@@ -102,11 +105,68 @@ public class RemoteSchedulerService extends ServiceConfig {
    * Requires QUARTZ
    *
    * @param taskId Task identifier
+   * @param user   Launch user
    * @return ServiceData
    * @throws AWException Error executing task
    */
   public ServiceData executeTaskNow(Integer taskId, String user) throws AWException {
-    return remote ? remoteScheduler.executeTaskNow(taskId, user) : schedulerService.executeTaskNow(taskId, user);
+    // Backward-compatible signature bound by the AWE JavaConnector from Services.xml (LchTsk manual launch, 2 params).
+    // Do not remove: the connector resolves the target method by EXACT parameter types.
+    return executeTaskNow(taskId, user, (Map<String, String>) null);
+  }
+
+  /**
+   * Execute the selected task now, applying the operator supplied values for its variable parameters
+   * Requires QUARTZ
+   *
+   * @param taskId    Task identifier
+   * @param user      Launch user
+   * @param variables Operator supplied values for variable parameters
+   * @return ServiceData
+   * @throws AWException Error executing task
+   */
+  public ServiceData executeTaskNow(Integer taskId, String user, Map<String, String> variables) throws AWException {
+    return remote ? remoteScheduler.executeTaskNow(taskId, user, variables) : schedulerService.executeTaskNow(taskId, user, variables);
+  }
+
+  /**
+   * Execute the selected task now, applying the operator supplied values collected from the manual
+   * launch modal grid.
+   * Requires QUARTZ
+   *
+   * <p>Adapter overload bound by the AWE JavaConnector for the "executeTaskNowVariables" service
+   * (Services.xml). A {@code bean-class} + {@code list="true"} service-parameter is bound as
+   * {@code List.class}, so this exact (Integer, String, List) signature must exist for the
+   * connector to resolve the method by exact parameter types.
+   *
+   * @param taskId    Task identifier
+   * @param user      Launch user
+   * @param variables Operator supplied variable rows (name/value) from the modal grid
+   * @return ServiceData
+   * @throws AWException Error executing task
+   */
+  public ServiceData executeTaskNow(Integer taskId, String user, List<TaskVariable> variables) throws AWException {
+    return executeTaskNow(taskId, user, toVariableMap(variables));
+  }
+
+  /**
+   * Build an ordered name-to-value map from the operator supplied variable rows.
+   * Rows with a null or blank name are skipped, the last value wins on a duplicate name,
+   * and a null or empty list yields an empty map.
+   *
+   * @param variables Variable rows collected from the modal grid
+   * @return Ordered map of variable parameter name to operator supplied value
+   */
+  static Map<String, String> toVariableMap(List<TaskVariable> variables) {
+    Map<String, String> values = new LinkedHashMap<>();
+    if (variables != null) {
+      for (TaskVariable variable : variables) {
+        if (variable != null && variable.getName() != null && !variable.getName().isBlank()) {
+          values.put(variable.getName(), variable.getValue());
+        }
+      }
+    }
+    return values;
   }
 
 

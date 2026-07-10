@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,22 +81,35 @@ public class BaseConfigProperties {
   private MenuType menuType = MenuType.HORIZONTAL;
 
   /**
+   * Enable the menu option search box.
+   * Default value true
+   */
+  private boolean menuSearchEnabled = true;
+
+  /**
    * Application address parameter name.
    * Default value address
    */
   private String address = "address";
 
   /**
-   * Enable preload screens.
-   * Default value true
-   */
-  private boolean preloadScreens = true;
-
-  /**
    * Reload current screen.
    * Default value false
    */
   private boolean reloadCurrentScreen = false;
+
+  /**
+   * Enable XML definition hot reload (development only).
+   * Default value false
+   */
+  private boolean xmlHotReload = false;
+
+  /**
+   * Source directories to watch for XML hot reload (e.g. src/main/resources). Changed XML
+   * files are copied to the matching classpath location before reloading.
+   * Default value empty list
+   */
+  private List<String> xmlHotReloadSources = new ArrayList<>();
 
   /**
    * XML file extension parameter name.

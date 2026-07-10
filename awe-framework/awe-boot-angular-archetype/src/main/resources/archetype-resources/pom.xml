@@ -217,4 +217,21 @@
     </plugins>
   </reporting>
 
+  <!-- Hot-reload profile (activated by `npm run start:hot-reload`): skip the inherited frontend build
+       (install-node / npm ci / webpack) so that `npm run build:watch` owns the bundles.
+       Without this, `mvn spring-boot:run` would run `npm ci` (wiping node_modules) and a
+       second webpack, colliding with the watcher. devtools stays active (direct dependency). -->
+  <profiles>
+    <profile>
+      <id>hot-reload</id>
+      <!-- webpack watch owns the frontend bundles here; skip.frontend (bound by
+           awe-starter-parent to frontend-maven-plugin's <skip>) skips node install,
+           npm ci and the inherited production build in one property, so Maven never
+           overwrites the watcher's bundles. -->
+      <properties>
+        <skip.frontend>true</skip.frontend>
+      </properties>
+    </profile>
+  </profiles>
+
 </project>

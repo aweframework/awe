@@ -26,12 +26,20 @@
       <field id="Hst" variable="Hst" />
       <field id="Prt" variable="Prt" />
       <field id="Act" variable="Act" />
+      <field id="SshUsr" variable="SshUsr"/>
+      <field id="SshPwd" variable="SshPwd"/>
+      <field id="SshKey" variable="SshKey"/>
+      <field id="SshKeyPass" variable="SshKeyPass"/>
       <variable id="IdeSrv" type="INTEGER" name="IdeSrv" />
       <variable id="Nom" type="STRING" name="Nom" />
       <variable id="Pro" type="STRING" name="Pro" />
       <variable id="Hst" type="STRING" name="Hst" />
       <variable id="Prt" type="INTEGER" name="Prt" />
       <variable id="Act" type="INTEGER" name="Act" />
+      <variable id="SshUsr" type="STRING" name="SshUsr"/>
+      <variable id="SshPwd" type="STRING_ENCRYPT" name="SshPwd"/>
+      <variable id="SshKey" type="STRING_ENCRYPT" name="SshKey"/>
+      <variable id="SshKeyPass" type="STRING_ENCRYPT" name="SshKeyPass"/>
     </insert>
   </target>
 
@@ -58,6 +66,7 @@
       <field id="Hst" variable="Hst" />
       <field id="Prt" variable="Prt" />
       <field id="Act" variable="Act" />
+      <field id="SshUsr" variable="SshUsr"/>
       <where>
         <and>
           <filter left-field="Ide" condition="eq" right-variable="Ide"/>
@@ -69,6 +78,58 @@
       <variable id="Hst" type="STRING" name="Hst" />
       <variable id="Prt" type="INTEGER" name="Prt" />
       <variable id="Act" type="INTEGER" name="Act" />
+      <variable id="SshUsr" type="STRING" name="SshUsr"/>
+    </update>
+    <update>
+      <table id="AweSchSrv"/>
+      <field id="SshPwd" variable="SshPwd"/>
+      <where>
+        <and>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+          <filter condition="eq" right-variable="FlgSshPwdUpd">
+            <left-operand>
+              <constant value="1" type="INTEGER" cast="INTEGER"/>
+            </left-operand>
+          </filter>
+        </and>
+      </where>
+      <variable id="Ide" type="INTEGER" name="IdeSrv"/>
+      <variable id="SshPwd" type="STRING_ENCRYPT" name="SshPwd"/>
+      <variable id="FlgSshPwdUpd" type="INTEGER" name="FlgSshPwdUpd"/>
+    </update>
+    <update>
+      <table id="AweSchSrv"/>
+      <field id="SshKey" variable="SshKey"/>
+      <where>
+        <and>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+          <filter condition="eq" right-variable="FlgSshKeyUpd">
+            <left-operand>
+              <constant value="1" type="INTEGER" cast="INTEGER"/>
+            </left-operand>
+          </filter>
+        </and>
+      </where>
+      <variable id="Ide" type="INTEGER" name="IdeSrv"/>
+      <variable id="SshKey" type="STRING_ENCRYPT" name="SshKey"/>
+      <variable id="FlgSshKeyUpd" type="INTEGER" name="FlgSshKeyUpd"/>
+    </update>
+    <update>
+      <table id="AweSchSrv"/>
+      <field id="SshKeyPass" variable="SshKeyPass"/>
+      <where>
+        <and>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+          <filter condition="eq" right-variable="FlgSshKeyPassUpd">
+            <left-operand>
+              <constant value="1" type="INTEGER" cast="INTEGER"/>
+            </left-operand>
+          </filter>
+        </and>
+      </where>
+      <variable id="Ide" type="INTEGER" name="IdeSrv"/>
+      <variable id="SshKeyPass" type="STRING_ENCRYPT" name="SshKeyPass"/>
+      <variable id="FlgSshKeyPassUpd" type="INTEGER" name="FlgSshKeyPassUpd"/>
     </update>
   </target>
   <!--Deactivate-->
@@ -130,8 +191,6 @@
       <field id="RepEmaDst" variable="emails"/>
       <field id="RepUsrDst" variable="users"/>
       <field id="RepMntId" variable="RepMntId" />
-      <field id="db" variable="database" />
-      <field id="site" variable="site" />
 
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
       <variable id="Nam" type="STRING" name="Nam" />
@@ -155,8 +214,6 @@
       <variable id="users" type="LIST_TO_STRING" name="RepUsrDst"/>
       <variable id="inCaseOf" type="LIST_TO_STRING" name="RepSndSta"/>
       <variable id="RepMntId" type="STRING" name="RepMntId"/>
-      <variable id="database" type="STRING" session="database"/>
-      <variable id="site" type="STRING" session="site"/>
     </insert>
 
     <insert audit="HISAweSchTskLch">
@@ -444,6 +501,20 @@
     <serve service="executeTaskNow">
       <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
       <variable id="user" type="STRING" session="user"/>
+    </serve>
+  </target>
+
+  <!-- Manual launch with operator-supplied values for the variable (source = "1") parameters,
+       collected from the send-all modal grid (GrdTskVar). The name/value variables carry the grid
+       column arrays; ServiceMaintainConnector leaves the bean-class service-parameter un-remapped and
+       carries the name/value keys through so getParameterBeanListValue assembles List<TaskVariable>.
+       -->
+  <target name="LchTskVar">
+    <serve service="executeTaskNowVariables">
+      <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="name" type="STRING" name="name"/>
+      <variable id="value" type="STRING" name="value"/>
     </serve>
   </target>
 

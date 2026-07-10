@@ -37,6 +37,17 @@ mvn test -pl awe-framework/awe-model -Dtest=MyTestClass
 mvn test -pl awe-framework/awe-client-angular
 ```
 
+### Integration & Selenium Tests
+
+For AWE's Spring integration (DB-backed) tests and Selenium browser suites, follow the
+`awe-integration-tests` skill (`skills/awe-integration-tests/SKILL.md`). Selenium example:
+
+```bash
+# Selenium suite (add `xvfb-run -a` when there is no X11 display, e.g. WSL)
+mvn -f awe-tests/awe-boot/pom.xml verify \
+  -Dskip.junit=true -Dskip.selenium=false -Dawe.test.browser=headless-chrome -Dgroups=SchedulerIT
+```
+
 ### JavaScript Tests (Jest)
 
 ```bash
