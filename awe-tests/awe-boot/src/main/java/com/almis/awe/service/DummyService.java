@@ -310,19 +310,20 @@ public class DummyService extends ServiceConfig {
   }
 
   /**
-   * Validates maintain serve list contracts when service parameter names differ from maintain variable ids.
+   * Validates that maintain serve variables bind to service parameters by name, not by position.
+   * The maintain declares the serve variables in the opposite order to the service parameter list;
+   * a positional binding would place the string value on the integer parameter (and vice versa),
+   * causing an argument type mismatch or a silently crossed value.
    *
-   * @param serviceIntegerList Submitted integer values
+   * @param label Expected string parameter (bound by name)
+   * @param code  Expected integer parameter (bound by name)
    * @return ServiceData
-   * @throws AWException Invalid list binding
+   * @throws AWException Invalid parameter binding
    */
-  public ServiceData returnMaintainOkForMappedListContract(List<Integer> serviceIntegerList) throws AWException {
-    if (serviceIntegerList == null) {
-      throw new AWException("List contract failure", "Maintain serve mapped list parameter must be bound as a non-null list");
-    }
-
-    if (serviceIntegerList.isEmpty()) {
-      throw new AWException("List contract failure", "Maintain serve mapped list parameter must contain the submitted values: " + serviceIntegerList);
+  public ServiceData returnMaintainOkForReorderedContract(String label, Integer code) throws AWException {
+    if (!"reordered-label".equals(label) || code == null || code != 42) {
+      throw new AWException("Reordered contract failure",
+          "Maintain serve variables must bind to service parameters by name, but got label='" + label + "' code=" + code);
     }
 
     return returnMaintainOkNoParams();

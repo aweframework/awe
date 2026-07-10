@@ -370,23 +370,15 @@ class RestControllerTest extends AbstractSpringFixedEnvironmentIT {
     }
 
     /**
-     * Rest test: Maintain serve mapped list contracts preserve a single submitted value
+     * Rest test: Maintain serve variables bind to service parameters by name even when the serve
+     * declaration order differs from the service parameter order (regression: a positional binding
+     * crossed a string value onto an integer parameter, causing argument type mismatch).
      *
      * @throws Exception Test error
      */
     @Test
-    void testPostParameterListSingleValueWhenServiceParameterNameDiffersFromVariableId() throws Exception {
-      doRestTest("TestComplexRestPostParametersMappedSingleList", "maintain", "\"frontendIntegerList\":4,", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
-    }
-
-    /**
-     * Rest test: Maintain serve mapped list contracts preserve multiple submitted values
-     *
-     * @throws Exception Test error
-     */
-    @Test
-    void testPostParameterListMultipleValuesWhenServiceParameterNameDiffersFromVariableId() throws Exception {
-      doRestTest("TestComplexRestPostParametersMappedSingleList", "maintain", "\"frontendIntegerList\":[4, 6, 7],", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
+    void testPostParametersBindByNameWhenServeOrderDiffersFromServiceContract() throws Exception {
+      doRestTest("TestReorderedServeContract", "maintain", "\"label\":\"reordered-label\",\"code\":42,", "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"type\":\"ok\",\"title\":\"Operation successful\",\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[]}}]");
     }
 
     /**

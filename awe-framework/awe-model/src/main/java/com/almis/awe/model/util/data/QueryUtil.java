@@ -621,14 +621,56 @@ public class QueryUtil extends ServiceConfig {
     return list;
   }
 
-  private Map<String, Boolean> getMaintainServiceListMap(List<Variable> variables, List<ServiceInputParameter> serviceParameters) {
-    Map<String, Boolean> serviceListMap = new HashMap<>();
+  /**
+   * Pair each declared {@code <service-parameter>} with the maintain {@code <serve>} variable that
+   * informs it, matching strictly <b>by name</b> (service parameter name equal to variable id).
+   * <p>
+   * Binding is order-independent: the declaration order of the serve variables and of the service
+   * parameters is irrelevant, and it is never guessed positionally. If the service declares a
+   * parameter that the maintain/query does not inform (no variable with a matching id) and that
+   * carries no static value, an {@link AWException} is thrown so the missing parameter is reported
+   * explicitly instead of being silently bound to an unrelated value.
+   *
+   * @param variables         Maintain serve variables
+   * @param serviceParameters Declared service parameters
+   * @return map of variable id to the service parameter it informs
+   * @throws AWException when a declared service parameter is not informed by the maintain/query
+   */
+  public Map<String, ServiceInputParameter> pairVariablesToServiceContract(List<Variable> variables, List<ServiceInputParameter> serviceParameters) throws AWException {
+    List<Variable> safeVariables = Optional.ofNullable(variables).orElse(Collections.emptyList());
     List<ServiceInputParameter> safeServiceParameters = Optional.ofNullable(serviceParameters).orElse(Collections.emptyList());
-    int mappedParameters = Math.min(variables.size(), safeServiceParameters.size());
 
-    for (int index = 0; index < mappedParameters; index++) {
-      serviceListMap.put(variables.get(index).getId(), safeServiceParameters.get(index).isList());
+    // Maintain variable ids available for name-based binding
+    Set<String> variableIds = new HashSet<>();
+    for (Variable variable : safeVariables) {
+      variableIds.add(variable.getId());
     }
+
+    Map<String, ServiceInputParameter> pairing = new LinkedHashMap<>();
+    for (ServiceInputParameter parameter : safeServiceParameters) {
+      String parameterName = parameter.getName();
+      if (StringUtils.isNotBlank(parameterName) && variableIds.contains(parameterName)) {
+        // Bound by name: the maintain declares a variable whose id equals the service parameter name
+        pairing.put(parameterName, parameter);
+      } else if (StringUtils.isNotBlank(parameterName)
+          && StringUtils.isBlank(parameter.getBeanClass())
+          && StringUtils.isBlank(parameter.getValue())) {
+        // A named, non-bean service parameter with no static value and no matching maintain
+        // variable is not informed. Fail explicitly instead of guessing a positional binding.
+        // Bean-assembled parameters and nameless or static-value parameters are informed otherwise.
+        throw new AWException(
+            getLocale("ERROR_TITLE_SERVICE_PARAMETER_NOT_INFORMED"),
+            getLocale("ERROR_MESSAGE_SERVICE_PARAMETER_NOT_INFORMED", parameterName));
+      }
+    }
+
+    return pairing;
+  }
+
+  private Map<String, Boolean> getMaintainServiceListMap(List<Variable> variables, List<ServiceInputParameter> serviceParameters) throws AWException {
+    Map<String, Boolean> serviceListMap = new HashMap<>();
+    pairVariablesToServiceContract(variables, serviceParameters)
+        .forEach((variableId, parameter) -> serviceListMap.put(variableId, parameter.isList()));
 
     return serviceListMap;
   }
