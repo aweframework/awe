@@ -915,9 +915,10 @@
     </serve>
   </target>
 
-  <target name="TestComplexRestPostParametersMappedSingleList">
-    <serve service="returnMaintainOkForMappedListContract">
-      <variable id="backendIntegerList" type="INTEGER" name="frontendIntegerList"/>
+  <target name="TestReorderedServeContract">
+    <serve service="returnMaintainOkForReorderedContract">
+      <variable id="code" type="INTEGER" name="code"/>
+      <variable id="label" type="STRING" name="label"/>
     </serve>
   </target>
 

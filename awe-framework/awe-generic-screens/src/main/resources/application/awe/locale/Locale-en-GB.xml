@@ -484,6 +484,8 @@
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="Option {0} has not been defined. Please check menu files."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="Session has expired. Please reload"/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parameter not found: {0}"/>
+  <locale name="ERROR_TITLE_SERVICE_PARAMETER_NOT_INFORMED" value="Service parameter not informed"/>
+  <locale name="ERROR_MESSAGE_SERVICE_PARAMETER_NOT_INFORMED" value="The service parameter [{0}] is not informed by the maintain or query. Declare a variable whose id matches the service parameter name."/>
   <locale name="ERROR_MESSAGE_PARSE_EXCEPTION" value="There has been generated a parse Exception"/>
   <locale name="ERROR_MESSAGE_PARSING_COLUMN_TYPE" value="There was a problem parsing the column datatype"/>
   <locale name="ERROR_MESSAGE_PARSING_COMPLETE_LINE" value="There was a problem parsing the full response datalist"/>

@@ -33,7 +33,7 @@
     <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
 
     <!-- Sonar configuration -->
-    <plugin-sonar.version>3.11.0.3922</plugin-sonar.version>
+    <plugin-sonar.version>4.0.0.4121</plugin-sonar.version>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.links.homepage>https://gitlab.com/aweframework/awe</sonar.links.homepage>
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
