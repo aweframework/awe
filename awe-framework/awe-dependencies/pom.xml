@@ -65,6 +65,10 @@
     <plugin-javadoc.version>3.1.1</plugin-javadoc.version>
     <plugin-resources.version>3.3.1</plugin-resources.version>
     <plugin-lombok.version>1.18.20.0</plugin-lombok.version>
+    <!-- Lombok engine bundled inside lombok-maven-plugin 1.18.20.0 predates JDK 17+ and breaks
+         delombok on newer JDKs (NoSuchFieldError JCImport.qualid). Override it with a JDK 21+
+         compatible Lombok. Keep aligned with the version managed by the Spring Boot BOM. -->
+    <delombok-lombok.version>1.18.46</delombok-lombok.version>
     <plugin-maven-archetype.version>3.2.1</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.1.1</plugin-maven-install.version>
     <!-- Skip configuration -->
@@ -395,6 +399,14 @@
             <outputDirectory>${project.build.directory}/delombok</outputDirectory>
             <addOutputDirectory>false</addOutputDirectory>
           </configuration>
+          <dependencies>
+            <!-- Force a JDK 21+ compatible Lombok engine; the one bundled in the plugin is too old. -->
+            <dependency>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${delombok-lombok.version}</version>
+            </dependency>
+          </dependencies>
           <executions>
             <execution>
               <phase>generate-sources</phase>
