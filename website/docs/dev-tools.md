@@ -175,6 +175,52 @@ Adjust the `application/**` pattern if your application XML root
 ([`awe.application.paths.application`](properties#awe.application.paths.application)) is not the
 default `/application/`.
 
+### Multi-module projects
+
+**To hot reload XML that lives in a sibling module, put that module's `target/classes` on the run
+classpath as a directory.** The watcher only reloads a module whose classpath resources are exploded
+on disk (a `file:` root); a module consumed as a **dependency jar** exposes `jar:` URLs it cannot
+write to. So when a `web` module ships the `application/<module>/**` definitions and a `boot` module
+runs the app, editing the `web` files does nothing and the log shows:
+
+```
+Source folder '.../web/src/main/resources/application/<module>' has no exploded classpath root to synchronize to. Ignoring it
+```
+
+Fix it in three steps:
+
+1. **Expose the module's classes as an exploded root** in the Maven `hot-reload` profile. Use
+   `additionalClasspathElements` — the `run` goal prepends these ahead of the dependency jars, so the
+   directory shadows the stale jar. (`<directories>` is **not** a `run`-goal parameter; Maven ignores
+   it silently.)
+
+   ```xml
+   <configuration>
+     <additionalClasspathElements>
+       <additionalClasspathElement>../web/target/classes</additionalClasspathElement>
+     </additionalClasspathElements>
+   </configuration>
+   ```
+
+2. **List its source folder** in the Spring `hot-reload` profile:
+
+   ```properties
+   awe.application.xml-hot-reload-sources=src/main/resources,../web/src/main/resources
+   ```
+
+3. **Build the sibling first** so `target/classes` exists: `mvn -pl web -am install -DskipTests`.
+
+Add one `additionalClasspathElement` and one source folder per module that carries editable definitions.
+
+> **Devtools + multi-module.** If the profile keeps `spring-boot-devtools`, its restart classloader
+> loads the app's own module jars on the base classloader while framework jars are restart-loaded,
+> duplicating shared types and failing startup (a bean "could not be found" for a type that plainly
+> exists). Keep them on one loader by extending `META-INF/spring-devtools.properties`:
+> ```properties
+> restart.include.awe=/awe.+\.jar
+> restart.include.<app>=/<app>.+\.jar
+> ```
+
 ## Production safety
 
 XML hot reload is development-only and disabled by default:

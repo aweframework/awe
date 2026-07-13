@@ -39,29 +39,50 @@ import java.util.List;
 @Slf4j
 public class XmlSchemaValidator {
 
-  private static final String CATALOG_RESOURCE = "schemas/awe/catalog.xml";
+  /**
+   * The framework's own base OASIS catalog (shipped by awe-generic-screens). It maps the
+   * framework schemas — such as {@code queries.xsd} — that handler-declared schemas
+   * {@code <xs:include>}. Callers chaining a handler catalog must always include this one too,
+   * otherwise an included framework schema cannot be resolved
+   */
+  public static final String AWE_BASE_CATALOG = "schemas/awe/catalog.xml";
   private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
   private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
 
-  private final String catalogResource;
+  // Classpath locations of the OASIS catalogs, chained in order. Each catalog resolves the
+  // schemas it maps; an entity missing from one continues to the next (RESOLVE=continue)
+  private final List<String> catalogResources;
   // Resolved once at construction (the bean is created only when hot reload is enabled) and
   // only ever read afterwards, so no synchronization is needed. Null when no catalog is found
   private final CatalogResolver catalogResolver;
 
   /**
-   * Default constructor: resolves schemas through the classpath catalog
+   * Default constructor: resolves schemas through the framework's base classpath catalog
    */
   public XmlSchemaValidator() {
-    this(CATALOG_RESOURCE);
+    this(AWE_BASE_CATALOG);
   }
 
   /**
-   * Constructor with an explicit catalog resource (testing seam)
+   * Constructor with a single explicit catalog resource (testing seam / built-in path)
    *
    * @param catalogResource Classpath location of the OASIS catalog
    */
   XmlSchemaValidator(String catalogResource) {
-    this.catalogResource = catalogResource;
+    this(List.of(catalogResource));
+  }
+
+  /**
+   * Constructor chaining several catalog resources. The catalogs are consulted in order and a
+   * systemId missing from one falls through to the next, so a handler-declared catalog can be
+   * chained after the framework base catalog: the base catalog resolves included framework
+   * schemas (e.g. {@code queries.xsd}) while the handler catalog resolves its own definitions
+   * (e.g. {@code treatments.xsd}), with no key conflict between them
+   *
+   * @param catalogResources Classpath locations of the OASIS catalogs, in resolution order
+   */
+  public XmlSchemaValidator(List<String> catalogResources) {
+    this.catalogResources = List.copyOf(catalogResources);
     this.catalogResolver = buildCatalogResolver();
   }
 
@@ -142,39 +163,56 @@ public class XmlSchemaValidator {
   }
 
   /**
-   * Build the catalog resolver from the classpath catalog
+   * Build the catalog resolver from every configured classpath catalog, chained in order.
+   * {@link CatalogManager#catalogResolver(CatalogFeatures, URI...)} accepts several catalog
+   * URIs and consults them in sequence, so a systemId missing from the first catalog is looked
+   * up in the next. Fails open: if any configured catalog is missing from the classpath (or
+   * cannot be turned into a URI) validation is disabled entirely and the caller keeps its
+   * previous behaviour, exactly as with a single missing catalog
    *
-   * @return Catalog resolver or null when the catalog cannot be loaded
+   * @return Catalog resolver or null when any catalog cannot be loaded
    */
   private CatalogResolver buildCatalogResolver() {
-    URL catalogUrl = classLoaderResource();
-    if (catalogUrl == null) {
-      log.warn("XML hot reload: schema catalog '{}' not found on the classpath; XML schema validation is disabled", catalogResource);
+    List<URI> catalogUris = new ArrayList<>();
+    for (String resource : catalogResources) {
+      URL catalogUrl = classLoaderResource(resource);
+      if (catalogUrl == null) {
+        log.warn("XML hot reload: schema catalog '{}' not found on the classpath; XML schema validation is disabled", resource);
+        return null;
+      }
+      try {
+        catalogUris.add(catalogUrl.toURI());
+      } catch (Exception exc) {
+        log.warn("XML hot reload: could not load schema catalog '{}'; XML schema validation is disabled", resource, exc);
+        return null;
+      }
+    }
+    if (catalogUris.isEmpty()) {
       return null;
     }
     try {
-      URI catalogUri = catalogUrl.toURI();
-      // RESOLVE=continue: an entity missing from the catalog falls back to normal resolution
+      // RESOLVE=continue: an entity missing from every catalog falls back to normal resolution
       // instead of throwing, so an unmapped schema never turns into a spurious validation error
       CatalogFeatures features = CatalogFeatures.builder()
         .with(CatalogFeatures.Feature.RESOLVE, "continue")
         .build();
-      return CatalogManager.catalogResolver(features, catalogUri);
+      return CatalogManager.catalogResolver(features, catalogUris.toArray(new URI[0]));
     } catch (Exception exc) {
-      log.warn("XML hot reload: could not load schema catalog '{}'; XML schema validation is disabled", catalogResource, exc);
+      log.warn("XML hot reload: could not load schema catalogs {}; XML schema validation is disabled", catalogResources, exc);
       return null;
     }
   }
 
   /**
-   * Locate the catalog resource through the available class loaders
+   * Locate a catalog resource through the available class loaders
    *
+   * @param resource Classpath location of the catalog
    * @return Catalog URL or null when not found
    */
-  private URL classLoaderResource() {
+  private URL classLoaderResource(String resource) {
     ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-    URL url = contextClassLoader != null ? contextClassLoader.getResource(catalogResource) : null;
-    return url != null ? url : getClass().getClassLoader().getResource(catalogResource);
+    URL url = contextClassLoader != null ? contextClassLoader.getResource(resource) : null;
+    return url != null ? url : getClass().getClassLoader().getResource(resource);
   }
 
   /**
