@@ -622,55 +622,34 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
-   * Pair each declared {@code <service-parameter>} with the maintain {@code <serve>} variable that
-   * informs it, matching strictly <b>by name</b> (service parameter name equal to variable id).
-   * <p>
-   * Binding is order-independent: the declaration order of the serve variables and of the service
-   * parameters is irrelevant, and it is never guessed positionally. If the service declares a
-   * parameter that the maintain/query does not inform (no variable with a matching id) and that
-   * carries no static value, an {@link AWException} is thrown so the missing parameter is reported
-   * explicitly instead of being silently bound to an unrelated value.
+   * Build a {@code variable id -> isList} map from the service contract, matching each declared
+   * service parameter to the serve variable with the same id (binding to services is always done
+   * by name, never positionally). A service parameter not informed by any serve variable is simply
+   * ignored; the service later receives {@code null} for it. This map only drives the single-value
+   * normalization of {@code suggest-multiple} list parameters (see #694): it decides whether a
+   * variable value must be wrapped as a one-item list.
    *
    * @param variables         Maintain serve variables
    * @param serviceParameters Declared service parameters
-   * @return map of variable id to the service parameter it informs
-   * @throws AWException when a declared service parameter is not informed by the maintain/query
+   * @return map of variable id to whether its matching service parameter expects a list
    */
-  public Map<String, ServiceInputParameter> pairVariablesToServiceContract(List<Variable> variables, List<ServiceInputParameter> serviceParameters) throws AWException {
+  private Map<String, Boolean> getMaintainServiceListMap(List<Variable> variables, List<ServiceInputParameter> serviceParameters) {
     List<Variable> safeVariables = Optional.ofNullable(variables).orElse(Collections.emptyList());
     List<ServiceInputParameter> safeServiceParameters = Optional.ofNullable(serviceParameters).orElse(Collections.emptyList());
 
-    // Maintain variable ids available for name-based binding
+    // Maintain variable ids available for name-based matching
     Set<String> variableIds = new HashSet<>();
     for (Variable variable : safeVariables) {
       variableIds.add(variable.getId());
     }
 
-    Map<String, ServiceInputParameter> pairing = new LinkedHashMap<>();
+    Map<String, Boolean> serviceListMap = new HashMap<>();
     for (ServiceInputParameter parameter : safeServiceParameters) {
       String parameterName = parameter.getName();
       if (StringUtils.isNotBlank(parameterName) && variableIds.contains(parameterName)) {
-        // Bound by name: the maintain declares a variable whose id equals the service parameter name
-        pairing.put(parameterName, parameter);
-      } else if (StringUtils.isNotBlank(parameterName)
-          && StringUtils.isBlank(parameter.getBeanClass())
-          && StringUtils.isBlank(parameter.getValue())) {
-        // A named, non-bean service parameter with no static value and no matching maintain
-        // variable is not informed. Fail explicitly instead of guessing a positional binding.
-        // Bean-assembled parameters and nameless or static-value parameters are informed otherwise.
-        throw new AWException(
-            getLocale("ERROR_TITLE_SERVICE_PARAMETER_NOT_INFORMED"),
-            getLocale("ERROR_MESSAGE_SERVICE_PARAMETER_NOT_INFORMED", parameterName));
+        serviceListMap.put(parameterName, parameter.isList());
       }
     }
-
-    return pairing;
-  }
-
-  private Map<String, Boolean> getMaintainServiceListMap(List<Variable> variables, List<ServiceInputParameter> serviceParameters) throws AWException {
-    Map<String, Boolean> serviceListMap = new HashMap<>();
-    pairVariablesToServiceContract(variables, serviceParameters)
-        .forEach((variableId, parameter) -> serviceListMap.put(variableId, parameter.isList()));
 
     return serviceListMap;
   }

@@ -8,17 +8,14 @@ import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
-import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.ServiceBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +34,11 @@ public class ServiceMaintainConnector extends ServiceConfig implements MaintainC
     // Get query builder
     ServiceBuilder builder = getBean(ServiceBuilder.class);
 
-    // Prepare variables
+    // Prepare variables. Services bind their parameters by name, so the variable map is passed
+    // as-is: each serve variable informs the service parameter with the same id, and a parameter
+    // not declared by the maintain is simply sent as null.
     List<ServiceInputParameter> serviceParameters = getServiceParameters(query.getService());
-    Map<String, QueryParameter> variableMap = remapVariablesByServiceContract(
-        query,
-        getBean(QueryUtil.class).getVariableMap(query, parameters, serviceParameters),
-        serviceParameters);
+    Map<String, QueryParameter> variableMap = getBean(QueryUtil.class).getVariableMap(query, parameters, serviceParameters);
     builder
       .setQuery(query)
       .setParameters(parameters)
@@ -76,28 +72,5 @@ public class ServiceMaintainConnector extends ServiceConfig implements MaintainC
     return getElements().getService(serviceId).getType().getParameterList() == null
         ? Collections.emptyList()
         : getElements().getService(serviceId).getType().getParameterList();
-  }
-
-  private Map<String, QueryParameter> remapVariablesByServiceContract(MaintainQuery query,
-                                                                      Map<String, QueryParameter> variableMap,
-                                                                      List<ServiceInputParameter> serviceParameters) throws AWException {
-    Map<String, QueryParameter> remappedVariableMap = new LinkedHashMap<>();
-    List<Variable> variables = query.getVariableDefinitionList() == null ? Collections.emptyList() : query.getVariableDefinitionList();
-
-    // Bind each variable value under its service parameter name, matching strictly by name (see
-    // QueryUtil#pairVariablesToServiceContract). Order is irrelevant and never guessed positionally;
-    // a service parameter not informed by the maintain raises an AWException.
-    getBean(QueryUtil.class).pairVariablesToServiceContract(variables, serviceParameters)
-        .forEach((variableId, serviceParameter) -> {
-          String serviceParameterName = serviceParameter.getName();
-          if (StringUtils.isNotBlank(serviceParameterName) && variableMap.containsKey(variableId)) {
-            remappedVariableMap.put(serviceParameterName, variableMap.get(variableId));
-          }
-        });
-
-    // Preserve any variable values not bound to a service parameter (defaults, extra variables)
-    variableMap.forEach(remappedVariableMap::putIfAbsent);
-
-    return remappedVariableMap;
   }
 }
