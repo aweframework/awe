@@ -484,8 +484,6 @@
   <locale name="ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED" value="Option {0} n&apos;a pas été défini. Veuillez vérifier les fichiers de menu."/>
   <locale name="ERROR_MESSAGE_OUT_OF_SESSION" value="Session a expiré. S&apos;il vous plait recharger la page"/>
   <locale name="ERROR_MESSAGE_PARAMETER_NOT_FOUND" value="Parametre non trouvé: {0}"/>
-  <locale name="ERROR_TITLE_SERVICE_PARAMETER_NOT_INFORMED" value="Paramètre de service non renseigné"/>
-  <locale name="ERROR_MESSAGE_SERVICE_PARAMETER_NOT_INFORMED" value="Le paramètre de service [{0}] n''est pas renseigné par le maintain ou la requête. Déclarez une variable dont l''id correspond au nom du paramètre de service."/>
   <locale name="ERROR_MESSAGE_PARSE_EXCEPTION" value="There has been generated a parse Exception"/>
   <locale name="ERROR_MESSAGE_PARSING_COLUMN_TYPE" value="Il y a été un problème analysant la liste entière des données"/>
   <locale name="ERROR_MESSAGE_PARSING_COMPLETE_LINE" value="Il y a été un problème analysant la liste entière des données"/>

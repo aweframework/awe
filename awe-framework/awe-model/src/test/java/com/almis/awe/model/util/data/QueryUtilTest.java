@@ -2,7 +2,6 @@ package com.almis.awe.model.util.data;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
-import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.maintain.Serve;
@@ -23,10 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
 
 /**
  * Query Util class
@@ -39,10 +34,7 @@ class QueryUtilTest {
 
   @BeforeEach
   void setUp() {
-    // Spy so the localized error messages (getLocale) can be resolved without a Spring context
-    queryUtil = spy(new QueryUtil(new BaseConfigProperties(), new DatabaseConfigProperties(), new ObjectMapper(), new PrototypeRequestBeanHolder()));
-    doReturn("error").when(queryUtil).getLocale(anyString());
-    doReturn("error").when(queryUtil).getLocale(anyString(), any());
+    queryUtil = new QueryUtil(new BaseConfigProperties(), new DatabaseConfigProperties(), new ObjectMapper(), new PrototypeRequestBeanHolder());
   }
 
   /**
@@ -112,12 +104,12 @@ class QueryUtilTest {
   }
 
   /**
-   * Strict by-name binding: a service parameter whose name is not informed by any maintain variable
-   * (here `serviceIntegerList` vs variable id `backendIntegerList`) must fail explicitly instead of
-   * being guessed positionally.
+   * A service parameter whose name is not informed by any maintain variable (here
+   * `serviceIntegerList` vs variable id `backendIntegerList`) is simply left unbound and sent as
+   * null; it must not raise an error. The declared serve variable keeps its own value.
    */
   @Test
-  void testGetMaintainServiceVariableMapFailsWhenServiceParameterNameNotInformed() {
+  void testGetMaintainServiceVariableMapLeavesServiceParameterUnboundWhenNotInformed() throws Exception {
     Serve query = Serve.builder()
         .service("mappedNameContract")
         .variableDefinitionList(List.of(
@@ -126,10 +118,16 @@ class QueryUtilTest {
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.put("frontendIntegerList", 9);
 
-    assertThrows(AWException.class, () -> queryUtil.getVariableMap(
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
         query,
         parameters,
-        List.of(ServiceInputParameter.builder().name("serviceIntegerList").type("INTEGER").list(true).build())));
+        List.of(ServiceInputParameter.builder().name("serviceIntegerList").type("INTEGER").list(true).build()));
+
+    // The uninformed service parameter is not bound (the service receives null for it)
+    assertFalse(variableMap.containsKey("serviceIntegerList"));
+    // The declared serve variable is still present with its submitted value
+    assertTrue(variableMap.containsKey("backendIntegerList"));
+    assertEquals("9", variableMap.get("backendIntegerList").getValue().toString());
   }
 
   /**
@@ -195,72 +193,36 @@ class QueryUtilTest {
   }
 
   /**
-   * Regression: variables are paired to service parameters by name, independently of the
-   * declaration order (this is the binding that broke the FMB InsSptWiz maintain in 4.12.1).
+   * Regression: the list flag is matched by variable id / service parameter name regardless of the
+   * declaration order (this is the binding that broke the FMB InsSptWiz maintain in 4.12.1), and a
+   * service parameter with no matching serve variable is left unbound and sent as null.
    */
   @Test
-  void testPairVariablesToServiceContractMatchesByNameIgnoringDeclarationOrder() throws Exception {
-    List<Variable> variables = List.of(
-        Variable.builder().id("CrtSta").type("INTEGER").build(),
-        Variable.builder().id("CrtAc1").type("STRING").build());
-    List<ServiceInputParameter> serviceParameters = List.of(
-        ServiceInputParameter.builder().name("CrtAc1").type("STRING").build(),
-        ServiceInputParameter.builder().name("CrtSta").type("INTEGER").build());
+  void testGetMaintainServiceVariableMapMatchesByNameIgnoringDeclarationOrder() throws Exception {
+    Serve query = Serve.builder()
+        .service("reorderedNameContract")
+        .variableDefinitionList(List.of(
+            Variable.builder().id("CrtSta").type("INTEGER").name("CrtSta").build(),
+            Variable.builder().id("CrtAc1").type("STRING").name("CrtAc1").build()))
+        .build();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.put("CrtSta", 5);
+    parameters.put("CrtAc1", "x");
 
-    Map<String, ServiceInputParameter> pairing = queryUtil.pairVariablesToServiceContract(variables, serviceParameters);
+    // Service parameters declared in the opposite order, plus one not informed by the maintain
+    Map<String, QueryParameter> variableMap = queryUtil.getVariableMap(
+        query,
+        parameters,
+        List.of(
+            ServiceInputParameter.builder().name("CrtAc1").type("STRING").list(true).build(),
+            ServiceInputParameter.builder().name("CrtSta").type("INTEGER").list(false).build(),
+            ServiceInputParameter.builder().name("missingParameter").type("INTEGER").build()));
 
-    assertEquals("CrtSta", pairing.get("CrtSta").getName());
-    assertEquals("CrtAc1", pairing.get("CrtAc1").getName());
-  }
-
-  /**
-   * Strict by-name binding: a declared service parameter with no matching maintain variable is
-   * reported explicitly (AWException) instead of being bound positionally.
-   */
-  @Test
-  void testPairVariablesToServiceContractThrowsWhenServiceParameterNotInformed() {
-    List<Variable> variables = List.of(
-        Variable.builder().id("providedParameter").type("STRING").build());
-    List<ServiceInputParameter> serviceParameters = List.of(
-        ServiceInputParameter.builder().name("providedParameter").type("STRING").build(),
-        ServiceInputParameter.builder().name("missingParameter").type("INTEGER").build());
-
-    assertThrows(AWException.class, () -> queryUtil.pairVariablesToServiceContract(variables, serviceParameters));
-  }
-
-  /**
-   * A service parameter carrying a static value informs itself and must not require a maintain
-   * variable nor raise an error.
-   */
-  @Test
-  void testPairVariablesToServiceContractAllowsServiceParameterWithStaticValue() throws Exception {
-    List<Variable> variables = List.of(
-        Variable.builder().id("providedParameter").type("STRING").build());
-    List<ServiceInputParameter> serviceParameters = List.of(
-        ServiceInputParameter.builder().name("providedParameter").type("STRING").build(),
-        ServiceInputParameter.builder().name("staticParameter").type("STRING").value("42").build());
-
-    Map<String, ServiceInputParameter> pairing = queryUtil.pairVariablesToServiceContract(variables, serviceParameters);
-
-    assertTrue(pairing.containsKey("providedParameter"));
-    assertFalse(pairing.containsKey("staticParameter"));
-  }
-
-  /**
-   * Bean-assembled parameters (bean-class) and nameless parameters are informed by other means
-   * (assembled from the request body / positional native binding), so they must not raise the
-   * uninformed-parameter error even without a matching maintain variable.
-   */
-  @Test
-  void testPairVariablesToServiceContractAllowsBeanAndNamelessParameters() throws Exception {
-    List<Variable> variables = Collections.emptyList();
-    List<ServiceInputParameter> serviceParameters = List.of(
-        ServiceInputParameter.builder().type("OBJECT").beanClass("com.almis.awe.model.Concert").build(),
-        ServiceInputParameter.builder().name("concert").type("OBJECT").beanClass("com.almis.awe.model.Concert").build());
-
-    Map<String, ServiceInputParameter> pairing = queryUtil.pairVariablesToServiceContract(variables, serviceParameters);
-
-    assertTrue(pairing.isEmpty());
+    // List flag comes from the name-matched service parameter, not from the one at the same position
+    assertTrue(variableMap.get("CrtAc1").isList());
+    assertFalse(variableMap.get("CrtSta").isList());
+    // The uninformed service parameter is not bound (the service receives null for it)
+    assertFalse(variableMap.containsKey("missingParameter"));
   }
 
   /**
