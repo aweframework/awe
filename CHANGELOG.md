@@ -1,3 +1,9 @@
+# Release notes for AWE 4.12.3
+*13/07/2026*
+ 
+🐛 Bug fixes:
+- fix(awe): send uninformed service parameters as null instead of failing (#731). [MR #679](https://gitlab.com/aweframework/awe/-/merge_requests/679) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.12.2
 *10/07/2026*
  
