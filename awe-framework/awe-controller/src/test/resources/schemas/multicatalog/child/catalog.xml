@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- Handler-style OASIS catalog for XmlSchemaValidator multi-catalog tests: maps only the
+     child schema (its own definition), NOT the base schema it includes. Mirrors the role
+     ALU's schemas/alu/catalog.xml plays: it maps treatments/kuts but not queries.xsd. -->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <system systemId="https://awe.test/schemas/child.xsd" uri="./child.xsd"/>
+</catalog>

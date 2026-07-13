@@ -9,6 +9,7 @@ import com.almis.awe.service.hotreload.XmlSchemaValidator.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,11 +18,15 @@ import org.mockito.quality.Strictness;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static com.almis.awe.service.hotreload.XmlHotReloadService.XmlArtifactType.*;
+import static com.almis.awe.service.hotreload.XmlReloadHandler.ReloadResult.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -48,6 +53,12 @@ class XmlHotReloadServiceTest {
   @Mock
   private BroadcastService broadcastService;
 
+  @Mock
+  private XmlReloadHandler handler1;
+
+  @Mock
+  private XmlReloadHandler handler2;
+
   private BaseConfigProperties baseConfigProperties;
   private XmlHotReloadService hotReloadService;
 
@@ -58,7 +69,7 @@ class XmlHotReloadServiceTest {
     when(cacheManager.getCache("queryData")).thenReturn(queryDataCache);
     // Default: validation cannot run (files under fake paths do not exist), so it fails open
     when(schemaValidator.validate(any())).thenReturn(ValidationResult.notValidated());
-    hotReloadService = new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService);
+    hotReloadService = new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of());
   }
 
   /**
@@ -230,7 +241,7 @@ class XmlHotReloadServiceTest {
    */
   @Test
   void missingCacheManagerIsTolerated() {
-    XmlHotReloadService serviceWithoutCache = new XmlHotReloadService(aweElements, baseConfigProperties, null, schemaValidator, broadcastService);
+    XmlHotReloadService serviceWithoutCache = new XmlHotReloadService(aweElements, baseConfigProperties, null, schemaValidator, broadcastService, List.of());
 
     serviceWithoutCache.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Queries.xml"));
 
@@ -304,7 +315,7 @@ class XmlHotReloadServiceTest {
   @Test
   void missingBroadcastServiceIsTolerated() {
     XmlHotReloadService serviceWithoutBroadcast =
-      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, null);
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, null, List.of());
 
     serviceWithoutBroadcast.reloadFor(Paths.get("/app/target/classes/application/module-one/screen/home.xml"));
 
@@ -371,5 +382,230 @@ class XmlHotReloadServiceTest {
     hotReloadService.reloadFor(Paths.get("/app/target/classes/application/module-one/global/Queries.xml"));
 
     verify(aweElements).reloadQueries();
+  }
+
+  /**
+   * Test that a file recognized as a built-in type bypasses handler dispatch entirely, even
+   * when a registered handler is present
+   */
+  @Test
+  void builtInClassifiedFileBypassesHandlerDispatch() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(moduleRoot, moduleRoot.resolve("screen/home.xml"));
+
+    verify(aweElements).reloadScreens();
+    verify(handler1, never()).supports(any(), any());
+  }
+
+  /**
+   * Test that an unrecognized (NONE-classified) file with zero registered handlers behaves
+   * exactly as before the extension point existed: no reload, no broadcast, no error
+   */
+  @Test
+  void noneClassifiedFileWithNoHandlersIsNoOp() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+
+    assertDoesNotThrow(() -> hotReloadService.reloadFor(moduleRoot, moduleRoot.resolve("global/Treatments.xml")));
+
+    verifyNoInteractions(aweElements);
+    verifyNoInteractions(broadcastService);
+  }
+
+  /**
+   * Test that an unrecognized file with one matching handler invokes its reload and then
+   * broadcasts, exactly as for built-in types
+   */
+  @Test
+  void noneClassifiedFileWithMatchingHandlerReloadsAndBroadcasts() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path changedFile = moduleRoot.resolve("global/Treatments.xml");
+    when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
+    when(handler1.reload(moduleRoot, changedFile)).thenReturn(HANDLED);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(moduleRoot, changedFile);
+
+    verify(handler1).reload(moduleRoot, changedFile);
+    ArgumentCaptor<ClientAction> captor = ArgumentCaptor.forClass(ClientAction.class);
+    verify(broadcastService).broadcastMessage(captor.capture());
+    assertEquals("reload-page", captor.getValue().getType());
+  }
+
+  /**
+   * Test that when two registered handlers match the same file, only the one with the lowest
+   * order is invoked; the other is never even consulted for that event
+   */
+  @Test
+  void multipleMatchingHandlersOnlyLowestOrderInvoked() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path changedFile = moduleRoot.resolve("global/Treatments.xml");
+    when(handler1.order()).thenReturn(-1);
+    when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
+    when(handler1.reload(moduleRoot, changedFile)).thenReturn(HANDLED);
+    // handler2 would also match, but must never be consulted: handler1 has the lower order
+    when(handler2.supports(moduleRoot, changedFile)).thenReturn(true);
+    XmlHotReloadService serviceWithHandlers = new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager,
+      schemaValidator, broadcastService, List.of(handler2, handler1));
+
+    serviceWithHandlers.reloadFor(moduleRoot, changedFile);
+
+    verify(handler1).reload(moduleRoot, changedFile);
+    verify(handler2, never()).supports(any(), any());
+    verify(handler2, never()).reload(any(), any());
+  }
+
+  /**
+   * Test that a handler reporting the changed file as invalid does not broadcast
+   */
+  @Test
+  void handlerResultInvalidDoesNotBroadcast() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path changedFile = moduleRoot.resolve("global/Treatments.xml");
+    when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
+    when(handler1.reload(moduleRoot, changedFile)).thenReturn(INVALID);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(moduleRoot, changedFile);
+
+    verify(handler1).reload(moduleRoot, changedFile);
+    verifyNoInteractions(broadcastService);
+  }
+
+  /**
+   * Test that a handler reporting the changed file as skipped does not broadcast
+   */
+  @Test
+  void handlerResultSkippedDoesNotBroadcast() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path changedFile = moduleRoot.resolve("global/Treatments.xml");
+    when(handler1.supports(moduleRoot, changedFile)).thenReturn(true);
+    when(handler1.reload(moduleRoot, changedFile)).thenReturn(SKIPPED);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(moduleRoot, changedFile);
+
+    verify(handler1).reload(moduleRoot, changedFile);
+    verifyNoInteractions(broadcastService);
+  }
+
+  /**
+   * Test that a handler throwing during reload is caught and logged, never kills the watch
+   * loop: a subsequent event for a different file is still processed normally afterward
+   */
+  @Test
+  void handlerThrowsIsCaughtAndSubsequentEventsStillProcessed() {
+    Path moduleRoot = Paths.get("/app/target/classes/application/module-one");
+    Path throwingFile = moduleRoot.resolve("global/Treatments.xml");
+    Path nextFile = moduleRoot.resolve("global/Kuts.xml");
+    when(handler1.supports(moduleRoot, throwingFile)).thenReturn(true);
+    when(handler1.reload(moduleRoot, throwingFile)).thenThrow(new RuntimeException("boom"));
+    when(handler1.supports(moduleRoot, nextFile)).thenReturn(true);
+    when(handler1.reload(moduleRoot, nextFile)).thenReturn(HANDLED);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    assertDoesNotThrow(() -> serviceWithHandler.reloadFor(moduleRoot, throwingFile));
+    serviceWithHandler.reloadFor(moduleRoot, nextFile);
+
+    verify(broadcastService).broadcastMessage(any(ClientAction.class));
+  }
+
+  // --- Handler-declared schema catalog (framework-owned validation) ---
+
+  private static final String HANDLER_CATALOG = "schemas/awe/catalog.xml";
+  private static final String WIDGET_HEADER =
+    "<widget xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+      + " xsi:noNamespaceSchemaLocation=\"https://awe.test/schemas/widget.xsd\"";
+
+  /**
+   * Test that when a handler declares a schema catalog and the changed file validates against
+   * it, the framework proceeds to invoke the handler's reload and broadcasts, exactly as for a
+   * catalog-less handler
+   */
+  @Test
+  void handlerWithSchemaCatalogAndValidFileReloadsAndBroadcasts(@TempDir Path dir) throws Exception {
+    Path changedFile = writeWidget(dir, "valid.xml", WIDGET_HEADER + " name=\"ok\"><size>10</size></widget>");
+    when(handler1.schemaCatalog()).thenReturn(Optional.of(HANDLER_CATALOG));
+    when(handler1.supports(dir, changedFile)).thenReturn(true);
+    when(handler1.reload(dir, changedFile)).thenReturn(HANDLED);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(dir, changedFile);
+
+    verify(handler1).reload(dir, changedFile);
+    ArgumentCaptor<ClientAction> captor = ArgumentCaptor.forClass(ClientAction.class);
+    verify(broadcastService).broadcastMessage(captor.capture());
+    assertEquals("reload-page", captor.getValue().getType());
+  }
+
+  /**
+   * Test that when a handler declares a schema catalog and the changed file is invalid against
+   * it, the framework never calls the handler's reload and never broadcasts: the previous
+   * definition is kept, mirroring the built-in validation gate
+   */
+  @Test
+  void handlerWithSchemaCatalogAndInvalidFileSkipsReload(@TempDir Path dir) throws Exception {
+    Path changedFile = writeWidget(dir, "invalid.xml", WIDGET_HEADER + "><size>not-a-number</size></widget>");
+    when(handler1.schemaCatalog()).thenReturn(Optional.of(HANDLER_CATALOG));
+    when(handler1.supports(dir, changedFile)).thenReturn(true);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(dir, changedFile);
+
+    verify(handler1, never()).reload(any(), any());
+    verifyNoInteractions(broadcastService);
+  }
+
+  /**
+   * Test that a handler declaring an empty schema catalog (the default) is invoked without any
+   * framework validation attempt: an otherwise schema-invalid file is still handed to the
+   * handler's reload
+   */
+  @Test
+  void handlerWithEmptySchemaCatalogReloadsWithoutValidation(@TempDir Path dir) throws Exception {
+    Path changedFile = writeWidget(dir, "invalid.xml", WIDGET_HEADER + "><size>not-a-number</size></widget>");
+    when(handler1.schemaCatalog()).thenReturn(Optional.empty());
+    when(handler1.supports(dir, changedFile)).thenReturn(true);
+    when(handler1.reload(dir, changedFile)).thenReturn(HANDLED);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(dir, changedFile);
+
+    verify(handler1).reload(dir, changedFile);
+    verify(broadcastService).broadcastMessage(any(ClientAction.class));
+  }
+
+  /**
+   * Test that when the handler's declared catalog cannot be found on the classpath, validation
+   * fails open: the handler's reload still runs even though the file would be schema-invalid
+   */
+  @Test
+  void handlerWithMissingCatalogResourceFailsOpenAndReloads(@TempDir Path dir) throws Exception {
+    Path changedFile = writeWidget(dir, "invalid.xml", WIDGET_HEADER + "><size>not-a-number</size></widget>");
+    when(handler1.schemaCatalog()).thenReturn(Optional.of("schemas/awe/does-not-exist-catalog.xml"));
+    when(handler1.supports(dir, changedFile)).thenReturn(true);
+    when(handler1.reload(dir, changedFile)).thenReturn(HANDLED);
+    XmlHotReloadService serviceWithHandler =
+      new XmlHotReloadService(aweElements, baseConfigProperties, cacheManager, schemaValidator, broadcastService, List.of(handler1));
+
+    serviceWithHandler.reloadFor(dir, changedFile);
+
+    verify(handler1).reload(dir, changedFile);
+    verify(broadcastService).broadcastMessage(any(ClientAction.class));
+  }
+
+  private Path writeWidget(Path dir, String name, String body) throws Exception {
+    Path file = dir.resolve(name);
+    Files.writeString(file, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + body);
+    return file;
   }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Child schema that includes the shared base schema through an https systemId mapped ONLY
+     by the base catalog. Resolving this schema therefore needs BOTH catalogs: the child
+     catalog to reach child.xsd, and the base catalog to reach the included base.xsd. This
+     mirrors ALU's treatments.xsd (mapped by the ALU catalog) including AWE's queries.xsd
+     (mapped by the AWE base catalog). -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="https://awe.test/schemas/base.xsd"/>
+  <xs:element name="widget">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="size" type="baseSize"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
