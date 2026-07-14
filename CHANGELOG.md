@@ -1,3 +1,11 @@
+# Release notes for AWE 4.12.4
+*14/07/2026*
+ 
+🐛 Bug fixes:
+- fix(awe-controller): suggest hydration parameter leak and microservice parameter contract (#733). [MR #682](https://gitlab.com/aweframework/awe/-/merge_requests/682) (Pablo Vidal Otero)
+- feat(awe-controller): make multiple-maintain list validation configurable (strict | warn) via property (#732). [MR #681](https://gitlab.com/aweframework/awe/-/merge_requests/681) (Pablo Javier García Mora)
+- feat(awe): XML hot-reload extension SPI (XmlReloadHandler) + framework-owned validation. [MR #680](https://gitlab.com/aweframework/awe/-/merge_requests/680) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.12.3
 *13/07/2026*
  
