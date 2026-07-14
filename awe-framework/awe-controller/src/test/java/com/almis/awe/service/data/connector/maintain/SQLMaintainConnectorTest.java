@@ -1,6 +1,8 @@
 package com.almis.awe.service.data.connector.maintain;
 
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.config.MaintainConfigProperties;
+import com.almis.awe.config.MaintainValidationMode;
 import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.type.ParameterType;
@@ -64,6 +66,9 @@ class SQLMaintainConnectorTest {
   private DatabaseConfigProperties databaseConfigProperties;
 
   @Mock
+  private MaintainConfigProperties maintainConfigProperties;
+
+  @Mock
   private DatabaseConnection databaseConnection;
 
   @Mock
@@ -114,6 +119,12 @@ class SQLMaintainConnectorTest {
   private void mockConfigurationBean() {
     when(databaseConnection.getConfigurationBean()).thenReturn("configDummyBean");
     when(context.getBean("configDummyBean")).thenReturn(new Configuration(new HSQLDBTemplates()));
+  }
+
+  private void enableWarnValidationMode() {
+    MaintainConfigProperties.Multiple multiple = new MaintainConfigProperties.Multiple();
+    multiple.setValidationMode(MaintainValidationMode.WARN);
+    when(maintainConfigProperties.getMultiple()).thenReturn(multiple);
   }
 
   @Test
@@ -316,5 +327,56 @@ class SQLMaintainConnectorTest {
     assertNotNull(maintainOut);
     assertEquals(AnswerType.OK, maintainOut.getType());
     verify(sqlMaintainBuilder).build();
+  }
+
+  @Test
+  void givenWarnModeAndMultipleMaintainWithoutDeclaredNonAuditListParameter_skipsOperationWithOkResponse() throws AWException {
+    Insert insertMaintain = newMultipleInsert(List.of(newVariable(MULTIPLE_LIST_VARIABLE_ID, false)));
+    Map<String, QueryParameter> parameterMap = new HashMap<>();
+
+    enableWarnValidationMode();
+    when(queryUtil.getDefaultVariableMap(any())).thenReturn(parameterMap);
+
+    ServiceData maintainOut = sqlMaintainConnector.launch(insertMaintain, databaseConnection, JsonNodeFactory.instance.objectNode());
+
+    assertNotNull(maintainOut);
+    assertTrue(maintainOut.isValid());
+    assertEquals(AnswerType.OK, maintainOut.getType());
+    verify(context, never()).getBean(SQLMaintainBuilder.class);
+  }
+
+  @Test
+  void givenWarnModeAndMultipleMaintainWithScalarNonAuditParameter_skipsOperationWithOkResponse() throws AWException {
+    Insert insertMaintain = newMultipleInsert(List.of(newVariable(MULTIPLE_LIST_VARIABLE_ID, false)));
+    Map<String, QueryParameter> parameterMap = new HashMap<>();
+    parameterMap.put(MULTIPLE_LIST_VARIABLE_ID,
+      new QueryParameter(JsonNodeFactory.instance.textNode("row-1"), false, ParameterType.STRING));
+
+    enableWarnValidationMode();
+    when(queryUtil.getDefaultVariableMap(any())).thenReturn(parameterMap);
+
+    ServiceData maintainOut = sqlMaintainConnector.launch(insertMaintain, databaseConnection, JsonNodeFactory.instance.objectNode());
+
+    assertNotNull(maintainOut);
+    assertTrue(maintainOut.isValid());
+    assertEquals(AnswerType.OK, maintainOut.getType());
+    verify(context, never()).getBean(SQLMaintainBuilder.class);
+  }
+
+  @Test
+  void givenWarnModeAndMultipleMaintainWithOnlyAuditList_skipsOperationWithOkResponse() throws AWException {
+    Insert insertMaintain = newMultipleInsert(List.of(newVariable(MULTIPLE_LIST_VARIABLE_ID, true)));
+    Map<String, QueryParameter> parameterMap = new HashMap<>();
+    parameterMap.put(MULTIPLE_LIST_VARIABLE_ID, listParameter(JsonNodeFactory.instance.arrayNode().add("row-1")));
+
+    enableWarnValidationMode();
+    when(queryUtil.getDefaultVariableMap(any())).thenReturn(parameterMap);
+
+    ServiceData maintainOut = sqlMaintainConnector.launch(insertMaintain, databaseConnection, JsonNodeFactory.instance.objectNode());
+
+    assertNotNull(maintainOut);
+    assertTrue(maintainOut.isValid());
+    assertEquals(AnswerType.OK, maintainOut.getType());
+    verify(context, never()).getBean(SQLMaintainBuilder.class);
   }
 }

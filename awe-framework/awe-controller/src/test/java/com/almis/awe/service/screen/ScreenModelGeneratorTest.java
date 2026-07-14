@@ -13,12 +13,14 @@ import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -128,6 +130,142 @@ class ScreenModelGeneratorTest {
     assertEquals("7", screenComponent.getModel().getValues().get(0).get("value").getStringValue());
   }
 
+  @Test
+  void shouldOverrideCollidingRequestParameterWithCriterionSelectedValue() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.putArray("Als").add("A1").add("A2");
+    requestParameters.put("OtherParam", "raw-value");
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(requestParameters));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent criterionComponent = buildCriterionComponent("Als", "text", List.of("criterion-value"));
+
+    invokeHydratePendingSuggestLabels(generator, Map.of(suggestComponent.getId(), suggestComponent, criterionComponent.getId(), criterionComponent));
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    var parameters = captor.getValue().getParameters();
+    assertTrue(parameters.get("Als").isTextual(), "Colliding parameter should be overridden with the criterion scalar value");
+    assertEquals("criterion-value", parameters.get("Als").asText());
+    assertEquals("raw-value", parameters.get("OtherParam").asText());
+    assertEquals("3", parameters.get("suggest").asText());
+  }
+
+  @Test
+  void shouldShadowCollidingRequestParameterWhenCriterionIsEmpty() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.putArray("Prd").add("P1").add("P2");
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(requestParameters));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent criterionComponent = buildCriterionComponent("Prd", "text", Collections.emptyList());
+
+    invokeHydratePendingSuggestLabels(generator, Map.of(suggestComponent.getId(), suggestComponent, criterionComponent.getId(), criterionComponent));
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    var parameters = captor.getValue().getParameters();
+    assertTrue(parameters.get("Prd").isTextual(), "Empty criterion should shadow the colliding request parameter");
+    assertEquals("", parameters.get("Prd").asText());
+  }
+
+  @Test
+  void shouldOverrideVariableKeyWhenCriterionVariableDiffersFromId() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.put("SugNumReq", "raw-id-value");
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(requestParameters));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent criterionComponent = buildCriterionComponent("SugNumReq", "SugNum", "text", List.of("criterion-value"));
+
+    invokeHydratePendingSuggestLabels(generator, Map.of(suggestComponent.getId(), suggestComponent, criterionComponent.getId(), criterionComponent));
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    var parameters = captor.getValue().getParameters();
+    assertTrue(parameters.hasNonNull("SugNum"), "Override should land on the criterion variable key");
+    assertEquals("criterion-value", parameters.get("SugNum").asText());
+    assertEquals("raw-id-value", parameters.get("SugNumReq").asText(), "Criterion id key should keep its original request value");
+  }
+
+  @Test
+  void shouldNotInjectEmptyValueWhenCriterionKeyIsAbsentFromRequest() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(Map.of("screen", "test-screen")));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent criterionComponent = buildCriterionComponent("Opt", "text", Collections.emptyList());
+
+    invokeHydratePendingSuggestLabels(generator, Map.of(suggestComponent.getId(), suggestComponent, criterionComponent.getId(), criterionComponent));
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    var parameters = captor.getValue().getParameters();
+    assertFalse(parameters.has("Opt"), "Empty criterion absent from the request should not be injected");
+  }
+
+  @Test
+  void shouldKeepNonEmptySiblingValueWhenEmptyCriterionWithSameVariableIteratesLater() throws Exception {
+    ObjectNode parameters = captureHydrationParametersForSharedVariableSiblings(true);
+
+    assertEquals("v", parameters.get("SugNum").asText(), "Empty sibling should not wipe the value written by a non-empty sibling");
+  }
+
+  @Test
+  void shouldKeepNonEmptySiblingValueWhenEmptyCriterionWithSameVariableIteratesFirst() throws Exception {
+    ObjectNode parameters = captureHydrationParametersForSharedVariableSiblings(false);
+
+    assertEquals("v", parameters.get("SugNum").asText(), "Non-empty sibling should win over an earlier empty sibling");
+  }
+
+  private ObjectNode captureHydrationParametersForSharedVariableSiblings(boolean nonEmptyFirst) throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.put("SugNum", "raw-value");
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(requestParameters));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent nonEmptySibling = buildCriterionComponent("SugNumReq", "SugNum", "text", List.of("v"));
+    ScreenComponent emptySibling = buildCriterionComponent("SugNumRea", "SugNum", "text", Collections.emptyList());
+
+    Map<String, ScreenComponent> componentMap = new LinkedHashMap<>();
+    componentMap.put(suggestComponent.getId(), suggestComponent);
+    ScreenComponent first = nonEmptyFirst ? nonEmptySibling : emptySibling;
+    ScreenComponent second = nonEmptyFirst ? emptySibling : nonEmptySibling;
+    componentMap.put(first.getId(), first);
+    componentMap.put(second.getId(), second);
+
+    invokeHydratePendingSuggestLabels(generator, componentMap);
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    return (ObjectNode) captor.getValue().getParameters();
+  }
+
+  @Test
+  void shouldOverrideRequestParameterWithArrayForMultipleSelectionCriterion() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenReturn(CompletableFuture.completedFuture(buildServiceData(List.of("3"))));
+    ObjectNode requestParameters = JsonNodeFactory.instance.objectNode();
+    requestParameters.put("MultiSelect", "raw-value");
+    TestScreenModelGenerator generator = new TestScreenModelGenerator(initialLoadDao, buildRequest(requestParameters));
+    ScreenComponent suggestComponent = buildSuggestComponent("ComponentSuggest", List.of("3"), Collections.emptyList(), "CheckSuggest", null);
+    ScreenComponent criterionComponent = buildCriterionComponent("MultiSelect", "select-multiple", List.of("1", "2"));
+
+    invokeHydratePendingSuggestLabels(generator, Map.of(suggestComponent.getId(), suggestComponent, criterionComponent.getId(), criterionComponent));
+
+    ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
+    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    var parameters = captor.getValue().getParameters();
+    assertTrue(parameters.get("MultiSelect").isArray(), "Multiple selection criterion should be overridden with an array value");
+    assertEquals(2, parameters.get("MultiSelect").size());
+    assertEquals("1", parameters.get("MultiSelect").get(0).asText());
+    assertEquals("2", parameters.get("MultiSelect").get(1).asText());
+  }
+
   private ScreenComponent buildScreenComponent(String componentType, String initialLoad, String value) {
     Criteria controller = Criteria.builder()
       .componentType(componentType)
@@ -158,10 +296,30 @@ class ScreenModelGeneratorTest {
     return new ScreenComponent().setId(id).setController(controller).setModel(model);
   }
 
+  private ScreenComponent buildCriterionComponent(String id, String componentType, List<String> selectedValues) {
+    return buildCriterionComponent(id, null, componentType, selectedValues);
+  }
+
+  private ScreenComponent buildCriterionComponent(String id, String variable, String componentType, List<String> selectedValues) {
+    Criteria controller = Criteria.builder()
+      .id(id)
+      .variable(variable)
+      .componentType(componentType)
+      .build();
+    ComponentModel model = new ComponentModel()
+      .setSelected(selectedValues.stream().map(CellData::new).toList());
+    return new ScreenComponent().setId(id).setController(controller).setModel(model);
+  }
+
   private AweRequest buildRequest(Map<String, String> parameters) {
+    ObjectNode parameterList = JsonNodeFactory.instance.objectNode();
+    parameters.forEach(parameterList::put);
+    return buildRequest(parameterList);
+  }
+
+  private AweRequest buildRequest(ObjectNode parameters) {
     AweRequest request = new AweRequest(mock(jakarta.servlet.http.HttpServletRequest.class), mock(jakarta.servlet.http.HttpServletResponse.class), new ObjectMapper());
-    request.setParameterList(JsonNodeFactory.instance.objectNode());
-    parameters.forEach(request::setParameter);
+    request.setParameterList(parameters);
     return request;
   }
 

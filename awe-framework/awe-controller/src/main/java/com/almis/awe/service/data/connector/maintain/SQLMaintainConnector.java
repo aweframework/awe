@@ -1,6 +1,8 @@
 package com.almis.awe.service.data.connector.maintain;
 
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.config.MaintainConfigProperties;
+import com.almis.awe.config.MaintainValidationMode;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
@@ -50,16 +52,19 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
   // Autowired services
   private final QueryUtil queryUtil;
   private final DatabaseConfigProperties databaseConfigProperties;
+  private final MaintainConfigProperties maintainConfigProperties;
 
   /**
    * Autowired constructor
    *
    * @param queryUtil                Query utilities
    * @param databaseConfigProperties Database config properties
+   * @param maintainConfigProperties Maintain config properties
    */
-  public SQLMaintainConnector(QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
+  public SQLMaintainConnector(QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties, MaintainConfigProperties maintainConfigProperties) {
     this.queryUtil = queryUtil;
     this.databaseConfigProperties = databaseConfigProperties;
+    this.maintainConfigProperties = maintainConfigProperties;
   }
 
   @Override
@@ -71,7 +76,11 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
     Map<String, QueryParameter> parameterMap = queryUtil.getDefaultVariableMap(parameters);
     queryUtil.addToVariableMap(parameterMap, query, parameters);
 
-    validateMultipleMaintainList(query, parameterMap);
+    // In warn mode a multiple maintain without a valid non-audit list is skipped as an OK no-op,
+    // preserving pre-4.12.1 semantics. In strict mode this validation throws instead.
+    if (validateMultipleMaintainList(query, parameterMap)) {
+      return new ServiceData();
+    }
 
     final Connection connection = databaseConnection.getConnection();
     Supplier<Connection> supplierConnection = () -> connection;
@@ -526,16 +535,23 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
 
   /**
    * Validates that a multiple maintain has at least one declared non-audit list variable in the
-   * normalized parameter map. Empty lists are valid; missing or scalar-only inputs are a
-   * controlled configuration error.
+   * normalized parameter map. Empty lists are valid; missing or scalar-only inputs are handled
+   * according to the configured {@link MaintainValidationMode}:
+   * <ul>
+   *   <li>{@code STRICT} (default): throws, treating it as a controlled configuration error.</li>
+   *   <li>{@code WARN}: logs a warning with the operation id and returns a skip signal so the
+   *   caller short-circuits with an OK no-op, preserving pre-4.12.1 semantics.</li>
+   * </ul>
    *
    * @param query        Maintain query
    * @param parameterMap Normalized maintain parameters
-   * @throws AWException Error if a multiple maintain has no valid non-audit list variable
+   * @return {@code true} when the operation must be skipped (warn mode, invalid input);
+   * {@code false} when execution can proceed
+   * @throws AWException Error if a multiple maintain has no valid non-audit list variable in strict mode
    */
-  private void validateMultipleMaintainList(MaintainQuery query, Map<String, QueryParameter> parameterMap) throws AWException {
+  private boolean validateMultipleMaintainList(MaintainQuery query, Map<String, QueryParameter> parameterMap) throws AWException {
     if (!"true".equalsIgnoreCase(query.getMultiple())) {
-      return;
+      return false;
     }
 
     boolean hasValidNonAuditList = Optional.ofNullable(query.getVariableDefinitionList())
@@ -545,13 +561,35 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
       .map(variable -> parameterMap.get(variable.getId()))
       .anyMatch(parameter -> parameter != null && parameter.isList());
 
-    if (!hasValidNonAuditList) {
-      String maintainId = Optional.ofNullable(query.getOperationId()).orElse(query.getId());
-      String detail = String.format("Multiple maintain '%s' (%s) requires a non-audit list variable in the request",
-        maintainId, query.getMaintainType());
-      throw new AWException(getLocale("ERROR_TITLE_DURING_MAINTAIN"),
-        getLocale("ERROR_MESSAGE_DURING_MAINTAIN"), new IllegalStateException(detail));
+    if (hasValidNonAuditList) {
+      return false;
     }
+
+    String maintainId = Optional.ofNullable(query.getOperationId()).orElse(query.getId());
+
+    if (isWarnValidationMode()) {
+      log.warn("Multiple maintain '{}' ({}) has no non-audit list variable in the request; skipping operation (warn validation mode)",
+        maintainId, query.getMaintainType());
+      return true;
+    }
+
+    String detail = String.format("Multiple maintain '%s' (%s) requires a non-audit list variable in the request",
+      maintainId, query.getMaintainType());
+    throw new AWException(getLocale("ERROR_TITLE_DURING_MAINTAIN"),
+      getLocale("ERROR_MESSAGE_DURING_MAINTAIN"), new IllegalStateException(detail));
+  }
+
+  /**
+   * Resolves whether the multiple maintain list validation runs in warn mode. Any missing
+   * configuration defaults to strict, keeping fail-fast as the safe behavior.
+   *
+   * @return {@code true} when validation mode is {@link MaintainValidationMode#WARN}
+   */
+  private boolean isWarnValidationMode() {
+    return Optional.ofNullable(maintainConfigProperties.getMultiple())
+      .map(MaintainConfigProperties.Multiple::getValidationMode)
+      .map(MaintainValidationMode.WARN::equals)
+      .orElse(false);
   }
 
   /**

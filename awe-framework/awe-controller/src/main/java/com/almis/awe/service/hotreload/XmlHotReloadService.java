@@ -12,7 +12,11 @@ import org.springframework.cache.CacheManager;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +40,11 @@ public class XmlHotReloadService {
   private final CacheManager cacheManager;
   private final XmlSchemaValidator schemaValidator;
   private final BroadcastService broadcastService;
+  // Sorted once at construction (ascending order); consulted only when classify() returns NONE
+  private final List<XmlReloadHandler> reloadHandlers;
+  // Built lazily: one entry per distinct catalog string that a handler declares via its schema catalog,
+  // reused across events instead of rebuilding a CatalogResolver per file change
+  private final Map<String, XmlSchemaValidator> handlerSchemaValidators = new ConcurrentHashMap<>();
 
   /**
    * XML artifact types handled by the hot reload
@@ -52,14 +61,20 @@ public class XmlHotReloadService {
    * @param cacheManager         Cache manager (nullable, cache may not be configured)
    * @param schemaValidator      XML schema validator (guards reloads against invalid edits)
    * @param broadcastService     Broadcast service (nullable, tells connected clients to refresh)
+   * @param reloadHandlers       Registered handlers for XML types unrecognized by {@link #classify(Path, Path)}
+   *                             (nullable/empty: zero handlers is a pure no-op)
    */
   public XmlHotReloadService(AweElements aweElements, BaseConfigProperties baseConfigProperties, CacheManager cacheManager,
-                             XmlSchemaValidator schemaValidator, BroadcastService broadcastService) {
+                             XmlSchemaValidator schemaValidator, BroadcastService broadcastService,
+                             List<XmlReloadHandler> reloadHandlers) {
     this.aweElements = aweElements;
     this.baseConfigProperties = baseConfigProperties;
     this.cacheManager = cacheManager;
     this.schemaValidator = schemaValidator;
     this.broadcastService = broadcastService;
+    this.reloadHandlers = (reloadHandlers == null ? List.<XmlReloadHandler>of() : reloadHandlers).stream()
+      .sorted(Comparator.comparingInt(XmlReloadHandler::order))
+      .toList();
   }
 
   /**
@@ -184,7 +199,12 @@ public class XmlHotReloadService {
    * @param changedFile Changed file path
    */
   public void reloadFor(Path moduleRoot, Path changedFile) {
-    reloadFor(classify(moduleRoot, changedFile), changedFile.toString());
+    XmlArtifactType type = classify(moduleRoot, changedFile);
+    if (type == XmlArtifactType.NONE) {
+      dispatchToHandlers(moduleRoot, changedFile);
+      return;
+    }
+    reloadFor(type, changedFile.toString());
   }
 
   /**
@@ -236,6 +256,43 @@ public class XmlHotReloadService {
   }
 
   /**
+   * Consult the registered handlers, ascending by {@link XmlReloadHandler#order()}, for a
+   * changed file the built-in classification could not recognize. The first handler whose
+   * {@link XmlReloadHandler#supports} matches is invoked; the rest are not consulted for this
+   * event. When the matching handler declares a {@link XmlReloadHandler#schemaCatalog()}, the
+   * framework validates the changed file against it BEFORE calling {@link XmlReloadHandler#reload}:
+   * a validated-and-invalid file is never reloaded, mirroring the built-in validation gate. A
+   * failing handler (or an unexpected validation error) is caught and logged so it never kills
+   * the watch loop
+   *
+   * @param moduleRoot  Module root the changed file belongs to (nullable)
+   * @param changedFile Changed file path
+   */
+  private void dispatchToHandlers(Path moduleRoot, Path changedFile) {
+    for (XmlReloadHandler handler : reloadHandlers) {
+      if (!handler.supports(moduleRoot, changedFile)) {
+        continue;
+      }
+      try {
+        if (isInvalidAgainstHandlerSchema(handler, changedFile)) {
+          return;
+        }
+        XmlReloadHandler.ReloadResult result = handler.reload(moduleRoot, changedFile);
+        if (result == XmlReloadHandler.ReloadResult.HANDLED) {
+          log.info("XML hot reload: '{}' reload triggered by change in '{}'", handler.getClass().getSimpleName(), changedFile);
+          broadcastReload();
+        } else {
+          log.debug("XML hot reload: '{}' left '{}' unhandled ({})", handler.getClass().getSimpleName(), changedFile, result);
+        }
+      } catch (Exception exc) {
+        log.error("XML hot reload: handler '{}' failed for '{}'. The watcher keeps running", handler.getClass().getSimpleName(), changedFile, exc);
+      }
+      return;
+    }
+    log.debug("XML hot reload: ignored change in '{}' (no handler matched)", changedFile);
+  }
+
+  /**
    * Validate a changed definition against its schema before reloading. Fails open: only a
    * definition that actually validated and broke its schema blocks the reload; anything the
    * validator could not check (missing catalog, deleted file) proceeds as before
@@ -248,6 +305,39 @@ public class XmlHotReloadService {
     if (validation.isValidated() && !validation.isValid()) {
       log.warn("XML hot reload: '{}' is not valid against its schema; keeping the previous version and skipping reload:\n{}",
         changedFile, formatErrors(validation.getErrors()));
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Validate a changed file against the catalog a handler declares through
+   * {@link XmlReloadHandler#schemaCatalog()}, before that handler's reload is invoked. Fails
+   * open, exactly like {@link #isInvalidAgainstSchema}: only a definition that actually
+   * validated and broke its schema blocks the reload. A handler declaring no catalog (default:
+   * empty) skips validation entirely — the framework calls {@link XmlReloadHandler#reload}
+   * unconditionally
+   *
+   * @param handler     Matching handler (already selected by {@code supports})
+   * @param changedFile Changed file path
+   * @return Whether the reload must be skipped because the definition is invalid
+   */
+  private boolean isInvalidAgainstHandlerSchema(XmlReloadHandler handler, Path changedFile) {
+    Optional<String> catalog = handler.schemaCatalog();
+    if (catalog.isEmpty()) {
+      return false;
+    }
+    // Chain the framework base catalog BEFORE the handler catalog so framework schemas a
+    // handler XSD <xs:include>s (e.g. queries.xsd, mapped only by the base catalog) resolve,
+    // while the handler catalog still resolves its own definitions (e.g. treatments/kuts).
+    // Cache keyed by the handler catalog string, one validator per distinct handler catalog
+    XmlSchemaValidator validator = handlerSchemaValidators.computeIfAbsent(catalog.get(),
+      handlerCatalog -> new XmlSchemaValidator(List.of(XmlSchemaValidator.AWE_BASE_CATALOG, handlerCatalog)));
+    ValidationResult validation = validator.validate(changedFile);
+    if (validation.isValidated() && !validation.isValid()) {
+      log.warn("XML hot reload: '{}' is not valid against handler '{}' schema catalog '{}'; keeping the previous version"
+          + " and skipping reload:\n{}",
+        changedFile, handler.getClass().getSimpleName(), catalog.get(), formatErrors(validation.getErrors()));
       return true;
     }
     return false;

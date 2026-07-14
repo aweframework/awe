@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Shared base schema, mapped ONLY by the base catalog. The child schema includes it
+     through the https systemId above, exactly like ALU's treatments.xsd includes AWE's
+     queries.xsd. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="baseSize">
+    <xs:restriction base="xs:integer"/>
+  </xs:simpleType>
+</xs:schema>

@@ -25,6 +25,7 @@ import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -222,7 +223,7 @@ public class ScreenModelGenerator extends ServiceConfig {
 
       Map<String, Future<ServiceData>> componentTasks = new LinkedHashMap<>();
       for (String selectedValue : missingSelectedValues) {
-        componentTasks.put(selectedValue, initialLoadDao.launchInitialLoad(buildSuggestHydrationInitialization(component, hydrationTarget, selectedValue)));
+        componentTasks.put(selectedValue, initialLoadDao.launchInitialLoad(buildSuggestHydrationInitialization(componentMap, component, hydrationTarget, selectedValue)));
       }
       hydrationTaskMap.put(component, componentTasks);
     }
@@ -367,13 +368,15 @@ public class ScreenModelGenerator extends ServiceConfig {
   /**
    * Build a hydration initialization request for a selected suggest value.
    *
+   * @param componentMap  Component map
    * @param component     Screen component
    * @param target        Hydration query target
    * @param selectedValue Selected value to resolve
    * @return Thread initialization
    */
-  private AweThreadInitialization buildSuggestHydrationInitialization(ScreenComponent component, String target, String selectedValue) {
+  private AweThreadInitialization buildSuggestHydrationInitialization(Map<String, ScreenComponent> componentMap, ScreenComponent component, String target, String selectedValue) {
     ObjectNode parameters = getRequest().getParametersSafe();
+    overrideParametersWithCriteriaModels(parameters, componentMap);
     parameters.put("suggest", selectedValue);
 
     return new AweThreadInitialization()
@@ -381,6 +384,53 @@ public class ScreenModelGenerator extends ServiceConfig {
       .setTarget(target)
       .setParameters(parameters)
       .setInitialLoadType(LoadType.QUERY);
+  }
+
+  /**
+   * Override raw request parameters with the post-initial-load model values of the screen criteria.
+   * Raw request parameters may carry colliding values (i.e. grid column arrays) and miss values
+   * resolved by initial loads, so on-screen criteria are the authoritative source for the hydration lookup.
+   *
+   * @param parameters   Hydration parameters
+   * @param componentMap Component map
+   */
+  private void overrideParametersWithCriteriaModels(ObjectNode parameters, Map<String, ScreenComponent> componentMap) {
+    Set<String> originalKeys = new HashSet<>();
+    parameters.fieldNames().forEachRemaining(originalKeys::add);
+    Set<String> writtenKeys = new HashSet<>();
+    for (ScreenComponent screenComponent : componentMap.values()) {
+      if (!(screenComponent.getController() instanceof AbstractCriteria criteria)) {
+        continue;
+      }
+
+      // Criteria bind to request parameters by their variable attribute when set (see getDefaultValues)
+      String parameterKey = criteria.getVariable() == null || criteria.getVariable().isBlank() ? criteria.getElementKey() : criteria.getVariable();
+      List<CellData> selectedValues = screenComponent.getModel().getSelected();
+      if (selectedValues.isEmpty()) {
+        // Only shadow a colliding request value; keep absent optional variables absent
+        // and never wipe a value already written by a sibling criterion sharing the variable
+        if (originalKeys.contains(parameterKey) && !writtenKeys.contains(parameterKey)) {
+          parameters.put(parameterKey, "");
+        }
+      } else if (selectedValues.size() == 1 && !isMultipleValueCriteria(criteria)) {
+        parameters.put(parameterKey, selectedValues.get(0).getStringValue());
+        writtenKeys.add(parameterKey);
+      } else {
+        ArrayNode selectedArray = parameters.putArray(parameterKey);
+        selectedValues.forEach(selectedValue -> selectedArray.add(selectedValue.getStringValue()));
+        writtenKeys.add(parameterKey);
+      }
+    }
+  }
+
+  /**
+   * Check if a criteria component holds multiple values.
+   *
+   * @param criteria Criteria controller
+   * @return True when the criteria accepts multiple values
+   */
+  private boolean isMultipleValueCriteria(AbstractCriteria criteria) {
+    return isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE, CHECKBOX, BUTTON_CHECKBOX), criteria.getComponentType());
   }
 
   /**

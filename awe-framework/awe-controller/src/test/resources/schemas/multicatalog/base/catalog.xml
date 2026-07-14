@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- Base OASIS catalog for XmlSchemaValidator multi-catalog tests: maps the systemId
+     of the shared base schema (included by the child schema) to a local XSD. Mirrors the
+     role AWE's schemas/awe/catalog.xml plays for queries.xsd. -->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <system systemId="https://awe.test/schemas/base.xsd" uri="./base.xsd"/>
+</catalog>

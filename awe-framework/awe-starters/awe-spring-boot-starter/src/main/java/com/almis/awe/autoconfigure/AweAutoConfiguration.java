@@ -56,6 +56,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @EnableConfigurationProperties(value = {BaseConfigProperties.class,
   NumericConfigProperties.class,
   DatabaseConfigProperties.class,
+  MaintainConfigProperties.class,
   RestConfigProperties.class})
 public class AweAutoConfiguration {
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -128,6 +129,53 @@ class XmlSchemaValidatorTest {
       result.getErrors().stream()
         .anyMatch(error -> error.message() != null && error.message().contains("DOCTYPE is disallowed")),
       () -> "expected a 'DOCTYPE is disallowed' error, got: " + result.getErrors());
+  }
+
+  // A child schema (mapped only by the child catalog) that <xs:include>s a base schema
+  // whose systemId is mapped only by the base catalog. The instance document declares the
+  // child schema, so resolving it requires BOTH catalogs. Mirrors ALU's treatments.xsd
+  // (ALU catalog) including AWE's queries.xsd (AWE base catalog).
+  private static final String BASE_CATALOG = "schemas/multicatalog/base/catalog.xml";
+  private static final String CHILD_CATALOG = "schemas/multicatalog/child/catalog.xml";
+  private static final String CHILD_HEADER =
+    "<widget xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+      + " xsi:noNamespaceSchemaLocation=\"https://awe.test/schemas/child.xsd\"";
+
+  /**
+   * The fix: a definition whose XSD includes a schema mapped ONLY by a first (base) catalog
+   * validates successfully when the validator resolves through [baseCatalog + handlerCatalog].
+   * The base catalog supplies the included base.xsd; the handler catalog supplies child.xsd.
+   */
+  @Test
+  void includedSchemaResolvesThroughBasePlusHandlerCatalog(@TempDir Path dir) throws Exception {
+    Path file = write(dir, "child-valid.xml", CHILD_HEADER + " name=\"ok\"><size>10</size></widget>");
+
+    XmlSchemaValidator catalogValidator = new XmlSchemaValidator(List.of(BASE_CATALOG, CHILD_CATALOG));
+    ValidationResult result = catalogValidator.validate(file);
+
+    assertTrue(result.isValidated(), "validation should have run");
+    assertTrue(result.isValid(), () -> "expected valid with base+handler catalogs, errors: " + result.getErrors());
+  }
+
+  /**
+   * The bug this fix targets: with the handler catalog ALONE, the <xs:include> of the base
+   * schema cannot be resolved (its systemId is mapped only by the base catalog), so the parser
+   * falls through to the blocked https fetch and the definition is reported invalid. This is
+   * exactly why ALU's Treatments/Kuts hot reload was rejected before the fix.
+   */
+  @Test
+  void includedSchemaDoesNotResolveThroughHandlerCatalogAlone(@TempDir Path dir) throws Exception {
+    Path file = write(dir, "child-unresolved.xml", CHILD_HEADER + " name=\"ok\"><size>10</size></widget>");
+
+    XmlSchemaValidator catalogValidator = new XmlSchemaValidator(CHILD_CATALOG);
+    ValidationResult result = catalogValidator.validate(file);
+
+    assertTrue(result.isValidated(), "validation should have run");
+    assertFalse(result.isValid(), "handler catalog alone must not resolve the included base schema");
+    assertTrue(
+      result.getErrors().stream().anyMatch(error -> error.message() != null
+        && error.message().contains("base.xsd")),
+      () -> "expected an unresolved base.xsd schema error, got: " + result.getErrors());
   }
 
   private Path write(Path dir, String name, String body) throws Exception {
