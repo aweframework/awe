@@ -5,6 +5,7 @@ import com.almis.awe.component.AweRoutingDataSource;
 import com.almis.awe.component.RoutingDatasourceInitializer;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.config.MaintainConfigProperties;
 import com.almis.awe.listener.SpringSQLCloseListener;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.util.data.QueryUtil;
@@ -203,12 +204,13 @@ public class SQLConfig {
    *
    * @param queryUtil                QueryUtil service
    * @param databaseConfigProperties Database configuration properties
+   * @param maintainConfigProperties Maintain configuration properties
    * @return SQL Query connector bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public SQLMaintainConnector sqlMaintainConnector(QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
-    return new SQLMaintainConnector(queryUtil, databaseConfigProperties);
+  public SQLMaintainConnector sqlMaintainConnector(QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties, MaintainConfigProperties maintainConfigProperties) {
+    return new SQLMaintainConnector(queryUtil, databaseConfigProperties, maintainConfigProperties);
   }
 
   /////////////////////////////////////////////
