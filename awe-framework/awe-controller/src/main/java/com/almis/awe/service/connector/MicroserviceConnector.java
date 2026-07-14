@@ -14,6 +14,8 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
@@ -71,6 +73,9 @@ public class MicroserviceConnector extends AbstractRestConnector {
 
     // Add specific parameters to the microservice call
     addDefinedParameters(microservice, paramsMapFromRequest);
+
+    // Normalize collection values received for non-list parameters (declared service contract is the authority)
+    normalizeNonListParameters(microservice, paramsMapFromRequest);
 
     // Create the request to microservice
     try {
@@ -144,6 +149,42 @@ public class MicroserviceConnector extends AbstractRestConnector {
     }
     parameterList.add(parameter);
     microservice.setParameterList(parameterList);
+  }
+
+  /**
+   * Normalize values received for non-list parameters, using the declared service contract as authority.
+   * Collection or array values for a parameter declared as non-list are replaced by their first element
+   * (or an empty value when the collection is empty) to avoid sending arrays to scalar consumers.
+   *
+   * @param microservice         Microservice
+   * @param paramsMapFromRequest Parameter map
+   */
+  private void normalizeNonListParameters(ServiceMicroservice microservice, Map<String, Object> paramsMapFromRequest) {
+    Optional.ofNullable(microservice.getParameterList()).orElse(Collections.emptyList()).stream()
+      .filter(parameter -> !parameter.isList())
+      .forEach(parameter -> {
+        Object value = paramsMapFromRequest.get(parameter.getName());
+        Object normalizedValue = normalizeNonListValue(value);
+        if (normalizedValue != value) {
+          log.warn("Parameter '{}' of microservice '{}' is declared as non-list but received a collection value; using first element", parameter.getName(), microservice.getName());
+          paramsMapFromRequest.put(parameter.getName(), normalizedValue);
+        }
+      });
+  }
+
+  /**
+   * Normalize a non-list parameter value: scalarize collection and array values.
+   *
+   * @param value Parameter value
+   * @return Normalized value
+   */
+  private Object normalizeNonListValue(Object value) {
+    if (value instanceof Collection<?> collectionValue) {
+      return collectionValue.isEmpty() ? "" : collectionValue.iterator().next();
+    } else if (value instanceof ArrayNode arrayValue) {
+      return arrayValue.isEmpty() ? JsonNodeFactory.instance.textNode("") : arrayValue.get(0);
+    }
+    return value;
   }
 
   /**
