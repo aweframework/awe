@@ -1,3 +1,6 @@
+# Release notes for AWE 4.12.5
+*14/07/2026*
+ 
 # Release notes for AWE 4.12.4
 *14/07/2026*
  
