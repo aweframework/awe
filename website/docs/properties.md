@@ -144,6 +144,14 @@ These are the database configuration properties for AWE projects. They have the 
 | <a name="awe.database.audit-lag"></a> [awe.database.audit-lag](#awe.database.audit-lag)                                                        | Audit lag in milliseconds. Used to built a timestamp in audit process.                               | `100ms` [Duration](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.conversion.durations) |
 | <a name="awe.database.batch-max"></a> [awe.database.batch-max](#awe.database.batch-max)                                                        | Chunk size for batch operations.                                                                     | `100`                                                                                                                                                                            |
 
+## AWE Maintain Properties
+
+These are the maintain configuration properties for AWE projects. They have the prefix `awe.maintain`. The multiple-maintain validation mode applies only to SQL-backed multiple maintain targets; service-delegated (`serve`), queue and email maintains are not affected.
+
+| Name                                                                                                                                     | Description                                                                                                                                                                                                                                                                                                      | Default value |
+|------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| <a name="awe.maintain.multiple.validation-mode"></a> [awe.maintain.multiple.validation-mode](#awe.maintain.multiple.validation-mode)     | Validation behavior when a multiple maintain has no declared non-audit list variable. `strict` throws an error, protecting new development. `warn` logs a warning with the operation id and skips the operation, preserving the pre-4.12.1 no-op semantics during migration. | `strict`      |
+
 ## AWE Security Properties
 
 These are all security configuration properties for AWE projects. They have the prefix `awe.security`.
