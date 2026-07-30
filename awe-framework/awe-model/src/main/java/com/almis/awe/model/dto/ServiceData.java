@@ -16,9 +16,11 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * ServiceData Class
@@ -100,8 +102,9 @@ public class ServiceData implements Serializable, Copyable {
   public ServiceData setData(DataList dataList, Integer rowNum) {
     if (rowNum != null) {
       List<String> result = new ArrayList<>(DataListUtil.getColumnList(dataList).size());
-      // Get row data
-      Map<String, CellData> rowData = DataListUtil.getRow(dataList, rowNum);
+      // Get row data (an out of range row number returns no row)
+      Map<String, CellData> rowData = Optional.ofNullable(DataListUtil.getRow(dataList, rowNum))
+        .orElse(Collections.emptyMap());
       // Build list with data of row
       for (Map.Entry<String, CellData> entry : rowData.entrySet()) {
         result.add(entry.getValue().getStringValue());
