@@ -695,6 +695,51 @@
     </insert>
   </target>
 
+  <target name="UpdateCorrelatedQueryBackedField">
+    <insert>
+      <table id="AweThm"/>
+      <constant id="IdeThm" value="33350" type="INTEGER"/>
+      <constant id="Nam" value="AWEBOOT-TEST-CORRELATED-0"/>
+      <constant id="Act" value="0" type="INTEGER"/>
+    </insert>
+    <insert>
+      <table id="AweThm"/>
+      <constant id="IdeThm" value="33351" type="INTEGER"/>
+      <constant id="Nam" value="AWEBOOT-TEST-CORRELATED-1"/>
+      <constant id="Act" value="0" type="INTEGER"/>
+    </insert>
+    <insert>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <constant id="IdeDbs" value="33350" type="INTEGER"/>
+      <constant id="Des" value="AWEBOOT-TEST-CORRELATED-0"/>
+      <constant id="Act" value="7" type="INTEGER"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <insert>
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="i"/>
+      <constant id="IdeDbs" value="33351" type="INTEGER"/>
+      <constant id="Des" value="AWEBOOT-TEST-CORRELATED-1"/>
+      <constant id="Act" value="9" type="INTEGER"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <update>
+      <table id="AweThm"/>
+      <field id="Act" query="CorrelatedDatabaseActQuery"/>
+      <where>
+        <and>
+          <filter left-field="Nam" condition="like" right-variable="themePrefix"/>
+        </and>
+      </where>
+      <variable id="themePrefix" type="STRINGR" value="AWEBOOT-TEST-CORRELATED"/>
+    </update>
+  </target>
+
   <target name="ServeNoParams">
     <serve service="returnMaintainOkNoParams"/>
   </target>

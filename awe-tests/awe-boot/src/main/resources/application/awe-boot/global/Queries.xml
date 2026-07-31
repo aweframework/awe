@@ -190,6 +190,19 @@
     </operation>
   </query>
 
+  <!-- Correlated subquery: it references the maintain table (AweThm) from the outer statement, so it
+       can only be resolved inlined inside the maintain clause. The subquery reads from a different
+       table on purpose: MySQL rejects a subquery that selects from the very table being updated -->
+  <query id="CorrelatedDatabaseActQuery">
+    <table id="HISAweDbs" alias="dbsCorrelated"/>
+    <field id="Act" table="dbsCorrelated"/>
+    <where>
+      <and>
+        <filter left-field="IdeDbs" left-table="dbsCorrelated" condition="eq" right-field="IdeThm" right-table="AweThm"/>
+      </and>
+    </where>
+  </query>
+
   <query id="QueryBackedInsertedThemes">
     <table id="AweThm"/>
     <field id="IdeThm"/>

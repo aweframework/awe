@@ -1,3 +1,12 @@
+# Release notes for AWE 4.12.6
+*31/07/2026*
+ 
+🐛 Bug fixes:
+- fix(awe-model, awe-controller): avoid NullPointerException in ServiceData.setData and SQLBuilder.buildPath. [MR #683](https://gitlab.com/aweframework/awe/-/merge_requests/683) (Pablo Javier García Mora)
+
+🧪 Tests:
+- fix(awe-controller): keep query-backed maintain fields inline as subqueries (#735). [MR #684](https://gitlab.com/aweframework/awe/-/merge_requests/684) (Pablo Javier García Mora)
+
 # Release notes for AWE 4.12.5
 *14/07/2026*
  

@@ -751,11 +751,27 @@ public class SQLMaintainBuilder extends SQLBuilder {
     }
   }
 
+  /**
+   * Query-backed fields are only materialized on audited maintains. There the same value has to be
+   * written both to the maintain table and to the audit table, and the audit insert cannot resolve
+   * an inline subquery because the maintain table is not in scope, so the value is resolved once and
+   * reused by both clauses.
+   * <p>
+   * Maintains without an audit table keep the subquery inline, so subqueries correlated to the
+   * maintain table still resolve against the statement that contains them.
+   *
+   * @param field SQL field
+   * @return field value must be resolved before building the clause
+   */
   private boolean shouldMaterializeQueryBackedAuditField(SqlField field) {
-    return field instanceof Field queryField
+    return isAuditedMaintain()
+      && field instanceof Field queryField
       && queryField.getQuery() != null
-      && field.isAudit()
-      && field.isNotAudit();
+      && field.isAudit();
+  }
+
+  private boolean isAuditedMaintain() {
+    return getQuery() instanceof MaintainQuery maintainQuery && maintainQuery.getAuditTable() != null;
   }
 
   private Expression<?> getMaterializedQueryFieldValue(Field field, Integer index) throws AWException {

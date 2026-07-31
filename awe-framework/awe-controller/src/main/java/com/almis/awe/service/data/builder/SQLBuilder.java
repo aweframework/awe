@@ -1212,8 +1212,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   protected SimpleExpression<Object> buildPath(String parent, String node, String alias) {
     SimpleExpression<Object> target = buildPath(parent, node);
 
-    // Generate table alias
-    if (alias != null) {
+    // Generate table alias (there is no path to alias when neither parent nor node are defined)
+    if (target != null && alias != null) {
       target = target.as(buildPath(alias));
     }
 
