@@ -461,6 +461,38 @@ public class MaintainTest extends AbstractSpringAppIntegrationTest {
   }
 
   /**
+   * A query-backed field of an update maintain must keep its subquery inline in the SET clause, so a
+   * subquery correlated to the maintain table still resolves. Executing it on its own fails at the
+   * database, because the maintain table is not in scope outside the update statement.
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void testUpdateWithCorrelatedQueryBackedField() throws Exception {
+    String maintainName = "UpdateCorrelatedQueryBackedField";
+    String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+    String result = launchMaintain(maintainName, "", expected);
+    logger.info(result);
+    assertResultJson(maintainName, result, 5, new MaintainResultDetails[]{
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.INSERT, 1L),
+      new MaintainResultDetails(MaintainType.UPDATE, 2L)
+    });
+
+    String updatedRowsResult = launchPostRequest("data", "QueryBackedInsertedThemes",
+      "\"themePrefix\":\"AWEBOOT-TEST-CORRELATED\",");
+    ArrayNode updatedRows = extractQueryRows(updatedRowsResult);
+
+    // Each row takes the value matching its OWN key: a non-correlated resolution could not produce
+    // two different values for two rows updated by a single statement
+    assertEquals(2, updatedRows.size());
+    assertEquals(7, updatedRows.get(0).get("Act").asInt());
+    assertEquals(9, updatedRows.get(1).get("Act").asInt());
+  }
+
+  /**
    * Launch a simple single insert from variable
    *
    * @throws Exception exception

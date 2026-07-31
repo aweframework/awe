@@ -4,6 +4,7 @@ import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.maintain.Insert;
+import com.almis.awe.model.entities.maintain.Update;
 import com.almis.awe.model.entities.queries.Field;
 import com.almis.awe.model.entities.queries.Table;
 import com.almis.awe.model.type.MaintainBuildOperation;
@@ -11,11 +12,16 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.sql.Configuration;
 import com.querydsl.sql.HSQLDBTemplates;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.AbstractSQLUpdateClause;
 import com.querydsl.sql.dml.SQLInsertClause;
+import com.querydsl.sql.dml.SQLUpdateClause;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -32,7 +38,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -131,6 +140,40 @@ class SQLMaintainBuilderTest {
   }
 
   @Test
+  void updateQueryBackedFieldKeepsSubqueryInlineInsteadOfExecutingIt() throws Exception {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    SQLQuery<Tuple> correlatedSubquery = builder.registerSubqueryRows("getAmnAdsByIdeDeaAds", List.of(tuple("UNEXPECTED")));
+    builder.setMaintain(updateQueryBackedFieldMaintain(null))
+      .setFactory(sqlQueryFactory())
+      .setVariables(Map.of())
+      .setParameters(JsonNodeFactory.instance.objectNode())
+      .setOperation(MaintainBuildOperation.NO_BATCH);
+
+    SQLUpdateClause clause = (SQLUpdateClause) builder.build();
+
+    assertSame(correlatedSubquery, updatedValue(clause, "AmnAce"));
+    verify(correlatedSubquery, never()).fetch();
+  }
+
+  @Test
+  void auditedMaintainMaterializesQueryBackedFieldOnceForBaseAndAuditClauses() throws Exception {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    SQLQuery<Tuple> correlatedSubquery = builder.registerSubqueryRows("getAmnAdsByIdeDeaAds", List.of(tuple("AUDIT-VALUE")));
+    builder.setMaintain(updateQueryBackedFieldMaintain("HISAgnMngAdsDea"))
+      .setFactory(sqlQueryFactory())
+      .setVariables(Map.of())
+      .setParameters(JsonNodeFactory.instance.objectNode())
+      .setOperation(MaintainBuildOperation.NO_BATCH);
+
+    SQLUpdateClause baseClause = (SQLUpdateClause) builder.build();
+    builder.setAudit(true).build();
+
+    // Maintain table and audit table must be written with the very same value, resolved only once
+    assertEquals(Expressions.constant("AUDIT-VALUE"), updatedValue(baseClause, "AmnAce"));
+    verify(correlatedSubquery).fetch();
+  }
+
+  @Test
   void queryBackedAuditedFieldValueIsMaterializedOnlyOncePerKey() throws Exception {
     TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
     Field field = queryBackedAuditField("CachedAuditValue");
@@ -194,9 +237,30 @@ class SQLMaintainBuilderTest {
     return insert;
   }
 
+  private Update updateQueryBackedFieldMaintain(String auditTable) {
+    Update update = new Update();
+    update.setId("UpdateQueryBackedField");
+    update.setAuditTable(auditTable);
+    update.setTableList(List.of(Table.builder().id("AgnMngAdsDea").build()));
+    update.setSqlFieldList(List.of(Field.builder().id("AmnAce").query("getAmnAdsByIdeDeaAds").build()));
+    return update;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Expression<?> updatedValue(SQLUpdateClause clause, String fieldId) throws Exception {
+    java.lang.reflect.Field updatesField = AbstractSQLUpdateClause.class.getDeclaredField("updates");
+    updatesField.setAccessible(true);
+    Map<Path<?>, Expression<?>> updates = (Map<Path<?>, Expression<?>>) updatesField.get(clause);
+    return updates.entrySet().stream()
+      .filter(entry -> fieldId.equals(entry.getKey().getMetadata().getName()))
+      .map(Map.Entry::getValue)
+      .findFirst()
+      .orElseThrow(() -> new AssertionError("No update value found for field " + fieldId));
+  }
+
   private Tuple tuple(Object... values) {
     Tuple tuple = mock(Tuple.class);
-    when(tuple.toArray()).thenReturn(values);
+    lenient().when(tuple.toArray()).thenReturn(values);
     return tuple;
   }
 
@@ -236,10 +300,11 @@ class SQLMaintainBuilderTest {
       super(queryUtil, mock(EncodeService.class), databaseConfigProperties);
     }
 
-    void registerSubqueryRows(String queryId, List<Tuple> rows) {
+    SQLQuery<Tuple> registerSubqueryRows(String queryId, List<Tuple> rows) {
       SQLQuery<Tuple> query = mock(SQLQuery.class);
-      when(query.fetch()).thenReturn(rows);
+      lenient().when(query.fetch()).thenReturn(rows);
       subqueries.put(queryId, query);
+      return query;
     }
 
     @Override
