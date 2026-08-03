@@ -8,14 +8,14 @@
     "refresh-client": "npm install ../awe-react-client/dist",
     "lint": "eslint eslint.config.js webpack.config.js webpack.dev.js webpack.prod.js",
     "lint:fix": "eslint eslint.config.js webpack.config.js webpack.dev.js webpack.prod.js --fix",
-    "build:dev": "webpack --config webpack.dev.js",
+    "build:development": "webpack --config webpack.dev.js",
     "build:watch": "webpack --config webpack.dev.js --watch",
-    "build": "npm run build:prod",
-    "build:prod": "webpack --config webpack.prod.js",
+    "build": "npm run build:production",
+    "build:production": "webpack --config webpack.prod.js",
     "start": "mvn spring-boot:run",
-    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload\"",
-    "test-dev": "npm run build:dev",
-    "test-prod": "npm run build:prod"
+    "start:hot-reload": "concurrently -k -n watch,app -c cyan,green \"npm run build:watch\" \"mvn spring-boot:run -Phot-reload -Dspring-boot.run.jvmArguments=-Dspring.output.ansi.enabled=always\"",
+    "test-dev": "npm run build:development",
+    "test-prod": "npm run build:production"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.21",
