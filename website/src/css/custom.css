@@ -3,20 +3,315 @@
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
+ *
+ * Brand palette (taken from the AWE logo gradient):
+ *   purple #8A4793 · blue #257EC0 · green #40AC5C
+ * Typography grays: #575756 (text gray) · #2F3A47 (dark blue)
  */
 
-/* You can override the default Infima variables here. */
+/* ------------------------------------------------------------------ *
+ * Infima variables + AWE design tokens (light theme is the base)
+ * ------------------------------------------------------------------ */
 :root {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
+  /* Primary scale generated around the brand blue */
+  --ifm-color-primary: #257ec0;
+  --ifm-color-primary-dark: #2171ad;
+  --ifm-color-primary-darker: #1f6ba3;
+  --ifm-color-primary-darkest: #1a5886;
+  --ifm-color-primary-light: #3a8bc9;
+  --ifm-color-primary-lighter: #4693cd;
+  --ifm-color-primary-lightest: #6aa9d8;
   --ifm-code-font-size: 95%;
+
+  /* AWE brand */
+  --awe-purple: #8a4793;
+  --awe-blue: #257ec0;
+  --awe-green: #34954e;
+  --awe-purple-pure: #8a4793;
+  --awe-blue-pure: #257ec0;
+  --awe-green-pure: #40ac5c;
+  --awe-purple-soft: rgba(138, 71, 147, 0.12);
+  --awe-blue-soft: rgba(37, 126, 192, 0.12);
+  --awe-green-soft: rgba(64, 172, 92, 0.14);
+
+  /* Surfaces */
+  --awe-ground: #f5f8fa;
+  --awe-ground-2: #eef2f6;
+  --awe-panel: #ffffff;
+  --awe-panel-2: #f0f4f8;
+  --awe-line: #d7dfe7;
+
+  /* Ink */
+  --awe-ink: #22303c;
+  --awe-ink-2: #575756;
+  --awe-ink-3: #7b8894;
+
+  /* Code surfaces */
+  --awe-code-bg: #1b2430;
+  --awe-code-ink: #dce5ee;
+  --awe-code-ink-dim: rgba(220, 229, 238, 0.55);
+  --awe-code-ink-faint: rgba(220, 229, 238, 0.4);
+  --awe-code-line: rgba(255, 255, 255, 0.08);
+  --awe-code-border: rgba(255, 255, 255, 0.2);
+  --awe-code-hover: rgba(255, 255, 255, 0.1);
+  --awe-code-tag: #6ab8f5;
+  --awe-code-attr: #8fd9a5;
+  --awe-code-value: #d9a7e0;
+  --awe-on-brand: #ffffff;
+
+  /* Effects */
+  --awe-glow-opacity: 0.35;
+  --awe-shadow: 0 8px 30px rgba(34, 48, 60, 0.1);
+  --awe-cta-shadow: 0 4px 18px rgba(37, 126, 192, 0.35);
+  --awe-logo-glow: drop-shadow(0 6px 24px rgba(37, 126, 192, 0.35));
+
+  --awe-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas,
+    monospace;
 }
 
+/* `:root[data-theme='dark']` rather than the bare attribute selector: Infima
+   declares its dark variables on `html[data-theme='dark']`, which outranks a
+   lone `[data-theme='dark']` and would keep its own grey surfaces. */
+:root[data-theme='dark'] {
+  --ifm-color-primary: #3d9be0;
+  --ifm-color-primary-dark: #378cca;
+  --ifm-color-primary-darker: #3484be;
+  --ifm-color-primary-darkest: #2b6d9d;
+  --ifm-color-primary-light: #5eade7;
+  --ifm-color-primary-lighter: #70b6ea;
+  --ifm-color-primary-lightest: #92c8f0;
+
+  --awe-purple: #b06bbc;
+  --awe-blue: #3d9be0;
+  --awe-green: #4dbf6c;
+  --awe-purple-soft: rgba(176, 107, 188, 0.14);
+  --awe-blue-soft: rgba(61, 155, 224, 0.14);
+  --awe-green-soft: rgba(77, 191, 108, 0.14);
+
+  --awe-ground: #10161f;
+  --awe-ground-2: #0c1219;
+  --awe-panel: #17202b;
+  --awe-panel-2: #1d2836;
+  --awe-line: #2a3644;
+
+  --awe-ink: #e6edf4;
+  --awe-ink-2: #a8b6c2;
+  --awe-ink-3: #75828e;
+
+  --awe-code-bg: #0c1219;
+  --awe-code-ink: #d5dfe9;
+
+  --awe-glow-opacity: 0.5;
+  --awe-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --awe-cta-shadow: 0 4px 18px rgba(61, 155, 224, 0.35);
+  --awe-logo-glow: drop-shadow(0 6px 24px rgba(61, 155, 224, 0.4));
+
+  /* Carry the homepage's blue-tinted ground across the whole site. Without
+     these, docs and blog pages keep Infima's neutral grey (#1b1b1d) and a
+     seam shows under the tinted navbar. */
+  --ifm-background-color: var(--awe-ground);
+  --ifm-background-surface-color: var(--awe-panel);
+  --ifm-color-emphasis-100: var(--awe-ground-2);
+  --ifm-color-emphasis-200: var(--awe-panel-2);
+  --ifm-color-emphasis-300: var(--awe-line);
+  --ifm-toc-border-color: var(--awe-line);
+  --ifm-hr-background-color: var(--awe-line);
+  --ifm-blockquote-border-color: var(--awe-line);
+  --ifm-code-background: rgba(255, 255, 255, 0.08);
+  --ifm-table-stripe-background: rgba(255, 255, 255, 0.03);
+  --ifm-table-border-color: var(--awe-line);
+  --ifm-dropdown-background-color: var(--awe-panel);
+  --ifm-menu-color-background-hover: var(--awe-panel-2);
+  --ifm-menu-color-background-active: var(--awe-blue-soft);
+  --ifm-navbar-search-input-background-color: var(--awe-panel);
+  --prism-background-color: var(--awe-code-bg);
+}
+
+/* Shared page gutter used by the homepage sections */
+.awe-wrap {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Navbar — restyled to match the homepage design
+ * ------------------------------------------------------------------ */
+.navbar {
+  --ifm-navbar-item-padding-vertical: 0.5rem;
+  --ifm-navbar-item-padding-horizontal: 0.875rem;
+  background-color: var(--awe-ground);
+  background-color: color-mix(in srgb, var(--awe-ground) 88%, transparent);
+  border-bottom: 1px solid var(--awe-line);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+
+.navbar-sidebar {
+  background-color: var(--awe-ground);
+}
+
+.navbar__link {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--awe-ink-2);
+  border-radius: 8px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.navbar__link:hover {
+  color: var(--awe-ink);
+  background-color: var(--awe-panel-2);
+  text-decoration: none;
+}
+
+.navbar__link--active {
+  color: var(--awe-blue);
+  background-color: var(--awe-blue-soft);
+}
+
+.navbar__title {
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.navbar__logo {
+  height: 2rem;
+}
+
+/* The theme leaves the right-hand controls flush against each other. */
+.navbar__items--right {
+  gap: 0.5rem;
+}
+
+/* Match the GitLab glyph beside it so both icon buttons read as a pair. */
+.navbar [class*='colorModeToggle'] svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* The pill supplies its own vertical padding; leaving the theme's on the
+   wrapper too made the right-hand group taller than the navbar. */
+.navbar__items--right > .navbar__item.dropdown {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Version + locale dropdowns rendered as pills.
+   The horizontal padding must be set explicitly: the theme leaves the
+   dropdown toggle at 0 and the rounded ends would clip the label. */
+.navbar__items--right .dropdown > .navbar__link {
+  display: flex;
+  align-items: center;
+  font-family: var(--awe-mono);
+  font-size: 0.86rem;
+  border: 1px solid var(--awe-line);
+  border-radius: 999px;
+  background-color: var(--awe-panel);
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Room for the caret the theme appends via ::after */
+.navbar__items--right .dropdown > .navbar__link::after {
+  margin-left: 0.5rem;
+}
+
+.navbar__items--right .dropdown > .navbar__link:hover {
+  border-color: var(--awe-blue);
+  color: var(--awe-ink);
+  background-color: var(--awe-panel);
+}
+
+/* The theme wraps the search button in a block-level div with vertical
+   padding, which pushes the button off-centre against the navbar's bottom
+   border. Make that wrapper a centring flex box instead. */
+.navbar__items--right > div:has(> .DocSearch-Button) {
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Search box */
+.navbar .DocSearch-Button {
+  height: 40px;
+  border-radius: 9px;
+  border: 1px solid var(--awe-line);
+  background-color: var(--awe-panel);
+  font-size: 0.92rem;
+  min-width: 190px;
+  padding-left: 12px;
+  padding-right: 8px;
+}
+
+.navbar .DocSearch-Button:hover {
+  border-color: var(--awe-blue);
+  box-shadow: none;
+}
+
+.navbar .DocSearch-Button-Placeholder {
+  font-size: 0.92rem;
+  color: var(--awe-ink-3);
+}
+
+.navbar .DocSearch-Search-Icon {
+  width: 18px;
+  height: 18px;
+  color: var(--awe-ink-3);
+}
+
+.navbar .DocSearch-Button-Keys {
+  min-width: auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * Footer — small-caps headings, brand hover
+ * ------------------------------------------------------------------ */
+.footer {
+  --ifm-footer-background-color: var(--awe-ground-2);
+  --ifm-footer-color: var(--awe-ink-2);
+  --ifm-footer-link-color: var(--awe-ink-2);
+  --ifm-footer-title-color: var(--awe-ink);
+  border-top: 1px solid var(--awe-line);
+  color: var(--awe-ink-2);
+}
+
+.footer__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--awe-ink);
+}
+
+.footer__link-item {
+  color: var(--awe-ink-2);
+  transition: color 0.15s ease;
+}
+
+.footer__link-item:hover {
+  color: var(--awe-blue);
+  text-decoration: none;
+}
+
+.footer__copyright {
+  color: var(--awe-ink-3);
+  font-size: 0.8rem;
+}
+
+.footer__logo {
+  max-width: 132px;
+  margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------------ *
+ * Pre-existing rules used by other pages — keep as is
+ * ------------------------------------------------------------------ */
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);
   display: block;
@@ -24,23 +319,43 @@
   padding: 0 var(--ifm-pre-padding);
 }
 
+/* Sized to match the colour-mode toggle beside it: a 32px hit area holding
+   a 24px icon, so both controls read as the same kind of button. */
+.header-gitlab-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+}
+
 .header-gitlab-link:hover {
-  opacity: 0.6;
+  opacity: 1;
+  background-color: var(--awe-panel-2);
 }
 
 .header-gitlab-link:before {
   content: '';
-  width: 42px;
-  height: 42px;
-  padding-left: 10px;
-  display: flex;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 586 559'%3E%3Cpath d='m461.48 298.35l-17.78-54.63a7.72 7.72 0 0 0 -.43 -1.47l-35.67-109.8a14.18 14.18 0 0 0 -13.54 -9.67 13.94 13.94 0 0 0 -13.38 9.75l-34 104.63h-107.31l-34.05-104.63a13.94 13.94 0 0 0 -13.32 -9.75h-.08a14.22 14.22 0 0 0 -13.5 9.76l-35.7 109.93c0 .1-.08.18-.11.28l-18.1 55.61a20.29 20.29 0 0 0 7.37 22.71l156.38 113.63a8 8 0 0 0 9.45 -.05l156.41-113.58a20.28 20.28 0 0 0 7.36 -22.72m-233.75-45.13l43.59 134.16-104.64-134.16m148.05 134.19l41.8-128.62 1.8-5.57h61.1l-94.67 121.28m69.44-231.67l30.63 94.33h-61.31m-22.03 16l-30.37 93.46-18.12 55.66-48.42-149.12m-52.73-110.33l30.69 94.33h-61.27m-19.98 70.97a4.31 4.31 0 0 1 -1.56 -4.83l13.44-41.3 98.57 126.37m192.98-80.24l-110.46 80.21.37-.48 98.2-125.86 13.44 41.28a4.31 4.31 0 0 1 -1.55 4.84'/%3E%3C/svg%3E")
-  no-repeat;
+  /* The source artwork only filled 58% of its viewBox, so the tanuki looked
+     far smaller than the neighbouring toggle icon at the same nominal size.
+     The viewBox below is cropped to the path's bounding box, so these pixels
+     are all glyph. */
+  width: 26px;
+  height: 26px;
+  background-size: contain;
+  background-position: center;
+  display: block;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='124 123 339 313'%3E%3Cpath d='m461.48 298.35l-17.78-54.63a7.72 7.72 0 0 0 -.43 -1.47l-35.67-109.8a14.18 14.18 0 0 0 -13.54 -9.67 13.94 13.94 0 0 0 -13.38 9.75l-34 104.63h-107.31l-34.05-104.63a13.94 13.94 0 0 0 -13.32 -9.75h-.08a14.22 14.22 0 0 0 -13.5 9.76l-35.7 109.93c0 .1-.08.18-.11.28l-18.1 55.61a20.29 20.29 0 0 0 7.37 22.71l156.38 113.63a8 8 0 0 0 9.45 -.05l156.41-113.58a20.28 20.28 0 0 0 7.36 -22.72m-233.75-45.13l43.59 134.16-104.64-134.16m148.05 134.19l41.8-128.62 1.8-5.57h61.1l-94.67 121.28m69.44-231.67l30.63 94.33h-61.31m-22.03 16l-30.37 93.46-18.12 55.66-48.42-149.12m-52.73-110.33l30.69 94.33h-61.27m-19.98 70.97a4.31 4.31 0 0 1 -1.56 -4.83l13.44-41.3 98.57 126.37m192.98-80.24l-110.46 80.21.37-.48 98.2-125.86 13.44 41.28a4.31 4.31 0 0 1 -1.55 4.84'/%3E%3C/svg%3E")
+    no-repeat;
+  background-size: contain;
 }
 
 html[data-theme='dark'] .header-gitlab-link:before {
-  background: url("data:image/svg+xml,%3Csvg id='logo_art' data-name='logo art' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 586 559'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:%23fff;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Egitlab-icon-1-color-white-rgb%3C/title%3E%3Cpath class='cls-1' d='M461.48,298.35,443.7,243.72a7.72,7.72,0,0,0-.43-1.47L407.6,132.45a14.18,14.18,0,0,0-13.54-9.67,13.94,13.94,0,0,0-13.38,9.75l-34,104.63H239.37L205.32,132.53A13.94,13.94,0,0,0,192,122.78h-.08a14.22,14.22,0,0,0-13.5,9.76L142.72,242.47c0,.1-.08.18-.11.28l-18.1,55.61a20.29,20.29,0,0,0,7.37,22.71L288.26,434.7a8,8,0,0,0,9.45-.05l0,0L454.12,321.07A20.28,20.28,0,0,0,461.48,298.35ZM227.73,253.22l43.59,134.16L166.68,253.22Zm87,134.19,41.8-128.62,1.8-5.57h61.1L324.76,374.5Zm79.47-244.58,30.63,94.33H363.52ZM341.49,253.16l-30.37,93.46L293,402.28,244.58,253.16ZM191.85,142.83l30.69,94.33H161.27Zm-50.56,165.3a4.31,4.31,0,0,1-1.56-4.83L153.17,262l98.57,126.37Zm303.43,0L334.26,388.34l.37-.48L432.83,262l13.44,41.28A4.31,4.31,0,0,1,444.72,308.12Z'/%3E%3C/svg%3E")
-  no-repeat;
+  background: url("data:image/svg+xml,%3Csvg id='logo_art' data-name='logo art' xmlns='http://www.w3.org/2000/svg' viewBox='124 123 339 313'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:%23fff;%7D%3C/style%3E%3C/defs%3E%3Ctitle%3Egitlab-icon-1-color-white-rgb%3C/title%3E%3Cpath class='cls-1' d='M461.48,298.35,443.7,243.72a7.72,7.72,0,0,0-.43-1.47L407.6,132.45a14.18,14.18,0,0,0-13.54-9.67,13.94,13.94,0,0,0-13.38,9.75l-34,104.63H239.37L205.32,132.53A13.94,13.94,0,0,0,192,122.78h-.08a14.22,14.22,0,0,0-13.5,9.76L142.72,242.47c0,.1-.08.18-.11.28l-18.1,55.61a20.29,20.29,0,0,0,7.37,22.71L288.26,434.7a8,8,0,0,0,9.45-.05l0,0L454.12,321.07A20.28,20.28,0,0,0,461.48,298.35ZM227.73,253.22l43.59,134.16L166.68,253.22Zm87,134.19,41.8-128.62,1.8-5.57h61.1L324.76,374.5Zm79.47-244.58,30.63,94.33H363.52ZM341.49,253.16l-30.37,93.46L293,402.28,244.58,253.16ZM191.85,142.83l30.69,94.33H161.27Zm-50.56,165.3a4.31,4.31,0,0,1-1.56-4.83L153.17,262l98.57,126.37Zm303.43,0L334.26,388.34l.37-.48L432.83,262l13.44,41.28A4.31,4.31,0,0,1,444.72,308.12Z'/%3E%3C/svg%3E")
+    no-repeat;
+  background-size: contain;
 }
 
 .video-container {
