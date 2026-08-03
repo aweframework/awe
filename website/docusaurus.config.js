@@ -52,15 +52,21 @@ module.exports = {
 					position: 'left'
 				},
 				{
-					alt: 'Gitlab repository',
 					href: 'https://gitlab.com/aweframework/awe',
-          className: 'header-gitlab-link',
-					position: 'right'
+					className: 'header-gitlab-link',
+					position: 'right',
+					'aria-label': 'Awe framework GitLab repository',
+					title: 'Awe framework GitLab repository'
 				},
 			],
 		},
 		footer: {
 			style: 'dark',
+			logo: {
+				alt: 'Awe framework Logo',
+				src: 'img/logo.svg',
+				href: 'https://docs.aweframework.com',
+			},
 			links: [
 				{
 					title: 'Docs',
