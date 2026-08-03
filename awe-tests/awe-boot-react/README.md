@@ -18,8 +18,8 @@ npm run dev:start
 If you are already inside `test-react`, the main commands are:
 
 ```bash
-npm run build:dev
-npm run build:prod
+npm run build:development
+npm run build:production
 npm run build
 npm run start
 ```
