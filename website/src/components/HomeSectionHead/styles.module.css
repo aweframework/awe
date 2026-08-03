@@ -1,0 +1,22 @@
+.head {
+  max-width: 640px;
+  margin-bottom: 44px;
+}
+
+.headCompact {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: clamp(26px, 3vw, 34px);
+  letter-spacing: -0.02em;
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-wrap: balance;
+  color: var(--awe-ink);
+}
+
+.description {
+  color: var(--awe-ink-2);
+  margin: 0;
+}

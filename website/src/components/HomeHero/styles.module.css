@@ -1,0 +1,169 @@
+.hero {
+  position: relative;
+  padding-top: 72px;
+  padding-bottom: 40px;
+  overflow: hidden;
+  background-color: var(--awe-ground);
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(290px, 360px) 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.heroGrid > * {
+  min-width: 0;
+}
+
+@media (max-width: 940px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heroCopy {
+  min-width: 0;
+}
+
+/* Holds the glow. Keeping the filter here rather than on the svg is what
+   stops the entrance clip-path from cropping the drop-shadow into a visible
+   rectangle: the filter is applied to the already-clipped child, so the glow
+   traces the wave instead of the clip box. */
+.heroLogoGlow {
+  display: block;
+  width: fit-content;
+  margin-bottom: 26px;
+  filter: var(--awe-logo-glow);
+}
+
+.heroLogo {
+  height: 104px;
+  width: auto;
+  display: block;
+  margin-top: 0;
+}
+
+/* The mark is a wave, so it enters like one: the crest is wiped in from the
+   left while the whole glyph settles upward. */
+@media (prefers-reduced-motion: no-preference) {
+  .heroLogo {
+    animation: waveIn 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.1s backwards;
+  }
+}
+
+@keyframes waveIn {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+
+  55% {
+    opacity: 1;
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.eyebrow {
+  font-family: var(--awe-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--awe-blue);
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.headline {
+  font-size: clamp(34px, 4.6vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-wrap: balance;
+  color: var(--awe-ink);
+}
+
+.gradientWord {
+  background: linear-gradient(
+    100deg,
+    var(--awe-purple) 0%,
+    var(--awe-blue) 48%,
+    var(--awe-green) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.sub {
+  font-size: 18px;
+  color: var(--awe-ink-2);
+  max-width: 42ch;
+  margin-top: 0;
+  margin-bottom: 30px;
+}
+
+.ctas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 26px;
+  padding-right: 26px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15.5px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.btnPrimary {
+  color: var(--awe-on-brand);
+  background: linear-gradient(
+    100deg,
+    var(--awe-purple),
+    var(--awe-blue) 55%,
+    var(--awe-green)
+  );
+  box-shadow: var(--awe-cta-shadow);
+}
+
+.btnPrimary:hover {
+  color: var(--awe-on-brand);
+}
+
+.btnGhost {
+  color: var(--awe-ink);
+  border: 1.5px solid var(--awe-line);
+  background-color: var(--awe-panel);
+}
+
+.btnGhost:hover {
+  border-color: var(--awe-blue);
+  color: var(--awe-ink);
+}
