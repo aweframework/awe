@@ -146,7 +146,17 @@
   background-color: color-mix(in srgb, var(--awe-ground) 88%, transparent);
   border-bottom: 1px solid var(--awe-line);
   box-shadow: none;
-  backdrop-filter: blur(12px);
+}
+
+/* Desktop only. backdrop-filter makes the navbar a containing block for its
+   position: fixed descendants, and .navbar-sidebar is one of them: its
+   top/bottom would resolve against the 60px navbar instead of the viewport,
+   collapsing the mobile menu to its header and clipping every entry.
+   997px is where Docusaurus swaps the navbar items for that sidebar. */
+@media (min-width: 997px) {
+  .navbar {
+    backdrop-filter: blur(12px);
+  }
 }
 
 .navbar-sidebar {
@@ -320,8 +330,12 @@
 }
 
 /* Sized to match the colour-mode toggle beside it: a 32px hit area holding
-   a 24px icon, so both controls read as the same kind of button. */
-.header-gitlab-link {
+   a 26px icon, so both controls read as the same kind of button.
+   Scoped to the desktop navbar on purpose. The same link is reused inside the
+   mobile sidebar as a plain menu entry, where a fixed 32px centred box would
+   pull the icon left of the text items, which are indented by the theme's
+   menu link padding. */
+.navbar__items--right .header-gitlab-link {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -331,7 +345,7 @@
   border-radius: 8px;
 }
 
-.header-gitlab-link:hover {
+.navbar__items--right .header-gitlab-link:hover {
   opacity: 1;
   background-color: var(--awe-panel-2);
 }
