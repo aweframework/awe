@@ -1,3 +1,13 @@
+# Release notes for AWE React 2.2.5
+*11/08/2026*
+ 
+🐛 Bug fixes:
+- chore(deps): bump awe-starter-parent to 4.12.6 and adopt AWE 4.12 hot reload. [MR #182](https://gitlab.com/aweframework/awe-react/-/merge_requests/182) (Pablo Vidal Otero)
+- feat(actions): support the reload-page client action. [MR #181](https://gitlab.com/aweframework/awe-react/-/merge_requests/181) (Pablo Vidal Otero)
+- feat(widgets): extensible widgets, event-calendar example and dev hot-reload. [MR #180](https://gitlab.com/aweframework/awe-react/-/merge_requests/180) (Pablo Vidal Otero)
+- feat(menu): port menu option search (command palette) from AngularJS client. [MR #179](https://gitlab.com/aweframework/awe-react/-/merge_requests/179) (Pablo Javier García Mora)
+- fix(criteria): treat zero as a valid model value for numeric criteria. [MR #178](https://gitlab.com/aweframework/awe-react/-/merge_requests/178) (Pablo Javier García Mora)
+
 # Release notes for AWE React 2.2.4
 *30/06/2026*
  
