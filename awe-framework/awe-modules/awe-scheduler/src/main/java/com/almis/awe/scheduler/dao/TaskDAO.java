@@ -716,23 +716,79 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
-   * Apply the operator supplied values to the task variable parameters.
-   * Only parameters whose source is {@link ParameterConstants#VARIABLE} and whose name is present
-   * in the provided map are overridden; every other parameter keeps its stored value.
+   * Apply the supplied values to the task {@link ParameterConstants#VARIABLE} parameters.
+   * Only parameters whose name is present in the provided map are overridden; every other
+   * parameter keeps its stored value.
    *
    * @param task      Task holding the parameter list to update
-   * @param variables Operator supplied values (parameter name -&gt; value); null or empty is a no-op
+   * @param variables Supplied values (parameter name -&gt; value); null or empty is a no-op
    */
   void applyOperatorValues(Task task, Map<String, String> variables) {
+    applyOperatorValues(task, variables, Set.of(String.valueOf(ParameterConstants.VARIABLE)));
+  }
+
+  /**
+   * Apply the supplied values to the task parameters whose source is overridable.
+   * On a {@link ParameterConstants#PROPERTY} parameter the supplied value is the property key,
+   * resolved at execution time.
+   *
+   * @param task                Task holding the parameter list to update
+   * @param variables           Supplied values (parameter name -&gt; value); null or empty is a no-op
+   * @param overridableSources  Parameter sources the supplied values may override
+   */
+  void applyOperatorValues(Task task, Map<String, String> variables, Set<String> overridableSources) {
     if (variables == null || variables.isEmpty() || task.getParameterList() == null) {
       return;
     }
 
     for (TaskParameter parameter : task.getParameterList()) {
-      if (String.valueOf(ParameterConstants.VARIABLE).equals(parameter.getSource()) && variables.containsKey(parameter.getName())) {
+      if (overridableSources.contains(parameter.getSource()) && variables.containsKey(parameter.getName())) {
         parameter.setValue(variables.get(parameter.getName()));
       }
     }
+  }
+
+  /**
+   * Property keys of the task that do not resolve against the configuration of this instance,
+   * taking the operator supplied values into account. An empty list means every PROPERTY
+   * parameter of the task resolves and the task can be launched.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values (parameter name -&gt; value); null for none
+   * @return Property keys that do not resolve, in parameter order
+   * @throws AWException Error loading the task
+   */
+  public List<String> findUnresolvedProperties(Integer taskId, Map<String, String> variables) throws AWException {
+    Task task = loadTask(taskId);
+    applyOperatorValues(task, variables, overridableSources(TriggerType.MANUAL));
+
+    if (task.getParameterList() == null) {
+      return Collections.emptyList();
+    }
+
+    return task.getParameterList().stream()
+      .filter(parameter -> String.valueOf(ParameterConstants.PROPERTY).equals(parameter.getSource()))
+      .map(TaskParameter::getValue)
+      .filter(key -> key == null || key.isBlank() || getProperty(key) == null)
+      .map(key -> key == null ? "" : key)
+      .toList();
+  }
+
+  /**
+   * Parameter sources a launch of the given type may override. An operator launching by hand may
+   * adjust any parameter, whatever its source; every other trigger type, dependency propagation
+   * included, may only override VARIABLE parameters.
+   *
+   * @param triggerType Trigger type of the launch
+   * @return Overridable parameter sources
+   */
+  private Set<String> overridableSources(TriggerType triggerType) {
+    if (TriggerType.MANUAL.equals(triggerType)) {
+      return Set.of(String.valueOf(ParameterConstants.VALUE),
+        String.valueOf(ParameterConstants.VARIABLE),
+        String.valueOf(ParameterConstants.PROPERTY));
+    }
+    return Set.of(String.valueOf(ParameterConstants.VARIABLE));
   }
 
   /**
@@ -781,7 +837,7 @@ public class TaskDAO extends ServiceConfig {
       task.setParentExecution(parent);
 
       // Override variable parameters with the operator supplied values
-      applyOperatorValues(task, variables);
+      applyOperatorValues(task, variables, overridableSources(triggerType));
 
       JobDataMap dataMap = new JobDataMap();
       dataMap.put(TASK, task);

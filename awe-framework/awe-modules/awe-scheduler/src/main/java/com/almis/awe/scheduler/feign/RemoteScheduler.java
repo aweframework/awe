@@ -56,6 +56,19 @@ public interface RemoteScheduler {
   ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user, @RequestBody Map<String, String> variables);
 
   /**
+   * Validate the task parameters against the remote scheduler configuration
+   *
+   * <p>The remote side reports an unresolved property through the returned ServiceData rather than
+   * by failing, so the outcome survives the HTTP hop.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values for the task parameters; empty map when none
+   * @return Service Data, of type ERROR when a property key does not resolve
+   */
+  @PostMapping("/task/{taskId}/parameters/validate")
+  ServiceData validateTaskParameters(@PathVariable int taskId, @RequestBody Map<String, String> variables);
+
+  /**
    * Insert and schedule a new task
    *
    * @param taskId Task identifier

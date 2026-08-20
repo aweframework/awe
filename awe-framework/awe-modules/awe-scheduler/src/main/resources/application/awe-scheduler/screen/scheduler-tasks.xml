@@ -44,7 +44,7 @@
         <dependency-element id="GrdTskLst" condition="lt" value="1" />
       </dependency>
     </button>
-    <!-- Direct launch: shown when the selected task has no variable parameters. -->
+    <!-- Direct launch: shown when the selected task has no parameters at all. -->
     <button label="BUTTON_RUN" icon="play" id="ButRun" help="HELP_RUN_BUTTON">
       <button-action type="server" server-action="maintain-silent" target-action="LchTsk" silent="true"/>
       <button-action type="filter" target="GrdTskLst" silent="true"/>
@@ -53,7 +53,7 @@
         <dependency-element id="hasVarParams" condition="ne" value="1" />
       </dependency>
     </button>
-    <!-- Variable launch: shown when the selected task has variable parameters, opens the values modal. -->
+    <!-- Values launch: shown when the selected task has parameters, opens the values modal. -->
     <button label="BUTTON_RUN" icon="play" id="ButRunVar" help="HELP_LAUNCH_VARIABLES_BUTTON">
       <button-action type="dialog" target="task-variables"/>
       <dependency target-type="show" initial="true">

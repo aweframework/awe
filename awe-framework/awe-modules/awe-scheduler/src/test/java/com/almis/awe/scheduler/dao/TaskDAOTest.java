@@ -766,6 +766,156 @@ class TaskDAOTest {
   }
 
   /**
+   * A manual launch may override every parameter source, so an operator can adjust a task without
+   * re-declaring its parameters. On a PROPERTY parameter the supplied value is the property key,
+   * which is resolved at execution time.
+   */
+  @Test
+  void manualLaunchOverridesEveryParameterSource() throws Exception {
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
+    given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(getMixedSourceParameterDataList()));
+
+    TaskDAO spyDao = spy(taskDAO);
+    doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
+    ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
+
+    Map<String, String> operatorValues = new HashMap<>();
+    operatorValues.put("mode", "OPERATOR_MODE");
+    operatorValues.put("date", "2026-12-31");
+    operatorValues.put("region", "OPERATOR_REGION");
+
+    spyDao.executeTaskNow(5, "test", operatorValues);
+
+    verify(spyDao).addTaskToScheduler(captor.capture());
+    Task launched = captor.getValue();
+    assertEquals("OPERATOR_MODE", findParameter(launched, "mode").getValue());
+    assertEquals("2026-12-31", findParameter(launched, "date").getValue());
+    assertEquals("OPERATOR_REGION", findParameter(launched, "region").getValue());
+  }
+
+  /**
+   * Dependency propagation keeps the narrower contract of issue #724: only the child's VARIABLE
+   * parameters are overridden, so a parent value never clobbers a child's static VALUE.
+   */
+  @Test
+  void dependencyPropagationDoesNotOverrideValueParameters() throws Exception {
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
+    given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(getMixedSourceParameterDataList()));
+
+    TaskDAO spyDao = spy(taskDAO);
+    doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
+    ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
+
+    Map<String, String> parentValues = new HashMap<>();
+    parentValues.put("mode", "PARENT_MODE");
+    parentValues.put("date", "2026-12-31");
+    parentValues.put("region", "PARENT_REGION");
+
+    spyDao.executeDependency(5, new TaskExecution().setTaskId(2).setExecutionId(20), parentValues);
+
+    verify(spyDao).addTaskToScheduler(captor.capture());
+    Task launched = captor.getValue();
+    assertEquals("smoke", findParameter(launched, "mode").getValue());
+    assertEquals("2026-12-31", findParameter(launched, "date").getValue());
+    assertEquals("my.region", findParameter(launched, "region").getValue());
+  }
+
+  /**
+   * An operator supplied property key that does not resolve is reported, so the launch can be
+   * refused before the task is scheduled.
+   */
+  @Test
+  void findUnresolvedPropertiesReportsTheSuppliedKeyWhenItDoesNotResolve() throws Exception {
+    givenTaskWithMixedSourceParameters();
+    given(aweElements.getProperty("missing.key")).willReturn(null);
+
+    Map<String, String> operatorValues = new HashMap<>();
+    operatorValues.put("region", "missing.key");
+
+    assertEquals(List.of("missing.key"), taskDAO.findUnresolvedProperties(5, operatorValues));
+  }
+
+  /**
+   * A property key that resolves is not reported.
+   */
+  @Test
+  void findUnresolvedPropertiesIsEmptyWhenTheSuppliedKeyResolves() throws Exception {
+    givenTaskWithMixedSourceParameters();
+    given(aweElements.getProperty("present.key")).willReturn("EU");
+
+    Map<String, String> operatorValues = new HashMap<>();
+    operatorValues.put("region", "present.key");
+
+    assertTrue(taskDAO.findUnresolvedProperties(5, operatorValues).isEmpty());
+  }
+
+  /**
+   * With no operator values the stored property key is the one checked.
+   */
+  @Test
+  void findUnresolvedPropertiesChecksTheStoredKeyWhenNoValueIsSupplied() throws Exception {
+    givenTaskWithMixedSourceParameters();
+    given(aweElements.getProperty("my.region")).willReturn(null);
+
+    assertEquals(List.of("my.region"), taskDAO.findUnresolvedProperties(5, null));
+  }
+
+  /**
+   * VALUE and VARIABLE parameters are never checked against the configuration.
+   */
+  @Test
+  void findUnresolvedPropertiesIgnoresNonPropertyParameters() throws Exception {
+    givenTaskWithMixedSourceParameters();
+    given(aweElements.getProperty("my.region")).willReturn("EU");
+
+    Map<String, String> operatorValues = new HashMap<>();
+    operatorValues.put("mode", "not.a.property");
+    operatorValues.put("date", "not.a.property.either");
+
+    assertTrue(taskDAO.findUnresolvedProperties(5, operatorValues).isEmpty());
+  }
+
+  /**
+   * Stub the queries so loadTask returns a task with one parameter per source.
+   */
+  private void givenTaskWithMixedSourceParameters() throws Exception {
+    doReturn(aweElements).when(context).getBean(AweElements.class);
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
+    given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(getMixedSourceParameterDataList()));
+  }
+
+  /**
+   * Build a data list with one parameter per source: VALUE, VARIABLE and PROPERTY.
+   *
+   * @return DataList mimicking the taskParameters query result
+   */
+  private DataList getMixedSourceParameterDataList() {
+    DataList parameterDataList = new DataList();
+    Map<String, CellData> modeRow = new HashMap<>();
+    modeRow.put("name", new CellData("mode"));
+    modeRow.put("source", new CellData(String.valueOf(ParameterConstants.VALUE)));
+    modeRow.put("value", new CellData("smoke"));
+    parameterDataList.addRow(modeRow);
+    Map<String, CellData> dateRow = new HashMap<>();
+    dateRow.put("name", new CellData("date"));
+    dateRow.put("source", new CellData(String.valueOf(ParameterConstants.VARIABLE)));
+    dateRow.put("value", new CellData("STORED_DEFAULT"));
+    parameterDataList.addRow(dateRow);
+    Map<String, CellData> regionRow = new HashMap<>();
+    regionRow.put("name", new CellData("region"));
+    regionRow.put("source", new CellData(String.valueOf(ParameterConstants.PROPERTY)));
+    regionRow.put("value", new CellData("my.region"));
+    parameterDataList.addRow(regionRow);
+    return parameterDataList;
+  }
+
+  /**
    * Build a data list with two VARIABLE (source="1") child parameters and their stored defaults.
    *
    * @return DataList mimicking the taskParameters query result for the child task

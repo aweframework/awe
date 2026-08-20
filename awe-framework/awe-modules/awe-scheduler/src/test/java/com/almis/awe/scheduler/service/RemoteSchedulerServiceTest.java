@@ -1,6 +1,8 @@
 package com.almis.awe.scheduler.service;
 
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.scheduler.bean.task.TaskVariable;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,12 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for the operator-values adapter used by the manual launch modal.
@@ -105,6 +112,53 @@ class RemoteSchedulerServiceTest {
     verify(schedulerService).executeTaskNow(eq(1), eq("user"), captor.capture());
     assertNotNull(captor.getValue());
     assertTrue(captor.getValue().isEmpty());
+  }
+
+  /**
+   * An unresolved property reported by the scheduler becomes an AWException, which aborts the
+   * launch chain and is rendered by AWE.
+   */
+  @Test
+  void validateTaskParametersRaisesTheReportedError() {
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    when(remoteScheduler.validateTaskParameters(anyInt(), any())).thenReturn(new ServiceData()
+      .setType(AnswerType.ERROR)
+      .setTitle("Parameter configuration error")
+      .setMessage("The property missing.key is not defined"));
+
+    AWException thrown = assertThrows(AWException.class, () ->
+      service(mock(SchedulerService.class), remoteScheduler, true).validateTaskParameters(1, List.of()));
+
+    assertEquals("The property missing.key is not defined", thrown.getMessage());
+  }
+
+  /**
+   * A clean validation does not raise.
+   */
+  @Test
+  void validateTaskParametersPassesWhenEveryPropertyResolves() {
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    when(remoteScheduler.validateTaskParameters(anyInt(), any())).thenReturn(new ServiceData());
+
+    assertDoesNotThrow(() ->
+      service(mock(SchedulerService.class), remoteScheduler, true).validateTaskParameters(1, List.of()));
+  }
+
+  /**
+   * The validation runs on the embedded scheduler when the instance is not remote, since that is
+   * the JVM whose configuration resolves the properties.
+   */
+  @Test
+  void validateTaskParametersUsesTheEmbeddedSchedulerWhenNotRemote() throws AWException {
+    SchedulerService schedulerService = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    when(schedulerService.validateTaskParameters(anyInt(), any())).thenReturn(new ServiceData());
+
+    service(schedulerService, remoteScheduler, false).validateTaskParameters(1, List.of(
+      new TaskVariable().setName("region").setValue("my.region")));
+
+    verify(schedulerService).validateTaskParameters(eq(1), eq(Map.of("region", "my.region")));
+    verify(remoteScheduler, org.mockito.Mockito.never()).validateTaskParameters(anyInt(), any());
   }
 
   /**

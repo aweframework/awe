@@ -126,7 +126,58 @@ class SshCommandExecutorTest {
     Integer exitCode = executor.execute(task, new String[0], 10);
 
     assertEquals(0, exitCode);
-    assertEquals("RECEIVED:myscript param1 param2\n", captureOutput(task));
+    assertEquals("RECEIVED:myscript 'param1' 'param2'\n", captureOutput(task));
+  }
+
+  @Test
+  void parameterValueWithSpacesIsQuotedAsASingleArgument() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("two words"));
+    Task task = generateTask(1, "myscript", parameters);
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:myscript 'two words'\n", captureOutput(task));
+  }
+
+  @Test
+  void singleQuoteInsideParameterValueIsEscaped() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("it's"));
+    Task task = generateTask(1, "myscript", parameters);
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:myscript 'it'\\''s'\n", captureOutput(task));
+  }
+
+  @Test
+  void shellMetacharactersInParameterValueAreQuoted() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("; echo pwned"));
+    Task task = generateTask(1, "myscript", parameters);
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:myscript '; echo pwned'\n", captureOutput(task));
+  }
+
+  @Test
+  void singleQuoteInsideCommandPathIsEscaped() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    Task task = generateTask(1, "run.sh", new ArrayList<>());
+    task.setCommandPath("/opt/it's");
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:cd '/opt/it'\\''s' && run.sh\n", captureOutput(task));
   }
 
   @Test

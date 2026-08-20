@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
@@ -171,6 +172,29 @@ public class RemoteSchedulerService extends ServiceConfig {
     return values;
   }
 
+
+  /**
+   * Validate the task parameters before launching, on the instance that resolves them.
+   *
+   * <p>Bound by the AWE JavaConnector for the "validateTaskParameters" service. A property that
+   * does not resolve raises an AWException, which aborts the action chain and is rendered by AWE.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied variable rows (name/value) from the modal grid
+   * @return ServiceData
+   * @throws AWException A property key does not resolve, or the task could not be loaded
+   */
+  public ServiceData validateTaskParameters(Integer taskId, List<TaskVariable> variables) throws AWException {
+    Map<String, String> operatorValues = toVariableMap(variables);
+    ServiceData result = remote
+      ? remoteScheduler.validateTaskParameters(taskId, operatorValues)
+      : schedulerService.validateTaskParameters(taskId, operatorValues);
+
+    if (AnswerType.ERROR.equals(result.getType())) {
+      throw new AWException(result.getTitle(), result.getMessage());
+    }
+    return result;
+  }
 
   /**
    * Insert and schedule a new task
