@@ -1,3 +1,18 @@
+# Release notes for AWE 4.12.7
+*20/08/2026*
+ 
+✨ Features:
+- **[HAS IMPACTS]** feat(reports): adopt ADE 3.0.1 and pin AWE's HTTP wire format to JSON. [MR #690](https://gitlab.com/aweframework/awe/-/merge_requests/690) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- build(dependencies): update ADE to 2.2.9. [MR #689](https://gitlab.com/aweframework/awe/-/merge_requests/689) (Pablo Vidal Otero)
+- build(dependencies): update Spring Boot to 3.5.16 (#739). [MR #688](https://gitlab.com/aweframework/awe/-/merge_requests/688) (Pablo Vidal Otero)
+
+📄 Documentation:
+- fix(website): restore the mobile navbar sidebar entries (#738). [MR #687](https://gitlab.com/aweframework/awe/-/merge_requests/687) (Pablo Vidal Otero)
+- fix(website): make the homepage title and description translatable (#737). [MR #686](https://gitlab.com/aweframework/awe/-/merge_requests/686) (Pablo Vidal Otero)
+- feat(website): redesign the documentation homepage with AWE brand identity (#736). [MR #685](https://gitlab.com/aweframework/awe/-/merge_requests/685) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.12.6
 *31/07/2026*
  
