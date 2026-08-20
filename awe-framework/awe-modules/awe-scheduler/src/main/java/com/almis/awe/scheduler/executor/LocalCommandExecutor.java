@@ -7,9 +7,10 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Runs a scheduler command task on the local host via the JVM process API.
@@ -41,10 +42,10 @@ public class LocalCommandExecutor implements CommandExecutor {
     int exit;
     Process proc = null;
 
-    String finalCommand = constructCommand(commandTask);
+    String[] finalCommand = constructCommand(commandTask);
     String rawPath = commandTask.getCommandPath();
     boolean hasWorkingDir = rawPath != null && !rawPath.isBlank();
-    log.info("[Batch] Batch {} launch started on path {}", finalCommand, rawPath);
+    log.info("[Batch] Batch {} launch started on path {}", String.join(" ", finalCommand), rawPath);
 
     try {
       if (hasWorkingDir) {
@@ -82,28 +83,27 @@ public class LocalCommandExecutor implements CommandExecutor {
    * Construct the batch to execute
    *
    * @param commandTask Task
-   * @return String with command
+   * @return Command and its arguments, one array element each
    */
-  private String constructCommand(Task commandTask) {
-    String finalCommand = commandTask.getAction() + generateParameterList(commandTask.getParameterList());
+  private String[] constructCommand(Task commandTask) {
+    String action = commandTask.getAction();
+    List<String> command = new ArrayList<>();
 
-    if (SystemUtils.IS_OS_WINDOWS && !commandTask.getAction().matches("(.*).exe")) {
-      if (commandTask.getAction().matches("(.*).bat")) {
-        finalCommand = "start " + finalCommand;
+    if (SystemUtils.IS_OS_WINDOWS && !action.matches("(.*).exe")) {
+      command.add("cmd");
+      command.add("/c");
+      if (action.matches("(.*).bat")) {
+        command.add("start");
       }
-      finalCommand = "cmd /c " + finalCommand;
     }
-    return finalCommand;
-  }
 
-  /**
-   * Generate parameter list
-   *
-   * @param parameters Task parameters
-   * @return String with list of parameters
-   */
-  private String generateParameterList(List<TaskParameter> parameters) {
-    String parameterList = parameters.stream().map(TaskParameter::getValue).collect(Collectors.joining(" "));
-    return parameterList.isEmpty() ? "" : " " + parameterList;
+    command.add(action);
+    if (commandTask.getParameterList() != null) {
+      commandTask.getParameterList().stream()
+        .map(parameter -> Objects.toString(parameter.getValue(), ""))
+        .forEach(command::add);
+    }
+
+    return command.toArray(new String[0]);
   }
 }

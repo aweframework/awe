@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -238,7 +239,7 @@ public class SshCommandExecutor implements CommandExecutor {
       return actionWithParams;
     }
 
-    return "cd '" + commandPath + "' && " + actionWithParams;
+    return "cd " + shellQuote(commandPath) + " && " + actionWithParams;
   }
 
   /**
@@ -251,8 +252,20 @@ public class SshCommandExecutor implements CommandExecutor {
     if (parameters == null || parameters.isEmpty()) {
       return "";
     }
-    String parameterList = parameters.stream().map(TaskParameter::getValue).collect(Collectors.joining(" "));
-    return parameterList.isEmpty() ? "" : " " + parameterList;
+
+    return parameters.stream()
+      .map(parameter -> " " + shellQuote(Objects.toString(parameter.getValue(), "")))
+      .collect(Collectors.joining());
+  }
+
+  /**
+   * Wrap a value in POSIX single quotes so the remote shell takes it as one literal argument.
+   *
+   * @param value Value to quote
+   * @return Single quoted value
+   */
+  private String shellQuote(String value) {
+    return "'" + value.replace("'", "'\\''") + "'";
   }
 
   /**

@@ -2,25 +2,30 @@
 
 <!--
     Document   : scheduler-launch-variables.xml
-    Description: Manual launch modal. Lists ONLY the variable (source = "1") parameters of the
-                 selected task with an editable value column, and launches the task applying the
-                 operator-supplied values.
+    Description: Manual launch modal. Lists every parameter of the selected task with its source
+                 and an editable value column, and launches the task applying the supplied values.
+                 On a PROPERTY parameter the supplied value is the property key, which is resolved
+                 at execution time.
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
         template="window" label="MENU_SCHEDULER_TASKS" help="HELP_SCREEN_SCHEDULER_TASKS">
   <tag source="center">
-    <dialog id="task-variables" modal="true" style="modal-md" label="SCREEN_TEXT_LAUNCH_PARAMETERS">
+    <dialog id="task-variables" modal="true" style="modal-lg" label="SCREEN_TEXT_LAUNCH_PARAMETERS">
       <!-- no-border + panel-transparent strip the window's themed (maroon) panel border so the grid
-           doesn't show a naked colored box inside the dialog; padding-sm spaces it below the header. -->
-      <window style="padding-sm no-border panel-transparent">
+           doesn't show a naked colored box inside the dialog; padding-sm spaces it below the header.
+           height-md + expand give the grid room for several parameters instead of clipping at two,
+           and scroll beyond that. -->
+      <window style="padding-sm no-border panel-transparent height-md expand" expandible="vertical">
         <!-- send-all transmits the name/value columns as parallel arrays; the JavaConnector assembles
-             them into a List<TaskVariable> for executeTaskNowVariables. The name column is read-only,
-             the value column is pre-filled with the stored value and editable. -->
-        <grid id="GrdTskVar" editable="true" send-all="true" row-numbers="false"
+             them into a List<TaskVariable> for executeTaskNowVariables. The name and source columns
+             are read-only and not sent, the value column is pre-filled with the stored value and
+             editable. -->
+        <grid id="GrdTskVar" style="expand" editable="true" send-all="true" row-numbers="false"
               server-action="data" target-action="taskVariableParameters" initial-load="query"
               pagination-disabled="true">
           <column label="PARAMETER_NAME" name="name" align="left" charlength="30" sortable="false"/>
+          <column label="PARAMETER_SOURCE" name="sourceLabel" align="left" charlength="20" sortable="false" sendable="false"/>
           <column label="PARAMETER_VALUE" name="value" align="left" component="text" charlength="40" sortable="false"/>
         </grid>
       </window>
@@ -32,6 +37,8 @@
           <button button-type="submit" id="ButLchTskVar" label="BUTTON_LAUNCH" icon="play"
                   help="HELP_LAUNCH_VARIABLES_BUTTON">
             <button-action type="validate" target="task-variables"/>
+            <button-action type="check-records-saved" target="GrdTskVar"/>
+            <button-action type="server" server-action="maintain-silent" target-action="VldTskPar"/>
             <button-action type="server" server-action="maintain-silent" target-action="LchTskVar" silent="true"/>
             <button-action type="close" target="task-variables"/>
             <button-action type="filter" target="GrdTskLst" silent="true"/>

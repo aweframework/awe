@@ -139,6 +139,8 @@
   <locale name="SCREEN_TEXT_EXECUTION" value="L&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Les détails de l&apos;exécution"/>
   <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Paramètres de lancement"/>
+  <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Erreur de configuration des paramètres"/>
+  <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="La propriété {0} n'est pas définie sur l'instance du planificateur, la tâche ne peut donc pas être lancée. Définissez la propriété ou indiquez-en une existante."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Temps d&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Exécutions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Lancé par"/>

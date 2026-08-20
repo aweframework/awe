@@ -99,6 +99,19 @@ public class SchedulerController {
   }
 
   /**
+   * Validate the task parameters against the configuration of this instance
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values for the task parameters
+   * @return ServiceData, of type ERROR when a property key does not resolve
+   * @throws AWException Error loading the task
+   */
+  @PostMapping("/task/{taskId}/parameters/validate")
+  ServiceData validateTaskParameters(@PathVariable int taskId, @RequestBody Map<String, String> variables) throws AWException {
+    return schedulerService.validateTaskParameters(taskId, variables);
+  }
+
+  /**
    * Insert and schedule a new task
    *
    * @param taskId Task identifier
