@@ -49,11 +49,11 @@ public interface RemoteScheduler {
    *
    * @param taskId    Task identifier
    * @param user      Launch user
-   * @param variables Operator supplied values for variable parameters
+   * @param variables Operator supplied values for variable parameters; empty map when none
    * @return Service Data
    */
   @PostMapping("/task/{taskId}/execute")
-  ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user, @RequestBody(required = false) Map<String, String> variables);
+  ServiceData executeTaskNow(@PathVariable int taskId, @RequestParam String user, @RequestBody Map<String, String> variables);
 
   /**
    * Insert and schedule a new task
