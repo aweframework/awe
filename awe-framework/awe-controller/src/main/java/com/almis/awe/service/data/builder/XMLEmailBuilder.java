@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -220,7 +220,7 @@ public class XMLEmailBuilder extends EmailBuilder {
 
       // remove HTML characters
       String bodyMessage = getParsedEmail().getBody();
-      bodyMessage = StringEscapeUtils.unescapeHtml(bodyMessage);
+      bodyMessage = StringEscapeUtils.unescapeHtml4(bodyMessage);
 
       // Change <br/> to new lines
       bodyMessage = bodyMessage.replace(BREAK_LINE, "\n");

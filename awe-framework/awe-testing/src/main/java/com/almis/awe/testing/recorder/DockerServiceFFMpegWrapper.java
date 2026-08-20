@@ -5,6 +5,8 @@ import com.almis.awe.testing.model.VideoRecorderStopRequest;
 import com.automation.remarks.video.recorder.VideoRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,7 +32,8 @@ public class DockerServiceFFMpegWrapper {
       .setPixelFormat(VideoRecorder.conf().ffmpegPixelFormat())
       .setFileFormat(getVideoFormat())
       .setExtraInput(Collections.emptyList())
-      .setExtraOutput(Arrays.asList(args))
+      .setExtraOutput(Arrays.asList(args)),
+      jsonHeaders()
     );
 
     try {
@@ -45,7 +48,7 @@ public class DockerServiceFFMpegWrapper {
   public File stopFFmpegAndSave(String filename) {
     RestTemplate restTemplate = new RestTemplate();
     File destFile = getFileName(filename);
-    HttpEntity<VideoRecorderStopRequest> request = new HttpEntity<>(new VideoRecorderStopRequest().setId(fileIdentifier));
+    HttpEntity<VideoRecorderStopRequest> request = new HttpEntity<>(new VideoRecorderStopRequest().setId(fileIdentifier), jsonHeaders());
 
     try {
       // Create directories if not exists
@@ -86,5 +89,23 @@ public class DockerServiceFFMpegWrapper {
 
   private String getVideoFormat() {
     return System.getProperty("video.file.extension");
+  }
+
+  /**
+   * Headers declaring the JSON wire format the recorder service expects
+   *
+   * <p>The recorder parses request bodies with {@code bodyParser.json()} only, and a bare
+   * {@code RestTemplate} serialises a body sent without an explicit content type with whichever
+   * converter sorts first — an XML one, when an XML provider reaches the test classpath
+   * transitively. The recorder then sees an empty body, {@code /start} fails with "No input
+   * specified", and the follow-up {@code /stop} with a null id crashes the service
+   * (aweframework/awe#742).</p>
+   *
+   * @return headers with the JSON content type
+   */
+  private HttpHeaders jsonHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    return headers;
   }
 }

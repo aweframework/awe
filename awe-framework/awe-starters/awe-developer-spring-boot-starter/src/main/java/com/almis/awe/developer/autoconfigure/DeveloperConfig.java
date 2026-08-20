@@ -9,6 +9,7 @@ import com.almis.awe.developer.service.PathService;
 import com.almis.awe.developer.service.TranslationService;
 import com.almis.awe.developer.translators.ITranslator;
 import com.almis.awe.model.component.XStreamSerializer;
+import com.almis.awe.model.util.web.MessageConverterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,12 +44,15 @@ public class DeveloperConfig {
   /**
    * Rest template
    *
+   * <p>XML converters are stripped so a body sent without an explicit content type is never
+   * serialised as XML, whatever the classpath happens to offer (aweframework/awe#742).</p>
+   *
    * @return Rest template
    */
   @Bean
   @ConditionalOnMissingBean
   public RestTemplate restTemplate() {
-    return new RestTemplate();
+    return MessageConverterUtil.withoutXmlConverters(new RestTemplate());
   }
 
   /**
