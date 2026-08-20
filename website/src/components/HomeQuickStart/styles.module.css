@@ -1,0 +1,217 @@
+.block {
+  padding-top: 84px;
+}
+
+.termZone {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.termZone > * {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .termZone {
+    grid-template-columns: 1fr;
+  }
+}
+
+.intro {
+  min-width: 0;
+}
+
+.cta {
+  display: inline-block;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 26px;
+  padding-right: 26px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15.5px;
+  text-decoration: none;
+  color: var(--awe-on-brand);
+  background: linear-gradient(
+    100deg,
+    var(--awe-purple),
+    var(--awe-blue) 55%,
+    var(--awe-green)
+  );
+  box-shadow: var(--awe-cta-shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cta:hover {
+  color: var(--awe-on-brand);
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cta:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.terminal {
+  border-radius: 14px;
+  background-color: var(--awe-code-bg);
+  border: 1px solid var(--awe-line);
+  overflow: hidden;
+  box-shadow: var(--awe-shadow);
+  min-width: 0;
+}
+
+.termBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-bottom: 1px solid var(--awe-code-line);
+}
+
+.termBar i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+  flex: none;
+}
+
+.termBar i:nth-child(1) {
+  background-color: var(--awe-purple);
+}
+
+.termBar i:nth-child(2) {
+  background-color: var(--awe-blue);
+}
+
+.termBar i:nth-child(3) {
+  background-color: var(--awe-green);
+}
+
+.termTabs {
+  display: flex;
+  gap: 2px;
+  margin-left: 16px;
+}
+
+.termTab {
+  font-family: var(--awe-mono);
+  font-size: 12px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 12px;
+  padding-right: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  color: var(--awe-code-ink-dim);
+}
+
+.termTab:hover {
+  color: rgba(220, 229, 238, 0.85);
+}
+
+.termTab[aria-selected='true'] {
+  background-color: var(--awe-code-hover);
+  color: var(--awe-on-brand);
+}
+
+.copyBtn {
+  margin-left: auto;
+  cursor: pointer;
+  font-family: var(--awe-mono);
+  font-size: 11.5px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--awe-code-border);
+  background: none;
+  color: rgba(220, 229, 238, 0.75);
+  white-space: nowrap;
+}
+
+.copyBtn:hover {
+  border-color: var(--awe-green);
+  color: var(--awe-on-brand);
+}
+
+.copyBtnDone {
+  border-color: var(--awe-green);
+  color: var(--awe-green);
+}
+
+.termBody {
+  font-family: var(--awe-mono);
+  color: var(--awe-code-ink);
+  font-size: 13px;
+  padding: 18px;
+  line-height: 1.8;
+  min-width: 0;
+}
+
+.cmdStack {
+  min-width: 0;
+}
+
+.cmd {
+  display: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  white-space: pre;
+  overflow-x: auto;
+  background: none;
+  border-radius: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Doubled class keeps this above .cmd in the cascade: the production
+   minifier merges and hoists single-class display rules, which can put
+   .cmd's display:none after this one at equal specificity. */
+.cmd.cmdActive {
+  display: block;
+}
+
+.cmd code {
+  font-family: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+.prompt {
+  color: var(--awe-green);
+}
+
+.dim {
+  color: var(--awe-code-ink-faint);
+  overflow-x: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cmdActive code {
+    animation: cmdIn 0.35s ease;
+  }
+}
+
+@keyframes cmdIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

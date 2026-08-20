@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.autoconfigure;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.model.util.web.MessageConverterUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
 import com.almis.awe.scheduler.dao.*;
 import com.almis.awe.scheduler.executor.CommandExecutorResolver;
@@ -36,7 +37,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -77,12 +77,16 @@ public class SchedulerConfig {
 
   /**
    * Define RestTemplate
+   *
+   * <p>XML converters are stripped so a body sent without an explicit content type is never
+   * serialised as XML, whatever the classpath happens to offer (aweframework/awe#742).</p>
+   *
    * @return rest template
    */
   @Bean
   @ConditionalOnMissingBean
   public RestTemplate restTemplate() {
-    return new RestTemplate();
+    return MessageConverterUtil.withoutXmlConverters(new RestTemplate());
   }
 
   /**

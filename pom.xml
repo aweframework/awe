@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.12.6</version>
+  <version>4.12.7</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.12.6</revision>
+    <revision>4.12.7</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -65,7 +65,7 @@
     <plugin-site.version>3.5.1</plugin-site.version>
     <plugin-info-reports.version>2.9</plugin-info-reports.version>
     <plugin-dependency.version>3.6.0</plugin-dependency.version>
-    <plugin-jacoco.version>0.8.7</plugin-jacoco.version>
+    <plugin-jacoco.version>0.8.13</plugin-jacoco.version>
     <gitflow-maven-plugin.version>1.13.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->

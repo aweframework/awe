@@ -1,0 +1,440 @@
+.demoZone {
+  position: relative;
+  min-width: 0;
+}
+
+.demoGlow {
+  position: absolute;
+  inset: -12% -8%;
+  background:
+    radial-gradient(38% 45% at 18% 30%, var(--awe-purple) 0%, transparent 70%),
+    radial-gradient(42% 50% at 55% 65%, var(--awe-blue) 0%, transparent 70%),
+    radial-gradient(36% 44% at 88% 25%, var(--awe-green) 0%, transparent 70%);
+  filter: blur(70px);
+  opacity: var(--awe-glow-opacity);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.demo {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.38fr 1fr;
+  gap: 0;
+  border: 1px solid var(--awe-line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--awe-shadow);
+  background-color: var(--awe-panel);
+}
+
+@media (max-width: 720px) {
+  .demo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------- Code side ---------------- */
+.codeSide {
+  background-color: var(--awe-code-bg);
+  color: var(--awe-code-ink);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.codeTabs {
+  display: flex;
+  gap: 2px;
+  padding-top: 10px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-bottom: 1px solid var(--awe-code-line);
+}
+
+.codeTab {
+  font-family: var(--awe-mono);
+  font-size: 12.5px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 14px;
+  padding-right: 14px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--awe-code-ink-dim);
+}
+
+.codeTab:hover {
+  color: rgba(220, 229, 238, 0.85);
+}
+
+.codeTab[aria-selected='true'] {
+  color: var(--awe-on-brand);
+  border-bottom-color: var(--awe-green);
+}
+
+/*
+ * All panels share one grid cell so the component keeps a constant height.
+ * Inactive panels stay laid out and are hidden with `visibility`, never
+ * `display: none` — that would make the panel jump on every tab change.
+ */
+.codeStack {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.codePanel {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  min-width: 0;
+  margin: 0;
+  padding-top: 16px;
+  padding-bottom: 18px;
+  padding-left: 16px;
+  padding-right: 16px;
+  overflow-x: auto;
+  font-size: 12.2px;
+  line-height: 1.62;
+  background: none;
+  border-radius: 0;
+}
+
+/* Doubled class keeps this above .codePanel in the cascade: the production
+   minifier merges and hoists single-class rules, which can put
+   .codePanel's visibility:hidden after this one at equal specificity. */
+.codePanel.codePanelActive {
+  visibility: visible;
+}
+
+.codePanel code {
+  font-family: var(--awe-mono);
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+.progress {
+  height: 2px;
+  background-color: var(--awe-code-line);
+  margin-top: auto;
+}
+
+.progressBar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(
+    90deg,
+    var(--awe-purple),
+    var(--awe-blue),
+    var(--awe-green)
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .progressRunning .progressBar {
+    animation: fill 5.2s linear forwards;
+  }
+}
+
+@keyframes fill {
+  to {
+    width: 100%;
+  }
+}
+
+/* XML highlighting */
+.xTag {
+  color: var(--awe-code-tag);
+}
+
+.xAttr {
+  color: var(--awe-code-attr);
+}
+
+.xValue {
+  color: var(--awe-code-value);
+}
+
+.xPunct {
+  color: var(--awe-code-ink-dim);
+}
+
+.xComment {
+  color: var(--awe-code-ink-faint);
+  font-style: italic;
+}
+
+/* ---------------- Rendered side ---------------- */
+.renderSide {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--awe-panel-2);
+  min-width: 0;
+}
+
+.renderHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-bottom: 1px solid var(--awe-line);
+}
+
+.renderLabel {
+  font-family: var(--awe-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--awe-ink-3);
+}
+
+.engineToggle {
+  margin-left: auto;
+  display: flex;
+  border: 1px solid var(--awe-line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.engineToggle button {
+  font-family: var(--awe-mono);
+  font-size: 11.5px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--awe-ink-3);
+}
+
+.engineToggle button[aria-pressed='true'] {
+  background-color: var(--awe-blue);
+  color: var(--awe-on-brand);
+}
+
+.renderBody {
+  padding: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mock AWE screen */
+.aweWindow {
+  border: 1px solid var(--awe-line);
+  border-radius: 10px;
+  background-color: var(--awe-panel);
+  overflow: hidden;
+  font-size: 13px;
+  transition: box-shadow 0.3s ease;
+}
+
+.spotWindow {
+  box-shadow: 0 0 0 2px var(--awe-green);
+}
+
+.aweWindowTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-bottom: 1px solid var(--awe-line);
+  font-weight: 700;
+  background-color: var(--awe-panel-2);
+  color: var(--awe-ink);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  background: linear-gradient(
+    120deg,
+    var(--awe-purple),
+    var(--awe-blue),
+    var(--awe-green)
+  );
+}
+
+.aweCriteria {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  flex-wrap: wrap;
+}
+
+.aweField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 110px;
+}
+
+.aweFieldLabel {
+  font-size: 11px;
+  color: var(--awe-ink-3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.aweBox {
+  border: 1px solid var(--awe-line);
+  border-radius: 6px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 9px;
+  padding-right: 9px;
+  background-color: var(--awe-ground);
+  color: var(--awe-ink-2);
+  font-size: 12.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.caret {
+  font-size: 9px;
+  color: var(--awe-ink-3);
+}
+
+.aweGrid {
+  border-top: 1px solid var(--awe-line);
+  transition: box-shadow 0.3s ease;
+  overflow-x: auto;
+}
+
+.spotGrid {
+  box-shadow: inset 0 0 0 2px var(--awe-green);
+}
+
+.aweGrid table {
+  width: 100%;
+  display: table;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.aweGrid th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--awe-ink-3);
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border: none;
+  border-bottom: 1px solid var(--awe-line);
+  background-color: var(--awe-panel-2);
+}
+
+.aweGrid td {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border: none;
+  border-bottom: 1px solid var(--awe-line);
+  color: var(--awe-ink-2);
+}
+
+.aweGrid tr {
+  background-color: transparent;
+  border: none;
+}
+
+.aweGrid tr:last-child td {
+  border-bottom: none;
+}
+
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 9px;
+  padding-right: 9px;
+}
+
+.pillOn {
+  background-color: var(--awe-green-soft);
+  color: var(--awe-green);
+}
+
+.pillOff {
+  background-color: var(--awe-purple-soft);
+  color: var(--awe-purple);
+}
+
+.aweActions {
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-top: 1px solid var(--awe-line);
+  background-color: var(--awe-panel-2);
+}
+
+.aweBtn {
+  font-size: 12.5px;
+  font-weight: 700;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-radius: 6px;
+  border: 1px solid var(--awe-line);
+  background-color: var(--awe-panel);
+  color: var(--awe-ink-2);
+  cursor: default;
+  transition: box-shadow 0.3s ease;
+}
+
+.aweBtnPrimary {
+  background-color: var(--awe-blue);
+  border-color: var(--awe-blue);
+  color: var(--awe-on-brand);
+}
+
+.spotButton {
+  box-shadow: 0 0 0 2px var(--awe-green);
+}
+
+.renderFoot {
+  font-family: var(--awe-mono);
+  font-size: 11px;
+  color: var(--awe-ink-3);
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-top: 1px solid var(--awe-line);
+  min-height: 34px;
+}
+
+.footClient {
+  color: var(--awe-green);
+  font-style: normal;
+}

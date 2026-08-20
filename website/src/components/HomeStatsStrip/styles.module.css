@@ -1,0 +1,38 @@
+.stats {
+  border-top: 1px solid var(--awe-line);
+  border-bottom: 1px solid var(--awe-line);
+  background-color: var(--awe-ground-2);
+  margin-top: 56px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 24px 20px;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.stat {
+  text-align: center;
+  min-width: 0;
+}
+
+.stat svg {
+  width: 36px;
+  height: 36px;
+  color: var(--awe-blue);
+  margin-bottom: 10px;
+}
+
+.stat b {
+  display: block;
+  font-size: 15.5px;
+  letter-spacing: -0.01em;
+  color: var(--awe-ink);
+}
+
+.stat span {
+  font-size: 12px;
+  color: var(--awe-ink-3);
+}
