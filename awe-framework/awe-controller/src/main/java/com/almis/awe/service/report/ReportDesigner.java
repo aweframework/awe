@@ -35,9 +35,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.sf.dynamicreports.report.constant.HorizontalImageAlignment;
-import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
-import net.sf.dynamicreports.report.constant.PageOrientation;
+import com.almis.ade.api.bean.style.AdeStyle;
+import com.almis.ade.api.enumerate.HorizontalTextAlignment;
+import com.almis.ade.api.enumerate.PageOrientation;
 
 import java.awt.*;
 import java.io.IOException;
@@ -45,8 +45,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static net.sf.dynamicreports.report.builder.DynamicReports.stl;
 
 /**
  * Generate the component controllers of the screen
@@ -240,7 +238,7 @@ public class ReportDesigner extends ServiceConfig {
     if (element.getLabel() != null) {
       Text gridTitleText = new Text(element.getId() + "-title")
         .setValue(getLocale(element.getLabel()))
-        .setStyle(stl.style(StyleTemplate.TITLE_STYLE));
+        .setStyle(new AdeStyle(StyleTemplate.TITLE_STYLE));
       gridElement.setTitle(gridTitleText);
     }
 
@@ -555,38 +553,34 @@ public class ReportDesigner extends ServiceConfig {
     switch (safeCell.getType()) {
       case OBJECT:
       case JSON:
-        rowData.add(new DataBean((ObjectNode) safeCell.getObjectValue()));
+        rowData.add(new DataBean(toValueMap((ObjectNode) safeCell.getObjectValue())));
         type = ColumnType.OBJECT;
         break;
       case NULL:
-        rowData.add(new DataBean(JsonNodeFactory.instance.objectNode()
-          .put(AweConstants.JSON_VALUE_PARAMETER, "")
-          .put(AweConstants.JSON_LABEL_PARAMETER, "")
-        ));
+        rowData.add(new DataBean()
+          .add(AweConstants.JSON_VALUE_PARAMETER, "")
+          .add(AweConstants.JSON_LABEL_PARAMETER, ""));
         type = ColumnType.STRING;
         break;
       case FLOAT:
       case DOUBLE:
       case DECIMAL:
-        rowData.add(new DataBean(JsonNodeFactory.instance.objectNode()
-          .put(AweConstants.JSON_VALUE_PARAMETER, safeCell.getDoubleValue())
-          .put(AweConstants.JSON_LABEL_PARAMETER, safeCell.getStringValue())
-        ));
+        rowData.add(new DataBean()
+          .add(AweConstants.JSON_VALUE_PARAMETER, safeCell.getDoubleValue())
+          .add(AweConstants.JSON_LABEL_PARAMETER, safeCell.getStringValue()));
         type = ColumnType.DOUBLE;
         break;
       case INTEGER:
       case LONG:
-        rowData.add(new DataBean(JsonNodeFactory.instance.objectNode()
-          .put(AweConstants.JSON_VALUE_PARAMETER, safeCell.getIntegerValue())
-          .put(AweConstants.JSON_LABEL_PARAMETER, safeCell.getStringValue())
-        ));
+        rowData.add(new DataBean()
+          .add(AweConstants.JSON_VALUE_PARAMETER, safeCell.getIntegerValue())
+          .add(AweConstants.JSON_LABEL_PARAMETER, safeCell.getStringValue()));
         type = ColumnType.INTEGER;
         break;
       default:
-        rowData.add(new DataBean(JsonNodeFactory.instance.objectNode()
-          .put(AweConstants.JSON_VALUE_PARAMETER, safeCell.getStringValue())
-          .put(AweConstants.JSON_LABEL_PARAMETER, safeCell.getStringValue())
-        ));
+        rowData.add(new DataBean()
+          .add(AweConstants.JSON_VALUE_PARAMETER, safeCell.getStringValue())
+          .add(AweConstants.JSON_LABEL_PARAMETER, safeCell.getStringValue()));
         type = ColumnType.valueOf(safeCell.getType().toString());
         break;
     }
@@ -657,8 +651,19 @@ public class ReportDesigner extends ServiceConfig {
     } else {
       type = ColumnType.STRING;
     }
-    row.add(new DataBean((ObjectNode) safeData));
+    row.add(new DataBean(toValueMap((ObjectNode) safeData)));
     return type;
+  }
+
+  /**
+   * Convert a Jackson node into the plain value map ADE 3 beans consume
+   *
+   * @param node JSON node
+   * @return value map
+   */
+  private Map<String, Object> toValueMap(ObjectNode node) {
+    return mapper.convertValue(node, new TypeReference<Map<String, Object>>() {
+    });
   }
 
   /**
@@ -687,8 +692,7 @@ public class ReportDesigner extends ServiceConfig {
       .setSize(Image.Size.FULL_SIZE.getSize())
       .setScale(AweConstants.SVG_SCALE)
       .getStyle()
-      .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)
-      .setHorizontalImageAlignment(HorizontalImageAlignment.CENTER);
+      .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER);
 
     // Set as landscape if defined
     if (PageOrientation.LANDSCAPE.equals(printBean.getOrientation())) {

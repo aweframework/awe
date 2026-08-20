@@ -16,7 +16,7 @@ import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.mockwebserver.MockWebServer;
+import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ class MaintainJobServiceTest {
 
   @AfterAll
   static void tearDown() throws IOException {
-    mockBackEnd.shutdown();
+    mockBackEnd.close();
   }
 
   @Test
