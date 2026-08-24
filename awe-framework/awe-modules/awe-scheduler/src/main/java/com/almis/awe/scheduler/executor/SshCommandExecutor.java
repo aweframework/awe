@@ -222,24 +222,35 @@ public class SshCommandExecutor implements CommandExecutor {
 
   /**
    * Construct the remote command line to execute, mirroring the local
-   * executor: the command runs directly when commandPath is blank, or a
-   * {@code cd '<commandPath>' && <action> <params>} form when set, so
-   * commandPath acts as the working directory and the action is resolved
-   * from the remote PATH (use {@code ./<script>} explicitly to run a script
-   * located in commandPath).
+   * executor: the command runs directly when commandPath is blank, and
+   * otherwise commandPath acts as the working directory. A bare action is
+   * wrapped in a {@code command -v} lookup so the remote PATH takes
+   * precedence and commandPath is only the fallback, which lets a script
+   * living there run without an explicit {@code ./<script>} while a system
+   * command is never shadowed by a file of the same name. Only the action is
+   * resolved this way -- the remote PATH itself is left untouched, so nothing
+   * else the script invokes can be picked up from commandPath. An action
+   * already carrying a path separator is run as given.
    *
    * @param commandTask Task
    * @return String with remote command
    */
   private String constructCommand(Task commandTask) {
-    String actionWithParams = commandTask.getAction() + generateParameterList(commandTask.getParameterList());
+    String action = commandTask.getAction();
+    String actionWithParams = action + generateParameterList(commandTask.getParameterList());
     String commandPath = commandTask.getCommandPath();
 
     if (commandPath == null || commandPath.isBlank()) {
       return actionWithParams;
     }
 
-    return "cd " + shellQuote(commandPath) + " && " + actionWithParams;
+    String changeDirectory = "cd " + shellQuote(commandPath) + " && ";
+    if (action == null || action.indexOf('/') >= 0) {
+      return changeDirectory + actionWithParams;
+    }
+
+    return changeDirectory + "if command -v " + action + " > /dev/null 2>&1; then "
+      + actionWithParams + "; else ./" + actionWithParams + "; fi";
   }
 
   /**
