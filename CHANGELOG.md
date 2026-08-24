@@ -1,3 +1,14 @@
+# Release notes for AWE 4.12.8
+*24/08/2026*
+ 
+✨ Features:
+- feat(awe-scheduler): operator-supplied parameter override on manual launch of command tasks (#744). [MR #692](https://gitlab.com/aweframework/awe/-/merge_requests/692) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- fix(awe-scheduler): resolve command task action against the configured command path (#746). [MR #694](https://gitlab.com/aweframework/awe/-/merge_requests/694) (Pablo Vidal Otero)
+- build(dependencies): update ADE to 3.0.2 (#745). [MR #693](https://gitlab.com/aweframework/awe/-/merge_requests/693) (Pablo Vidal Otero)
+- fix(awe-scheduler): send an empty variables map on manual launch without operator values (#743). [MR #691](https://gitlab.com/aweframework/awe/-/merge_requests/691) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.12.7
 *20/08/2026*
  
