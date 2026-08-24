@@ -52,6 +52,16 @@
     </java>
   </service>
 
+  <!-- Validate the task parameters before a manual launch, on the instance that resolves them.
+       Same bean-class + list="true" binding as executeTaskNowVariables, so the modal grid rows
+       reach RemoteSchedulerService.validateTaskParameters(Integer, List<TaskVariable>). -->
+  <service id="validateTaskParameters">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="validateTaskParameters">
+      <service-parameter name="taskIde" type="INTEGER"/>
+      <service-parameter name="variables" type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.TaskVariable" list="true"/>
+    </java>
+  </service>
+
   <service id="insertSchedulerTask">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="insertSchedulerTask">
       <service-parameter name="IdeTsk" type="INTEGER"/>

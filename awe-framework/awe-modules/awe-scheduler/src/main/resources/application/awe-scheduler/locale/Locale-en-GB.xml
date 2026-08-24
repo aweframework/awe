@@ -139,6 +139,8 @@
   <locale name="SCREEN_TEXT_EXECUTION" value="Execution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Execution details"/>
   <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Launch parameters"/>
+  <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Parameter configuration error"/>
+  <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="The property {0} is not defined on the scheduler instance, so the task cannot be launched. Set the property or supply an existing one."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Execution time"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Executions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Launched by"/>

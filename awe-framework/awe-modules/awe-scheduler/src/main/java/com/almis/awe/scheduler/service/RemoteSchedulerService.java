@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +114,7 @@ public class RemoteSchedulerService extends ServiceConfig {
   public ServiceData executeTaskNow(Integer taskId, String user) throws AWException {
     // Backward-compatible signature bound by the AWE JavaConnector from Services.xml (LchTsk manual launch, 2 params).
     // Do not remove: the connector resolves the target method by EXACT parameter types.
-    return executeTaskNow(taskId, user, (Map<String, String>) null);
+    return executeTaskNow(taskId, user, Collections.emptyMap());
   }
 
   /**
@@ -126,7 +128,8 @@ public class RemoteSchedulerService extends ServiceConfig {
    * @throws AWException Error executing task
    */
   public ServiceData executeTaskNow(Integer taskId, String user, Map<String, String> variables) throws AWException {
-    return remote ? remoteScheduler.executeTaskNow(taskId, user, variables) : schedulerService.executeTaskNow(taskId, user, variables);
+    Map<String, String> operatorValues = variables == null ? Collections.emptyMap() : variables;
+    return remote ? remoteScheduler.executeTaskNow(taskId, user, operatorValues) : schedulerService.executeTaskNow(taskId, user, operatorValues);
   }
 
   /**
@@ -169,6 +172,29 @@ public class RemoteSchedulerService extends ServiceConfig {
     return values;
   }
 
+
+  /**
+   * Validate the task parameters before launching, on the instance that resolves them.
+   *
+   * <p>Bound by the AWE JavaConnector for the "validateTaskParameters" service. A property that
+   * does not resolve raises an AWException, which aborts the action chain and is rendered by AWE.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied variable rows (name/value) from the modal grid
+   * @return ServiceData
+   * @throws AWException A property key does not resolve, or the task could not be loaded
+   */
+  public ServiceData validateTaskParameters(Integer taskId, List<TaskVariable> variables) throws AWException {
+    Map<String, String> operatorValues = toVariableMap(variables);
+    ServiceData result = remote
+      ? remoteScheduler.validateTaskParameters(taskId, operatorValues)
+      : schedulerService.validateTaskParameters(taskId, operatorValues);
+
+    if (AnswerType.ERROR.equals(result.getType())) {
+      throw new AWException(result.getTitle(), result.getMessage());
+    }
+    return result;
+  }
 
   /**
    * Insert and schedule a new task

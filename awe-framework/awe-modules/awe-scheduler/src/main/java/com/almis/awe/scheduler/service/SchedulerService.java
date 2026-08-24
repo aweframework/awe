@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
@@ -22,6 +23,9 @@ import java.util.Map;
  */
 @Slf4j
 public class SchedulerService extends ServiceConfig {
+
+  private static final String SCHEDULER_PROPERTY_NOT_FOUND_TITLE = "SCHEDULER_PROPERTY_NOT_FOUND_TITLE";
+  private static final String SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE = "SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE";
 
   // Locales
   private static final String ERROR_MESSAGE_SCHEDULER_PAUSE_TASK = "ERROR_MESSAGE_SCHEDULER_PAUSE_TASK";
@@ -203,6 +207,30 @@ public class SchedulerService extends ServiceConfig {
    */
   public ServiceData executeTaskNow(Integer taskId, String user, Map<String, String> variables) throws AWException {
     return taskDAO.executeTaskNow(taskId, user, variables);
+  }
+
+  /**
+   * Check that every PROPERTY parameter of the task resolves against the configuration of THIS
+   * instance, which is the one that resolves them at execution time.
+   *
+   * <p>Returns an ERROR ServiceData naming the offending keys rather than throwing, so the remote
+   * endpoint can hand the outcome back to the caller over HTTP.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values (parameter name -&gt; value); null for none
+   * @return ServiceData, of type ERROR when a property key does not resolve
+   * @throws AWException Error loading the task
+   */
+  public ServiceData validateTaskParameters(Integer taskId, Map<String, String> variables) throws AWException {
+    List<String> unresolved = taskDAO.findUnresolvedProperties(taskId, variables);
+    if (unresolved.isEmpty()) {
+      return new ServiceData();
+    }
+
+    return new ServiceData()
+      .setType(AnswerType.ERROR)
+      .setTitle(getLocale(SCHEDULER_PROPERTY_NOT_FOUND_TITLE))
+      .setMessage(getLocale(SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE, String.join(", ", unresolved)));
   }
 
   /**

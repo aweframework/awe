@@ -6,6 +6,7 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.dao.CommandDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.service.ExecutionService;
@@ -57,6 +58,8 @@ public class CommandJobService extends JobService {
     // Log job start
     log.info("[{}] Command job started: {}", task.getTrigger().getKey().toString(), task.getAction());
 
+    resolvePropertyParameters(task);
+
     ServiceData result = new ServiceData();
     // Execute task
     if (execute(task, getTimeout(task))) {
@@ -83,6 +86,24 @@ public class CommandJobService extends JobService {
    * @param timeout
    * @return
    */
+  /**
+   * Replace the stored key of every PROPERTY parameter with its resolved property value, on the
+   * per-execution task instance, so both the environment and the command line see the same value.
+   *
+   * @param task Task whose parameters are resolved
+   */
+  private void resolvePropertyParameters(Task task) {
+    if (task.getParameterList() == null) {
+      return;
+    }
+
+    for (TaskParameter parameter : task.getParameterList()) {
+      if (String.valueOf(ParameterConstants.PROPERTY).equals(parameter.getSource())) {
+        parameter.setValue(getProperty(parameter.getValue()));
+      }
+    }
+  }
+
   private boolean execute(Task task, final long timeout) {
     return execute(task, task.getParameterList().stream().map(TaskParameter::getValue).toArray(String[]::new), timeout);
   }

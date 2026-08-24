@@ -573,8 +573,10 @@
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
   </query>
 
-  <!-- Scheduler variable task parameter list (source = "1", Variable). Feeds the manual launch modal
-       grid and drives the conditional RUN button. Canonical name/value aliases match the TaskVariable
+  <!-- Scheduler task parameter list for the manual launch modal grid: every parameter, whatever its
+       source, since an operator may adjust any of them. On a PROPERTY (source = "2") parameter the
+       supplied value is the property key, resolved at execution time. sourceLabel carries the
+       translated source for a read-only column. Canonical name/value aliases match the TaskVariable
        bean fields so the send-all grid binds to List<TaskVariable>. -->
   <query id="taskVariableParameters" public="true">
     <table id="AweSchTskPar"/>
@@ -583,35 +585,28 @@
     <field id="Src" alias="source"/>
     <field id="Typ" alias="type"/>
     <field id="Val" alias="value"/>
+    <computed format="[source]" alias="sourceLabel" translate="SchParSrc"/>
     <where>
       <and>
         <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
-        <filter left-field="Src" condition="eq">
-          <right-operand>
-            <constant value="1" type="INTEGER"/>
-          </right-operand>
-        </filter>
       </and>
     </where>
     <variable id="IdeTsk" type="INTEGER" name="taskId" optional="true"/>
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
   </query>
 
-  <!-- Whether the selected task has variable (source = "1") parameters. Returns a single row with
-       value = 1 when it has at least one, and no row otherwise. Fills the hidden hasVarParams criterion
-       via server-action="value" to drive the conditional RUN button. -->
+  <!-- Whether the selected task has any parameter at all. Selecting the task identifier under
+       distinct yields exactly one row when it has at least one, and no row otherwise; value and
+       label are computed constants so several parameters cannot return several rows. Fills the
+       hidden hasVarParams criterion via server-action="value" to drive the conditional RUN button. -->
   <query id="taskHasVariableParameters" public="true" distinct="true">
     <table id="AweSchTskPar"/>
-    <field id="Src" alias="value"/>
-    <field id="Src" alias="label"/>
+    <field id="IdeTsk" alias="IdeTsk"/>
+    <computed format="1" alias="value"/>
+    <computed format="1" alias="label"/>
     <where>
       <and>
         <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
-        <filter left-field="Src" condition="eq">
-          <right-operand>
-            <constant value="1" type="INTEGER"/>
-          </right-operand>
-        </filter>
       </and>
     </where>
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected"/>

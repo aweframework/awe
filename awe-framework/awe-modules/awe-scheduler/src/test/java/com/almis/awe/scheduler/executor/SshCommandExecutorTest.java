@@ -126,9 +126,65 @@ class SshCommandExecutorTest {
     Integer exitCode = executor.execute(task, new String[0], 10);
 
     assertEquals(0, exitCode);
-    assertEquals("RECEIVED:myscript param1 param2\n", captureOutput(task));
+    assertEquals("RECEIVED:myscript 'param1' 'param2'\n", captureOutput(task));
   }
 
+  @Test
+  void parameterValueWithSpacesIsQuotedAsASingleArgument() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("two words"));
+    Task task = generateTask(1, "myscript", parameters);
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:myscript 'two words'\n", captureOutput(task));
+  }
+
+  @Test
+  void singleQuoteInsideParameterValueIsEscaped() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("it's"));
+    Task task = generateTask(1, "myscript", parameters);
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:myscript 'it'\\''s'\n", captureOutput(task));
+  }
+
+  @Test
+  void shellMetacharactersInParameterValueAreQuoted() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("; echo pwned"));
+    Task task = generateTask(1, "myscript", parameters);
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:myscript '; echo pwned'\n", captureOutput(task));
+  }
+
+  @Test
+  void singleQuoteInsideCommandPathIsEscaped() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    Task task = generateTask(1, "run.sh", new ArrayList<>());
+    task.setCommandPath("/opt/it's");
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:cd '/opt/it'\\''s' && if command -v run.sh > /dev/null 2>&1; then run.sh; else ./run.sh; fi\n", captureOutput(task));
+  }
+
+  /**
+   * A bare action is looked up on the remote PATH first and only falls back to the command path,
+   * so a script living there runs without an explicit {@code ./} while system commands keep
+   * resolving through PATH.
+   */
   @Test
   void commandWithCommandPathChangesDirectoryAndRunsFromPath() throws AWException {
     SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
@@ -140,7 +196,41 @@ class SshCommandExecutorTest {
     Integer exitCode = executor.execute(task, new String[0], 10);
 
     assertEquals(0, exitCode);
-    assertEquals("RECEIVED:cd '/opt/app' && run.sh\n", captureOutput(task));
+    assertEquals("RECEIVED:cd '/opt/app' && if command -v run.sh > /dev/null 2>&1; then run.sh; else ./run.sh; fi\n", captureOutput(task));
+  }
+
+  /**
+   * The parameters travel into both branches of the lookup, so the command receives the same
+   * arguments whichever way the action resolves.
+   */
+  @Test
+  void parametersAreAppendedToBothBranchesOfThePathLookup() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    ArrayList<TaskParameter> parameters = new ArrayList<>();
+    parameters.add(new TaskParameter().setValue("two words"));
+    Task task = generateTask(1, "run.sh", parameters);
+    task.setCommandPath("/opt/app");
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:cd '/opt/app' && if command -v run.sh > /dev/null 2>&1; then run.sh 'two words'; else ./run.sh 'two words'; fi\n", captureOutput(task));
+  }
+
+  /**
+   * An action already carrying a path separator is run directly: the operator has already said
+   * where the command lives, so no lookup is added.
+   */
+  @Test
+  void actionWithAPathSeparatorRunsDirectlyFromTheCommandPath() throws AWException {
+    SshCommandExecutor executor = newExecutor(SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    Task task = generateTask(1, "./run.sh", new ArrayList<>());
+    task.setCommandPath("/opt/app");
+
+    assertEquals(0, executor.execute(task, new String[0], 10));
+    assertEquals("RECEIVED:cd '/opt/app' && ./run.sh\n", captureOutput(task));
   }
 
   @Test
