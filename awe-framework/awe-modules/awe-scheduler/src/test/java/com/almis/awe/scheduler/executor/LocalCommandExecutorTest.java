@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -14,22 +17,28 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.TriggerBuilder;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 /**
  * Covers local command execution: the command path is passed as the process
- * working directory when set, and the action is launched from it (resolved
- * from PATH) rather than being forced relative.
+ * working directory when set, and the action is resolved through PATH first,
+ * falling back to an executable file inside the command path.
  */
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 class LocalCommandExecutorTest {
 
   private LocalCommandExecutor localCommandExecutor;
+
+  @TempDir
+  private Path commandPath;
 
   @Mock
   private Runtime runtime;
@@ -144,6 +153,109 @@ class LocalCommandExecutorTest {
     ArgumentCaptor<String[]> captor = ArgumentCaptor.forClass(String[].class);
     verify(runtime).exec(captor.capture(), ArgumentMatchers.any(), ArgumentMatchers.any());
     assertEquals(java.util.List.of("script.sh"), java.util.Arrays.asList(captor.getValue()));
+  }
+
+  /**
+   * A bare action naming an executable file inside the command path is resolved to that file:
+   * execvp only searches PATH, never the working directory, so the absolute path is what makes
+   * the script launchable at all.
+   */
+  @Test
+  void bareActionIsResolvedInsideTheCommandPathWhenNotOnPath() throws Exception {
+    given(runtime.exec(ArgumentMatchers.any(String[].class), ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(process);
+    Path script = Files.createFile(commandPath.resolve("purge-duplicates.sh"));
+    assertTrue(script.toFile().setExecutable(true));
+
+    Task task = generateTask();
+    task.setCommandPath(commandPath.toString());
+    task.setAction("purge-duplicates.sh");
+
+    localCommandExecutor.execute(task, new String[0], 1000);
+
+    assertEquals(java.util.List.of(script.toAbsolutePath().toString()), capturedCommand());
+  }
+
+  /**
+   * PATH wins over the command path: a file sitting in the command path never shadows a system
+   * command of the same name, so every task relying on PATH keeps resolving as it does today.
+   */
+  @Test
+  @EnabledOnOs({OS.LINUX, OS.MAC})
+  void commandOnPathIsNotShadowedByAFileInTheCommandPath() throws Exception {
+    given(runtime.exec(ArgumentMatchers.any(String[].class), ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(process);
+    Path impostor = Files.createFile(commandPath.resolve("sh"));
+    assertTrue(impostor.toFile().setExecutable(true));
+
+    Task task = generateTask();
+    task.setCommandPath(commandPath.toString());
+    task.setAction("sh");
+
+    localCommandExecutor.execute(task, new String[0], 1000);
+
+    assertEquals(java.util.List.of("sh"), capturedCommand());
+  }
+
+  /**
+   * An action already carrying a path separator is handed over untouched, so the explicit
+   * {@code ./script} and absolute-path forms keep behaving exactly as before.
+   */
+  @Test
+  void actionWithAPathSeparatorIsLeftUntouched() throws Exception {
+    given(runtime.exec(ArgumentMatchers.any(String[].class), ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(process);
+    Path script = Files.createFile(commandPath.resolve("run.sh"));
+    assertTrue(script.toFile().setExecutable(true));
+
+    Task task = generateTask();
+    task.setCommandPath(commandPath.toString());
+    task.setAction("./run.sh");
+
+    localCommandExecutor.execute(task, new String[0], 1000);
+
+    assertEquals(java.util.List.of("./run.sh"), capturedCommand());
+  }
+
+  /**
+   * A non-executable file is not a runnable command, so it is left to PATH resolution (and to
+   * its failure) instead of being pointed at.
+   */
+  @Test
+  @EnabledOnOs({OS.LINUX, OS.MAC})
+  void nonExecutableFileInTheCommandPathIsNotResolved() throws Exception {
+    given(runtime.exec(ArgumentMatchers.any(String[].class), ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(process);
+    Path notExecutable = Files.createFile(commandPath.resolve("data.sh"));
+    assertTrue(notExecutable.toFile().setExecutable(false));
+
+    Task task = generateTask();
+    task.setCommandPath(commandPath.toString());
+    task.setAction("data.sh");
+
+    localCommandExecutor.execute(task, new String[0], 1000);
+
+    assertEquals(java.util.List.of("data.sh"), capturedCommand());
+  }
+
+  /**
+   * A blank command path leaves the action alone: there is nothing to fall back to.
+   */
+  @Test
+  void blankCommandPathLeavesTheActionUnresolved() throws Exception {
+    given(runtime.exec(ArgumentMatchers.any(String[].class), ArgumentMatchers.any())).willReturn(process);
+
+    Task task = generateTask();
+    task.setCommandPath("");
+    task.setAction("purge-duplicates.sh");
+
+    localCommandExecutor.execute(task, new String[0], 1000);
+
+    ArgumentCaptor<String[]> captor = ArgumentCaptor.forClass(String[].class);
+    verify(runtime).exec(captor.capture(), ArgumentMatchers.any());
+    assertEquals(java.util.List.of("purge-duplicates.sh"), java.util.Arrays.asList(captor.getValue()));
+  }
+
+  private java.util.List<String> capturedCommand() throws Exception {
+    ArgumentCaptor<String[]> captor = ArgumentCaptor.forClass(String[].class);
+    verify(runtime).exec(captor.capture(), ArgumentMatchers.any(), ArgumentMatchers.any());
+    return java.util.Arrays.asList(captor.getValue());
   }
 
   private Task generateTask() {

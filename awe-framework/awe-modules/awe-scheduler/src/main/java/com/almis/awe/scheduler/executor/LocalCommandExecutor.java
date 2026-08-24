@@ -5,9 +5,14 @@ import com.almis.awe.scheduler.bean.task.TaskParameter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SystemUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -15,9 +20,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * Runs a scheduler command task on the local host via the JVM process API.
  * The command path acts as the working directory when set (the process is
- * launched there); the action is resolved from the PATH rather than being
- * forced relative, so a system command works directly and a script located
- * in the command path is invoked with an explicit {@code ./<script>}.
+ * launched there), and the action is resolved through the PATH first, falling
+ * back to an executable file inside the command path. A system command keeps
+ * resolving from the PATH and is never shadowed by a file of the same name in
+ * the command path, while a script living there runs without an explicit
+ * {@code ./<script>} -- which alone could never work, since execvp searches
+ * the PATH and never the working directory.
  */
 @Slf4j
 public class LocalCommandExecutor implements CommandExecutor {
@@ -86,7 +94,7 @@ public class LocalCommandExecutor implements CommandExecutor {
    * @return Command and its arguments, one array element each
    */
   private String[] constructCommand(Task commandTask) {
-    String action = commandTask.getAction();
+    String action = resolveAction(commandTask.getAction(), commandTask.getCommandPath());
     List<String> command = new ArrayList<>();
 
     if (SystemUtils.IS_OS_WINDOWS && !action.matches("(.*).exe")) {
@@ -105,5 +113,75 @@ public class LocalCommandExecutor implements CommandExecutor {
     }
 
     return command.toArray(new String[0]);
+  }
+
+  /**
+   * Resolve the action to launch: the PATH takes precedence, and the command
+   * path is only a fallback. An action already carrying a path separator is
+   * left untouched, so the explicit {@code ./<script>} and absolute-path forms
+   * keep working. Giving the PATH precedence keeps every task that resolves
+   * today resolving the same way, and stops a file dropped into the command
+   * path -- often a data directory -- from taking over a system command name.
+   *
+   * @param action      Configured action
+   * @param commandPath Configured command path
+   * @return Action to hand over to the process API
+   */
+  private String resolveAction(String action, String commandPath) {
+    if (action == null || action.isBlank()
+      || commandPath == null || commandPath.isBlank()
+      || action.indexOf('/') >= 0 || action.indexOf('\\') >= 0
+      || isOnPath(action)) {
+      return action;
+    }
+
+    Path candidate = toPath(commandPath, action);
+    return candidate != null && isExecutableFile(candidate) ? candidate.toString() : action;
+  }
+
+  /**
+   * Check whether the action resolves to an executable file through the PATH.
+   *
+   * @param action Configured action
+   * @return true when the PATH already provides the action
+   */
+  private boolean isOnPath(String action) {
+    String systemPath = System.getenv("PATH");
+    if (systemPath == null || systemPath.isBlank()) {
+      return false;
+    }
+
+    return Arrays.stream(systemPath.split(File.pathSeparator))
+      .filter(directory -> !directory.isBlank())
+      .map(directory -> toPath(directory, action))
+      .filter(Objects::nonNull)
+      .anyMatch(this::isExecutableFile);
+  }
+
+  /**
+   * Resolve a name inside a directory, tolerating entries that are not valid
+   * paths on this platform (a quoted PATH entry on Windows, for instance).
+   *
+   * @param directory Directory to resolve into
+   * @param name      Name to resolve
+   * @return Absolute normalized path, or null when the input is not a valid path
+   */
+  private Path toPath(String directory, String name) {
+    try {
+      return Paths.get(directory).resolve(name).toAbsolutePath().normalize();
+    } catch (InvalidPathException exc) {
+      log.debug("[Batch] Ignoring invalid path entry {} while resolving {}", directory, name, exc);
+      return null;
+    }
+  }
+
+  /**
+   * Check that a candidate is a runnable command: a regular file with execute permission.
+   *
+   * @param candidate Candidate path
+   * @return true when the candidate can be executed
+   */
+  private boolean isExecutableFile(Path candidate) {
+    return Files.isRegularFile(candidate) && Files.isExecutable(candidate);
   }
 }
