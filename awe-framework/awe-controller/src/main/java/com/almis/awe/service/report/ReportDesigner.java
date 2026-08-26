@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.almis.ade.api.bean.style.AdeStyle;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.ade.api.enumerate.PageOrientation;
+import lombok.extern.log4j.Log4j2;
 
 import java.awt.*;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import java.util.Optional;
 /**
  * Generate the component controllers of the screen
  */
+@Log4j2
 public class ReportDesigner extends ServiceConfig {
 
   // Report colors
@@ -197,7 +199,13 @@ public class ReportDesigner extends ServiceConfig {
     JsonNode data = parameters.get(element.getId() + baseConfigProperties.getComponent().getDataSuffix());
 
     if (data != null) {
-      String criterionValue = data.get(AweConstants.JSON_TEXT_PARAMETER).asText();
+      JsonNode criterionText = data.get(AweConstants.JSON_TEXT_PARAMETER);
+      if (criterionText == null) {
+        log.warn("Print design: criterion '{}' data has no '{}' field (received a {} node). Another component with the same identifier (e.g. a grid column) has overwritten its print parameter. Rename one of them to print this criterion.",
+          element.getId(), AweConstants.JSON_TEXT_PARAMETER, data.getNodeType());
+        return;
+      }
+      String criterionValue = criterionText.asText();
       if (criterionValue != null && !criterionValue.isEmpty()) {
         // Configure criterion label
         String criterionLabel = null;
