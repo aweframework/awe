@@ -1,11 +1,13 @@
 package com.almis.awe.service.report;
 
+import com.almis.ade.api.bean.component.Criterion;
 import com.almis.ade.api.bean.component.Image;
 import com.almis.ade.api.bean.component.Layout;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
 import com.almis.ade.api.bean.input.PrintBean;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.awe.builder.screen.chart.ChartBuilder;
+import com.almis.awe.builder.screen.criteria.TextCriteriaBuilder;
 import com.almis.awe.builder.screen.grid.GridBuilder;
 import com.almis.awe.builder.screen.grid.TextColumnBuilder;
 import com.almis.awe.model.dto.CellData;
@@ -39,6 +41,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -184,6 +187,58 @@ class ReportDesignTest {
     assertNotNull(reportGrid.getTitle());
     assertEquals("Grid title", reportGrid.getTitle().getValue());
     assertNotNull(reportGrid.getTitle().getStyle());
+  }
+
+  @Test
+  void getPrintDesignWithCriterionAddsTitleAndValue() throws Exception {
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    doReturn("Criterion label").when(reportDesigner).getLocale("CRITERION_LABEL");
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("criterionId.data", JsonNodeFactory.instance.objectNode().put("text", "criterion value"));
+
+    List<Element> reportElementList = Collections.singletonList(
+      new TextCriteriaBuilder().setId("criterionId").setLabel("CRITERION_LABEL").build());
+
+    PrintBean printBean = reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    Layout criteriaLayout = (Layout) ((Layout) printBean.getDetail()).getElements().get(0);
+    Criterion criterionElement = assertInstanceOf(Criterion.class, criteriaLayout.getElements().get(0));
+    assertEquals("Criterion label", criterionElement.getTitle());
+    assertEquals("criterion value", criterionElement.getValue());
+  }
+
+  @Test
+  void getPrintDesignWithCriterionDataOverwrittenByAGridColumnSkipsTheCriterion() throws Exception {
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("criterionId.data", JsonNodeFactory.instance.arrayNode()
+      .add(JsonNodeFactory.instance.objectNode().put("value", 1).put("label", "one")));
+
+    List<Element> reportElementList = Collections.singletonList(
+      new TextCriteriaBuilder().setId("criterionId").setLabel("CRITERION_LABEL").build());
+
+    PrintBean printBean = reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    Layout criteriaLayout = (Layout) ((Layout) printBean.getDetail()).getElements().get(0);
+    assertTrue(criteriaLayout.getElements().isEmpty());
+  }
+
+  @Test
+  void getPrintDesignWithCriterionDataWithoutTextFieldSkipsTheCriterion() throws Exception {
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("criterionId.data", JsonNodeFactory.instance.objectNode().put("value", "no text field"));
+
+    List<Element> reportElementList = Collections.singletonList(
+      new TextCriteriaBuilder().setId("criterionId").setLabel("CRITERION_LABEL").build());
+
+    PrintBean printBean = reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    Layout criteriaLayout = (Layout) ((Layout) printBean.getDetail()).getElements().get(0);
+    assertTrue(criteriaLayout.getElements().isEmpty());
   }
 
   @Test
