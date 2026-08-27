@@ -73,7 +73,7 @@ public class FTPFileChecker extends Connector {
     // Iterate on every file and check for changes
     List<FTPFile> serverFiles = connectAndGetFiles(task);
     for (FTPFile ftpFile : serverFiles) {
-      if (checkFileModifications(task, ftpFile.getName(), file.getFilePath() + ftpFile.getName(), ftpFile.getTimestamp().getTime())) {
+      if (checkFileModifications(task, ftpFile.getName(), resolveRemotePath(file.getFilePath(), ftpFile.getName()), ftpFile.getTimestamp().getTime())) {
         changedFile = ftpFile.getName();
       }
     }
