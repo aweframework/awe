@@ -138,10 +138,51 @@ Field element in maintains has the following attributes:
 | auto-incremental | Optional     | Boolean | If field value is retrieve from identity/auto-incremental column type                                                                       | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
 | key              | Optional     | Boolean | If field is a table key, this value must be set as `true`                                                                                    | **Note:** Only apply in `multiple` maintains                                                                                                        |
 | audit            | Optional     | Boolean | **ONLY** record this field on the audit table. **Note:** If this attribute is set to `true` this field will **NOT** be recorded on the table | Default value is `false`                                                                                                                            |
+| optional         | Optional     | Boolean | Leave this field out of the operation when its variable has no value, instead of writing `null`                                              | Default value is `false`. See [optional fields](#optional-fields)                                                                                    |
 | variable         | Optional     | String  | Used to set the input field with one variable value                                                                                          |                                                                                                                                                     |
 | query            | Optional     | String  | Is the query identifier to do a subquery                                                                                                     | **Note:** The query id must exist                                                                                                                   |
 | function         | Optional     | String  | To apply sql function to field                                                                                                               | The possible values are defined in [field functions](query-definition.md#field-functions)                                                           |
 | cast             | Optional     | String  | Change the field format                                                                                                                      | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                                                                           |
+
+#### Optional fields
+
+By default every declared `field` reaches the generated statement, so a variable with no value
+writes `null` into its column. With `optional="true"` the field is left out of the statement
+altogether when its variable carries no value:
+
+- on an **insert**, the column takes its database default instead of `null`;
+- on an **update**, the column keeps its stored value instead of being overwritten with `null`.
+
+```xml
+<update audit="HISAweThm">
+  <table id="AweThm"/>
+  <field id="IdeThm" table="AweThm" variable="themeId"/>
+  <field id="Nam" table="AweThm" variable="themeName" optional="true"/>
+  <where>
+    <and>
+      <filter left-field="IdeThm" condition="eq" right-variable="themeId"/>
+    </and>
+  </where>
+  <variable id="themeId" type="INTEGER" name="themeId"/>
+  <variable id="themeName" type="STRING" name="themeName"/>
+</update>
+```
+
+Sending `themeId` without `themeName` updates only `IdeThm`; the stored `Nam` is untouched.
+
+> *Note:* "No value" means **null or empty**, the same rule that `optional` already follows on
+> [query filters](query-definition.md#filter-element), so the attribute behaves consistently in
+> both places.
+
+> *Note:* The attribute applies to `insert` and `update`. A `delete` builds no field list, so it
+> is unaffected.
+
+> *Note:* Audit tables are **not** affected: they record the operation that was requested and
+> their columns are nullable, so the history still keeps a row for the omitted column.
+
+> ⚠️ **Limitation:** A field bound to a **list** variable (a batch maintain) is never omitted.
+> Every row of a batch shares a single column list, so leaving a column out for one row only is
+> not representable in the statement.
 
 #### Constant element
 

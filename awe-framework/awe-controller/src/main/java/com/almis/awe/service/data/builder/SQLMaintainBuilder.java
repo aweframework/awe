@@ -388,7 +388,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     List paths = new ArrayList<>();
 
     for (SqlField field : getQuery().getSqlFieldList()) {
-      if (field.isNotAudit() && !(forInsert && isIncrementalKey(field))) {
+      if (field.isNotAudit() && !(forInsert && isIncrementalKey(field)) && !isOmittedOptionalField(field)) {
         paths.add(buildPath(field.getTable(), field.getId(), field.getAlias()));
       }
     }
@@ -410,6 +410,51 @@ public class SQLMaintainBuilder extends SQLBuilder {
    */
   private boolean isIncrementalKey(SqlField field) throws AWException {
     return field.isAutoIncremental() || (field.isKey() && field.getSequence() == null && Expressions.nullExpression().equals(getSqlFieldExpression(field, getVariableIndex())));
+  }
+
+  /**
+   * Check whether an optional field must be left out of the maintain clause because its
+   * variable carries no value. Leaving the field out means the column keeps its database
+   * default on an insert, and its stored value on an update, instead of being overwritten
+   * with null.
+   * <p>
+   * "No value" is decided with {@code queryUtil.isEmptyVariable}, the very same check that
+   * drives {@code optional} on query filters, so the attribute means null <em>or empty</em>
+   * in both places.
+   * <p>
+   * The field is always kept when:
+   * <ul>
+   *   <li>it declares no variable, or the variable definition carries a literal value, so
+   *   there is no request value to be absent in the first place;</li>
+   *   <li>the variable holds a list, which feeds a batch: every row of a batch shares one
+   *   column list, so omitting a column for a single row is not representable.</li>
+   * </ul>
+   * Audit clauses are deliberately unaffected: they record the operation that was requested
+   * and their columns are nullable, so the history keeps a row for the omitted column.
+   *
+   * @param field Sql field
+   * @return true if the field must be left out of the maintain clause
+   */
+  private boolean isOmittedOptionalField(SqlField field) {
+    if (!field.isOptional()) {
+      return false;
+    }
+
+    Variable variable = getQuery().getVariableDefinition(field.getVariable());
+    if (variable == null || variable.getValue() != null) {
+      return false;
+    }
+
+    QueryParameter parameter = variables == null ? null : variables.get(variable.getId());
+    if (parameter == null) {
+      return true;
+    }
+
+    if (parameter.isList() && !LIST_TO_STRING.equals(parameter.getType())) {
+      return false;
+    }
+
+    return queryUtil.isEmptyVariable(parameter.getValue());
   }
 
   /**
@@ -450,7 +495,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     List<Expression> values = new ArrayList<>();
 
     for (SqlField field : getQuery().getSqlFieldList()) {
-      if (field.isNotAudit()) {
+      if (field.isNotAudit() && !isOmittedOptionalField(field)) {
         // Field as sequence
         if (field.getSequence() != null) {
           values.add(calculateSequence((Field) field, getVariableIndex()));
@@ -506,7 +551,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   private List<SqlField> getInsertableFields() throws AWException {
     List<SqlField> insertFields = new ArrayList<>();
     for (SqlField field : getQuery().getSqlFieldList()) {
-      if (field.isNotAudit() && !isIncrementalKey(field)) {
+      if (field.isNotAudit() && !isIncrementalKey(field) && !isOmittedOptionalField(field)) {
         insertFields.add(field);
       }
     }
