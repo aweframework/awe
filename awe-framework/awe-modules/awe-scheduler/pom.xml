@@ -57,6 +57,11 @@
       <groupId>org.apache.sshd</groupId>
       <artifactId>sshd-core</artifactId>
     </dependency>
+    <!-- SFTP client, used by the scheduler file-existence trigger over SSH -->
+    <dependency>
+      <groupId>org.apache.sshd</groupId>
+      <artifactId>sshd-sftp</artifactId>
+    </dependency>
     <!-- Enables MINA SSHD Ed25519 key support (optional dependency of sshd-common,
          required to load ed25519 private keys and parse ed25519 known_hosts entries) -->
     <dependency>

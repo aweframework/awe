@@ -15,16 +15,19 @@ public class FileChecker extends ServiceConfig {
   // Autowired services
   private final FTPFileChecker ftpFileChecker;
   private final FolderFileChecker folderFileChecker;
+  private final SftpFileChecker sftpFileChecker;
 
   /**
    * Autowired constructor
    *
    * @param ftpFileChecker    FTP File checker
    * @param folderFileChecker Folder file checker
+   * @param sftpFileChecker   SFTP file checker
    */
-  public FileChecker(FTPFileChecker ftpFileChecker, FolderFileChecker folderFileChecker) {
+  public FileChecker(FTPFileChecker ftpFileChecker, FolderFileChecker folderFileChecker, SftpFileChecker sftpFileChecker) {
     this.ftpFileChecker = ftpFileChecker;
     this.folderFileChecker = folderFileChecker;
+    this.sftpFileChecker = sftpFileChecker;
   }
 
   /**
@@ -45,9 +48,10 @@ public class FileChecker extends ServiceConfig {
           return ftpFileChecker.checkForChanges(task);
         case FOLDER:
           return folderFileChecker.checkForChanges(task);
+        case SSH:
+          return sftpFileChecker.checkForChanges(task);
         case HTTP:
         case HTTPS:
-        case SSH:
         default:
           return null;
       }
