@@ -494,7 +494,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     // Add partition by aggregators
     if (field.getPartitionByList() != null) {
       for (PartitionBy partitionBy : field.getPartitionByList()) {
-        overFunction = overFunction.partitionBy(buildPath(partitionBy.getTable(), partitionBy.getField()));
+        overFunction = overFunction.partitionBy(getGroupByExpression(partitionBy));
       }
     }
 
@@ -506,6 +506,22 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     }
 
     return overFunction;
+  }
+
+  /**
+   * Retrieve the expression to group or partition by. A nested case takes precedence, and
+   * otherwise the field path is wrapped in the configured function, so composite expressions
+   * are honoured identically in a group-by and in a window function's partition-by (both are
+   * modelled by {@link GroupBy}).
+   *
+   * @param groupBy Group by or partition by element
+   * @return Expression
+   * @throws AWException Error building the expression
+   */
+  protected Expression getGroupByExpression(GroupBy groupBy) throws AWException {
+    return groupBy.getGroupByCase() != null
+      ? getCaseExpression(groupBy.getGroupByCase())
+      : getSimpleFieldExpression(groupBy.getTable(), groupBy.getField(), groupBy.getFunction());
   }
 
   /**

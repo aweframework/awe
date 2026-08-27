@@ -328,7 +328,7 @@ public class SQLQueryBuilder extends SQLBuilder {
     int i = 0;
     for (GroupBy groupby : getQuery().getGroupByList()) {
       // Store the path created
-      groupExpressions[i] = groupby.getGroupByCase() != null ? getCaseExpression(groupby.getGroupByCase()) : getSimpleFieldExpression(groupby.getTable(), groupby.getField(), groupby.getFunction());
+      groupExpressions[i] = getGroupByExpression(groupby);
       i++;
     }
 
