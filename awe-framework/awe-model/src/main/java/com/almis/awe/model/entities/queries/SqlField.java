@@ -74,6 +74,11 @@ public abstract class SqlField extends OutputField {
   @XStreamAsAttribute
   private String variable;
 
+  // Defined if the field is left out of a maintain operation when its variable has no value
+  @XStreamAlias("optional")
+  @XStreamAsAttribute
+  private Boolean optional;
+
   /**
    * Returns if is key
    * @return Is key
@@ -89,6 +94,17 @@ public abstract class SqlField extends OutputField {
 	public boolean isAutoIncremental() {
 		return autoIncremental != null && autoIncremental;
 	}
+
+  /**
+   * Returns if the field is optional. An optional field is left out of a maintain operation
+   * when its variable has no value, so the column keeps its database default on an insert
+   * and its stored value on an update
+   *
+   * @return Is optional
+   */
+  public boolean isOptional() {
+    return optional != null && optional;
+  }
 
   /**
    * Returns if is audit
