@@ -237,6 +237,14 @@ The remaining fields are:
 | User         | The user for the FTP connection                              |   Optional   |
 | Password     | The password for the FTP connection                          |   Optional   |
 
+The server's connection type decides how the check is performed: `folder` reads a local or shared
+folder, `ftp` connects over FTP, and `ssh` connects over SFTP.
+
+> **Note:** The per-task *User* and *Password* above apply to the `ftp` connection type. An `ssh`
+> server checks files over SFTP using the credentials stored on the server itself (user plus
+> password and/or private key), the same ones used for remote command execution, so the task does
+> not repeat them.
+
 #### 4. Task dependencies ###
 
 In this step we will configure which tasks have to be executed after the current task finishes.
@@ -381,9 +389,9 @@ The servers created for the Scheduler module are mainly used to execute tasks, a
 
 The servers can be instantiated multiple times, and each instantiation can use its own user and password to connect to the server with the selected protocol.
 
-The scheduler servers are used with two purposes: to run command tasks on a remote host over SSH, and to check for file modifications on an FTP server.
+The scheduler servers are used with two purposes: to run command tasks on a remote host over SSH, and to check for file modifications on a remote server.
 
-For remote command execution choose the `ssh` connection type and provide the connection user together with a password and/or a private key (which may be passphrase-protected); for file checking use the `ftp` connection type.
+For remote command execution choose the `ssh` connection type and provide the connection user together with a password and/or a private key (which may be passphrase-protected). For file checking choose `ftp` to connect over FTP, or `ssh` to connect over SFTP — preferable where FTP is disallowed, since it reuses the SSH credentials and host-key verification.
 
 Regarding the FTP servers, the same server can be used as many times as needed, in different tasks, with different credentials.
 
@@ -408,6 +416,8 @@ When creating a new server, the next fields have to be filled:
 > **Note:** An SSH server authenticates with the user plus a password, a private key (optionally unlocked with its passphrase), or both. Only the user is mandatory; provide at least one of password or key.
 
 > **Note:** SSH authentication is handled by [Apache MINA SSHD](https://mina.apache.org/sshd-project/). The most common private-key algorithms are supported — **RSA**, **ECDSA** and **Ed25519** — in OpenSSH and PEM formats.
+
+> **Note:** An `ssh` server is used both for remote command tasks and for file-existence trigger tasks over SFTP. The configured host-key policy and `known_hosts` file apply to both, so a host trusted for command execution is also trusted for file checking.
 
 > **Note:** SSH credentials (password, private key and passphrase) are stored encrypted, per server instance, so the same host can be registered several times with different credentials. On the edit screen they are never sent back to the client: leave a secret field blank to keep the stored value, or type a new value to replace it.
 

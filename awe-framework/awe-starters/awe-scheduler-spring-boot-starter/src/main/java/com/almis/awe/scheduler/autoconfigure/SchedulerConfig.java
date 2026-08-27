@@ -16,6 +16,7 @@ import com.almis.awe.scheduler.filechecker.FTPFileChecker;
 import com.almis.awe.scheduler.filechecker.FileChecker;
 import com.almis.awe.scheduler.filechecker.FileClient;
 import com.almis.awe.scheduler.filechecker.FolderFileChecker;
+import com.almis.awe.scheduler.filechecker.SftpFileChecker;
 import com.almis.awe.scheduler.job.execution.ProgressJob;
 import com.almis.awe.scheduler.job.execution.TimeoutJob;
 import com.almis.awe.scheduler.job.scheduled.CommandJob;
@@ -456,8 +457,23 @@ public class SchedulerConfig {
    * @return File checker
    */
   @Bean
-  public FileChecker fileChecker(FTPFileChecker ftpFileChecker, FolderFileChecker folderFileChecker) {
-    return new FileChecker(ftpFileChecker, folderFileChecker);
+  public FileChecker fileChecker(FTPFileChecker ftpFileChecker, FolderFileChecker folderFileChecker,
+                                 SftpFileChecker sftpFileChecker) {
+    return new FileChecker(ftpFileChecker, folderFileChecker, sftpFileChecker);
+  }
+
+  /**
+   * Define sftp file checker. Reuses the SSH host-key policy, known_hosts file and connect
+   * timeout configured for SSH command tasks, so trust decisions are consistent across both
+   *
+   * @return SFTP File checker
+   */
+  @Bean
+  public SftpFileChecker sftpFileChecker(FileDAO fileDAO) {
+    return new SftpFileChecker(fileDAO,
+      schedulerConfigProperties.getSshHostKeyPolicy(),
+      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      schedulerConfigProperties.getSshConnectTimeout());
   }
 
   /**
