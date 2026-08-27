@@ -184,8 +184,6 @@
     <field id="IdSrv" alias="LchSrv" table="Lch" />
     <field id="Pth" alias="LchPth" table="Lch" />
     <field id="Pat" alias="LchPat" table="Lch" />
-    <field id="SrvUsr" alias="SrvUsr" table="Lch" />
-    <field id="SrvPwd" alias="SrvPwd" table="Lch" />
     <field id="WeekDays" alias="schExeWeekDays" table="Lch" transform="LIST" pattern=","/>
     <field id="ExeYrs" alias="schExeYrs" table="Lch" transform="LIST" pattern="," />
     <field id="ExeMth" alias="schExeMth" table="Lch" transform="LIST" pattern="," />
@@ -421,8 +419,6 @@
     <field id="IdSrv" alias="fileServerId" table="Lch" />
     <field id="Pth" alias="filePath" table="Lch" />
     <field id="Pat" alias="filePattern" table="Lch" />
-    <field id="SrvUsr" alias="fileServerUser" table="Lch" />
-    <field id="SrvPwd" alias="fileServerPassword" table="Lch" transform="DECRYPT"/>
     <field id="ExeYrs" alias="yearList" table="Lch" transform="LIST" pattern="," />
     <field id="ExeMth" alias="monthList" table="Lch" transform="LIST" pattern="," />
     <field id="ExeWek" alias="weekList" table="Lch" transform="LIST" pattern="," />
@@ -477,8 +473,6 @@
     <field id="IdSrv" alias="LchSrv" table="Lch" />
     <field id="Pth" alias="LchPth" table="Lch" />
     <field id="Pat" alias="LchPat" table="Lch" />
-    <field id="SrvUsr" alias="LchUsr" table="Lch" />
-    <field id="SrvPwd" alias="LchPwd" table="Lch" transform="DECRYPT"/>
     <field id="WeekDays" alias="weekDays" table="Lch" transform="ARRAY" pattern=","/>
     <field id="ExeYrs" alias="years" table="Lch" transform="ARRAY" pattern="," />
     <field id="ExeMth" alias="months" table="Lch" transform="ARRAY" pattern="," />

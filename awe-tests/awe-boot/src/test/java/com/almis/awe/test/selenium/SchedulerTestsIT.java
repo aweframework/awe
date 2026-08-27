@@ -231,7 +231,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("Prt", "21212");
 
     // Suggest on selector
-    suggest("Pro", "ftp", "ftp");
+    suggest("Pro", "FTP", "FTP");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");

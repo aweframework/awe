@@ -240,8 +240,6 @@
       <field id="IdSrv"  variable="IdSrv" />
       <field id="Pth" variable="Pth" />
       <field id="Pat" variable="Pat" />
-      <field id="SrvUsr" variable="SrvUsr"/>
-      <field id="SrvPwd" variable="SrvPwd"/>
       <variable id="IdeTskLch" type="INTEGER" name="IdeTskLch" />
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
       <variable id="RptNum" type="INTEGER" name="RptNum" />
@@ -254,8 +252,6 @@
       <variable id="IdSrv"  type="INTEGER" name="LchSrv" />
       <variable id="Pth" type="STRING" name="LchPth" />
       <variable id="Pat" type="STRING" name="LchPat" />
-      <variable id="SrvUsr" type="STRING" name="LchUsr" />
-      <variable id="SrvPwd" type="STRING_ENCRYPT" name="LchPwd" />
       <variable id="ExeYrs" type="LIST_TO_STRING" name="years" />
       <variable id="ExeMth" type="LIST_TO_STRING" name="months" />
       <variable id="ExeWek" type="LIST_TO_STRING" name="weeks" />
@@ -375,8 +371,6 @@
       <field id="IdSrv"  variable="IdSrv" />
       <field id="Pth" variable="Pth" />
       <field id="Pat" variable="Pat" />
-      <field id="SrvUsr" variable="SrvUsr" />
-      <field id="SrvPwd" variable="SrvPwd"/>
       <where>
         <and>
           <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
@@ -393,8 +387,6 @@
       <variable id="IdSrv"  type="INTEGER" name="LchSrv" />
       <variable id="Pth" type="STRING" name="LchPth" />
       <variable id="Pat" type="STRING" name="LchPat" />
-      <variable id="SrvUsr" type="STRING" name="LchUsr" />
-      <variable id="SrvPwd" type="STRING_ENCRYPT" name="LchPwd" />
       <variable id="ExeYrs" type="LIST_TO_STRING" name="years" />
       <variable id="ExeMth" type="LIST_TO_STRING" name="months" />
       <variable id="ExeWek" type="LIST_TO_STRING" name="weeks" />

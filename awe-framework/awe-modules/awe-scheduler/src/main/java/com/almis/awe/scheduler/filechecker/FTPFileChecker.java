@@ -1,6 +1,7 @@
 package com.almis.awe.scheduler.filechecker;
 
 import com.almis.awe.scheduler.bean.file.File;
+import com.almis.awe.scheduler.bean.file.Server;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.FileDAO;
 import lombok.extern.slf4j.Slf4j;
@@ -35,20 +36,21 @@ public class FTPFileChecker extends Connector {
   @Override
   protected List<FTPFile> connectAndGetFiles(Task task) {
     File file = task.getFile();
+    Server server = file.getServer();
     try {
       // Connect to ftp server
-      ftpClient.connect(file.getServer().getHost(), file.getServer().getPort());
-      if (file.getFileServerUser() != null && !file.getFileServerUser().equals("")) {
-        ftpClient.login(file.getFileServerUser(), file.getFileServerPassword());
+      ftpClient.connect(server.getHost(), server.getPort());
+      if (server.getUser() != null && !server.getUser().isEmpty()) {
+        ftpClient.login(server.getUser(), server.getPassword());
       }
 
       // Notify correctly connected
-      log.debug("[FTP Connection] Connected to the server by FTP: {}", file.getServer().getName() + "(" + file.getServer().getServerId() + ")");
+      log.debug("[FTP Connection] Connected to the server by FTP: {}", server.getName() + "(" + server.getServerId() + ")");
 
       // lists files and directories in the current working directory
       return new ArrayList<>(Arrays.asList(ftpClient.listFiles(file.getFilePath())));
     } catch (IOException exc) {
-      log.error("[FTP Connection] Error connecting to the server by FTP: {}", file.getServer().getName() + "(" + file.getServer().getServerId() + ")", exc);
+      log.error("[FTP Connection] Error connecting to the server by FTP: {}", server.getName() + "(" + server.getServerId() + ")", exc);
     } finally {
       try {
         // Always logout and disconnect from the FTP server
@@ -56,10 +58,10 @@ public class FTPFileChecker extends Connector {
         ftpClient.disconnect();
 
         // Notify correctly logged out
-        log.debug("[FTP Connection] Logged out from FTP server: {}", file.getServer().getName() + "(" + file.getServer().getServerId()
+        log.debug("[FTP Connection] Logged out from FTP server: {}", server.getName() + "(" + server.getServerId()
           + ")");
       } catch (IOException exc) {
-        log.error("[FTP Connection] FTP Connection error: {}", file.getServer().getName() + "(" + file.getServer().getServerId() + ")", exc);
+        log.error("[FTP Connection] FTP Connection error: {}", server.getName() + "(" + server.getServerId() + ")", exc);
       }
     }
     return new ArrayList<>();

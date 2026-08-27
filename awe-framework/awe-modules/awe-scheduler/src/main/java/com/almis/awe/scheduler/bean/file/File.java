@@ -26,11 +26,6 @@ public class File implements Serializable {
   private String filePath = null;
   // Pattern that the files have to match with
   private String filePattern = null;
-  // User for the server connection
-  private String fileServerUser = null;
-  // Password for the server connection
-  private String fileServerPassword = null;
-
 
   // Other attributes
   private Server server;

@@ -55,7 +55,7 @@ awe.database.migration-modules=AWE,...,SCHEDULER,...
 
 ## SSH remote command execution
 
-Command tasks can run on a remote host over SSH (see the **[Scheduler guide](guides/scheduler-guide.md#command-execution-local-and-remote)**). The SSH client used for remote execution is configured with the following properties:
+Command tasks can run on a remote host over SSH (see the **[Scheduler guide](guides/scheduler-guide.md#command-execution-local-and-remote)**). The SSH clients used for remote execution and for SFTP file checking are configured with the following properties:
 
 | Property | Description | Default |
 |----------|-------------|---------|

@@ -471,8 +471,6 @@
               <dependency-element id="TypLch" condition="eq" value="2"/>
             </dependency>
           </criteria>
-          <criteria label="PARAMETER_USER" component="text" id="LchUsr" style="col-xs-6 col-md-3 col-lg-2"/>
-          <criteria label="PARAMETER_PASSWD" component="password" id="LchPwd" style="col-xs-6 col-md-3 col-lg-2"/>
         </tag>
       </tag>
       <tag type="hr" style="col-xs-12 no-padding"/>

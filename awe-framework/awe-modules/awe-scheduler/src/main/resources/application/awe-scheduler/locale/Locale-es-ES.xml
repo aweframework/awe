@@ -53,7 +53,6 @@
   <locale name="CONFIRM_TITLE_TASK_LAUNCH" value="Confirmación de lanzamiento de tarea"/>
   <locale name="CONFIRM_TITLE_TRIGGER_WITH_CALENDAR_EXIST" value="Confirmación de calendario asociado a una o varias tareas."/>
   <locale name="CONFIRM_TITLE_UNBLOCK_BATCH" value="Confirmación de desbloqueo de batch"/>
-  <locale name="CONNECTION_TYPE_SSH" value="SSH"/>
   <locale name="ENUM_LAUNCH_DEPENDENCY" value="Dependencia"/>
   <locale name="ENUM_LAUNCH_FILE" value="Por fichero"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manual"/>
