@@ -382,4 +382,94 @@ class QueryUtilTest {
 
     assertEquals("select * from table where value in (/* empty */)", fullSql);
   }
+
+  /**
+   * Regression (#370): a parameter value containing a question mark must not swallow the
+   * placeholder of the following binding, which used to corrupt the statement and leave real
+   * placeholders unresolved in the logs.
+   */
+  @Test
+  void testGetFullSqlDoesNotConsumeQuestionMarksComingFromPreviousBindings() {
+    String fullSql = queryUtil.getFullSQL(
+        "insert into table (question, answer) values (?, ?)",
+        Arrays.asList("why?", "because"));
+
+    assertEquals("insert into table (question, answer) values ('why?', 'because')", fullSql);
+  }
+
+  /**
+   * Regression (#370): question marks already present inside SQL string literals are not
+   * placeholders, so they must be left untouched and must not consume a binding.
+   */
+  @Test
+  void testGetFullSqlIgnoresQuestionMarksInsideSqlStringLiterals() {
+    String fullSql = queryUtil.getFullSQL(
+        "select * from table where label = 'why?' and id = ?",
+        Collections.singletonList(42));
+
+    assertEquals("select * from table where label = 'why?' and id = 42", fullSql);
+  }
+
+  /**
+   * Regression (#370): doubled apostrophes inside a literal keep the literal open, so a question
+   * mark placed after them is still literal text.
+   */
+  @Test
+  void testGetFullSqlIgnoresQuestionMarksInsideLiteralsWithEscapedApostrophes() {
+    String fullSql = queryUtil.getFullSQL(
+        "select * from table where label = 'it''s a ? here' and id = ?",
+        Collections.singletonList(7));
+
+    assertEquals("select * from table where label = 'it''s a ? here' and id = 7", fullSql);
+  }
+
+  /**
+   * Regression (#370): the escape literal emitted by like clauses must not unbalance the literal
+   * detection, so every following placeholder is still resolved.
+   */
+  @Test
+  void testGetFullSqlResolvesPlaceholdersAfterLikeEscapeLiterals() {
+    String fullSql = queryUtil.getFullSQL(
+        "select * from table where name like ? escape '\\' and type = ?",
+        Arrays.asList("AIF", "IIC"));
+
+    assertEquals("select * from table where name like 'AIF' escape '\\' and type = 'IIC'", fullSql);
+  }
+
+  /**
+   * Regression (#370): an insert built from a select keeps every subquery placeholder resolved in
+   * the order the bindings were collected.
+   */
+  @Test
+  void testGetFullSqlResolvesEveryPlaceholderOfAnInsertFromSelect() {
+    String fullSql = queryUtil.getFullSQL(
+        "insert into target (a, b) select x, y from source where type = ? or type = ? and name like ? escape '\\'",
+        Arrays.asList("IIC", "SGIIC", "AIF"));
+
+    assertEquals("insert into target (a, b) select x, y from source where type = 'IIC' or type = 'SGIIC' and name like 'AIF' escape '\\'", fullSql);
+  }
+
+  /**
+   * Test full SQL leaves the remaining placeholders untouched when there are fewer bindings
+   */
+  @Test
+  void testGetFullSqlLeavesRemainingPlaceholdersWhenBindingsRunOut() {
+    String fullSql = queryUtil.getFullSQL(
+        "select * from table where first = ? and second = ?",
+        Collections.singletonList("one"));
+
+    assertEquals("select * from table where first = 'one' and second = ?", fullSql);
+  }
+
+  /**
+   * Test full SQL ignores extra bindings when there are fewer placeholders
+   */
+  @Test
+  void testGetFullSqlIgnoresExtraBindingsWhenPlaceholdersRunOut() {
+    String fullSql = queryUtil.getFullSQL(
+        "select * from table where first = ?",
+        Arrays.asList("one", "two"));
+
+    assertEquals("select * from table where first = 'one'", fullSql);
+  }
 }
