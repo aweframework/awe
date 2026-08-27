@@ -16,14 +16,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.config.StompBrokerRelayRegistration;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Answers.RETURNS_SELF;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -152,5 +158,83 @@ class WebsocketConfigTest {
                     // Verify the configuration
                     assertThat(properties.getDestinationPrefixes()).contains("/custom-topic", "/custom-queue");
                 });
+    }
+    /**
+     * Test that the virtual host is applied to the broker relay when it is configured
+     */
+    @Test
+    void testStompBrokerRelayAppliesVirtualHostWhenConfigured() {
+        StompBrokerRelayRegistration relayRegistration = mock(StompBrokerRelayRegistration.class, RETURNS_SELF);
+        MessageBrokerRegistry registry = mock(MessageBrokerRegistry.class);
+        when(registry.enableStompBrokerRelay(any(String[].class))).thenReturn(relayRegistration);
+
+        WebsocketStompConfigProperties properties = createWebsocketStompConfigProperties();
+        properties.setVirtualHost("tenant-a");
+
+        websocketConfig(properties).configureMessageBroker(registry);
+
+        verify(relayRegistration).setVirtualHost("tenant-a");
+    }
+
+    /**
+     * Test that the virtual host is left untouched when it is not configured, so the broker
+     * keeps applying its own default (the relay host)
+     */
+    @Test
+    void testStompBrokerRelayDoesNotApplyVirtualHostWhenNotConfigured() {
+        StompBrokerRelayRegistration relayRegistration = mock(StompBrokerRelayRegistration.class, RETURNS_SELF);
+        MessageBrokerRegistry registry = mock(MessageBrokerRegistry.class);
+        when(registry.enableStompBrokerRelay(any(String[].class))).thenReturn(relayRegistration);
+
+        websocketConfig(createWebsocketStompConfigProperties()).configureMessageBroker(registry);
+
+        verify(relayRegistration, never()).setVirtualHost(any());
+    }
+
+    /**
+     * Test that a blank virtual host is treated as not configured
+     */
+    @Test
+    void testStompBrokerRelayIgnoresBlankVirtualHost() {
+        StompBrokerRelayRegistration relayRegistration = mock(StompBrokerRelayRegistration.class, RETURNS_SELF);
+        MessageBrokerRegistry registry = mock(MessageBrokerRegistry.class);
+        when(registry.enableStompBrokerRelay(any(String[].class))).thenReturn(relayRegistration);
+
+        WebsocketStompConfigProperties properties = createWebsocketStompConfigProperties();
+        properties.setVirtualHost("   ");
+
+        websocketConfig(properties).configureMessageBroker(registry);
+
+        verify(relayRegistration, never()).setVirtualHost(any());
+    }
+
+    /**
+     * Test that the virtual host property is bound from the configuration
+     */
+    @Test
+    void testVirtualHostPropertyIsBound() {
+        contextRunner
+                .withPropertyValues("awe.websocket.stomp.virtual-host=tenant-b")
+                .run(context -> {
+                    WebsocketStompConfigProperties properties = context.getBean(WebsocketStompConfigProperties.class);
+                    assertThat(properties.getVirtualHost()).isEqualTo("tenant-b");
+                });
+    }
+
+    /**
+     * Test that the virtual host is not set by default
+     */
+    @Test
+    void testVirtualHostIsNullByDefault() {
+        contextRunner.run(context -> {
+            WebsocketStompConfigProperties properties = context.getBean(WebsocketStompConfigProperties.class);
+            assertThat(properties.getVirtualHost()).isNull();
+        });
+    }
+
+    private WebsocketConfig websocketConfig(WebsocketStompConfigProperties stompProperties) {
+        BaseConfigProperties base = new BaseConfigProperties();
+        base.setAcronym("awe");
+        return new WebsocketConfig(base, new SecurityConfigProperties(), stompProperties);
     }
 }
