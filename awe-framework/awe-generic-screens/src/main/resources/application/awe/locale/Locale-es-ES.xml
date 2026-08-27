@@ -141,10 +141,10 @@
   <locale name="CONFIRM_TITLE_UPDATE" value="Confirmación de modificación"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Datos modificados"/>
   <locale name="CONNECTION_TYPE_FOLDER" value="Directorio"/>
-  <locale name="CONNECTION_TYPE_FTP" value="ftp"/>
+  <locale name="CONNECTION_TYPE_FTP" value="FTP"/>
   <locale name="CONNECTION_TYPE_HTTP" value="http"/>
   <locale name="CONNECTION_TYPE_HTTPS" value="https"/>
-  <locale name="CONNECTION_TYPE_SSH" value="ssh"/>
+  <locale name="CONNECTION_TYPE_SSH" value="SSH"/>
   <locale name="DARK_THEME" value="Tema oscuro"/>
   <locale name="DAYS" value="{0}d"/>
   <locale name="ELEMENT_GENERIC_HELP" value="Tipo de elemento --&gt;"/>

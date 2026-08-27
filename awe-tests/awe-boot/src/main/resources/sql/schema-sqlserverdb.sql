@@ -876,9 +876,7 @@ CREATE TABLE AweSchTskLch
     WeekDays VARCHAR(200),
     ExeYrs   VARCHAR(200),
     ExeMin   VARCHAR(200),
-    ExeSec   VARCHAR(200),
-    SrvUsr   VARCHAR(200),
-    SrvPwd   VARCHAR(200)
+    ExeSec   VARCHAR(200)
 );
 
 --------------------------------------------------------
@@ -999,9 +997,7 @@ CREATE TABLE HISAweSchTskLch
     WeekDays VARCHAR(200),
     ExeYrs   VARCHAR(200),
     ExeMin   VARCHAR(200),
-    ExeSec   VARCHAR(200),
-    SrvUsr   VARCHAR(200),
-    SrvPwd   VARCHAR(200)
+    ExeSec   VARCHAR(200)
 );
 
 CREATE TABLE HISAweSchTskPar

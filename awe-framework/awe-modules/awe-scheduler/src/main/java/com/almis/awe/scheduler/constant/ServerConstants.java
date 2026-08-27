@@ -17,8 +17,6 @@ public class ServerConstants {
   public static final String SERVER_IDE = "LchSrv";
   public static final String SERVER_PATH = "LchPth";
   public static final String SERVER_PATTERN = "LchPat";
-  public static final String SERVER_USER = "LchUsr";
-  public static final String SERVER_PASS = "LchPwd";
   public static final String SERVER_SSH_USER = "SshUsr";
   public static final String SERVER_SSH_PASS = "SshPwd";
   public static final String SERVER_SSH_KEY = "SshKey";
