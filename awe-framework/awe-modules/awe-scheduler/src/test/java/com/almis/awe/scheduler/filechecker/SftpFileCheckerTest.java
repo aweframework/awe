@@ -228,6 +228,25 @@ class SftpFileCheckerTest {
     assertEquals(true, Files.exists(knownHosts));
   }
 
+  /**
+   * A configured directory without a trailing separator must still produce a
+   * well-formed remote path, so the tracked path identifies the file on the server.
+   */
+  @Test
+  void checkForChangesTracksWellFormedPathWithoutTrailingSeparator() throws Exception {
+    Files.createDirectories(remoteRoot.resolve("incoming"));
+    Files.writeString(remoteRoot.resolve("incoming/report.txt"), "content");
+    fileChecker = checker(SshHostKeyPolicy.ACCEPT_ALL);
+
+    Task task = task(passwordServer());
+    task.getFile().setFilePath("/incoming");
+
+    String changedFile = fileChecker.checkForChanges(task);
+
+    assertEquals("report.txt", changedFile);
+    verify(fileDAO).addModification(any(Task.class), eq("/incoming/report.txt"), any(Date.class), eq(false));
+  }
+
   private SftpFileChecker checker(SshHostKeyPolicy policy) {
     return new SftpFileChecker(fileDAO, policy, tempDir.resolve(policy.name() + "/known_hosts"), CONNECT_TIMEOUT);
   }

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 
 /**
  * Class used for testing FTPFileChecker class
@@ -187,6 +188,28 @@ class FTPFileCheckerTest {
 
     // Verify
     assertEquals("test.txt", changedFile);
+  }
+
+  /**
+   * A configured directory without a trailing separator must still produce a
+   * well-formed remote path, so the tracked path identifies the file on the server.
+   */
+  @Test
+  void checkForChangesTracksWellFormedPathWithoutTrailingSeparator() throws Exception {
+    // Mock
+    FTPFile ftpFile = new FTPFile();
+    ftpFile.setName("test.txt");
+    ftpFile.setTimestamp(Calendar.getInstance());
+    given(ftpClient.listFiles(anyString())).willReturn(new FTPFile[]{ftpFile});
+    Task task = generateTask("FTP");
+    task.getFile().setFilePath("test");
+
+    // Call
+    String changedFile = fileChecker.checkForChanges(task);
+
+    // Verify
+    assertEquals("test.txt", changedFile);
+    verify(fileDAO).addModification(eq(task), eq("test/test.txt"), any(Date.class), eq(false));
   }
 
   private Task generateTask(String type) {

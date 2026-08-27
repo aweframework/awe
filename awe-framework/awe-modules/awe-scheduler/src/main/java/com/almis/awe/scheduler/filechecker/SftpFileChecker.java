@@ -94,7 +94,7 @@ public class SftpFileChecker extends Connector {
     for (SftpClient.DirEntry entry : connectAndGetFiles(task)) {
       Date lastModification = toDate(entry.getAttributes().getModifyTime());
       if (lastModification != null
-        && checkFileModifications(task, entry.getFilename(), file.getFilePath() + entry.getFilename(), lastModification)) {
+        && checkFileModifications(task, entry.getFilename(), resolveRemotePath(file.getFilePath(), entry.getFilename()), lastModification)) {
         changedFile = entry.getFilename();
       }
     }
