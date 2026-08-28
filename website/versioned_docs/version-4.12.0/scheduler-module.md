@@ -62,6 +62,7 @@ Command tasks can run on a remote host over SSH (see the **[Scheduler guide](gui
 | `awe.scheduler.ssh-host-key-policy` | Host-key verification policy. See the values below. | `ACCEPT_ON_FIRST_USE` |
 | `awe.scheduler.ssh-known-hosts-path` | Path to the `known_hosts` file used to persist and read trusted host keys | `${user.home}/.ssh/known_hosts` |
 | `awe.scheduler.ssh-connect-timeout` | SSH connect and authentication timeout, in seconds | `30s` |
+| `awe.scheduler.connection-test-timeout` | Timeout for the **Test connection** button on the server screens (SSH session and FTP connect/data exchanges), in seconds | `10s` |
 
 The host-key policy accepts three values:
 

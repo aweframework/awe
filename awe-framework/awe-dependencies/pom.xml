@@ -46,6 +46,7 @@
     <guava.version>33.3.0-jre</guava.version>
     <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
     <sshd.version>2.13.2</sshd.version>
+    <commons-net.version>3.11.1</commons-net.version>
     <mockwebserver3.version>5.1.0</mockwebserver3.version>
     <!-- Compilation -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -225,6 +226,11 @@
         <groupId>com.github.ulisesbocchio</groupId>
         <artifactId>jasypt-spring-boot-starter</artifactId>
         <version>${jasypt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-net</groupId>
+        <artifactId>commons-net</artifactId>
+        <version>${commons-net.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.sshd</groupId>

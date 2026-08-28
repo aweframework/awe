@@ -11,6 +11,7 @@
   <locale name="BUTTON_RESTART" value="Restart"/>
   <locale name="BUTTON_LAUNCH" value="Launch"/>
   <locale name="BUTTON_STOP" value="Stop"/>
+  <locale name="BUTTON_TEST_CONNECTION" value="Test connection"/>
   <locale name="COLUMN_DATE" value="Date"/>
   <locale name="COLUMN_SCHEDULER_INSTANCE_ID" value="Scheduler instance id"/>
   <locale name="COLUMN_SCHEDULER_JOBSTORE_CLASS" value="Jobstore class"/>
@@ -78,6 +79,8 @@
   <locale name="HELP_ACTIVATE_BUTTON" value="Enables the selected item"/>
   <locale name="HELP_DEACTIVATE_BUTTON" value="Disables the selected item"/>
   <locale name="HELP_LAUNCH_STOP_BUTTON" value="Interrupt the selected item"/>
+  <locale name="HELP_TEST_CONNECTION_BUTTON" value="Tests the connection with the values currently in the form, without saving them"/>
+  <locale name="HELP_TEST_CONNECTION_SELECTED" value="Tests the connectivity of the selected server"/>
   <locale name="HELP_LAUNCH_VARIABLES_BUTTON" value="Set the variable parameters and launch the selected task"/>
   <locale name="HELP_RUN_BUTTON" value="Run the selected item"/>
   <locale name="HELP_SCREEN_EXECUTION_DATA" value="This dialog shows the selected execution data from task"/>
@@ -133,6 +136,15 @@
   <locale name="SCHEDULER_SERVER_KEY_PASS" value="Private key passphrase"/>
   <locale name="SCHEDULER_SERVER_PASSWORD" value="Server password"/>
   <locale name="SCHEDULER_SERVER_USER" value="Server user"/>
+  <locale name="SCHEDULER_SERVER_TEST_KO_TITLE" value="Connection test failed"/>
+  <locale name="SCHEDULER_SERVER_TEST_CONNECTION_ERROR" value="Could not connect to the server: unreachable host, connection refused or timeout"/>
+  <locale name="SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR" value="The server rejected the provided credentials"/>
+  <locale name="SCHEDULER_SERVER_TEST_HOST_KEY_ERROR" value="The server host key was rejected by the configured host-key policy"/>
+  <locale name="SCHEDULER_SERVER_TEST_INVALID_KEY_ERROR" value="The private key could not be read: check its format and passphrase"/>
+  <locale name="SCHEDULER_SERVER_TEST_FOLDER_TITLE" value="Nothing to test"/>
+  <locale name="SCHEDULER_SERVER_TEST_FOLDER_MESSAGE" value="Folder servers are accessed as a local path on the scheduler host when each task runs, so there is no connection to test"/>
+  <locale name="SCHEDULER_SERVER_TEST_SERVER_NOT_FOUND" value="The selected server no longer exists"/>
+  <locale name="SCHEDULER_SERVER_TEST_UNSUPPORTED_TYPE" value="There is no connection test available for this type of connection"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Show execution log"/>
   <locale name="SCREEN_TEXT_END_TIME" value="End time"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="Execution"/>

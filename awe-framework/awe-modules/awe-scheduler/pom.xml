@@ -51,7 +51,6 @@
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>20030805.205232</version>
     </dependency>
     <dependency>
       <groupId>org.apache.sshd</groupId>

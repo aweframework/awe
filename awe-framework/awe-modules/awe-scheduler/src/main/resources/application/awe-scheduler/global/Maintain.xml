@@ -984,4 +984,31 @@
     </serve>
   </target>
 
+  <!-- Test a server connection with the current form values of the new/update
+       server screens. Runs no query or maintain: nothing is persisted. IdeSrv is
+       only present on the update screen, where blank secrets mean "keep the
+       stored value" and are resolved against the stored server. -->
+  <target name="ChkSchSrvCnx">
+    <serve service="checkServerConnection">
+      <variable id="type" type="STRING" name="Pro"/>
+      <variable id="host" type="STRING" name="Hst"/>
+      <variable id="port" type="INTEGER" name="Prt"/>
+      <variable id="user" type="STRING" name="SshUsr"/>
+      <variable id="password" type="STRING" name="SshPwd"/>
+      <variable id="key" type="STRING" name="SshKey"/>
+      <variable id="keyPassphrase" type="STRING" name="SshKeyPass"/>
+      <variable id="serverId" type="INTEGER" name="IdeSrv"/>
+    </serve>
+  </target>
+
+  <!-- Test the connection of the server selected on the servers list screen.
+       The grid carries no port or credentials, so only the selected row id is
+       sent and the service loads the whole stored record. Runs no query or
+       maintain: nothing is persisted. -->
+  <target name="ChkSchSrvCnxSel">
+    <serve service="checkServerConnection">
+      <variable id="serverId" type="INTEGER" name="Ide.selected"/>
+    </serve>
+  </target>
+
 </maintain>

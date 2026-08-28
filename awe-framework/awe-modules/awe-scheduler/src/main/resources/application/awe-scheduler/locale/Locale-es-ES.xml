@@ -11,6 +11,7 @@
   <locale name="BUTTON_RESTART" value="Reiniciar"/>
   <locale name="BUTTON_LAUNCH" value="Lanzar"/>
   <locale name="BUTTON_STOP" value="Parar"/>
+  <locale name="BUTTON_TEST_CONNECTION" value="Probar conexión"/>
   <locale name="COLUMN_DATE" value="Fecha"/>
   <locale name="COLUMN_SCHEDULER_INSTANCE_ID" value="Id instancia planificador"/>
   <locale name="COLUMN_SCHEDULER_JOBSTORE_CLASS" value="Clase de jobstore"/>
@@ -75,6 +76,8 @@
   <locale name="HELP_ACTIVATE_BUTTON" value="Activa el elemento seleccionado"/>
   <locale name="HELP_DEACTIVATE_BUTTON" value="Desactiva el elemento seleccionado"/>
   <locale name="HELP_LAUNCH_STOP_BUTTON" value="Interrumpe el elemento seleccionado"/>
+  <locale name="HELP_TEST_CONNECTION_BUTTON" value="Prueba la conexión con los valores actuales del formulario, sin guardarlos"/>
+  <locale name="HELP_TEST_CONNECTION_SELECTED" value="Prueba la conectividad del servidor seleccionado"/>
   <locale name="HELP_LAUNCH_VARIABLES_BUTTON" value="Establece los parámetros variables y lanza la tarea seleccionada"/>
   <locale name="HELP_RUN_BUTTON" value="Ejecuta el elemento seleccionado"/>
   <locale name="HELP_SCREEN_EXECUTION_DATA" value="Este diálogo muestra los datos de la ejecución de la tarea"/>
@@ -130,6 +133,15 @@
   <locale name="SCHEDULER_SERVER_KEY_PASS" value="Contraseña de la clave privada"/>
   <locale name="SCHEDULER_SERVER_PASSWORD" value="Contraseña del servidor"/>
   <locale name="SCHEDULER_SERVER_USER" value="Usuario del servidor"/>
+  <locale name="SCHEDULER_SERVER_TEST_KO_TITLE" value="Prueba de conexión fallida"/>
+  <locale name="SCHEDULER_SERVER_TEST_CONNECTION_ERROR" value="No se ha podido conectar con el servidor: host inaccesible, conexión rechazada o tiempo de espera agotado"/>
+  <locale name="SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR" value="El servidor ha rechazado las credenciales proporcionadas"/>
+  <locale name="SCHEDULER_SERVER_TEST_HOST_KEY_ERROR" value="La clave de host del servidor ha sido rechazada por la política de verificación configurada"/>
+  <locale name="SCHEDULER_SERVER_TEST_INVALID_KEY_ERROR" value="No se ha podido leer la clave privada: compruebe su formato y su frase secreta"/>
+  <locale name="SCHEDULER_SERVER_TEST_FOLDER_TITLE" value="Nada que probar"/>
+  <locale name="SCHEDULER_SERVER_TEST_FOLDER_MESSAGE" value="Los servidores de tipo carpeta se acceden como ruta local del host del planificador al ejecutar cada tarea, por lo que no hay ninguna conexión que probar"/>
+  <locale name="SCHEDULER_SERVER_TEST_SERVER_NOT_FOUND" value="El servidor seleccionado ya no existe"/>
+  <locale name="SCHEDULER_SERVER_TEST_UNSUPPORTED_TYPE" value="No hay prueba de conexión disponible para este tipo de conexión"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Mostrar registro de la ejecución"/>
   <locale name="SCREEN_TEXT_END_TIME" value="Hora de finalización"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="Ejecución"/>
