@@ -109,4 +109,12 @@ public class SchedulerConfigProperties {
    */
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration sshConnectTimeout = Duration.ofSeconds(30);
+
+  /**
+   * Timeout in seconds for the interactive connection test on the server
+   * screens, deliberately shorter than the batch-oriented sshConnectTimeout
+   * Default value 10s
+   */
+  @DurationUnit(ChronoUnit.SECONDS)
+  private Duration connectionTestTimeout = Duration.ofSeconds(10);
 }

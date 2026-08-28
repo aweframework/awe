@@ -213,4 +213,21 @@
     </java>
   </service>
 
+  <!-- Test a server connection with the values currently typed in the new/update
+       server screens, without persisting anything. Blank secrets on the update
+       screen mean "keep the stored value", so the service falls back to the stored
+       (decrypted) secret when serverId is present. -->
+  <service id="checkServerConnection">
+    <java classname="com.almis.awe.scheduler.service.ServerConnectionService" method="checkServerConnection">
+      <service-parameter name="type" type="STRING"/>
+      <service-parameter name="host" type="STRING"/>
+      <service-parameter name="port" type="INTEGER"/>
+      <service-parameter name="user" type="STRING"/>
+      <service-parameter name="password" type="STRING"/>
+      <service-parameter name="key" type="STRING"/>
+      <service-parameter name="keyPassphrase" type="STRING"/>
+      <service-parameter name="serverId" type="INTEGER"/>
+    </java>
+  </service>
+
 </services>

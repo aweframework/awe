@@ -27,6 +27,7 @@ import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.scheduler.service.RemoteSchedulerService;
 import com.almis.awe.scheduler.service.SchedulerService;
+import com.almis.awe.scheduler.service.ServerConnectionService;
 import com.almis.awe.scheduler.service.TaskService;
 import com.almis.awe.scheduler.service.report.*;
 import com.almis.awe.scheduler.service.scheduled.CommandJobService;
@@ -396,6 +397,23 @@ public class SchedulerConfig {
   @Bean
   public CommandDAO commandDAO(CommandExecutorResolver commandExecutorResolver) {
     return new CommandDAO(commandExecutorResolver);
+  }
+
+  /**
+   * Server connection test service backing the test-connection button on the
+   * new/update server screens. Reuses the SSH host-key policy and known_hosts
+   * file configured for SSH command tasks and SFTP triggers, so trust decisions
+   * are consistent across all of them, while running under its own shorter
+   * interactive timeout
+   *
+   * @return Server connection service
+   */
+  @Bean
+  public ServerConnectionService serverConnectionService(ServerDAO serverDAO, FTPClient ftpClient) {
+    return new ServerConnectionService(serverDAO, ftpClient,
+      schedulerConfigProperties.getSshHostKeyPolicy(),
+      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      schedulerConfigProperties.getConnectionTestTimeout());
   }
 
   /*
