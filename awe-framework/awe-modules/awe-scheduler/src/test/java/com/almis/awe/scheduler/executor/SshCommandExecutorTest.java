@@ -4,6 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.file.Server;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.ServerDAO;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import org.apache.sshd.common.config.keys.writer.openssh.OpenSSHKeyEncryptionContext;
@@ -23,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.TriggerBuilder;
+import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,6 +36,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -317,6 +322,34 @@ class SshCommandExecutorTest {
         "Full command output must be drained/captured (got " + drainingLogger.bytesFor("OUTPUT") + " bytes)");
   }
 
+  /**
+   * The calling thread sets MDC[logByTaskExecution] before invoking execute(), the way
+   * JobService.startLogging does for a real execution. The drain threads that read stdout/stderr
+   * must observe the same MDC value while calling CommandStreamLogger.log, otherwise the
+   * SCHEDULER_EXECUTION sifting appender's EvaluatorFilter denies every line the command emits and
+   * the database-mode ExecutionLogStoreAppender never captures it either.
+   */
+  @Test
+  void mdcExecutionKeyIsPresentOnTheDrainThreadThatLogsCommandOutput() throws AWException {
+    MdcCapturingStreamLogger mdcCapturingLogger = new MdcCapturingStreamLogger();
+    SshCommandExecutor executor = new SshCommandExecutor(mdcCapturingLogger, serverDAO,
+        SshHostKeyPolicy.ACCEPT_ON_FIRST_USE, tempDir.resolve("known_hosts"), Duration.ofSeconds(10));
+    given(serverDAO.findServer(1)).willReturn(sshServer(TEST_PASSWORD));
+
+    Task task = generateTask(1, "echo-test", new ArrayList<>());
+
+    MDC.put(TaskConstants.LOG_BY_TASK_EXECUTION, "42-7");
+    try {
+      Integer exitCode = executor.execute(task, new String[0], 10);
+      assertEquals(0, exitCode);
+    } finally {
+      MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
+    }
+
+    assertEquals("42-7", mdcCapturingLogger.mdcValueFor("OUTPUT"));
+    assertEquals("42-7", mdcCapturingLogger.mdcValueFor("ERROR"));
+  }
+
   @Test
   void keyAuthenticationWithoutPasswordRunsCommand() throws Exception {
     KeyPair keyPair = generateKeyPair();
@@ -480,6 +513,29 @@ class SshCommandExecutorTest {
 
     private long bytesFor(String type) {
       return "OUTPUT".equals(type) ? outputBytes.get() : errorBytes.get();
+    }
+  }
+
+  /**
+   * Real (non-mock) stream logger that records the MDC execution key observed on the thread that
+   * calls log(), then fully drains the stream so the channel never back-pressures.
+   */
+  private static final class MdcCapturingStreamLogger extends CommandStreamLogger {
+
+    private final Map<String, String> mdcValueByType = Collections.synchronizedMap(new HashMap<>());
+
+    @Override
+    public void log(Task task, InputStream inputStream, String type) {
+      mdcValueByType.put(type, MDC.get(TaskConstants.LOG_BY_TASK_EXECUTION));
+      try {
+        inputStream.readAllBytes();
+      } catch (IOException exc) {
+        // Test-only drain: swallow, only the captured MDC value is asserted.
+      }
+    }
+
+    private String mdcValueFor(String type) {
+      return mdcValueByType.get(type);
     }
   }
 

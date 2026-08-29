@@ -182,7 +182,7 @@
 
   <service id="loadExecutionScreen">
     <java classname="com.almis.awe.scheduler.service.SchedulerService" method="loadExecutionScreen">
-      <service-parameter name="executionLogPath" type="STRING"/>
+      <service-parameter name="executionLogLocator" type="STRING"/>
       <service-parameter name="address" type="JSON" />
     </java>
   </service>
@@ -192,6 +192,11 @@
       <service-parameter name="taskId" type="INTEGER"/>
       <service-parameter name="executionId" type="INTEGER" />
     </java>
+  </service>
+
+  <!-- Database-mode execution log read path (get-execution-log action) -->
+  <service id="getExecutionLog">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getExecutionLog"/>
   </service>
 
   <service id="purgeExecutionsAtStart" launch-phase="APPLICATION_START">

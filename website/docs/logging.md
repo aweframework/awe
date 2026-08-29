@@ -211,6 +211,109 @@ Scheduler AWE module logback configuration provided for import
 </included>
 ```
 
+## Scheduler execution log
+
+Every scheduler task execution has its own log, which you can open from the task manager screen
+with the **Show execution log** button. Where that log is stored is controlled by
+[awe.scheduler.execution-log-store](properties.md#awe.scheduler.execution-log-store):
+
+- **`file`** (default) — each execution writes its log to a file under
+  [awe.scheduler.execution-log-path](properties.md#awe.scheduler.execution-log-path). The viewer
+  reads that file from the local filesystem, so it only works when the viewer and the execution run
+  on the **same node** (or share a filesystem).
+- **`database`** — execution logs are stored in the application database instead. The viewer then
+  works from **any node**: multi-replica deployments (for example Kubernetes with several pods) and
+  the [remote scheduler](scheduler-module.md) topology, where the task runs on a different instance
+  than the one showing the screen.
+
+To enable the database store, set:
+
+```properties
+awe.scheduler.execution-log-store=database
+```
+
+No other change is required: tasks, screens and the viewer behave the same in both modes.
+
+### What the viewer shows
+
+With the database store, the log kept per execution is a **bounded window**: the first lines of the
+execution plus the most recent ones, up to
+[awe.scheduler.execution-log-max-lines](properties.md#awe.scheduler.execution-log-max-lines) lines
+in total (default `1000`).
+
+- If the execution produces fewer lines than the limit, you see the complete log.
+- If it produces more, you see the beginning and the end, with a marker line in between stating how
+  many lines were omitted and how many lines the execution really produced. The log is never
+  silently incomplete.
+- A single line longer than
+  [awe.scheduler.execution-log-max-line-length](properties.md#awe.scheduler.execution-log-max-line-length)
+  characters is shortened with an ellipsis.
+
+While a task is running, the viewer refreshes automatically and follows the newest lines
+(live tail). Raising `execution-log-max-lines` keeps more history per execution at the cost of more
+storage and more data transferred to the viewer on each refresh — size it for what an operator
+needs to see, not for full log retention.
+
+### Guarantees
+
+Execution logging never interferes with the task itself: log lines are stored in the background,
+and if the database is slow or unavailable the task still completes normally — at worst some log
+lines are dropped, and a marker line tells you when that happened.
+
+The execution log viewer is a bounded operational window, **not** a replacement for full log
+retention. The same lines are always emitted through the ordinary application logging pipeline
+(console / log files), which remains the right source for complete, long-term logs — for example
+through a centralized log aggregator such as Grafana Loki.
+
+## Execution logs with a remote scheduler
+
+When the scheduler runs as a separate instance
+([awe.scheduler.remote-enabled](properties.md#awe.scheduler.remote-enabled)), the body of a
+maintain task actually runs on the **application**, not on the scheduler. With the `database` store
+active on both instances, the traces produced by the task on the application are captured into the
+same execution log, so the viewer shows a single, time-ordered log of the whole execution — the
+scheduler's own lines and the task's real output, live while it runs.
+
+In addition, every execution ends with a **summary line** stating how it finished and how long it
+took. For the final authoritative status of an execution (including timeouts and cancellations),
+the execution grid remains the reference.
+
+### Configuration
+
+Remote trace capture is **enabled by default** whenever the application uses the `database` store.
+It can be turned off with
+[awe.scheduler.execution-log-callback-capture](properties.md#awe.scheduler.execution-log-callback-capture)`=false`.
+
+The application identifies the scheduler's calls through the same callback credentials the remote
+scheduler already uses. For capture to work, the **application** must declare the same callback
+user as the scheduler:
+
+```properties
+# On the application (same value the scheduler uses to authenticate its callbacks)
+awe.scheduler.remote-callback-user=<callback user>
+```
+
+If the application does not set this property while
+[awe.scheduler.remote-callback-secure-enabled](properties.md#awe.scheduler.remote-callback-secure-enabled)
+is `true` (the default), remote traces are not captured and the application logs one `WARN` at
+startup explaining which property is missing.
+
+**Security note.** With `remote-callback-secure-enabled=false`, the scheduler's callbacks are not
+authenticated, and trace capture then trusts any caller that reaches the callback endpoint. Only
+use that configuration when the endpoint is reachable exclusively from inside your deployment
+network (for example pod-to-pod traffic never exposed through an ingress).
+
+The scheduler identifies each execution on its callback requests through the
+`X-AWE-Execution-Key` HTTP header — if a proxy between the scheduler and the application strips
+custom headers, remote trace capture will not work.
+
+### Upgrade note
+
+The database store ships its table inside the `SCHEDULER` module's Flyway migrations. If an
+environment applied a pre-release version of the `SCHEDULER_V1.0.6` migration, reapply it
+(`flyway repair`, or recreate the schema) before starting the upgraded application.
+
+
 ## Log Format
 The default log output from AWE Framework resembles the following example:
 ```log title="Log format"

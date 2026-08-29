@@ -14,6 +14,10 @@ import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.enums.TaskLaunchType;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.filechecker.FileChecker;
+import com.almis.awe.scheduler.log.ExecutionKey;
+import com.almis.awe.scheduler.log.ExecutionLogPage;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
+import com.almis.awe.scheduler.log.FileExecutionLogStore;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -86,7 +90,7 @@ class TaskDAOTest {
    */
   @BeforeEach
   void initBeans() {
-    taskDAO = new TaskDAO(scheduler, 5, "", queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker);
+    taskDAO = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, new FileExecutionLogStore(""));
     taskDAO.setApplicationContext(context);
   }
 
@@ -455,6 +459,132 @@ class TaskDAOTest {
 
     // Assert
     assertEquals(13, serviceData.getClientActionList().size());
+  }
+
+  /**
+   * Database-mode read (get-execution-log action): the store's lines land in LOG_CONTENT, and
+   * LOG_CONTENT_REPLACE carries {@code false} when the window is intact (plain append).
+   */
+  @Test
+  void getExecutionLogReturnsLogContentWithReplaceFalseWhenTheWindowIsIntact() throws Exception {
+    ExecutionLogStore mockStore = mock(ExecutionLogStore.class);
+    given(mockStore.read(new ExecutionKey(1, 2), 0, "v0")).willReturn(new ExecutionLogPage(List.of("a", "b"), false, 2L, 0L, "v1"));
+    TaskDAO taskDaoWithMockStore = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, mockStore);
+
+    ServiceData serviceData = taskDaoWithMockStore.getExecutionLog(1, 2, 0, "v0");
+
+    assertEquals(List.of("a", "b"), serviceData.getVariable("LOG_CONTENT").getValue());
+    assertEquals(false, serviceData.getVariable("LOG_CONTENT_REPLACE").getValue());
+    assertEquals("v1", serviceData.getVariable("LOG_CONTENT_VERSION").getValue());
+    assertEquals(0, serviceData.getClientActionList().size());
+  }
+
+  /**
+   * Database-mode read: a page requesting a replace carries the full current window as LOG_CONTENT
+   * with LOG_CONTENT_REPLACE set to {@code true}, delivered in a single response and with no
+   * client actions. This supersedes the old two-step reset/filter round trip: the widget swaps its
+   * content atomically instead of clearing and re-polling.
+   */
+  @Test
+  void getExecutionLogReturnsLogContentWithReplaceTrueWhenTheStoreRequestsAReplace() throws Exception {
+    ExecutionLogStore mockStore = mock(ExecutionLogStore.class);
+    given(mockStore.read(new ExecutionKey(1, 2), 5, "stale-version")).willReturn(new ExecutionLogPage(List.of("a", "b", "c"), true, 20L, 10L, "v2"));
+    TaskDAO taskDaoWithMockStore = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, mockStore);
+
+    ServiceData serviceData = taskDaoWithMockStore.getExecutionLog(1, 2, 5, "stale-version");
+
+    assertEquals(0, serviceData.getClientActionList().size());
+    assertEquals(List.of("a", "b", "c"), serviceData.getVariable("LOG_CONTENT").getValue());
+    assertEquals(true, serviceData.getVariable("LOG_CONTENT_REPLACE").getValue());
+    assertEquals("v2", serviceData.getVariable("LOG_CONTENT_VERSION").getValue());
+  }
+
+  /**
+   * loadExecutionScreen delegates viewer selection to the active store, unmodified. Store
+   * selection (file vs database) is a single global bean choice; TaskDAO carries no branching.
+   */
+  @Test
+  void loadExecutionScreenDelegatesViewerSelectionToTheActiveStore() throws Exception {
+    doReturn(aweElements).when(context).getBean(any(Class.class));
+    given(aweElements.getLocaleWithLanguage(anyString(), eq(null))).willReturn("LOCALE");
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(reloadExecutionScreenFixture()));
+    given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
+    ExecutionLogStore mockStore = mock(ExecutionLogStore.class);
+    TaskDAO taskDaoWithMockStore = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, mockStore);
+    taskDaoWithMockStore.setApplicationContext(context);
+    ObjectNode address = JsonNodeFactory.instance.objectNode();
+    address.put("row", "1" + TASK_SEPARATOR + "1");
+
+    taskDaoWithMockStore.loadExecutionScreen("locator-value", address);
+
+    verify(mockStore).applyViewerSelection(eq("locator-value"), eq(new ExecutionKey(1, 1)), any(ServiceData.class));
+  }
+
+  private DataList reloadExecutionScreenFixture() {
+    DataList dataList = new DataList();
+    Map<String, CellData> row = new HashMap<>();
+    row.put(TASK_IDE, new CellData(1));
+    row.put("executionId", new CellData(1));
+    row.put("initialDate", new CellData(new Date()));
+    row.put("status", new CellData(TaskStatus.JOB_INTERRUPTED.getValue()));
+    dataList.addRow(row);
+    return dataList;
+  }
+
+  /**
+   * File mode issues no database-mode maintain statement (spec: "File-mode purge is unchanged /
+   * no database purge queries SHALL be issued"). Real interaction assertion, replacing the
+   * vacuous {@code FileExecutionLogStoreTest} version removed after the S2 gate review: the
+   * {@code maintainService} mock is the one actually injected into the shared file-mode
+   * {@code taskDAO}, so {@code verify(..., never())} can genuinely fail. The legitimate
+   * {@code purgeExecutionLogs} (AweSchExe) call remains allowed.
+   */
+  @Test
+  void fileModePurgeAndViewerPathsNeverCallDatabaseModeMaintainTargets() throws Exception {
+    doReturn(aweElements).when(context).getBean(any(Class.class));
+    given(aweElements.getLocaleWithLanguage(anyString(), eq(null))).willReturn("LOCALE");
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(reloadExecutionScreenFixture()));
+    given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
+    ObjectNode address = JsonNodeFactory.instance.objectNode();
+    address.put("row", "1" + TASK_SEPARATOR + "1");
+
+    taskDAO.purgeExecutionLogFiles(1, 0);
+    taskDAO.purgeExecutionsAtStart();
+    taskDAO.loadExecutionScreen("lala", address);
+
+    verify(maintainService, never()).launchPrivateMaintain(eq("insertExecutionLogLines"), any(ObjectNode.class));
+    verify(maintainService, never()).launchPrivateMaintain(eq("updateExecutionLogLines"), any(ObjectNode.class));
+    verify(maintainService, never()).launchPrivateMaintain(eq("purgeExecutionLogLines"), any(ObjectNode.class));
+    verify(maintainService).launchPrivateMaintain(eq("purgeExecutionLogs"), any(ObjectNode.class));
+  }
+
+  /**
+   * Startup orphan purge must never rely on the request's ambient pagination: an unpaginated
+   * {@code getAllExecutions} read silently truncates the valid-execution set at the default page
+   * size, so {@code purgeOrphans} mistakes live executions beyond that page for orphans and
+   * deletes their stored logs. Seeds more rows than the default page size and pins that the query
+   * is forced to max=0/page=1, mirroring the {@code getExecutionLogLines}/
+   * {@code getExecutionLogKeys} forcing.
+   */
+  @Test
+  void purgeExecutionsAtStartForcesNoPaginationOnTheAllExecutionsQuery() throws Exception {
+    given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
+    DataList dataList = new DataList();
+    for (int executionId = 0; executionId < 35; executionId++) {
+      Map<String, CellData> row = new HashMap<>();
+      row.put(TASK_IDE, new CellData(1));
+      row.put("executionId", new CellData(executionId));
+      dataList.addRow(row);
+    }
+    given(queryService.launchPrivateQuery(eq("getAllExecutions"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
+
+    taskDAO.purgeExecutionsAtStart();
+
+    verify(queryUtil).getParameters(null, "1", "0");
+    verify(queryService).launchPrivateQuery(eq("getAllExecutions"), any(ObjectNode.class));
   }
 
   /**

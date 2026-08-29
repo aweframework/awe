@@ -31,7 +31,12 @@ aweApplication.directive('aweLogViewer',
           let stickBottom = false;
           let allContent = [];
           let initial = true;
-          let lineHeight = $element.find(".test-line").height();
+          let lineHeight = 0;
+          // Window version echoed back on the next poll (D5 client-echoed append fast-path):
+          // the store recomputes the current merge order and compares it against this value to
+          // decide whether an append is still safe, without keeping any per-execution state
+          // server-side. Irrelevant to file-mode polling, which never sends it back.
+          let lastWindowVersion = null;
           let contentLayer = $element.find(".content");
           let positionLayer = $element.find(".visible-text");
           let lastScrollCheck = -1;
@@ -40,12 +45,36 @@ aweApplication.directive('aweLogViewer',
           }
 
           /**
+           * Measure the probe line height, falling back to the last known non-zero value.
+           * The probe can transiently measure 0 (e.g. layout not yet settled around a
+           * reset/replace repaint); a stale 0 would zero out the content height and break the
+           * scrollbar and stick-to-bottom behavior.
+           * @return {number} Line height in pixels
+           */
+          function measureLineHeight() {
+            let probe = $element.find(".test-line");
+            // The computed line-height is the per-line truth and stays positive even while the
+            // viewer is hidden; jQuery's content height subtracts the pre's padding and can
+            // measure zero or negative on a hidden or unsettled probe.
+            let computed = probe.length ? parseFloat(window.getComputedStyle(probe[0]).lineHeight) : NaN;
+            let measured = computed > 0 ? computed : probe.height();
+            if (measured > 0) {
+              lineHeight = measured;
+            }
+            return lineHeight;
+          }
+
+          // Seed the initial measurement, before any log-delta has been received
+          measureLineHeight();
+
+          /**
            * Reload data from element
            */
           component.onReset = function () {
             // Reset values
             allContent = [];
             lastScrollCheck = -1;
+            lastWindowVersion = null;
 
             // Print text
             printTextAtScrollPosition();
@@ -65,6 +94,7 @@ aweApplication.directive('aweLogViewer',
             values[$settings.get("targetActionKey")] = this.controller[$settings.get("targetActionKey")];
             values.r = Math.random();
             values.offset = allContent.length;
+            values.version = lastWindowVersion;
 
             // Generate server action
             let serverAction = serverData.getServerAction(this.address, values, isAsync, isSilent);
@@ -83,11 +113,19 @@ aweApplication.directive('aweLogViewer',
           $scope.$on('/action/log-delta', function (event, action) {
             let parameters = action.attr("parameters");
             let currentContent = parameters ? parameters.log || [] : [];
-            lineHeight = $element.find(".test-line").height();
-            if (currentContent.length > 0) {
+            let replace = !!(parameters && parameters.replace);
+            lastWindowVersion = (parameters && parameters.version !== undefined) ? parameters.version : null;
+            measureLineHeight();
+
+            if (replace) {
+              // Atomically swap content: a single repaint, no intermediate clear
+              allContent = currentContent;
+            } else if (currentContent.length > 0) {
               // Add content to log
               allContent = allContent.concat(currentContent);
+            }
 
+            if (replace || currentContent.length > 0) {
               // Check whether to move scroll
               let moveScroll = $element[0].scrollHeight <= $element.scrollTop() + $element.height() + 20;
 
@@ -122,13 +160,14 @@ aweApplication.directive('aweLogViewer',
               let scrollTotal = $element[0].scrollHeight || 1;
               let containerHeight = $element.height();
               let scrollPercent = scrollPosition / scrollTotal;
-              let linesToPrint = Math.ceil(containerHeight / lineHeight) + 60;
+              let safeLineHeight = lineHeight > 0 ? lineHeight : 16;
+              let linesToPrint = Math.ceil(containerHeight / safeLineHeight) + 60;
               let totalLines = allContent.length;
               let initialTextPosition = Math.max(0, Math.floor(totalLines * scrollPercent) - 30);
               let finalTextPosition = Math.min(totalLines, initialTextPosition + linesToPrint);
 
               // Get text layer position
-              let textLayerPosition = initialTextPosition * lineHeight;
+              let textLayerPosition = initialTextPosition * safeLineHeight;
 
               // Move text container to visible part
               positionLayer[0].style.top = textLayerPosition + "px";

@@ -129,6 +129,10 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_MESSAGE" value="Le lot a été exécutée correctement"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Lot exécuté"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Cette tâche a été annulée parce qu&apos;il a dépassé le temps imparti ({0})"/>
+  <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="L&apos;exécution s&apos;est terminée avec le résultat {0} après {1}. {2}"/>
+  <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="L&apos;exécution s&apos;est terminée de manière anormale après {0} - consultez la grille d&apos;exécution pour le statut final."/>
+  <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lignes perdues (file saturée) ..."/>
+  <locale name="SCHEDULER_EXECUTION_LOG_TRUNCATED" value="... {0} lignes omises (total {1}) ..."/>
   <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Prochaines exécutions"/>
   <locale name="SCHEDULER_REMOTE_EXECUTION" value="Exécuter sur un serveur distant"/>
   <locale name="SCHEDULER_REMOTE_SERVER" value="Serveur distant"/>

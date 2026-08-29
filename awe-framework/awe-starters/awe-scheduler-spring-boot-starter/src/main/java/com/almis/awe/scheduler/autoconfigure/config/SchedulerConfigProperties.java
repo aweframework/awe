@@ -1,10 +1,13 @@
 package com.almis.awe.scheduler.autoconfigure.config;
 
+import com.almis.awe.scheduler.enums.ExecutionLogStoreType;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
+import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
 import java.nio.file.Paths;
@@ -15,6 +18,7 @@ import java.time.temporal.ChronoUnit;
  * Scheduler module properties
  */
 @Data
+@Validated
 @ConfigurationProperties(prefix = "awe.scheduler")
 public class SchedulerConfigProperties {
   /**
@@ -51,6 +55,50 @@ public class SchedulerConfigProperties {
    * Default value %d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx
    */
   private String executionLogPattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p : %m%n%wEx";
+  /**
+   * Execution log store selection: {@code file} (default, on-disk, unchanged behavior) or
+   * {@code database} (opt-in, persists to the shared scheduler datasource). An unrecognized
+   * value fails application context startup instead of silently falling back.
+   */
+  private ExecutionLogStoreType executionLogStore = ExecutionLogStoreType.FILE;
+
+  /**
+   * Database-mode execution log window size (head + tail lines retained per execution).
+   * Default value 1000
+   */
+  @Min(10)
+  private int executionLogMaxLines = 1000;
+
+  /**
+   * Database-mode defensive per-line character cap, independent of the line-count window.
+   * Default value 1000
+   */
+  @Min(80)
+  private int executionLogMaxLineLength = 1000;
+
+  /**
+   * Database-mode bounded async capture queue capacity. Overflow drops lines rather than
+   * blocking the task.
+   * Default value 10000
+   */
+  @Min(100)
+  private int executionLogQueueCapacity = 10000;
+
+  /**
+   * Database-mode dirty-slot count that triggers an eager flush, and the maximum number of
+   * queued events drained per writer poll cycle.
+   * Default value 200
+   */
+  @Min(1)
+  private int executionLogBatchSize = 200;
+
+  /**
+   * Database-mode time-based flush trigger; kept below the log-viewer's 5s autorefresh so a
+   * running execution keeps tailing live.
+   * Default value 2s
+   */
+  @DurationUnit(ChronoUnit.SECONDS)
+  private Duration executionLogFlushInterval = Duration.ofSeconds(2);
 
   /**
    * Scheduler tasks default timeout in seconds
@@ -90,6 +138,15 @@ public class SchedulerConfigProperties {
    * Remote password
    */
   private String remoteCallbackPassword;
+
+  /**
+   * Application-side kill switch for tagging an admitted remote-maintain callback with the
+   * propagated execution key (D3, D7). Gates only the callback filter bean; has no effect on the
+   * scheduler's own header, which is always sent, nor on the {@code database} execution-log store
+   * selection itself.
+   * Default value true
+   */
+  private boolean executionLogCallbackCapture = true;
 
   /**
    * SSH host-key verification policy for remote command execution.

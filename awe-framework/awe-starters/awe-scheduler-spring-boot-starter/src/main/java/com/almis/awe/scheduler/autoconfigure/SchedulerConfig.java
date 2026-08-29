@@ -24,6 +24,7 @@ import com.almis.awe.scheduler.job.scheduled.MaintainJob;
 import com.almis.awe.scheduler.listener.SchedulerEventListener;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.scheduler.service.RemoteSchedulerService;
 import com.almis.awe.scheduler.service.SchedulerService;
@@ -177,8 +178,9 @@ public class SchedulerConfig {
   @Bean
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService,
                                                QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher,
-                                               ObjectMapper mapper, RestTemplate restTemplate) {
+                                               ObjectMapper mapper, ExecutionLogStore executionLogStore, RestTemplate restTemplate) {
     return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, mapper,
+      executionLogStore,
       schedulerConfigProperties.getTaskTimeout(),
       schedulerConfigProperties.isSchedulerInstance(),
       schedulerConfigProperties.getRemoteCallbackUrl(),
@@ -194,8 +196,8 @@ public class SchedulerConfig {
    * @return Scheduler service
    */
   @Bean
-  public CommandJobService commandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO) {
-    return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO, schedulerConfigProperties.getTaskTimeout());
+  public CommandJobService commandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO, ExecutionLogStore executionLogStore) {
+    return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO, executionLogStore, schedulerConfigProperties.getTaskTimeout());
   }
 
   /**
@@ -365,8 +367,9 @@ public class SchedulerConfig {
    */
   @Bean
   public TaskDAO taskDAO(Scheduler scheduler, QueryService queryService, MaintainService maintainService,
-                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker) {
-    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), schedulerConfigProperties.getExecutionLogPath(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker);
+                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker,
+                         ExecutionLogStore executionLogStore) {
+    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, executionLogStore);
   }
 
   /**

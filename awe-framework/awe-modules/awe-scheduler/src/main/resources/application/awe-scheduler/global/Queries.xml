@@ -983,6 +983,37 @@
     <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
+  <!-- Database-mode execution log window rows, ordered by event timestamp then origin then
+       absolute line number: always returns the full stored window (no offset filter). Read-side
+       merges rows from every origin into one time-ordered stream. -->
+  <query id="getExecutionLogLines">
+    <table id="AweSchExeLog"/>
+    <field id="Src" alias="origin"/>
+    <field id="Sec" alias="section"/>
+    <field id="Slt" alias="slot"/>
+    <field id="LinNum" alias="lineNumber"/>
+    <field id="LinTxt" alias="lineText"/>
+    <field id="LogDat" alias="logDate"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+        <filter left-field="ExeTsk" condition="eq" right-variable="executionId"/>
+      </and>
+    </where>
+    <order-by field="LogDat" type="ASC"/>
+    <order-by field="Src" type="ASC"/>
+    <order-by field="LinNum" type="ASC"/>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="executionId" type="INTEGER" name="executionId"/>
+  </query>
+
+  <!-- Distinct execution keys stored in the database-mode execution log window (orphan purge) -->
+  <query id="getExecutionLogKeys" distinct="true">
+    <table id="AweSchExeLog"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="ExeTsk" alias="executionId"/>
+  </query>
+
   <!-- EMAIL SERVER (SUGGEST SERVER HOST)-->
   <query id="emailServerSuggest">
     <table id="AweEmlSrv" />

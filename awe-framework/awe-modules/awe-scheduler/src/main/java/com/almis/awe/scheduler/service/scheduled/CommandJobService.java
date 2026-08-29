@@ -9,6 +9,7 @@ import com.almis.awe.scheduler.bean.task.TaskParameter;
 import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.dao.CommandDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.service.MaintainService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +46,9 @@ public class CommandJobService extends JobService {
                            QueryUtil queryUtil, TaskDAO taskDAO,
                            ApplicationEventPublisher eventPublisher,
                            CommandDAO commandDAO,
+                           ExecutionLogStore executionLogStore,
                            Duration defaultTimeout) {
-    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, defaultTimeout);
+    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, executionLogStore, defaultTimeout);
     this.commandDAO = commandDAO;
   }
 
@@ -55,28 +57,31 @@ public class CommandJobService extends JobService {
     // Start logging
     startLogging(execution);
 
-    // Log job start
-    log.info("[{}] Command job started: {}", task.getTrigger().getKey().toString(), task.getAction());
+    ServiceData result = null;
+    try {
+      // Log job start
+      log.info("[{}] Command job started: {}", task.getTrigger().getKey().toString(), task.getAction());
 
-    resolvePropertyParameters(task);
+      resolvePropertyParameters(task);
 
-    ServiceData result = new ServiceData();
-    // Execute task
-    if (execute(task, getTimeout(task))) {
-      result
-        .setTitle(getLocale(SCHEDULER_BATCH_LAUNCH_TITLE))
-        .setMessage(getLocale(SCHEDULER_BATCH_LAUNCH_MESSAGE));
-    } else {
-      result
-        .setType(AnswerType.ERROR)
-        .setTitle(SCHEDULER_BATCH_LAUNCH_ERROR_TITLE)
-        .setMessage(SCHEDULER_BATCH_LAUNCH_ERROR_MESSAGE);
+      // Execute task
+      if (execute(task, getTimeout(task))) {
+        result = new ServiceData()
+          .setTitle(getLocale(SCHEDULER_BATCH_LAUNCH_TITLE))
+          .setMessage(getLocale(SCHEDULER_BATCH_LAUNCH_MESSAGE));
+      } else {
+        result = new ServiceData()
+          .setType(AnswerType.ERROR)
+          .setTitle(SCHEDULER_BATCH_LAUNCH_ERROR_TITLE)
+          .setMessage(SCHEDULER_BATCH_LAUNCH_ERROR_MESSAGE);
+      }
+
+      return new AsyncResult<>(result);
+    } finally {
+      // Log completion summary and end logging
+      logExecutionSummary(execution, result);
+      endLogging(execution);
     }
-
-    // End logging
-    endLogging();
-
-    return new AsyncResult<>(result);
   }
 
   /**
