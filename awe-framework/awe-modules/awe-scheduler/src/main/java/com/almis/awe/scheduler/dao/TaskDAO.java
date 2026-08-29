@@ -1,6 +1,5 @@
 package com.almis.awe.scheduler.dao;
 
-import com.almis.awe.builder.client.FilterActionBuilder;
 import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.client.UpdateControllerActionBuilder;
 import com.almis.awe.builder.client.css.AddCssClassActionBuilder;
@@ -10,7 +9,6 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.queries.Variable;
@@ -30,8 +28,10 @@ import com.almis.awe.scheduler.enums.TriggerType;
 import com.almis.awe.scheduler.factory.TaskFactory;
 import com.almis.awe.scheduler.factory.TriggerFactory;
 import com.almis.awe.scheduler.filechecker.FileChecker;
+import com.almis.awe.scheduler.log.ExecutionKey;
+import com.almis.awe.scheduler.log.ExecutionLogPage;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.util.TaskUtil;
-import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -41,15 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.scheduling.annotation.Async;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 import static com.almis.awe.scheduler.constant.JobConstants.*;
@@ -72,7 +67,7 @@ public class TaskDAO extends ServiceConfig {
   private final CalendarDAO calendarDAO;
   private final ServerDAO serverDAO;
   private final FileChecker fileChecker;
-  private final String executionLogPath;
+  private final ExecutionLogStore executionLogStore;
   private final int defaultStoredExecutions;
 
   /**
@@ -80,25 +75,25 @@ public class TaskDAO extends ServiceConfig {
    *
    * @param scheduler         Scheduler
    * @param storedExecutions  Stored execution
-   * @param executionLogPath  Execution log path
    * @param queryService      Query service
    * @param maintainService   Maintain service
    * @param queryUtil         Query utilities
    * @param calendarDAO       Calendar DAO
    * @param serverDAO         Server DAO
    * @param fileChecker       File checker
+   * @param executionLogStore Execution log store
    */
-  public TaskDAO(Scheduler scheduler, int storedExecutions, String executionLogPath, QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
-                 CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker) {
+  public TaskDAO(Scheduler scheduler, int storedExecutions, QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
+                 CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker, ExecutionLogStore executionLogStore) {
     this.scheduler = scheduler;
     this.defaultStoredExecutions = storedExecutions;
-    this.executionLogPath = executionLogPath;
     this.queryService = queryService;
     this.maintainService = maintainService;
     this.queryUtil = queryUtil;
     this.calendarDAO = calendarDAO;
     this.serverDAO = serverDAO;
     this.fileChecker = fileChecker;
+    this.executionLogStore = executionLogStore;
   }
 
   /**
@@ -310,19 +305,10 @@ public class TaskDAO extends ServiceConfig {
     ArrayNode executionsToPurge = JsonNodeFactory.instance.arrayNode();
     DataList dataList = getExecutionsToPurge(taskId, executions).getDataList();
     List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
+    List<Integer> executionIds = taskExecutionList.stream().map(TaskExecution::getExecutionId).toList();
+    executionIds.forEach(executionsToPurge::add);
 
-    for (TaskExecution taskExecution : taskExecutionList) {
-      // Delete each task execution file
-      try {
-        executionsToPurge.add(taskExecution.getExecutionId());
-        Path logFilePath = getExecutionLogFilePath(executionLogPath, taskId, taskExecution.getExecutionId());
-        if (logFilePath.toFile().exists()) {
-          Files.delete(logFilePath);
-        }
-      } catch (Exception exc) {
-        log.warn("Could not delete log file for task {} and execution {}", taskId, taskExecution.getExecutionId(), exc);
-      }
-    }
+    executionLogStore.purge(taskId, executionIds);
 
     // Add executions id to parameters
     ObjectNode parameters = queryUtil.getParameters();
@@ -343,31 +329,15 @@ public class TaskDAO extends ServiceConfig {
   public ServiceData purgeExecutionsAtStart() throws AWException {
     log.info("===== Deleting old execution logs =====");
 
-    DataList dataList = queryService.launchPrivateQuery(GET_ALL_EXECUTIONS).getDataList();
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    DataList dataList = queryService.launchPrivateQuery(GET_ALL_EXECUTIONS, parameters).getDataList();
     List<TaskExecution> taskExecutionList = DataListUtil.asBeanList(dataList, TaskExecution.class);
-    Set<String> validLogFiles = taskExecutionList
+    Set<ExecutionKey> validExecutions = taskExecutionList
       .stream()
-      .map(e -> "execution_" + e.getTaskId() + TASK_SEPARATOR + e.getExecutionId() + ".log")
+      .map(e -> new ExecutionKey(e.getTaskId(), e.getExecutionId()))
       .collect(Collectors.toSet());
 
-    // For each file in log path, if it's not a valid file, delete it
-    Path logPath = Paths.get(executionLogPath);
-    if (logPath.toFile().exists()) {
-      try (Stream<Path> pathStream = Files.list(logPath)) {
-        pathStream.forEach(path -> {
-          String name = path.toFile().getName();
-          if (!validLogFiles.contains(name)) {
-            try {
-              Files.delete(path);
-            } catch (Exception exc) {
-              log.error("Error deleting log file: {}", name, exc);
-            }
-          }
-        });
-      } catch (IOException exc) {
-        log.warn("Error reading execution log path: {}", executionLogPath, exc);
-      }
-    }
+    executionLogStore.purgeOrphans(validExecutions);
 
     return new ServiceData();
   }
@@ -573,7 +543,7 @@ public class TaskDAO extends ServiceConfig {
       CellData executionTime = row.get(TASK_EXECUTION_TIME);
       CellData launchType = row.get(TASK_LAUNCH_TYPE_LIST);
       CellData launchedBy = new CellData(getLaunchedByText(launchType.getStringValue(), row.get(TASK_LAUNCHED_BY_LIST).getStringValue()));
-      CellData executionLogPathCell = new CellData(getExecutionLogFileNode(executionLogPath, taskId, executionId));
+      CellData executionLogPathCell = new CellData(executionLogStore.locatorNode(new ExecutionKey(taskId, executionId)));
       Date initialDate = row.get("ExeLstTim").getDateValue();
 
       if (TaskStatus.JOB_RUNNING.equals(TaskStatus.valueOf(status.getIntegerValue()))) {
@@ -590,37 +560,6 @@ public class TaskDAO extends ServiceConfig {
     }
 
     return serviceData;
-  }
-
-  /**
-   * Get execution log file path
-   *
-   * @param logPath     Log path
-   * @param taskId      Task id
-   * @param executionId Execution id
-   * @return Log file path
-   */
-  private Path getExecutionLogFilePath(String logPath, Integer taskId, Integer executionId) {
-    return Paths.get(logPath, "execution_" + taskId + TASK_SEPARATOR + executionId + ".log");
-  }
-
-  /**
-   * Retrieve execution log file node
-   *
-   * @param logPath     Log path
-   * @param taskId      Task identifier
-   * @param executionId Execution identifier
-   * @return Execution log file node
-   */
-  private ObjectNode getExecutionLogFileNode(String logPath, Integer taskId, Integer executionId) throws AWException {
-    Path executionLogFilePath = getExecutionLogFilePath(logPath, taskId, executionId);
-    ObjectNode logFileNode = JsonNodeFactory.instance.objectNode();
-    logFileNode.put(JSON_VALUE_PARAMETER, EncodeService.encodeSymmetric(executionLogFilePath.toString()));
-    logFileNode.put(JSON_STYLE_PARAMETER, "no-btn");
-    logFileNode.put(JSON_TITLE_PARAMETER, "SCHEDULER_SHOW_EXECUTION_LOG");
-    logFileNode.put(JSON_ICON_PARAMETER, "file-text-o text-info");
-    logFileNode.put(JSON_LABEL_PARAMETER, "");
-    return logFileNode;
   }
 
   /**
@@ -991,14 +930,41 @@ public class TaskDAO extends ServiceConfig {
    */
   public ServiceData loadExecutionScreen(String path, ObjectNode address) throws AWException {
     ServiceData serviceData = new ServiceData();
-    serviceData.addClientAction(new ClientAction("reset").setTarget("executionLogViewer").setSilent(true));
-    serviceData.addClientAction(new SelectActionBuilder("path", path).setSilent(true).build());
-    serviceData.addClientAction(new FilterActionBuilder("executionLogViewer").setSilent(true).build());
 
     // Refresh execution screen
     String[] executionAddress = address.get("row").asText().split(TASK_SEPARATOR);
-    TaskExecution taskExecution = getTaskExecution(Integer.parseInt(executionAddress[0]), Integer.parseInt(executionAddress[1]));
+    ExecutionKey key = new ExecutionKey(Integer.parseInt(executionAddress[0]), Integer.parseInt(executionAddress[1]));
+    executionLogStore.applyViewerSelection(path, key, serviceData);
+
+    TaskExecution taskExecution = getTaskExecution(key.taskId(), key.executionId());
     refreshExecutionScreen(taskExecution, serviceData);
+
+    return serviceData;
+  }
+
+  /**
+   * Retrieve the database-mode execution log window from a line offset (get-execution-log action).
+   * Unreachable in file mode: the widget polls get-log-file, served by FileService, unchanged.
+   * <p>
+   * Single-response delivery: the store's lines always land in {@code LOG_CONTENT}, paired with
+   * {@code LOG_CONTENT_REPLACE} telling the widget whether to append them or atomically replace
+   * its current content, never a separate reset/filter round trip.
+   *
+   * @param taskId        Task identifier
+   * @param executionId   Execution identifier
+   * @param offset        Line offset to read from
+   * @param clientVersion Window version the caller currently holds, as previously returned in
+   *                      {@code LOG_CONTENT_VERSION}; {@code null} when absent
+   * @return ServiceData
+   * @throws AWException Error reading the execution log
+   */
+  public ServiceData getExecutionLog(Integer taskId, Integer executionId, Integer offset, String clientVersion) throws AWException {
+    ServiceData serviceData = new ServiceData();
+    ExecutionLogPage page = executionLogStore.read(new ExecutionKey(taskId, executionId), offset, clientVersion);
+
+    serviceData.addVariable("LOG_CONTENT", new CellData(page.lines()));
+    serviceData.addVariable("LOG_CONTENT_REPLACE", new CellData(page.replace()));
+    serviceData.addVariable("LOG_CONTENT_VERSION", new CellData(page.version()));
 
     return serviceData;
   }

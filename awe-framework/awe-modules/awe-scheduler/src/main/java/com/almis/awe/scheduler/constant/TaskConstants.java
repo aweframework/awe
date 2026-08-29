@@ -11,6 +11,8 @@ public class TaskConstants {
   // Scheduler log
   public static final String LOG_BY_TASK_EXECUTION = "logByTaskExecution";
   public static final String EXECUTION = "execution";
+  public static final String EXECUTION_LOG_ORIGIN = "executionLogOrigin";
+  public static final String EXECUTION_KEY_HEADER = "X-AWE-Execution-Key";
 
   // Task parameter constants
   public static final String TASK_IDE = "taskId";

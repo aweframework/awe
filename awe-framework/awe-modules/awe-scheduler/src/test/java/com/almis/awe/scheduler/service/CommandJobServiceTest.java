@@ -1,5 +1,9 @@
 package com.almis.awe.scheduler.service;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.Task;
@@ -8,7 +12,9 @@ import com.almis.awe.scheduler.bean.task.TaskParameter;
 import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.dao.CommandDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.scheduled.CommandJobService;
+import com.almis.awe.scheduler.service.scheduled.JobService;
 import com.almis.awe.service.MaintainService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,17 +26,25 @@ import org.mockito.quality.Strictness;
 import org.quartz.JobDataMap;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import static com.almis.awe.scheduler.constant.TaskConstants.LOG_BY_TASK_EXECUTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -57,6 +71,8 @@ class CommandJobServiceTest {
   @Mock
   private CommandDAO commandDAO;
   @Mock
+  private ExecutionLogStore executionLogStore;
+  @Mock
   private AweElements aweElements;
   @Mock
   private ApplicationContext context;
@@ -68,7 +84,7 @@ class CommandJobServiceTest {
    */
   private CommandJobService service() {
     CommandJobService service = new CommandJobService(executionService, maintainService, queryUtil, taskDAO,
-      eventPublisher, commandDAO, Duration.ofSeconds(5));
+      eventPublisher, commandDAO, executionLogStore, Duration.ofSeconds(5));
     service.setApplicationContext(context);
     doReturn(aweElements).when(context).getBean(AweElements.class);
     return service;
@@ -170,5 +186,60 @@ class CommandJobServiceTest {
   @Test
   void taskWithoutParametersRunsWithEmptyEnvironment() throws Exception {
     assertEquals(0, runAndCaptureEnvironment(commandTask()).length);
+  }
+
+  /**
+   * D1 corrective / pre-existing MDC leak fix: an unchecked exception from the job body must still
+   * run {@code endLogging} - MDC cleared, store completion signalled - before propagating, instead
+   * of leaking the MDC onto the pooled job thread.
+   *
+   * <p>Also pins the C1 gate fix: {@code result} must stay {@code null} until an outcome from
+   * {@code execute(...)} is actually known, so a crashed command renders the abnormal-completion
+   * summary line instead of a misleading "finished with result OK" one (the default
+   * {@link com.almis.awe.model.dto.ServiceData} answer type).</p>
+   */
+  @Test
+  void unexpectedExceptionDuringCommandExecutionStillRunsEndLoggingAndPropagates() {
+    given(commandDAO.runCommand(any(Task.class), any(String[].class), anyLong()))
+      .willThrow(new IllegalStateException("boom"));
+    Task task = commandTask();
+    TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(1).setInitialDate(new Date());
+
+    CommandJobService service = service();
+    given(aweElements.getLocaleWithLanguage(anyString(), any(), any(Object[].class)))
+      .willAnswer(invocation -> {
+        Object[] tokens = Arrays.copyOfRange(invocation.getArguments(), 2, invocation.getArguments().length);
+        return invocation.getArgument(0) + "|" + Arrays.toString(tokens);
+      });
+
+    ListAppender<ILoggingEvent> logAppender = attachListAppender();
+    try {
+      assertThrows(IllegalStateException.class, () -> service.executeJob(task, execution, new JobDataMap()));
+    } finally {
+      detachListAppender(logAppender);
+    }
+
+    verify(executionLogStore).complete(any(), any());
+    assertNull(MDC.get(LOG_BY_TASK_EXECUTION));
+
+    ILoggingEvent summaryEvent = logAppender.list.stream()
+      .filter(event -> event.getLevel() == Level.INFO)
+      .findFirst()
+      .orElseThrow(() -> new AssertionError("No summary line was logged"));
+    assertTrue(summaryEvent.getFormattedMessage().startsWith("SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY|"),
+      summaryEvent.getFormattedMessage());
+  }
+
+  private ListAppender<ILoggingEvent> attachListAppender() {
+    Logger logger = (Logger) LoggerFactory.getLogger(JobService.class);
+    ListAppender<ILoggingEvent> logAppender = new ListAppender<>();
+    logAppender.start();
+    logger.addAppender(logAppender);
+    return logAppender;
+  }
+
+  private void detachListAppender(ListAppender<ILoggingEvent> logAppender) {
+    Logger logger = (Logger) LoggerFactory.getLogger(JobService.class);
+    logger.detachAppender(logAppender);
   }
 }

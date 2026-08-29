@@ -13,6 +13,7 @@ import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.channel.ChannelExec;
 import org.apache.sshd.client.channel.ClientChannelEvent;
 import org.apache.sshd.client.session.ClientSession;
+import org.slf4j.MDC;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -132,7 +134,10 @@ public class SshCommandExecutor implements CommandExecutor {
    * Start a daemon thread that drains a channel stream through the shared stream logger. Daemon so
    * a drain that is still blocked on a slow/stuck stream (e.g. after a timeout) can never keep the
    * JVM alive; the thread captures only method-local references so concurrent executions stay
-   * isolated.
+   * isolated. The calling thread's MDC context map is copied into the drain thread and cleared on
+   * exit, so the execution's log capture (both the file-mode sifting appender and the
+   * database-mode store appender) observes command output exactly as it observes any other log
+   * line emitted during the execution.
    *
    * @param commandTask Task owning the execution
    * @param stream      Channel stream to drain (inverted stdout or stderr)
@@ -140,8 +145,17 @@ public class SshCommandExecutor implements CommandExecutor {
    * @return the started drain thread
    */
   private Thread startDrain(Task commandTask, InputStream stream, String type) {
-    Thread thread = new Thread(() -> commandStreamLogger.log(commandTask, stream, type),
-      "ssh-drain-" + type.toLowerCase() + "-" + commandTask.getTrigger().getKey());
+    Map<String, String> callerContextMap = MDC.getCopyOfContextMap();
+    Thread thread = new Thread(() -> {
+      if (callerContextMap != null) {
+        MDC.setContextMap(callerContextMap);
+      }
+      try {
+        commandStreamLogger.log(commandTask, stream, type);
+      } finally {
+        MDC.clear();
+      }
+    }, "ssh-drain-" + type.toLowerCase() + "-" + commandTask.getTrigger().getKey());
     thread.setDaemon(true);
     thread.start();
     return thread;

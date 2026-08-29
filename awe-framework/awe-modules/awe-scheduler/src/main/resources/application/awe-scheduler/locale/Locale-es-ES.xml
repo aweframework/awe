@@ -126,6 +126,10 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_MESSAGE" value="El batch se ha ejecutado correctamente"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Batch ejecutado"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Esta tarea ha sido cancelada debido a que se ha excedido el límite de tiempo establecido ({0})"/>
+  <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="La ejecución ha finalizado con resultado {0} tras {1}. {2}"/>
+  <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="La ejecución ha finalizado de forma anómala tras {0} - consulte la parrilla de ejecuciones para conocer el estado final."/>
+  <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} líneas perdidas (cola saturada) ..."/>
+  <locale name="SCHEDULER_EXECUTION_LOG_TRUNCATED" value="... {0} líneas omitidas (total {1}) ..."/>
   <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Próximas ejecuciones"/>
   <locale name="SCHEDULER_REMOTE_EXECUTION" value="Ejecutar en servidor remoto"/>
   <locale name="SCHEDULER_REMOTE_SERVER" value="Servidor remoto"/>

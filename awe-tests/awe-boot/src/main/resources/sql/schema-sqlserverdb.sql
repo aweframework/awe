@@ -788,6 +788,22 @@ CREATE TABLE AweSchExe
 );
 
 --------------------------------------------------------
+--  DDL for Table AweSchExeLog
+--  Bounded task execution log window
+--------------------------------------------------------
+CREATE TABLE AweSchExeLog
+(
+    IdeTsk INT           not NULL,
+    ExeTsk INT           not NULL,
+    Src    VARCHAR(1)    not NULL,
+    Sec    VARCHAR(1)    not NULL,
+    Slt    INT           not NULL,
+    LinNum INT           not NULL,
+    LinTxt VARCHAR(4000),
+    LogDat DATETIME2(3)  not NULL
+);
+
+--------------------------------------------------------
 --  DDL for Table AweSchSrv
 --  Scheduler servers
 --------------------------------------------------------
@@ -1046,6 +1062,9 @@ ALTER TABLE AweSchCal
 ALTER TABLE AweSchCalDat
     ADD CONSTRAINT UN_AweSchCalDat UNIQUE (Ide);
 CREATE INDEX AweSchExeI1 ON AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat);
+CREATE INDEX AweSchExeLogI1 ON AweSchExeLog (IdeTsk, ExeTsk, LogDat);
+ALTER TABLE AweSchExeLog
+    ADD CONSTRAINT UN_AweSchExeLog UNIQUE (IdeTsk, ExeTsk, Src, Sec, Slt);
 ALTER TABLE AweSchSrv
     ADD CONSTRAINT UN_AweSchSrv UNIQUE (Ide);
 ALTER TABLE AweSchTsk
@@ -1070,6 +1089,8 @@ ALTER TABLE AweSchCalDat
     ADD CONSTRAINT PK_AweSchCalDat PRIMARY KEY (Ide);
 ALTER TABLE AweSchTskFilMod
     ADD CONSTRAINT PK_AweSchTskFilMod PRIMARY KEY (IdeTsk, FilPth);
+ALTER TABLE AweSchExeLog
+    ADD PRIMARY KEY (IdeTsk, ExeTsk, Src, Sec, Slt);
 ALTER TABLE AweSchSrv
     ADD CONSTRAINT PK_AweSchSrv PRIMARY KEY (Ide);
 ALTER TABLE AweSchTsk

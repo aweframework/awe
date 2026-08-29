@@ -581,6 +581,22 @@ CREATE TABLE IF NOT EXISTS AweSchExe
 );
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+--  DDL for Table AweSchExeLog
+--  Bounded task execution log window
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+CREATE TABLE IF NOT EXISTS AweSchExeLog
+(
+    IdeTsk INTEGER      not NULL,
+    ExeTsk INTEGER      not NULL,
+    Src    VARCHAR(1)   not NULL,
+    Sec    VARCHAR(1)   not NULL,
+    Slt    INTEGER      not NULL,
+    LinNum INTEGER      not NULL,
+    LinTxt VARCHAR(4000),
+    LogDat TIMESTAMP(3) not NULL
+);
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 --  DDL for Table AweSchSrv
 --  Scheduler servers
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -828,6 +844,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS NOM_UQ ON AweSchCal (Nom);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHCAL ON AweSchCal (Ide);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHCALDAT ON AweSchCalDat (Ide);
 CREATE INDEX IF NOT EXISTS AWESCHEXEI1 ON AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat);
+CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHEXELOG ON AweSchExeLog (IdeTsk, ExeTsk, Src, Sec, Slt);
+CREATE INDEX IF NOT EXISTS AWESCHEXELOGI1 ON AweSchExeLog (IdeTsk, ExeTsk, LogDat);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHSRV ON AweSchSrv (Ide);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHTSK ON AweSchTsk (Ide);
 CREATE UNIQUE INDEX IF NOT EXISTS SYS_C00164575 ON AweSchTskDpn (IdeTsk, IDEPRN);

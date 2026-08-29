@@ -368,6 +368,49 @@ public class SchedulerService extends ServiceConfig {
   }
 
   /**
+   * Retrieve the database-mode execution log window from a line offset (get-execution-log
+   * action). Parameterless: services invoked through an Actions.xml &lt;call service&gt; receive
+   * no parameter map, so the id/offset values are read directly from the request instead of
+   * declared as service-parameters.
+   *
+   * @return Service data
+   * @throws AWException Error reading the execution log
+   */
+  public ServiceData getExecutionLog() throws AWException {
+    Integer taskId = readRequestInteger("execution-log-task-id");
+    Integer executionId = readRequestInteger("execution-log-execution-id");
+    if (taskId == null || executionId == null) {
+      return new ServiceData();
+    }
+
+    Integer offset = readRequestInteger("offset");
+    String version = readRequestString("version");
+    return taskDAO.getExecutionLog(taskId, executionId, offset == null ? 0 : offset, version);
+  }
+
+  /**
+   * Read a request parameter as an integer.
+   *
+   * @param name Parameter name
+   * @return Parameter value, or {@code null} when absent
+   */
+  private Integer readRequestInteger(String name) {
+    JsonNode parameter = getRequest().getParameter(name);
+    return parameter == null || parameter.isNull() ? null : parameter.asInt();
+  }
+
+  /**
+   * Read a request parameter as a string.
+   *
+   * @param name Parameter name
+   * @return Parameter value, or {@code null} when absent
+   */
+  private String readRequestString(String name) {
+    JsonNode parameter = getRequest().getParameter(name);
+    return parameter == null || parameter.isNull() ? null : parameter.asText();
+  }
+
+  /**
    * Purge execution logs
    * Requires LOG FILES
    *

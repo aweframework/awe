@@ -916,6 +916,13 @@
     <serve service="testComplexRestPost"/>
   </target>
 
+  <!-- capture-remote-execution-traces: exercised over /api/maintain by
+       ExecutionCallbackLogFilterIT; logs one INFO line so an admitted callback leaves an
+       application-origin (Src='A') row to assert against -->
+  <target name="ExecutionLogCallbackTrace">
+    <serve service="executionLogCallbackTrace"/>
+  </target>
+
   <target name="TestComplexRestPostParameters">
     <serve service="testComplexRestPostParameters">
       <variable id="value" type="INTEGER" name="value"/>
@@ -1111,6 +1118,11 @@
       <variable id="ProductPrice" type="FLOAT" name="order_price"/>
       <variable id="ProductQuantity" type="INTEGER" name="order_quantity"/>
     </insert>
+  </target>
+
+
+  <target name="SlowTraceMaintain">
+    <serve service="slowTraceService"/>
   </target>
 
 </maintain>
