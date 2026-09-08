@@ -327,14 +327,21 @@ public class ReportDesigner extends ServiceConfig {
   }
 
   /**
-   * Add sort data to parameters
+   * Lift the grid pagination (sort, page size and current page) from the grid data node to the
+   * parameters root, so the relaunched query returns the same rows the user is looking at.
+   * Values the client did not send are left untouched so the query keeps its own defaults.
    *
    * @param grid       Grid element
    * @param parameters Parameters
    */
-  private void addSortData(Grid grid, ObjectNode parameters) {
-    ArrayNode sortData = (ArrayNode) parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get(AweConstants.COMPONENT_SORT);
-    parameters.set(AweConstants.COMPONENT_SORT, sortData);
+  private void addGridPaginationData(Grid grid, ObjectNode parameters) {
+    JsonNode gridData = parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix());
+    for (String key : List.of(AweConstants.COMPONENT_SORT, AweConstants.COMPONENT_MAX, AweConstants.COMPONENT_PAGE)) {
+      JsonNode value = gridData == null ? null : gridData.get(key);
+      if (value != null && !value.isNull()) {
+        parameters.set(key, value);
+      }
+    }
   }
 
   /**
@@ -502,8 +509,8 @@ public class ReportDesigner extends ServiceConfig {
     List<List<Object>> data = new ArrayList<>();
     boolean firstRow = true;
 
-    // Set sort and direction
-    addSortData(grid, parameters);
+    // Set sort, page size and current page from the grid
+    addGridPaginationData(grid, parameters);
 
     // Launch query and get data
     DataList queryData = queryService.launchPrivateQuery(grid.getTargetAction(), parameters).getDataList();
