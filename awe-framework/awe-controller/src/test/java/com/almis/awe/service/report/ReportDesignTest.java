@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,6 +48,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -155,6 +158,74 @@ class ReportDesignTest {
     ReportGrid reportGrid = (ReportGrid) ((Layout) ((Layout) printBean.getDetail()).getElements().get(0)).getElements().get(0);
     assertEquals(1, reportGrid.getData().size());
     assertEquals(5, reportGrid.getData().get(0).size());
+  }
+
+  @Test
+  void getPrintDesignWithPaginatedQueryGridLiftsGridPaginationToTheQuery() throws Exception {
+    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // The client nests the grid pagination under <gridId>.data (see grid/base.js getSpecificFields)
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+    gridData.put("max", 10);
+    gridData.put("page", 3);
+    gridData.set("sort", JsonNodeFactory.instance.arrayNode()
+      .add(JsonNodeFactory.instance.objectNode().put("id", "name").put("direction", "asc")));
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+
+    List<Element> reportElementList = Collections.singletonList(
+      new GridBuilder()
+        .setId("gridId")
+        .setTargetAction("gridQuery")
+        .addColumn(new TextColumnBuilder().setName("name"))
+        .build()
+    );
+
+    reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    ArgumentCaptor<ObjectNode> queryParameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq("gridQuery"), queryParameters.capture());
+    ObjectNode rootParameters = queryParameters.getValue();
+    assertEquals(10, rootParameters.get("max").asInt(), "grid page size must reach the query root");
+    assertEquals(3, rootParameters.get("page").asInt(), "grid current page must reach the query root");
+    assertEquals("name", rootParameters.get("sort").get(0).get("id").asText());
+  }
+
+  @Test
+  void getPrintDesignWithQueryGridWithoutClientPaginationLeavesQueryDefaults() throws Exception {
+    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // No max/page/sort sent by the client: nothing must be forced (a null max would disable pagination)
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+
+    List<Element> reportElementList = Collections.singletonList(
+      new GridBuilder()
+        .setId("gridId")
+        .setTargetAction("gridQuery")
+        .addColumn(new TextColumnBuilder().setName("name"))
+        .build()
+    );
+
+    reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    ArgumentCaptor<ObjectNode> queryParameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq("gridQuery"), queryParameters.capture());
+    ObjectNode rootParameters = queryParameters.getValue();
+    assertFalse(rootParameters.has("max"), "max must not be forced when the client did not send it");
+    assertFalse(rootParameters.has("page"), "page must not be forced when the client did not send it");
+    assertFalse(rootParameters.has("sort"), "sort must not be forced when the client did not send it");
   }
 
   @Test
