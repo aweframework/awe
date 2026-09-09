@@ -891,7 +891,7 @@ class ScreenBuilderTest {
                 .setShowFutureDates(true)
                 .setDataType(DataType.STRING)
                 .setShowWeekends(true)
-                .setPrintable(Printable.ALL)
+                .setPrintable(Printable.TRUE)
                 .setId("column2")
             ))
           .setId("grid1")));
@@ -946,7 +946,7 @@ class ScreenBuilderTest {
     assertEquals("dd/mm/yyyy", column2.getDateFormat());
     assertSame(true, column2.isShowTodayButton());
     assertEquals(DateViewMode.MONTHS.toString(), column2.getDateViewMode());
-    assertEquals(Printable.ALL.toString(), column2.getPrintable());
+    assertEquals(Printable.TRUE.toString(), column2.getPrintable());
     assertSame(true, column2.isShowFutureDates());
     assertSame(true, column2.isShowWeekends());
   }

@@ -948,6 +948,150 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     });
   });
 
+  // Get printable columns (issue #753)
+  it('should decide print columns from the declared printable value, not from screen visibility', function () {
+    // Mock
+    let component = getDefaultComponent();
+    component.controller.headerModel = [];
+    let commons = new GridCommons(component);
+    commons.init();
+    component.addColumns([{
+      // Internal ui-grid column (row numbers): visible, without printable flag
+      id: "rowNum",
+      name: "rowNum",
+      hidden: false,
+      charlength: 3
+    }, {
+      id: "Amount",
+      label: "AMOUNT",
+      hidden: false,
+      charlength: 20,
+      printable: false,
+      printMode: "false"
+    }, {
+      id: "AmountRaw",
+      label: "AMOUNT",
+      hidden: true,
+      type: "float",
+      charlength: 20,
+      printable: true,
+      printMode: "true"
+    }, {
+      id: "AmountExcel",
+      label: "AMOUNT",
+      hidden: true,
+      charlength: 20,
+      printable: true,
+      printMode: "excel"
+    }, {
+      id: "VisibleDefault",
+      label: "VISIBLE",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "HiddenDefault",
+      label: "HIDDEN",
+      hidden: true,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "Internal",
+      hidden: true,
+      charlength: 20,
+      printable: false,
+      printMode: "false"
+    }]);
+
+    // Launch
+    let visibleColumns = component.getVisibleColumns();
+
+    // Assert
+    expect(visibleColumns.map(column => column.name)).toEqual(["AmountRaw", "AmountExcel", "VisibleDefault"]);
+    expect(visibleColumns.map(column => column.printable)).toEqual(["true", "excel", undefined]);
+    // Hidden columns are sent with their initial width instead of the collapsed one
+    expect(visibleColumns[0].width).toBe(140);
+  });
+
+  // Get printable columns inside a group header (issue #753)
+  it('should keep group headers when they contain hidden or non printable columns', function () {
+    // Mock
+    let component = getDefaultComponent();
+    component.controller.headerModel = [{startColumnName: "Amount", numberOfColumns: 3, titleText: "Group"}];
+    let commons = new GridCommons(component);
+    commons.init();
+    component.addColumns([{
+      id: "Amount",
+      label: "AMOUNT",
+      hidden: false,
+      charlength: 20,
+      printable: false,
+      printMode: "false"
+    }, {
+      id: "AmountRaw",
+      label: "AMOUNT",
+      hidden: true,
+      charlength: 20,
+      printable: true,
+      printMode: "true"
+    }, {
+      id: "Currency",
+      label: "CURRENCY",
+      hidden: false,
+      charlength: 5,
+      printable: true
+    }, {
+      id: "Notes",
+      label: "NOTES",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }]);
+
+    // Launch
+    let visibleColumns = component.getVisibleColumns();
+
+    // Assert
+    expect(visibleColumns.length).toBe(2);
+    expect(visibleColumns[0].header).toBe(true);
+    expect(visibleColumns[0].name).toBe("Group");
+    expect(visibleColumns[0].columnList.map(column => column.name)).toEqual(["AmountRaw", "Currency"]);
+    expect(visibleColumns[0].columnList[0].width).toBe(140);
+    expect(visibleColumns[1].name).toBe("Notes");
+  });
+
+  // Group header fully excluded from print (issue #753)
+  it('should drop a group header when none of its columns is printable', function () {
+    // Mock
+    let component = getDefaultComponent();
+    component.controller.headerModel = [{startColumnName: "First", numberOfColumns: 2, titleText: "Group"}];
+    let commons = new GridCommons(component);
+    commons.init();
+    component.addColumns([{
+      id: "First",
+      hidden: true,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "Second",
+      hidden: false,
+      charlength: 20,
+      printable: false,
+      printMode: "false"
+    }, {
+      id: "Third",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }]);
+
+    // Launch
+    let visibleColumns = component.getVisibleColumns();
+
+    // Assert
+    expect(visibleColumns.map(column => column.name)).toEqual(["Third"]);
+  });
+
   // Get column visible data
   it('should retrieve column visible data', function () {
     // Mock

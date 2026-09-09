@@ -862,40 +862,74 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         /**
          * Get column print data
          * @param column
-         * @returns {{component, charlength, name, width, label, type, align}}
+         * @returns {{component, charlength, name, width, label, type, align, printable}}
          */
         function getColumnInformation(column) {
-          const {name, label, type, component, width, charlength, align} = column;
+          const {name, label, type, component, charlength, align} = column;
+          // Hidden columns are rendered with width 0 on screen, so use their initial width for printing
+          const width = column.hidden ? column.initialWidth : column.width;
           return {
             name, type, component, width, charlength, align,
+            printable: column.printMode,
             label: (label || "").split(" ").map(l => $translate.instant(l)).join(" ")
           };
         }
 
         /**
-         * Retrieve column header information
+         * Check whether a column must be sent to the report, according to its declared `printable` value:
+         * - `false`: never
+         * - `true`: always, visible or hidden
+         * - `excel`: always (the server keeps it for spreadsheet outputs only)
+         * - not declared: only when the column is visible on screen
          *
-         * @returns {array} Visible column list
+         * Internal ui-grid columns (row numbers, selection checkbox) carry no `printable` flag and are never printed.
+         *
+         * @param {object} column Column model
+         * @returns {boolean} Column must be printed
+         */
+        function isPrintableColumn(column) {
+          if (!column.printable) {
+            return false;
+          }
+          switch (String(column.printMode || "").toLowerCase()) {
+            case "false":
+              return false;
+            case "true":
+            case "excel":
+              return true;
+            default:
+              return !column.hidden;
+          }
+        }
+
+        /**
+         * Retrieve printable column information for reports (see isPrintableColumn).
+         * Header counters are walked over every column so that non printable columns
+         * inside a group header do not break the grouping.
+         *
+         * @returns {array} Printable column list
          */
         component.getVisibleColumns = function () {
           let columns = [];
           let headers = component.controller.headerModel;
           let currentHeader = null;
-          component.controller.columnModel
-            .filter(column => !column.hidden && column.printable)
-            .forEach(column => {
-              currentHeader = currentHeader || findCurrentHeader(headers, column);
-              if (currentHeader !== null) {
+          component.controller.columnModel.forEach(column => {
+            currentHeader = currentHeader || findCurrentHeader(headers, column);
+            if (currentHeader !== null) {
+              if (isPrintableColumn(column)) {
                 currentHeader.columnList.push(getColumnInformation(column));
-                currentHeader.columnCounter--;
-                if (currentHeader.columnCounter === 0) {
-                  columns.push(currentHeader);
-                  currentHeader = null;
-                }
-              } else {
-                columns.push(getColumnInformation(column));
               }
-            });
+              currentHeader.columnCounter--;
+              if (currentHeader.columnCounter === 0) {
+                if (currentHeader.columnList.length > 0) {
+                  columns.push(currentHeader);
+                }
+                currentHeader = null;
+              }
+            } else if (isPrintableColumn(column)) {
+              columns.push(getColumnInformation(column));
+            }
+          });
 
           // Retrieve columns
           return columns;

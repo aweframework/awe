@@ -80,7 +80,8 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | name       | **Required** | String  | Column identifier. For reference purposes                                                                                         |                                                                                  |
 | sort-field | Optional     | String  | Sort field to sort by (if not treegrid)                                                                                           |                                                                                  |
 | type       | Optional     | String  | Field type (for printing purposes)                                                                                                | `string`, `integer`, `float` or `date`                                           |
-| hidden     | Optional     | Boolean | Column is **not** visible                                                                                                         | Default value is `false`                                                         |
+| hidden     | Optional     | Boolean | Column is **not** visible on screen. It can still be printed, see [printing columns](#printing-columns)                           | Default value is `false`                                                         |
+| printable  | Optional     | String  | Whether the column is included in the printed report. See [printing columns](#printing-columns)                                   | `true` (default) or `false`                                                      |
 | align      | Optional     | String  | Column is **not** visible                                                                                                         | `left`, `center` or `right`                                                      |
 | width      | Optional     | Integer | Column width in pixels or percent.                                                                                                | Ex.: `width = "10"` or `width = "20%"` **Note:** You can use '*' value for auto. |
 | sortable   | Optional     | Boolean | Field is sortable (if not treegrid)                                                                                               | Default value is `true`                                                          |
@@ -95,6 +96,46 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height | Default value is `false`                                                         |
 
 > **Note:** When a column is editable (it has a *component*) all attributes of criteria can be used in the column. See **[criteria attributes](criteria.md#criteria-structure)** for more references.
+
+### Printing columns
+
+When a screen is printed (see the [print engine guide](../guides/print-guide.md)), each grid decides which columns go to
+the report using the `printable` attribute of the column:
+
+| `printable` | Printed in PDF, DOCX and TEXT      | Printed in XLSX and CSV            |
+|-------------|------------------------------------|------------------------------------|
+| not set     | Only when the column is on screen  | Only when the column is on screen  |
+| `true`      | Always, even if `hidden="true"`    | Always, even if `hidden="true"`    |
+| `excel`     | Never                              | Always, even if `hidden="true"`    |
+| `false`     | Never                              | Never                              |
+
+"On screen" means the column is not `hidden="true"` and it has not been hidden at runtime by a `hide-column`
+dependency action. Declaring `printable="true"`, `printable="excel"` or `printable="false"` takes precedence
+over the screen state.
+
+This makes it possible to show a styled value on screen while exporting the raw value:
+
+```xml
+<grid id="GrdAmounts" server-action="data" target-action="QryAmounts" load-all="true">
+  <!-- Shown on screen with HTML styling, excluded from the report -->
+  <column label="AMOUNT" name="Amount" align="right" charlength="20" printable="false"/>
+  <!-- Hidden on screen, printed as a numeric value in every format -->
+  <column label="AMOUNT" name="AmountRaw" align="right" charlength="20" hidden="true" type="float" printable="true"/>
+  <!-- Hidden on screen, exported to the spreadsheet only -->
+  <column label="INTERNAL_CODE" name="Code" charlength="10" hidden="true" printable="excel"/>
+</grid>
+```
+
+Keep in mind:
+
+- A printed column needs its data in the client, so it must be `sendable` (the default). A `sendable="false"` column
+  appears in the report header with empty cells.
+- Use `type` (`string`, `integer`, `float`, `date`) on printed columns so spreadsheet cells get the right format.
+- Columns inside a `group-header` keep their grouping in the report. Columns of the group that are not printed in a
+  format are left out, and the group header disappears when none of its columns is printed.
+- When a print request mixes spreadsheet and document formats and some column is `printable="excel"`, AWE designs the
+  report twice, once per kind of output. Grids that print from a query run that query once per design.
+- The values `all` and `tab`, accepted by the schema in earlier versions, have been removed. Replace `all` with `true`.
 
 ### Column components
 
