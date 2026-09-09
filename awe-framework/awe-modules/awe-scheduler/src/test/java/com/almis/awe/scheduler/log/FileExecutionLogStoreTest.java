@@ -50,7 +50,7 @@ class FileExecutionLogStoreTest {
   }
 
   @Test
-  void applyViewerSelectionEmitsResetSelectAndFilterInOrder() throws Exception {
+  void applyViewerSelectionEmitsResetSelectAndFilterInOrder() {
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
     ServiceData serviceData = new ServiceData();
 

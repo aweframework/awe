@@ -432,6 +432,23 @@ class TaskDAOTest {
   }
 
   /**
+   * An execution row that is no longer in the database must not break the screen load: the viewer
+   * selection is still applied and only the execution-header refresh is skipped.
+   */
+  @Test
+  void loadExecutionScreenWithNoStoredExecutionSkipsTheHeaderRefreshInsteadOfFailing() throws Exception {
+    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
+    ObjectNode address = JsonNodeFactory.instance.objectNode();
+    address.put("row", "1" + TASK_SEPARATOR + "1");
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
+
+    ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
+
+    // Only the viewer-selection actions are emitted, none of the execution-header ones
+    assertEquals(3, serviceData.getClientActionList().size());
+  }
+
+  /**
    * Reload execution screen
    */
   @Test

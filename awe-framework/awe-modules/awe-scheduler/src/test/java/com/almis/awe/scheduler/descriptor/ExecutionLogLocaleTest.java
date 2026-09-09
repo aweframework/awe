@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -41,7 +42,7 @@ class ExecutionLogLocaleTest {
   private String readLocale(String locale) throws IOException {
     String resource = "application/awe-scheduler/locale/Locale-" + locale + ".xml";
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(resource)) {
-      assertTrue(stream != null, resource + " must be on the test classpath");
+      assertNotNull(stream, resource + " must be on the test classpath");
       return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
     }
   }

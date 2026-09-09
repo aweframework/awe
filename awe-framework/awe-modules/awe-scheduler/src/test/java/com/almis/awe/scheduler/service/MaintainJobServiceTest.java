@@ -346,16 +346,17 @@ class MaintainJobServiceTest {
 
     TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(1).setInitialDate(new Date());
 
+    Task task = new Task()
+      .setTaskId(1)
+      .setAction("maintainId")
+      .setTrigger(trigger)
+      .setParameterList(Arrays.asList(
+        new TaskParameter().setSource("1").setName("1").setValue("1").setType("STRING")
+      ));
+    JobDataMap jobDataMap = new JobDataMap();
     ListAppender<ILoggingEvent> logAppender = attachListAppender();
     try {
-      assertThrows(IllegalStateException.class, () -> maintainJobService.executeJob(new Task()
-          .setTaskId(1)
-          .setAction("maintainId")
-          .setTrigger(trigger)
-          .setParameterList(Arrays.asList(
-            new TaskParameter().setSource("1").setName("1").setValue("1").setType("STRING")
-          )),
-        execution, new JobDataMap()));
+      assertThrows(IllegalStateException.class, () -> maintainJobService.executeJob(task, execution, jobDataMap));
     } finally {
       detachListAppender(logAppender);
     }

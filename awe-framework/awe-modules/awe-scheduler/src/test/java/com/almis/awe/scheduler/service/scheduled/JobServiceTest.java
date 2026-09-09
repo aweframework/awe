@@ -39,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -102,11 +101,11 @@ class JobServiceTest {
       assertNull(MDC.get(TaskConstants.LOG_BY_TASK_EXECUTION), "MDC must be cleared before complete() is called");
       assertNull(MDC.get(TaskConstants.EXECUTION), "MDC must be cleared before complete() is called");
       return null;
-    }).when(executionLogStore).complete(eq(new ExecutionKey(3, 4)), eq(ExecutionLogOrigin.SCHEDULER));
+    }).when(executionLogStore).complete(new ExecutionKey(3, 4), ExecutionLogOrigin.SCHEDULER);
 
     jobService.callEndLogging(execution);
 
-    verify(executionLogStore).complete(eq(new ExecutionKey(3, 4)), eq(ExecutionLogOrigin.SCHEDULER));
+    verify(executionLogStore).complete(new ExecutionKey(3, 4), ExecutionLogOrigin.SCHEDULER);
     assertNull(MDC.get(TaskConstants.LOG_BY_TASK_EXECUTION));
     assertNull(MDC.get(TaskConstants.EXECUTION));
   }
@@ -118,7 +117,7 @@ class JobServiceTest {
 
     jobService.callEndLogging(execution);
 
-    verify(executionLogStore).complete(eq(new ExecutionKey(5, 6)), eq(ExecutionLogOrigin.SCHEDULER));
+    verify(executionLogStore).complete(new ExecutionKey(5, 6), ExecutionLogOrigin.SCHEDULER);
   }
 
   @Test
@@ -152,7 +151,7 @@ class JobServiceTest {
     TaskExecution execution = new TaskExecution().setTaskId(7).setExecutionId(8);
     MDC.put(TaskConstants.LOG_BY_TASK_EXECUTION, execution.getKey());
     MDC.put(TaskConstants.EXECUTION, execution.getKey());
-    doThrow(new RuntimeException("store unavailable")).when(executionLogStore).complete(eq(new ExecutionKey(7, 8)), eq(ExecutionLogOrigin.SCHEDULER));
+    doThrow(new RuntimeException("store unavailable")).when(executionLogStore).complete(new ExecutionKey(7, 8), ExecutionLogOrigin.SCHEDULER);
 
     assertThrows(RuntimeException.class, () -> jobService.callEndLogging(execution));
 

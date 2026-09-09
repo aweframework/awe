@@ -11,7 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -254,10 +255,10 @@ public class ExecutionLogWriter {
 
   private void evictIdleWindows() {
     long now = clock.millis();
-    for (ExecutionLogPartition partition : windows.keySet()) {
-      ExecutionLogWindow window = windows.get(partition);
+    for (Map.Entry<ExecutionLogPartition, ExecutionLogWindow> entry : windows.entrySet()) {
+      ExecutionLogWindow window = entry.getValue();
       if (window != null && now - window.lastTouchedMillis() > taskTimeoutMillis) {
-        finalizeExecution(partition);
+        finalizeExecution(entry.getKey());
       }
     }
   }
@@ -331,7 +332,7 @@ public class ExecutionLogWriter {
       slotIndexes.add(slot.slot());
       lineNumbers.add(slot.lineNumber());
       lineTexts.add(slot.text());
-      logDates.add(DateUtil.dat2WebTimestampMs(new Date(slot.timestampMillis())));
+      logDates.add(DateUtil.TIMESTAMP_FORMAT_WEB_MS.format(Instant.ofEpochMilli(slot.timestampMillis()).atZone(ZoneId.systemDefault())));
     }
 
     ObjectNode parameters = queryUtil.getParameters();

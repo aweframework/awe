@@ -12,6 +12,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,7 +24,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -69,27 +70,15 @@ class ExecutionLogStoreAppenderTest {
     loggerContext.stop();
   }
 
-  @Test
-  void mdcAbsentIssuesNoAppendCall() {
-    LoggingEvent event = loggingEvent("a line", null, null);
-
-    appender.doAppend(event);
-
-    verifyNoInteractions(store);
-  }
-
-  @Test
-  void malformedMdcKeyIssuesNoAppendCall() {
-    LoggingEvent event = loggingEvent("a line", "not-a-valid-key", null);
-
-    appender.doAppend(event);
-
-    verifyNoInteractions(store);
-  }
-
-  @Test
-  void evaluatorFilterDeniesNonExecutionEventsExactlyLikeTheSiftingAppenderDoesToday() {
-    LoggingEvent event = loggingEvent("unrelated log line", null, null);
+  /**
+   * The reused evaluator/filter must deny every event that is not MDC-keyed to an execution,
+   * exactly like the file-mode sifting appender does today: an absent key and a malformed key are
+   * both non-execution events and must never reach the store.
+   */
+  @ParameterizedTest(name = "execution MDC key = {0}")
+  @CsvSource(value = {"null,a line", "not-a-valid-key,a line", "null,unrelated log line"}, nullValues = "null")
+  void nonExecutionEventsIssueNoAppendCall(String mdcExecutionKey, String message) {
+    LoggingEvent event = loggingEvent(message, mdcExecutionKey, null);
 
     appender.doAppend(event);
 
@@ -102,7 +91,7 @@ class ExecutionLogStoreAppenderTest {
 
     appender.doAppend(event);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(12, 34), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), "hello world")));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(12, 34), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), "hello world"));
   }
 
   @Test
@@ -111,7 +100,7 @@ class ExecutionLogStoreAppenderTest {
 
     appender.doAppend(event);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(12, 34), ExecutionLogOrigin.APPLICATION, event.getTimeStamp(), "hello world")));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(12, 34), ExecutionLogOrigin.APPLICATION, event.getTimeStamp(), "hello world"));
   }
 
   @Test
@@ -120,7 +109,7 @@ class ExecutionLogStoreAppenderTest {
 
     appender.doAppend(event);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(12, 34), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), "hello world")));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(12, 34), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), "hello world"));
   }
 
   @Test
@@ -153,7 +142,7 @@ class ExecutionLogStoreAppenderTest {
 
     customAppender.doAppend(event);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(5, 6), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), "[WARN] short")));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(5, 6), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), "[WARN] short"));
     customAppender.stop();
     customEncoder.stop();
   }
@@ -180,7 +169,7 @@ class ExecutionLogStoreAppenderTest {
 
     appender.doAppend(event);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(3, 3), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), shortLine)));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(3, 3), ExecutionLogOrigin.SCHEDULER, event.getTimeStamp(), shortLine));
   }
 
   /**
