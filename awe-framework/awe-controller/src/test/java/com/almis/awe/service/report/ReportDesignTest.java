@@ -4,6 +4,7 @@ import com.almis.ade.api.bean.component.Criterion;
 import com.almis.ade.api.bean.component.Image;
 import com.almis.ade.api.bean.component.Layout;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
+import com.almis.ade.api.bean.component.grid.ReportHeader;
 import com.almis.ade.api.bean.input.PrintBean;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.awe.builder.screen.chart.ChartBuilder;
@@ -326,5 +327,139 @@ class ReportDesignTest {
     Image chartElement = assertInstanceOf(Image.class, chartLayout.getElements().get(0));
     assertEquals("<svg/>", chartElement.getSVGImage());
     assertEquals(HorizontalTextAlignment.CENTER, chartElement.getStyle().getHorizontalTextAlignment());
+  }
+
+  /**
+   * Build a grid design with columns declared as spreadsheet only (issue #753)
+   */
+  private ReportGrid designGridWithSpreadsheetOnlyColumns(boolean includeSpreadsheetOnlyColumns) throws Exception {
+    List<PrintColumnData> columnDataList = Arrays.asList(
+      new PrintColumnData().setName("visibleColumn").setLabel("visibleColumn"),
+      new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"),
+      new PrintColumnData().setName("Mixed header").setLabel("Mixed header").setHeader(true).setColumnList(Arrays.asList(
+        new PrintColumnData().setName("excelInHeader").setLabel("excelInHeader").setPrintable("EXCEL"),
+        new PrintColumnData().setName("alwaysInHeader").setLabel("alwaysInHeader").setPrintable("true"))),
+      new PrintColumnData().setName("Excel header").setLabel("Excel header").setHeader(true).setColumnList(Collections.singletonList(
+        new PrintColumnData().setName("onlyExcelInHeader").setLabel("onlyExcelInHeader").setPrintable("excel")))
+    );
+    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+    for (String field : Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader")) {
+      parameters.set(field, JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", 1)));
+    }
+
+    List<Element> reportElementList = Collections.singletonList(
+      new GridBuilder()
+        .setId("gridId")
+        .setLoadAll(true)
+        .addColumn(new TextColumnBuilder().setName("visibleColumn"))
+        .addColumn(new TextColumnBuilder().setName("excelColumn"))
+        .addColumn(new TextColumnBuilder().setName("excelInHeader"))
+        .addColumn(new TextColumnBuilder().setName("alwaysInHeader"))
+        .addColumn(new TextColumnBuilder().setName("onlyExcelInHeader"))
+        .build()
+    );
+
+    PrintBean printBean = reportDesigner.getPrintDesign(reportElementList, parameters, includeSpreadsheetOnlyColumns);
+    return (ReportGrid) ((Layout) ((Layout) printBean.getDetail()).getElements().get(0)).getElements().get(0);
+  }
+
+  @Test
+  void getPrintDesignForDocumentOutputsSkipsSpreadsheetOnlyColumns() throws Exception {
+    ReportGrid reportGrid = designGridWithSpreadsheetOnlyColumns(false);
+
+    assertEquals(Arrays.asList("visibleColumn", "alwaysInHeader"), reportGrid.getFields());
+    assertEquals(2, reportGrid.getGridHeaders().size());
+    ReportHeader header = assertInstanceOf(ReportHeader.class, reportGrid.getGridHeaders().get(1));
+    assertEquals("Mixed header", header.getLabel());
+    assertEquals(1, header.getColumns().size());
+  }
+
+  @Test
+  void getPrintDesignForSpreadsheetOutputsKeepsSpreadsheetOnlyColumns() throws Exception {
+    ReportGrid reportGrid = designGridWithSpreadsheetOnlyColumns(true);
+
+    assertEquals(Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader"), reportGrid.getFields());
+    assertEquals(4, reportGrid.getGridHeaders().size());
+    ReportHeader header = assertInstanceOf(ReportHeader.class, reportGrid.getGridHeaders().get(2));
+    assertEquals(2, header.getColumns().size());
+  }
+
+  @Test
+  void getPrintDesignWithoutProfileBehavesAsDocumentOutput() throws Exception {
+    List<PrintColumnData> columnDataList = Arrays.asList(
+      new PrintColumnData().setName("intColumn").setLabel("intColumn"),
+      new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"));
+    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+    parameters.set("intColumn", JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", 1)));
+    parameters.set("excelColumn", JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", 1)));
+
+    List<Element> reportElementList = Collections.singletonList(
+      new GridBuilder().setId("gridId").setLoadAll(true)
+        .addColumn(new TextColumnBuilder().setName("intColumn"))
+        .addColumn(new TextColumnBuilder().setName("excelColumn"))
+        .build());
+
+    PrintBean printBean = reportDesigner.getPrintDesign(reportElementList, parameters);
+    ReportGrid reportGrid = (ReportGrid) ((Layout) ((Layout) printBean.getDetail()).getElements().get(0)).getElements().get(0);
+    assertEquals(Collections.singletonList("intColumn"), reportGrid.getFields());
+  }
+
+  @Test
+  void hasSpreadsheetOnlyColumnsDetectsColumnsInsideHeaders() throws Exception {
+    List<PrintColumnData> columnDataList = Arrays.asList(
+      new PrintColumnData().setName("intColumn").setLabel("intColumn"),
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Collections.singletonList(
+        new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"))));
+    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
+    List<Element> reportElementList = Arrays.asList(
+      new TextCriteriaBuilder().setId("criterion").build(),
+      new GridBuilder().setId("gridId").build());
+
+    assertTrue(reportDesigner.hasSpreadsheetOnlyColumns(reportElementList, parameters));
+  }
+
+  @Test
+  void hasSpreadsheetOnlyColumnsIsFalseWithoutExcelColumnsOrWithoutGridData() throws Exception {
+    List<PrintColumnData> columnDataList = Collections.singletonList(
+      new PrintColumnData().setName("intColumn").setLabel("intColumn").setPrintable("true"));
+    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
+    List<Element> reportElementList = Arrays.asList(
+      new GridBuilder().setId("gridId").build(),
+      new GridBuilder().setId("gridWithoutData").build());
+
+    assertFalse(reportDesigner.hasSpreadsheetOnlyColumns(reportElementList, parameters));
+  }
+
+  @Test
+  void isSpreadsheetFormatOnlyMatchesSpreadsheetOutputs() {
+    assertTrue(ReportDesigner.isSpreadsheetFormat("XLSX"));
+    assertTrue(ReportDesigner.isSpreadsheetFormat("xlsx"));
+    assertTrue(ReportDesigner.isSpreadsheetFormat("CSV"));
+    assertFalse(ReportDesigner.isSpreadsheetFormat("PDF"));
+    assertFalse(ReportDesigner.isSpreadsheetFormat("DOCX"));
+    assertFalse(ReportDesigner.isSpreadsheetFormat("TEXT"));
+    assertFalse(ReportDesigner.isSpreadsheetFormat("unknown"));
+    assertFalse(ReportDesigner.isSpreadsheetFormat(null));
   }
 }

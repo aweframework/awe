@@ -27,7 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -82,8 +84,8 @@ public class ReportGenerator extends ServiceConfig {
     // Retrieve print formats
     List<String> printFormats = StringUtil.asList(parameters.get(AweConstants.PRINT_FORMATS));
 
-    // With screen parameters, generate the print bean
-    PrintBean printBean = designReport(screen, parameters);
+    // Generate report structure
+    List<Element> reportStructure = getReportStructure(screen, parameters);
 
     // Get currentDate
     String currentDate = DateUtil.dat2WebTimestamp(new Date());
@@ -96,14 +98,22 @@ public class ReportGenerator extends ServiceConfig {
     putRequestParameter(parameters, "ScrTit", screenTitle);
     putRequestParameter(parameters, "ScrTitFil", fileName);
 
-    // Llamar a ADE con el bean creado
-    TemplateExporterBuilder builderService = buildReport(printBean, fileName);
+    // Spreadsheet outputs get their own design only when some column is printable on spreadsheets only
+    boolean spreadsheetDesignRequired = designer.hasSpreadsheetOnlyColumns(reportStructure, parameters);
 
-    // Generar los formatos que haya definido el usuario
+    // Generate the requested formats, sharing the report design between formats with the same profile
     String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
-    List<FileData> reportFiles = printFormats.stream()
-      .map(format -> generateReportFormat(builderService, format, fileName, basePath, parameters))
-      .toList();
+    Map<Boolean, TemplateExporterBuilder> buildersByProfile = new HashMap<>();
+    List<FileData> reportFiles = new ArrayList<>();
+    for (String format : printFormats) {
+      boolean spreadsheetProfile = spreadsheetDesignRequired && ReportDesigner.isSpreadsheetFormat(format);
+      TemplateExporterBuilder builderService = buildersByProfile.get(spreadsheetProfile);
+      if (builderService == null) {
+        builderService = buildReport(designer.getPrintDesign(reportStructure, parameters, spreadsheetProfile), fileName);
+        buildersByProfile.put(spreadsheetProfile, builderService);
+      }
+      reportFiles.add(generateReportFormat(builderService, format, fileName, basePath, parameters));
+    }
 
     mergePropagatedRequestParameters(parameters);
     return new GeneratedScreenReportContext(reportFiles, parameters.deepCopy());
@@ -126,19 +136,14 @@ public class ReportGenerator extends ServiceConfig {
   }
 
   /**
-   * Design the report
+   * Retrieve the report structure of a screen
    *
    * @param screen     Screen to design
    * @param parameters Screen parameters
-   * @return Print bean designed
-   * @throws AWException Error designing report
+   * @return Report structure
    */
-  private PrintBean designReport(Screen screen, ObjectNode parameters) throws AWException {
-    // Generate report structure
-    List<Element> reportStructure = screen.getReportStructure(new ArrayList<>(), null, parameters, baseConfigProperties.getComponent().getDataSuffix());
-
-    // Generate print bean
-    return designer.getPrintDesign(reportStructure, parameters);
+  private List<Element> getReportStructure(Screen screen, ObjectNode parameters) {
+    return screen.getReportStructure(new ArrayList<>(), null, parameters, baseConfigProperties.getComponent().getDataSuffix());
   }
 
   /**
