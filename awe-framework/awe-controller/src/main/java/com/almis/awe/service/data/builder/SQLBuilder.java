@@ -785,7 +785,11 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   protected Expression getExpressionFunction(Expression fieldExpression, String function) {
     switch (function.toUpperCase()) {
       case "ABS":
-        Class expressionClass = fieldExpression.getType().equals(Object.class) ? Integer.class : fieldExpression.getType();
+        // The field expression may be null when it could not be resolved (buildPath returns null for a
+        // null node), so fall back to the same default type as an untyped expression instead of
+        // dereferencing it; the aggregate branches below already accept a null expression
+        Class expressionClass = fieldExpression == null || fieldExpression.getType().equals(Object.class)
+          ? Integer.class : fieldExpression.getType();
         return Expressions.numberOperation(expressionClass, Ops.MathOps.ABS, fieldExpression);
       case "AVG":
         return new WindowOver<>(Double.class, Ops.AggOps.AVG_AGG, fieldExpression);

@@ -74,4 +74,34 @@ class SQLBuilderBuildPathTest {
   void buildPathWithNullNodeReturnsNull() {
     assertThat(builder.buildPath((String) null)).isNull();
   }
+
+  /**
+   * A field expression that could not be resolved is a null path by contract (see the tests above).
+   * The aggregate branches of {@code getExpressionFunction} already accept a null expression — the
+   * {@code over} rendering relies on it — but the {@code ABS} branch read {@code getType()} off it
+   * and threw a NullPointerException. Only that dereference is guarded; the null keeps flowing.
+   */
+  @Test
+  @DisplayName("getSimpleFieldExpression with a null field and the ABS function does not throw")
+  void getSimpleFieldExpressionWithNullFieldAndAbsFunctionDoesNotThrow() {
+    assertThatCode(() -> builder.getSimpleFieldExpression(null, null, "ABS")).doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("getSimpleFieldExpression with a null field and an aggregate function does not throw")
+  void getSimpleFieldExpressionWithNullFieldAndAggregateFunctionDoesNotThrow() {
+    assertThatCode(() -> builder.getSimpleFieldExpression(null, null, "AVG")).doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("getSimpleFieldExpression with a null field and no function returns null")
+  void getSimpleFieldExpressionWithNullFieldAndNoFunctionReturnsNull() {
+    assertThat(builder.getSimpleFieldExpression(null, null, null)).isNull();
+  }
+
+  @Test
+  @DisplayName("getSimpleFieldExpression still applies the function over a resolvable field")
+  void getSimpleFieldExpressionAppliesFunctionOverResolvableField() {
+    assertThat(builder.getSimpleFieldExpression("myTable", "myCol", "ABS")).isNotNull();
+  }
 }
