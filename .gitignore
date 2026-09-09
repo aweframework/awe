@@ -132,6 +132,8 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 # Pi local runtime
 ######################
 .pi/
+# pi-lens per-repo settings (only affects developers who run pi-lens locally)
+.pi-lens.json
 
 ######################
 # Playwright
