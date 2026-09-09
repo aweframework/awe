@@ -212,9 +212,10 @@ class CommandJobServiceTest {
         return invocation.getArgument(0) + "|" + Arrays.toString(tokens);
       });
 
+    JobDataMap jobDataMap = new JobDataMap();
     ListAppender<ILoggingEvent> logAppender = attachListAppender();
     try {
-      assertThrows(IllegalStateException.class, () -> service.executeJob(task, execution, new JobDataMap()));
+      assertThrows(IllegalStateException.class, () -> service.executeJob(task, execution, jobDataMap));
     } finally {
       detachListAppender(logAppender);
     }

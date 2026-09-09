@@ -56,7 +56,7 @@ aweApplication.directive('aweLogViewer',
             // The computed line-height is the per-line truth and stays positive even while the
             // viewer is hidden; jQuery's content height subtracts the pre's padding and can
             // measure zero or negative on a hidden or unsettled probe.
-            let computed = probe.length ? parseFloat(window.getComputedStyle(probe[0]).lineHeight) : NaN;
+            let computed = probe.length ? Number.parseFloat(window.getComputedStyle(probe[0]).lineHeight) : Number.NaN;
             let measured = computed > 0 ? computed : probe.height();
             if (measured > 0) {
               lineHeight = measured;
@@ -112,8 +112,8 @@ aweApplication.directive('aweLogViewer',
           // On log delta, print log and scroll down
           $scope.$on('/action/log-delta', function (event, action) {
             let parameters = action.attr("parameters");
-            let currentContent = parameters ? parameters.log || [] : [];
-            let replace = !!(parameters && parameters.replace);
+            let currentContent = parameters?.log || [];
+            let replace = !!parameters?.replace;
             lastWindowVersion = (parameters && parameters.version !== undefined) ? parameters.version : null;
             measureLineHeight();
 

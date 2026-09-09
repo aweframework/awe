@@ -20,13 +20,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -51,7 +51,7 @@ class ExecutionLogWriterTest {
   private ExecutionLogWriter writer;
 
   @AfterEach
-  void tearDown() throws AWException {
+  void tearDown() {
     if (writer != null) {
       writer.stop();
     }
@@ -242,15 +242,8 @@ class ExecutionLogWriterTest {
 
     // Wait past task-timeout for the idle-eviction sweep to run.
     verify(maintainService, timeout(3000)).launchPrivateMaintain(eq("insertExecutionLogLines"), any());
-    long deadline = System.currentTimeMillis() + 3000;
-    while (writer.liveWindowCount() > 0 && System.currentTimeMillis() < deadline) {
-      try {
-        Thread.sleep(20);
-      } catch (InterruptedException interrupted) {
-        Thread.currentThread().interrupt();
-      }
-    }
-    assertEquals(0, writer.liveWindowCount());
+    await().atMost(Duration.ofSeconds(3)).pollInterval(Duration.ofMillis(20))
+      .untilAsserted(() -> assertEquals(0, writer.liveWindowCount()));
   }
 
   @Test
@@ -307,7 +300,7 @@ class ExecutionLogWriterTest {
   }
 
   @Test
-  void completingOneOriginsPartitionNeverEvictsTheOtherOriginsLiveWindow() throws AWException, InterruptedException {
+  void completingOneOriginsPartitionNeverEvictsTheOtherOriginsLiveWindow() throws AWException {
     writer = newWriter(1000, 1000, 1000, Duration.ofSeconds(30), Duration.ofSeconds(30));
     ExecutionKey key = new ExecutionKey(12, 12);
 
@@ -316,16 +309,13 @@ class ExecutionLogWriterTest {
     writer.complete(key, ExecutionLogOrigin.APPLICATION);
 
     verify(maintainService, timeout(2000).atLeastOnce()).launchPrivateMaintain(eq("insertExecutionLogLines"), any());
-    long deadline = System.currentTimeMillis() + 2000;
-    while (writer.liveWindowCount() > 1 && System.currentTimeMillis() < deadline) {
-      Thread.sleep(20);
-    }
-    assertEquals(1, writer.liveWindowCount(),
-      "Completing the application partition must leave the scheduler partition's window live");
+    await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofMillis(20))
+      .untilAsserted(() -> assertEquals(1, writer.liveWindowCount(),
+        "Completing the application partition must leave the scheduler partition's window live"));
   }
 
   @Test
-  void idleEvictionActsPerPartitionNotPerExecutionKey() throws AWException, InterruptedException {
+  void idleEvictionActsPerPartitionNotPerExecutionKey() throws AWException {
     writer = newWriter(1000, 1000, 1000, Duration.ofMillis(30), Duration.ofMillis(60));
     ExecutionKey key = new ExecutionKey(13, 13);
 
@@ -333,12 +323,9 @@ class ExecutionLogWriterTest {
     writer.append(line(key, ExecutionLogOrigin.APPLICATION, "application line, never completes"));
     writer.complete(key, ExecutionLogOrigin.SCHEDULER);
 
-    long deadline = System.currentTimeMillis() + 3000;
-    while (writer.liveWindowCount() > 0 && System.currentTimeMillis() < deadline) {
-      Thread.sleep(20);
-    }
-    assertEquals(0, writer.liveWindowCount(),
-      "The abandoned application partition must be idle-evicted independently of the completed scheduler partition");
+    await().atMost(Duration.ofSeconds(3)).pollInterval(Duration.ofMillis(20))
+      .untilAsserted(() -> assertEquals(0, writer.liveWindowCount(),
+        "The abandoned application partition must be idle-evicted independently of the completed scheduler partition"));
   }
 
   private List<String> textValuesOf(ObjectNode parameters) {

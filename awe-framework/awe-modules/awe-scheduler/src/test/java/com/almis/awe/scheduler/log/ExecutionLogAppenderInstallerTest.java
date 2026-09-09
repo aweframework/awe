@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.MDC;
 
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -73,7 +71,7 @@ class ExecutionLogAppenderInstallerTest {
     Logger root = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
     root.callAppenders(multiByteEvent);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(1, 1), ExecutionLogOrigin.SCHEDULER, multiByteEvent.getTimeStamp(), "acentuación … 😀")));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(1, 1), ExecutionLogOrigin.SCHEDULER, multiByteEvent.getTimeStamp(), "acentuación … 😀"));
   }
 
   @Test
@@ -87,8 +85,8 @@ class ExecutionLogAppenderInstallerTest {
     root.callAppenders(executionEvent);
     root.callAppenders(unrelatedEvent);
 
-    verify(store).append(eq(new ExecutionLogLine(new ExecutionKey(1, 1), ExecutionLogOrigin.SCHEDULER, executionEvent.getTimeStamp(), "captured line")));
-    verify(store, never()).append(eq(new ExecutionLogLine(new ExecutionKey(1, 1), ExecutionLogOrigin.SCHEDULER, executionEvent.getTimeStamp(), "unrelated line")));
+    verify(store).append(new ExecutionLogLine(new ExecutionKey(1, 1), ExecutionLogOrigin.SCHEDULER, executionEvent.getTimeStamp(), "captured line"));
+    verify(store, never()).append(new ExecutionLogLine(new ExecutionKey(1, 1), ExecutionLogOrigin.SCHEDULER, executionEvent.getTimeStamp(), "unrelated line"));
   }
 
   @Test

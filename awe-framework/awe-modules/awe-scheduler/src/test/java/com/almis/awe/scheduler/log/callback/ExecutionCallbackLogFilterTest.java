@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -107,7 +106,7 @@ class ExecutionCallbackLogFilterTest {
 
     filter.doFilterInternal(request, response, filterChain);
 
-    verify(executionLogStore).complete(eq(EXECUTION_KEY), eq(ExecutionLogOrigin.APPLICATION));
+    verify(executionLogStore).complete(EXECUTION_KEY, ExecutionLogOrigin.APPLICATION);
     verify(request, never()).getRequestURI();
   }
 
@@ -118,7 +117,7 @@ class ExecutionCallbackLogFilterTest {
 
     filter.doFilterInternal(request, response, filterChain);
 
-    verify(executionLogStore).complete(eq(EXECUTION_KEY), eq(ExecutionLogOrigin.APPLICATION));
+    verify(executionLogStore).complete(EXECUTION_KEY, ExecutionLogOrigin.APPLICATION);
   }
 
   // ---- A2 / T3: malformed execution-key shapes are rejected, never logged raw ----
@@ -180,7 +179,7 @@ class ExecutionCallbackLogFilterTest {
 
     filter.doFilterInternal(request, response, filterChain);
 
-    verify(executionLogStore).complete(eq(EXECUTION_KEY), eq(ExecutionLogOrigin.APPLICATION));
+    verify(executionLogStore).complete(EXECUTION_KEY, ExecutionLogOrigin.APPLICATION);
   }
 
   @Test
@@ -229,10 +228,13 @@ class ExecutionCallbackLogFilterTest {
   void insecureModeHonorsAWellFormedHeaderFromAnyCaller() throws Exception {
     ExecutionCallbackLogFilter filter = insecureFilter();
     mockRequest(MAINTAIN_PATH, "12-34");
+    // The very caller secure mode rejects: insecure mode trusts network isolation instead.
+    SecurityContextHolder.getContext().setAuthentication(
+      new AnonymousAuthenticationToken("key", "anonymous", List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))));
 
     filter.doFilterInternal(request, response, filterChain);
 
-    verify(executionLogStore).complete(eq(EXECUTION_KEY), eq(ExecutionLogOrigin.APPLICATION));
+    verify(executionLogStore).complete(EXECUTION_KEY, ExecutionLogOrigin.APPLICATION);
   }
 
   @Test
@@ -355,7 +357,7 @@ class ExecutionCallbackLogFilterTest {
 
     assertNull(MDC.get(TaskConstants.LOG_BY_TASK_EXECUTION));
     assertNull(MDC.get(TaskConstants.EXECUTION_LOG_ORIGIN));
-    verify(executionLogStore, times(1)).complete(eq(EXECUTION_KEY), eq(ExecutionLogOrigin.APPLICATION));
+    verify(executionLogStore, times(1)).complete(EXECUTION_KEY, ExecutionLogOrigin.APPLICATION);
   }
 
   // ---- A6 / T7: admission logic itself throws (poisoned SecurityContext) ----

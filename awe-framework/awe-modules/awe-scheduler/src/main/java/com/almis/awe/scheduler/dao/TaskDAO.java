@@ -937,7 +937,9 @@ public class TaskDAO extends ServiceConfig {
     executionLogStore.applyViewerSelection(path, key, serviceData);
 
     TaskExecution taskExecution = getTaskExecution(key.taskId(), key.executionId());
-    refreshExecutionScreen(taskExecution, serviceData);
+    if (taskExecution != null) {
+      refreshExecutionScreen(taskExecution, serviceData);
+    }
 
     return serviceData;
   }

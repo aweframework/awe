@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -39,7 +40,7 @@ class SchedulerExecutionDataScreenTest {
 
   private String readScreen() throws IOException {
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(RESOURCE)) {
-      assertTrue(stream != null, RESOURCE + " must be on the test classpath");
+      assertNotNull(stream, RESOURCE + " must be on the test classpath");
       return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
