@@ -5,6 +5,7 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.dao.UserDAO;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -114,16 +116,21 @@ class AweUserDetailServiceTest {
     ssoProperties.setFilterAuthorityPrefix("ROLE_");
     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_MANAGER"));
     when(securityConfigProperties.getSso()).thenReturn(ssoProperties);
-    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
-    assertEquals("MANAGER", result);
+    Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals(Optional.of("MANAGER"), result);
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withEmptyAuthorities_returnDefaultRole() {
+  void testMapGrantedAuthorityProfile_withNullAuthorities_returnEmpty() {
+    Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(null);
+    assertEquals(Optional.empty(), result);
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withEmptyAuthorities_returnEmpty() {
     List<GrantedAuthority> authorities = Collections.emptyList();
-    when(baseConfigProperties.getDefaultRole()).thenReturn("operator");
-    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
-    assertEquals("operator", result);
+    Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals(Optional.empty(), result);
   }
 
   @Test
@@ -132,19 +139,28 @@ class AweUserDetailServiceTest {
     ssoConfig.setFilterAuthorityPrefix(null);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
-    assertEquals("ROLE_ADMIN", result);
+    Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals(Optional.of("ROLE_ADMIN"), result);
   }
 
   @Test
-  void testMapGrantedAuthorityProfile_withHighPrefixFilter_returnDefaultRole() {
+  void testMapGrantedAuthorityProfile_withNoAuthorityMatchingPrefix_returnEmpty() {
     SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
-    when(baseConfigProperties.getDefaultRole()).thenReturn("operator");
     ssoConfig.setFilterAuthorityPrefix("ROLE_ADMINS");
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
     List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-    String result = userDetailsService.mapGrantedAuthorityProfile(authorities);
-    assertEquals("operator", result);
+    Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals(Optional.empty(), result);
+  }
+
+  @Test
+  void testMapGrantedAuthorityProfile_withAuthorityEqualToPrefix_returnEmpty() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setFilterAuthorityPrefix("ROLE_");
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"));
+    Optional<String> result = userDetailsService.mapGrantedAuthorityProfile(authorities);
+    assertEquals(Optional.empty(), result);
   }
 
 
@@ -190,6 +206,29 @@ class AweUserDetailServiceTest {
         () -> assertNotNull(details),
         () -> assertTrue(details.isCredentialsNonExpired()),
         () -> assertTrue(details.isAccountNonLocked())
+    );
+  }
+
+  @Test
+  void givenNoAuthorities_loadUserByRole_usesDefaultRole() throws AWException {
+    mockProperties();
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "test@acme.com");
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(
+        List.of(new OAuth2UserAuthority(attributeMap)), attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, Collections.emptyList(), "clientRegId");
+    given(userDAO.findByRole("operator")).willReturn(new User()
+        .setUsername("test")
+        .setPassword("test")
+        .setEmail("test@acme.com")
+        .setEnabled(true)
+        .setProfile("operator")
+        .setLocked(false));
+    given(userDAO.existRole("operator")).willReturn(true);
+    UserDetails details = userDetailsService.loadUserByRole(oAuth2AuthenticationToken);
+    assertAll(
+        () -> assertNotNull(details),
+        () -> assertEquals("operator", ((AweUserDetails) details).getProfileName())
     );
   }
 

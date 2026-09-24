@@ -200,7 +200,7 @@ public class AccessService extends ServiceConfig {
 		log.debug("Available attributes in token: {}", getAllAttributes(oauth2Token));
 
 		String userName = mapUsernameFromOauthToken(attributes);
-		String roleFromOAuth = userDetailsService.mapGrantedAuthorityProfile(oauth2Token.getAuthorities());
+		Optional<String> roleFromOAuth = userDetailsService.mapGrantedAuthorityProfile(oauth2Token.getAuthorities());
 
 		return loadUserDetailsWithRoleSync(userName, roleFromOAuth, oauth2Token);
 	}
@@ -228,12 +228,12 @@ public class AccessService extends ServiceConfig {
 	 * If the user is not found in the database, attempts to provision a new user using the OAuth token.
 	 *
 	 * @param userName the username of the user whose details are to be loaded
-	 * @param roleFromOAuth the role information retrieved from OAuth to be checked/updated
+	 * @param roleFromOAuth the role information retrieved from OAuth to be checked/updated, empty if the provider sent no role
 	 * @param oauth2Token the OAuth2 authentication token used to provision a new user if needed
 	 * @return an instance of AweUserDetails containing the user's details
 	 * @throws AWException if there is an issue during the process
 	 */
-	private AweUserDetails loadUserDetailsWithRoleSync(String userName, String roleFromOAuth, OAuth2AuthenticationToken oauth2Token) throws AWException {
+	private AweUserDetails loadUserDetailsWithRoleSync(String userName, Optional<String> roleFromOAuth, OAuth2AuthenticationToken oauth2Token) throws AWException {
 		try {
 			AweUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 			checkUpdateRoleInOAuth(userDetails, roleFromOAuth);
@@ -262,13 +262,38 @@ public class AccessService extends ServiceConfig {
 		}
 		return Map.of();
 	}
-  private void checkUpdateRoleInOAuth(AweUserDetails userDetails, String roleOAuth) throws AWException {
-    boolean changed = !userDetails.getProfileName().equalsIgnoreCase(roleOAuth);
-    if (changed && userDetailsService.existRole(roleOAuth)) {
+  /**
+   * Decides whether the existing user's stored profile should be synchronized with the role coming
+   * from the SSO provider.
+   * <p>
+   * If the provider sent a role, the profile is updated whenever it differs (case-insensitive) from
+   * the stored one and the role exists in the application. If the provider sent no role (or none of
+   * its authorities matched the configured prefix), the stored profile is kept unless
+   * {@code awe.security.sso.overwrite-profile-with-default-role} is enabled, in which case the
+   * previous behaviour is restored and the application default role is applied instead.
+   *
+   * @param userDetails current user details, holding the profile stored in database
+   * @param roleOAuth role mapped from the OAuth authorities, empty if the provider sent no role
+   * @throws AWException AWE exception
+   */
+  private void checkUpdateRoleInOAuth(AweUserDetails userDetails, Optional<String> roleOAuth) throws AWException {
+    if (roleOAuth.isPresent()) {
+      updateProfileIfNeeded(userDetails, roleOAuth.get());
+    } else if (securityConfigProperties.getSso().isOverwriteProfileWithDefaultRole()) {
+      updateProfileIfNeeded(userDetails, baseConfigProperties.getDefaultRole());
+    } else {
+      log.warn("SSO provider sent no role for user {}: keeping the stored profile {}. Set awe.security.sso.overwrite-profile-with-default-role=true to apply the default role instead",
+        userDetails.getUsername(), userDetails.getProfileName());
+    }
+  }
+
+  private void updateProfileIfNeeded(AweUserDetails userDetails, String role) throws AWException {
+    boolean changed = !userDetails.getProfileName().equalsIgnoreCase(role);
+    if (changed && userDetailsService.existRole(role)) {
      // Update profile
       ObjectNode parameters = JsonNodeFactory.instance.objectNode();
       parameters.put(USERNAME, userDetails.getUsername());
-      parameters.put(PROFILE, roleOAuth);
+      parameters.put(PROFILE, role);
       maintainService.launchPrivateMaintain(UPDATE_OAUTH_ROLE, parameters);
     }
   }
