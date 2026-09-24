@@ -1,3 +1,26 @@
+# Release notes for AWE 4.12.9
+*24/09/2026*
+ 
+✨ Features:
+- **[HAS IMPACTS]** [HAS IMPACTS] feat(awe-controller): keep existing SSO user profile when the provider sends no role (#756). [MR #710](https://gitlab.com/aweframework/awe/-/merge_requests/710) (Pablo Javier García Mora)
+- feat(awe-scheduler): test connection button on the external server screens (#748). [MR #703](https://gitlab.com/aweframework/awe/-/merge_requests/703) (Pablo Vidal Otero)
+- feat(awe-scheduler): unify file-trigger credentials into the external server (#750). [MR #702](https://gitlab.com/aweframework/awe/-/merge_requests/702) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- fix(awe-controller): guard the two reliability NPEs breaking the quality gate. [MR #709](https://gitlab.com/aweframework/awe/-/merge_requests/709) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** [HAS IMPACTS] fix(reports): honour printable on hidden grid columns and per output format (#753). [MR #708](https://gitlab.com/aweframework/awe/-/merge_requests/708) (Pablo Vidal Otero)
+- fix(awe-client-angular): raise ESLint ecmaVersion to 2020. [MR #707](https://gitlab.com/aweframework/awe/-/merge_requests/707) (Pablo Vidal Otero)
+- fix(awe-scheduler): resolve Sonar new-code issues from execution log persistence. [MR #706](https://gitlab.com/aweframework/awe/-/merge_requests/706) (Pablo Vidal Otero)
+- fix(awe-controller): print the grid page the user is looking at (#751). [MR #705](https://gitlab.com/aweframework/awe/-/merge_requests/705) (Pablo Vidal Otero)
+- feat(awe-scheduler): database-backed execution logs with remote trace capture. [MR #704](https://gitlab.com/aweframework/awe/-/merge_requests/704) (Pablo Vidal Otero)
+- feat(awe-controller): add optional attribute to maintain fields (#344). [MR #701](https://gitlab.com/aweframework/awe/-/merge_requests/701) (Pablo Javier García Mora)
+- fix(awe-scheduler): build file checker tracked paths with a separator (#749). [MR #700](https://gitlab.com/aweframework/awe/-/merge_requests/700) (Pablo Vidal Otero)
+- fix(awe-controller): honour composite expressions in window function partition-by (#345). [MR #699](https://gitlab.com/aweframework/awe/-/merge_requests/699) (Pablo Javier García Mora)
+- feat(awe-scheduler): support SFTP for file-existence trigger tasks (#722). [MR #698](https://gitlab.com/aweframework/awe/-/merge_requests/698) (Pablo Javier García Mora)
+- feat(awe-spring-boot-starter): allow configuring a virtual host in the websocket relay broker (#666). [MR #697](https://gitlab.com/aweframework/awe/-/merge_requests/697) (Pablo Javier García Mora)
+- Print query/maintain log with parameters. [MR #696](https://gitlab.com/aweframework/awe/-/merge_requests/696) (Pablo Javier García Mora)
+- fix(awe-controller): skip criterion print data overwritten by a same-named grid column (#747). [MR #695](https://gitlab.com/aweframework/awe/-/merge_requests/695) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.12.8
 *24/08/2026*
  
