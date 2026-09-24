@@ -74,3 +74,20 @@ This approach can cause serious performance problems if the query returns a larg
 
 If you need to keep server-side pagination and still print the full dataset, you should implement a project-specific printing flow that reloads the required data before generating the document. That scenario depends on the application and is outside the scope of this generic guide.
 
+## Choose which grid columns are printed
+
+Grid columns are printed according to their `printable` attribute:
+
+- **Not set**: printed in every format, but only while the column is visible on screen.
+- **`true`**: printed in every format, even when the column is `hidden="true"`.
+- **`excel`**: printed only in spreadsheet outputs (XLSX and CSV), even when hidden.
+- **`false`**: never printed.
+
+This is the recommended way to print a raw value when the column shown on screen carries styling markup:
+
+```xml
+<column label="AMOUNT" name="Amount" charlength="20" printable="false"/>
+<column label="AMOUNT" name="AmountRaw" charlength="20" hidden="true" type="float" printable="true"/>
+```
+
+See [printing columns](../api/grids.md#printing-columns) for the full rules.

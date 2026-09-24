@@ -1185,8 +1185,6 @@
   <!-- Printable Enumeration -->
   <xs:simpleType name="printableEnum">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="all" />
-      <xs:enumeration value="tab" />
       <xs:enumeration value="true" />
       <xs:enumeration value="false" />
       <xs:enumeration value="excel" />

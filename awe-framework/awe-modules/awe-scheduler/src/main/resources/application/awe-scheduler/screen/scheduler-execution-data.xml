@@ -11,6 +11,8 @@
         template="window" label="MENU_SCHEDULER_TASKS" help="HELP_SCREEN_SCHEDULER_TASKS">
   <tag source="center">
     <criteria id="path" component="hidden"/>
+    <criteria id="execution-log-task-id" component="hidden"/>
+    <criteria id="execution-log-execution-id" component="hidden"/>
     <criteria id="content-type" component="hidden" value="text/plain"/>
     <criteria id="reload-execution-data" component="hidden" server-action="maintain-silent" target-action="reloadExecutionScreen"/>
     <dialog id="execution-data" modal="true" style="modal-lg expand" help="HELP_SCREEN_EXECUTION_DATA">

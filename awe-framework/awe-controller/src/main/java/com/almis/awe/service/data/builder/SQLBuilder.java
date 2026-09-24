@@ -494,7 +494,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     // Add partition by aggregators
     if (field.getPartitionByList() != null) {
       for (PartitionBy partitionBy : field.getPartitionByList()) {
-        overFunction = overFunction.partitionBy(buildPath(partitionBy.getTable(), partitionBy.getField()));
+        overFunction = overFunction.partitionBy(getGroupByExpression(partitionBy));
       }
     }
 
@@ -506,6 +506,22 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     }
 
     return overFunction;
+  }
+
+  /**
+   * Retrieve the expression to group or partition by. A nested case takes precedence, and
+   * otherwise the field path is wrapped in the configured function, so composite expressions
+   * are honoured identically in a group-by and in a window function's partition-by (both are
+   * modelled by {@link GroupBy}).
+   *
+   * @param groupBy Group by or partition by element
+   * @return Expression
+   * @throws AWException Error building the expression
+   */
+  protected Expression getGroupByExpression(GroupBy groupBy) throws AWException {
+    return groupBy.getGroupByCase() != null
+      ? getCaseExpression(groupBy.getGroupByCase())
+      : getSimpleFieldExpression(groupBy.getTable(), groupBy.getField(), groupBy.getFunction());
   }
 
   /**
@@ -769,7 +785,11 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   protected Expression getExpressionFunction(Expression fieldExpression, String function) {
     switch (function.toUpperCase()) {
       case "ABS":
-        Class expressionClass = fieldExpression.getType().equals(Object.class) ? Integer.class : fieldExpression.getType();
+        // The field expression may be null when it could not be resolved (buildPath returns null for a
+        // null node), so fall back to the same default type as an untyped expression instead of
+        // dereferencing it; the aggregate branches below already accept a null expression
+        Class expressionClass = fieldExpression == null || fieldExpression.getType().equals(Object.class)
+          ? Integer.class : fieldExpression.getType();
         return Expressions.numberOperation(expressionClass, Ops.MathOps.ABS, fieldExpression);
       case "AVG":
         return new WindowOver<>(Double.class, Ops.AggOps.AVG_AGG, fieldExpression);

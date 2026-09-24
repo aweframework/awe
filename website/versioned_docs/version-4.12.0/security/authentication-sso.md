@@ -45,6 +45,33 @@ spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SEC
 By default, if the user logged in the application with this  doesn't exist in database, it  will be provisioned by registering it by adding a new record in the user table.
 If you do not want this behavior, you can disable it setting false the configuration property `awe.security.auto-provision-use`.
 
+## Role mapping and profile synchronization
+
+On every SSO login, AWE maps the granted authorities coming from the identity provider to a profile, using
+`awe.security.sso.filter-authority-prefix` to select and strip the role claim (see above).
+
+- If the provider sends a role that matches the prefix, and it differs from the user's stored profile, the
+  profile is synchronized (only when the role exists in the application).
+- If the provider sends no role (no authorities, none matching the prefix, or an authority equal to the prefix
+  itself), the behaviour depends on the user:
+  - **New, auto-provisioned users** are always created with `awe.application.default-role`.
+  - **Existing users** keep their current database profile untouched, so a profile assigned manually in AWE
+    is not silently reset on the next login.
+
+```yaml title="Restore the default role on missing SSO roles"
+awe:
+  security:
+    sso:
+      overwrite-profile-with-default-role: true
+```
+
+:::caution Behaviour change since 4.12.9
+Prior to 4.12.9, an existing user without a matching SSO role was always downgraded to
+`awe.application.default-role` on every login, overwriting any profile assigned manually. Since 4.12.9 the
+existing profile is kept by default. Set `awe.security.sso.overwrite-profile-with-default-role=true` to restore
+the previous behaviour.
+:::
+
 ## Keycloak
 
 <img style={{ width: "100%", margin: "30px 5% 5% 0%" }}

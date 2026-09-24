@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Class used for testing FTPFileChecker class
@@ -139,12 +141,11 @@ class FTPFileCheckerTest {
   }
 
   /**
-   * Check triggers contains calendars without calendar list
-   *
-   * @throws NamingException Test error
+   * The FTP login must use the credentials stored on the external server row,
+   * the single credential source shared with the SFTP checker.
    */
   @Test
-  void checkConnectionWithFileServerUser() throws Exception {
+  void checkConnectionUsesServerCredentials() throws Exception {
     // Mock
     doNothing().when(fileDAO).addModification(any(Task.class), anyString(), any(Date.class), anyBoolean());
     FTPFile ftpFile = new FTPFile();
@@ -153,8 +154,8 @@ class FTPFileCheckerTest {
     FTPFile[] ftpFiles = new FTPFile[1];
     ftpFiles[0] = ftpFile;
     given(ftpClient.listFiles(anyString())).willReturn(ftpFiles);
-    Task task = generateTask("SSH");
-    task.getFile().setFileServerUser("test");
+    Task task = generateTask("FTP");
+    task.getFile().getServer().setUser("serverUser").setPassword("serverPassword");
     addFileModifications(task);
 
     // Call
@@ -162,15 +163,14 @@ class FTPFileCheckerTest {
 
     // Verify
     assertEquals("test.txt", changedFile);
+    verify(ftpClient).login("serverUser", "serverPassword");
   }
 
   /**
-   * Check triggers contains calendars without calendar list
-   *
-   * @throws NamingException Test error
+   * An empty server user means anonymous access, so no login is attempted.
    */
   @Test
-  void checkConnectionWithEmptyFileServerUser() throws Exception {
+  void checkConnectionWithEmptyServerUserSkipsLogin() throws Exception {
     // Mock
     FTPFile ftpFile = new FTPFile();
     ftpFile.setName("test.txt");
@@ -178,8 +178,8 @@ class FTPFileCheckerTest {
     FTPFile[] ftpFiles = new FTPFile[1];
     ftpFiles[0] = ftpFile;
     given(ftpClient.listFiles(anyString())).willReturn(ftpFiles);
-    Task task = generateTask("SSH");
-    task.getFile().setFileServerUser("");
+    Task task = generateTask("FTP");
+    task.getFile().getServer().setUser("");
     addFileModifications(task);
 
     // Call
@@ -187,6 +187,52 @@ class FTPFileCheckerTest {
 
     // Verify
     assertEquals("test.txt", changedFile);
+    verify(ftpClient, never()).login(anyString(), anyString());
+  }
+
+  /**
+   * A server without a configured user means anonymous access, so no login is attempted.
+   */
+  @Test
+  void checkConnectionWithoutServerUserSkipsLogin() throws Exception {
+    // Mock
+    FTPFile ftpFile = new FTPFile();
+    ftpFile.setName("test.txt");
+    ftpFile.setTimestamp(Calendar.getInstance());
+    FTPFile[] ftpFiles = new FTPFile[1];
+    ftpFiles[0] = ftpFile;
+    given(ftpClient.listFiles(anyString())).willReturn(ftpFiles);
+    Task task = generateTask("FTP");
+    addFileModifications(task);
+
+    // Call
+    String changedFile = fileChecker.checkForChanges(task);
+
+    // Verify
+    assertEquals("test.txt", changedFile);
+    verify(ftpClient, never()).login(anyString(), anyString());
+  }
+
+  /**
+   * A configured directory without a trailing separator must still produce a
+   * well-formed remote path, so the tracked path identifies the file on the server.
+   */
+  @Test
+  void checkForChangesTracksWellFormedPathWithoutTrailingSeparator() throws Exception {
+    // Mock
+    FTPFile ftpFile = new FTPFile();
+    ftpFile.setName("test.txt");
+    ftpFile.setTimestamp(Calendar.getInstance());
+    given(ftpClient.listFiles(anyString())).willReturn(new FTPFile[]{ftpFile});
+    Task task = generateTask("FTP");
+    task.getFile().setFilePath("test");
+
+    // Call
+    String changedFile = fileChecker.checkForChanges(task);
+
+    // Verify
+    assertEquals("test.txt", changedFile);
+    verify(fileDAO).addModification(eq(task), eq("test/test.txt"), any(Date.class), eq(false));
   }
 
   private Task generateTask(String type) {

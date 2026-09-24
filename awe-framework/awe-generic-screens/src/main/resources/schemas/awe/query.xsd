@@ -386,6 +386,7 @@
     <xs:attribute name="variable" type="identifierType"/>
     <xs:attribute name="sequence" type="identifierType"/>
     <xs:attribute name="auto-incremental" type="identifierType"/>
+    <xs:attribute name="optional" type="booleanEnum"/>
   </xs:attributeGroup>
 
   <!-- Field Attributes -->

@@ -55,13 +55,14 @@ awe.database.migration-modules=AWE,...,SCHEDULER,...
 
 ## SSH remote command execution
 
-Command tasks can run on a remote host over SSH (see the **[Scheduler guide](guides/scheduler-guide.md#command-execution-local-and-remote)**). The SSH client used for remote execution is configured with the following properties:
+Command tasks can run on a remote host over SSH (see the **[Scheduler guide](guides/scheduler-guide.md#command-execution-local-and-remote)**). The SSH clients used for remote execution and for SFTP file checking are configured with the following properties:
 
 | Property | Description | Default |
 |----------|-------------|---------|
 | `awe.scheduler.ssh-host-key-policy` | Host-key verification policy. See the values below. | `ACCEPT_ON_FIRST_USE` |
 | `awe.scheduler.ssh-known-hosts-path` | Path to the `known_hosts` file used to persist and read trusted host keys | `${user.home}/.ssh/known_hosts` |
 | `awe.scheduler.ssh-connect-timeout` | SSH connect and authentication timeout, in seconds | `30s` |
+| `awe.scheduler.connection-test-timeout` | Timeout for the **Test connection** button on the server screens (SSH session and FTP connect/data exchanges), in seconds | `10s` |
 
 The host-key policy accepts three values:
 

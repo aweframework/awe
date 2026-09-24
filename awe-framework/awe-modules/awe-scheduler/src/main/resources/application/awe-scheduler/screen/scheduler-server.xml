@@ -34,6 +34,22 @@
         <dependency-element id="GrdSrvLst" condition="ne" value="1" />
       </dependency>
     </button>
+    <!-- Tests the connection of the SELECTED stored server: only the selected row id is sent
+         and the service loads the whole record (type, host, port, credentials) from database.
+         Enabled only with exactly one row selected, mirroring the update button. The plug icon
+         is swapped for a spinner while the check runs; the service response restores the icon
+         and colors the button green (silent success) or red (failure, with a diagnostic
+         message) through add-class/remove-class client actions targeting #ButTstCnx. -->
+    <button label="BUTTON_TEST_CONNECTION" icon="plug" id="ButTstCnx" help="HELP_TEST_CONNECTION_SELECTED">
+      <button-action type="check-one-selected" target="GrdSrvLst" />
+      <button-action type="remove-class" target="#ButTstCnx" target-action="btn-success btn-danger p-button-success p-button-danger" silent="true" />
+      <button-action type="remove-class" target="#ButTstCnx i" target-action="fa-plug" silent="true" />
+      <button-action type="add-class" target="#ButTstCnx i" target-action="fa-spinner fa-spin" silent="true" />
+      <button-action type="server" server-action="maintain-silent" target-action="ChkSchSrvCnxSel" />
+      <dependency target-type="disable" initial="true">
+        <dependency-element id="GrdSrvLst" condition="ne" value="1" />
+      </dependency>
+    </button>
     <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON">
       <button-action type="check-some-selected" target="GrdSrvLst" />
       <button-action type="confirm" target="DelMsg" />

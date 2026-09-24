@@ -71,8 +71,9 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
    */
   public AweUserDetails loadUserByRole(OAuth2AuthenticationToken oAuth2User) throws AWException {
 
-    // Get profile from authority grants oauth2 user info
-    String profile = mapGrantedAuthorityProfile(oAuth2User.getAuthorities());
+    // Get profile from authority grants oauth2 user info, falling back to the default role when the
+    // provider did not send a usable role (new users always get a profile)
+    String profile = mapGrantedAuthorityProfile(oAuth2User.getAuthorities()).orElse(baseConfigProperties.getDefaultRole());
     // Get user info
     String userName = oAuth2User.getPrincipal().getAttribute(PREFERRED_USERNAME);
     String email = oAuth2User.getPrincipal().getAttribute(EMAIL);
@@ -95,18 +96,22 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
   }
 
   /**
-   * Maps a collection of granted authorities to a user profile identifier.
-   * If the collection is null or empty, the default role is returned.
+   * Maps a collection of granted authorities to a user profile identifier coming from the SSO provider.
+   * If the collection is null or empty, an empty {@link Optional} is returned.
    * If a filter authority prefix is specified, only authorities matching the prefix are considered.
    * The authority prefix is removed from the authority string before returning the mapped profile.
+   * An empty {@link Optional} is also returned when no authority matches the prefix, or when the
+   * matching authority is not longer than the prefix itself (i.e. it carries no role name).
+   * Callers decide how to handle the "no role from provider" case (e.g. keep the current profile or
+   * fall back to the application default role).
    *
    * @param authorities a collection of granted authorities which represent user permissions
-   * @return a string representing the user profile or the default role if no valid authority is found
+   * @return the user profile mapped from the provider authorities, or empty if none was found
    */
-  public String mapGrantedAuthorityProfile(Collection<GrantedAuthority> authorities) {
+  public Optional<String> mapGrantedAuthorityProfile(Collection<GrantedAuthority> authorities) {
     // Validate authority
     if (authorities == null || authorities.isEmpty()) {
-      return baseConfigProperties.getDefaultRole();
+      return Optional.empty();
     }
 
     // Get profile from grantedAuthority
@@ -122,21 +127,20 @@ public class AweUserDetailService extends ServiceConfig implements UserDetailsSe
         .filter(authority -> StringUtils.isEmpty(filterAuthorityPrefix) ||
             authority.startsWith(filterAuthorityPrefix))
         .findFirst()
-        .map(mapAuthority(filterAuthorityPrefix))
-        .orElse(baseConfigProperties.getDefaultRole());
+        .flatMap(mapAuthority(filterAuthorityPrefix));
   }
 
   @NotNull
-  private Function<String, String> mapAuthority(String filterAuthorityPrefix) {
+  private Function<String, Optional<String>> mapAuthority(String filterAuthorityPrefix) {
     return authority -> {
       if (StringUtils.isEmpty(filterAuthorityPrefix)) {
-        return authority; // Without prefix, return full authority
+        return Optional.of(authority); // Without prefix, return full authority
       }
-      // Check authority length is not below
+      // Check authority length is not below the prefix: no role name carried by this authority
       if (authority.length() <= filterAuthorityPrefix.length()) {
-        return baseConfigProperties.getDefaultRole();
+        return Optional.empty();
       }
-      return authority.substring(filterAuthorityPrefix.length());
+      return Optional.of(authority.substring(filterAuthorityPrefix.length()));
     };
   }
 

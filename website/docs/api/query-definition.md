@@ -594,6 +594,63 @@ will be generated as:
 </query>
 ```
 
+#### Partition by element
+
+The *partition-by* element defines one partition of a window function. Repeat it to partition by
+several expressions.
+
+| Attribute |   Use    |  Type  | Description                                        | Values                                                                          |
+|-----------|:--------:|:------:|----------------------------------------------------|---------------------------------------------------------------------------------|
+| field     | Optional | String | Field to partition by                              |                                                                                 |
+| table     | Optional | String | Table of the field to partition by                 |                                                                                 |
+| function  | Optional | String | Applies an sql function to the partition field     | The possible values are defined in [over functions](#over-functions)             |
+
+It also accepts a nested `case` element instead of a field, so a partition can be a composite
+expression. This mirrors the [group-by element](#group-by-element): both are modelled the same way,
+so a `function` or a `case` behaves identically in either clause.
+
+Partitioning by a composite expression:
+
+```sql
+SELECT COUNT(id) OVER (PARTITION BY YEAR(date)) as `yearCount` FROM tableId
+```
+
+will be generated as:
+
+```xml
+<query id="testOverPartitionFunction">
+  <table id="tableId"/>
+  <over alias="yearCount">
+    <field id="id" function="CNT"/>
+    <partition-by field="date" function="YEAR"/>
+  </over>
+</query>
+```
+
+Partitioning by a case expression:
+
+```xml
+<query id="testOverPartitionCase">
+  <table id="tableId"/>
+  <over alias="groupCount">
+    <field id="id" function="CNT"/>
+    <partition-by>
+      <case>
+        <when left-field="amount" condition="gt" right-variable="limit">
+          <then>
+            <constant value="HIGH"/>
+          </then>
+        </when>
+        <else>
+          <constant value="LOW"/>
+        </else>
+      </case>
+    </partition-by>
+  </over>
+  <variable id="limit" type="INTEGER" value="1000"/>
+</query>
+```
+
 ### Join element
 
 The join structure is the next one:

@@ -205,6 +205,18 @@ public class Column extends AbstractCriteria {
   }
 
   /**
+   * Returns the declared print mode of the column, so the client can decide which
+   * columns go to the report: `true` (always), `false` (never), `excel` (spreadsheet
+   * outputs only) or null (only when visible on screen).
+   *
+   * @return Declared `printable` attribute value
+   */
+  @JsonGetter("printMode")
+  public String getPrintMode() {
+    return getPrintable();
+  }
+
+  /**
    * Returns the text of the column
    *
    * @return Text of the column

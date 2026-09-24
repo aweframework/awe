@@ -2,4 +2,7 @@
 <!--$Id$ -->
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/services.xsd">
+  <service id="slowTraceService">
+    <java classname="com.almis.awe.service.SlowTraceService" method="traceSlowly"/>
+  </service>
 </services>

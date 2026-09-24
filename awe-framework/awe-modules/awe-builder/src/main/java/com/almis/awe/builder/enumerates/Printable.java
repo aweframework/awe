@@ -10,10 +10,8 @@ package com.almis.awe.builder.enumerates;
  * @author dfuentes
  */
 public enum Printable {
-  ALL("all"),
   EXCEL("excel"),
   FALSE("false"),
-  TAB("tab"),
   TRUE("true");
   
   private final String value;

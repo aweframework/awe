@@ -15,6 +15,8 @@ import java.util.List;
 @Slf4j
 public abstract class Connector {
 
+  private static final String REMOTE_PATH_SEPARATOR = "/";
+
   // Autowired services
   private FileDAO fileDAO;
 
@@ -40,6 +42,20 @@ public abstract class Connector {
    * @throws AWException
    */
   public abstract String checkForChanges(Task task) throws AWException;
+
+  /**
+   * Join the configured remote directory and a file name, tolerating a
+   * directory configured with or without a trailing separator. Remote paths
+   * stay POSIX regardless of the host the scheduler runs on, so the separator
+   * is never taken from the local file system.
+   *
+   * @param directory Configured remote directory
+   * @param fileName  Remote file name
+   * @return Remote file path
+   */
+  protected String resolveRemotePath(String directory, String fileName) {
+    return directory.endsWith(REMOTE_PATH_SEPARATOR) ? directory + fileName : directory + REMOTE_PATH_SEPARATOR + fileName;
+  }
 
   /**
    * Check for changes on a single file, (usually called from the function

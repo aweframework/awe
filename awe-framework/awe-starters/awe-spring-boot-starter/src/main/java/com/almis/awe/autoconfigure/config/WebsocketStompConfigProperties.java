@@ -33,6 +33,12 @@ public class WebsocketStompConfigProperties {
   private int relayPort = 61613;
 
   /**
+   * Virtual host for STOMP broker, used to segregate applications sharing the same broker.
+   * When not set, the broker applies its own default (the relay host)
+   */
+  private String virtualHost;
+
+  /**
    * Client login for STOMP broker
    */
   private String clientLogin;

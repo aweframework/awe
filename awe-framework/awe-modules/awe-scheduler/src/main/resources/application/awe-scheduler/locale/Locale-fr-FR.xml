@@ -11,6 +11,7 @@
   <locale name="BUTTON_RESTART" value="Redémarrer"/>
   <locale name="BUTTON_LAUNCH" value="Lancer"/>
   <locale name="BUTTON_STOP" value="Arrêter"/>
+  <locale name="BUTTON_TEST_CONNECTION" value="Tester la connexion"/>
   <locale name="COLUMN_DATE" value="Date"/>
   <locale name="COLUMN_SCHEDULER_INSTANCE_ID" value="Id d&apos;instance du planificateur"/>
   <locale name="COLUMN_SCHEDULER_JOBSTORE_CLASS" value="Classe du jobstore"/>
@@ -56,7 +57,6 @@
   <locale name="CONFIRM_TITLE_TASK_LAUNCH" value="Confirmation de lancement des taches"/>
   <locale name="CONFIRM_TITLE_TRIGGER_WITH_CALENDAR_EXIST" value="La confirmation de calendrier associé à une ou plusieurs tâches."/>
   <locale name="CONFIRM_TITLE_UNBLOCK_BATCH" value="Confirmation de deblocage de batch"/>
-  <locale name="CONNECTION_TYPE_SSH" value="SSH"/>
   <locale name="ENUM_LAUNCH_DEPENDENCY" value="Dépendance"/>
   <locale name="ENUM_LAUNCH_FILE" value="Par fichier"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manuelle"/>
@@ -79,6 +79,8 @@
   <locale name="HELP_ACTIVATE_BUTTON" value="Permet à l&apos;élément sélectionné"/>
   <locale name="HELP_DEACTIVATE_BUTTON" value="Désactive l&apos;élément sélectionné"/>
   <locale name="HELP_LAUNCH_STOP_BUTTON" value="Interruption de l&apos;élément sélectionné"/>
+  <locale name="HELP_TEST_CONNECTION_BUTTON" value="Teste la connexion avec les valeurs actuelles du formulaire, sans les enregistrer"/>
+  <locale name="HELP_TEST_CONNECTION_SELECTED" value="Teste la connectivité du serveur sélectionné"/>
   <locale name="HELP_LAUNCH_VARIABLES_BUTTON" value="Définit les paramètres variables et lance la tâche sélectionnée"/>
   <locale name="HELP_RUN_BUTTON" value="Exécute l&apos;élément sélectionné"/>
   <locale name="HELP_SCREEN_EXECUTION_DATA" value="Cette dialogue indique les données de l&apos;exécution selectionèe de la tâche"/>
@@ -127,6 +129,10 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_MESSAGE" value="Le lot a été exécutée correctement"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Lot exécuté"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Cette tâche a été annulée parce qu&apos;il a dépassé le temps imparti ({0})"/>
+  <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="L&apos;exécution s&apos;est terminée avec le résultat {0} après {1}. {2}"/>
+  <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="L&apos;exécution s&apos;est terminée de manière anormale après {0} - consultez la grille d&apos;exécution pour le statut final."/>
+  <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lignes perdues (file saturée) ..."/>
+  <locale name="SCHEDULER_EXECUTION_LOG_TRUNCATED" value="... {0} lignes omises (total {1}) ..."/>
   <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Prochaines exécutions"/>
   <locale name="SCHEDULER_REMOTE_EXECUTION" value="Exécuter sur un serveur distant"/>
   <locale name="SCHEDULER_REMOTE_SERVER" value="Serveur distant"/>
@@ -134,6 +140,15 @@
   <locale name="SCHEDULER_SERVER_KEY_PASS" value="Phrase secrète de la clé privée"/>
   <locale name="SCHEDULER_SERVER_PASSWORD" value="Mot de passe du serveur"/>
   <locale name="SCHEDULER_SERVER_USER" value="Utilisateur du serveur"/>
+  <locale name="SCHEDULER_SERVER_TEST_KO_TITLE" value="Échec du test de connexion"/>
+  <locale name="SCHEDULER_SERVER_TEST_CONNECTION_ERROR" value="Impossible de se connecter au serveur : hôte inaccessible, connexion refusée ou délai dépassé"/>
+  <locale name="SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR" value="Le serveur a rejeté les identifiants fournis"/>
+  <locale name="SCHEDULER_SERVER_TEST_HOST_KEY_ERROR" value="La clé d&apos;hôte du serveur a été rejetée par la politique de vérification configurée"/>
+  <locale name="SCHEDULER_SERVER_TEST_INVALID_KEY_ERROR" value="La clé privée n&apos;a pas pu être lue : vérifiez son format et sa phrase secrète"/>
+  <locale name="SCHEDULER_SERVER_TEST_FOLDER_TITLE" value="Rien à tester"/>
+  <locale name="SCHEDULER_SERVER_TEST_FOLDER_MESSAGE" value="Les serveurs de type dossier sont accédés comme chemin local de l&apos;hôte du planificateur à l&apos;exécution de chaque tâche, il n&apos;y a donc aucune connexion à tester"/>
+  <locale name="SCHEDULER_SERVER_TEST_SERVER_NOT_FOUND" value="Le serveur sélectionné n&apos;existe plus"/>
+  <locale name="SCHEDULER_SERVER_TEST_UNSUPPORTED_TYPE" value="Aucun test de connexion n&apos;est disponible pour ce type de connexion"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Afficher journal d&apos;exécution"/>
   <locale name="SCREEN_TEXT_END_TIME" value="Heure de fin"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="L&apos;exécution"/>

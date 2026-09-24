@@ -27,6 +27,7 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.chart.Chart;
 import com.almis.awe.model.entities.screen.component.criteria.Criteria;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
+import com.almis.awe.model.type.OutputFormatType;
 import com.almis.awe.model.type.TotalizeStyleType;
 import com.almis.awe.service.QueryService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -38,6 +39,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.almis.ade.api.bean.style.AdeStyle;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.ade.api.enumerate.PageOrientation;
+import lombok.extern.log4j.Log4j2;
 
 import java.awt.*;
 import java.io.IOException;
@@ -49,6 +51,7 @@ import java.util.Optional;
 /**
  * Generate the component controllers of the screen
  */
+@Log4j2
 public class ReportDesigner extends ServiceConfig {
 
   // Report colors
@@ -63,6 +66,7 @@ public class ReportDesigner extends ServiceConfig {
   private static final Integer MAX_GRID_FONT_SIZE = 10;
   private static final Integer MIN_GRID_FONT_SIZE = 5;
   private static final Float GRID_FONT_CORRECTION_RATIO = 1.7f;
+  private static final String PRINTABLE_SPREADSHEET_ONLY = "excel";
 
   // Autowired services
   private final QueryService queryService;
@@ -90,6 +94,21 @@ public class ReportDesigner extends ServiceConfig {
    * @throws AWException Error designing report
    */
   public PrintBean getPrintDesign(List<Element> reportStructure, ObjectNode parameters) throws AWException {
+    return getPrintDesign(reportStructure, parameters, false);
+  }
+
+  /**
+   * Design the report for a given output profile.
+   * Grid columns declared with `printable="excel"` are only included when
+   * designing for spreadsheet outputs.
+   *
+   * @param reportStructure               Report structure
+   * @param parameters                    Screen parameters
+   * @param includeSpreadsheetOnlyColumns Include columns declared as `printable="excel"`
+   * @return Print bean designed
+   * @throws AWException Error designing report
+   */
+  public PrintBean getPrintDesign(List<Element> reportStructure, ObjectNode parameters, boolean includeSpreadsheetOnlyColumns) throws AWException {
     Layout layout = new Layout("report-layout", LayoutType.MULTIPAGE);
     PrintBean printBean = new PrintBean()
       .setDetail(layout);
@@ -104,7 +123,7 @@ public class ReportDesigner extends ServiceConfig {
       if (element instanceof Screen) {
         getElementDesign(printBean, (Screen) element);
       } else if (element instanceof Grid) {
-        getElementDesign(printBean, (Grid) element, parameters);
+        getElementDesign(printBean, (Grid) element, parameters, includeSpreadsheetOnlyColumns);
       } else if (element instanceof Chart) {
         getElementDesign(printBean, (Chart) element, parameters);
       } else if (element instanceof Criteria) {
@@ -122,6 +141,66 @@ public class ReportDesigner extends ServiceConfig {
 
     // Retrieve print bean generated
     return printBean;
+  }
+
+  /**
+   * Check whether the output format is a spreadsheet, so columns declared as
+   * `printable="excel"` must be included.
+   *
+   * @param format Output format name
+   * @return Format is a spreadsheet output
+   */
+  public static boolean isSpreadsheetFormat(String format) {
+    try {
+      OutputFormatType type = OutputFormatType.valueOf(format.toUpperCase());
+      return type == OutputFormatType.XLSX || type == OutputFormatType.CSV;
+    } catch (IllegalArgumentException | NullPointerException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Check whether any grid of the report structure declares columns that must be
+   * printed only on spreadsheet outputs.
+   *
+   * @param reportStructure Report structure
+   * @param parameters      Screen parameters
+   * @return Some grid has `printable="excel"` columns
+   */
+  public boolean hasSpreadsheetOnlyColumns(List<Element> reportStructure, ObjectNode parameters) {
+    return reportStructure.stream()
+      .filter(Grid.class::isInstance)
+      .map(Grid.class::cast)
+      .anyMatch(grid -> {
+        try {
+          return getVisibleColumns(grid, parameters).stream().anyMatch(this::hasSpreadsheetOnlyColumn);
+        } catch (IOException | NullPointerException exc) {
+          return false;
+        }
+      });
+  }
+
+  /**
+   * Check whether a print column (or any column of a header) is spreadsheet only
+   *
+   * @param column Print column
+   * @return Column is spreadsheet only
+   */
+  private boolean hasSpreadsheetOnlyColumn(PrintColumnData column) {
+    if (column.isHeader()) {
+      return Optional.ofNullable(column.getColumnList()).orElse(List.of()).stream().anyMatch(this::hasSpreadsheetOnlyColumn);
+    }
+    return isSpreadsheetOnly(column);
+  }
+
+  /**
+   * Check whether a print column is declared as `printable="excel"`
+   *
+   * @param column Print column
+   * @return Column is spreadsheet only
+   */
+  private boolean isSpreadsheetOnly(PrintColumnData column) {
+    return PRINTABLE_SPREADSHEET_ONLY.equalsIgnoreCase(column.getPrintable());
   }
 
   /**
@@ -197,7 +276,13 @@ public class ReportDesigner extends ServiceConfig {
     JsonNode data = parameters.get(element.getId() + baseConfigProperties.getComponent().getDataSuffix());
 
     if (data != null) {
-      String criterionValue = data.get(AweConstants.JSON_TEXT_PARAMETER).asText();
+      JsonNode criterionText = data.get(AweConstants.JSON_TEXT_PARAMETER);
+      if (criterionText == null) {
+        log.warn("Print design: criterion '{}' data has no '{}' field (received a {} node). Another component with the same identifier (e.g. a grid column) has overwritten its print parameter. Rename one of them to print this criterion.",
+          element.getId(), AweConstants.JSON_TEXT_PARAMETER, data.getNodeType());
+        return;
+      }
+      String criterionValue = criterionText.asText();
       if (criterionValue != null && !criterionValue.isEmpty()) {
         // Configure criterion label
         String criterionLabel = null;
@@ -226,7 +311,7 @@ public class ReportDesigner extends ServiceConfig {
    * @param element    Element
    * @param parameters Parameters
    */
-  private void getElementDesign(PrintBean printBean, Grid element, ObjectNode parameters) throws AWException {
+  private void getElementDesign(PrintBean printBean, Grid element, ObjectNode parameters, boolean includeSpreadsheetOnlyColumns) throws AWException {
     Layout layout = (Layout) printBean.getDetail();
     Layout gridLayout = new Layout("grid-layout", LayoutType.VERTICAL);
     layout.addElement(gridLayout);
@@ -247,7 +332,7 @@ public class ReportDesigner extends ServiceConfig {
       List<PrintColumnData> visibleColumns = getVisibleColumns(element, parameters);
 
       // Generate columns
-      List<String> fields = setGridColumns(gridElement, visibleColumns);
+      List<String> fields = setGridColumns(gridElement, visibleColumns, includeSpreadsheetOnlyColumns);
 
       // Set grid orientation and font size
       calculateGridOrientationAndFont(gridElement, printBean);
@@ -319,14 +404,21 @@ public class ReportDesigner extends ServiceConfig {
   }
 
   /**
-   * Add sort data to parameters
+   * Lift the grid pagination (sort, page size and current page) from the grid data node to the
+   * parameters root, so the relaunched query returns the same rows the user is looking at.
+   * Values the client did not send are left untouched so the query keeps its own defaults.
    *
    * @param grid       Grid element
    * @param parameters Parameters
    */
-  private void addSortData(Grid grid, ObjectNode parameters) {
-    ArrayNode sortData = (ArrayNode) parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix()).get(AweConstants.COMPONENT_SORT);
-    parameters.set(AweConstants.COMPONENT_SORT, sortData);
+  private void addGridPaginationData(Grid grid, ObjectNode parameters) {
+    JsonNode gridData = parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix());
+    for (String key : List.of(AweConstants.COMPONENT_SORT, AweConstants.COMPONENT_MAX, AweConstants.COMPONENT_PAGE)) {
+      JsonNode value = gridData == null ? null : gridData.get(key);
+      if (value != null && !value.isNull()) {
+        parameters.set(key, value);
+      }
+    }
   }
 
   /**
@@ -335,16 +427,21 @@ public class ReportDesigner extends ServiceConfig {
    * @param reportGrid     Report grid
    * @param visibleColumns Visible columns
    */
-  private List<String> setGridColumns(ReportGrid reportGrid, List<PrintColumnData> visibleColumns) {
+  private List<String> setGridColumns(ReportGrid reportGrid, List<PrintColumnData> visibleColumns, boolean includeSpreadsheetOnlyColumns) {
     List<String> fieldList = new ArrayList<>();
 
     visibleColumns.forEach(columnData -> {
       if (columnData.isHeader()) {
-        ReportHeader reportHeader = new ReportHeader(columnData.getLabel())
-          .setLabel(columnData.getLabel());
-        columnData.getColumnList().forEach(column -> reportHeader.addColumn(getReportColumn(column, fieldList)));
-        reportGrid.addGridHeader(reportHeader);
-      } else {
+        List<PrintColumnData> headerColumns = columnData.getColumnList().stream()
+          .filter(column -> includeSpreadsheetOnlyColumns || !isSpreadsheetOnly(column))
+          .toList();
+        if (!headerColumns.isEmpty()) {
+          ReportHeader reportHeader = new ReportHeader(columnData.getLabel())
+            .setLabel(columnData.getLabel());
+          headerColumns.forEach(column -> reportHeader.addColumn(getReportColumn(column, fieldList)));
+          reportGrid.addGridHeader(reportHeader);
+        }
+      } else if (includeSpreadsheetOnlyColumns || !isSpreadsheetOnly(columnData)) {
         reportGrid.addGridHeader(getReportColumn(columnData, fieldList));
       }
     });
@@ -383,7 +480,7 @@ public class ReportDesigner extends ServiceConfig {
    * Get column width
    *
    * @param column Column
-   * @return Column is printable
+   * @return Column width in pixels, or null when neither charlength nor width are defined
    */
   private Integer getColumnWidth(PrintColumnData column) {
     Integer columnWidth = null;
@@ -399,7 +496,7 @@ public class ReportDesigner extends ServiceConfig {
    * Get column alignment
    *
    * @param column Column
-   * @return Column is printable
+   * @return Column horizontal alignment, or null when not defined
    */
   private HorizontalTextAlignment getColumnAlignment(PrintColumnData column) {
     HorizontalTextAlignment textAlignment = null;
@@ -494,8 +591,8 @@ public class ReportDesigner extends ServiceConfig {
     List<List<Object>> data = new ArrayList<>();
     boolean firstRow = true;
 
-    // Set sort and direction
-    addSortData(grid, parameters);
+    // Set sort, page size and current page from the grid
+    addGridPaginationData(grid, parameters);
 
     // Launch query and get data
     DataList queryData = queryService.launchPrivateQuery(grid.getTargetAction(), parameters).getDataList();

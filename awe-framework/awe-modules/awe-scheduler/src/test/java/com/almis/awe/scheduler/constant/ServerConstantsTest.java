@@ -9,12 +9,13 @@ import static com.almis.awe.scheduler.constant.ServerConstants.SERVER_SSH_USER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * SSH credential parameter-name constants used to wire the {@code AweSchSrv}
- * credential columns (design decision 3): {@code SshUsr}/{@code SshPwd}/{@code SshKey}.
+ * Credential parameter-name constants used to wire the {@code AweSchSrv}
+ * credential columns: {@code SshUsr}/{@code SshPwd}/{@code SshKey}.
  *
- * <p>These are DELIBERATELY NEW constants, distinct from the dead
- * {@code SERVER_USER}/{@code SERVER_PASS} ({@code LchUsr}/{@code LchPwd})
- * which map onto the unrelated launcher table columns.</p>
+ * <p>The column names keep their {@code Ssh} prefix because they are published
+ * API, but they hold the external server credentials used by every protocol
+ * that authenticates: remote command execution over SSH, SFTP file checking
+ * and FTP file checking.</p>
  */
 class ServerConstantsTest {
 

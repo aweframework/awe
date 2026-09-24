@@ -470,7 +470,9 @@ public class SQLMaintainConnector extends ServiceConfig implements MaintainConne
   }
 
   private String getStatementSql(AbstractSQLClause<?> statement) {
-    SQLBindings bindings = statement.getSQL().get(statement.getSQL().size() - 1);
+    // Serialize once: a batched clause renders one binding set per batched element
+    List<SQLBindings> bindingList = statement.getSQL();
+    SQLBindings bindings = bindingList.get(bindingList.size() - 1);
     return StringUtil.toUnilineText(queryUtil.getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings()));
   }
 

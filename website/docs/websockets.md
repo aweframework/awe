@@ -92,6 +92,21 @@ awe.websocket.stomp.system-login=guest
 awe.websocket.stomp.system-passcode=guest
 ```
 
+### 🏘️ Sharing a Broker Between Applications
+
+When several applications share the same STOMP broker, set a virtual host to segregate them, so
+destinations from one application are not visible to the others:
+
+```properties
+awe.websocket.stomp.enable-stomp-broker-relay=true
+awe.websocket.stomp.relay-host=rabbitmq-service
+awe.websocket.stomp.virtual-host=my-application
+```
+
+The virtual host must already exist on the broker, and the configured credentials must be granted
+access to it. When this property is not set, the broker keeps applying its own default, which for
+both `RabbitMQ` and `ActiveMQ` is the relay host.
+
 ### 🎯 Destination Prefixes
 
 You can configure the destination prefixes that the message broker handles:

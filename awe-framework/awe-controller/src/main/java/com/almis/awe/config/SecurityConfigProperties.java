@@ -112,6 +112,14 @@ public class SecurityConfigProperties {
      * Used to filtering granted authorities in post authentication process
      */
     private String filterAuthorityPrefix;
+    /**
+     * When {@code false} (default), an existing user's profile is kept as-is and not overwritten
+     * with the application default role ({@code awe.application.default-role}) when the SSO
+     * provider claim carries no role (or none of the granted authorities match
+     * {@code awe.security.sso.filter-authority-prefix}). Set to {@code true} to restore the
+     * previous behaviour, where the default role always overwrites the stored profile in that case.
+     */
+    private boolean overwriteProfileWithDefaultRole = false;
 		/**
 		 * The name of the attribute used to extract the username during the SSO authentication process.
 		 * This attribute is typically sourced from the claims provided by the OAuth2 or OIDC identity provider.

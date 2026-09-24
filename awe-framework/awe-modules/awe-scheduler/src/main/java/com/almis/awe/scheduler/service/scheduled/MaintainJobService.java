@@ -9,7 +9,10 @@ import com.almis.awe.rest.dto.RequestParameter;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.log.ExecutionKey;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.service.MaintainService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -63,6 +66,7 @@ public class MaintainJobService extends JobService {
    * @param remoteUser            Remote user
    * @param remotePassword        Remote password
    * @param mapper                Object mapper
+   * @param executionLogStore     Active execution log store, completed at the end of every execution
    */
 
   public MaintainJobService(ExecutionService executionService,
@@ -71,13 +75,14 @@ public class MaintainJobService extends JobService {
                             TaskDAO taskDAO,
                             ApplicationEventPublisher eventPublisher,
                             ObjectMapper mapper,
+                            ExecutionLogStore executionLogStore,
                             Duration defaultTimeout,
                             boolean isSchedulerInstance,
                             URI remoteUrl,
                             boolean isRemoteSecureEnabled,
                             String remoteUser,
                             String remotePassword, RestTemplate restTemplate) {
-    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, defaultTimeout);
+    super(executionService, maintainService, queryUtil, taskDAO, eventPublisher, executionLogStore, defaultTimeout);
     this.isSchedulerInstance = isSchedulerInstance;
     this.remoteUrl = remoteUrl;
     this.isRemoteSecureEnabled = isRemoteSecureEnabled;
@@ -97,47 +102,50 @@ public class MaintainJobService extends JobService {
    */
   @Async("schedulerJobPool")
   public Future<ServiceData> executeJob(Task task, TaskExecution execution, JobDataMap dataMap) {
-    Future<ServiceData> result;
+    ServiceData jobResult = null;
 
     // Start logging
     startLogging(execution);
 
-    // Log job start
-    log.info("[{}] Maintain job started: {}", task.getTrigger().getKey().toString(), task.getAction());
-
-    // Initialize query parameters (no per-task datasource routing - see #685)
-    ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
-
-    // Insert task parameters
-    for (TaskParameter taskParameter : task.getParameterList()) {
-      if ("2".equalsIgnoreCase(taskParameter.getSource())) {
-        parameters.put(taskParameter.getName(), getProperty(taskParameter.getValue()));
-      } else {
-        parameters.put(taskParameter.getName(), taskParameter.getValue());
-      }
-    }
-
-    // Set default parameters
-    parameters.put("launcher", (String) dataMap.get(TASK_LAUNCHER));
-
     try {
-      if (isSchedulerInstance) {
-        result = launchRemoteMaintainRest(task.getAction(), parameters);
-      } else {
-        result = CompletableFuture.completedFuture(getMaintainService().launchPrivateMaintain(task.getAction(), parameters));
+      // Log job start
+      log.info("[{}] Maintain job started: {}", task.getTrigger().getKey().toString(), task.getAction());
+
+      // Initialize query parameters (no per-task datasource routing - see #685)
+      ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
+
+      // Insert task parameters
+      for (TaskParameter taskParameter : task.getParameterList()) {
+        if ("2".equalsIgnoreCase(taskParameter.getSource())) {
+          parameters.put(taskParameter.getName(), getProperty(taskParameter.getValue()));
+        } else {
+          parameters.put(taskParameter.getName(), taskParameter.getValue());
+        }
       }
-    } catch (AWException exc) {
-      log.error("Error launching maintain job", exc);
-      result = CompletableFuture.completedFuture(new ServiceData()
-        .setType(exc.getType())
-        .setTitle(exc.getTitle())
-        .setMessage(exc.getMessage()));
+
+      // Set default parameters
+      parameters.put("launcher", (String) dataMap.get(TASK_LAUNCHER));
+
+      try {
+        if (isSchedulerInstance) {
+          jobResult = launchRemoteMaintainRest(task.getAction(), parameters, execution);
+        } else {
+          jobResult = getMaintainService().launchPrivateMaintain(task.getAction(), parameters);
+        }
+      } catch (AWException exc) {
+        log.error("Error launching maintain job", exc);
+        jobResult = new ServiceData()
+          .setType(exc.getType())
+          .setTitle(exc.getTitle())
+          .setMessage(exc.getMessage());
+      }
+
+      return CompletableFuture.completedFuture(jobResult);
+    } finally {
+      // Log completion summary and end logging
+      logExecutionSummary(execution, jobResult);
+      endLogging(execution);
     }
-
-    // End logging
-    endLogging();
-
-    return result;
   }
 
   /**
@@ -145,10 +153,11 @@ public class MaintainJobService extends JobService {
    *
    * @param maintain   Maintain identifier
    * @param parameters Maintain parameters
+   * @param execution  Execution the callback is issued on behalf of
    * @return Service data
    * @throws AWException Error launching remote maintain
    */
-  private Future<ServiceData> launchRemoteMaintainRest(String maintain, ObjectNode parameters) throws AWException {
+  private ServiceData launchRemoteMaintainRest(String maintain, ObjectNode parameters, TaskExecution execution) throws AWException {
     RequestParameter requestParameter = new RequestParameter();
     requestParameter.setParameters(mapper.convertValue(parameters, new TypeReference<>() {
     }));
@@ -161,11 +170,14 @@ public class MaintainJobService extends JobService {
     if (token != null) {
       headers.setBearerAuth(token);
     }
+    if (execution.getTaskId() != null && execution.getExecutionId() != null) {
+      headers.set(TaskConstants.EXECUTION_KEY_HEADER, new ExecutionKey(execution.getTaskId(), execution.getExecutionId()).mdcKey());
+    }
 
     ResponseEntity<ServiceData> response = restTemplate.postForEntity(remoteUrl + "/api/maintain/{maintainId}",
         new HttpEntity<>(requestParameter, headers), ServiceData.class, maintain);
 
-    return CompletableFuture.completedFuture(response.getBody());
+    return response.getBody();
   }
 
   private String authenticateRequest() {

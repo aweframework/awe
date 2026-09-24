@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-modules</artifactId>
-    <version>4.12.8</version>
+    <version>4.12.9</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -51,11 +51,15 @@
     <dependency>
       <groupId>commons-net</groupId>
       <artifactId>commons-net</artifactId>
-      <version>20030805.205232</version>
     </dependency>
     <dependency>
       <groupId>org.apache.sshd</groupId>
       <artifactId>sshd-core</artifactId>
+    </dependency>
+    <!-- SFTP client, used by the scheduler file-existence trigger over SSH -->
+    <dependency>
+      <groupId>org.apache.sshd</groupId>
+      <artifactId>sshd-sftp</artifactId>
     </dependency>
     <!-- Enables MINA SSHD Ed25519 key support (optional dependency of sshd-common,
          required to load ed25519 private keys and parse ed25519 known_hosts entries) -->
@@ -74,6 +78,11 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

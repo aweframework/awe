@@ -102,8 +102,11 @@ public abstract class AbstractQueryConnector extends ServiceConfig implements Qu
       throw new AWException(getLocale("ERROR_TITLE_ERROR_EXECUTING_SERVICE_QUERY"),
         getLocale("ERROR_MESSAGE_EXECUTING_SERVICE_QUERY", query.getId()), exc);
     }
-    result.setDataList(datalist);
-    return result;
+    // fillDataList already tolerates a null result by returning an empty DataList (a subscription may
+    // deliver no data at all), so honour that contract here instead of dereferencing a null result
+    ServiceData output = result == null ? new ServiceData() : result;
+    output.setDataList(datalist);
+    return output;
   }
 
   /**

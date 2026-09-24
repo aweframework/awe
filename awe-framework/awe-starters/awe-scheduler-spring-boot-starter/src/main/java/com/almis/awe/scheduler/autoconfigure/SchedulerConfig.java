@@ -16,6 +16,7 @@ import com.almis.awe.scheduler.filechecker.FTPFileChecker;
 import com.almis.awe.scheduler.filechecker.FileChecker;
 import com.almis.awe.scheduler.filechecker.FileClient;
 import com.almis.awe.scheduler.filechecker.FolderFileChecker;
+import com.almis.awe.scheduler.filechecker.SftpFileChecker;
 import com.almis.awe.scheduler.job.execution.ProgressJob;
 import com.almis.awe.scheduler.job.execution.TimeoutJob;
 import com.almis.awe.scheduler.job.scheduled.CommandJob;
@@ -23,9 +24,11 @@ import com.almis.awe.scheduler.job.scheduled.MaintainJob;
 import com.almis.awe.scheduler.listener.SchedulerEventListener;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.scheduler.service.RemoteSchedulerService;
 import com.almis.awe.scheduler.service.SchedulerService;
+import com.almis.awe.scheduler.service.ServerConnectionService;
 import com.almis.awe.scheduler.service.TaskService;
 import com.almis.awe.scheduler.service.report.*;
 import com.almis.awe.scheduler.service.scheduled.CommandJobService;
@@ -175,8 +178,9 @@ public class SchedulerConfig {
   @Bean
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService,
                                                QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher,
-                                               ObjectMapper mapper, RestTemplate restTemplate) {
+                                               ObjectMapper mapper, ExecutionLogStore executionLogStore, RestTemplate restTemplate) {
     return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, mapper,
+      executionLogStore,
       schedulerConfigProperties.getTaskTimeout(),
       schedulerConfigProperties.isSchedulerInstance(),
       schedulerConfigProperties.getRemoteCallbackUrl(),
@@ -192,8 +196,8 @@ public class SchedulerConfig {
    * @return Scheduler service
    */
   @Bean
-  public CommandJobService commandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO) {
-    return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO, schedulerConfigProperties.getTaskTimeout());
+  public CommandJobService commandJobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher, CommandDAO commandDAO, ExecutionLogStore executionLogStore) {
+    return new CommandJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, commandDAO, executionLogStore, schedulerConfigProperties.getTaskTimeout());
   }
 
   /**
@@ -363,8 +367,9 @@ public class SchedulerConfig {
    */
   @Bean
   public TaskDAO taskDAO(Scheduler scheduler, QueryService queryService, MaintainService maintainService,
-                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker) {
-    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), schedulerConfigProperties.getExecutionLogPath(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker);
+                         QueryUtil queryUtil, CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker,
+                         ExecutionLogStore executionLogStore) {
+    return new TaskDAO(scheduler, schedulerConfigProperties.getStoredExecutions(), queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, executionLogStore);
   }
 
   /**
@@ -395,6 +400,23 @@ public class SchedulerConfig {
   @Bean
   public CommandDAO commandDAO(CommandExecutorResolver commandExecutorResolver) {
     return new CommandDAO(commandExecutorResolver);
+  }
+
+  /**
+   * Server connection test service backing the test-connection button on the
+   * new/update server screens. Reuses the SSH host-key policy and known_hosts
+   * file configured for SSH command tasks and SFTP triggers, so trust decisions
+   * are consistent across all of them, while running under its own shorter
+   * interactive timeout
+   *
+   * @return Server connection service
+   */
+  @Bean
+  public ServerConnectionService serverConnectionService(ServerDAO serverDAO, FTPClient ftpClient) {
+    return new ServerConnectionService(serverDAO, ftpClient,
+      schedulerConfigProperties.getSshHostKeyPolicy(),
+      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      schedulerConfigProperties.getConnectionTestTimeout());
   }
 
   /*
@@ -456,8 +478,23 @@ public class SchedulerConfig {
    * @return File checker
    */
   @Bean
-  public FileChecker fileChecker(FTPFileChecker ftpFileChecker, FolderFileChecker folderFileChecker) {
-    return new FileChecker(ftpFileChecker, folderFileChecker);
+  public FileChecker fileChecker(FTPFileChecker ftpFileChecker, FolderFileChecker folderFileChecker,
+                                 SftpFileChecker sftpFileChecker) {
+    return new FileChecker(ftpFileChecker, folderFileChecker, sftpFileChecker);
+  }
+
+  /**
+   * Define sftp file checker. Reuses the SSH host-key policy, known_hosts file and connect
+   * timeout configured for SSH command tasks, so trust decisions are consistent across both
+   *
+   * @return SFTP File checker
+   */
+  @Bean
+  public SftpFileChecker sftpFileChecker(FileDAO fileDAO) {
+    return new SftpFileChecker(fileDAO,
+      schedulerConfigProperties.getSshHostKeyPolicy(),
+      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      schedulerConfigProperties.getSshConnectTimeout());
   }
 
   /**

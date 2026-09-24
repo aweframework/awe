@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Actions.xml
+    Description: Scheduler module server actions
+-->
+
+<actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/actions.xsd">
+
+  <!-- Database-mode execution log read path (ADR-5): preserves the get-log-file / log-delta
+       viewer contract for executions stored in AweSchExeLog instead of on disk. -->
+  <action id="get-execution-log" format="JSON">
+    <call service="getExecutionLog" />
+    <answer type="ok">
+      <response>
+        <type>log-delta</type>
+        <parameters>
+          <parameter name="log" variable="LOG_CONTENT" />
+          <parameter name="replace" variable="LOG_CONTENT_REPLACE" />
+          <parameter name="version" variable="LOG_CONTENT_VERSION" />
+        </parameters>
+      </response>
+    </answer>
+    <answer type="error">
+      <response>
+        <type>message</type>
+        <parameters>
+          <parameter name="type" variable="MESSAGE_TYPE" />
+          <parameter name="title" variable="MESSAGE_TITLE" />
+          <parameter name="message" variable="MESSAGE_DESCRIPTION" />
+        </parameters>
+      </response>
+    </answer>
+  </action>
+
+</actions>

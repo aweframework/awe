@@ -16,10 +16,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.config.StompBrokerRelayRegistration;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.session.Session;
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -62,16 +64,25 @@ public class WebsocketConfig extends AbstractSessionWebSocketMessageBrokerConfig
   @Override
   public void configureMessageBroker(@NotNull MessageBrokerRegistry messageBrokerRegistry) {
     if (websocketStompConfigProperties.isEnableStompBrokerRelay()) {
-      messageBrokerRegistry.enableStompBrokerRelay(
+      StompBrokerRelayRegistration relayRegistration = messageBrokerRegistry.enableStompBrokerRelay(
               websocketStompConfigProperties.getDestinationPrefixes().toArray(new String[0]))
           .setRelayHost(websocketStompConfigProperties.getRelayHost())
           .setRelayPort(websocketStompConfigProperties.getRelayPort())
           .setClientLogin(websocketStompConfigProperties.getClientLogin())
           .setClientPasscode(websocketStompConfigProperties.getClientPasscode())
           .setSystemLogin(websocketStompConfigProperties.getSystemLogin())
-          .setSystemPasscode(websocketStompConfigProperties.getSystemPasscode())
-          .setTaskScheduler(heartBeatScheduler());
-      log.info("✓ WebSocket configured with STOMP Broker Relay");
+          .setSystemPasscode(websocketStompConfigProperties.getSystemPasscode());
+
+      // Apply the virtual host only when configured, so the broker keeps applying
+      // its own default (the relay host) for applications which do not set it
+      String virtualHost = websocketStompConfigProperties.getVirtualHost();
+      if (StringUtils.hasText(virtualHost)) {
+        relayRegistration.setVirtualHost(virtualHost);
+      }
+
+      relayRegistration.setTaskScheduler(heartBeatScheduler());
+      log.info("✓ WebSocket configured with STOMP Broker Relay{}",
+        StringUtils.hasText(virtualHost) ? " on virtual host " + virtualHost : "");
     } else {
       // Simple broker
       messageBrokerRegistry.enableSimpleBroker(

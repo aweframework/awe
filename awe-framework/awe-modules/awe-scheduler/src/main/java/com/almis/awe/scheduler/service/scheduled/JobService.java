@@ -9,8 +9,11 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.constant.TaskConstants;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
+import com.almis.awe.scheduler.log.ExecutionKey;
+import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.service.MaintainService;
 import lombok.Getter;
@@ -40,10 +43,13 @@ public abstract class JobService extends ServiceConfig {
   private final QueryUtil queryUtil;
   private final TaskDAO taskDAO;
   private final ApplicationEventPublisher eventPublisher;
+  private final ExecutionLogStore executionLogStore;
   private final Duration defaultTimeout;
 
   // Locales
   private static final String SCHEDULER_ERROR_MESSAGE_TIMEOUT = "SCHEDULER_ERROR_MESSAGE_TIMEOUT";
+  private static final String SCHEDULER_EXECUTION_LOG_COMPLETED = "SCHEDULER_EXECUTION_LOG_COMPLETED";
+  private static final String SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY = "SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY";
 
   /**
    * Job service constructor
@@ -52,15 +58,17 @@ public abstract class JobService extends ServiceConfig {
    * @param queryUtil QueryUtil service
    * @param taskDAO Task DAO
    * @param eventPublisher Event publisher
+   * @param executionLogStore Active execution log store, completed at the end of every execution
    * @param defaultTimeout Task timeout
    */
   protected JobService(ExecutionService executionService, MaintainService maintainService, QueryUtil queryUtil, TaskDAO taskDAO,
-                       ApplicationEventPublisher eventPublisher, Duration defaultTimeout) {
+                       ApplicationEventPublisher eventPublisher, ExecutionLogStore executionLogStore, Duration defaultTimeout) {
     this.executionService = executionService;
     this.maintainService = maintainService;
     this.queryUtil = queryUtil;
     this.taskDAO = taskDAO;
     this.eventPublisher = eventPublisher;
+    this.executionLogStore = executionLogStore;
     this.defaultTimeout = defaultTimeout;
   }
 
@@ -83,14 +91,50 @@ public abstract class JobService extends ServiceConfig {
   void startLogging(TaskExecution execution) {
     MDC.put(TaskConstants.LOG_BY_TASK_EXECUTION, execution.getKey());
     MDC.put(TaskConstants.EXECUTION, execution.getKey());
+    MDC.put(TaskConstants.EXECUTION_LOG_ORIGIN, ExecutionLogOrigin.SCHEDULER.code());
   }
 
   /**
-   * End logging execution
+   * End logging execution: clear the MDC discriminator first, so the completion signal itself is
+   * never captured by either store, then signal completion to the active execution log store
+   * exactly once (a no-op for {@code FileExecutionLogStore}). Skips the completion signal when the
+   * execution carries no task id or execution id, so this hook can never fail the job.
+   *
+   * @param execution Execution that finished
    */
-  void endLogging() {
+  void endLogging(TaskExecution execution) {
     MDC.remove(TaskConstants.EXECUTION);
     MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
+    MDC.remove(TaskConstants.EXECUTION_LOG_ORIGIN);
+    if (execution.getTaskId() == null || execution.getExecutionId() == null) {
+      return;
+    }
+    executionLogStore.complete(new ExecutionKey(execution.getTaskId(), execution.getExecutionId()), ExecutionLogOrigin.SCHEDULER);
+  }
+
+  /**
+   * Log a completion summary line for the job body, inside the execution's MDC window, immediately
+   * before {@link #endLogging(TaskExecution)} clears it. Reports the outcome as known on the job
+   * thread; the execution grid remains the authoritative {@code TaskStatus} for anything decided
+   * later on the Quartz thread (timeout, cancellation).
+   *
+   * @param execution Execution that finished
+   * @param result    Job body result, or {@code null} when the job body exited through an
+   *                  unexpected exception that skipped the normal completion path
+   */
+  protected void logExecutionSummary(TaskExecution execution, ServiceData result) {
+    try {
+      int elapsedMs = (int) (System.currentTimeMillis() - execution.getInitialDate().getTime());
+      if (result == null) {
+        log.info(getLocale(SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY, TimeUtil.formatTime(elapsedMs, false)));
+        return;
+      }
+      log.info(getLocale(SCHEDULER_EXECUTION_LOG_COMPLETED,
+        String.valueOf(result.getType()), TimeUtil.formatTime(elapsedMs, false),
+        result.getMessage() == null ? "" : result.getMessage()));
+    } catch (RuntimeException exc) {
+      log.debug("[SCHEDULER][EXECUTION_LOG] Could not render the execution summary line", exc);
+    }
   }
 
   public TaskExecution startTask(Task task) throws AWException {

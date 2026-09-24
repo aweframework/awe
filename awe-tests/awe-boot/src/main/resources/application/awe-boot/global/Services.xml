@@ -450,6 +450,10 @@
     <java classname="com.almis.awe.service.DummyService" method="doNothing"/>
   </service>
 
+  <service id="executionLogCallbackTrace">
+    <java classname="com.almis.awe.service.DummyService" method="doNothing"/>
+  </service>
+
   <service id="getDataListWithOutPostProcessed">
     <java classname="com.almis.awe.service.DummyService" method="getDummyUnprocessedData"/>
   </service>
@@ -483,6 +487,11 @@
       <service-parameter name="systemTime" type="TIME"/>
       <service-parameter name="systemTimestamp" type="TIMESTAMP"/>
     </java>
+  </service>
+
+
+  <service id="slowTraceService">
+    <java classname="com.almis.awe.service.SlowTraceService" method="traceSlowly"/>
   </service>
 
 </services>

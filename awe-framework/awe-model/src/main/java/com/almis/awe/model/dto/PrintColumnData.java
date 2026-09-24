@@ -17,6 +17,8 @@ public class PrintColumnData {
   String width;
   Integer charlength;
   String align;
+  // Declared `printable` value (`true`, `false`, `excel`) or null when not set
+  String printable;
 
   // Header attributes
   boolean header = false;

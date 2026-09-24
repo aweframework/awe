@@ -32,7 +32,6 @@ import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
 
 /**
  * Abstract query builder
@@ -41,6 +40,8 @@ import java.util.regex.Matcher;
 public class QueryUtil extends ServiceConfig {
 
   private static final String EMPTY_SQL_COLLECTION_LOG = "/* empty */";
+  private static final char SQL_PLACEHOLDER = '?';
+  private static final char SQL_LITERAL_DELIMITER = '\'';
 
   // Autowired services
   private final BaseConfigProperties baseConfigProperties;
@@ -779,17 +780,39 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
-   * Retrieve full sql statement as string
+   * Retrieve full sql statement as string, replacing every parameter placeholder with its
+   * formatted value.
+   * <p>
+   * The statement is scanned once from left to right so a value already written to the output can
+   * never be mistaken for a placeholder, and question marks living inside a SQL string literal are
+   * kept as literal text instead of consuming a binding.
    *
    * @param sql        SQL Statement
    * @param parameters Parameter list
    * @return SQL statement
    */
   public String getFullSQL(String sql, List<Object> parameters) {
-    return parameters
-        .stream()
-        .map(this::formatParameter)
-        .reduce(sql, (fixed, binding) -> fixed.replaceFirst("\\?", Matcher.quoteReplacement(binding)));
+    if (sql == null) {
+      return null;
+    }
+
+    Iterator<Object> bindings = (parameters == null ? Collections.emptyList() : parameters).iterator();
+    StringBuilder fullSql = new StringBuilder(sql.length());
+    boolean insideLiteral = false;
+
+    for (int index = 0; index < sql.length(); index++) {
+      char character = sql.charAt(index);
+      if (character == SQL_LITERAL_DELIMITER) {
+        insideLiteral = !insideLiteral;
+        fullSql.append(character);
+      } else if (character == SQL_PLACEHOLDER && !insideLiteral && bindings.hasNext()) {
+        fullSql.append(formatParameter(bindings.next()));
+      } else {
+        fullSql.append(character);
+      }
+    }
+
+    return fullSql.toString();
   }
 
   /**

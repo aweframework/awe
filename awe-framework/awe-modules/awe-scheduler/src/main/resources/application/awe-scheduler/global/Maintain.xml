@@ -240,8 +240,6 @@
       <field id="IdSrv"  variable="IdSrv" />
       <field id="Pth" variable="Pth" />
       <field id="Pat" variable="Pat" />
-      <field id="SrvUsr" variable="SrvUsr"/>
-      <field id="SrvPwd" variable="SrvPwd"/>
       <variable id="IdeTskLch" type="INTEGER" name="IdeTskLch" />
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
       <variable id="RptNum" type="INTEGER" name="RptNum" />
@@ -254,8 +252,6 @@
       <variable id="IdSrv"  type="INTEGER" name="LchSrv" />
       <variable id="Pth" type="STRING" name="LchPth" />
       <variable id="Pat" type="STRING" name="LchPat" />
-      <variable id="SrvUsr" type="STRING" name="LchUsr" />
-      <variable id="SrvPwd" type="STRING_ENCRYPT" name="LchPwd" />
       <variable id="ExeYrs" type="LIST_TO_STRING" name="years" />
       <variable id="ExeMth" type="LIST_TO_STRING" name="months" />
       <variable id="ExeWek" type="LIST_TO_STRING" name="weeks" />
@@ -375,8 +371,6 @@
       <field id="IdSrv"  variable="IdSrv" />
       <field id="Pth" variable="Pth" />
       <field id="Pat" variable="Pat" />
-      <field id="SrvUsr" variable="SrvUsr" />
-      <field id="SrvPwd" variable="SrvPwd"/>
       <where>
         <and>
           <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
@@ -393,8 +387,6 @@
       <variable id="IdSrv"  type="INTEGER" name="LchSrv" />
       <variable id="Pth" type="STRING" name="LchPth" />
       <variable id="Pat" type="STRING" name="LchPat" />
-      <variable id="SrvUsr" type="STRING" name="LchUsr" />
-      <variable id="SrvPwd" type="STRING_ENCRYPT" name="LchPwd" />
       <variable id="ExeYrs" type="LIST_TO_STRING" name="years" />
       <variable id="ExeMth" type="LIST_TO_STRING" name="months" />
       <variable id="ExeWek" type="LIST_TO_STRING" name="weeks" />
@@ -961,9 +953,94 @@
 
   <target name="loadExecutionScreen">
     <serve service="loadExecutionScreen">
-      <variable id="executionLogPath" type="STRING" name="buttonValue"/>
+      <variable id="executionLogLocator" type="STRING" name="buttonValue"/>
       <variable id="address" type="OBJECT" name="buttonAddress"/>
     </serve>
+  </target>
+
+  <!-- Insert database-mode execution log window rows (dirty slots never persisted before) -->
+  <target name="insertExecutionLogLines">
+    <insert multiple="true">
+      <table id="AweSchExeLog"/>
+      <field id="IdeTsk" variable="taskId" key="true"/>
+      <field id="ExeTsk" variable="executionId" key="true"/>
+      <field id="Src" variable="origin" key="true"/>
+      <field id="Sec" variable="section" key="true"/>
+      <field id="Slt" variable="slot" key="true"/>
+      <field id="LinNum" variable="lineNumber"/>
+      <field id="LinTxt" variable="lineText"/>
+      <field id="LogDat" variable="logDate"/>
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+      <variable id="origin" type="STRING" name="origin"/>
+      <variable id="section" type="STRING" name="section"/>
+      <variable id="slot" type="INTEGER" name="slot"/>
+      <variable id="lineNumber" type="INTEGER" name="lineNumber"/>
+      <variable id="lineText" type="STRING" name="lineText"/>
+      <variable id="logDate" type="TIMESTAMP" name="logDate"/>
+    </insert>
+  </target>
+
+  <!-- Update database-mode execution log window rows (dirty slots already persisted) -->
+  <target name="updateExecutionLogLines">
+    <update multiple="true">
+      <table id="AweSchExeLog"/>
+      <field id="LinNum" variable="lineNumber"/>
+      <field id="LinTxt" variable="lineText"/>
+      <field id="LogDat" variable="logDate"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+          <filter left-field="ExeTsk" condition="eq" right-variable="executionId"/>
+          <filter left-field="Src" condition="eq" right-variable="origin"/>
+          <filter left-field="Sec" condition="eq" right-variable="section"/>
+          <filter left-field="Slt" condition="eq" right-variable="slot"/>
+        </and>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+      <variable id="origin" type="STRING" name="origin"/>
+      <variable id="section" type="STRING" name="section"/>
+      <variable id="slot" type="INTEGER" name="slot"/>
+      <variable id="lineNumber" type="INTEGER" name="lineNumber"/>
+      <variable id="lineText" type="STRING" name="lineText"/>
+      <variable id="logDate" type="TIMESTAMP" name="logDate"/>
+    </update>
+  </target>
+
+  <!-- Delete stored execution log window rows for a set of (task, execution) keys, across every
+       origin. Issued only by DatabaseExecutionLogStore: per-task purge, orphan purge. -->
+  <target name="purgeExecutionLogLines">
+    <delete multiple="true">
+      <table id="AweSchExeLog"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+          <filter left-field="ExeTsk" condition="eq" right-variable="executionId"/>
+        </and>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+    </delete>
+  </target>
+
+  <!-- Delete stored execution log window rows for a single (task, execution) key, scoped to one
+       origin only. Issued only by ExecutionLogWriter's first flush per partition, so the other
+       origin's rows for the same execution are never touched. -->
+  <target name="purgeExecutionLogOrigin">
+    <delete multiple="true">
+      <table id="AweSchExeLog"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+          <filter left-field="ExeTsk" condition="eq" right-variable="executionId"/>
+          <filter left-field="Src" condition="eq" right-variable="origin"/>
+        </and>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+      <variable id="origin" type="STRING" name="origin"/>
+    </delete>
   </target>
 
   <target name="reloadExecutionScreen">
@@ -989,6 +1066,33 @@
     <serve service="reportSchedulerTaskFinished">
       <variable id="task" type="OBJECT" name="task"/>
       <variable id="taskExecution" type="OBJECT" name="taskExecution"/>
+    </serve>
+  </target>
+
+  <!-- Test a server connection with the current form values of the new/update
+       server screens. Runs no query or maintain: nothing is persisted. IdeSrv is
+       only present on the update screen, where blank secrets mean "keep the
+       stored value" and are resolved against the stored server. -->
+  <target name="ChkSchSrvCnx">
+    <serve service="checkServerConnection">
+      <variable id="type" type="STRING" name="Pro"/>
+      <variable id="host" type="STRING" name="Hst"/>
+      <variable id="port" type="INTEGER" name="Prt"/>
+      <variable id="user" type="STRING" name="SshUsr"/>
+      <variable id="password" type="STRING" name="SshPwd"/>
+      <variable id="key" type="STRING" name="SshKey"/>
+      <variable id="keyPassphrase" type="STRING" name="SshKeyPass"/>
+      <variable id="serverId" type="INTEGER" name="IdeSrv"/>
+    </serve>
+  </target>
+
+  <!-- Test the connection of the server selected on the servers list screen.
+       The grid carries no port or credentials, so only the selected row id is
+       sent and the service loads the whole stored record. Runs no query or
+       maintain: nothing is persisted. -->
+  <target name="ChkSchSrvCnxSel">
+    <serve service="checkServerConnection">
+      <variable id="serverId" type="INTEGER" name="Ide.selected"/>
     </serve>
   </target>
 
