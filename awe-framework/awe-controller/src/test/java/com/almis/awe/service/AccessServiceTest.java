@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,6 +43,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.almis.awe.model.constant.AweConstants.*;
@@ -382,7 +384,7 @@ class AccessServiceTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
     when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName(DUMMY_PROFILE));
-    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(DUMMY_PROFILE);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of(DUMMY_PROFILE));
     when(menuService.getMenu()).thenReturn(mockMenu);
     // Then
     String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
@@ -407,7 +409,7 @@ class AccessServiceTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
     when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName(DUMMY_PROFILE));
-    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn("newRole");
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("newRole"));
     when(aweUserDetailService.existRole(any())).thenReturn(true);
     when(menuService.getMenu()).thenReturn(mockMenu);
     // Then
@@ -415,6 +417,141 @@ class AccessServiceTest {
     //Asserts
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     verify(maintainService, times(1)).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    assertNotNull(initialUrl);
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingUser_noRoleFromProvider_flagFalse_keepsDbProfile() throws AWException {
+    // Given - property is false by default, provider sends no role matching the prefix
+    assertFalse(new SecurityConfigProperties.Sso().isOverwriteProfileWithDefaultRole(),
+      "awe.security.sso.overwrite-profile-with-default-role must default to false");
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    final String DB_PROFILE = "MANUAL_PROFILE";
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+
+    // When
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    AweUserDetails dbUserDetails = new AweUserDetails().setProfileName(DB_PROFILE);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(dbUserDetails);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+
+    // Asserts - profile is kept, no maintain launched
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).existRole(anyString());
+    assertEquals(DB_PROFILE, dbUserDetails.getProfileName());
+    verify(aweSessionDetails, times(1)).onLoginSuccess(dbUserDetails);
+    verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
+    assertNotNull(initialUrl);
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingUser_noRoleFromProvider_flagTrue_updatesWithDefaultRole() throws AWException {
+    // Given - flag enabled restores the previous behaviour: default role overwrites the stored profile
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    final String DB_PROFILE = "MANUAL_PROFILE";
+    final String DEFAULT_ROLE = "operator";
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+
+    // When
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    ssoConfig.setOverwriteProfileWithDefaultRole(true);
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName(DB_PROFILE));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+    when(baseConfigProperties.getDefaultRole()).thenReturn(DEFAULT_ROLE);
+    when(aweUserDetailService.existRole(DEFAULT_ROLE)).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+
+    // Asserts - maintain launched with the default role for this user
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService, times(1)).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), parameters.capture());
+    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asText());
+    assertEquals("foo@acme.com", parameters.getValue().get(USERNAME).asText());
+    verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
+    assertNotNull(initialUrl);
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingUser_noRoleFromProvider_flagTrue_profileAlreadyDefault_noUpdate() throws AWException {
+    // Given - flag enabled but the stored profile already is the default role: nothing to synchronize
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    final String DEFAULT_ROLE = "operator";
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+
+    // When
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    ssoConfig.setOverwriteProfileWithDefaultRole(true);
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName(DEFAULT_ROLE.toUpperCase()));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+    when(baseConfigProperties.getDefaultRole()).thenReturn(DEFAULT_ROLE);
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+
+    // Asserts - profile unchanged (case-insensitive match), no maintain launched
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    assertNotNull(initialUrl);
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_newUser_noRoleFromProvider_provisionsWithProfileFromLoadUserByRole() throws AWException {
+    // Given - new user (not found in DB) and provider sends no role: provisioning still runs and uses
+    // the profile resolved by loadUserByRole. The default role fallback itself is covered by
+    // AweUserDetailServiceTest#givenNoAuthorities_loadUserByRole_usesDefaultRole
+    final String DEFAULT_ROLE = "operator";
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
+    aweUserDetails.setEmail("foo@acme.com").setProfileName(DEFAULT_ROLE).setProfile(DEFAULT_ROLE);
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+
+    // When
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenThrow(UsernameNotFoundException.class);
+    when(aweUserDetailService.loadUserByRole(oAuth2AuthenticationToken)).thenReturn(aweUserDetails);
+    when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+    when(menuService.getMenu()).thenReturn(mockMenu);
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
+
+    // Then
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+
+    // Asserts - new user provisioned with the profile coming from loadUserByRole
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService, times(1)).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), parameters.capture());
+    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asText());
+    verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
   }
 
@@ -435,7 +572,7 @@ class AccessServiceTest {
     when(aweUserDetailService.loadUserByUsername(anyString())).thenThrow(UsernameNotFoundException.class);
     when(aweUserDetailService.loadUserByRole(oAuth2AuthenticationToken)).thenReturn(aweUserDetails);
     when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
-    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(DUMMY_PROFILE);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of(DUMMY_PROFILE));
     when(menuService.getMenu()).thenReturn(mockMenu);
     when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
     // Then
@@ -514,7 +651,7 @@ class AccessServiceTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
     when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName(EXISTING_PROFILE));
-    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(NEW_PROFILE);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of(NEW_PROFILE));
     when(aweUserDetailService.existRole(NEW_PROFILE)).thenReturn(false); // Role doesn't exist
     when(menuService.getMenu()).thenReturn(mockMenu);
 
@@ -546,7 +683,7 @@ class AccessServiceTest {
     when(aweUserDetailService.loadUserByUsername(anyString())).thenThrow(UsernameNotFoundException.class);
     when(aweUserDetailService.loadUserByRole(oAuth2AuthenticationToken)).thenReturn(aweUserDetails);
     when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
-    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(DUMMY_PROFILE);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of(DUMMY_PROFILE));
     when(menuService.getMenu()).thenReturn(mockMenu);
 
     // Then
