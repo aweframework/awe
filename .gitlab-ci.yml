@@ -104,11 +104,22 @@ stages:
 
 Build project:
   extends: .build
+  # Keep the cache small: drop the awe-boot fat jar (~250MB per version) and stale AWE snapshots
+  # before the cache is archived. Otherwise it grows on every release until the runner runs out of disk.
+  after_script:
+    - version=$(sed -n 's/^PROJECT_VERSION=//p' build.env 2>/dev/null)
+    - rm -rf .m2/repository/com/almis/awe/awe-boot
+    - >-
+      if [ -n "$version" ]; then
+      find .m2/repository/com/almis/awe -mindepth 2 -maxdepth 2 -type d -name '*-SNAPSHOT' ! -name "$version"
+      -exec rm -rf {} +; fi
   artifacts:
     reports:
       dotenv: build.env
     paths:
       - awe-tests/awe-boot/target/awe-boot.jar
+      # AWE modules installed by this build, consumed by the browser testing jobs
+      - .m2/repository/com/almis/awe/
     expire_in: 1 day
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
@@ -325,9 +336,10 @@ Javadoc test:
     SCREEN_WIDTH: 1440
     SCREEN_HEIGHT: 1080
     FF_NETWORK_PER_BUILD: "true"
+  # Artifacts provide the AWE snapshot modules built in this pipeline, independently of the cache state
   needs:
     - job: Build project
-      artifacts: false
+      artifacts: true
   # Important! Print/PDF IT tests render server-side and need system fonts.
   # eclipse-temurin is a minimal image, so install fontconfig + fonts here.
   before_script:
