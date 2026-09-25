@@ -743,8 +743,8 @@ CREATE TABLE AweSchCal
     Des  VARCHAR(250)  not NULL,
     Act  INT DEFAULT 1 not NULL,
     Nom  VARCHAR(100)  not NULL,
-    db   VARCHAR(200)  not NULL,
-    site VARCHAR(200)  not NULL
+    db   VARCHAR(200),
+    site VARCHAR(200)
 );
 
 --------------------------------------------------------
@@ -983,8 +983,8 @@ CREATE TABLE HISAweSchTsk
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
     CmdExePth VARCHAR(200),
-    db        VARCHAR(200) not NULL,
-    site      VARCHAR(200) not NULL
+    db        VARCHAR(200),
+    site      VARCHAR(200)
 );
 
 CREATE TABLE HISAweSchTskLch
