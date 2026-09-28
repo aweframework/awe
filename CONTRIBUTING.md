@@ -41,6 +41,10 @@ Fixes for the 4.x line are never hotfix branches against `master`; they are regu
 requests into `support/4.x`, based on `support/4.x` and following the same review and
 testing rules as any other merge request.
 
+Documentation for the 4.x line is edited only on `support/4.x`; it is published
+automatically as the "4.x (maintenance)" version on the site after the next `develop`
+pipeline runs (see [Documentation per line](website/docs/guides/release-lines-and-support.md#documentation-per-line)).
+
 ### Backport policy
 
 A fix that affects both the current line and a support branch is born on the **oldest

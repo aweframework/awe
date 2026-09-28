@@ -1,3 +1,22 @@
+const versions = require('./versions.json');
+
+// "current" (develop, 5.0) is always present. A maintenance-line entry (e.g. "4.x") is
+// only present in versions.json inside a CI checkout, after bin/website-maintenance-docs.sh
+// has injected it -- local/MR builds without that injection must still configure and build.
+const docVersions = {
+	current: {
+		label: 'Next (5.0)',
+	},
+};
+for (const version of versions) {
+	if (/^\d+\.x$/.test(version)) {
+		docVersions[version] = {
+			label: `${version} (maintenance)`,
+			banner: 'none',
+		};
+	}
+}
+
 module.exports = {
 	title: 'Awe framework',
 	tagline: 'Low coding complete functional web applications',
@@ -141,11 +160,22 @@ module.exports = {
 			{
 				docs: {
 					sidebarPath: require.resolve('./sidebars.js'),
-					// Please change this to your repo.
-					editUrl: 'https://gitlab.com/aweframework/awe/edit/master/website/',
+					// Per-version edit link: current -> develop, a maintenance line (e.g. "4.x")
+					// -> its own support/<version> branch, any other (frozen) version -> master.
+					editUrl: ({ version, docPath }) => {
+						if (version === 'current') {
+							return `https://gitlab.com/aweframework/awe/edit/develop/website/docs/${docPath}`;
+						}
+						if (/^\d+\.x$/.test(version)) {
+							return `https://gitlab.com/aweframework/awe/edit/support/${version}/website/docs/${docPath}`;
+						}
+						return `https://gitlab.com/aweframework/awe/edit/master/website/versioned_docs/version-${version}/${docPath}`;
+					},
 					includeCurrentVersion: true,
 					showLastUpdateTime: true,
 					showLastUpdateAuthor: true,
+					lastVersion: 'current',
+					versions: docVersions,
 				},
 				blog: {
 					showReadingTime: true,

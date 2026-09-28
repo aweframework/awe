@@ -21,3 +21,18 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Maintenance-line docs injected at build time by bin/website-maintenance-docs.sh:
+# a live versioned snapshot of a support/*.x branch (e.g. "4.x"), regenerated on every
+# website build and never committed.
+/versioned_docs/version-*.x/
+/versioned_sidebars/version-*.x-sidebars.json
+
+# Backups of develop's docs/sidebars.js while bin/website-maintenance-docs.sh has the
+# maintenance branch's docs swapped in; always removed again by that script's own cleanup.
+/.docs-current/
+/.sidebars-current.js
+
+# versions.json is only ever modified inside a CI checkout, by bin/website-maintenance-docs.sh,
+# to temporarily prepend a maintenance-line label (e.g. "4.x"). It must never be committed
+# with such an entry present.

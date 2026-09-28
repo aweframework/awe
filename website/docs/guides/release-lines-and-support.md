@@ -133,13 +133,21 @@ line: always pin an explicit version or, deliberately, one of these floating ali
 
 `bin/docusaurus.sh` cuts a versioned documentation snapshot (via
 `yarn docusaurus docs:version`) only for minor or major releases (versions ending in
-`.0`), on whichever branch the release runs from. A `4.13.0` release on `support/4.x`
-would therefore create a `version-4.13.0` docs snapshot on that branch.
+`.0`) on `develop`/`master`; it is a no-op on a `support/*` branch, since the
+maintenance line publishes its docs live instead (see below). Frozen snapshots already
+cut before a line moved to maintenance (`4.8.0` through `4.12.0`) stay in
+`versioned_docs/` as read-only history.
 
-Publishing those per-line docs to the public site is out of scope for this change: the
-GitLab Pages job only ever publishes from `develop`/`master`, and the docs site has a
-single root, so a versioned 4.x snapshot is not yet reachable online. This is tracked as
-a follow-up in issues #784 and #785.
+The `4.x` maintenance line is published as a live "4.x (maintenance)" version, built
+directly from `support/4.x` on every `develop`/`master` website build. `bin/website-
+maintenance-docs.sh` fetches `support/4.x`, snapshots its `website/docs` and
+`website/sidebars.js` with Docusaurus' own `docs:version` tooling, and restores
+`develop`'s docs before the site builds; nothing from this injection is ever committed.
+A documentation change for the 4.x line is therefore made **once**, in a merge request
+against `support/4.x`, and appears on the public site automatically after the next
+`develop` pipeline runs, without any change on `develop` itself (see issue #787).
+Crowdin also receives the `support/4.x` sources for translation, the same way it
+receives `develop`'s.
 
 ## Support window (proposed)
 

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Maintenance lines (support/*) publish their docs live via bin/website-maintenance-docs.sh
+# on every develop/master website build; they never cut a versioned snapshot themselves.
+CURRENT_BRANCH="${CI_COMMIT_REF_NAME:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)}"
+if [[ "${CURRENT_BRANCH}" == support/* ]]; then
+    echo "maintenance line: the live ${CURRENT_BRANCH#support/} version is published from the branch itself; skipping documentation snapshot"
+    exit 0
+fi
+
 # Get version number
 NEW_VERSION=$(cat ./pom.xml | grep -o '<version>[0-9\.]*[A-Z\-]*</version>' | sed -e 's/<[\/]*version>//g' | sed 's/\n/ /g' | sed 's/[A-Z\-]*//g' | awk '{printf $1}')
 export NEW_VERSION
