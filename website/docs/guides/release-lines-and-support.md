@@ -58,6 +58,20 @@ from `develop`/`master`.
 Tag pipeline jobs are branch-agnostic: they read the version from `$CI_COMMIT_TAG`, so
 they behave the same whether the tag came from `develop` or from `support/4.x`.
 
+Merge-request pipelines are selective: jobs are added according to the paths the merge
+request touches. A change limited to `website/` builds only the documentation site; a change
+limited to `awe-framework/awe-client-angular/` runs the frontend unit tests, the Selenium
+suites, Sonar and dependency scanning but not the database matrix; a backend change runs
+the build, the database matrix, the Selenium suites, Sonar, dependency scanning and the
+javadoc check, but neither the frontend unit tests nor the documentation build. A change to
+`.gitlab-ci.yml` counts as touching everything; a change to the root `pom.xml` counts as a
+backend change. Branch pipelines on `develop`, `master` and `support/*` always run the
+complete set. Merge-request pipelines are interruptible, so a new
+push cancels the superseded pipeline automatically; pipelines on protected branches are not
+cancelled. Database and browser jobs are generated from `parallel:matrix` definitions
+(`Embedded DB Tests`, one job per database engine with and without Flyway, `Firefox IT` and
+`Chrome IT` per suite), and every job has a timeout of roughly twice its observed duration.
+
 Support branches must be **protected branches** in GitLab (the pattern `support/*` is
 protected with the same policy as `develop`). The credentials used by `Build package`
 (Docker Hub), `Deploy snapshot` (Maven repository) and the release job (API token, GPG

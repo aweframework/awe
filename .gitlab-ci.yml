@@ -7,6 +7,19 @@ include:
   - template: DAST.gitlab-ci.yml
   - template: Dependency-Scanning.gitlab-ci.yml
 
+workflow:
+  auto_cancel:
+    on_new_commit: interruptible
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+      auto_cancel:
+        on_new_commit: none
+    - when: always
+
+default:
+  interruptible: true
+  timeout: 30m
+
 image: maven:3.9-eclipse-temurin-21
 
 variables:
@@ -36,6 +49,8 @@ variables:
 cache:
   - key: ${CI_COMMIT_REF_SLUG}
     policy: pull
+    fallback_keys:
+      - develop
     paths:
       - .m2/repository/
 
@@ -80,25 +95,86 @@ stages:
 .if-tag: &if-tag
   if: '$CI_COMMIT_TAG'
 
+# Path selection for merge-request pipelines only: rules:changes is only reliable when compared
+# against the MR target branch. Branch pipelines (develop/master/support/*) always run the full
+# set through .if-branches below, regardless of what changed.
+.paths-backend: &paths-backend
+  - .gitlab-ci.yml
+  - pom.xml
+  - .m2/**
+  - awe-framework/pom.xml
+  - awe-framework/awe-dependencies/**
+  - awe-framework/awe-model/**
+  - awe-framework/awe-generic-screens/**
+  - awe-framework/awe-controller/**
+  - awe-framework/awe-testing/**
+  - awe-framework/awe-modules/**
+  - awe-framework/awe-starters/**
+  - awe-framework/awe-boot-angular-archetype/**
+  - awe-framework/awe-boot-react-archetype/**
+  - awe-tests/**
+  - awe-samples/**
+.paths-frontend: &paths-frontend
+  - .gitlab-ci.yml
+  - awe-framework/awe-client-angular/**
+.paths-website: &paths-website
+  - .gitlab-ci.yml
+  - website/**
+  - bin/website-maintenance-docs.sh
+
+.if-mr-backend: &if-mr-backend
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-backend
+.if-mr-frontend: &if-mr-frontend
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-frontend
+.paths-code: &paths-code             # backend or frontend: the whole Maven reactor
+  - .gitlab-ci.yml
+  - pom.xml
+  - .m2/**
+  - awe-framework/**
+  - awe-tests/**
+  - awe-samples/**
+.if-mr-code: &if-mr-code
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-code
+.if-mr-website: &if-mr-website
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-website
+.if-branches: &if-branches           # develop, master, support/*: always complete
+  if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//'
+
 ##############################
 # Build stage
 ##############################
 
 .build:
   stage: build
+  needs: [ ]
+  timeout: 20m
   script:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - echo "PROJECT_VERSION=$version" >> build.env
   rules:
-    - <<: *if-default
+    - <<: *if-mr-code
+    - <<: *if-branches
 
 .build-website:
   image: registry.gitlab.com/aweframework/docker-tools/website-build:latest
   stage: build
+  needs: [ ]
+  timeout: 20m
+  variables:
+    npm_config_cache: "$CI_PROJECT_DIR/website/.npm"
   script:
     - npm --prefix website ci
-  cache: { }
+  cache:
+    key: website-npm-${CI_COMMIT_REF_SLUG}
+    fallback_keys:
+      - website-npm-develop
+    paths:
+      - website/.npm
   artifacts:
     paths:
       - website/build
@@ -126,6 +202,8 @@ Build project:
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
       policy: pull-push
+      fallback_keys:
+        - develop
       paths:
         - .m2/repository/
 
@@ -145,10 +223,11 @@ Build website:
     - ./bin/website-maintenance-docs.sh
     - npm --prefix website run build
   rules:
-    - <<: *if-merge-request
+    - <<: *if-mr-website
 
 Build website with i18n:
   extends: .build-website
+  interruptible: false
   script:
     - npm --prefix website ci
     # Inject the live 4.x maintenance-line docs (support/4.x) as a versioned snapshot before
@@ -172,6 +251,7 @@ Build website with i18n:
 .unit-testing:
   stage: test
   allow_failure: false
+  timeout: 20m
   needs:
     - job: Build project
       artifacts: false
@@ -180,7 +260,8 @@ Build website with i18n:
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false
   rules:
-    - <<: *if-default
+    - <<: *if-mr-backend
+    - <<: *if-branches
   artifacts:
     paths:
       - "**/target/*.exec"
@@ -197,70 +278,22 @@ All UT:
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec
 
-HSQL Flyway Test:
+Embedded DB Tests:
   extends: .unit-testing
-  variables:
-    TEST_NAME: hsql-flyway
-
-H2 Flyway Test:
-  extends: .unit-testing
-  variables:
-    TEST_NAME: h2-flyway
-
-H2 Tests:
-  extends: .unit-testing
-  variables:
-    TEST_NAME: h2
-
-Oracle Flyway Test:
-  extends: .unit-testing
-  services:
-    - name: epiclabs/docker-oracle-xe-11g
-      alias: oracle
-  variables:
-    ORACLE_ALLOW_REMOTE: "true"
-    ORACLE_PASSWORD: "$DATABASE_PASSWORD"
-    RELAX_SECURITY: "1"
-    TEST_NAME: oracle-flyway
-
-Oracle Tests:
-  extends: .unit-testing
-  services:
-    - epiclabs/docker-oracle-xe-11g
-  variables:
-    ORACLE_ALLOW_REMOTE: "true"
-    ORACLE_PASSWORD: "$DATABASE_PASSWORD"
-    RELAX_SECURITY: "1"
-    TEST_NAME: oracle
-
-MySQL Flyway Test:
-  extends: .unit-testing
-  variables:
-    MYSQL_DATABASE: "awetestdb"
-    MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_NAME: mysql-flyway
-  services:
-    - mysql
+  parallel:
+    matrix:
+      - TEST_NAME: [ h2, h2-flyway, hsql-flyway ]
 
 MySQL Tests:
   extends: .unit-testing
   variables:
     MYSQL_DATABASE: "awetestdb"
     MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_NAME: mysql
   services:
     - mysql
-
-PostgreSQL Flyway Test:
-  extends: .unit-testing
-  variables:
-    POSTGRES_DB: "awetestdb"
-    POSTGRES_USER: "postgres"
-    POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_NAME: postgresql-flyway
-  services:
-    - name: postgres:17
-      alias: postgres
+  parallel:
+    matrix:
+      - TEST_NAME: [ mysql, mysql-flyway ]
 
 PostgreSQL Tests:
   extends: .unit-testing
@@ -268,23 +301,25 @@ PostgreSQL Tests:
     POSTGRES_DB: "awetestdb"
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_NAME: postgresql
   services:
     - name: postgres:17
       alias: postgres
+  parallel:
+    matrix:
+      - TEST_NAME: [ postgresql, postgresql-flyway ]
 
-SQL Server Flyway Test:
+Oracle Tests:
   extends: .unit-testing
-  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest
   variables:
-    ACCEPT_EULA: Y
-    SA_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_NAME: sqlserver-flyway
-  before_script:
-    - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
+    ORACLE_ALLOW_REMOTE: "true"
+    ORACLE_PASSWORD: "$DATABASE_PASSWORD"
+    RELAX_SECURITY: "1"
   services:
-    - name: mcr.microsoft.com/mssql/server:2019-latest
-      alias: mssqlserver
+    - name: epiclabs/docker-oracle-xe-11g
+      alias: oracle
+  parallel:
+    matrix:
+      - TEST_NAME: [ oracle, oracle-flyway ]
 
 SQL Server Tests:
   extends: .unit-testing
@@ -292,18 +327,24 @@ SQL Server Tests:
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
-    TEST_NAME: sqlserver
   before_script:
     - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
     - name: mcr.microsoft.com/mssql/server:2019-latest
       alias: mssqlserver
+  parallel:
+    matrix:
+      - TEST_NAME: [ sqlserver, sqlserver-flyway ]
 
 Frontend UT:
   stage: test
   image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest
   needs: [ ]
   cache: { }
+  timeout: 15m
+  variables:
+    BABEL_ENV: test
+    NODE_ENV: test
   script:
     - mvn -f awe-framework/awe-client-angular/pom.xml $MAVEN_CLI_OPTS test
   artifacts:
@@ -314,14 +355,12 @@ Frontend UT:
       junit:
         - awe-framework/awe-client-angular/target/reports/jest/junit/*.xml
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "develop" || $CI_MERGE_REQUEST_IID'
-      variables:
-        BABEL_ENV: test
-        NODE_ENV: test
-    - <<: *if-default
+    - <<: *if-mr-frontend
+    - <<: *if-branches
 
 Javadoc test:
   stage: test
+  timeout: 20m
   needs:
     - job: Build project
       artifacts: false
@@ -332,7 +371,7 @@ Javadoc test:
       - awe-framework/target/site/apidocs
     expire_in: 1 day
   rules:
-    - <<: *if-merge-request
+    - <<: *if-mr-backend
 
 ##############################
 # Integration testing stage
@@ -343,6 +382,7 @@ Javadoc test:
   image: maven:3.9-eclipse-temurin-21
   stage: integration test
   allow_failure: true
+  timeout: 30m
   variables:
     SCREEN_WIDTH: 1440
     SCREEN_HEIGHT: 1080
@@ -371,7 +411,8 @@ Javadoc test:
         - awe-tests/awe-boot/target/surefire-reports/TEST-*.xml
     when: always
   rules:
-    - <<: *if-default
+    - <<: *if-mr-code
+    - <<: *if-branches
 
 .firefox-testing:
   extends: .browser-testing
@@ -393,67 +434,49 @@ Javadoc test:
   variables:
     BROWSER: service-chrome
 
-Firefox IT Application and Integration:
+Firefox IT:
   extends: .firefox-testing
-  variables:
-    TEST_NAME: firefox-application-integration
-    TEST_TAGS: ApplicationIntegrationIT
-    TEST_PORT: 6301
+  parallel:
+    matrix:
+      - TEST_TAGS: ApplicationIntegrationIT
+        TEST_PORT: "6301"
+        TEST_NAME: firefox-application-integration
+      - TEST_TAGS: CRUDCriteriaMatrixIT
+        TEST_PORT: "6302"
+        TEST_NAME: firefox-crud-criteria-matrix
+      - TEST_TAGS: RegressionWebsocketPrintIT
+        TEST_PORT: "6303"
+        TEST_NAME: firefox-regression-websocket-print
+      - TEST_TAGS: SchedulerIT
+        TEST_PORT: "6304"
+        TEST_NAME: firefox-scheduler
 
-Firefox IT CRUD Criteria and Matrix:
-  extends: .firefox-testing
-  variables:
-    TEST_NAME: firefox-crud-criteria-matrix
-    TEST_TAGS: CRUDCriteriaMatrixIT
-    TEST_PORT: 6302
-
-Firefox IT Regression Websocket and Print:
-  extends: .firefox-testing
-  variables:
-    TEST_NAME: firefox-regression-websocket-print
-    TEST_TAGS: RegressionWebsocketPrintIT
-    TEST_PORT: 6303
-
-Firefox IT Scheduler:
-  extends: .firefox-testing
-  variables:
-    TEST_NAME: firefox-scheduler
-    TEST_TAGS: SchedulerIT
-    TEST_PORT: 6304
-
-Chrome IT Application and Integration:
+Chrome IT:
   extends: .chrome-testing
-  variables:
-    TEST_NAME: chrome-application-integration
-    TEST_TAGS: ApplicationIntegrationIT
-    TEST_PORT: 6305
-
-Chrome IT CRUD Criteria and Matrix:
-  extends: .chrome-testing
-  variables:
-    TEST_NAME: chrome-crud-criteria-matrix
-    TEST_TAGS: CRUDCriteriaMatrixIT
-    TEST_PORT: 6306
-
-Chrome IT Regression Websocket and Print:
-  extends: .chrome-testing
-  variables:
-    TEST_NAME: chrome-regression-websocket-print
-    TEST_TAGS: RegressionWebsocketPrintIT
-    TEST_PORT: 6307
-
-Chrome IT Scheduler:
-  extends: .chrome-testing
-  variables:
-    TEST_NAME: chrome-scheduler
-    TEST_TAGS: SchedulerIT
-    TEST_PORT: 6308
+  parallel:
+    matrix:
+      - TEST_TAGS: ApplicationIntegrationIT
+        TEST_PORT: "6305"
+        TEST_NAME: chrome-application-integration
+      - TEST_TAGS: CRUDCriteriaMatrixIT
+        TEST_PORT: "6306"
+        TEST_NAME: chrome-crud-criteria-matrix
+      - TEST_TAGS: RegressionWebsocketPrintIT
+        TEST_PORT: "6307"
+        TEST_NAME: chrome-regression-websocket-print
+      - TEST_TAGS: SchedulerIT
+        TEST_PORT: "6308"
+        TEST_NAME: chrome-scheduler
 
 gemnasium-maven-dependency_scanning:
   stage: test
+  timeout: 15m
   rules:
-    - <<: *if-default
+    - <<: *if-mr-code
+    - <<: *if-branches
   dependencies: ["Build project"]
+  needs:
+    - job: Build project
   variables:
     MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
 
@@ -464,25 +487,26 @@ gemnasium-maven-dependency_scanning:
 Launch Sonar:
   image: registry.gitlab.com/aweframework/docker-tools/sonar:latest
   stage: analysis
+  timeout: 20m
+  # Some needs are optional: a merge-request pipeline may run Sonar (backend or frontend changed)
+  # without running the narrower backend-only or frontend-only job groups.
   needs:
     - job: All UT
-    - job: Oracle Tests
-    - job: Oracle Flyway Test
-    - job: SQL Server Tests
-    - job: SQL Server Flyway Test
+      optional: true
+    - job: Embedded DB Tests
+      optional: true
     - job: MySQL Tests
-    - job: MySQL Flyway Test
+      optional: true
     - job: PostgreSQL Tests
-    - job: PostgreSQL Flyway Test
+      optional: true
+    - job: Oracle Tests
+      optional: true
+    - job: SQL Server Tests
+      optional: true
     - job: Frontend UT
-    - job: Firefox IT Application and Integration
-    - job: Firefox IT CRUD Criteria and Matrix
-    - job: Firefox IT Regression Websocket and Print
-    - job: Firefox IT Scheduler
-    - job: Chrome IT Application and Integration
-    - job: Chrome IT CRUD Criteria and Matrix
-    - job: Chrome IT Regression Websocket and Print
-    - job: Chrome IT Scheduler
+      optional: true
+    - job: Firefox IT
+    - job: Chrome IT
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
       policy: pull
@@ -502,7 +526,8 @@ Launch Sonar:
       - awe-tests/awe-boot/target/coverage-reports/
     expire_in: 1 week
   rules:
-    - <<: *if-default
+    - <<: *if-mr-code
+    - <<: *if-branches
 
 ##############################
 # Site stage
@@ -511,6 +536,7 @@ Launch Sonar:
 Generate javadoc & schemas:
   stage: site
   needs: [ ]
+  timeout: 20m
   script:
     - mvn $MAVEN_CLI_OPTS install site javadoc:aggregate $SKIP_TESTS -Darchetype.test.skip=true -Dskip.javadoc=false -Dskip.main=true -Dskip.frontend=true -Dbuild.environment=production -f awe-framework/pom.xml
   artifacts:
@@ -531,6 +557,8 @@ Build package:
   image: docker:latest
   stage: package
   cache: { }
+  interruptible: false
+  timeout: 15m
   needs:
     - job: Build project
     - job: Launch Sonar
@@ -576,6 +604,8 @@ Build package:
 
 Deploy snapshot:
   stage: deploy
+  interruptible: false
+  timeout: 20m
   needs:
     - job: Launch Sonar
   script:
@@ -587,6 +617,9 @@ Deploy snapshot:
 Deploy Maven Central:
   stage: deploy
   image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
+  interruptible: false
+  timeout: 1h
+  needs: [ ]
   before_script:
     ## Add gpg key to sign
     - gpg --batch --import <(echo "$GPG_PRIVATE_KEY")
@@ -599,6 +632,8 @@ Deploy Maven Central:
 .k8s_deploy:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   cache: { }
+  interruptible: false
+  timeout: 15m
   variables:
     GIT_STRATEGY: none
   needs:
@@ -641,6 +676,8 @@ Deploy production:
     - <<: *if-master
 
 dast:
+  interruptible: false
+  timeout: 15m
   script:
     - export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}
     - if [ -z "$DAST_WEBSITE$DAST_API_SPECIFICATION" ]; then echo "Either DAST_WEBSITE or DAST_API_SPECIFICATION must be set. See https://docs.gitlab.com/ee/user/application_security/dast/#configuration for more details." && exit 1; fi
@@ -655,6 +692,8 @@ pages:
   image: docker:latest
   stage: deploy
   cache: { }
+  interruptible: false
+  timeout: 15m
   needs:
     - job: Generate javadoc & schemas
     - job: Build website with i18n
@@ -676,7 +715,9 @@ pages:
 Generate release notes:
   image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
   cache: { }
+  interruptible: false
   dependencies: [ ]
+  needs: [ ]
   stage: deploy
   script:
     - ./bin/release_notes.sh $API_URL $API_TOKEN "$CI_PROJECT_TITLE"
@@ -694,6 +735,8 @@ Generate release notes:
 Generate a new milestone:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
+  interruptible: false
+  needs: [ ]
   script:
     ## Generate milestones from the version being tagged, without checking out develop
     ## (a develop checkout would read the wrong version once develop moves to 5.0.0-SNAPSHOT).
@@ -707,7 +750,17 @@ Generate a new milestone:
 Start a new release:
   image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
   cache: { }
+  interruptible: false
+  timeout: 1h
   dependencies: [ ]
+  # Release gate: the manual job only becomes available once analysis, packaging and the
+  # snapshot deploy of this commit have succeeded (what the stage order guaranteed before).
+  needs:
+    - job: Launch Sonar
+      artifacts: false
+    - job: Build package
+      artifacts: false
+    - job: Deploy snapshot
   stage: release
   <<: *git_credentials
   script:
@@ -746,6 +799,11 @@ Start a new release:
 Notify new release:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
+  interruptible: false
+  # Only announce a release whose artifacts and GitLab release actually exist.
+  needs:
+    - job: Deploy Maven Central
+    - job: Generate gitlab release
   script:
     ## Generate milestone
     - chmod +x ./bin/sendmail.sh
@@ -758,6 +816,7 @@ Notify new release:
 Generate gitlab release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  interruptible: false
   needs:
     - job: Generate release notes
       artifacts: true
