@@ -43,14 +43,20 @@ api_put() {
 }
 
 # ============================================================
-# Obtener versión desde pom.xml
+# Obtener versión: usa RELEASE_VERSION (env var) si está definida, en otro caso
+# se parsea desde pom.xml. RELEASE_VERSION permite pasar la versión derivada de
+# $CI_COMMIT_TAG en un pipeline de tag sin depender del pom.xml del checkout actual.
 # ============================================================
-NEW_VERSION=$(grep -o '<version>[0-9\.]*[A-Z\-]*</version>' pom.xml \
-  | sed -e 's/<[\/]*version>//g' \
-  | sed 's/[A-Z\-]*//g' \
-  | head -n1)
-
-echo "Detected version: $NEW_VERSION"
+if [[ -n "${RELEASE_VERSION:-}" ]]; then
+  NEW_VERSION="${RELEASE_VERSION}"
+  echo "Using version from RELEASE_VERSION: $NEW_VERSION"
+else
+  NEW_VERSION=$(grep -o '<version>[0-9\.]*[A-Z\-]*</version>' pom.xml \
+    | sed -e 's/<[\/]*version>//g' \
+    | sed 's/[A-Z\-]*//g' \
+    | head -n1)
+  echo "Detected version: $NEW_VERSION"
+fi
 
 # ============================================================
 # Calcular siguiente versión (bugfix)
