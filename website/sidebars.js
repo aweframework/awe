@@ -81,6 +81,7 @@ module.exports = {
 				"guides/default-screens",
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
+				"guides/release-lines-and-support",
 			],
 		},
 		{

@@ -68,11 +68,13 @@ stages:
 ##############################
 
 .if-default: &if-default
-  if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_MERGE_REQUEST_IID'
+  if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\// || $CI_MERGE_REQUEST_IID'
 .if-master: &if-master
   if: '$CI_COMMIT_REF_NAME == "master"'
 .if-develop: &if-develop
   if: '$CI_COMMIT_REF_NAME == "develop"'
+.if-support: &if-support
+  if: '$CI_COMMIT_REF_NAME =~ /^support\//'
 .if-merge-request: &if-merge-request
   if: '$CI_MERGE_REQUEST_IID'
 .if-tag: &if-tag
@@ -149,6 +151,7 @@ Build website with i18n:
     - npm --prefix website run crowdin:sync
     - npm --prefix website run build
   resource_group: crowdin
+  # Support branches are intentionally excluded: no Crowdin sync for maintenance lines.
   rules:
     - <<: *if-develop
     - <<: *if-master
@@ -481,7 +484,10 @@ Launch Sonar:
       paths:
         - .sonar/cache
   script:
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS
+    # SonarCloud rejects branch parameters on merge request analyses, so only set sonar.branch.name outside MRs.
+    - SONAR_BRANCH_OPTS=""
+    - if [ -z "$CI_MERGE_REQUEST_IID" ]; then SONAR_BRANCH_OPTS="-Dsonar.branch.name=$CI_COMMIT_REF_NAME"; fi
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS $SONAR_BRANCH_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:
@@ -507,6 +513,7 @@ Generate javadoc & schemas:
   rules:
     - <<: *if-master
     - <<: *if-develop
+    - <<: *if-support
 
 ##############################
 # Package stage
@@ -533,6 +540,19 @@ Build package:
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_TOKEN
     - docker build -t aweframework/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push aweframework/awe-boot:$PROJECT_VERSION
+    # Support branches (maintenance lines) also get floating major and major.minor tags, never "latest".
+    - |
+      if [[ "$CI_COMMIT_REF_NAME" == support/* ]]; then
+        CLEAN_VERSION="${PROJECT_VERSION%-SNAPSHOT}"
+        MAJOR_VERSION="${CLEAN_VERSION%%.*}"
+        MAJOR_MINOR_VERSION="${CLEAN_VERSION%.*}"
+        for TAG in "$MAJOR_VERSION" "$MAJOR_MINOR_VERSION"; do
+          docker tag registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION registry.gitlab.com/aweframework/awe/awe-boot:$TAG
+          docker push registry.gitlab.com/aweframework/awe/awe-boot:$TAG
+          docker tag aweframework/awe-boot:$PROJECT_VERSION aweframework/awe-boot:$TAG
+          docker push aweframework/awe-boot:$TAG
+        done
+      fi
   artifacts:
     reports:
       dotenv: build.env
@@ -540,6 +560,7 @@ Build package:
   rules:
     - <<: *if-develop
     - <<: *if-master
+    - <<: *if-support
 
 ##############################
 # Deploy stage
@@ -553,6 +574,7 @@ Deploy snapshot:
     - mvn $MAVEN_CLI_OPTS deploy $DEPLOY_OPTS
   rules:
     - <<: *if-develop
+    - <<: *if-support
 
 Deploy Maven Central:
   stage: deploy
@@ -595,6 +617,7 @@ Deploy staging:
     url: https://staging.aweframework.com
     kubernetes:
       namespace: staging
+  # Support branches are intentionally excluded: no k8s staging deployment for maintenance lines.
   rules:
     - <<: *if-develop
 
@@ -605,6 +628,7 @@ Deploy production:
     url: https://demo.aweframework.com
     kubernetes:
       namespace: production
+  # Support branches are intentionally excluded: no k8s production deployment for maintenance lines.
   rules:
     - <<: *if-master
 
@@ -615,6 +639,7 @@ dast:
     - /analyze
   needs:
     - job: Deploy staging
+  # Support branches are intentionally excluded: DAST only runs against the staging deployment.
   rules:
     - <<: *if-develop
 
@@ -635,6 +660,7 @@ pages:
     paths:
       - public
     expire_in: 1 day
+  # Support branches are intentionally excluded: Pages has a single site root, no per-branch publishing.
   rules:
     - <<: *if-master
     - <<: *if-develop
@@ -660,13 +686,13 @@ Generate release notes:
 Generate a new milestone:
   image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
   stage: release
-  <<: *git_credentials
   script:
-    ## Generate milestone
-    - git checkout -f develop
-    - git pull --rebase
+    ## Generate milestones from the version being tagged, without checking out develop
+    ## (a develop checkout would read the wrong version once develop moves to 5.0.0-SNAPSHOT).
+    ## milestone.sh receives the released version and creates the next bugfix, minor and major milestones.
+    - VERSION="${CI_COMMIT_TAG#v}"
     - chmod +x ./bin/milestone.sh
-    - ./bin/milestone.sh $API_URL $API_TOKEN
+    - ./bin/milestone.sh $API_URL $API_TOKEN "$VERSION"
   rules:
     - <<: *if-tag
 
@@ -687,12 +713,25 @@ Start a new release:
     ## Generate new version of documentation if major or minor
     - chmod +x ./bin/docusaurus.sh
     - ./bin/docusaurus.sh
-    ## Generate release
-    - mvn -B gitflow:release -DskipTestProject=true -DpushRemote=true -DversionProperty=revision
+    ## Generate release: develop releases through gitflow:release (develop -> master),
+    ## support branches release through the hotfix-based support-release.sh script.
+    - |
+      case "$CI_COMMIT_REF_NAME" in
+        support/*)
+          chmod +x ./bin/support-release.sh
+          ./bin/support-release.sh
+          ;;
+        *)
+          mvn -B gitflow:release -DskipTestProject=true -DpushRemote=true -DversionProperty=revision
+          ;;
+      esac
   variables:
     GIT_STRATEGY: clone
   rules:
     - <<: *if-develop
+      when: manual
+      allow_failure: true
+    - <<: *if-support
       when: manual
       allow_failure: true
 
