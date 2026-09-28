@@ -139,6 +139,10 @@ Build website:
   extends: .build-website
   script:
     - npm --prefix website ci
+    # Inject the live 4.x maintenance-line docs (support/4.x) as a versioned snapshot
+    # before building, so the MR pipeline validates the same injection used in production.
+    - chmod +x ./bin/website-maintenance-docs.sh
+    - ./bin/website-maintenance-docs.sh
     - npm --prefix website run build
   rules:
     - <<: *if-merge-request
@@ -147,6 +151,10 @@ Build website with i18n:
   extends: .build-website
   script:
     - npm --prefix website ci
+    # Inject the live 4.x maintenance-line docs (support/4.x) as a versioned snapshot before
+    # building, so Crowdin syncs its sources too and the published site tracks support/4.x.
+    - chmod +x ./bin/website-maintenance-docs.sh
+    - ./bin/website-maintenance-docs.sh
     # Do translations
     - npm --prefix website run crowdin:sync
     - npm --prefix website run build
