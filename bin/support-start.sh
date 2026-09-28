@@ -167,6 +167,13 @@ trap cleanup EXIT
 # Cut support/<major>.x from the ref, unchanged
 # ============================================================
 
+# Warn before anything is created or pushed: protected CI variables (Docker Hub, Maven
+# repository, GPG, API token) are only injected into pipelines of protected branches, so
+# Build package, Deploy snapshot and the release job fail on an unprotected support branch.
+echo "NOTE: before the first pipeline runs on ${SUPPORT_BRANCH}, the branch pattern 'support/*' must be a"
+echo "      protected branch in GitLab (Settings > Repository > Protected branches, same policy as develop)."
+echo ""
+
 echo "== Cutting ${SUPPORT_BRANCH} from ${FROM_REF} =="
 run git branch "${SUPPORT_BRANCH}" "${FROM_REF}"
 
@@ -199,14 +206,19 @@ fi
 echo ""
 if [[ "$PUSH" == "1" ]]; then
   echo "Pushed ${SUPPORT_BRANCH} and ${BUMP_BRANCH} to origin."
+  echo ""
+  echo "Follow-up:"
+  echo "  Open a merge request from ${BUMP_BRANCH} into develop (never push directly to develop)."
 else
   echo "Nothing was pushed (run with --push to publish these branches). Local branches created:"
   echo "  ${SUPPORT_BRANCH}"
   echo "  ${BUMP_BRANCH}"
+  echo ""
+  echo "Follow-up commands:"
+  echo "  git push origin ${SUPPORT_BRANCH}:${SUPPORT_BRANCH}"
+  echo "  git push origin ${BUMP_BRANCH}:${BUMP_BRANCH}"
+  echo "  Open a merge request from ${BUMP_BRANCH} into develop (never push directly to develop)."
 fi
 
 echo ""
-echo "Follow-up commands:"
-echo "  git push origin ${SUPPORT_BRANCH}:${SUPPORT_BRANCH}"
-echo "  git push origin ${BUMP_BRANCH}:${BUMP_BRANCH}"
-echo "  Open a merge request from ${BUMP_BRANCH} into develop (never push directly to develop)."
+echo "Reminder: the first pipeline on ${SUPPORT_BRANCH} needs the 'support/*' pattern to be a protected branch (see above)."

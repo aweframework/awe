@@ -58,6 +58,13 @@ from `develop`/`master`.
 Tag pipeline jobs are branch-agnostic: they read the version from `$CI_COMMIT_TAG`, so
 they behave the same whether the tag came from `develop` or from `support/4.x`.
 
+Support branches must be **protected branches** in GitLab (the pattern `support/*` is
+protected with the same policy as `develop`). The credentials used by `Build package`
+(Docker Hub), `Deploy snapshot` (Maven repository) and the release job (API token, GPG
+keys, git identity) are protected CI variables, and GitLab only injects them into
+pipelines of protected refs. On an unprotected support branch those jobs fail with an
+empty Docker login and a `401 Unauthorized` from the Maven repository.
+
 ## Releasing from a support branch
 
 Releases are triggered with the manual `Start a new release` pipeline job, on a push

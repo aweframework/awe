@@ -31,7 +31,10 @@ A support branch is cut once, when a new major line starts on `develop`: at that
 `support/<major>.x` is branched off the last commit of the outgoing major line, and
 `develop` is bumped to the next major `-SNAPSHOT`. Only a maintainer cuts a support
 branch, using `bin/support-start.sh` (see that script's `-h` output); it is never created
-ad hoc from a feature branch.
+ad hoc from a feature branch. The `support/*` pattern is a protected branch in GitLab with
+the same policy as `develop`: protected CI variables (Docker Hub, Maven repository, GPG,
+API token) are only available on protected refs, and without them the packaging, snapshot
+deploy and release jobs of the support branch fail.
 
 Once `support/4.x` exists, `hotfix/*` branches keep targeting `master` for the 5.x line.
 Fixes for the 4.x line are never hotfix branches against `master`; they are regular merge
