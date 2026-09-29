@@ -93,12 +93,13 @@ is responsible for opening merge requests that bump these pins (including re-res
 digests), so a pin is never updated by hand-editing `latest`.
 
 `Build project` generates a CycloneDX SBOM (`target/awe-sbom.json`) for the whole Maven
-reactor with the `cyclonedx-maven-plugin`. It is published both as a GitLab `cyclonedx`
-report (visible in the project's dependency list) and as a plain job artifact. `Build
+reactor with the `cyclonedx-maven-plugin`. It is published as a pipeline artifact, and `Build
 package` attaches that same SBOM to the `awe-boot` image pushed to the GitLab registry as
 a [cosign](https://github.com/sigstore/cosign) attestation, so the SBOM travels with the
-image itself, not only with the pipeline run. A frontend (npm) SBOM is a follow-up, not
-covered yet.
+image itself, not only with the pipeline run. It is not declared as a GitLab `cyclonedx`
+report on purpose: the dependency list only accepts SBOMs carrying GitLab's own CycloneDX
+properties and is already fed by the `gemnasium` dependency-scanning job, which covers the
+same Maven reactor. A frontend (npm) SBOM is a follow-up, not covered yet.
 
 `Build package` also signs the `awe-boot` image keylessly, using GitLab's own OIDC
 identity (`id_tokens: SIGSTORE_ID_TOKEN`) instead of a stored private key: both the GitLab
