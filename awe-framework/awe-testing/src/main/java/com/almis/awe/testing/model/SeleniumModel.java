@@ -22,6 +22,8 @@ public class SeleniumModel {
   // Local data
   private String currentOption;
   private String testTitle;
+  // Whether a screenshot has already been stored for the test being run
+  private boolean screenshotTaken;
 
   /**
    * Get current base url
