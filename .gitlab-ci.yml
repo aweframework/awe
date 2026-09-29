@@ -103,28 +103,32 @@ stages:
 # Path selection for merge-request pipelines only: rules:changes is only reliable when compared
 # against the MR target branch. Branch pipelines (develop/master/support/*) always run the full
 # set through .if-branches below, regardless of what changed.
+# rules:changes globs are evaluated with Ruby's File.fnmatch (FNM_PATHNAME): "dir/**" matches only
+# one path segment below dir, so nested files need "dir/**/*". Keep every directory entry in
+# that form, otherwise a change in a nested file selects no job (or breaks the pipeline through
+# "needs" on a job that was not selected).
 .paths-backend: &paths-backend
   - .gitlab-ci.yml
   - pom.xml
-  - .m2/**
+  - .m2/**/*
   - awe-framework/pom.xml
-  - awe-framework/awe-dependencies/**
-  - awe-framework/awe-model/**
-  - awe-framework/awe-generic-screens/**
-  - awe-framework/awe-controller/**
-  - awe-framework/awe-testing/**
-  - awe-framework/awe-modules/**
-  - awe-framework/awe-starters/**
-  - awe-framework/awe-boot-angular-archetype/**
-  - awe-framework/awe-boot-react-archetype/**
-  - awe-tests/**
-  - awe-samples/**
+  - awe-framework/awe-dependencies/**/*
+  - awe-framework/awe-model/**/*
+  - awe-framework/awe-generic-screens/**/*
+  - awe-framework/awe-controller/**/*
+  - awe-framework/awe-testing/**/*
+  - awe-framework/awe-modules/**/*
+  - awe-framework/awe-starters/**/*
+  - awe-framework/awe-boot-angular-archetype/**/*
+  - awe-framework/awe-boot-react-archetype/**/*
+  - awe-tests/**/*
+  - awe-samples/**/*
 .paths-frontend: &paths-frontend
   - .gitlab-ci.yml
-  - awe-framework/awe-client-angular/**
+  - awe-framework/awe-client-angular/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
-  - website/**
+  - website/**/*
   - bin/website-maintenance-docs.sh
 
 .if-mr-backend: &if-mr-backend
@@ -136,10 +140,10 @@ stages:
 .paths-code: &paths-code             # backend or frontend: the whole Maven reactor
   - .gitlab-ci.yml
   - pom.xml
-  - .m2/**
-  - awe-framework/**
-  - awe-tests/**
-  - awe-samples/**
+  - .m2/**/*
+  - awe-framework/**/*
+  - awe-tests/**/*
+  - awe-samples/**/*
 .if-mr-code: &if-mr-code
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-code
