@@ -88,7 +88,7 @@ are updated by the Renovate bot through merge requests (see
 [Dependency updates](website/docs/guides/release-lines-and-support.md#dependency-updates)).
 On `develop`, patch releases of direct Maven and npm dependencies automerge once the
 merge-request pipeline passes and everything else is merged by a person; on `support/4.x`
-only patch and security updates are opened and a maintainer merges them. Never bump a pinned
+only patch, pin, digest and security updates are opened and a maintainer merges them. Never bump a pinned
 image by hand-editing a `latest` tag.
 
 ### Docker image tags

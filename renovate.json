@@ -62,6 +62,13 @@
       "enabled": false
     },
     {
+      "description": "The Highcharts licence covers versions up to 7; never propose 8 or later (the OSV fix for GHSA-8j65-4pcq-xq95 needs 9, so it stays visible on the dashboard as unfixable).",
+      "matchPackageNames": [
+        "highcharts"
+      ],
+      "allowedVersions": "<8"
+    },
+    {
       "description": "Maintenance line: patch, pin, digest and security fixes only.",
       "matchBaseBranches": [
         "support/4.x"

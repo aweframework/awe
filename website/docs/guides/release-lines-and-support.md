@@ -180,10 +180,13 @@ pins are merged by a person.
 
 1. Create a project access token with role Developer, scopes `api` and
    `write_repository`, and an expiry of at most one year. Rotate it before it expires.
-2. Add the CI variables `RENOVATE_TOKEN` (masked, protected, **environment scope
-   `renovate`**: the job declares that environment, so no other job on a protected ref
-   receives the token) and, optionally, `RENOVATE_GITHUB_COM_TOKEN` (read-only, used to
-   fetch changelogs).
+2. Add the CI variables `RENOVATE_TOKEN` and `RENOVATE_GITHUB_COM_TOKEN`, both masked,
+   protected and with **environment scope `renovate`** (the job declares that environment,
+   so no other job on a protected ref receives them). The GitHub token is a personal access
+   token with no scopes (public read only); Renovate needs it to download the Node build it
+   uses to refresh `package-lock.json` files and to fetch changelogs. Without it GitHub's
+   anonymous rate limit is hit within one run and npm merge requests arrive with a stale
+   lock file, which `npm ci` rejects.
 3. Create the pipeline schedule "Renovate" on `develop`, for example `0 5 * * 1-5` in the
    Europe/Madrid timezone, with the variable `RENOVATE_RUN=true`. Lock-file maintenance
    only runs when a Renovate pipeline happens on a Monday between 00:00 and 05:59
