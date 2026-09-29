@@ -5,6 +5,7 @@ module.exports = {
     '**/redux/reducers/**/*Test.{js,jsx}',
     '**/redux/selectors/**/*Test.{js,jsx}',
     '**/utilities/mergeUtilsTest.{js,jsx}',
+    '**/packaging/packageVersionTest.{js,jsx}',
     '**/redux/thunks/messagesThunkTest.{js,jsx}',
     '**/redux/thunks/gridThunkTest.{js,jsx}',
     '**/redux/thunks/screenThunkTest.{js,jsx}',

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -552,8 +552,8 @@ public class DummyService extends ServiceConfig {
     if (years == null)
       years = "currentYear";
 
-    if (NumberUtils.isNumber(years)) {
-      firstDay = DateUtils.addYears(new Date(), -NumberUtils.stringToInt(years));
+    if (NumberUtils.isCreatable(years)) {
+      firstDay = DateUtils.addYears(new Date(), -NumberUtils.toInt(years));
     } else if (years.equals("currentYear")) {
       firstDay = DateUtils.truncate(new Date(), Calendar.YEAR);
     } else {

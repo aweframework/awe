@@ -27,6 +27,7 @@
     <module>awe-model</module>
     <module>awe-generic-screens</module>
     <module>awe-client-angular</module>
+    <module>awe-client-react</module>
     <module>awe-controller</module>
     <module>awe-testing</module>
     <module>awe-modules</module>

@@ -5,19 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.almis.awe.clients</groupId>
-        <artifactId>awe-react</artifactId>
-        <version>2.2.6-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <groupId>com.almis.awe</groupId>
+        <artifactId>awe-starter-parent</artifactId>
+        <version>5.0.0-SNAPSHOT</version>
+        <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
     </parent>
 
-    <artifactId>test-react</artifactId>
-    <name>React Client Tests</name>
+    <artifactId>awe-boot-react</artifactId>
+    <packaging>jar</packaging>
+    <name>AWE React Integration Tests (V${project.version})</name>
 
     <properties>
         <!-- Application maven properties -->
-        <awe.react.version>${revision}</awe.react.version>
         <java.version>17</java.version>
+        <application.acronym>awe-react</application.acronym>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
@@ -34,13 +35,12 @@
         <skip.main>false</skip.main>
         <skip.selenium>true</skip.selenium>
         <skip.junit>false</skip.junit>
+        <test.tags>integration</test.tags>
 
         <!-- Build properties -->
         <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
         <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
         <build.environment>development</build.environment>
-
-        <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
     </properties>
 
     <dependencies>
@@ -156,6 +156,16 @@
             <artifactId>flyway-database-hsqldb</artifactId>
         </dependency>
 
+        <!-- React client. This provided dependency exists ONLY for the reactor order: it makes Maven build the client
+             before this application. The application itself consumes the client through the npm dependency
+             "file:../../awe-framework/awe-client-react/dist", not through this artifact. -->
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-client-react</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.almis.awe</groupId>
@@ -195,7 +205,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${plugin-dependency.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -275,7 +284,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven-deploy-plugin.version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
@@ -357,50 +365,68 @@
                 </configuration>
             </plugin>
 
-            <!-- Frontend generation -->
+            <!-- The npm build needs the client dist/ produced by the awe-client-react module. The enforcer rule
+                 does not accept a path containing "..", so the normalized location is computed first from this
+                 module's location: that step always runs and requires the module to stay at
+                 awe-tests/awe-boot-react. The enforcer check itself is skipped with skip.frontend, like the npm
+                 build it protects. -->
             <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>${maven-plugin-frontend.version}</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>install node and npm</id>
+                        <id>locate react client dist</id>
+                        <phase>initialize</phase>
                         <goals>
-                            <goal>install-node-and-npm</goal>
+                            <goal>regex-property</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>${node.version}</nodeVersion>
-                            <npmVersion>${npm.version}</npmVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <phase>compile</phase>
-                        <id>npm ci</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>ci</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <id>npm build development bundle</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run test-dev</arguments>
+                            <name>react.client.dist</name>
+                            <value>${project.basedir}</value>
+                            <regex>[/\\]awe-tests[/\\]awe-boot-react$</regex>
+                            <replacement>/awe-framework/awe-client-react/dist</replacement>
+                            <failIfNoMatch>true</failIfNoMatch>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>require react client dist</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.frontend}</skip>
+                            <rules>
+                                <requireFilesExist>
+                                    <message>The React client is not built (awe-framework/awe-client-react/dist is missing): run the build from the repository root, or add -am (mvn -pl awe-tests/awe-boot-react -am ...).</message>
+                                    <files>
+                                        <file>${react.client.dist}/package.json</file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Frontend generation: install node/npm, npm ci and "npm run build:${build.environment}" are inherited from awe-dependencies -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
             </plugin>
 
             <!-- JUnit -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
                 <configuration>
                     <skip>${skip.junit}</skip>
                     <groups>${test.tags}</groups>
@@ -411,7 +437,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.1.2</version>
                 <executions>
                     <execution>
                         <id>integration-test</id>
@@ -504,27 +529,9 @@
         </profile>
         <profile>
             <id>production</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>${maven-plugin-frontend.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <id>npm build production bundle</id>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <configuration>
-                                    <arguments>run test-prod</arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <build.environment>production</build.environment>
+            </properties>
         </profile>
 
         <!-- Frontend hot-reload dev profile: activated by `npm run start:hot-reload`.

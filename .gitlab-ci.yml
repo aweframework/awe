@@ -261,7 +261,7 @@ Build project:
   # before the cache is archived. Otherwise it grows on every release until the runner runs out of disk.
   after_script:
     - version=$(sed -n 's/^PROJECT_VERSION=//p' build.env 2>/dev/null)
-    - rm -rf .m2/repository/com/almis/awe/awe-boot
+    - rm -rf .m2/repository/com/almis/awe/awe-boot .m2/repository/com/almis/awe/awe-boot-react
     - >-
       if [ -n "$version" ]; then
       find .m2/repository/com/almis/awe -mindepth 2 -maxdepth 2 -type d -name '*-SNAPSHOT' ! -name "$version"

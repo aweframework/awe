@@ -4,9 +4,11 @@ const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const GeneratePackageJsonPlugin = require('generate-package-json-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 const PACKAGE = require('./package.json');
+const {resolvePackageVersion} = require('./package-version.cjs');
 
 const basePackage = {
   ...PACKAGE,
+  "version": resolvePackageVersion(),
   "main": "./js/main.js",
   "engines": {
     "node": ">= 16"

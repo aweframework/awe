@@ -1,6 +1,6 @@
 {
   "name": "awe-react-client",
-  "version": "2.2.5",
+  "version": "5.0.0-SNAPSHOT",
   "main": "main.jsx",
   "scripts": {
     "lint": "eslint eslint.config.js webpack.common.js webpack.dev.js webpack.prod.js postcss.config.js",
@@ -8,10 +8,13 @@
     "test": "npm run test:unit",
     "test:unit": "jest --config jest.config.cjs",
     "test:coverage": "jest --config jest.config.cjs --coverage",
+    "verify:version": "node package-version.cjs --verify dist/package.json",
     "docs": "jsdoc -c jsdoc.conf.json",
     "build:dev": "webpack --config webpack.dev.js",
+    "build:development": "npm run build:dev",
     "build": "npm run build:prod",
     "build:prod": "webpack --config webpack.prod.js",
+    "build:production": "npm run build:prod",
     "react-client-dev": "npm run build:dev",
     "react-client-prod": "npm run build:prod"
   },

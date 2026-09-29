@@ -1,11 +1,11 @@
 {
   "name": "test-react",
-  "version": "2.2.5",
+  "version": "5.0.0-SNAPSHOT",
   "description": "",
   "main": "src/main/resources/webpack",
   "license": "SEE LICENSE IN ./../LICENSE.md",
   "scripts": {
-    "refresh-client": "npm install ../awe-react-client/dist",
+    "refresh-client": "npm install ../../awe-framework/awe-client-react/dist",
     "lint": "eslint eslint.config.js webpack.config.js webpack.dev.js webpack.prod.js",
     "lint:fix": "eslint eslint.config.js webpack.config.js webpack.dev.js webpack.prod.js --fix",
     "build:development": "webpack --config webpack.dev.js",
@@ -24,7 +24,7 @@
     "@fullcalendar/list": "^6.1.21",
     "@fullcalendar/react": "^6.1.21",
     "@fullcalendar/timegrid": "^6.1.21",
-    "awe-react-client": "file:../awe-react-client/dist"
+    "awe-react-client": "file:../../awe-framework/awe-client-react/dist"
   },
   "overrides": {
     "lodash": "4.18.1"
