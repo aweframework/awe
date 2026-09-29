@@ -651,10 +651,22 @@ container_scanning:
   allow_failure: true
   needs:
     - job: Build package
+  # The template sets "dependencies: []", which disables artifact download and therefore the
+  # build.env dotenv from "Build package"; re-enable it so PACKAGE_DIGEST is available.
+  dependencies:
+    - Build package
   variables:
     # Scan exactly the image that was pushed and signed: by digest, taken from the build.env
     # dotenv that "Build package" exports (PACKAGE_DIGEST), never by a floating tag.
     CS_IMAGE: "$CI_REGISTRY_IMAGE/awe-boot@$PACKAGE_DIGEST"
+  before_script:
+    - |
+      if [ -z "$PACKAGE_DIGEST" ]; then
+        echo "PACKAGE_DIGEST is empty: the build.env dotenv from Build package was not received"
+        exit 1
+      fi
+      export CS_IMAGE="$CI_REGISTRY_IMAGE/awe-boot@$PACKAGE_DIGEST"
+      echo "Scanning $CS_IMAGE"
   rules:
     - <<: *if-develop
     - <<: *if-master
