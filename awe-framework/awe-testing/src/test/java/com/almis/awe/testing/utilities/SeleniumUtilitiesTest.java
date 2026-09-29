@@ -1,6 +1,7 @@
 package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.extensions.FailureEvidence;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.selenium.AngularAweInstructions;
@@ -19,13 +20,18 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +103,56 @@ class SeleniumUtilitiesTest {
 
     assertThat(error).hasMessageContaining("Slow path bounded timeout");
     assertThat(elapsedMillis).isLessThan(1500L);
+  }
+
+  @Test
+  void shouldMarkScreenshotTakenAndStoreErrorNamedFileWhenAssertionFails() throws Exception {
+    SeleniumModel model = (SeleniumModel) ReflectionTestUtils.getField(seleniumUtilities, "seleniumModel");
+    assertThat(model.isScreenshotTaken()).isFalse();
+
+    assertThrows(AssertionFailedError.class,
+      () -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "assertWithScreenshot", "Some failure", false,
+        new Throwable[0]));
+
+    assertThat(model.isScreenshotTaken()).isTrue();
+    try (java.util.stream.Stream<Path> files = Files.list(tempDir)) {
+      assertThat(files.map(path -> path.getFileName().toString()))
+        .anyMatch(name -> name.startsWith("SeleniumUtilities-") && name.contains("-[ERROR]-unit_test-some_failure")
+          && name.endsWith(".png"));
+    }
+  }
+
+  @Test
+  void shouldPrintExactlyOneAttachmentMarkerWhenAssertionFails() {
+    ByteArrayOutputStream console = new ByteArrayOutputStream();
+    Map<String, String> environment = Map.of("CI_PROJECT_DIR", tempDir.getParent().toString());
+    ReflectionTestUtils.setField(seleniumUtilities, "failureEvidence", new FailureEvidence(Clock.systemDefaultZone(),
+      environment::get, new PrintStream(console, true, StandardCharsets.UTF_8)));
+
+    assertThrows(AssertionFailedError.class,
+      () -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "assertWithScreenshot", "Some failure", false,
+        new Throwable[0]));
+
+    String output = new String(console.toByteArray(), StandardCharsets.UTF_8);
+    assertThat(output.split("\\[\\[ATTACHMENT\\|", -1)).hasSize(2);
+    assertThat(output).contains("[[ATTACHMENT|" + tempDir.getFileName() + "/SeleniumUtilities-")
+      .contains("Failure screenshot: ");
+  }
+
+  @Test
+  void shouldNotMarkScreenshotTakenWhenTheFileCannotBeStored() throws Exception {
+    // A regular file where the screenshot directory should be makes createDirectories fail
+    Path notADirectory = Files.createFile(tempDir.resolve("not-a-directory"));
+    AweTestConfigProperties properties = (AweTestConfigProperties) ReflectionTestUtils
+      .getField(seleniumUtilities, "properties");
+    properties.setScreenshotPath(notADirectory.toString());
+    SeleniumModel model = (SeleniumModel) ReflectionTestUtils.getField(seleniumUtilities, "seleniumModel");
+
+    assertThrows(AssertionFailedError.class,
+      () -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "assertWithScreenshot", "Some failure", false,
+        new Throwable[0]));
+
+    assertThat(model.isScreenshotTaken()).isFalse();
   }
 
   @Test

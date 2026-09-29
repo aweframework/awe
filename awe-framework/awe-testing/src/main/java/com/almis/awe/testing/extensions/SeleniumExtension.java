@@ -3,7 +3,6 @@ package com.almis.awe.testing.extensions;
 import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.recorder.SeleniumRecorderFactory;
-import com.almis.awe.testing.utilities.TextUtilities;
 import com.automation.remarks.video.recorder.IVideoRecorder;
 import com.automation.remarks.video.recorder.VideoRecorder;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -31,14 +30,14 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  * Utilities suite for selenium testing
  */
 @Slf4j
-public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, AfterEachCallback, TestInstancePostProcessor {
+public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, AfterTestExecutionCallback,
+  AfterEachCallback, TestInstancePostProcessor {
 
   public static final String VIDEO_SCREEN_SIZE = "video.screen.size";
   public static final String WD_HUB = "/wd/hub";
@@ -46,6 +45,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
   private WebDriver driver;
   private WebDriverManager webDriverManager;
   private IVideoRecorder recorder;
+  private final FailureEvidence failureEvidence = new FailureEvidence();
 
   /**
    * Clean driver after a test suite
@@ -249,6 +249,7 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
 
     // Set test title
     seleniumModel.setTestTitle(extensionContext.getDisplayName());
+    seleniumModel.setScreenshotTaken(false);
 
     // Check recording
     if (seleniumModel.getProperties().isAllowedRecording()) {
@@ -257,26 +258,31 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     }
   }
 
+  /**
+   * Take the failure screenshot right after the test method, before the test class own @AfterEach methods
+   * (which run before {@link #afterEach}) can navigate away from the failing page.
+   */
+  @Override
+  public void afterTestExecution(ExtensionContext extensionContext) {
+    boolean testFailed = extensionContext.getExecutionException().isPresent();
+    String testClass = extensionContext.getParent().orElse(extensionContext).getDisplayName();
+
+    // Every failure leaves a screenshot, even when no assertWithScreenshot was involved
+    failureEvidence.captureScreenshotOnFailure(seleniumModel, testClass, testFailed);
+  }
+
   @Override
   public void afterEach(ExtensionContext extensionContext) {
     boolean testFailed = extensionContext.getExecutionException().isPresent();
+    String testClass = extensionContext.getParent().orElse(extensionContext).getDisplayName();
 
     if (seleniumModel.getProperties().isAllowedRecording()) {
       log.debug("Storing video recording...");
-      String fileName = String.format("%s-%s-%s%s-%s",
-        extensionContext.getParent().orElse(extensionContext).getDisplayName(),
-        new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date()),
-        testFailed ? "[ERR0R]-" : "",
-        TextUtilities.sanitizeMessage(seleniumModel.getCurrentOption()),
-        TextUtilities.sanitizeMessage(seleniumModel.getTestTitle()));
+      String fileName = failureEvidence.buildName(testClass, seleniumModel.getCurrentOption(),
+        seleniumModel.getTestTitle(), testFailed);
       File result = this.recorder.stopAndSave(fileName);
-
-      if (testFailed || "ALL".equalsIgnoreCase(seleniumModel.getProperties().getVideoSave().toString())) {
-        log.info("{}Video recording stored at {}", testFailed ? "Test failed. " : "", result.getAbsolutePath());
-      } else {
-        // Remove video file if test not failed
-        result.deleteOnExit();
-      }
+      boolean keepAll = "ALL".equalsIgnoreCase(seleniumModel.getProperties().getVideoSave().toString());
+      failureEvidence.resolveVideo(result, testFailed, keepAll);
     }
   }
 

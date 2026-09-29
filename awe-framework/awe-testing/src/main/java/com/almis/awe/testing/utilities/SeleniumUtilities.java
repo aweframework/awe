@@ -2,13 +2,13 @@ package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.config.TestConfig;
+import com.almis.awe.testing.extensions.FailureEvidence;
 import com.almis.awe.testing.extensions.SeleniumExtension;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -22,10 +22,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -45,6 +43,8 @@ public class SeleniumUtilities implements IAweInstructions {
   // Constants
   private static final Integer RETRY_COUNT = 10;
   private static final String TEXT_VALUE = " text: '";
+
+  private FailureEvidence failureEvidence = new FailureEvidence();
 
   @Autowired
   private AweTestConfigProperties properties;
@@ -139,17 +139,15 @@ public class SeleniumUtilities implements IAweInstructions {
   private void assertWithScreenshot(String message, boolean condition, Throwable... throwable) {
     if (!condition) {
       File scrFile = ((TakesScreenshot) seleniumModel.getDriver()).getScreenshotAs(OutputType.FILE);
-      String messageSanitized = TextUtilities.sanitizeMessage(message);
-      String timestamp = new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date());
-      String screenshotName = String.format("%s-%s-[ERROR]-%s-%s", getClass().getSimpleName(), timestamp, seleniumModel.getCurrentOption(), messageSanitized);
+      String screenshotName = failureEvidence.buildName(getClass().getSimpleName(),
+        seleniumModel.getCurrentOption(), message, true);
       Path path = Paths.get(properties.getScreenshotPath(), screenshotName + ".png");
       log.error(message, (Object) throwable);
       log.error("Storing screenshot at: " + path);
 
       // Now you can do whatever you need to do with it, for example copy somewhere
       try {
-        Files.createDirectories(path.getParent());
-        FileUtils.copyFile(scrFile, path.toFile());
+        failureEvidence.storeScreenshot(seleniumModel, scrFile, path);
       } catch (IOException ioExc) {
         log.error("Error trying to store screenshot at: " + path, ioExc);
       }

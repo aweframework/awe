@@ -62,6 +62,11 @@ automerging. Each suite is retried once automatically on a script or runner fail
 an occasional flaky run; a real regression fails twice, and a timeout is not retried.
 `support/4.x` keeps its own pipeline configuration, where they are still non-blocking.
 
+Only failed tests leave evidence. Open the pipeline **Tests** tab, pick the failed test and use
+**View details** to see its screenshot; the test output also links the screenshot and the video, and the
+end of each job log links to the `selenium-evidence/` folder in the job artifacts, where all the
+screenshots and videos of that job are stored.
+
 Tag pipeline jobs are branch-agnostic: they read the version from `$CI_COMMIT_TAG`, so
 they behave the same whether the tag came from `develop` or from `support/4.x`.
 

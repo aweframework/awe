@@ -485,12 +485,21 @@ Javadoc test:
   before_script:
     - apt-get update -qq && apt-get install -y -qq fontconfig fonts-dejavu >/dev/null
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
+    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/selenium-evidence/ -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
+  after_script:
+    - |
+      if [ -d selenium-evidence ] && [ -n "$(find selenium-evidence -type f 2>/dev/null | head -n 1)" ]; then
+        echo "Selenium evidence (screenshots and videos): ${CI_JOB_URL}/artifacts/browse/selenium-evidence/"
+        echo "Files in selenium-evidence/: $(find selenium-evidence -type f | wc -l)"
+      fi
+  # Failure evidence (screenshots and videos) is written under selenium-evidence/, at the artifact root.
+  # It has no expose_as: GitLab does not display it when a path uses a CI variable, and the per-job
+  # jacoco file name (needed by Launch Sonar) requires one.
   artifacts:
-    expose_as: 'Selenium reports'
     paths:
+      - selenium-evidence/
       - awe-tests/awe-boot/target/tests/
       - awe-tests/awe-boot/target/surefire-reports/
       - awe-tests/awe-boot/target/jacoco-${TEST_NAME}-it.exec
