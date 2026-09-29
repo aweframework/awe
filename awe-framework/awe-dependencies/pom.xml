@@ -71,7 +71,7 @@
          delombok on newer JDKs (NoSuchFieldError JCImport.qualid). Override it with a JDK 21+
          compatible Lombok. Keep aligned with the version managed by the Spring Boot BOM. -->
     <delombok-lombok.version>1.18.46</delombok-lombok.version>
-    <plugin-maven-archetype.version>3.2.1</plugin-maven-archetype.version>
+    <plugin-maven-archetype.version>3.3.0</plugin-maven-archetype.version>
     <plugin-maven-install.version>3.1.1</plugin-maven-install.version>
     <!-- Skip configuration -->
     <skip.selenium>true</skip.selenium>
