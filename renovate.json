@@ -1,0 +1,217 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitScope": "deps",
+  "baseBranchPatterns": [
+    "develop",
+    "support/4.x"
+  ],
+  "timezone": "Europe/Madrid",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboardLabels": [
+    "update-dependencies"
+  ],
+  "labels": [
+    "update-dependencies"
+  ],
+  "prConcurrentLimit": 8,
+  "prHourlyLimit": 0,
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "update-dependencies",
+      "security"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "* 0-5 * * 1"
+    ]
+  },
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/__fixtures__/**",
+    "**/archetype-resources/**"
+  ],
+  "packageRules": [
+    {
+      "description": "The root package.json is an unused leftover; ignorePaths cannot target it without matching every package.json, so it is disabled here.",
+      "matchFileNames": [
+        "package.json"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Reactor artifacts are versioned by the release tooling, never by the bot.",
+      "matchPackageNames": [
+        "com.almis.awe:**"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Maintenance line: patch, pin, digest and security fixes only.",
+      "matchBaseBranches": [
+        "support/4.x"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "lockFileMaintenance"
+      ],
+      "enabled": false
+    },
+    {
+      "groupName": "maven plugins",
+      "description": "Maven build plugins.",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchDepTypes": [
+        "build"
+      ]
+    },
+    {
+      "groupName": "spring boot",
+      "description": "Spring Boot and its managed starters move together.",
+      "matchPackageNames": [
+        "org.springframework.boot:**"
+      ]
+    },
+    {
+      "groupName": "spring cloud",
+      "description": "Spring Cloud release train.",
+      "matchPackageNames": [
+        "org.springframework.cloud:**"
+      ]
+    },
+    {
+      "groupName": "selenium",
+      "description": "Selenium and the driver manager used by the browser tests.",
+      "matchPackageNames": [
+        "org.seleniumhq.selenium:**",
+        "io.github.bonigarcia:webdrivermanager"
+      ]
+    },
+    {
+      "groupName": "babel",
+      "matchPackageNames": [
+        "/^@babel\\//",
+        "babel-jest",
+        "babel-loader"
+      ]
+    },
+    {
+      "groupName": "jest",
+      "matchPackageNames": [
+        "jest",
+        "/^jest-/",
+        "/^@jest\\//"
+      ]
+    },
+    {
+      "groupName": "docusaurus",
+      "matchPackageNames": [
+        "@docusaurus/**"
+      ]
+    },
+    {
+      "groupName": "ci images",
+      "description": "Images and services referenced in .gitlab-ci.yml.",
+      "matchManagers": [
+        "gitlabci"
+      ]
+    },
+    {
+      "groupName": "docker compose images",
+      "description": "Local tooling stacks (observability, Oracle) described by docker-compose files under awe-tests.",
+      "matchManagers": [
+        "docker-compose"
+      ]
+    },
+    {
+      "description": "Patch releases of direct Maven and npm dependencies merge by themselves on develop once the merge-request pipeline passes; everything else (digests, pins, CI images, Dockerfile, compose files, lock-file maintenance) waits for a human.",
+      "matchBaseBranches": [
+        "develop"
+      ],
+      "matchManagers": [
+        "maven",
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "gitLabIgnoreApprovals": true,
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Node releases: odd majors are unstable and are skipped.",
+      "matchDatasources": [
+        "node-version"
+      ],
+      "versioning": "node",
+      "groupName": "node toolchain"
+    },
+    {
+      "description": "npm version of the frontend-maven-plugin travels with Node.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "npm"
+      ],
+      "groupName": "node toolchain"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^awe-framework/awe-dependencies/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<node\\.version>(?<currentValue>v?\\d+\\.\\d+\\.\\d+)</node\\.version>"
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^awe-framework/awe-dependencies/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<npm\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)</npm\\.version>"
+      ],
+      "depNameTemplate": "npm",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.gitlab-ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "org\\.cyclonedx:cyclonedx-maven-plugin:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "org.cyclonedx:cyclonedx-maven-plugin",
+      "datasourceTemplate": "maven"
+    }
+  ]
+}

@@ -88,7 +88,7 @@ the upstream publishes one (`maven`, `docker`, `mysql`, `postgres`, `mssql`,
 `docker-tools` images, `selenoid/firefox`, `selenoid/chrome`, `epiclabs/docker-oracle-
 xe-11g`). The `tag` part of `tag@digest` is kept only so the reference stays
 human-readable; the digest is what actually freezes the image. Nothing in `.gitlab-ci.yml`
-tracks a floating `latest` tag. [Renovate](https://gitlab.com/aweframework/awe/-/issues/761)
+tracks a floating `latest` tag. [Renovate](#dependency-updates)
 is responsible for opening merge requests that bump these pins (including re-resolving the
 digests), so a pin is never updated by hand-editing `latest`.
 
@@ -136,6 +136,68 @@ Scanners run at different points in the pipeline:
 OWASP dependency-check is intentionally not used: it needs an NVD API key to run at a
 practical speed, and its function is already covered by GitLab's dependency scanning plus
 the CycloneDX SBOM, so adding it would only duplicate that coverage.
+
+## Dependency updates
+
+Dependencies are kept current by a self-hosted [Renovate](https://docs.renovatebot.com/)
+bot. It runs as the `Renovate` job in `.gitlab-ci.yml`, started only by the pipeline
+schedule named "Renovate", which sets `RENOVATE_RUN=true`. That pipeline contains no other
+job. The configuration is `renovate.json` on `develop`: Renovate always reads the default
+branch, also when it updates `support/4.x`.
+
+**What it manages.** Maven (`pom.xml` properties, BOM imports and plugins, including the
+BOM in `awe-framework/awe-dependencies/pom.xml`), npm manifests and their
+`package-lock.json` files (lock-file maintenance runs on Monday early morning), the
+`awe-boot` Dockerfile, every `image:` and `services:` entry in `.gitlab-ci.yml`
+(re-resolving `latest@sha256` digests and pinning version tags with digests), plus the
+Node and npm versions of the frontend-maven-plugin and the inline CycloneDX plugin
+coordinate, and the two `docker-compose` tooling stacks under `awe-tests` (observability,
+Oracle). It does not manage the root `package.json` (an unused leftover) or the archetype
+templates.
+
+| Branch | Updates opened | Automerge |
+|---|---|---|
+| `develop` | Everything: major, minor, patch, pin, digest, lock file and security | Patch releases of direct Maven and npm dependencies, 3 days after release, only when the merge-request pipeline passes (the approval rule is lifted for those merge requests only). Digests, pins, CI images, the Dockerfile, compose files and lock-file maintenance wait for a human |
+| `support/4.x` | Patch, pin, digest and security fixes (OSV) | None: a maintainer merges |
+
+Related updates are grouped into one merge request: Spring Boot, Spring Cloud, Selenium
+(with the WebDriver manager), Maven plugins, Babel, Jest, Docusaurus, the CI images, the
+docker-compose images and the Node toolchain. At most 8 bot merge requests are open at once
+(security fixes are exempt from that limit). Every merge request carries the `update-dependencies` label (plus `security` for
+vulnerability fixes) and a Conventional Commit message, `fix(deps)` for runtime
+dependencies and `chore(deps)` otherwise. A "Dependency Dashboard" issue lists pending,
+open and blocked updates. Security alerts come from the OSV database and cover direct
+dependencies only.
+
+Bot merge requests go through the selective merge-request pipeline: a `pom.xml` change
+runs the backend and Selenium jobs, an npm change under the client runs the frontend jobs,
+a `website/` change runs the website build, and a `.gitlab-ci.yml` change runs everything.
+Automerge is limited to the two managers whose changes that pipeline exercises end to end;
+the `awe-boot` image, for instance, is only built on branch pipelines, so its Dockerfile
+pins are merged by a person.
+
+### Setup and operations
+
+1. Create a project access token with role Developer, scopes `api` and
+   `write_repository`, and an expiry of at most one year. Rotate it before it expires.
+2. Add the CI variables `RENOVATE_TOKEN` (masked, protected, **environment scope
+   `renovate`**: the job declares that environment, so no other job on a protected ref
+   receives the token) and, optionally, `RENOVATE_GITHUB_COM_TOKEN` (read-only, used to
+   fetch changelogs).
+3. Create the pipeline schedule "Renovate" on `develop`, for example `0 5 * * 1-5` in the
+   Europe/Madrid timezone, with the variable `RENOVATE_RUN=true`. Lock-file maintenance
+   only runs when a Renovate pipeline happens on a Monday between 00:00 and 05:59
+   Europe/Madrid (`lockFileMaintenance.schedule` in `renovate.json`), so keep at least one
+   weekly run inside that window.
+4. Run it first with an extra schedule variable `RENOVATE_DRY_RUN=full`, read the job log,
+   then remove that variable. Automerge additionally relies on two project settings that
+   hold today and must stay that way: Developers are allowed to merge into `develop`, and
+   "Prevent editing approval rules in merge requests" is off (Renovate lifts the approval
+   rule by adding a zero-approval rule to its own merge requests). If either changes, bot
+   merge requests simply stay open.
+5. The `Validate renovate config` job runs on every merge request that touches
+   `renovate.json`. Locally, from the repository root, run
+   `npx --yes --package renovate -- renovate-config-validator --strict`.
 
 ## Releasing from a support branch
 
