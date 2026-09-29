@@ -6,6 +6,8 @@ include:
   # Security Products features
   - template: DAST.gitlab-ci.yml
   - template: Dependency-Scanning.gitlab-ci.yml
+  - template: Secret-Detection.gitlab-ci.yml
+  - template: Container-Scanning.gitlab-ci.yml
 
 workflow:
   auto_cancel:
@@ -20,7 +22,7 @@ default:
   interruptible: true
   timeout: 30m
 
-image: maven:3.9-eclipse-temurin-21
+image: maven:3.9.9-eclipse-temurin-21
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version"
@@ -160,8 +162,12 @@ stages:
     - <<: *if-mr-code
     - <<: *if-branches
 
+# docker-tools images are pinned as tag@digest: the registry only publishes a
+# "latest" tag (no immutable version tags), so the digest is what actually
+# freezes the image; the "latest" part is kept only so the reference stays
+# human-readable. Renovate (#761) tracks and updates these digests.
 .build-website:
-  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:latest@sha256:1bf9d446f348326e4997d62d3890625e3d9b6993b3ab682600b67ac1f2e882d9
   stage: build
   needs: [ ]
   timeout: 20m
@@ -182,6 +188,13 @@ stages:
 
 Build project:
   extends: .build
+  script:
+    - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
+    # Aggregate CycloneDX SBOM for the whole reactor (only this job publishes it; the jdk 21
+    # variant builds the same reactor and would only duplicate the report).
+    - mvn $MAVEN_CLI_OPTS -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom -DoutputFormat=json -DoutputName=awe-sbom
+    - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    - echo "PROJECT_VERSION=$version" >> build.env
   # Keep the cache small: drop the awe-boot fat jar (~250MB per version) and stale AWE snapshots
   # before the cache is archived. Otherwise it grows on every release until the runner runs out of disk.
   after_script:
@@ -194,10 +207,12 @@ Build project:
   artifacts:
     reports:
       dotenv: build.env
+      cyclonedx: target/awe-sbom.json
     paths:
       - awe-tests/awe-boot/target/awe-boot.jar
       # AWE modules installed by this build, consumed by the browser testing jobs
       - .m2/repository/com/almis/awe/
+      - target/awe-sbom.json
     expire_in: 1 day
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
@@ -209,7 +224,7 @@ Build project:
 
 Build project:jdk 21:
   extends: .build
-  image: maven:3.9-eclipse-temurin-21
+  image: maven:3.9.9-eclipse-temurin-21
   variables:
     SKIP_TESTS: "-DskipTests -Dskip.delombok=true"
 
@@ -290,7 +305,7 @@ MySQL Tests:
     MYSQL_DATABASE: "awetestdb"
     MYSQL_ROOT_PASSWORD: "$DATABASE_PASSWORD"
   services:
-    - mysql
+    - mysql:8.4.9
   parallel:
     matrix:
       - TEST_NAME: [ mysql, mysql-flyway ]
@@ -302,7 +317,7 @@ PostgreSQL Tests:
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "$DATABASE_PASSWORD"
   services:
-    - name: postgres:17
+    - name: postgres:17.9
       alias: postgres
   parallel:
     matrix:
@@ -315,7 +330,7 @@ Oracle Tests:
     ORACLE_PASSWORD: "$DATABASE_PASSWORD"
     RELAX_SECURITY: "1"
   services:
-    - name: epiclabs/docker-oracle-xe-11g
+    - name: epiclabs/docker-oracle-xe-11g:latest@sha256:404173b90d09d0619c854dd469c76c3e7256c88a7aac5d47e05f934ec7afae06
       alias: oracle
   parallel:
     matrix:
@@ -323,14 +338,14 @@ Oracle Tests:
 
 SQL Server Tests:
   extends: .unit-testing
-  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest
+  image: registry.gitlab.com/aweframework/docker-tools/sqlserver-testing:latest@sha256:9f3ce1ccebdc1374f382670a47aeef0f4ec056eb959c660bd67ca48cfdc24517
   variables:
     ACCEPT_EULA: Y
     SA_PASSWORD: "$DATABASE_PASSWORD"
   before_script:
     - /opt/mssql-tools18/bin/sqlcmd -No -S mssqlserver -U SA -P "$DATABASE_PASSWORD" -Q 'CREATE DATABASE awetestdb'
   services:
-    - name: mcr.microsoft.com/mssql/server:2019-latest
+    - name: mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04
       alias: mssqlserver
   parallel:
     matrix:
@@ -338,7 +353,7 @@ SQL Server Tests:
 
 Frontend UT:
   stage: test
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest@sha256:611a6928ed5696bccb29fd3ce0b0a6fe0818d26a59119f9b04056dd61c2fa33d
   needs: [ ]
   cache: { }
   timeout: 15m
@@ -379,7 +394,7 @@ Javadoc test:
 
 # Browser testing extension
 .browser-testing:
-  image: maven:3.9-eclipse-temurin-21
+  image: maven:3.9.9-eclipse-temurin-21
   stage: integration test
   allow_failure: true
   timeout: 30m
@@ -417,9 +432,9 @@ Javadoc test:
 .firefox-testing:
   extends: .browser-testing
   services:
-    - name: selenoid/firefox
+    - name: selenoid/firefox:latest@sha256:3490e022beda383963670c9492d0927705f03f951abfa4f40eb59c9c923d8e5f
       alias: browser
-    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest
+    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest@sha256:6c22e677162e993c4f301c6bcd1e3f5795c5812a3d1efbcfab2c7e92510b483a
       alias: recorder
   variables:
     BROWSER: service-firefox
@@ -427,9 +442,9 @@ Javadoc test:
 .chrome-testing:
   extends: .browser-testing
   services:
-    - name: selenoid/chrome
+    - name: selenoid/chrome:latest@sha256:0a3626278323dc19584598fcc9d4209a4c1dc5ef2065b29812f1dc277d6e0640
       alias: browser
-    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest
+    - name: registry.gitlab.com/aweframework/docker-tools/video-recorder:latest@sha256:6c22e677162e993c4f301c6bcd1e3f5795c5812a3d1efbcfab2c7e92510b483a
       alias: recorder
   variables:
     BROWSER: service-chrome
@@ -480,12 +495,21 @@ gemnasium-maven-dependency_scanning:
   variables:
     MAVEN_CLI_OPTS: "-DskipTests --batch-mode"
 
+# Runs on every merge request that touches code or the website, and on every branch pipeline.
+secret_detection:
+  needs: [ ]
+  timeout: 15m
+  rules:
+    - <<: *if-mr-code
+    - <<: *if-mr-website
+    - <<: *if-branches
+
 ##############################
 # Analysis stage
 ##############################
 
 Launch Sonar:
-  image: registry.gitlab.com/aweframework/docker-tools/sonar:latest
+  image: registry.gitlab.com/aweframework/docker-tools/sonar:latest@sha256:8fb0e07eaf7c9f935c461599bcde7ac7714ac8a9cc3def02ee97195094316c0c
   stage: analysis
   timeout: 20m
   # Some needs are optional: a merge-request pipeline may run Sonar (backend or frontend changed)
@@ -519,7 +543,9 @@ Launch Sonar:
     # SonarCloud rejects branch parameters on merge request analyses, so only set sonar.branch.name outside MRs.
     - SONAR_BRANCH_OPTS=""
     - if [ -z "$CI_MERGE_REQUEST_IID" ]; then SONAR_BRANCH_OPTS="-Dsonar.branch.name=$CI_COMMIT_REF_NAME"; fi
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Dskip.dependency-check=false -Darchetype.test.skip=true $SONAR_OPTS $SONAR_BRANCH_OPTS
+    # Dependency scanning is done by GitLab's gemnasium job and the CycloneDX SBOM, not by the
+    # (unused) OWASP dependency-check Maven plugin, so its flag is not passed here.
+    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Darchetype.test.skip=true $SONAR_OPTS $SONAR_BRANCH_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:
@@ -554,17 +580,27 @@ Generate javadoc & schemas:
 ##############################
 
 Build package:
-  image: docker:latest
+  image: docker:28.5.2-cli
   stage: package
   cache: { }
   interruptible: false
   timeout: 15m
+  # Keyless cosign signing: GitLab issues an OIDC token scoped to the "sigstore" audience,
+  # cosign uses it to sign/attest against public Sigstore infrastructure with no stored key.
+  id_tokens:
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
+  variables:
+    COSIGN_YES: "true"
   needs:
     - job: Build project
+      artifacts: true
     - job: Launch Sonar
       artifacts: false
   services:
-    - docker:dind
+    - docker:28.5.2-dind
+  before_script:
+    - apk add --no-cache cosign
   script:
     # Gitlab container
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
@@ -572,10 +608,19 @@ Build package:
     - docker push registry.gitlab.com/aweframework/awe/awe-boot:$PROJECT_VERSION
     - digest=$(docker images registry.gitlab.com/aweframework/awe/awe-boot --format="{{.Digest}}" --digests)
     - echo "PACKAGE_DIGEST=$digest" >> build.env
+    # Sign the image once by digest (every floating tag pushed below shares it) and attest the
+    # SBOM built by "Build project" against the same digest.
+    - GITLAB_IMAGE_DIGEST_REF="registry.gitlab.com/aweframework/awe/awe-boot@${digest}"
+    - cosign sign "$GITLAB_IMAGE_DIGEST_REF"
+    - cosign attest --type cyclonedx --predicate target/awe-sbom.json "$GITLAB_IMAGE_DIGEST_REF"
     # Docker Hub container
     - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_TOKEN
     - docker build -t aweframework/awe-boot:$PROJECT_VERSION ./awe-tests/awe-boot
     - docker push aweframework/awe-boot:$PROJECT_VERSION
+    # RepoDigests lists one entry per registry the image was pushed to; pick the Docker Hub one explicitly.
+    - DOCKERHUB_IMAGE_DIGEST_REF=$(docker inspect --format='{{range .RepoDigests}}{{println .}}{{end}}' aweframework/awe-boot:$PROJECT_VERSION | grep '^aweframework/awe-boot@' | head -n1)
+    - test -n "$DOCKERHUB_IMAGE_DIGEST_REF" || { echo "Docker Hub digest not found for aweframework/awe-boot:$PROJECT_VERSION"; exit 1; }
+    - cosign sign "$DOCKERHUB_IMAGE_DIGEST_REF"
     # Support branches (maintenance lines) also get floating major and major.minor tags, never "latest".
     - |
       if [[ "$CI_COMMIT_REF_NAME" == support/* ]]; then
@@ -593,6 +638,23 @@ Build package:
     reports:
       dotenv: build.env
     expire_in: 1 week
+  rules:
+    - <<: *if-develop
+    - <<: *if-master
+    - <<: *if-support
+
+# Scans the image just pushed by "Build package". allow_failure is true for the first weeks
+# after adoption, so findings are visible without blocking releases; tighten once triaged.
+container_scanning:
+  stage: deploy
+  timeout: 15m
+  allow_failure: true
+  needs:
+    - job: Build package
+  variables:
+    # Scan exactly the image that was pushed and signed: by digest, taken from the build.env
+    # dotenv that "Build package" exports (PACKAGE_DIGEST), never by a floating tag.
+    CS_IMAGE: "$CI_REGISTRY_IMAGE/awe-boot@$PACKAGE_DIGEST"
   rules:
     - <<: *if-develop
     - <<: *if-master
@@ -616,7 +678,7 @@ Deploy snapshot:
 
 Deploy Maven Central:
   stage: deploy
-  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest@sha256:3a9587bd84e1ca6ed0550701b3e7ee4b35f4c2c8b580d2aa286a48dd36911682
   interruptible: false
   timeout: 1h
   needs: [ ]
@@ -630,7 +692,7 @@ Deploy Maven Central:
 
 # Kubernetes deployment
 .k8s_deploy:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   cache: { }
   interruptible: false
   timeout: 15m
@@ -689,7 +751,7 @@ dast:
     - <<: *if-develop
 
 pages:
-  image: docker:latest
+  image: docker:28.5.2-cli
   stage: deploy
   cache: { }
   interruptible: false
@@ -713,7 +775,7 @@ pages:
     - <<: *if-develop
 
 Generate release notes:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest@sha256:3a9587bd84e1ca6ed0550701b3e7ee4b35f4c2c8b580d2aa286a48dd36911682
   cache: { }
   interruptible: false
   dependencies: [ ]
@@ -733,7 +795,7 @@ Generate release notes:
 ##############################
 
 Generate a new milestone:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   stage: release
   interruptible: false
   needs: [ ]
@@ -748,7 +810,7 @@ Generate a new milestone:
     - <<: *if-tag
 
 Start a new release:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:latest@sha256:3a9587bd84e1ca6ed0550701b3e7ee4b35f4c2c8b580d2aa286a48dd36911682
   cache: { }
   interruptible: false
   timeout: 1h
@@ -797,7 +859,7 @@ Start a new release:
       allow_failure: true
 
 Notify new release:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:latest@sha256:823e0e37eaebd96a136475f4a626fd851f36a313175e06afd252c01567ed5ea7
   stage: release
   interruptible: false
   # Only announce a release whose artifacts and GitLab release actually exist.
@@ -815,7 +877,7 @@ Notify new release:
 
 Generate gitlab release:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  image: registry.gitlab.com/gitlab-org/release-cli:v0.24.0
   interruptible: false
   needs:
     - job: Generate release notes

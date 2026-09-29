@@ -79,6 +79,64 @@ keys, git identity) are protected CI variables, and GitLab only injects them int
 pipelines of protected refs. On an unprotected support branch those jobs fail with an
 empty Docker login and a `401 Unauthorized` from the Maven repository.
 
+## Supply chain
+
+Every image and service referenced in `.gitlab-ci.yml` is pinned (jobs that come from
+GitLab's own security templates use the analyzer images GitLab maintains): an immutable version tag where
+the upstream publishes one (`maven`, `docker`, `mysql`, `postgres`, `mssql`,
+`release-cli`), or a `tag@sha256:digest` reference where only a `latest` tag exists (the
+`docker-tools` images, `selenoid/firefox`, `selenoid/chrome`, `epiclabs/docker-oracle-
+xe-11g`). The `tag` part of `tag@digest` is kept only so the reference stays
+human-readable; the digest is what actually freezes the image. Nothing in `.gitlab-ci.yml`
+tracks a floating `latest` tag. [Renovate](https://gitlab.com/aweframework/awe/-/issues/761)
+is responsible for opening merge requests that bump these pins (including re-resolving the
+digests), so a pin is never updated by hand-editing `latest`.
+
+`Build project` generates a CycloneDX SBOM (`target/awe-sbom.json`) for the whole Maven
+reactor with the `cyclonedx-maven-plugin`. It is published both as a GitLab `cyclonedx`
+report (visible in the project's dependency list) and as a plain job artifact. `Build
+package` attaches that same SBOM to the `awe-boot` image pushed to the GitLab registry as
+a [cosign](https://github.com/sigstore/cosign) attestation, so the SBOM travels with the
+image itself, not only with the pipeline run. A frontend (npm) SBOM is a follow-up, not
+covered yet.
+
+`Build package` also signs the `awe-boot` image keylessly, using GitLab's own OIDC
+identity (`id_tokens: SIGSTORE_ID_TOKEN`) instead of a stored private key: both the GitLab
+registry image and the Docker Hub image are signed by digest, once, since every floating
+tag (`$PROJECT_VERSION`, and on `support/*` branches the major/major.minor aliases) points
+at that same digest. Verify a released image with:
+
+The certificate identity is the pipeline definition that produced the signature
+(`https://gitlab.com/aweframework/awe//.gitlab-ci.yml@refs/heads/<branch>`), so the
+expression below only accepts images built from the release lines, not from a feature branch:
+
+```bash
+cosign verify \
+  --certificate-identity-regexp '^https://gitlab.com/aweframework/awe//\.gitlab-ci\.yml@refs/heads/(develop|master|support/.+)$' \
+  --certificate-oidc-issuer https://gitlab.com \
+  registry.gitlab.com/aweframework/awe/awe-boot:<version>
+
+cosign verify-attestation --type cyclonedx \
+  --certificate-identity-regexp '^https://gitlab.com/aweframework/awe//\.gitlab-ci\.yml@refs/heads/(develop|master|support/.+)$' \
+  --certificate-oidc-issuer https://gitlab.com \
+  registry.gitlab.com/aweframework/awe/awe-boot:<version>
+```
+
+Scanners run at different points in the pipeline:
+
+- **Dependency scanning** (`gemnasium-maven-dependency_scanning`) runs on merge requests
+  and on `develop`/`master`/`support/*` branch pipelines, as before.
+- **Secret detection** (`secret_detection`) runs on every merge request and every branch
+  pipeline.
+- **Container scanning** (`container_scanning`) runs on `develop`, `master` and
+  `support/*` branch pipelines only, after `Build package` has pushed the image; it has
+  `allow_failure: true` for the first weeks after adoption, so findings surface without
+  blocking releases, and is tightened once triaged.
+
+OWASP dependency-check is intentionally not used: it needs an NVD API key to run at a
+practical speed, and its function is already covered by GitLab's dependency scanning plus
+the CycloneDX SBOM, so adding it would only duplicate that coverage.
+
 ## Releasing from a support branch
 
 Releases are triggered with the manual `Start a new release` pipeline job, on a push
