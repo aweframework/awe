@@ -254,7 +254,7 @@ Build project:
     - mvn $MAVEN_CLI_OPTS install $SKIP_TESTS
     # Aggregate CycloneDX SBOM for the whole reactor (only this job publishes it; the jdk 21
     # variant builds the same reactor and would only duplicate the report).
-    - mvn $MAVEN_CLI_OPTS -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom -DoutputFormat=json -DoutputName=awe-sbom
+    - mvn $MAVEN_CLI_OPTS -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeAggregateBom -DoutputFormat=json -DoutputName=awe-sbom
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - echo "PROJECT_VERSION=$version" >> build.env
   # Keep the cache small: drop the awe-boot fat jar (~250MB per version) and stale AWE snapshots
