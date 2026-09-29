@@ -84,14 +84,17 @@ stages:
 # Pipeline rules
 ##############################
 
+# A pipeline schedule that sets RENOVATE_RUN=true runs only the "Renovate" job. Every other
+# job selects itself through the anchors below and excludes that variable here, so the regular
+# "Weekly Check" schedule (which does not set it) still runs the full pipeline.
 .if-default: &if-default
-  if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\// || $CI_MERGE_REQUEST_IID'
+  if: '$RENOVATE_RUN != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\// || $CI_MERGE_REQUEST_IID)'
 .if-master: &if-master
-  if: '$CI_COMMIT_REF_NAME == "master"'
+  if: '$RENOVATE_RUN != "true" && $CI_COMMIT_REF_NAME == "master"'
 .if-develop: &if-develop
-  if: '$CI_COMMIT_REF_NAME == "develop"'
+  if: '$RENOVATE_RUN != "true" && $CI_COMMIT_REF_NAME == "develop"'
 .if-support: &if-support
-  if: '$CI_COMMIT_REF_NAME =~ /^support\//'
+  if: '$RENOVATE_RUN != "true" && $CI_COMMIT_REF_NAME =~ /^support\//'
 .if-merge-request: &if-merge-request
   if: '$CI_MERGE_REQUEST_IID'
 .if-tag: &if-tag
@@ -144,7 +147,7 @@ stages:
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-website
 .if-branches: &if-branches           # develop, master, support/*: always complete
-  if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//'
+  if: '$RENOVATE_RUN != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//)'
 
 ##############################
 # Build stage
@@ -185,6 +188,61 @@ stages:
     paths:
       - website/build
     expire_in: 1 day
+
+.renovate-image:
+  image:
+    name: ghcr.io/renovatebot/renovate:44@sha256:5e9ea3e65b3e8e7c0caf813214ed0705827433b7ea19e65f697083cca3a9c0e7   # major pin + digest; Renovate updates its own pin
+    entrypoint: [""]
+
+# Runs from the "Renovate" pipeline schedule only (variable RENOVATE_RUN=true); configuration lives
+# in renovate.json. See "Dependency updates" in website/docs/guides/release-lines-and-support.md.
+Renovate:
+  extends: .renovate-image
+  stage: build
+  interruptible: false
+  timeout: 1h
+  needs: []
+  variables:
+    RENOVATE_PLATFORM: gitlab
+    RENOVATE_ENDPOINT: $CI_API_V4_URL
+    RENOVATE_REPOSITORIES: $CI_PROJECT_PATH
+    RENOVATE_ONBOARDING: "false"
+    RENOVATE_REQUIRE_CONFIG: required
+    RENOVATE_BASE_DIR: $CI_PROJECT_DIR/renovate
+    RENOVATE_REPOSITORY_CACHE: enabled
+    LOG_LEVEL: info
+    FORCE_COLOR: "3"
+  # RENOVATE_TOKEN (masked, protected project access token) and the optional
+  # RENOVATE_GITHUB_COM_TOKEN come from CI variables. Set RENOVATE_DRY_RUN=full on the
+  # schedule to rehearse a run without opening merge requests.
+  script:
+    - renovate
+  # The RENOVATE_TOKEN variable is scoped to this environment so that no other job on a
+  # protected ref receives it (build jobs execute dependency code).
+  environment:
+    name: renovate
+    action: prepare
+  cache:
+    key: renovate
+    paths:
+      - renovate/cache/renovate/repository/
+    when: always
+  resource_group: renovate
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RENOVATE_RUN == "true"'
+
+# Validates renovate.json (repository config, strict) on merge requests that change it.
+Validate renovate config:
+  extends: .renovate-image
+  stage: build
+  needs: []
+  timeout: 10m
+  script:
+    - renovate-config-validator --strict
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - renovate.json
 
 Build project:
   extends: .build

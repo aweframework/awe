@@ -83,9 +83,13 @@ checking out `develop`.
 and Sonar jobs as `develop`; they additionally publish snapshot deploys and Docker
 images. See the table in
 [Release lines and support](website/docs/guides/release-lines-and-support.md) for the
-full per-branch pipeline breakdown. All pipeline images in `.gitlab-ci.yml` are pinned
-(by version tag or by digest) and are only ever updated through Renovate merge requests,
-never by editing a `latest` tag directly.
+full per-branch pipeline breakdown. Pins and dependency versions
+are updated by the Renovate bot through merge requests (see
+[Dependency updates](website/docs/guides/release-lines-and-support.md#dependency-updates)).
+On `develop`, patch releases of direct Maven and npm dependencies automerge once the
+merge-request pipeline passes and everything else is merged by a person; on `support/4.x`
+only patch and security updates are opened and a maintainer merges them. Never bump a pinned
+image by hand-editing a `latest` tag.
 
 ### Docker image tags
 
