@@ -462,7 +462,15 @@ Javadoc test:
 .browser-testing:
   image: maven:3.9.9-eclipse-temurin-21
   stage: integration test
-  allow_failure: true
+  # Selenium suites block the pipeline (and therefore Renovate's automerge and the release jobs
+  # that need Sonar). One automatic job retry absorbs an occasional flaky run until per-test
+  # retry and a quarantine exist (#766); a real regression fails twice and still blocks.
+  # Timeouts are not retried: a hung browser session should fail within one timeout window.
+  retry:
+    max: 1
+    when:
+      - script_failure
+      - runner_system_failure
   timeout: 30m
   variables:
     SCREEN_WIDTH: 1440
