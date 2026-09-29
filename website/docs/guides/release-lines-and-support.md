@@ -166,7 +166,9 @@ docker-compose images and the Node toolchain. At most 8 bot merge requests are o
 (security fixes are exempt from that limit). Every merge request carries the `update-dependencies` label (plus `security` for
 vulnerability fixes) and a Conventional Commit message, `fix(deps)` for runtime
 dependencies and `chore(deps)` otherwise. A "Dependency Dashboard" issue lists pending,
-open and blocked updates. Security alerts come from the OSV database and cover direct
+open and blocked updates; major updates of the legacy AngularJS client
+(`awe-client-angular`, `awe-tools` and the `awe-tests` applications) are only opened after
+someone ticks them there, since that client is being replaced in AWE 5. Security alerts come from the OSV database and cover direct
 dependencies only.
 
 Bot merge requests go through the selective merge-request pipeline: a `pom.xml` change

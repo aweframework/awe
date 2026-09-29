@@ -69,6 +69,21 @@
       "allowedVersions": "<8"
     },
     {
+      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. Security fixes are not held back (vulnerability alerts disable the approval step).",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-client-angular/**",
+        "awe-framework/awe-modules/awe-tools/**",
+        "awe-tests/**/package.json"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
       "description": "Maintenance line: patch, pin, digest and security fixes only.",
       "matchBaseBranches": [
         "support/4.x"
