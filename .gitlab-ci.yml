@@ -602,6 +602,21 @@ Launch Sonar:
       paths:
         - .sonar/cache
   script:
+    # A merge-request pipeline that did not run "Frontend UT" (backend-only change) has no Jest
+    # report directory at all, and the Sonar scanner fails on a missing generic test execution
+    # report (sonar.testExecutionReportPaths in the root pom). Only in that case provide an empty
+    # but valid report so the Java analysis still runs. If the directory exists (Frontend UT ran)
+    # but the report is missing, fail loudly instead of hiding a broken artifact.
+    - JEST_REPORTS_DIR=awe-framework/awe-client-angular/target/reports/jest
+    - |
+      if [ ! -d "$JEST_REPORTS_DIR" ]; then
+        mkdir -p "$JEST_REPORTS_DIR/sonar"
+        echo '<testExecutions version="1"></testExecutions>' > "$JEST_REPORTS_DIR/sonar/javascriptUnitTests.xml"
+        echo "Frontend UT was not part of this pipeline: Sonar runs with an empty Jest report"
+      elif [ ! -f "$JEST_REPORTS_DIR/sonar/javascriptUnitTests.xml" ]; then
+        echo "Frontend UT ran but its Sonar report is missing under $JEST_REPORTS_DIR" >&2
+        exit 1
+      fi
     # SonarCloud rejects branch parameters on merge request analyses, so only set sonar.branch.name outside MRs.
     - SONAR_BRANCH_OPTS=""
     - if [ -z "$CI_MERGE_REQUEST_IID" ]; then SONAR_BRANCH_OPTS="-Dsonar.branch.name=$CI_COMMIT_REF_NAME"; fi
