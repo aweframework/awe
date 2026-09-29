@@ -24,7 +24,7 @@
     <javax.activation.version>1.2.0</javax.activation.version>
     <node.version>v24.14.0</node.version>
     <npm.version>11.11.1</npm.version>
-    <st.version>4.3.1</st.version>
+    <st.version>4.3.4</st.version>
     <flexmark.version>0.62.2</flexmark.version>
     <mail.version>1.4.7</mail.version>
     <jasypt.version>3.0.5</jasypt.version>
