@@ -269,11 +269,15 @@ Build project:
   artifacts:
     reports:
       dotenv: build.env
-      cyclonedx: target/awe-sbom.json
     paths:
       - awe-tests/awe-boot/target/awe-boot.jar
       # AWE modules installed by this build, consumed by the browser testing jobs
       - .m2/repository/com/almis/awe/
+      # Aggregate SBOM: kept as a plain artifact and attached to the image by "Build package".
+      # It is deliberately NOT declared as a "reports: cyclonedx" artifact: GitLab's dependency
+      # list requires its own CycloneDX properties (gitlab:meta:schema_version, input_file:path)
+      # and flags "Error parsing SBOM reports" otherwise; the gemnasium job already feeds the
+      # dependency list with a GitLab-formatted SBOM of the same Maven reactor.
       - target/awe-sbom.json
     expire_in: 1 day
   cache:
