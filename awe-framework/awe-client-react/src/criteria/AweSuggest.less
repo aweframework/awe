@@ -1,0 +1,37 @@
+.p-autocomplete-loader {
+  z-index: 1;
+}
+
+.p-autocomplete .p-autocomplete-dropdown {
+  background: transparent;
+  color: var(--text-color-secondary);
+  width: 30px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-width: 0;
+  border-color: transparent;
+  margin-right: -30px;
+  position: relative;
+  left: -35px;
+  z-index: 1;
+
+  &:enabled:hover, &:enabled:focus {
+    background: transparent;
+    color: var(--text-color-secondary);
+  }
+
+}
+
+.p-autocomplete.p-autocomplete-dd .p-autocomplete-input {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.awe-virtual-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: -15px;
+  line-height: 38px;
+  padding: 0 5px;
+}

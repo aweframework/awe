@@ -1,0 +1,79 @@
+// Vertical tabs
+.p-tabmenu-container {
+  .p-tabmenu {
+    .p-tabmenuitem:before {
+      top: 33px;
+    }
+
+    .p-tabmenuitem {
+      .p-menuitem-link {
+        outline: inherit;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+
+        .p-tab-icon {
+          height: 1rem;
+          width: 2rem;
+        }
+
+        .p-tab-text {
+          justify-items: center;
+          display: inline-flex;
+          flex-direction: column;
+          text-align: left;
+
+          .p-tab-supertitle {
+            font-size: 0.8rem;
+            color: var(--gray-500)
+          }
+        }
+
+        .p-tab-unit {
+          margin-left: 2rem;
+          align-self: flex-end;
+        }
+
+        &.p-highlight {
+          .p-tab-icon {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: var(--surface-a);
+          }
+        }
+      }
+    }
+  }
+
+  &.orientation-vertical {
+    .p-tabmenu {
+      margin-right: 1rem;
+      margin-left: 1rem;
+
+      .p-tabmenu-nav {
+        flex-direction: column;
+        border-width: 0 0 0 3px;
+      }
+
+      .p-tabmenuitem {
+        justify-content: flex-start;
+        margin-left: -3px;
+
+        .p-menuitem-link {
+          border-width: 0 0 0 3px;
+          flex-direction: row;
+          align-items: flex-start;
+          justify-items: flex-start;
+          border-radius: 0;
+          padding: 1.5rem;
+
+          .p-tab-text {
+            justify-items: left;
+            margin-left: 0.5rem;
+            align-self: flex-start;
+          }
+        }
+      }
+    }
+  }
+}

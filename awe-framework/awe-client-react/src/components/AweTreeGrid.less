@@ -1,0 +1,44 @@
+.p-treetable {
+  &.p-treetable-sm .p-treetable-tbody > tr > td.p-cell-editing {
+    padding: 1px;
+  }
+
+  .p-column-header-content {
+    justify-content: center;
+  }
+
+  .p-treetable-tbody > tr .p-treetable-emptymessage {
+    display: none;
+  }
+
+  .p-treetable-scrollable-wrapper, .p-treetable-scrollable-view {
+    display: flex;
+    flex: 1 1;
+    flex-direction: column;
+  }
+
+  .p-treetable-scrollable-wrapper .p-treetable-scrollable-view .p-treetable-scrollable-body {
+    overflow-y: scroll;
+    flex: 1 1;
+    position: relative;
+
+    .p-treetable-scrollable-body-table {
+      position: absolute;
+    }
+  }
+
+  .p-treetable-expander-column {
+    display: flex;
+    flex-flow: nowrap;
+    align-items: center;
+  }
+}
+
+
+.p-treetable-loading-overlay.p-component-overlay  {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.layout-dark .p-treetable-loading.p-component-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}

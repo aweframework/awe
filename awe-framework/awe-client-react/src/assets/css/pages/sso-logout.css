@@ -1,0 +1,221 @@
+/*******************************************************************************
+ LOGOUT SSO SCREEN STYLES
+*******************************************************************************/
+
+/* sso logout screen background - solid color for light mode */
+html body .sso-logout-screen {
+    background: var(--surface-a) !important;
+    min-height: 100vh;
+}
+
+/* Page background with sso overlay */
+#page-sso-logout-bg {
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 20;
+}
+
+/* sso solid overlay */
+#page-sso-logout-bg .sso-overlay {
+    background: var(--surface-b);
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Static background pattern */
+#page-sso-logout-bg .sso-pattern {
+    background-color: var(--surface-a);
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* sso logout screen container */
+.sso-logout-screen h1 {
+    background: url('../../images/logos/awe-logo2.svg') no-repeat center center;
+    margin: 0;
+    padding: 0;
+    height: 58px;
+}
+
+.sso-logout-screen h1 span {
+    display: none;
+}
+
+/* Main container with sso card design */
+.sso-logout-screen .sso-logout-container {
+    background: var(--surface-a);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: block;
+    max-width: 450px;
+    position: relative;
+    z-index: 999;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 60px auto 20px;
+}
+
+/* sso header with solid color */
+.sso-logout-screen .sso-logout-header {
+    background: var(--primary-color);
+    display: block;
+    overflow: hidden;
+    padding: 40px 30px;
+    text-align: center;
+    position: relative;
+}
+
+.sso-logout-screen .sso-logout-header .logo {
+    color:var(--surface-a);
+    font-size: 28px;
+    font-weight: 700;
+    opacity: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.sso-logout-screen .sso-logout-header .logo[href]:hover {
+    opacity: .9;
+}
+
+.sso-logout-screen .sso-logout-header .slogan {
+    color: var(--surface-b);
+    margin-top: 10px;
+    text-align: center;
+    font-variant: small-caps;
+    font-weight: 600;
+    font-size: 16px;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+}
+
+/* sso form section */
+.sso-logout-screen .sso-logout-form {
+    background: var(--surface-a);
+    display: block;
+    padding: 40px 30px;
+    position: relative;
+    text-align: center;
+}
+
+/* Main message styling */
+.sso-logout-screen .sso-logout-form > div:first-child {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.sso-logout-screen .sso-logout-form > div:first-child span {
+    color: var(--primary-color);
+}
+
+/* Secondary text styling */
+.sso-logout-screen .sso-logout-form .sso-logout-text {
+    color: var(--text-color);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.sso-logout-screen .sso-logout-form .sso-logout-text span {
+    font-weight: 500;
+}
+
+/* Button container */
+.sso-logout-screen .sso-logout-form .sso-logout-actions {
+    margin-top: 30px;
+}
+
+/* sso button styling */
+.sso-logout-screen .sso-logout-form .sso-logout-actions .sso-logout-btn {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    outline: 0 !important;
+    padding: 15px 40px;
+    text-align: center;
+    width: 100%;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(108, 122, 224, 0.3);
+}
+
+/* Simple hover effect */
+.sso-logout-screen .sso-logout-form .sso-logout-actions .sso-logout-btn:hover {
+    background: var(--hover-color);
+}
+
+/* Icon styling */
+.sso-logout-screen .sso-logout-form .sso-logout-actions .sso-logout-btn i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sso-logout-screen .sso-logout-container {
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    .sso-logout-screen .sso-logout-header {
+        padding: 30px 20px;
+    }
+
+    .sso-logout-screen .sso-logout-header .logo {
+        font-size: 24px;
+    }
+
+    .sso-logout-screen .sso-logout-header .slogan {
+        font-size: 14px;
+    }
+
+    .sso-logout-screen .sso-logout-form {
+        padding: 30px 20px;
+    }
+
+    .sso-logout-screen .sso-logout-form > div:first-child {
+        font-size: 20px;
+    }
+
+    .sso-logout-screen .sso-logout-form .sso-logout-text {
+        font-size: 14px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .sso-logout-screen .sso-logout-container {
+        background: rgba(30, 30, 30, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sso-logout-screen .sso-logout-form {
+        background: #1e1e1e;
+    }
+
+    .sso-logout-screen .sso-logout-form > div:first-child {
+        color: #fff;
+    }
+
+    .sso-logout-screen .sso-logout-form .sso-logout-text {
+        color: #ccc;
+    }
+}

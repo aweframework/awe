@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : dashboard.xml
+    Created on : 25 de Julio de 2024
+    Author     : Pablo GARCIA
+    Description: Dashboard (sample) screen
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window"
+        label="MENU_DASHBOARD" help="HELP_MENU_DASHBOARD">
+    <tag source="buttons">
+        <button id="testChart" label="PARAMETER_TEXT" icon="eraser" button-type="button">
+            <button-action type="filter" target="fundProfitabilityChart"/>
+        </button>
+        <button id="testReload" label="PARAMETER_RELOAD" icon="mdi:autorenew" button-type="button">
+            <button-action type="reload"/>
+        </button>
+    </tag>
+    <tag source="center" expandible="vertical">
+        <tag type="div" style="expand" expandible="horizontal">
+            <window label="PARAMETER_TEXT" icon="mdi:analytics" style="expand" help="PARAMETER_TEXT">
+                <chart id="chart-analytics" label="PARAMETER_TEXT" type="column" initial-load="query"
+                       target-action="QryEdiTst">
+                    <chart-legend enabled="true"/>
+                    <x-axis label="Themes"/>
+                    <y-axis label="Values"/>
+                    <chart-tooltip suffix=" %" number-decimals="2"/>
+                    <chart-serie id="serie1" x-value="Txt" y-value="Num" label="Themes"/>
+                    <chart-serie id="serie2" x-value="Txt" y-value="Num2" label="Other themes" />
+                </chart>
+            </window>
+            <window label="PARAMETER_TEXT" icon="mdi:insights" style="expand">
+                <chart id="fundProfitabilityChart" type="line" initial-load="query" target-action="dummyLineQuery" zoom-type="xAxis" max="0" label="PARAMETER_TEXT">
+                    <chart-legend enabled="true"/>
+                    <x-axis label="DATE" type="datetime"/>
+                    <y-axis label="PROFITABILITY"/>
+                    <chart-tooltip suffix=" %" number-decimals="2"/>
+                    <chart-serie id="serie1" x-value="dates" y-value="profitability" label="PROFITABILITY"/>
+                </chart>
+            </window>
+            <window label="PARAMETER_TEXT" icon="mdi:donut_small" style="expand">
+                <chart id="chart-donut" label="PARAMETER_TEXT" type="donut_3d" initial-load="query"
+                       target-action="TstChrPieSrc" max="5"
+                       help-image="HELP_CHART_IMAGE_7">
+                    <chart-legend enabled="true"/>
+                    <x-axis label="Themes"/>
+                    <y-axis label="Percent (%)"/>
+                    <chart-tooltip suffix=" %" number-decimals="2"/>
+                    <chart-serie id="serie1" x-value="names" y-value="serie1" label="Themes"/>
+                    <chart-parameter type="object" name="plotOptions">
+                        <chart-parameter type="object" name="pie">
+                            <chart-parameter type="string" name="size" value="75%"/>
+                            <chart-parameter type="string" name="innerSize" value="40%"/>
+                        </chart-parameter>
+                    </chart-parameter>
+                </chart>
+            </window>
+        </tag>
+        <tag type="div" style="expand" expandible="horizontal">
+            <window label="PARAMETER_TEXT" icon="mdi:table_view" style="expand">
+                <grid id="data-grid-1" style="expand" initial-load="query" server-action="data"
+                      target-action="QryUniTstId" max="30">
+                    <column label="PARAMETER_TEXT" name="Als" sort-field="Als" align="left" charlength="20"
+                            style="separator"/>
+                    <column label="PARAMETER_TEXT" name="DwnFil" sort-field="Des" align="left" width="*"
+                            component="text-view" icon="download" unit="5">
+                        <dependency>
+                            <dependency-element id="data-grid-1" column="DwnFil" attribute="selectedRowValue"
+                                                event="click"/>
+                            <dependency-action type="server-download" server-action="get-file-maintain"
+                                               target-action="downloadFileGrid"/>
+                        </dependency>
+                    </column>
+                    <column label="PARAMETER_TEXT" name="TxtViw" sort-field="Des" align="right" charlength="10"
+                            component="text-view"/>
+                    <column label="PARAMETER_TEXT" name="TxtSty" sort-field="Des" align="right" charlength="10"/>
+                </grid>
+            </window>
+            <window label="PARAMETER_TEXT" icon="mdi:table_chart" style="expand">
+                <grid id="data-grid-2" style="expand" initial-load="query" server-action="data"
+                      target-action="QryEdiTst" max="30">
+                    <column label="PARAMETER_TEXT" name="Txt" sort-field="Txt" align="left" charlength="40"
+                            style="separator"/>
+                    <column label="PARAMETER_TEXT" name="Sug" sort-field="Sug" align="left" width="*" component="text-view" icon="download" unit="5"/>
+                </grid>
+            </window>
+        </tag>
+    </tag>
+</screen>

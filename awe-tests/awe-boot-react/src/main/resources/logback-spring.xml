@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Includes -->
+    <include resource="com/almis/awe/logging/awe-log.xml"/>
+    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/>
+
+</configuration>

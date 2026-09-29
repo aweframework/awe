@@ -1,0 +1,15 @@
+import './ColumnStaticNumericTest';
+import './ColumnSuggestTest';
+import './ColumnButtonTest';
+import './ColumnUploaderTest';
+import './ColumnColorTest';
+import './ColumnTextViewTest';
+import './ColumnTextTest';
+import './ColumnLinkTest';
+import './ColumnImageTest';
+import './ColumnProgressTest';
+import './ColumnStaticColorTest';
+import './ColumnSelectTest';
+import './ColumnSelectMultipleTest';
+import './ColumnTimeTest';
+import './ColumnSuggestMultipleTest';

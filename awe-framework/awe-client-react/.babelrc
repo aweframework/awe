@@ -1,0 +1,19 @@
+{
+  "presets": [
+    "@babel/preset-env",
+    "@babel/preset-react"
+  ],
+  "env": {
+    "development": {
+      "compact": false,
+      "plugins": [
+        ["istanbul", {"exclude": ["**/test/", "**/node_modules/"]}]
+      ]
+    },
+    "production": {
+      "plugins": [
+        ["istanbul", {"exclude": ["**/test/", "**/node_modules/"]}]
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+.p-menubar .p-submenu-list {
+  z-index: 10;
+}
+
+/* Positioning context for the menu option search panel */
+.awe-menu-container {
+  position: relative;
+}

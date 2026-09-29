@@ -1,0 +1,9 @@
+import './validationTest';
+import './componentsReducerTest';
+import './componentsReducerColumnsTest';
+import './componentsReducerGridTest';
+import './componentsReducerKeepRestoreTest';
+import './componentsReducerCellTest';
+import './componentsReducerRegistryTest';
+import './componentsReducerGroupAndRestoreTest';
+import './actionsReducerTest.jsx';

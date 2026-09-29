@@ -1,0 +1,14 @@
+.window-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-left: auto;
+  align-content: flex-start;
+}
+
+.breadcrumb-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
