@@ -83,7 +83,9 @@ checking out `develop`.
 and Sonar jobs as `develop`; they additionally publish snapshot deploys and Docker
 images. See the table in
 [Release lines and support](website/docs/guides/release-lines-and-support.md) for the
-full per-branch pipeline breakdown.
+full per-branch pipeline breakdown. All pipeline images in `.gitlab-ci.yml` are pinned
+(by version tag or by digest) and are only ever updated through Renovate merge requests,
+never by editing a `latest` tag directly.
 
 ### Docker image tags
 
