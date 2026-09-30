@@ -18,6 +18,24 @@ aweApplication.factory('AweUtilities',
     function ($log, $window, $compile, $timeout, $interval, $rootScope, Storage, $q, $location, $base64) {
       let Utilities = {
         /**
+         * Copy a text into the clipboard. A rejected clipboard write is logged instead of being left unhandled.
+         * @public
+         * @param {String} text Text to copy
+         * @param {String} context What is being copied, for the error message
+         * @return {Promise} Resolved once the copy has finished or its failure has been logged
+         */
+        copyToClipboard: function (text, context) {
+          const logError = function (error) {
+            $log.error("[ERROR] " + context + " to the clipboard", error);
+          };
+          // navigator.clipboard does not exist in non-secure (http) contexts: calling it would throw
+          if (!navigator.clipboard) {
+            logError(new Error("Clipboard API not available"));
+            return Promise.resolve();
+          }
+          return navigator.clipboard.writeText(text).catch(logError);
+        },
+        /**
          * Indicates if parameter is a string
          * @public
          * @param  {Object} objeto Object to check

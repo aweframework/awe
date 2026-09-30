@@ -125,4 +125,34 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/utilities.js',
     const actions6 = $utilities.manageRestError({status: 504, title: "", message: ""}, "tutu");
     expect(actions6.length).toEqual(2);
   });
+
+  describe('copyToClipboard', function () {
+    let $log, writeText;
+    beforeEach(function () {
+      $log = $injector.get('$log');
+      jest.spyOn($log, 'error').mockImplementation(() => {});
+      writeText = jest.fn();
+      Object.defineProperty(navigator, 'clipboard', {value: {writeText}, configurable: true});
+    });
+
+    it('should copy the text and log nothing when the clipboard accepts it', async function () {
+      writeText.mockResolvedValue(undefined);
+      await $utilities.copyToClipboard("some text", "Copying test value");
+      expect(writeText).toHaveBeenCalledWith("some text");
+      expect($log.error).not.toHaveBeenCalled();
+    });
+
+    it('should log the failure with its context instead of leaving the promise rejected', async function () {
+      const error = new Error("denied");
+      writeText.mockRejectedValue(error);
+      await expect($utilities.copyToClipboard("some text", "Copying test value")).resolves.toBeUndefined();
+      expect($log.error).toHaveBeenCalledWith("[ERROR] Copying test value to the clipboard", error);
+    });
+
+    it('should log and resolve when the clipboard API is not available (non-secure context)', async function () {
+      Object.defineProperty(navigator, 'clipboard', {value: undefined, configurable: true});
+      await expect($utilities.copyToClipboard("some text", "Copying test value")).resolves.toBeUndefined();
+      expect($log.error).toHaveBeenCalledWith("[ERROR] Copying test value to the clipboard", expect.any(Error));
+    });
+  });
 });

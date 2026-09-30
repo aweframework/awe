@@ -3,15 +3,16 @@ import {ClientActions} from "../../data/actions";
 
 // Grid events service
 aweApplication.factory('GridEvents',
-  ['ActionController', 'Control', '$translate',
+  ['ActionController', 'Control', '$translate', '$log',
     /**
      * Grid generic methods
      *
      * @param {service} $actionController Action controller service
      * @param {service} Control Awe control service
      * @param {service} $translate Translate service
+     * @param {service} $log Log service
      */
-    function ($actionController, Control, $translate) {
+    function ($actionController, Control, $translate, $log) {
       /**
        * Add a row
        * @param {Object} parameters Action parameters
@@ -404,7 +405,10 @@ aweApplication.factory('GridEvents',
           })
 
           // Copy the lines into the clipboard
-          navigator.clipboard.writeText(rowsPrintData.join("\n"));
+          navigator.clipboard.writeText(rowsPrintData.join("\n"))
+            .catch(function (error) {
+              $log.error("[ERROR] Copying selected rows to the clipboard", error);
+            });
         },
         /**
          * Update row

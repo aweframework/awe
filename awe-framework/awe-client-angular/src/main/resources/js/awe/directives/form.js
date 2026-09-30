@@ -187,7 +187,7 @@ aweApplication.directive('aweForm',
 
           // Copy the lines into the clipboard
           document.body.focus();
-          navigator.clipboard.writeText(Utilities.isEmpty(model.selected) ? "" : model.selected);
+          Utilities.copyToClipboard(Utilities.isEmpty(model.selected) ? "" : model.selected, "Copying criterion value");
 
           // Finish action
           $actionController.acceptAction(action);

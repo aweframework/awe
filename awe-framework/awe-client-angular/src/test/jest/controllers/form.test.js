@@ -6,7 +6,7 @@ import "../../../main/resources/webpack/locals-eu-ES.config";
 import "../../../main/resources/webpack/locals-fr-FR.config";
 
 describe("controllers/form.js", function() {
-  let scope, compile, utilities, settings, actionController, control, serverData, validator, connection, httpBackend;
+  let scope, compile, utilities, settings, actionController, control, serverData, validator, connection, httpBackend, $log;
 
   function defineForm() {
     const element = compile("<form awe-form=''></form>")(scope);
@@ -33,8 +33,9 @@ describe("controllers/form.js", function() {
 
   beforeEach(function() {
     angular.mock.module("aweApplication");
-    inject(["$rootScope", "$compile", "ServerData", "Validator", "AweUtilities", "AweSettings", "ActionController", "Control", "$httpBackend", "Connection",
-      function($rootScope, $compile, ServerData, Validator, AweUtilities, AweSettings, ActionController, Control, $httpBackend, Connection) {
+    inject(["$rootScope", "$compile", "ServerData", "Validator", "AweUtilities", "AweSettings", "ActionController", "Control", "$httpBackend", "Connection", "$log",
+      function($rootScope, $compile, ServerData, Validator, AweUtilities, AweSettings, ActionController, Control, $httpBackend, Connection, _$log_) {
+        $log = _$log_;
         scope = $rootScope.$new();
         compile = $compile;
         serverData = ServerData;
@@ -107,7 +108,7 @@ describe("controllers/form.js", function() {
   });
 
   it("copies the selected criterion value to the clipboard and accepts the action", function() {
-    const clipboard = {writeText: jest.fn()};
+    const clipboard = {writeText: jest.fn().mockResolvedValue(undefined)};
     Object.defineProperty(navigator, "clipboard", {configurable: true, value: clipboard});
     defineForm();
     jest.spyOn(document.body, "focus").mockImplementation(() => null);
@@ -126,7 +127,7 @@ describe("controllers/form.js", function() {
   });
 
   it("copies an empty string when the criterion selection is empty", function() {
-    const clipboard = {writeText: jest.fn()};
+    const clipboard = {writeText: jest.fn().mockResolvedValue(undefined)};
     Object.defineProperty(navigator, "clipboard", {configurable: true, value: clipboard});
     defineForm();
     jest.spyOn(document.body, "focus").mockImplementation(() => null);
@@ -273,5 +274,51 @@ describe("controllers/form.js", function() {
     runFormAction("fill-suggest", {target: "selector", address, parameters: {values}});
 
     expect(control.changeModelAttribute).toHaveBeenCalledWith(address, {selected: "A", values}, true);
+  });
+
+  describe("copy-criterion-value-clipboard", function() {
+    const address = {view: "base", component: "criterion"};
+    let writeText;
+
+    function flushPromises() {
+      return new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    beforeEach(function() {
+      writeText = jest.fn();
+      Object.defineProperty(navigator, "clipboard", {value: {writeText}, configurable: true, writable: true});
+      jest.spyOn(control, "getAddressModel").mockReturnValue({selected: "value"});
+      jest.spyOn($log, "error").mockImplementation(() => null);
+      jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+      defineForm();
+    });
+
+    afterEach(function() {
+      delete navigator.clipboard;
+    });
+
+    it("copies the value, accepts the action and logs nothing when the clipboard write succeeds", async function() {
+      writeText.mockResolvedValue(undefined);
+
+      const action = runFormAction("copy-criterion-value-clipboard", {target: "criterion", address});
+      await flushPromises();
+
+      expect(writeText).toHaveBeenCalledWith("value");
+      expect(actionController.acceptAction).toHaveBeenCalledWith(action);
+      expect($log.error).not.toHaveBeenCalled();
+    });
+
+    it("logs the rejection without delaying the action when the clipboard write fails", async function() {
+      const error = new Error("Write permission denied");
+      writeText.mockRejectedValue(error);
+
+      const action = runFormAction("copy-criterion-value-clipboard", {target: "criterion", address});
+      // The action is accepted right away, before the clipboard promise settles
+      expect(actionController.acceptAction).toHaveBeenCalledWith(action);
+      await flushPromises();
+
+      expect($log.error).toHaveBeenCalledTimes(1);
+      expect($log.error).toHaveBeenCalledWith(expect.stringContaining("clipboard"), error);
+    });
   });
 });
