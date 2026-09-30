@@ -74,6 +74,13 @@
             <phase>test</phase>
             <configuration>
               <arguments>run test:coverage</arguments>
+              <!-- Force the test environment: Jest keeps an inherited NODE_ENV, and the CI project variable
+                   NODE_ENV=production (which overrides job-level variables) would load React's production
+                   build, where act() is not supported. -->
+              <environmentVariables>
+                <NODE_ENV>test</NODE_ENV>
+                <BABEL_ENV>test</BABEL_ENV>
+              </environmentVariables>
             </configuration>
           </execution>
         </executions>
