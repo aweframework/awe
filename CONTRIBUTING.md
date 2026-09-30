@@ -80,9 +80,9 @@ full per-branch pipeline breakdown.
 
 ### Docker image tags
 
-Every build publishes an image tagged with its exact version (e.g. `4.12.10-SNAPSHOT`).
+Every build publishes an image tagged with its exact version (e.g. `4.13.0-SNAPSHOT`).
 Builds from a `support/*` branch additionally get two floating aliases, the major
-version (`4`) and the major.minor version (`4.12`), which are repointed to every new
+version (`4`) and the major.minor version (`4.13`), which are repointed to every new
 build on that line, snapshot or release. There is no `latest` tag on any branch.
 
 ### Support window (proposed)
