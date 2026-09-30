@@ -1,5 +1,5 @@
 import React from 'react';
-import {cleanup, fireEvent, screen, waitFor} from '@testing-library/react';
+import {cleanup, fireEvent, screen} from '@testing-library/react';
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweAccordion from "../../../src/components/AweAccordion";
@@ -55,11 +55,11 @@ describe('awe-react-client/test/js/components/AweAccordionTest.jsx', () => {
 
     expect(document.querySelector(".p-accordion")).toHaveClass("estilo-especifico");
     expect(document.querySelector(".p-accordion-tab")).toBeDefined();
-    await waitFor(() => expect(screen.findByText("prueba")).toBeDefined());
+    expect(await screen.findByText("prueba")).toBeDefined();
 
     fireEvent.click(screen.getByText("prueba"));
 
-    await waitFor(() => expect(screen.findByText("lo de dentro")).toBeDefined());
+    expect(await screen.findByText("lo de dentro")).toBeDefined();
   });
 
   it('renders Awe Accordion component multiple', async () => {
@@ -84,10 +84,10 @@ describe('awe-react-client/test/js/components/AweAccordionTest.jsx', () => {
 
     expect(document.querySelector(".p-accordion")).toHaveClass("estilo-especifico");
     expect(document.querySelector(".p-accordion-tab")).toBeDefined();
-    await waitFor(() => expect(screen.findByText("prueba")).toBeDefined());
+    expect(await screen.findByText("prueba")).toBeDefined();
 
     fireEvent.click(screen.getByText("prueba"));
 
-    await waitFor(() => expect(screen.findByText("lo de dentro")).toBeDefined());
+    expect(await screen.findByText("lo de dentro")).toBeDefined();
   });
 });

@@ -28,12 +28,12 @@ describe('awe-react-client/test/js/criteria/AweInputTextareaTest.jsx', () => {
     }
   };
 
-  it('renders Awe Input Textarea component', () => {
+  it('renders Awe Input Textarea component', async () => {
     renderWithProviders(<AweInputTextarea id="textarea"/>, {preloadedState});
 
     // check
     expect(document.querySelector("textarea#textarea")).not.toBeNull();
-    expect(screen.findByPlaceholderText("placeholder")).not.toBeNull();
+    expect(await screen.findByPlaceholderText("placeholder")).not.toBeNull();
   });
 
 });

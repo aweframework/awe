@@ -26,11 +26,11 @@ describe('awe-react-client/test/js/criteria/AweSelectTest.jsx', () => {
     }
   };
 
-  it('renders Awe Select component', () => {
+  it('renders Awe Select component', async () => {
     renderWithProviders(<AweSelect id="select"/>, {preloadedState});
 
     // check
-    expect(screen.findByRole("button")).not.toBeNull();
+    expect(await screen.findByRole("button")).not.toBeNull();
   });
 
 });

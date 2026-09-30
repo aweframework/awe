@@ -32,12 +32,12 @@ describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx', () => {
     }
   };
 
-  it('renders Awe Select Multiple component', () => {
+  it('renders Awe Select Multiple component', async () => {
     renderWithProviders(<AweSelectMultiple id="select-multiple"/>, {preloadedState});
 
     // check
-    expect(screen.findByText("test")).not.toBeNull();
-    expect(screen.findByText("tutu")).not.toBeNull();
+    expect(await screen.findByText("test")).not.toBeNull();
+    expect(await screen.findByText("tutu")).not.toBeNull();
   });
 
 });

@@ -28,8 +28,8 @@ describe('awe-react-client/test/js/criteria/AwePicklistTest.jsx', () => {
   it('renders Awe Picklist component', async () => {
     renderWithProviders(<AwePicklist id="picklist"/>, {preloadedState});
 
-    // check
-    await (() => expect(screen.findByRole("listbox")).not.toBeNull());
+    // check: a picklist has two lists, the source one and the target one
+    expect(await screen.findAllByRole("listbox")).toHaveLength(2);
   });
 
 });

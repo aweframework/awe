@@ -27,11 +27,11 @@ describe('awe-react-client/test/js/criteria/AweInputFilteredDateTest.jsx', () =>
     }
   };
 
-  it('renders Awe Input FilteredDate component', () => {
+  it('renders Awe Input FilteredDate component', async () => {
     renderWithProviders(<AweInputFilteredDate id="filteredDate"/>, {preloadedState});
 
     // check
-    expect(screen.findByRole("combobox")).not.toBeNull();
+    expect(await screen.findByRole("combobox")).not.toBeNull();
   });
 
 });

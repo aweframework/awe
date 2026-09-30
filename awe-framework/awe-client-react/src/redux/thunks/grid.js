@@ -622,7 +622,8 @@ export const copySelectedRowsToClipboardGridAction = (action, t) => {
       .join("\n");
 
     // Get selected lines values and store them into the clipboard
-    navigator.clipboard.writeText(clipboardHeaders + clipboardData);
+    navigator.clipboard.writeText(clipboardHeaders + clipboardData)
+      .catch((reason) => console.error("Error copying the selected rows to the clipboard:", reason));
   };
 };
 

@@ -298,7 +298,7 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     expect(screen.getAllByRole("button")[0]).toHaveClass("p-column-filter-menu-button");
   });
 
-  it('renders Awe Grid component with footer', () => {
+  it('renders Awe Grid component with footer', async () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,
       screen: {
@@ -383,13 +383,13 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     // check
     expect(screen.getByRole("table")).toBeDefined();
     expect(screen.getAllByRole("cell")[1]).toHaveClass("p-row-number-cell");
-    expect(screen.findByText("55,40 EUR")).toBeDefined();
-    expect(screen.findByText("$535,853.1")).toBeDefined();
-    expect(screen.findByText("35,0000 EUR")).toBeDefined();
-    expect(screen.findByText("8 EUR")).toBeDefined();
+    expect(await screen.findByText("55,40 EUR")).toBeDefined();
+    expect(await screen.findByText("$535,853.1")).toBeDefined();
+    expect(await screen.findByText("35,0000 EUR")).toBeDefined();
+    expect(await screen.findByText("8 EUR")).toBeDefined();
   });
 
-  it('renders Awe Grid component with footer without rows', () => {
+  it('renders Awe Grid component with footer without rows', async () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,
       screen: {
@@ -451,7 +451,7 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     // check
     expect(screen.getByRole("table")).toBeDefined();
     expect(screen.getAllByRole("cell")[1]).toHaveClass("p-column-footer");
-    expect(screen.findByText("0,00 EUR")).toBeDefined();
+    expect(await screen.findByText("0,00 EUR")).toBeDefined();
   });
 
   describe('renders Awe Grid component editable', () => {

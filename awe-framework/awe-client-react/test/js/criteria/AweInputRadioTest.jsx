@@ -27,11 +27,11 @@ describe('awe-react-client/test/js/criteria/AweInputRadioTest.jsx', () => {
     }
   };
 
-  it('renders Awe Input Radio component', () => {
+  it('renders Awe Input Radio component', async () => {
     renderWithProviders(<AweInputRadio id="radio"/>, {preloadedState});
 
     // check
-    expect(screen.findByText("test")).not.toBeNull();
+    expect(await screen.findByText("test")).not.toBeNull();
   });
 
 });

@@ -56,6 +56,7 @@ export function serverDownloadAction(action) {
       getRestUrl("file", "download", "maintain", targetAction),
       { ...parameters, d: downloadFormIdentifier++ },
       settings.token
-    ).then(() => dispatch(acceptAction(action)));
+    ).then(() => dispatch(acceptAction(action)))
+      .catch((reason) => console.error("Error downloading file:", reason));
   };
 }

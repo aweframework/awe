@@ -63,7 +63,7 @@ export function toTime(date) {
 export function getAvailableDates(model) {
   return (model || [])
     .map(data => toDate(data.value))
-    .sort();
+    .sort((a, b) => a - b);
 }
 
 /**
@@ -74,20 +74,30 @@ export function getAvailableDates(model) {
  */
 export function getDisabledDates(availableDates) {
   const disabledDates = [];
+  const availableDays = new Set((availableDates || []).map(toDayKey));
 
   // Retrieve all disabled dates in values between min and max
   let currentDate = getMinDate(availableDates);
-  let maxDate = getMaxDate(availableDates);
+  const maxDate = getMaxDate(availableDates);
 
-  // sonarjs:suppress S2189
-  while (currentDate < maxDate) {
-    if (!availableDates.includes(currentDate)) {
+  while (currentDate && currentDate < maxDate) {
+    if (!availableDays.has(toDayKey(currentDate))) {
       disabledDates.push(currentDate);
     }
-    currentDate.setDate(currentDate.getDate() + 1);
+    // A new Date for each day: the ones already collected must not change
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
   }
 
   return disabledDates;
+}
+
+/**
+ * Get a key identifying the day of a date (ignoring its time)
+ * @param {Date} date
+ * @returns {string}
+ */
+function toDayKey(date) {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
 /**

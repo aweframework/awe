@@ -290,6 +290,38 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
     });
   });
 
+  describe('getFileAction', () => {
+    const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
+
+    it('accepts the action once the file is downloaded', async () => {
+      const action = { type: 'get-file', parameters: {} };
+      global.fetch.mockResolvedValue({
+        headers: { get: () => 'file.txt' },
+        blob: () => Promise.resolve(new Blob(['content']))
+      });
+      window.URL.createObjectURL = jest.fn().mockReturnValue('blob:file');
+      jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+      screenThunks.getFileAction(action)(dispatch, getState);
+      await flushPromises();
+
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'ACCEPT_ACTION' }));
+    });
+
+    it('logs the error and does not accept the action when the download fails', async () => {
+      const action = { type: 'get-file', parameters: {} };
+      const error = new Error('network down');
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      global.fetch.mockRejectedValue(error);
+
+      screenThunks.getFileAction(action)(dispatch, getState);
+      await flushPromises();
+
+      expect(consoleError).toHaveBeenCalledWith('Error downloading file:', error);
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
     delete global.fetch;

@@ -8,7 +8,7 @@ describe('awe-react-client/test/js/widgets/WidgetsTest.js', () => {
     render(Widgets({type: "otro"}, 0));
 
     await waitFor(() => screen.findByText("The widget otro has not been created yet."));
-    expect(screen.findByText("The widget otro has not been created yet.")).toBeDefined();
+    expect(await screen.findByText("The widget otro has not been created yet.")).toBeDefined();
   });
 
   it('renders a custom widget registered at runtime', async () => {
@@ -18,7 +18,7 @@ describe('awe-react-client/test/js/widgets/WidgetsTest.js', () => {
     render(Widgets({type: "custom-widget", id: "myWidget"}, 0));
 
     await waitFor(() => screen.findByText("Custom widget myWidget"));
-    expect(screen.findByText("Custom widget myWidget")).toBeDefined();
+    expect(await screen.findByText("Custom widget myWidget")).toBeDefined();
   });
 
   it('retrieves a registered widget by type', () => {

@@ -231,7 +231,8 @@ export const getFileAction = (action) => {
   return (dispatch, getState) => {
     const { settings } = getState();
     fetchFile(getRestUrl("file", "download"), { ...action.parameters, d: downloadIdentifier++ }, settings)
-      .then(() => dispatch(acceptAction(action)));
+      .then(() => dispatch(acceptAction(action)))
+      .catch((reason) => console.error("Error downloading file:", reason));
   };
 };
 

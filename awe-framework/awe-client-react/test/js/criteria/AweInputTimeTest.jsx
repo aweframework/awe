@@ -27,11 +27,11 @@ describe('awe-react-client/test/js/criteria/AweInputTimeTest.jsx', () => {
     }
   };
 
-  it('renders Awe Input Time component', () => {
+  it('renders Awe Input Time component', async () => {
     renderWithProviders(<AweInputTime id="time"/>, {preloadedState});
 
     // check
-    expect(screen.findByRole("combobox")).not.toBeNull();
+    expect(await screen.findByRole("combobox")).not.toBeNull();
   });
 
 });

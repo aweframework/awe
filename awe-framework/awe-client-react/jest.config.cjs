@@ -1,3 +1,7 @@
+const path = require('path');
+
+// Maven and CI invoke `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution
+// and LCOV reports under target/reports/jest (the paths declared in this module's pom.xml).
 module.exports = {
   testEnvironment: '<rootDir>/test/js/jest.environment.cjs',
   roots: ['<rootDir>/test/js'],
@@ -8,11 +12,15 @@ module.exports = {
     '**/packaging/packageVersionTest.{js,jsx}',
     '**/redux/thunks/messagesThunkTest.{js,jsx}',
     '**/redux/thunks/gridThunkTest.{js,jsx}',
+    '**/redux/thunks/filesThunkTest.{js,jsx}',
+    '**/redux/thunks/serverThunkTest.{js,jsx}',
+    '**/mainTest.{js,jsx}',
     '**/redux/thunks/screenThunkTest.{js,jsx}',
     '**/redux/thunks/suggestThunkTest.{js,jsx}',
     '**/redux/thunks/formThunkTest.{js,jsx}',
     '**/redux/thunks/validateThunkTest.{js,jsx}',
     '**/redux/thunks/componentsThunkTest.{js,jsx}',
+    '**/utilities/datesTest.{js,jsx}',
     '**/utilities/utilsTest.{js,jsx}',
     '**/utilities/menuSearchTest.{js,jsx}',
     '**/utilities/numbersTest.{js,jsx}',
@@ -22,6 +30,7 @@ module.exports = {
     '**/hooks/useComponentTest.{js,jsx}',
     '**/redux/actions/advancedDependenciesTest.{js,jsx}',
     '**/redux/actions/dependenciesTest.{js,jsx}',
+    '**/redux/actions/settingsTest.{js,jsx}',
     '**/services/ComponentServiceTest.{js,jsx}',
     '**/services/FormServiceTest.{js,jsx}',
     '**/services/WebsocketServiceTest.{js,jsx}',
@@ -76,5 +85,24 @@ module.exports = {
     '/test/js/index.js$'
   ],
   coverageDirectory: '<rootDir>/target/reports/jest/coverage',
-  coverageReporters: ['lcov', 'text-summary', 'html']
+  coverageReporters: ['lcov', 'text-summary', 'html'],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: path.join(__dirname, 'target', 'reports', 'jest', 'junit'),
+        outputName: 'javascriptUnitTests.xml',
+        suiteName: 'awe-client-react-jest'
+      }
+    ],
+    [
+      '@casualbot/jest-sonar-reporter',
+      {
+        outputDirectory: path.join(__dirname, 'target', 'reports', 'jest', 'sonar'),
+        outputName: 'javascriptUnitTests.xml',
+        relativePaths: true
+      }
+    ]
+  ]
 };

@@ -45,7 +45,8 @@ export function fetchPdfAction (targetAction, setPdf) {
         "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
       }
     }).then(response => response.blob())
-      .then(blob => setPdf(window.URL.createObjectURL(blob)));
+      .then(blob => setPdf(window.URL.createObjectURL(blob)))
+      .catch((reason) => console.error("Error reading pdf file:", reason));
   };
 }
 

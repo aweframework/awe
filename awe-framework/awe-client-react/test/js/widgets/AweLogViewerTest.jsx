@@ -39,20 +39,20 @@ describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
     }));
   });
 
-  it('renders AWE Log Viewer widget', () => {
+  it('renders AWE Log Viewer widget', async () => {
     renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
 
     jest.advanceTimersByTime(150);
 
-    expect(screen.findByPlaceholderText("Search")).toBeDefined();
+    expect(await screen.findByPlaceholderText("Search")).toBeDefined();
   });
 
-  it('renders AWE Log Viewer widget and disables log autorefresh', () => {
+  it('renders AWE Log Viewer widget and disables log autorefresh', async () => {
     renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
 
     jest.advanceTimersByTime(150);
 
-    expect(screen.findByPlaceholderText("Search")).toBeDefined();
+    expect(await screen.findByPlaceholderText("Search")).toBeDefined();
 
     fireEvent.click(screen.getByTestId("autoload-button"));
   });

@@ -322,4 +322,45 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     });
   });
 
+  // -------------------------------
+  // copySelectedRowsToClipboardGridAction
+  // -------------------------------
+  describe('copySelectedRowsToClipboardGridAction', () => {
+    const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
+    let writeText;
+
+    beforeEach(() => {
+      writeText = jest.fn();
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      delete navigator.clipboard;
+    });
+
+    it('copies the headers and the selected rows to the clipboard and accepts the action', async () => {
+      writeText.mockResolvedValue();
+      const action = { address: mockAddress };
+
+      gridThunks.copySelectedRowsToClipboardGridAction(action, o => o)(dispatch, getState);
+      await flushPromises();
+
+      expect(writeText).toHaveBeenCalledWith('ID\tNombre\n2\tRow 2');
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'ACCEPT_ACTION' }));
+    });
+
+    it('logs the error when the clipboard cannot be written', async () => {
+      const error = new Error('clipboard denied');
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      writeText.mockRejectedValue(error);
+      const action = { address: mockAddress };
+
+      gridThunks.copySelectedRowsToClipboardGridAction(action, o => o)(dispatch, getState);
+      await flushPromises();
+
+      expect(consoleError).toHaveBeenCalledWith('Error copying the selected rows to the clipboard:', error);
+    });
+  });
+
 });

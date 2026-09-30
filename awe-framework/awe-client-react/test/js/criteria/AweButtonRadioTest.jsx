@@ -27,11 +27,11 @@ describe('awe-react-client/test/js/criteria/AweButtonRadioTest.jsx', () => {
     }
   };
 
-  it('renders Awe Button Radio component', () => {
+  it('renders Awe Button Radio component', async () => {
     renderWithProviders(<AweButtonRadio id="radio"/>, {preloadedState});
 
     // check
-    expect(screen.findByRole("button")).not.toBeNull();
+    expect(await screen.findByRole("button")).not.toBeNull();
   });
 
 });

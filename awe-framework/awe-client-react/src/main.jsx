@@ -52,7 +52,7 @@ const AppWithStore = (props) => {
 // Init application
 fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
   .then((settings) => {
-    i18n.init({
+    return i18n.init({
       //debug: true,
       backend: {
         loadPath: `${getContextPath()}/locales/{{lng}}`
@@ -73,6 +73,7 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
           </PrimeReactProvider>
         </BrowserRouter>);
     })
-  });
+  })
+  .catch((reason) => console.error("Error initialising the application:", reason));
 
 

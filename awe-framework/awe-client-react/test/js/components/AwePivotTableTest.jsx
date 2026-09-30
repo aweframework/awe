@@ -34,7 +34,7 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
     expect(document.querySelector("div.estilo-especifico")).not.toBeNull();
     expect(document.querySelector("table.pvtUi")).not.toBeNull();
     await waitFor(() => findByText(document.querySelector("td.pvtCols"), "Als"));
-    expect(findByText(document.querySelector("td.pvtCols"), "Als")).toBeDefined();
+    expect(await findByText(document.querySelector("td.pvtCols"), "Als")).toBeDefined();
   });
 
   it('renders Awe Pivot Table component with cols and change dropdown', async () => {
@@ -42,7 +42,7 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
 
     expect(document.querySelector("div.estilo-especifico")).not.toBeNull();
     expect(document.querySelector("table.pvtUi")).not.toBeNull();
-    await waitFor(() => expect(findByText(document.querySelector("td.pvtCols"), "Als")).toBeDefined());
+    expect(await findByText(document.querySelector("td.pvtCols"), "Als")).toBeDefined();
     await waitFor(() => screen.findByText("Count", {exact: false}));
 
     // Click on count button
@@ -57,6 +57,6 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
     fireEvent.click(getByText(document.querySelector(".pvtDropdownActiveValue"), "Sum over Sum", {exact: false}));
 
     await waitFor(() => screen.findByText("Sum over Sum", {exact: false}));
-    expect(screen.findByText("Sum over Sum", {exact: false})).toBeDefined();
+    expect(await screen.findByText("Sum over Sum", {exact: false})).toBeDefined();
   });
 });

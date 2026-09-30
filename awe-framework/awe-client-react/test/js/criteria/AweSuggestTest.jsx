@@ -129,6 +129,11 @@ describe('awe-react-client/test/js/criteria/AweSuggestTest.jsx', () => {
             await act(async () => {
               await new Promise(resolve => setTimeout(resolve, 100));
             });
+
+            // the initial value is kept and shown after the initialization
+            const input = document.querySelector("#suggest input[aria-autocomplete]");
+            expect(input).not.toBeNull();
+            expect(input.value).toBe('valor_inicial');
       });
 
     it('renders large list with virtual scroller class', async () => {

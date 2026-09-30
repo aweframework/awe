@@ -22,6 +22,10 @@
     <application.folder>.</application.folder>
     <sonar.sources>src</sonar.sources>
     <sonar.tests>test/js</sonar.tests>
+    <!-- Not code: vendored PrimeReact theme CSS, fonts, images and icons (src/static and src/assets hold duplicated
+         copies of the same binaries). This module-level value replaces the root pom's "**/fonts/**", so it is repeated.
+         The client's own JS/JSX/LESS/CSS (src/components, src/assets/css, src/main.css...) stays analysed. -->
+    <sonar.exclusions>**/fonts/**,src/static/css/themes/**,src/static/images/**,src/assets/images/**,**/*.svg,**/*.png,**/*.jpg,**/*.ico,**/*.woff,**/*.woff2</sonar.exclusions>
     <sonar.testExecutionReportPaths>target/reports/jest/sonar/javascriptUnitTests.xml</sonar.testExecutionReportPaths>
     <sonar.javascript.lcov.reportPaths>target/reports/jest/coverage/lcov.info</sonar.javascript.lcov.reportPaths>
   </properties>

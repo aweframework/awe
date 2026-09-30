@@ -1,5 +1,5 @@
 import React from 'react';
-import {cleanup, screen, waitFor} from '@testing-library/react';
+import {cleanup, screen} from '@testing-library/react';
 import AweResizable from "../../../src/components/AweResizable";
 import {renderWithProviders} from "../test-utils";
 
@@ -21,7 +21,7 @@ describe('awe-react-client/test/js/components/AweResizableTest.jsx', () => {
 
     expect(document.querySelector(".p-splitter.estilo-especifico")).not.toBeNull();
     expect(document.querySelector(".p-splitter-panel")).not.toBeNull();
-    await waitFor(() => expect(screen.findByText("prueba")).toBeDefined());
+    expect(await screen.findByText("prueba")).toBeDefined();
   });
 
   it('renders Awe Resizable component horizontal', async () => {
@@ -36,6 +36,6 @@ describe('awe-react-client/test/js/components/AweResizableTest.jsx', () => {
 
     expect(document.querySelector(".p-splitter-horizontal.estilo-especifico")).not.toBeNull();
     expect(document.querySelector(".p-splitter-panel")).not.toBeNull();
-    await waitFor(() => expect(screen.findByText("prueba")).toBeDefined());
+    expect(await screen.findByText("prueba")).toBeDefined();
   });
 });

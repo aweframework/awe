@@ -41,18 +41,18 @@ describe('awe-react-client/test/js/criteria/AweInputCheckboxTest.jsx', () => {
     }
   };
 
-  it('renders Awe Input Checkbox component', () => {
+  it('renders Awe Input Checkbox component', async () => {
     renderWithProviders(<AweInputCheckbox id="checkbox"/>, {preloadedState});
 
     // check
-    expect(screen.findByText("test")).not.toBeNull();
+    expect(await screen.findByText("test")).not.toBeNull();
   });
 
-  it('renders Awe Input Checkbox component as a switch', () => {
+  it('renders Awe Input Checkbox component as a switch', async () => {
     renderWithProviders(<AweInputCheckbox id="switch"/>, {preloadedState});
 
     // check
-    expect(screen.findByText("test")).not.toBeNull();
+    expect(await screen.findByText("test")).not.toBeNull();
   });
 
 });

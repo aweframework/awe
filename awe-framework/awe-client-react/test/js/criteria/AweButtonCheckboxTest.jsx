@@ -27,11 +27,11 @@ describe('awe-react-client/test/js/criteria/AweButtonCheckboxTest.jsx', () => {
     }
   };
 
-  it('renders Awe Button Checkbox component', () => {
+  it('renders Awe Button Checkbox component', async () => {
     renderWithProviders(<AweButtonCheckbox id="checkbox"/>, {preloadedState});
 
     // check
-    expect(screen.findByRole("button")).not.toBeNull();
+    expect(await screen.findByRole("button")).not.toBeNull();
   });
 
 });
