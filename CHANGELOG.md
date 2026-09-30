@@ -1,3 +1,20 @@
+# Release notes for AWE 4.12.10
+*30/09/2026*
+ 
+✨ Features:
+- feat(ci): add support/4.x maintenance branch and branch-aware pipeline (#758). [MR #713](https://gitlab.com/aweframework/awe/-/merge_requests/713) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- fix(ci): let the support release script find the hotfix branch that gitflow creates. [MR #774](https://gitlab.com/aweframework/awe/-/merge_requests/774) (Pablo Javier García Mora)
+- chore(deps): update dependency moment to v2.31.0 [security] (support/4.x). [MR #772](https://gitlab.com/aweframework/awe/-/merge_requests/772) (Pablo Javier García Mora)
+- fix(deps): update dependency io.github.bonigarcia:webdrivermanager to v6 [security] (support/4.x). [MR #750](https://gitlab.com/aweframework/awe/-/merge_requests/750) (Pablo Javier García Mora)
+- fix(deps): update dependency lodash to v4.18.1 [security] (support/4.x). [MR #746](https://gitlab.com/aweframework/awe/-/merge_requests/746) (Pablo Javier García Mora)
+- chore(deps): update dependency webpack [security] (support/4.x). [MR #745](https://gitlab.com/aweframework/awe/-/merge_requests/745) (Pablo Javier García Mora)
+- chore(deps): update dependency org.apache.maven.plugins:maven-archetype-plugin to v3.3.0 [security] (support/4.x). [MR #744](https://gitlab.com/aweframework/awe/-/merge_requests/744) (Pablo Javier García Mora)
+- chore(deps): update dependency com.microsoft.sqlserver:mssql-jdbc to v13.2.1.jre11 [security] (support/4.x). [MR #742](https://gitlab.com/aweframework/awe/-/merge_requests/742) (Pablo Javier García Mora)
+- fix(ci): provide AWE snapshot modules to browser tests through artifacts. [MR #712](https://gitlab.com/aweframework/awe/-/merge_requests/712) (Pablo Vidal Otero)
+- fix(awe-scheduler): make db and site nullable on SQL Server scheduler tables (#757). [MR #711](https://gitlab.com/aweframework/awe/-/merge_requests/711) (Pablo Vidal Otero)
+
 # Release notes for AWE 4.12.9
 *24/09/2026*
  

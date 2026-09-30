@@ -704,7 +704,9 @@ Start a new release:
   <<: *git_credentials
   script:
     ## Generate release
-    - git checkout $CI_COMMIT_REF_NAME
+    # Start from the pipeline commit even when the runner reuses its workspace (a leftover local
+    # branch would otherwise become the release base).
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
     - chmod +x ./bin/release.sh
     - ./bin/release.sh $API_URL $API_TOKEN "$CI_PROJECT_TITLE"
     - git checkout ./bin/release.sh

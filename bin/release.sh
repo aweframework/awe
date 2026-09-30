@@ -36,10 +36,15 @@ api_put() {
   if [[ "$DRY_RUN" == "1" ]]; then
     return 0
   fi
-  curl -s -X PUT "$url" \
+  local http_code
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" -X PUT "$url" \
     -H "Content-Type: application/json" \
     "${HEADERS[@]}" \
-    -d "$body" > /dev/null
+    -d "$body") || http_code="000"
+  if [[ "$http_code" -ge 400 || "$http_code" == "000" ]]; then
+    echo "❌ PUT $url failed with HTTP $http_code" >&2
+    return 1
+  fi
 }
 
 # ============================================================
@@ -153,49 +158,107 @@ echo "Moved $(echo "$open_issues" | jq length) open issues to milestone $NEXT_VE
 
 # ============================================================
 # Corregir MRs y issues con milestone incorrecto
+#
+# Una MR pertenece a la release cuando su merge_commit_sha o squash_commit_sha esta en
+# el rango de git <tag de la release anterior>..HEAD. Asi solo se
+# tocan las MRs de la linea que se libera (develop, support/4.x...), sin comparar fechas.
+# Una MR o issue con un milestone ya CERRADO (liberado en otra linea) se respeta.
 # ============================================================
 echo "Checking for MRs and related issues with incorrect milestone..."
 
-# Fecha de creación del milestone anterior
-prev_milestone_created_at=$(echo "$milestones" | jq -r --arg V "$previous_milestone" '.[] | select(.title==$V) | .created_at')
-
-# Fecha de creación del último tag del repositorio
-# Nota: usamos commit.created_at del tag más reciente
-repo_tags=$(curl -s "${GITLAB_API}/repository/tags?per_page=100" "${HEADERS[@]}")
-last_tag_name=$(echo "$repo_tags" | jq -r 'sort_by(.commit.created_at) | last | .name // empty')
-last_tag_created_at=$(echo "$repo_tags" | jq -r 'sort_by(.commit.created_at) | last | .commit.created_at // empty')
-
-# Fecha de referencia para filtrar MRs
-if [[ -n "$last_tag_created_at" && "$last_tag_created_at" != "null" ]]; then
-  ref_created_at="$last_tag_created_at"
-  echo "Using last tag ($last_tag_name) commit.created_at: $ref_created_at"
-else
-  ref_created_at="$prev_milestone_created_at"
-  echo "Using previous milestone ($previous_milestone) created_at as fallback: $ref_created_at"
+# El clone del job puede ser superficial: se necesitan historia y tags para calcular el rango.
+# Sin historia completa el rango y la eleccion del tag anterior serian incorrectos: se aborta.
+git fetch --quiet --tags origin || { echo "❌ Could not fetch tags from origin" >&2; exit 1; }
+if [[ "$(git rev-parse --is-shallow-repository)" == "true" ]]; then
+  git fetch --quiet --unshallow origin || { echo "❌ Could not fetch the full history from origin" >&2; exit 1; }
 fi
+[[ "$(git rev-parse --is-shallow-repository)" == "false" ]] || {
+  echo "❌ The repository is still shallow; cannot compute the release range" >&2
+  exit 1
+}
 
-# MRs mergeados desde la última release
-gitlab_paginate "${GITLAB_API}/merge_requests?state=merged&per_page=100" | jq -c '.[]' | while read -r mr; do
+# Tag de la release anterior. Los tags de release de este repositorio no siempre son
+# ancestros de la rama que se libera (p.ej. v4.12.9 se creo en master y support/4.x se corto
+# de develop), asi que `git describe` no sirve. Entre los ultimos tags de release anteriores
+# a la version que se libera (excluye, por tanto, el tag de esta version si ya existe, como
+# en un pipeline de tag), se elige el que deja menos commits fuera de su historia: <tag>..HEAD.
+# En empate gana la version mas alta.
+prev_tag=""
+prev_count=""
+while IFS= read -r candidate; do
+  [[ -n "$candidate" ]] || continue
+  candidate_count=$(git rev-list --count "${candidate}..HEAD")
+  if [[ -z "$prev_count" || "$candidate_count" -le "$prev_count" ]]; then
+    prev_tag="$candidate"
+    prev_count="$candidate_count"
+  fi
+done < <({ git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true; echo "v${NEW_VERSION}"; } \
+  | sort -V | uniq | awk -v cur="v${NEW_VERSION}" '$0==cur {exit} {print}' | tail -n 10)
+[[ -n "$prev_tag" ]] || {
+  echo "❌ No release tag (vX.Y.Z) older than v${NEW_VERSION} found; cannot compute the release range" >&2
+  exit 1
+}
+echo "Release range: ${prev_tag}..HEAD"
+
+# Conjunto de shas del rango, como objeto JSON {sha: true}, para filtrar con jq
+range_file=$(mktemp)
+trap 'rm -f "$range_file"' EXIT
+git rev-list "${prev_tag}..HEAD" | jq -R . | jq -s 'map({(.): true}) | add // {}' > "$range_file"
+echo "Commits in range: $(jq 'length' "$range_file")"
+
+# Todas las MRs mergeadas se comparan con el rango (sin prefiltro por fecha: una MR del rango
+# puede ser anterior al tag anterior si llego por otra linea).
+merged_mrs=$(gitlab_paginate "${GITLAB_API}/merge_requests?state=merged")
+release_mrs=$(echo "$merged_mrs" | jq -c --slurpfile range "$range_file" '.[]
+      | select(($range[0][.merge_commit_sha // ""] // false) or ($range[0][.squash_commit_sha // ""] // false))')
+# Aviso (no decide pertenencia): MRs recientes sin commit de merge ni de squash no se pueden
+# situar en el rango. Con el metodo de merge del proyecto (merge commit) no deberia ocurrir.
+prev_tag_date=$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ "$prev_tag")
+no_sha_mrs=$(echo "$merged_mrs" | jq -r --arg since "$prev_tag_date" '.[]
+      | select((.merged_at // "") > $since)
+      | select((.merge_commit_sha // "") == "" and (.squash_commit_sha // "") == "")
+      | "!" + (.iid|tostring)' | paste -sd' ' -)
+[[ -z "$no_sha_mrs" ]] || echo "⚠️ Merged MRs without merge or squash commit (cannot be placed in the release range): $no_sha_mrs" >&2
+
+echo "MRs in the release range: $(echo "$release_mrs" | jq -s 'length') ($(echo "$release_mrs" | jq -r '"!" + (.iid|tostring)' | paste -sd' ' -))"
+
+# Asigna el milestone de la release a una MR o issue salvo que ya lo tenga o tenga uno cerrado.
+# $1 = objeto JSON de la MR o issue, $2 = descripcion del cambio, $3 = URL del recurso
+# Devuelve 0 si no hay nada que hacer o si el cambio se aplica, y 1 solo si la API falla.
+failed_updates=0
+assign_release_milestone() {
+  local item="$1" desc="$2" url="$3"
+  local milestone_id milestone_state
+  milestone_id=$(echo "$item" | jq -r '.milestone.id // empty')
+  milestone_state=$(echo "$item" | jq -r '.milestone.state // empty')
+  if [[ "$milestone_id" == "$current_milestone_id" || "$milestone_state" == "closed" ]]; then
+    return 0
+  fi
+  echo "⚡ $desc"
+  api_put "$url" "{\"milestone_id\":$current_milestone_id}" "$desc"
+}
+
+while IFS= read -r mr; do
+    [[ -z "$mr" ]] && continue
     mr_iid=$(echo "$mr" | jq -r '.iid')
-    mr_merged_at=$(echo "$mr" | jq -r '.merged_at')
-    mr_milestone_id=$(echo "$mr" | jq -r '.milestone.id // empty')
 
-    # Si se mergeó después de la última release (fecha de creación de la release anterior) y no tiene el milestone correcto
-    if [[ "$mr_merged_at" > "$ref_created_at" && "$mr_milestone_id" != "$current_milestone_id" ]]; then
-        desc_mr="Update MR #$mr_iid milestone to $NEW_VERSION"
-        echo "⚡ $desc_mr"
-        api_put "${GITLAB_API}/merge_requests/${mr_iid}" "{\"milestone_id\":$current_milestone_id}" "$desc_mr"
+    assign_release_milestone "$mr" "Update MR #$mr_iid milestone to $NEW_VERSION" \
+      "${GITLAB_API}/merge_requests/${mr_iid}" || failed_updates=$((failed_updates + 1))
 
-        # Actualizar issues relacionadas de este MR
-        issues=$(curl -s "${GITLAB_API}/merge_requests/${mr_iid}/closes_issues" "${HEADERS[@]}")
-        for issue_iid in $(echo "$issues" | jq -r '.[].iid'); do
-            desc_issue="Update Issue #$issue_iid milestone to $NEW_VERSION (related to MR #$mr_iid)"
-            api_put "${GITLAB_API}/issues/${issue_iid}" "{\"milestone_id\":$current_milestone_id}" "$desc_issue"
-            echo "🔹 $desc_issue"
-        done
-    fi
-done
+    # Issues relacionadas de esta MR
+    issues=$(gitlab_paginate "${GITLAB_API}/merge_requests/${mr_iid}/closes_issues?state=all")
+    while IFS= read -r issue; do
+        [[ -z "$issue" ]] && continue
+        issue_iid=$(echo "$issue" | jq -r '.iid')
+        assign_release_milestone "$issue" "Update Issue #$issue_iid milestone to $NEW_VERSION (related to MR #$mr_iid)" \
+          "${GITLAB_API}/issues/${issue_iid}" || failed_updates=$((failed_updates + 1))
+    done < <(echo "$issues" | jq -c 'if type == "array" then .[] else empty end')
+done < <(echo "$release_mrs")
 
+if [[ "$failed_updates" -gt 0 ]]; then
+  echo "❌ $failed_updates milestone update(s) failed; fix them before publishing the release notes" >&2
+  exit 1
+fi
 echo "✅  Milestone corrections done"
 
 
