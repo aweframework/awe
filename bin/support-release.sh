@@ -89,13 +89,29 @@ fail() {
 # ============================================================
 
 # GitLab runners check out the pipeline commit as a detached HEAD, so the branch
-# name must come from CI_COMMIT_REF_NAME there and the local branch must exist for
-# gitflow:hotfix-start -DfromBranch and for the final push. Outside CI, use HEAD.
+# name must come from CI_COMMIT_REF_NAME there and a local branch must exist for
+# gitflow:hotfix-start -DfromBranch and for the final push. If the job already
+# created that local branch (release.sh commits the generated CHANGELOG on it,
+# and that commit is not on origin yet), keep it as is: recreating it from
+# origin would silently discard those commits. Outside CI, use HEAD.
 if [[ -n "${CI_COMMIT_REF_NAME:-}" ]]; then
   SUPPORT_BRANCH="$CI_COMMIT_REF_NAME"
   [[ "$SUPPORT_BRANCH" == support/* ]] || fail "CI_COMMIT_REF_NAME '$SUPPORT_BRANCH' does not match support/*; this script only releases from a support branch."
   git fetch --quiet origin "$SUPPORT_BRANCH" || fail "could not fetch origin/$SUPPORT_BRANCH."
-  git checkout --quiet -B "$SUPPORT_BRANCH" "origin/$SUPPORT_BRANCH" || fail "could not check out $SUPPORT_BRANCH from origin."
+  if git rev-parse -q --verify "refs/heads/$SUPPORT_BRANCH" >/dev/null; then
+    git merge-base --is-ancestor "origin/$SUPPORT_BRANCH" "refs/heads/$SUPPORT_BRANCH" \
+      || fail "local branch $SUPPORT_BRANCH lacks commits of origin/$SUPPORT_BRANCH (the branch moved after the pipeline started, or the workspace holds a leftover branch); start the release from a new pipeline."
+    # The Start a new release job resets the branch to CI_COMMIT_SHA before release.sh, so in CI the
+    # only commit ahead of the pipeline commit is this job's "Generated CHANGELOG". Leftovers from
+    # earlier jobs are therefore removed by the job itself; this check catches a missing reset.
+    if [[ -n "${CI_COMMIT_SHA:-}" ]]; then
+      git merge-base --is-ancestor "$CI_COMMIT_SHA" "refs/heads/$SUPPORT_BRANCH" \
+        || fail "local branch $SUPPORT_BRANCH does not contain the pipeline commit $CI_COMMIT_SHA; it is a leftover of an earlier job."
+    fi
+    git checkout --quiet "$SUPPORT_BRANCH" || fail "could not check out local branch $SUPPORT_BRANCH."
+  else
+    git checkout --quiet -B "$SUPPORT_BRANCH" "origin/$SUPPORT_BRANCH" || fail "could not check out $SUPPORT_BRANCH from origin."
+  fi
 else
   SUPPORT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
   [[ "$SUPPORT_BRANCH" == support/* ]] || fail "current branch '$SUPPORT_BRANCH' does not match support/*; this script only releases from a support branch."
@@ -141,8 +157,10 @@ run mvn -B gitflow:hotfix-start \
   -DpushRemote=false \
   -DversionProperty=revision
 
+# hotfix-start names the branch hotfix/<support branch>/<version> (hotfix/support/4.x/4.12.10), and
+# hotfix-finish looks up hotfix/<hotfixVersion>, so the support branch must be part of hotfixVersion.
 run mvn -B gitflow:hotfix-finish \
-  -DhotfixVersion="$RELEASE_VERSION" \
+  -DhotfixVersion="$SUPPORT_BRANCH/$RELEASE_VERSION" \
   -DskipMergeProdBranch=true \
   -DskipMergeDevBranch=true \
   -DskipTestProject=true \
