@@ -1,3 +1,5 @@
+const reactHooks = require('eslint-plugin-react-hooks');
+
 module.exports = [
   {
     ignores: [
@@ -49,7 +51,13 @@ module.exports = [
         jest: 'readonly'
       }
     },
+    plugins: {
+      'react-hooks': reactHooks
+    },
     rules: {
+      // Hooks called conditionally break React at runtime; missing effect dependencies are a review signal
+      'react-hooks/rules-of-hooks': 2,
+      'react-hooks/exhaustive-deps': 1,
       semi: 2,
       'no-underscore-dangle': 0,
       'arrow-body-style': 0,

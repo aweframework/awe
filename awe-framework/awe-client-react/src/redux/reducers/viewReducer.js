@@ -18,7 +18,7 @@ export function view(state = InitialState, action = {}) {
         ...state,
         view: action.view,
         [action.view]: action.data
-      }
+      };
     case UPDATE_VIEW:
       return {
         ...state,
@@ -26,19 +26,19 @@ export function view(state = InitialState, action = {}) {
           ...state[action.view],
           ...action.data
         }
-      }
+      };
     case CLEAR_VIEW:
       return {
         ...state,
         [action.view]: {loading: true}
-      }
+      };
     case CLEAR_ALL_VIEWS:
       return {
         ...state,
         base: {loading: true},
         report: {loading: true}
-      }
+      };
     default:
-      return state
+      return state;
   }
 }

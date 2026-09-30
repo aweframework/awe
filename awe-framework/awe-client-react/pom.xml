@@ -66,6 +66,18 @@
               </environmentVariables>
             </configuration>
           </execution>
+          <!-- Lint the whole client (sources, tests and build config) before the unit tests: lint errors fail the
+               build, warnings are only reported. Declared before "jest" so it runs first within the test phase. -->
+          <execution>
+            <id>lint</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <arguments>run lint</arguments>
+            </configuration>
+          </execution>
           <execution>
             <id>jest</id>
             <goals>

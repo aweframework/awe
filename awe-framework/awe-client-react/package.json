@@ -3,8 +3,8 @@
   "version": "5.0.0-SNAPSHOT",
   "main": "main.jsx",
   "scripts": {
-    "lint": "eslint eslint.config.js webpack.common.js webpack.dev.js webpack.prod.js postcss.config.js",
-    "lint:fix": "eslint eslint.config.js webpack.common.js webpack.dev.js webpack.prod.js postcss.config.js --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "npm run test:unit",
     "test:unit": "jest --config jest.config.cjs",
     "test:coverage": "jest --config jest.config.cjs --coverage",
@@ -84,6 +84,7 @@
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.2",
     "eslint": "^9.20.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "generate-package-json-webpack-plugin": "^2.6.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.3.0",

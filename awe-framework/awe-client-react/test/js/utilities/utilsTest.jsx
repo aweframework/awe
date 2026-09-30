@@ -1,6 +1,7 @@
 import {
   fetchHtml,
   fetchJson,
+  getBaseHref,
   getContextPath,
   getHelpTooltipNode,
   getSizeString
@@ -112,12 +113,28 @@ describe('awe-react-client/test/js/utilities/utilsTest.jsx', () => {
   });
 
   it('should generate a help tooltip node empty', () => {
-    expect(getHelpTooltipNode(null, null, t => t, "test")).toEqual(null)
+    expect(getHelpTooltipNode(null, null, t => t, "test")).toEqual(null);
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
     delete global.fetch;
     delete window.fetch;
+  });
+  describe('getBaseHref', () => {
+    afterEach(() => {
+      document.head.querySelectorAll('base').forEach(base => base.remove());
+    });
+
+    it('returns the href of the base element', () => {
+      const base = document.createElement('base');
+      base.href = 'http://localhost/awe/';
+      document.head.appendChild(base);
+      expect(getBaseHref()).toBe('http://localhost/awe/');
+    });
+
+    it('falls back to the root path without a base element', () => {
+      expect(getBaseHref()).toBe('/');
+    });
   });
 });

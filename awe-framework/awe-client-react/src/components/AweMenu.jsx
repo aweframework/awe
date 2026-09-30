@@ -21,7 +21,7 @@ import AweMenuSearch from "./AweMenuSearch";
  */
 function isFinalOption(option, children) {
   const { actions, menuScreen } = option;
-  return menuScreen || (actions.length > 0 && children === undefined)
+  return menuScreen || (actions.length > 0 && children === undefined);
 }
 
 function getSeparatorModel(option, t) {

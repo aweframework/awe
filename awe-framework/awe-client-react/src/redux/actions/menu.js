@@ -16,31 +16,31 @@ export const UPDATE_BREADCRUMBS = 'UPDATE_BREADCRUMBS';
  */
 
 export function updateMenu(data) {
-  return { type: UPDATE_MENU, data }
+  return { type: UPDATE_MENU, data };
 }
 
 export function updateOption(option, data) {
-  return { type: UPDATE_OPTION, option, data }
+  return { type: UPDATE_OPTION, option, data };
 }
 
 export function updateOptions(options, data) {
-  return { type: UPDATE_OPTIONS, options, data }
+  return { type: UPDATE_OPTIONS, options, data };
 }
 
 export function updateAllOptions(data) {
-  return { type: UPDATE_ALL_OPTIONS, data }
+  return { type: UPDATE_ALL_OPTIONS, data };
 }
 
 export function updateStatus(data) {
-  return { type: UPDATE_STATUS, data }
+  return { type: UPDATE_STATUS, data };
 }
 
 export function selectOption(data) {
-  return { type: SELECT_OPTION, data }
+  return { type: SELECT_OPTION, data };
 }
 
 export function clearMenu() {
-  return { type: CLEAR_MENU }
+  return { type: CLEAR_MENU };
 }
 
 export function updateBreadcrumbs(option, items) {
