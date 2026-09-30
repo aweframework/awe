@@ -1,0 +1,26 @@
+<!doctype html>
+<!--[if IE 9 ]><html xmlns:th="http://www.thymeleaf.org" class="ie gt-ie8 gt-ie9 pxajs" lang="EN"><![endif]-->
+<!--[if !IE]><!--><html xmlns:th="http://www.thymeleaf.org" class="gt-ie8 gt-ie9 pxajs" lang="EN"><!--<![endif]-->
+  <head>
+    <base th:href="@{/}"/>
+    <link rel="stylesheet" th:href="@{/css/splash.css}"/>
+    <title>Loading...</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <link rel="shortcut icon" th:href="${faviconIcon}"/>
+    <link rel="apple-touch-icon" th:href="${tabletIcon}"/>
+  </head>
+  <body>
+    <div id="root" class="expand expandible-vertical">
+      <div id="splash">
+        <div id="splashBackground"></div>
+        <div class="spinner"><div class="dot1"></div><div class="dot2"></div></div>
+      </div>
+    </div>
+  </body>
+</html>

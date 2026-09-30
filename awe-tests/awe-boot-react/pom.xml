@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.almis.awe</groupId>
+        <artifactId>awe-starter-parent</artifactId>
+        <version>5.0.0-SNAPSHOT</version>
+        <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
+    </parent>
+
+    <artifactId>awe-boot-react</artifactId>
+    <packaging>jar</packaging>
+    <name>AWE React Integration Tests (V${project.version})</name>
+
+    <properties>
+        <!-- Application maven properties -->
+        <java.version>17</java.version>
+        <application.acronym>awe-react</application.acronym>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
+
+        <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
+        <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
+        <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
+        <sonar.exclusions>src/**</sonar.exclusions>
+        <sonar.junit.reportPath>${jacoco.base.reports}/surefire-reports</sonar.junit.reportPath>
+        <sonar.tests>${project.basedir}/src/test</sonar.tests>
+        <surefire.suite>**/AllTestsSuite.class</surefire.suite>
+        <failsafe.suite>**/AllTestsSuiteIT.class</failsafe.suite>
+        <browser>headless-chrome</browser>
+        <skip.main>false</skip.main>
+        <skip.selenium>true</skip.selenium>
+        <skip.junit>false</skip.junit>
+        <test.tags>integration</test.tags>
+
+        <!-- Build properties -->
+        <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
+        <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
+        <build.environment>development</build.environment>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- AWE -->
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-builder-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-rest-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-notifier-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-scheduler-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-tools-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-developer-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Kubernetes config -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-kubernetes-fabric8-config</artifactId>
+        </dependency>
+
+        <!-- Google cloud integration -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter</artifactId>
+        </dependency>
+
+        <!-- EHcache -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <classifier>jakarta</classifier>
+        </dependency>
+
+        <!-- Redis cache server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
+        <!--  Observability and metrics -->
+        <!--  prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+
+        <!-- JDBC Drivers -->
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Flyway modules -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-sqlserver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-hsqldb</artifactId>
+        </dependency>
+
+        <!-- React client. This provided dependency exists ONLY for the reactor order: it makes Maven build the client
+             before this application. The application itself consumes the client through the npm dependency
+             "file:../../awe-framework/awe-client-react/dist", not through this artifact. -->
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-client-react</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.almis.awe</groupId>
+            <artifactId>awe-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <finalName>awe-react</finalName>
+        <plugins>
+
+            <!-- AWE static resources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <id>unpack awe-generic-screens schemas</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-generic-screens</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <includes>schemas/**,</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <id>unpack awe-generic-screens docs</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-generic-screens</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.frontend}</outputDirectory>
+                                    <includes>docs/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <id>unpack awe-generic-screens templates</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-generic-screens</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <includes>templates/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>unpack awe-tools</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.almis.awe</groupId>
+                                    <artifactId>awe-tools</artifactId>
+                                    <version>${awe.version}</version>
+                                    <outputDirectory>${project.build.frontend}</outputDirectory>
+                                    <includes>images/**,css/**,js/**</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <!-- Spring boot -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <profiles>
+                        <profile>gitlab-ci</profile>
+                    </profiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>start-application</id>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <skip>${skip.selenium}</skip>
+                            <wait>1000</wait>
+                            <maxAttempts>180</maxAttempts>
+                        </configuration>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-application</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.selenium}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Xml validation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>validate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <validationSets>
+                        <validationSet>
+                            <dir>${check.xml.directory}/app/</dir>
+                            <excludes>
+                                <exclude>templates/**</exclude>
+                            </excludes>
+                            <validating>true</validating>
+                        </validationSet>
+                    </validationSets>
+                    <catalogs>
+                        <catalog>file:///${project.build.directory}/schemas/awe/catalog.xml</catalog>
+                    </catalogs>
+                </configuration>
+            </plugin>
+
+            <!-- The npm build needs the client dist/ produced by the awe-client-react module. The enforcer rule
+                 does not accept a path containing "..", so the normalized location is computed first from this
+                 module's location: that step always runs and requires the module to stay at
+                 awe-tests/awe-boot-react. The enforcer check itself is skipped with skip.frontend, like the npm
+                 build it protects. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>locate react client dist</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>regex-property</goal>
+                        </goals>
+                        <configuration>
+                            <name>react.client.dist</name>
+                            <value>${project.basedir}</value>
+                            <regex>[/\\]awe-tests[/\\]awe-boot-react$</regex>
+                            <replacement>/awe-framework/awe-client-react/dist</replacement>
+                            <failIfNoMatch>true</failIfNoMatch>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>require react client dist</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.frontend}</skip>
+                            <rules>
+                                <requireFilesExist>
+                                    <message>The React client is not built (awe-framework/awe-client-react/dist is missing): run the build from the repository root, or add -am (mvn -pl awe-tests/awe-boot-react -am ...).</message>
+                                    <files>
+                                        <file>${react.client.dist}/package.json</file>
+                                    </files>
+                                </requireFilesExist>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Frontend generation: install node/npm, npm ci and "npm run build:${build.environment}" are inherited from awe-dependencies -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- JUnit -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>${skip.junit}</skip>
+                    <groups>${test.tags}</groups>
+                </configuration>
+            </plugin>
+
+            <!-- Failsafe -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                            <skip>${skip.selenium}</skip>
+                            <systemPropertyVariables>
+                                <failsafe.browser>${browser}</failsafe.browser>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <!-- Integration report profile -->
+        <profile>
+            <id>generate-integration-report</id>
+            <activation>
+                <property>
+                    <name>generateIntegrationReport</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Failsafe -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <configuration>
+                                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                                    <skip>${skip.selenium}</skip>
+                                    <systemPropertyVariables>
+                                        <awe.test.browser>${browser}</awe.test.browser>
+                                    </systemPropertyVariables>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-application</id>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <arguments>
+                                        <argument>--integration-test</argument>
+                                    </arguments>
+                                    <wait>1000</wait>
+                                    <maxAttempts>180</maxAttempts>
+                                    <jvmArguments>${failsafe.argLine}</jvmArguments>
+                                </configuration>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-application</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>production</id>
+            <properties>
+                <build.environment>production</build.environment>
+            </properties>
+        </profile>
+
+        <!-- Frontend hot-reload dev profile: activated by `npm run start:hot-reload`.
+             Webpack watch mode owns the bundles, so Maven must not rebuild the
+             frontend; spring-boot-devtools restarts the JVM on Java changes, and
+             the hot-reload Spring profile disables static resource caching. -->
+        <profile>
+            <id>hot-reload</id>
+            <!-- Webpack watch (npm run build:watch) is the SOLE owner of the
+                 frontend bundles under this profile. skip.frontend is the switch the
+                 awe-starter-parent binds to frontend-maven-plugin's <skip>, so setting
+                 it here skips every frontend goal (install-node-and-npm, npm ci and the
+                 inherited "npm run build" that runs build:prod at the compile phase).
+                 Otherwise that production build overwrites the watch's dev bundles at
+                 startup, leaving a mismatched dev bundle.js / prod commons.js split-chunk
+                 pair; the webpack chunk handshake then never resolves and the app hangs
+                 on the splash. Deps are already installed by `npm run dev:hot-reload`. -->
+            <properties>
+                <skip.frontend>true</skip.frontend>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <!-- The base spring-boot-maven-plugin config pins the active
+                         Spring profiles, which takes precedence over the
+                         spring-boot.run.profiles CLI property. Activate the
+                         hot-reload Spring profile here instead. -->
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <profiles combine.self="override">
+                                <profile>gitlab-ci</profile>
+                                <profile>hot-reload</profile>
+                            </profiles>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud GCP -->
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>spring-cloud-gcp-dependencies</artifactId>
+                <version>4.7.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

@@ -1,0 +1,33 @@
+#page-signin {
+  background: url("../../images/backgrounds/background01.jpg");
+  background-size: cover;
+}
+
+.signin-info {
+  background: url("../../images/logos/awe-logo2.svg") no-repeat center center;
+  height: 62px;
+  margin-bottom: 60px;
+}
+
+.signin-info h1 {
+  display: none;
+}
+
+.signin-container {
+  margin: auto;
+  width: 350px;
+  padding: 40px 60px 60px 60px;
+  border-radius: 8px;
+  background-color: var(--surface-a);
+}
+
+/* Azure sso buttons */
+.sign-in-azure-btn-light {
+    background-image: url("../../images/backgrounds/azure_signin_light.svg") !important;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: left;
+    width: 217px;
+    height: 45px;
+    border: 0 solid;
+}

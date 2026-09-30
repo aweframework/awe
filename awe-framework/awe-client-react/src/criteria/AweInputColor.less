@@ -1,0 +1,40 @@
+.colorpicker {
+  border: var(--form-border-color) solid 1px;
+  border-radius: 2px;
+  cursor: pointer;
+  height: 1rem;
+  width: 1rem;
+  vertical-align: bottom;
+  display: inline-block;
+  &.colorpicker-xs {
+    height: 0.75rem;
+    width: 0.75rem;
+  }
+  &.colorpicker-sm {
+    height: 0.875rem;
+    width: 0.875rem;
+  }
+  &.colorpicker-lg {
+    height: 1.125rem;
+    width: 1.125rem;
+  }
+  &.colorpicker-xl {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+  &.colorpicker-2xl {
+    height: 1.375rem;
+    width: 1.375rem;
+  }
+  &.no-color {
+    background-color: #FFF;
+    background-image: linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD),
+    linear-gradient(45deg, #DDD 25%, transparent 25%, transparent 75%, #DDD 75%, #DDD);
+    background-size: 0.4rem 0.4rem;
+    background-position: 0 0, 0.2rem 0.2rem;
+  }
+}
+
+.colorpicker.no-color {
+
+}

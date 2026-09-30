@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Enumerated.xml
+    Created on : 11 de marzo de 2010, 11:03
+    Author     : Pablo GARCIA
+    Description:
+        Purpose of the document follows.
+-->
+
+<enumerated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd">
+
+  <!-- MATRIX TEST TYPE -->
+  <group id="EnuAweSelMat">
+    <option label="ENUM_MATRIX_STATIC" value="StaMat" />
+    <option label="ENUM_MATRIX_MULTISELECT" value="MusMat" />
+    <option label="ENUM_MATRIX_EDITABLE" value="EdiMat" />
+    <option label="ENUM_MATRIX_EDITABLE_MULTISELECT" value="EdiMusMat" />
+    <option label="ENUM_MATRIX_MULTIOPTION" value="MuoMat" />
+    <option label="ENUM_MATRIX_TREEGRID" value="TreMat" />
+    <option label="ENUM_MATRIX_TREEGRID_LOADNODE" value="TreLoaMat" />
+    <option label="ENUM_MATRIX_TREEGRID_EDITABLE" value="TreEdiMat" />
+    <option label="ENUM_MATRIX_TREEGRID_EDITABLE_LOADNODE" value="TreLoaEdiMat" />
+    <option label="ENUM_MATRIX_TOTALIZE" value="TotMat" />
+    <option label="ENUM_MATRIX_TOTALIZE_SERVICE" value="TotSrvMat" />
+    <option label="ENUM_MATRIX_GRID_DEPENDENCIES" value="DepMat" />
+  </group>
+
+  <!-- WIZARD TEST STEPS -->
+  <group id="WizTst">
+    <option label="ENUM_STEP_1" value="WizardStep1" />
+    <option label="ENUM_STEP_2" value="WizardStep2" />
+    <option label="ENUM_STEP_3" value="WizardStep3" />
+    <option label="ENUM_STEP_4" value="WizardStep4" />
+  </group>
+
+  <!-- BUTTON CHECKBOX -->
+  <group id="ButtonCheckbox">
+    <option label="PARAMETER_CHECKBOX_1" value="ChkBoxVa21" />
+    <option label="PARAMETER_CHECKBOX_2" value="ChkBoxVa22" />
+    <option label="PARAMETER_CHECKBOX_3" value="ChkBoxVa23" />
+    <option label="PARAMETER_CHECKBOX_1" value="ChkBoxVa24" />
+    <option label="PARAMETER_CHECKBOX_1" value="ChkBoxVa25" />
+  </group>
+
+  <!-- BUTTON RADIO -->
+  <group id="ButtonRadio">
+    <option label="PARAMETER_RADIO_1" value="Radio1" />
+    <option label="PARAMETER_RADIO_2" value="Radio2" />
+    <option label="PARAMETER_RADIO_3" value="Radio3" />
+    <option label="PARAMETER_RADIO_1" value="Radio4" />
+    <option label="PARAMETER_RADIO_1" value="Radio5" />
+  </group>
+
+  <group id="VideoPdf">
+    <option label="VIDEO" value="VIDEO" />
+    <option label="PDF" value="PDF" />
+  </group>
+
+</enumerated>

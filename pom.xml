@@ -268,6 +268,10 @@
               <publishingServerId>central</publishingServerId>
               <autoPublish>true</autoPublish>
               <waitMaxTime>3600</waitMaxTime>
+              <!-- The React engine is published to npm (awe-react-client), not as a Maven artifact -->
+              <excludeArtifacts>
+                <excludeArtifact>awe-client-react</excludeArtifact>
+              </excludeArtifacts>
             </configuration>
           </plugin>
         </plugins>

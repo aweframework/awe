@@ -126,6 +126,9 @@ stages:
 .paths-frontend: &paths-frontend
   - .gitlab-ci.yml
   - awe-framework/awe-client-angular/**/*
+.paths-frontend-react: &paths-frontend-react
+  - .gitlab-ci.yml
+  - awe-framework/awe-client-react/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -137,6 +140,9 @@ stages:
 .if-mr-frontend: &if-mr-frontend
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-frontend
+.if-mr-frontend-react: &if-mr-frontend-react
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-frontend-react
 .paths-code: &paths-code             # backend or frontend: the whole Maven reactor
   - .gitlab-ci.yml
   - pom.xml
@@ -261,7 +267,7 @@ Build project:
   # before the cache is archived. Otherwise it grows on every release until the runner runs out of disk.
   after_script:
     - version=$(sed -n 's/^PROJECT_VERSION=//p' build.env 2>/dev/null)
-    - rm -rf .m2/repository/com/almis/awe/awe-boot
+    - rm -rf .m2/repository/com/almis/awe/awe-boot .m2/repository/com/almis/awe/awe-boot-react
     - >-
       if [ -n "$version" ]; then
       find .m2/repository/com/almis/awe -mindepth 2 -maxdepth 2 -type d -name '*-SNAPSHOT' ! -name "$version"
@@ -439,6 +445,28 @@ Frontend UT:
     - <<: *if-mr-frontend
     - <<: *if-branches
 
+Frontend UT React:
+  stage: test
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:latest@sha256:611a6928ed5696bccb29fd3ce0b0a6fe0818d26a59119f9b04056dd61c2fa33d
+  needs: [ ]
+  cache: { }
+  timeout: 15m
+  variables:
+    BABEL_ENV: test
+    NODE_ENV: test
+  script:
+    - mvn -f awe-framework/awe-client-react/pom.xml $MAVEN_CLI_OPTS test
+  artifacts:
+    paths:
+      - awe-framework/awe-client-react/target/reports/jest/
+    expire_in: 1 day
+    reports:
+      junit:
+        - awe-framework/awe-client-react/target/reports/jest/junit/*.xml
+  rules:
+    - <<: *if-mr-frontend-react
+    - <<: *if-branches
+
 Javadoc test:
   stage: test
   timeout: 20m
@@ -612,6 +640,8 @@ Launch Sonar:
       optional: true
     - job: Frontend UT
       optional: true
+    - job: Frontend UT React
+      optional: true
     - job: Firefox IT
     - job: Chrome IT
   cache:
@@ -623,21 +653,23 @@ Launch Sonar:
       paths:
         - .sonar/cache
   script:
-    # A merge-request pipeline that did not run "Frontend UT" (backend-only change) has no Jest
-    # report directory at all, and the Sonar scanner fails on a missing generic test execution
-    # report (sonar.testExecutionReportPaths in the root pom). Only in that case provide an empty
-    # but valid report so the Java analysis still runs. If the directory exists (Frontend UT ran)
-    # but the report is missing, fail loudly instead of hiding a broken artifact.
-    - JEST_REPORTS_DIR=awe-framework/awe-client-angular/target/reports/jest
+    # A merge-request pipeline that did not run "Frontend UT" or "Frontend UT React" (backend-only
+    # change, or a change to only one of the two clients) has no Jest report directory for that
+    # client at all, and the Sonar scanner fails on a missing generic test execution report
+    # (sonar.testExecutionReportPaths in the root pom and in each client pom). Only in that case
+    # provide an empty but valid report so the Java analysis still runs. If the directory exists
+    # (the job ran) but the report is missing, fail loudly instead of hiding a broken artifact.
     - |
-      if [ ! -d "$JEST_REPORTS_DIR" ]; then
-        mkdir -p "$JEST_REPORTS_DIR/sonar"
-        echo '<testExecutions version="1"></testExecutions>' > "$JEST_REPORTS_DIR/sonar/javascriptUnitTests.xml"
-        echo "Frontend UT was not part of this pipeline: Sonar runs with an empty Jest report"
-      elif [ ! -f "$JEST_REPORTS_DIR/sonar/javascriptUnitTests.xml" ]; then
-        echo "Frontend UT ran but its Sonar report is missing under $JEST_REPORTS_DIR" >&2
-        exit 1
-      fi
+      for JEST_REPORTS_DIR in awe-framework/awe-client-angular/target/reports/jest awe-framework/awe-client-react/target/reports/jest; do
+        if [ ! -d "$JEST_REPORTS_DIR" ]; then
+          mkdir -p "$JEST_REPORTS_DIR/sonar"
+          echo '<testExecutions version="1"></testExecutions>' > "$JEST_REPORTS_DIR/sonar/javascriptUnitTests.xml"
+          echo "The frontend unit tests for $JEST_REPORTS_DIR were not part of this pipeline: Sonar runs with an empty Jest report"
+        elif [ ! -f "$JEST_REPORTS_DIR/sonar/javascriptUnitTests.xml" ]; then
+          echo "The frontend unit tests ran but their Sonar report is missing under $JEST_REPORTS_DIR" >&2
+          exit 1
+        fi
+      done
     # SonarCloud rejects branch parameters on merge request analyses, so only set sonar.branch.name outside MRs.
     - SONAR_BRANCH_OPTS=""
     - if [ -z "$CI_MERGE_REQUEST_IID" ]; then SONAR_BRANCH_OPTS="-Dsonar.branch.name=$CI_COMMIT_REF_NAME"; fi
