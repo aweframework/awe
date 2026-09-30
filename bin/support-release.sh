@@ -141,8 +141,10 @@ run mvn -B gitflow:hotfix-start \
   -DpushRemote=false \
   -DversionProperty=revision
 
+# hotfix-start names the branch hotfix/<support branch>/<version> (hotfix/support/4.x/4.12.10), and
+# hotfix-finish looks up hotfix/<hotfixVersion>, so the support branch must be part of hotfixVersion.
 run mvn -B gitflow:hotfix-finish \
-  -DhotfixVersion="$RELEASE_VERSION" \
+  -DhotfixVersion="$SUPPORT_BRANCH/$RELEASE_VERSION" \
   -DskipMergeProdBranch=true \
   -DskipMergeDevBranch=true \
   -DskipTestProject=true \
