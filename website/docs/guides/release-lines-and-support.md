@@ -28,7 +28,8 @@ its own releases, and its own tags, and it is retired once its support window en
 
 Every branch follows semantic versioning (`MAJOR.MINOR.PATCH`), with `-SNAPSHOT` between
 releases. `develop` moves through `5.0.0-SNAPSHOT`, `5.0.1-SNAPSHOT`, etc.; `support/4.x`
-moves through `4.12.10-SNAPSHOT`, `4.12.11-SNAPSHOT`, and so on. Release tags use the
+moved through the 4.12.x releases up to `4.12.10` and continues with the 4.13.x line
+(`4.13.0-SNAPSHOT`, then `4.13.1-SNAPSHOT` after the `4.13.0` release, and so on). Release tags use the
 `v` prefix configured in the gitflow-maven-plugin (`versionTagPrefix=v`), for example
 `v4.12.10` or `v5.0.0`.
 
