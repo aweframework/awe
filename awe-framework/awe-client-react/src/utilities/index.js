@@ -336,7 +336,7 @@ export function getContextPath() {
 }
 
 export function getBaseHref() {
-  return (document.getElementsByTagName('base')[0] || { href: "/" }).href
+  return (document.getElementsByTagName('base')[0] || { href: "/" }).href;
 }
 
 /**

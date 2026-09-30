@@ -1,4 +1,3 @@
-/* eslint-disable */
 import {components} from '../../../../src/redux/reducers/componentsReducer';
 import {RESET_MODEL, RESTORE_ATTRIBUTE, UPDATE_MODEL, UPDATE_ROW_MODEL} from '../../../../src/redux/actions/components';
 

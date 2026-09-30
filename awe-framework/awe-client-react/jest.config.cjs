@@ -31,6 +31,7 @@ module.exports = {
     '**/redux/actions/advancedDependenciesTest.{js,jsx}',
     '**/redux/actions/dependenciesTest.{js,jsx}',
     '**/redux/actions/settingsTest.{js,jsx}',
+    '**/redux/actions/menuTest.{js,jsx}',
     '**/services/ComponentServiceTest.{js,jsx}',
     '**/services/FormServiceTest.{js,jsx}',
     '**/services/WebsocketServiceTest.{js,jsx}',

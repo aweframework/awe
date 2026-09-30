@@ -41,7 +41,7 @@ function AweAccordion(props) {
   const getHeader = (node) => {
     const { label } = node;
     if (label) {
-      return <span className={"window-header"}>{translateLabel(label, t)}</span>
+      return <span className={"window-header"}>{translateLabel(label, t)}</span>;
     }
     return null;
   };

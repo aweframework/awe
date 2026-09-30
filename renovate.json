@@ -69,14 +69,15 @@
       "allowedVersions": "<8"
     },
     {
-      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. Security fixes are not held back (vulnerability alerts disable the approval step).",
+      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client and its test application (awe-tests/awe-boot-react) are not held back. Security fixes are not held back (vulnerability alerts disable the approval step).",
       "matchManagers": [
         "npm"
       ],
       "matchFileNames": [
         "awe-framework/awe-client-angular/**",
         "awe-framework/awe-modules/awe-tools/**",
-        "awe-tests/**/package.json"
+        "awe-tests/awe-boot/package.json",
+        "awe-tests/awe-scheduler-boot/package.json"
       ],
       "matchUpdateTypes": [
         "major"

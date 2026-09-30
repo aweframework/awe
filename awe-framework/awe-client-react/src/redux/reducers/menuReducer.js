@@ -115,7 +115,7 @@ export function menu(state = InitialState, action = {}) {
           items: [...action.items],
           option: action.option
         }
-      }
+      };
     default:
       return state;
   }

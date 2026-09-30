@@ -72,7 +72,7 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
             <AppWithStore settings={settings}/>
           </PrimeReactProvider>
         </BrowserRouter>);
-    })
+    });
   })
   .catch((reason) => console.error("Error initialising the application:", reason));
 

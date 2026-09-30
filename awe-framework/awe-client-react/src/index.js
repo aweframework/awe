@@ -1,5 +1,5 @@
-import "./main.css"
-import "./main"
+import "./main.css";
+import "./main";
 
 export {registerTemplate} from "./templates";
 export {registerWidget, getWidget} from "./widgets";

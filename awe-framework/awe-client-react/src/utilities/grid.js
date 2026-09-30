@@ -36,7 +36,7 @@ export const RowPositionType = {
   FIRST: "FIRST",
   LAST: "LAST",
   CHILD: "CHILD"
-}
+};
 
 /**
  * Operation type
@@ -47,7 +47,7 @@ export const OperationType = {
   INSERT: "INSERT",
   UPDATE: "UPDATE",
   DELETE: "DELETE"
-}
+};
 
 /**
  * Operation icon
@@ -58,7 +58,7 @@ export const OperationIcon = {
   "INSERT": "pi pi-user-plus text-success",
   "UPDATE": "pi pi-user-edit text-info",
   "DELETE": "pi pi-user-minus text-danger"
-}
+};
 
 /**
  * Retrieve cell attribute
@@ -235,7 +235,7 @@ export function getEditingRowIndex(values) {
 export function getExistingIndex(values) {
   let value = values
     .filter(v => typeof v === 'number')
-    .filter(v => v > -1)[0]
+    .filter(v => v > -1)[0];
   return isEmpty(value) ? -1 : value;
 }
 
@@ -260,7 +260,7 @@ export function filterRow(row, filters) {
   return Object.keys(filters).reduce((isValid, filter) => {
     const cellValue = extractCellValue(row[filter]);
     const {matchMode, value} = filters[filter];
-    return isValid && ('' + cellValue)[matchMode](value)
+    return isValid && ('' + cellValue)[matchMode](value);
   }, true);
 }
 
