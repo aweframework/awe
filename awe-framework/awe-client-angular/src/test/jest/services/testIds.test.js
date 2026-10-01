@@ -82,6 +82,8 @@ describe("test id vocabulary", () => {
       popover: "popover",
       popoverTitle: "popover-title",
       popoverContent: "popover-content",
+      helpPopover: "help-popover",
+      columnIcon: "column-icon",
       dialog: "dialog",
       dialogClose: "dialog-close",
       confirmDialog: "confirm-dialog",
@@ -108,7 +110,8 @@ describe("test id vocabulary", () => {
       loading: "data-loading",
       completed: "data-completed",
       type: "data-type",
-      container: "data-container"
+      container: "data-container",
+      icon: "data-icon"
     });
   });
 

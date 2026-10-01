@@ -20,6 +20,7 @@ public final class TestAttributes {
   public static final String LOADING = "data-loading";
   public static final String TYPE = "data-type";
   public static final String CONTAINER = "data-container";
+  public static final String ICON = "data-icon";
 
   private TestAttributes() {
     // Constants only

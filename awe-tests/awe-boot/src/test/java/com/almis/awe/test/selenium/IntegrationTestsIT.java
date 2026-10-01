@@ -1,5 +1,7 @@
 package com.almis.awe.test.selenium;
 
+import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
@@ -11,6 +13,10 @@ import org.openqa.selenium.WebElement;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("ApplicationIntegrationIT")
 class IntegrationTestsIT extends SeleniumUtilities {
+
+  /** Number of the active step of a wizard */
+  private static final String ACTIVE_WIZARD_STEP_NUMBER = TestIds.css(TestIds.WIZARD_STEP)
+    + TestAttributes.css(TestAttributes.ACTIVE, true) + " > span.wizard-step-number";
 
   /**
    * Log into the application
@@ -237,7 +243,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     gotoScreen("test", "wizard-test");
 
     // Check visibility
-    checkVisibleAndContains("li.active > span.wizard-step-number", "1");
+    checkVisibleAndContains(ACTIVE_WIZARD_STEP_NUMBER, "1");
 
     // Check visibility
     checkVisibleAndContains("[awe-tag-list='wizard-tag-list-1'] > span", "Manager (test)");
@@ -255,7 +261,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep2");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "2");
+    checkVisibleAndContains(ACTIVE_WIZARD_STEP_NUMBER, "2");
 
     // Write text
     writeText("lala", "aaa");
@@ -270,7 +276,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep3");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "3");
+    checkVisibleAndContains(ACTIVE_WIZARD_STEP_NUMBER, "3");
 
     // Write text
     writeText("epa12", "aaa");
@@ -282,7 +288,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep4");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "4");
+    checkVisibleAndContains(ACTIVE_WIZARD_STEP_NUMBER, "4");
 
     // Write text
     writeText("epa121", "aaa");

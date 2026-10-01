@@ -275,6 +275,25 @@ describe("column editor test ids", () => {
   });
 });
 
+describe("icon column test ids", () => {
+  it("marks the icon of an icon column and exposes which icon it shows", () => {
+    const scope = refs => {
+      const created = refs.$rootScope.$new();
+      created.component = {model: {values: [{icon: "fa-plus", style: "text-success", label: "Added"}]}};
+      return created;
+    };
+    const refs = initHeavyComponentTest();
+    const element = refs.$compile($("<div></div>").html(readTemplate("column/icon.html")))(scope(refs));
+    refs.$rootScope.$digest();
+
+    const icon = element.find(hook(TestIds.columnIcon));
+    expect(icon.length).toBe(1);
+    expect(icon.is("span.fa")).toBe(true);
+    expect(icon.attr("data-icon")).toBe("fa-plus");
+    cleanupHeavyComponentTest();
+  });
+});
+
 describe("tab and wizard test ids", () => {
   let refs;
 
@@ -613,6 +632,23 @@ describe("dialog, confirm and message test ids", () => {
     expect(root.find(`.modal${hook(TestIds.confirmDialog)}`).length).toBe(1);
     expect(root.find(`button#confirm-accept${hook(TestIds.confirmAccept)}`).length).toBe(1);
     expect(root.find(`button#confirm-cancel${hook(TestIds.confirmCancel)}`).length).toBe(1);
+  });
+
+  it("marks the help popover and exposes whether it is open", () => {
+    const scope = refs.$rootScope.$new();
+    scope.isShowing = false;
+    const element = refs.$compile($("<div></div>").html(readTemplate("help.html")))(scope);
+    scope.$digest();
+
+    const popover = element.find(hook(TestIds.helpPopover));
+    expect(popover.length).toBe(1);
+    expect(popover.hasClass("help")).toBe(true);
+    expect(popover.attr("data-open")).toBe("false");
+
+    scope.isShowing = true;
+    scope.$digest();
+
+    expect(popover.attr("data-open")).toBe("true");
   });
 
   it("marks the alerts, their type, text and close button", () => {

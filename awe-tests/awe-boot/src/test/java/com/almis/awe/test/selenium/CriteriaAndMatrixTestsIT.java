@@ -1,5 +1,7 @@
 package com.almis.awe.test.selenium;
 
+import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
@@ -9,6 +11,21 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("CRUDCriteriaMatrixIT")
 class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
+
+  /** Day of the open datepicker that can be picked */
+  private static final String ENABLED_DATEPICKER_DAY = TestIds.css(TestIds.DATEPICKER_DAY)
+    + TestAttributes.css(TestAttributes.DISABLED, false);
+
+  /**
+   * Icon that a multioperation grid shows for a row
+   *
+   * @param icon Icon of the operation (one of the icon classes of the cell value)
+   * @return Css selector
+   */
+  private static String multioperationIcon(String icon) {
+    return "[grid-id='GrdMuo'] [column-id='RowIco'] " + TestIds.css(TestIds.COLUMN_ICON)
+      + "[" + TestAttributes.ICON + "~='" + icon + "']";
+  }
 
   /**
    * Log into the application
@@ -133,13 +150,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickDate("FilCal");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
+    click(ENABLED_DATEPICKER_DAY);
 
     // Click on date
     clickDate("FilCalReq");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
+    click(ENABLED_DATEPICKER_DAY);
 
     // Check date contents
     checkCriterionContents("Cal", "23/10/1978");
@@ -586,7 +603,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     click("div.component-mask");
 
     // Wait for context menu to hide
-    checkNotVisible(".context-menu");
+    checkNotVisible(TestIds.css(TestIds.CONTEXT_MENU));
 
     // Context menu on grid
     contextMenuRowContents("GrdSta", "awedb2");
@@ -598,10 +615,10 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     click("div.component-mask");
 
     // Wait for context menu to hide
-    checkNotVisible(".context-menu");
+    checkNotVisible(TestIds.css(TestIds.CONTEXT_MENU));
 
     // Click on viewport
-    click("[grid-id='GrdSta'] div.ui-grid-viewport");
+    click("[grid-id='GrdSta'] " + TestIds.css(TestIds.GRID_VIEWPORT) + TestAttributes.css(TestAttributes.CONTAINER, "body"));
 
     // Click row contents
     clickRowContents("GrdSta", "awedb2");
@@ -658,7 +675,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickDate("GrdEdi", "FilDat");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
+    click(ENABLED_DATEPICKER_DAY);
 
     // Get selector text
     String date = getText("GrdEdi", "FilDat");
@@ -724,13 +741,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickButton("ButGrdMuoAdd");
 
     // Wait for visible
-    waitForCssSelector("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-plus");
+    waitForCssSelector(multioperationIcon("fa-plus"));
 
     // Save row
     saveRow("GrdMuo");
 
     // Check icon
-    checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-plus");
+    checkVisible(multioperationIcon("fa-plus"));
 
     // Edit row
     editRow("GrdMuo", "1", "Des2");
@@ -742,7 +759,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     saveRow("GrdMuo");
 
     // Check icon
-    checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-edit");
+    checkVisible(multioperationIcon("fa-edit"));
 
     // Context menu on grid
     contextMenu("GrdMuo", "3", "Des2");
@@ -751,7 +768,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickContextButton("CtxGrdMuoDel");
 
     // Check icon
-    checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-trash");
+    checkVisible(multioperationIcon("fa-trash"));
   }
 
   /**
@@ -885,7 +902,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickTreeButton(gridId, "ProOperator");
 
     // Check not visible
-    checkNotVisible("[tree-grid-id='" + gridId + "'] [row-id='ProAdministrator-ModBase'] i.tree-icon");
+    checkNotVisible("[tree-grid-id='" + gridId + "'] [row-id='ProAdministrator-ModBase'] " + TestIds.css(TestIds.TREE_ICON));
 
     // Click on button
     clickTreeButton(gridId, "ProAdministrator");
@@ -900,7 +917,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickTreeButton(gridId, "ProGeneral");
 
     // Check visible
-    checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProGeneral-ModBase'] i.tree-icon");
+    checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProGeneral-ModBase'] " + TestIds.css(TestIds.TREE_ICON));
   }
 
   /**

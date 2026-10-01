@@ -318,6 +318,7 @@ so a test can tell which component opened them.
 | `grid-loader` | Loader of the grid (also the pivot table) | Inside the grid |
 | `tree-icon` | Expand/collapse icon of a tree row. `data-expanded` and `data-loading` | Inside the cell |
 | `tree-header-icon` | Expand/collapse all icon of the header | Inside the grid |
+| `column-icon` | The icon of an icon column. `data-icon` carries the icon of the cell value (for instance `fa-plus` in a multioperation grid) | Inside the cell |
 
 ### Tabs and wizards
 
@@ -345,7 +346,8 @@ so a test can tell which component opened them.
 |---|---|---|
 | `alert`, `alert-title`, `alert-message`, `alert-close` | An alert of the alert zone (`data-type` is `success`, `info`, `warning` or `danger`), its title, its text and its close button | Alert zone |
 | `popover`, `popover-title`, `popover-content` | The message shown over a component (`data-type`, and `data-testid-owner` with the component it points at) | End of `<body>` |
-| `dialog`, `dialog-close` | A modal dialog (with `data-testid-owner` = dialog id) and the button of its header that closes it | Inside `[dialog-id='X']` |
+| `help-popover` | The help of a component, rendered once for the whole application. It is displayed only while `data-open` is `true` | Alert zone |
+| `dialog`, `dialog-close` | A modal dialog (with `data-testid-owner` = dialog id, and `data-open`) and the button of its header that closes it | Inside `[dialog-id='X']` |
 | `confirm-dialog`, `confirm-accept`, `confirm-cancel` | The confirm dialog and its buttons | End of the alert zone |
 | `loader` | A component loader (criteria, columns, selects). Grids use `grid-loader` | Inside the component |
 | `loading-bar`, `loading-spinner` | The global loading bar and its spinner. They exist only while the application is loading | End of `<body>` |
@@ -353,19 +355,20 @@ so a test can tell which component opened them.
 ### State
 
 The state a test needs is exposed as data attributes, so it does not depend on library classes. They are always `"true"`
-or `"false"`, except `data-type` and `data-container`:
+or `"false"`, except `data-type`, `data-container` and `data-icon`:
 
 | Attribute | Meaning |
 |---|---|
 | `data-selected` | Selected row or checkbox, selected datepicker cell |
 | `data-active` | Active tab, wizard step, wizard or tab pane and menu option; the datepicker cell that has the keyboard focus |
 | `data-disabled` | Disabled tab list, context menu link, previous/next page arrow or datepicker cell |
-| `data-open` | Menu option or submenu that is open |
+| `data-open` | Menu option or submenu that is open; help popover that is displayed; dialog that is open. A dialog is `false` again only when its backdrop has been removed, so the screen is interactive |
 | `data-expanded`, `data-loading` | Tree row that is expanded, or that is loading its children |
 | `data-completed` | Wizard step that is already done |
 | `data-outside-month` | Datepicker day that belongs to the previous or next month |
 | `data-type` | Type of a message |
 | `data-container` | Container of a grid viewport: `body`, `left` or `right` |
+| `data-icon` | Icon classes shown by an icon column. Match one with `[data-icon~='fa-plus']` |
 
 ```java
 // Value of the input of a criterion
@@ -389,6 +392,67 @@ By danger = By.cssSelector("[data-testid='alert'][data-type='danger']");
 
 The vocabulary lives in a single JavaScript constant, `TestIds` (`awe-client-angular`, `js/awe/data/testIds.js`), also
 available as an AngularJS constant. Hooks are additive: no existing class, id or attribute is removed.
+
+## Writing Selenium tests for your product
+
+Your product tests should not know which libraries AWE uses to draw its components. If they do, replacing a library (as AWE
+5 does with select2, ui-grid or the datepicker) breaks every suite. Locate components in this order:
+
+1. **A `SeleniumUtilities` method.** `clickButton`, `selectContain`, `suggest`, `selectDate`, `editRow`, `clickTab`,
+   `checkAndCloseMessage`... already know how to find each component and are kept working when AWE changes. The sections
+   below describe them.
+2. **A `data-testid` hook plus the AWE attributes**, when there is no method for what you need. The hook names the part of
+   the component and the AWE attribute names the instance: `criterion-id`, `grid-id`, `row-id`, `column-id`, `option-id`,
+   `info-dropdown-id` or the `id` of a button. `TestIds` and `TestAttributes` (`com.almis.awe.testing.selenium`) declare
+   the vocabulary so you do not type the strings.
+3. **Never a library class** (`.select2-*`, `.datepicker`, `.ui-grid-*`, `.modal`, `.nav-tabs`, `.alert`, `.popover`,
+   `.btn`, `fa-*`...) or a position in a library's markup.
+
+```java
+import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
+
+// Wait for the warning alert of the login and check its text
+checkText(TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, "warning") + " "
+  + TestIds.css(TestIds.ALERT_MESSAGE), "The credentials entered for the user -test- are not valid");
+
+// Click the first day of the open datepicker that is not disabled
+click(TestIds.css(TestIds.DATEPICKER_DAY) + TestAttributes.css(TestAttributes.DISABLED, false));
+
+// Type in the search box of the open select dropdown
+writeText(By.cssSelector(TestIds.css(TestIds.SELECT_DROPDOWN) + " " + TestIds.css(TestIds.SELECT_SEARCH)), "tee");
+```
+
+### The owner attribute
+
+The dropdown of a select, the datepicker popup and the message popovers are appended to the end of the `<body>`, outside
+the component. They carry `data-testid-owner="<component id>"`. Use it when several components could be open or when you
+need to be sure which one opened the element. Only one select dropdown (and one datepicker) is open at a time, and only
+the open one carries its hook, so `select-dropdown` alone is enough in most tests:
+
+```java
+// Dropdown and options opened by the select "Sta"
+By dropdown = By.cssSelector("[data-testid='select-dropdown'][data-testid-owner='Sta']");
+```
+
+### Wait on state, not on classes
+
+Expose what you wait for as state: `data-selected`, `data-active`, `data-open`, `data-expanded`, `data-loading`...
+(see *State* above). Wait on a state that stays set until the screen has finished re-rendering, for instance
+`data-loading='false'` on a tree icon, or the selected state of a row after clicking it. Library classes such as `.active`
+or `.fa-spin` change for reasons that have nothing to do with AWE.
+
+### Match the whole text of an element
+
+A library may split the text of an element into several nodes: when you type in a select, the matching letters are
+highlighted (`<span class="select2-match">B</span>ase`), and no single text node contains `Base`. Compare the text of the
+whole element, with `contains(normalize-space(.), 'Base')` in an xpath, or with `getText()`. Never use
+`//text()[contains(., 'Base')]` over AWE components.
+
+```java
+By option = By.xpath("//*[@data-testid='select-dropdown']//*[@data-testid='select-option']"
+  + "[contains(normalize-space(.),'Base')]");
+```
 
 ## Criteria
 

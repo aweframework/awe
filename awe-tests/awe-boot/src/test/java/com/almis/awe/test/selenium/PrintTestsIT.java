@@ -1,5 +1,7 @@
 package com.almis.awe.test.selenium;
 
+import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
@@ -137,7 +139,7 @@ class PrintTestsIT extends SeleniumUtilities {
     verifyPrintScreen(false, "test", "chart", "grid-and-chart");
 
     // Check for pager values selector
-    Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
+    Select select = new Select(getDriver().findElement(By.cssSelector(TestIds.css(TestIds.GRID_PAGE_SIZE))));
     WebElement option = select.getFirstSelectedOption();
     assertEquals("25", option.getText());
   }
@@ -200,7 +202,8 @@ class PrintTestsIT extends SeleniumUtilities {
     // Accept message
     checkAndCloseMessage("success");
 
-    // Wait modal backdrop to disappear
-    checkNotVisible(".modal-backdrop");
+    // Wait for the print dialog to be closed: data-open is false once Bootstrap has removed the dialog and its backdrop
+    checkNotVisible(TestIds.css(TestIds.DIALOG) + "[" + TestAttributes.OWNER + "='PrnOpt']"
+      + TestAttributes.css(TestAttributes.OPEN, true));
   }
 }

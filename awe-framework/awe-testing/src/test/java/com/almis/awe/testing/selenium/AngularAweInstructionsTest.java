@@ -140,7 +140,7 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getMessage("danger"))
       .hasToString("By.cssSelector: [data-testid='alert'][data-type='danger'] [data-testid='alert-close']");
     assertThat(instructions.getPopover())
-      .hasToString("By.cssSelector: [data-testid='popover'],.help.popover:not(.ng-hide)");
+      .hasToString("By.cssSelector: [data-testid='popover'],[data-testid='help-popover'][data-open='true']");
     assertThat(instructions.getLoaderSelector())
       .hasToString("By.cssSelector: [data-testid='loader'],[data-testid='grid-loader']");
     assertThat(instructions.getLoadingBar()).hasToString("By.cssSelector: [data-testid='loading-bar']");
