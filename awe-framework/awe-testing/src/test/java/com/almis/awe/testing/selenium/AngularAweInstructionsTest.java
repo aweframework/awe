@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 
+import javax.xml.xpath.XPathFactory;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -150,5 +153,27 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getOptionalPostLoginShellControls()).containsExactly(By.id("main-menu-toggle"), By.id("ButLogOut"));
     assertThat(instructions.containsText("some-class", "abc"))
       .hasToString("By.xpath: //*[contains(@class,'some-class')]//text()[contains(.,'abc')]/..");
+  }
+
+  @Test
+  void shouldEscapeQuotesOfTheTextThatTestsSearch() throws Exception {
+    assertThat(instructions.getGridCellText("Grd", "R1", "Col", "It's")).hasToString("By.xpath: "
+      + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"
+      + "//*[@data-testid='grid-cell' and @column-id='Col']//text()[contains(.,\"It's\")]/..");
+    assertThat(instructions.getSelectResult("It's")).hasToString("By.xpath: "
+      + "//*[@data-testid='select-dropdown']//*[@data-testid='select-option'][contains(normalize-space(.),\"It's\")]");
+    assertThat(instructions.containsText("clazz", "It's")).hasToString("By.xpath: "
+      + "//*[contains(@class,'clazz')]//text()[contains(.,\"It's\")]/..");
+
+    List<By> locators = List.of(
+      instructions.getGridCellText("Gr'd", "R'1", "Co'l", "a'b\"c"), instructions.findGridCell("Gr'd", "It's"),
+      instructions.getGridHeader("Gr'd", "Co'l"), instructions.getGridCell("Gr'd", null, "Co'l"),
+      instructions.getGridScrollZone("Gr'd"), instructions.getCellFromDatepicker("day", "It's"),
+      instructions.getMenuOpenedChildren("Op't"), instructions.getSelectResult("It's"),
+      instructions.getSuggestResult("a'b\"c"), instructions.containsText("cla'ss", "It's"));
+    for (By locator : locators) {
+      String xpath = locator.toString().substring("By.xpath: ".length());
+      assertThat(XPathFactory.newInstance().newXPath().compile(xpath)).as(xpath).isNotNull();
+    }
   }
 }

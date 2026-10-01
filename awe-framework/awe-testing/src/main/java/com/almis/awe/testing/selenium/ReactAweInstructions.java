@@ -12,7 +12,22 @@ import java.util.Optional;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
 
+/**
+ * Selenium instructions for the React client.
+ *
+ * <p>Components are located through the {@code data-testid} hooks the client renders
+ * ({@code awe-client-react/src/utilities/testIds.js}) and the attributes AWE already renders ({@code criterion-id},
+ * {@code grid-id}, {@code row-id}, {@code column-id}...), never through the classes, the ARIA roles or the markup of
+ * PrimeReact. The state that tests need is read from data attributes ({@code data-selected}, {@code data-active}...).
+ * {@code ReactAweInstructionsSelectorGuardTest} fails if a selector depends on PrimeReact.</p>
+ */
 public class ReactAweInstructions implements IAweFrontEndInstructions {
+  /** The React client has no popover (its help is a tooltip that ignores the mouse), so this selector never matches */
+  private static final String NO_POPOVER_CSS = ".popover:not(.ng-hide)";
+
+  /** Id that AWE gives to the control of the logged user */
+  private static final String USER_ACTION_ID = "ButUsrAct";
+
   private SeleniumModel seleniumModel;
 
   public WebDriver getDriver() {
@@ -24,38 +39,53 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return this;
   }
 
+  private static String css(String testId) {
+    return TestIds.css(testId);
+  }
+
+  private static String xpath(String testId) {
+    return TestIds.xpath(testId);
+  }
+
+  private static String stateCss(String attribute, Object value) {
+    return TestAttributes.css(attribute, value);
+  }
+
+  private static String stateXpath(String attribute, Object value) {
+    return TestAttributes.xpath(attribute, value);
+  }
+
   public String getCriterionCss(String criterionName) {
     return "[criterion-id='" + criterionName + "']";
   }
 
   public String getParentCss(String gridId, String rowId, String columnId) {
     if (rowId == null && columnId == null) {
-      return getGridScopeCss(gridId) + " th[role=columnheader] .p-checkbox";
+      return getGridScopeCss(gridId) + " " + css(TestIds.GRID_HEADER_CHECKBOX);
     } else if (rowId == null) {
-      return getGridScopeCss(gridId) + " [role=row].p-highlight [role=cell]." + columnId + " ";
+      return getGridScopeCss(gridId) + " " + css(TestIds.GRID_ROW) + stateCss(TestAttributes.SELECTED, true)
+        + " " + css(TestIds.GRID_CELL) + "[column-id='" + columnId + "'] ";
     } else {
-      return getGridScopeCss(gridId) + " [role=row]." + rowId + " [role=cell]." + columnId + " ";
+      return getGridScopeCss(gridId) + " " + css(TestIds.GRID_ROW) + "[row-id='" + rowId + "'] "
+        + css(TestIds.GRID_CELL) + "[column-id='" + columnId + "'] ";
     }
   }
 
   /**
    * Get grid scope in css
    *
-   * @param gridId
-   * @return
+   * @param gridId Grid identifier
+   * @return Css selector of the grid scope
    */
   private String getGridScopeCss(String gridId) {
-    return ".p-datatable[id='" + gridId + "']";
+    return css(TestIds.GRID) + "[grid-id='" + gridId + "']";
   }
 
   private String getParentXpath(String gridId, String rowId, String columnId) {
-    String tbodyPrefix = containsGridOrTreeGrid(gridId) + "//tbody[contains(@class, 'p-datatable-tbody')]";
-    return tbodyPrefix + Optional.ofNullable(rowId)
-            .map(r -> String.format(
-                    "/tr[td[contains(@class, 'p-row-number-cell') and normalize-space(.) = '%s']]" +
-                            "/td[contains(@class, '%s')]",
-                    r, columnId))
-            .orElse("");
+    String cell = "//*[" + xpath(TestIds.GRID_CELL) + " and @column-id=" + XpathLiterals.of(columnId) + "]";
+    return containsGridOrTreeGrid(gridId) + Optional.ofNullable(rowId)
+      .map(r -> "//*[" + xpath(TestIds.GRID_ROW) + " and @row-id=" + XpathLiterals.of(r) + "]" + cell)
+      .orElse("//*[" + xpath(TestIds.GRID_ROW) + " and " + stateXpath(TestAttributes.SELECTED, true) + "]" + cell);
   }
 
   private String getGridXpath(String gridId) {
@@ -63,15 +93,15 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   private String getGridHeaderXpath(String gridId, String columnId) {
-    return containsGridOrTreeGrid(gridId) + "//*[@role='row']//*[@role='columnheader' and contains(@class, '" + columnId + "')]";
+    return containsGridOrTreeGrid(gridId) + "//*[" + xpath(TestIds.GRID_HEADER_CELL) + " and @column-id=" + XpathLiterals.of(columnId) + "]";
   }
 
   public By getGridScrollZone(String gridId) {
-    return By.xpath(containsGridOrTreeGrid(gridId) + "//*[contains(@class, 'p-datatable-wrapper')]");
+    return By.xpath(containsGridOrTreeGrid(gridId) + "//*[" + xpath(TestIds.GRID_VIEWPORT) + "]");
   }
 
   public By getCriterionInput(String parentSelector) {
-    return By.cssSelector(parentSelector + " input," + parentSelector + " textarea");
+    return By.cssSelector(parentSelector + " " + css(TestIds.CRITERION_INPUT));
   }
 
   /**
@@ -81,43 +111,57 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
    * @return Xpath string
    */
   private String containsGridOrTreeGrid(String gridId) {
-    return String.format("//*[(contains(@class,'p-datatable') or contains(@class,'p-treetable')) and @id='%s']", gridId);
+    String literal = XpathLiterals.of(gridId);
+    return String.format("//*[@grid-id=%s or @tree-grid-id=%s]", literal, literal);
   }
 
   public By getDatepicker() {
-    return By.cssSelector(".p-datepicker:not([style*='display: none'])");
+    // The calendar overlay only exists while it is open
+    return By.cssSelector(css(TestIds.DATEPICKER));
   }
 
   public By getDateCriterion(String parentSelector) {
-    return By.cssSelector(parentSelector + " input");
+    return By.cssSelector(parentSelector + " " + css(TestIds.CRITERION_INPUT));
   }
 
   public By getActiveDatepicker() {
-    return By.cssSelector(".p-datepicker td span.p-highlight");
+    return By.cssSelector(css(TestIds.DATEPICKER) + " " + css(TestIds.DATEPICKER_DAY)
+      + stateCss(TestAttributes.SELECTED, true));
   }
 
   public By getCellFromDatepicker(String type, String search) {
+    String cellTestId;
+    String exclusions = "";
     switch (type) {
       case MONTH:
-        return By.xpath(String.format("//*[contains(@class,'p-datepicker')]//*[contains(@class,'p-monthpicker')]//text()[.='%s']/..", search));
+        cellTestId = TestIds.DATEPICKER_MONTH;
+        break;
       case YEAR:
-        return By.xpath(String.format("//*[contains(@class,'p-datepicker')]//*[contains(@class,'p-yearpicker')]//text()[.='%s']/..", search));
+        cellTestId = TestIds.DATEPICKER_YEAR;
+        break;
       case DAY:
       default:
-        return By.xpath(String.format("//*[contains(@class,'p-datepicker')]//*[contains(@class,'p-datepicker-calendar')]//*[not(contains(@class, 'p-disabled'))]//text()[.='%s']/..", search));
+        // Days of the previous and the next month, and days that cannot be selected, are not valid cells
+        cellTestId = TestIds.DATEPICKER_DAY;
+        exclusions = " and not(" + stateXpath(TestAttributes.OUTSIDE_MONTH, true) + ") and not("
+          + stateXpath(TestAttributes.DISABLED, true) + ")";
     }
+    return By.xpath(String.format("//*[%s]//*[%s%s]//text()[.=%s]/..", xpath(TestIds.DATEPICKER),
+      xpath(cellTestId), exclusions, XpathLiterals.of(search)));
   }
 
   public By getLoaderSelector() {
-    return By.cssSelector(".p-progress-spinner");
+    // Any loader: the one of a view, the one of a grid and the one of a suggest
+    return By.cssSelector(String.join(",", css(TestIds.LOADING_SPINNER), css(TestIds.GRID_LOADER), css(TestIds.LOADER)));
   }
 
   public By getLoadingBar() {
-    return By.cssSelector(".p-progress-spinner");
+    // The React client has no loading bar: it shows a spinner while a view is loading
+    return By.cssSelector(css(TestIds.LOADING_SPINNER));
   }
 
   public By getGridLoaderSelector() {
-    return By.cssSelector(".p-progress-spinner");
+    return By.cssSelector(css(TestIds.GRID_LOADER));
   }
 
   public By getGridHeader(String gridId, String columnId) {
@@ -129,19 +173,20 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getGridSaveButton() {
-    return By.cssSelector("[role=save-edit-row]:not([disabled])");
+    return By.cssSelector(css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
   }
 
   public By getGridSaveButton(String gridId) {
-    return By.cssSelector(getGridScopeCss(gridId) + " [role=save-edit-row]:not([disabled])");
+    return By.cssSelector(getGridScopeCss(gridId) + " " + css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
   }
 
   public By getGridCellText(String gridId, String rowId, String columnId, String search) {
-    return By.xpath(getParentXpath(gridId, rowId, columnId) + "/span[contains(@class, 'p-cell-text')]");
+    return By.xpath(String.format("%s//text()[contains(.,%s)]/..", getParentXpath(gridId, rowId, columnId), XpathLiterals.of(search)));
   }
 
   public By findGridCell(String gridId, String search) {
-    return By.xpath(String.format("%s//*[@role='row']//*[@role='cell']//text()[contains(.,'%s')]/..", getGridXpath(gridId), search));
+    return By.xpath(String.format("%s//*[%s]//*[%s]//text()[contains(.,%s)]/..",
+      getGridXpath(gridId), xpath(TestIds.GRID_ROW), xpath(TestIds.GRID_CELL), XpathLiterals.of(search)));
   }
 
   public RowEditBehavior getRowEditBehavior() {
@@ -149,15 +194,20 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getPopover() {
-    return By.cssSelector(".popover:not(.ng-hide)");
+    return By.cssSelector(NO_POPOVER_CSS);
   }
 
+  /**
+   * The class to search is supplied by the caller, so it cannot be replaced by a test hook. Prefer a hook of the
+   * vocabulary ({@link TestIds}) in new tests.
+   */
   public By containsText(String clazz, String contains) {
-    return By.xpath(String.format("//*[contains(@class,'%s')]//text()[contains(.,'%s')]/..", clazz, contains));
+    return By.xpath(String.format("//*[contains(@class,%s)]//text()[contains(.,%s)]/..",
+      XpathLiterals.of(clazz), XpathLiterals.of(contains)));
   }
 
   public By getMessage(String type) {
-    return By.cssSelector(String.format(".p-toast .p-toast-message-%s .p-toast-icon-close", type));
+    return By.cssSelector(css(TestIds.ALERT) + stateCss(TestAttributes.TYPE, type) + " " + css(TestIds.ALERT_CLOSE));
   }
 
   public MenuBehavior getMenuBehavior() {
@@ -165,23 +215,28 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getMenuOption(String option) {
-    return By.cssSelector(String.format("li.p-menuitem.%s", option));
+    // The link is the element that reacts to the mouse
+    return By.cssSelector(String.format("%s[name='%s']", css(TestIds.MENU_LINK), option));
   }
 
   public By getMenuOpenedChildren(String option) {
-    return By.xpath(String.format("//*[contains(@class,'%s') and contains(@class,'p-menuitem-active')]//ul", option));
+    return By.xpath(String.format("//*[%s and @option-name=%s and %s]",
+      xpath(TestIds.MENU_OPTION), XpathLiterals.of(option), stateXpath(TestAttributes.OPEN, true)));
   }
 
   public By getMenuDropdown() {
-    return By.cssSelector(".p-submenu-list");
+    return By.cssSelector(css(TestIds.MENU_SUBMENU));
   }
 
   public By getButton(String buttonId) {
+    // The button is identified by the id that AWE gives to it
     return By.cssSelector(String.format("#%s:not([disabled])", buttonId));
   }
 
   public List<By> getRequiredPostLoginShellControls() {
-    return List.of(By.id("ButUsrAct"));
+    // The sidebar shell shows the user as an avatar, the topbar shell as an info dropdown: both carry the same id
+    return List.of(By.cssSelector(String.format("%s#%s,%s#%s", css(TestIds.AVATAR), USER_ACTION_ID,
+      css(TestIds.INFO_DROPDOWN), USER_ACTION_ID)));
   }
 
   public List<By> getOptionalPostLoginShellControls() {
@@ -191,26 +246,37 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getInfoButton(String buttonId) {
-    return By.cssSelector(String.format(".p-overlay-badge button#%s", buttonId));
+    // An info button and the button of an info dropdown carry the id that AWE gives to them
+    return By.cssSelector(String.format("%s#%s,%s#%s", css(TestIds.INFO_BUTTON), buttonId, css(TestIds.INFO_DROPDOWN), buttonId));
   }
 
   public By getTreeButton(String gridId, String rowId) {
-    return By.cssSelector(String.format("#%s.p-treetable [role=row].%s .p-treetable-toggler", gridId, rowId));
+    // The rows of a tree grid have no hook: the icon carries the row identifier
+    return By.cssSelector(String.format("[tree-grid-id='%s'] %s[row-id='%s']", gridId, css(TestIds.TREE_ICON), rowId));
   }
 
   public By getTreeButtonLoader() {
-    return By.cssSelector(".fa-spin");
+    // The tree grid shows the loader of the grids while it is loading
+    return By.cssSelector(css(TestIds.GRID_LOADER));
+  }
+
+  /**
+   * Get the css of the tab list of an enabled tab criterion
+   *
+   * @param tabId Tab criterion identifier
+   * @return Css selector
+   */
+  private String getTabListCss(String tabId) {
+    return getCriterionCss(tabId) + " " + css(TestIds.TAB_LIST) + stateCss(TestAttributes.DISABLED, false);
   }
 
   public By getTab(String tabId) {
-    return By.xpath(String.format("//*[@id='%s']", tabId));
+    return By.cssSelector(getTabListCss(tabId));
   }
 
   public By getTab(String tabId, String tabLabel) {
-    return By.xpath(String.format(
-            "//*[@id='%s']//li[@role='presentation']//span[@class='p-tab-title' and normalize-space(text())='%s']",
-            tabId, tabLabel
-    ));
+    return By.xpath(String.format("//*[@criterion-id=%s]//*[%s and normalize-space(.)=%s]",
+      XpathLiterals.of(tabId), xpath(TestIds.TAB_LABEL), XpathLiterals.of(tabLabel)));
   }
 
   public By getTabMenu(String tabId) {
@@ -229,102 +295,125 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getTabActive(String tabId, String tabLabel) {
-    return By.xpath(String.format(
-            "//*[@id='%s']//li[contains(@class, 'p-highlight')]//span[normalize-space(text())='%s']",
-            tabId, tabLabel
-    ));
+    return By.xpath(String.format("//*[@criterion-id=%s]//*[%s and %s]//*[%s and normalize-space(.)=%s]",
+      XpathLiterals.of(tabId), xpath(TestIds.TAB), stateXpath(TestAttributes.ACTIVE, true), xpath(TestIds.TAB_LABEL),
+      XpathLiterals.of(tabLabel)));
   }
 
   public By getContextButton(String buttonId) {
-    return By.cssSelector(String.format(".context-menu [option-id='%s'] a:not([disabled])", buttonId));
+    // In React the option identifier is rendered in the link
+    return By.cssSelector(String.format("%s %s[option-id='%s']:not(%s)", css(TestIds.CONTEXT_MENU),
+      css(TestIds.CONTEXT_MENU_LINK), buttonId, stateCss(TestAttributes.DISABLED, true)));
   }
 
   public By getCheckbox(String parentSelector) {
-    return By.cssSelector(String.format("%s .p-checkbox", parentSelector));
+    // The control of a checkbox, a switch or a radio is the element that holds its state
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.CRITERION_INPUT)));
   }
 
   public By getCheckboxChecked(String criterionName, boolean isChecked) {
-    String checkedSelector = isChecked ? ".p-checkbox-checked" : ":not(.p-checkbox-checked)";
-    String criterionSelector = getCriterionCss(criterionName);
-    return By.cssSelector(String.format("%s .p-checkbox%s", criterionSelector, checkedSelector));
+    return By.cssSelector(String.format("%s %s%s", getCriterionCss(criterionName), css(TestIds.CRITERION_INPUT),
+      stateCss(TestAttributes.SELECTED, isChecked)));
   }
 
   public By getSelectChoice(String parentSelector) {
-    return By.cssSelector(String.format("%s .p-dropdown", parentSelector));
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT)));
   }
 
   public By getSelectLoader(String parentSelector) {
-    return By.cssSelector(String.format("%s .p-dropdown-loader", parentSelector));
+    // A select renders no loader, so nothing is found and there is nothing to wait for
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.LOADER)));
   }
 
   public By getSelectDropdownList() {
-    return By.cssSelector(".p-dropdown-panel");
+    return By.cssSelector(css(TestIds.SELECT_DROPDOWN));
   }
 
   public By getSelectDropdownListElements() {
-    return By.cssSelector(".p-dropdown-panel li[role='option']");
+    return By.cssSelector(getSelectOptionCss());
   }
 
   public By getSelectDropdownListFirstElement() {
-    return By.cssSelector(".p-dropdown-panel li[role='option']:first-of-type");
+    // The first element found is the first option of the open dropdown
+    return By.cssSelector(getSelectOptionCss());
   }
 
   public By getSelectDropdownListLastElement() {
-    return By.cssSelector(".p-dropdown-panel li[role='option']:last-of-type");
+    return By.xpath("(" + getSelectOptionXpath() + ")[last()]");
+  }
+
+  /**
+   * Get the css of the options of the open select dropdown or suggest panel
+   *
+   * @return Css selector
+   */
+  private String getSelectOptionCss() {
+    return css(TestIds.SELECT_DROPDOWN) + " " + css(TestIds.SELECT_OPTION);
+  }
+
+  /**
+   * Get the xpath of the options of the open select dropdown or suggest panel
+   *
+   * @return Xpath
+   */
+  private String getSelectOptionXpath() {
+    return String.format("//*[%s]//*[%s]", xpath(TestIds.SELECT_DROPDOWN), xpath(TestIds.SELECT_OPTION));
   }
 
   public By getSelectResult(String match) {
-    return By.xpath(String.format("//*[contains(@class,'p-dropdown-panel')]//li[@role = 'option']//text()[contains(.,'%s')]/..", match));
+    return By.xpath(String.format("%s[contains(normalize-space(.),%s)]", getSelectOptionXpath(), XpathLiterals.of(match)));
   }
 
   public By getSelectChosen(String criterionName) {
-    return By.cssSelector(String.format("div[id='%s'].p-dropdown .p-dropdown-label", criterionName));
+    return By.cssSelector(String.format("%s %s", getCriterionCss(criterionName), css(TestIds.SELECT_VALUE)));
   }
 
   public By getSelectMultipleTextContainer(String criterionName) {
-    return By.cssSelector(String.format("%s .select2-search-choice div", getCriterionCss(criterionName)));
+    return By.cssSelector(String.format("%s %s", getCriterionCss(criterionName), css(TestIds.SELECT_CHOICE)));
   }
 
   public SuggestBehavior getSuggestBehavior() { return SuggestBehavior.INPUT; }
 
   public By getSuggestChoice(String parentSelector) {
-    return By.cssSelector(String.format("%s input", parentSelector));
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_SEARCH)));
   }
 
   public By getSuggestLoader(String parentSelector) {
-    return By.cssSelector(String.format("%s .p-autocomplete-loader", parentSelector));
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.LOADER)));
   }
 
   public By getSuggest(String parentSelector) {
-    return By.cssSelector(parentSelector + " input");
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_SEARCH)));
   }
 
   public By getSuggestInput(String parentSelector) {
-    return By.cssSelector(parentSelector + " input");
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_SEARCH)));
   }
 
   public By getSuggestResult(String match) {
-    return By.xpath(String.format("//*[contains(@class,'p-autocomplete-panel')]//li[@role = 'option']//text()[contains(.,'%s')]/..", match));
+    return By.xpath(String.format("%s[contains(normalize-space(.),%s)]", getSelectOptionXpath(), XpathLiterals.of(match)));
   }
 
   public By getSuggestChosen(String criterionName) {
-    return By.cssSelector(String.format("%s .p-autocomplete-input", getCriterionCss(criterionName)));
+    // The input of the suggest holds the chosen value
+    return By.cssSelector(String.format("%s %s", getCriterionCss(criterionName), css(TestIds.SELECT_SEARCH)));
   }
 
   public By getSuggestDropdownList() {
-    return By.cssSelector("input");
+    // The suggestions panel opens when the user types, so the wait after the click is for the search input
+    return By.cssSelector(css(TestIds.SELECT_SEARCH));
   }
 
   public By getSuggestDropdownListLastElement() {
-    return By.cssSelector(".p-autocomplete-panel li[role='option']:last-of-type");
+    return By.xpath("(" + getSelectOptionXpath() + ")[last()]");
   }
 
   public By getSuggestMultipleInput(String parentSelector) {
-    return By.cssSelector(String.format("%s input", parentSelector));
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_SEARCH)));
   }
 
   public By getSuggestMultipleChoiceClose(String parentSelector) {
-    return By.cssSelector(String.format("%s .p-autocomplete-token-icon", parentSelector));
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_CHOICE_CLOSE)));
   }
 
   public boolean datePickerRequiresManualClick() {

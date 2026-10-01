@@ -3,6 +3,7 @@ package com.almis.awe.testing.selenium;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,12 @@ public abstract class AbstractFrontEndSelectorGuardTest {
   /** Matches the value of a test hook so it is not scanned as a library token */
   private static final Pattern HOOK_VALUE = Pattern.compile("data-testid(?:-owner)?\\s*=\\s*(['\"])[^'\"]*\\1");
 
+  /** Matches the vocabulary value of a hook (not of an owner attribute) in a selector */
+  private static final Pattern HOOK_ID = Pattern.compile("data-testid\\s*=\\s*(['\"])([^'\"]*)\\1");
+
+  /** Matches the data attributes (the hook and the state attributes) that a selector uses */
+  private static final Pattern DATA_ATTRIBUTE = Pattern.compile("data-[a-z]+(?:-[a-z]+)*");
+
   /**
    * Forbidden token
    *
@@ -73,6 +81,14 @@ public abstract class AbstractFrontEndSelectorGuardTest {
    * @return Front end instructions
    */
   protected abstract IAweFrontEndInstructions instructions();
+
+  /**
+   * Path of the JavaScript vocabulary of the client that renders the hooks (relative to the {@code awe-framework}
+   * directory), whose {@code TestIds} and {@code TestAttributes} must declare everything the selectors use
+   *
+   * @return Path of the vocabulary file
+   */
+  protected abstract String clientVocabularyFile();
 
   /**
    * Library tokens that selectors cannot contain. Subclasses may add the tokens of their own component library
@@ -253,6 +269,31 @@ public abstract class AbstractFrontEndSelectorGuardTest {
   }
 
   @Test
+  void shouldOnlyUseHooksAndStateAttributesThatTheClientRenders() throws IOException {
+    Set<String> hooks = new TreeSet<>();
+    Set<String> attributes = new TreeSet<>();
+    for (String description : describeCatalog()) {
+      Matcher hook = HOOK_ID.matcher(description);
+      while (hook.find()) {
+        hooks.add(hook.group(2));
+      }
+      Matcher attribute = DATA_ATTRIBUTE.matcher(description);
+      while (attribute.find()) {
+        attributes.add(attribute.group());
+      }
+    }
+
+    Map<String, String> vocabulary = TestIdsVocabularyTest.readJavaScriptConstant(clientVocabularyFile(), "TestIds");
+    Map<String, String> clientAttributes = TestIdsVocabularyTest.readJavaScriptConstant(clientVocabularyFile(), "TestAttributes");
+
+    assertThat(hooks).as("Hooks used by the selectors").isNotEmpty();
+    assertThat(vocabulary.values()).as("Hooks used by the selectors must be rendered by the client (%s)", clientVocabularyFile())
+      .containsAll(hooks);
+    assertThat(clientAttributes.values()).as("State attributes used by the selectors must be rendered by the client")
+      .containsAll(attributes);
+  }
+
+  @Test
   void shouldCoverEverySelectorMethodOfTheImplementation() {
     Set<String> cataloged = catalog().keySet().stream().map(AbstractFrontEndSelectorGuardTest::methodName)
       .collect(Collectors.toSet());
@@ -296,6 +337,21 @@ public abstract class AbstractFrontEndSelectorGuardTest {
   static List<ForbiddenToken> findForbiddenTokens(String selector, List<ForbiddenToken> tokens) {
     String scanned = HOOK_VALUE.matcher(selector).replaceAll("data-testid='HOOK'");
     return tokens.stream().filter(token -> token.pattern().matcher(scanned).find()).collect(Collectors.toList());
+  }
+
+  /**
+   * Description of the selectors of the catalog that are checked (the allowed selectors are left out)
+   *
+   * @return Descriptions
+   */
+  private List<String> describeCatalog() {
+    List<String> descriptions = new ArrayList<>();
+    catalog().forEach((call, selector) -> {
+      if (!allowedSelectors().containsKey(methodName(call))) {
+        descriptions.addAll(describe(selector.get()));
+      }
+    });
+    return descriptions;
   }
 
   private static String methodName(String call) {

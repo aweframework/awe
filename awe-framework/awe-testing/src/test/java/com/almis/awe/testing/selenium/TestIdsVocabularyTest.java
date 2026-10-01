@@ -20,39 +20,52 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * Keeps the Java vocabulary ({@link TestIds}, {@link TestAttributes}) in sync with the one the AngularJS client renders
- * ({@code awe-client-angular/src/main/resources/js/awe/data/testIds.js}), so the two cannot drift silently.
+ * Keeps the Java vocabulary ({@link TestIds}, {@link TestAttributes}) in sync with the ones the AngularJS client
+ * ({@code awe-client-angular/src/main/resources/js/awe/data/testIds.js}) and the React client
+ * ({@code awe-client-react/src/utilities/testIds.js}) render, so they cannot drift silently. A Java constant must exist in
+ * at least one client and, wherever it exists, with the same value.
  *
- * <p>The JavaScript file is read from the repository. When the module is built standalone and the file is not
+ * <p>The JavaScript files are read from the repository. When the module is built standalone and a file is not
  * reachable, the tests are skipped with an explicit message instead of passing silently.</p>
  */
 class TestIdsVocabularyTest {
 
-  private static final String VOCABULARY_FILE = "awe-client-angular/src/main/resources/js/awe/data/testIds.js";
+  static final String ANGULAR_VOCABULARY_FILE = "awe-client-angular/src/main/resources/js/awe/data/testIds.js";
+  static final String REACT_VOCABULARY_FILE = "awe-client-react/src/utilities/testIds.js";
   private static final Pattern ENTRY = Pattern.compile("(\\w+)\\s*:\\s*\"([^\"]*)\"");
 
   @Test
-  void shouldDeclareEveryJavaTestIdWithTheSameValueAsTheJavaScriptVocabulary() throws IOException {
-    Map<String, String> javaScript = readJavaScriptConstant("TestIds");
-
-    Map<String, String> java = readJavaConstants(TestIds.class);
-
-    assertThat(java).isNotEmpty();
-    java.forEach((name, value) -> assertThat(javaScript)
-      .as("TestIds.%s must exist in testIds.js", name)
-      .containsEntry(toCamelCase(name), value));
+  void shouldKeepTheValuesOfTheJavaVocabularyInSyncWithTheAngularJsOne() throws IOException {
+    assertValuesInSync(ANGULAR_VOCABULARY_FILE);
   }
 
   @Test
-  void shouldDeclareEveryJavaTestAttributeWithTheSameNameAsTheJavaScriptVocabulary() throws IOException {
-    Map<String, String> javaScript = readJavaScriptConstant("TestAttributes");
+  void shouldKeepTheValuesOfTheJavaVocabularyInSyncWithTheReactOne() throws IOException {
+    assertValuesInSync(REACT_VOCABULARY_FILE);
+  }
 
-    Map<String, String> java = readJavaConstants(TestAttributes.class);
+  @Test
+  void shouldDeclareEveryJavaTestIdAndTestAttributeInAtLeastOneClient() throws IOException {
+    for (String constant : List.of("TestIds", "TestAttributes")) {
+      Map<String, String> java = readJavaConstants(constant.equals("TestIds") ? TestIds.class : TestAttributes.class);
+      Map<String, String> angular = readJavaScriptConstant(ANGULAR_VOCABULARY_FILE, constant);
+      Map<String, String> react = readJavaScriptConstant(REACT_VOCABULARY_FILE, constant);
 
-    assertThat(java).isNotEmpty();
-    java.forEach((name, value) -> assertThat(javaScript)
-      .as("TestAttributes.%s must exist in testIds.js", name)
-      .containsEntry(toCamelCase(name), value));
+      java.keySet().forEach(name -> assertThat(angular.containsKey(toCamelCase(name)) || react.containsKey(toCamelCase(name)))
+        .as("%s.%s must exist in the AngularJS or the React vocabulary", constant, name).isTrue());
+    }
+  }
+
+  @Test
+  void shouldDeclareInTheReactVocabularyTheHooksOnlyReactRenders() throws IOException {
+    Map<String, String> react = readJavaScriptConstant(REACT_VOCABULARY_FILE, "TestIds");
+
+    assertThat(react).containsEntry("avatar", TestIds.AVATAR)
+      .containsEntry("avatarName", TestIds.AVATAR_NAME)
+      .containsEntry("criterionUnit", TestIds.CRITERION_UNIT)
+      .containsEntry("gridRowEdit", TestIds.GRID_ROW_EDIT)
+      .containsEntry("wizardStepNumber", TestIds.WIZARD_STEP_NUMBER)
+      .containsEntry("loadingSpinner", TestIds.LOADING_SPINNER);
   }
 
   @Test
@@ -64,10 +77,38 @@ class TestIdsVocabularyTest {
   }
 
   /**
-   * Read the string entries of an exported JavaScript object literal
+   * Check that the Java constants declared by a client vocabulary have the same value as in that vocabulary. Only that
+   * file is read, so a missing file of the other client does not skip the check
+   *
+   * @param vocabularyFile Path of the client vocabulary, relative to the {@code awe-framework} directory
    */
-  private static Map<String, String> readJavaScriptConstant(String name) throws IOException {
-    Path file = locateVocabulary();
+  private static void assertValuesInSync(String vocabularyFile) throws IOException {
+    int compared = 0;
+    for (String constant : List.of("TestIds", "TestAttributes")) {
+      Map<String, String> java = readJavaConstants(constant.equals("TestIds") ? TestIds.class : TestAttributes.class);
+      Map<String, String> client = readJavaScriptConstant(vocabularyFile, constant);
+
+      for (Map.Entry<String, String> entry : java.entrySet()) {
+        String key = toCamelCase(entry.getKey());
+        if (client.containsKey(key)) {
+          assertThat(client).as("%s.%s must have the value of %s", constant, entry.getKey(), vocabularyFile)
+            .containsEntry(key, entry.getValue());
+          compared++;
+        }
+      }
+    }
+    assertThat(compared).as("Java constants found in %s", vocabularyFile).isPositive();
+  }
+
+  /**
+   * Read the string entries of an exported JavaScript object literal
+   *
+   * @param vocabularyFile Path of the file, relative to the {@code awe-framework} directory
+   * @param name           Name of the exported constant
+   * @return Entries by key
+   */
+  static Map<String, String> readJavaScriptConstant(String vocabularyFile, String name) throws IOException {
+    Path file = locateVocabulary(vocabularyFile);
     String source = Files.readString(file, StandardCharsets.UTF_8)
       .replaceAll("(?s)/\\*.*?\\*/", "")
       .replaceAll("(?m)^\\s*//.*$", "");
@@ -85,16 +126,16 @@ class TestIdsVocabularyTest {
   }
 
   /**
-   * Locate the JavaScript vocabulary from the module directory (Maven) or the repository root (IDE)
+   * Locate a JavaScript vocabulary from the module directory (Maven) or the repository root (IDE)
    */
-  private static Path locateVocabulary() {
+  private static Path locateVocabulary(String vocabularyFile) {
     Path base = Path.of(System.getProperty("basedir", System.getProperty("user.dir"))).toAbsolutePath();
     List<Path> candidates = List.of(
-      base.resolve("..").resolve(VOCABULARY_FILE),
-      base.resolve("awe-framework").resolve(VOCABULARY_FILE));
+      base.resolve("..").resolve(vocabularyFile),
+      base.resolve("awe-framework").resolve(vocabularyFile));
     Path found = candidates.stream().map(Path::normalize).filter(Files::isRegularFile).findFirst().orElse(null);
-    assumeTrue(found != null, "Assumption: the awe-client-angular module is next to awe-testing, but "
-      + VOCABULARY_FILE + " was not found from " + base + " (module built standalone?). Vocabulary sync not checked");
+    assumeTrue(found != null, "Assumption: the client modules are next to awe-testing, but "
+      + vocabularyFile + " was not found from " + base + " (module built standalone?). Vocabulary sync not checked");
     return found;
   }
 

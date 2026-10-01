@@ -15,6 +15,11 @@ class AngularAweInstructionsSelectorGuardTest extends AbstractFrontEndSelectorGu
   }
 
   @Override
+  protected String clientVocabularyFile() {
+    return TestIdsVocabularyTest.ANGULAR_VOCABULARY_FILE;
+  }
+
+  @Override
   protected IAweFrontEndInstructions instructions() {
     return new AngularAweInstructions();
   }
