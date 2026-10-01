@@ -1,5 +1,6 @@
 import {aweApplication} from "../../awe";
 import "Select2";
+import {bindSelect2TestIds, wrapSelect2FormatResult, wrapSelect2FormatSelection} from "../../services/testIds";
 
 // Selector plugin
 aweApplication.directive('uiSelect2',
@@ -17,6 +18,10 @@ aweApplication.directive('uiSelect2',
         link: function (scope, elem, attrs) {
           let initialized = false;
           let options = {data: null};
+          let testIds = null;
+
+          // Id of the selector, used as owner of the plugin DOM (the dropdown is appended to the body)
+          const getOwner = () => scope.component && scope.component.id || attrs.id;
 
           // Observe select2 attributes
           let initWatch = scope.$watch(attrs.initialized, initPlugin);
@@ -35,7 +40,11 @@ aweApplication.directive('uiSelect2',
               if ("placeholder" in opts) {
                 opts.placeholder = $translate.instant(opts.placeholder);
               }
+              // Test hooks: wrap the formatters (default markup is preserved) and tag the plugin DOM
+              opts.formatResult = wrapSelect2FormatResult(opts.formatResult, getOwner);
+              opts.formatSelection = wrapSelect2FormatSelection(opts.formatSelection, getOwner);
               let plugin = elem.select2(opts);
+              testIds = bindSelect2TestIds(elem, getOwner);
 
               // Define management methods
 
@@ -119,6 +128,10 @@ aweApplication.directive('uiSelect2',
               //elem.select2('destroy');
               // Remove event listeners
               elem.off("change select2-focus select2-blur");
+              if (testIds) {
+                testIds.unbind();
+                testIds = null;
+              }
             }
           }
 

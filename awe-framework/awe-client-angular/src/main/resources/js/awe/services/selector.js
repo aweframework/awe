@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiSelect";
 import {getIconTemplate} from "./component";
 import {
@@ -34,7 +35,8 @@ export const templateSelector =
     <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control {{classes}}" initialized="initialized" autocomplete="off" ng-click="click($event)"
-             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"/>
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
+             data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
       <span ng-if="controller.unit" class="input-group-addon add-on unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>

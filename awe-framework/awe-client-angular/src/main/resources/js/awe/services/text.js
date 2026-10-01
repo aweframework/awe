@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {getIconTemplate} from "./component";
 
 export const textInputTemplate =
@@ -13,7 +14,8 @@ export const textInputTemplate =
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" autocomplete="off" ng-press-enter="submit($event)"/>
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" autocomplete="off" ng-press-enter="submit($event)"
+             data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>
@@ -44,7 +46,7 @@ export const textViewInputTemplate = `<div ng-show="controller.visible" class="c
       <span ng-if="controller.unit" class="label label-warning pull-right" translate-multiple="{{controller.unit}}"></span>
       <div ng-click="onClick()">
         ${getIconTemplate("text-icon")}
-        <span class="text-value" ng-cloak>{{component.visibleValue}}</span>
+        <span class="text-value" data-testid="${TestIds.criterionInput}" ng-cloak>{{component.visibleValue}}</span>
       </div>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
     </div>
@@ -75,7 +77,8 @@ export const passwordInputTemplate = `<div ng-show="controller.visible" class="c
       ${getIconTemplate("{{::iconClass}}")}
       <input type="password" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-press-enter="submit($event)" autocomplete="off"/>
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-press-enter="submit($event)" autocomplete="off"
+             data-testid="${TestIds.criterionInput}"/>
       <span ng-show="$root.status.isCapsLockOn" class="fa fa-{{::size}} fa-arrow-circle-up form-control-feedback"></span>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
@@ -109,7 +112,7 @@ export const textareaInputTemplate = `<div ng-show="controller.visible" class="c
       <textarea class="validator form-control {{classes}}" ng-model="model.selected" ng-disabled="controller.readonly" autocomplete="off"
                 ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}"
                 rows="{{controller.areaRows}}" ng-model-options="{updateOn: 'change'}"
-                ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()"></textarea>
+                ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" data-testid="${TestIds.criterionInput}"></textarea>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
     </div>
   </div>

@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
 
@@ -12,7 +13,8 @@ export const templateInputColor = `<div ng-show="controller.visible" class="crit
     <div class="validator input-group colorpicker-element {{::validatorGroup}} focus-target">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-press-enter="submit($event)" autocomplete="off" ng-click="click($event)"
-             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-change="component.modelChange()"/>
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-change="component.modelChange()"
+             data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon" colorpicker ng-model="model.selected" ng-change="component.modelChange()" ng-if="!controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>
       <span class="input-group-addon disabled" ng-if="controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>

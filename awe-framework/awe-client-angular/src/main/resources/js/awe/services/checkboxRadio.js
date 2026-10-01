@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
 
@@ -6,7 +7,7 @@ export const templateButtonCheckbox = `<label ng-show="controller.visible" class
   <awe-context-menu ng-cloak></awe-context-menu>
   <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" 
          ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly" 
-         ng-focus="focus()" ng-blur="blur()"/>
+         ng-focus="focus()" ng-blur="blur()" data-testid="${TestIds.criterionInput}"/>
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
   <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
@@ -18,7 +19,8 @@ export const templateButtonCheckbox = `<label ng-show="controller.visible" class
 export const templateButtonRadio = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': component.model.selected === component.value, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
   <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-focus="focus()" ng-blur="blur()"
-         ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
+         ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"
+         data-testid="${TestIds.criterionInput}"/>
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
   <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
@@ -35,7 +37,8 @@ export const templateInputCheckbox = `<div ng-show="controller.visible" class="c
     <div class="validator input">
       <label class="checkbox" title="{{controller.title | translateMultiple}}" >
         <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
-               ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"/>
+               ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"
+               data-testid="${TestIds.criterionInput}"/>
         <span class="lbl label-{{::size}}">
           <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
           {{controller.label| translateMultiple}}
@@ -63,7 +66,8 @@ export const templateRadio = `<div ng-show="controller.visible" class="criterion
     <div class="validator input">
       <label class="radio" title="{{controller.title| translateMultiple}}" >
         <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.group}}"
-               ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
+               ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"
+               data-testid="${TestIds.criterionInput}"/>
         <span class="lbl label-{{::size}}">
           <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
           {{controller.label| translateMultiple}}

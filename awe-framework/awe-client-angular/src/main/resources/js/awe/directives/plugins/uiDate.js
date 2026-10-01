@@ -1,5 +1,6 @@
 import {aweApplication} from "../../awe";
 import "bootstrap-datepicker";
+import {bindDatepickerTestIds} from "../../services/testIds";
 
 // Date plugin
 aweApplication.directive('uiDate',
@@ -17,6 +18,7 @@ aweApplication.directive('uiDate',
           return function (scope, elem, attrs) {
             let initialized = false;
             let options = null;
+            let testIds = null;
 
             // Watch for controller changes
             let initWatch = scope.$watch(attrs.initialized, initPlugin);
@@ -95,6 +97,9 @@ aweApplication.directive('uiDate',
 
               // Update model on change
               elem.datepicker().on("changeDate", onChangeDate);
+
+              // Tag the popup (appended to the body) and its cells with test hooks
+              testIds = bindDatepickerTestIds(elem, () => scope.component && scope.component.id || attrs.id);
             }
 
             /**
@@ -102,6 +107,10 @@ aweApplication.directive('uiDate',
              */
             function destroy() {
               if (initialized) {
+                if (testIds) {
+                  testIds.unbind();
+                  testIds = null;
+                }
                 elem.datepicker('destroy');
                 initialized = false;
 
