@@ -129,6 +129,8 @@ stages:
 .paths-frontend-react: &paths-frontend-react
   - .gitlab-ci.yml
   - awe-framework/awe-client-react/**/*
+.paths-angular-templates: &paths-angular-templates   # served by TemplateController and compared by awe-boot unit tests
+  - awe-framework/awe-client-angular/src/main/resources/templates/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -153,6 +155,9 @@ stages:
 .if-mr-code: &if-mr-code
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-code
+.if-mr-angular-templates: &if-mr-angular-templates
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-angular-templates
 .if-mr-website: &if-mr-website
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-website
@@ -364,6 +369,12 @@ All UT:
   extends: .unit-testing
   script:
     - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec
+  # Also on AngularJS template changes: awe-boot unit tests compare templates served by TemplateController
+  # (src/test/resources/templates/*.txt), so a frontend-only merge request can break them.
+  rules:
+    - <<: *if-mr-backend
+    - <<: *if-mr-angular-templates
+    - <<: *if-branches
 
 Embedded DB Tests:
   extends: .unit-testing
