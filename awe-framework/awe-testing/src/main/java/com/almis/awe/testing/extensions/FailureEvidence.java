@@ -11,6 +11,7 @@ import org.openqa.selenium.WebDriver;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -168,6 +169,35 @@ public class FailureEvidence {
     model.setScreenshotTaken(true);
     relativeToProjectDir(target).ifPresent(relative -> print("[[ATTACHMENT|" + relative + "]]"));
     print("Failure screenshot: " + describe(target));
+  }
+
+  /**
+   * Store the page source (DOM) of a failed test next to its screenshot: same name, {@code .html} extension. It
+   * announces the file in the test output with a link, like the screenshot. Never throws: it must not mask the
+   * original test failure.
+   *
+   * @param screenshotTarget Path of the failure screenshot the page source belongs to
+   * @param pageSource       Page source returned by the driver (may be null)
+   * @return Path of the stored page source, if any
+   */
+  public Optional<Path> storePageSource(Path screenshotTarget, String pageSource) {
+    if (pageSource == null) {
+      log.warn("Test failed but there is no page source to store");
+      return Optional.empty();
+    }
+
+    try {
+      String fileName = screenshotTarget.getFileName().toString();
+      String baseName = fileName.toLowerCase().endsWith(".png") ? fileName.substring(0, fileName.length() - 4) : fileName;
+      Path target = screenshotTarget.resolveSibling(baseName + ".html");
+      Files.createDirectories(target.getParent());
+      Files.write(target, pageSource.getBytes(StandardCharsets.UTF_8));
+      print("Failure page source: " + describe(target));
+      return Optional.of(target);
+    } catch (Exception exc) {
+      log.warn("Test failed but the page source could not be stored", exc);
+      return Optional.empty();
+    }
   }
 
   /**

@@ -311,6 +311,58 @@ class FailureEvidenceTest {
     assertThat(output()).isEmpty();
   }
 
+  // ---- Page source ----
+
+  @Test
+  void storePageSourceWritesSiblingHtmlAndAnnouncesIt() throws IOException {
+    environment.put("CI_PROJECT_DIR", tempDir.toString());
+    environment.put("CI_JOB_URL", "https://gitlab.example/group/project/-/jobs/42");
+    Path screenshot = tempDir.resolve("shots").resolve("failure.png");
+
+    Optional<Path> stored = evidence.storePageSource(screenshot, "<html><body>café</body></html>");
+
+    Path expected = tempDir.resolve("shots").resolve("failure.html");
+    assertThat(stored).contains(expected);
+    assertThat(Files.readString(expected, StandardCharsets.UTF_8)).isEqualTo("<html><body>café</body></html>");
+    assertThat(output()).contains(
+      "Failure page source: https://gitlab.example/group/project/-/jobs/42/artifacts/file/shots/failure.html");
+  }
+
+  @Test
+  void storePageSourceWithoutCiVariablesPrintsAbsolutePath() {
+    Path screenshot = tempDir.resolve("shots").resolve("failure.png");
+
+    evidence.storePageSource(screenshot, "<html/>");
+
+    assertThat(output()).contains("Failure page source: " + tempDir.resolve("shots").resolve("failure.html"));
+  }
+
+  @Test
+  void storePageSourceAppendsExtensionWhenTargetIsNotAPng() {
+    Optional<Path> stored = evidence.storePageSource(tempDir.resolve("shots").resolve("failure"), "<html/>");
+
+    assertThat(stored).contains(tempDir.resolve("shots").resolve("failure.html"));
+  }
+
+  @Test
+  void storePageSourceWithoutSourceStoresAndPrintsNothing() throws IOException {
+    Optional<Path> stored = evidence.storePageSource(tempDir.resolve("shots").resolve("failure.png"), null);
+
+    assertThat(stored).isEmpty();
+    assertThat(shots()).isEmpty();
+    assertThat(output()).isEmpty();
+  }
+
+  @Test
+  void storePageSourceFailureDoesNotPropagate() throws IOException {
+    Path notADirectory = Files.createFile(tempDir.resolve("not-a-directory"));
+
+    Optional<Path> stored = evidence.storePageSource(notADirectory.resolve("failure.png"), "<html/>");
+
+    assertThat(stored).isEmpty();
+    assertThat(output()).isEmpty();
+  }
+
   @Test
   void keptVideoLinkIsBuiltFromJobUrlAndRelativePath() throws IOException {
     environment.put("CI_PROJECT_DIR", tempDir.toString());
