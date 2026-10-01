@@ -35,7 +35,7 @@ import java.util.Optional;
 @XStreamAlias("option")
 @NoArgsConstructor
 @Accessors(chain = true)
-@JsonIgnoreProperties({"invisible", "screen", "context", "silent", "async", "type", "target", "parameters", "value"})
+@JsonIgnoreProperties({"invisible", "screen", "context", "silent", "async", "type", "target", "parameters", "value", "elementList"})
 public class Option extends AbstractAction {
 
   private static final long serialVersionUID = 2874594460515726127L;
