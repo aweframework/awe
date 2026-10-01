@@ -70,6 +70,7 @@ function ColumnSuggestMultiple(props) {
       onSuggest={onSuggest}
       classes={classes}
       multiple={true}
+      owner={props.address?.component}
       t={t}
     />
   );

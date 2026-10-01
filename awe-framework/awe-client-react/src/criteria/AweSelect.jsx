@@ -6,6 +6,7 @@ import AweCriterion from "./AweCriterion";
 import {useSelect} from "../hooks/useSelect";
 import {Skeleton} from "primereact/skeleton";
 import PropTypes from "prop-types";
+import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
 
 function AweSelect(props) {
 
@@ -41,6 +42,8 @@ function AweSelect(props) {
       showClear={optional}
       filter={options.length > 5}
       filterBy="label"
+      valueTemplate={selectValueTemplate}
+      pt={dropdownPassThrough(id)}
     />
   </AweCriterion>;
 }

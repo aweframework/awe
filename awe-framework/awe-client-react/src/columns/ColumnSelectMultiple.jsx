@@ -3,6 +3,7 @@ import {MultiSelect} from "primereact/multiselect";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {multiSelectPassThrough} from "../utilities/testPassThrough";
 import {useSelect} from "../hooks/useSelect";
 import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
 
@@ -50,6 +51,7 @@ function ColumnSelectMultiple(props) {
       invalid={error}
       optionLabel="name"
       appendTo={document.body}
+      pt={multiSelectPassThrough(address.component)}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     />

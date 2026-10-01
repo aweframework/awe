@@ -38,6 +38,7 @@ module.exports = {
     '**/services/ScreenServiceTest.{js,jsx}',
     '**/services/components/GridServiceTest.{js,jsx}',
     '**/utilities/gridTest.{js,jsx}',
+    '**/utilities/testIdsTest.{js,jsx}',
     '**/containers/*Test.{js,jsx}',
     '**/templates/*Test.{js,jsx}',
     '**/widgets/WidgetsTest.{js,jsx}',
@@ -67,7 +68,8 @@ module.exports = {
     '**/components/AweMenuSearchTest.{js,jsx}',
     '**/components/AwePivotTableTest.{js,jsx}',
     '**/components/AweTreeGridTest.{js,jsx}',
-    '**/components/AweGridTest.{js,jsx}'
+    '**/components/AweGridTest.{js,jsx}',
+    '**/components/TestIds*Test.{js,jsx}'
   ],
   transform: {
     '^.+\\.(js|jsx)$': ['babel-jest', { presets: ['@babel/preset-env', '@babel/preset-react'] }]

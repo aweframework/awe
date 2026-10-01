@@ -9,6 +9,7 @@ import {useLocation, useParams} from "react-router";
 import i18n from "../i18n/i18n";
 import {loadScreen} from "../redux/thunks/screen";
 import {ProgressSpinner} from "primereact/progressspinner";
+import {TestIds, testHook} from "../utilities/testIds";
 import {translateLabel} from "../utilities";
 import { useView } from "../hooks/useViewRegistry";
 
@@ -69,7 +70,7 @@ function ViewContainer() {
   }, [dispatch, screenId, screenReloadToken]);
 
   return view.loading ?
-    <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center"/></div>: (
+    <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center" pt={{root: testHook(TestIds.loadingSpinner)}}/></div>: (
     <div className={"expand expandible-vertical"}>
       <Helmet>
         <title>{translateLabel(view.title, t)}</title>

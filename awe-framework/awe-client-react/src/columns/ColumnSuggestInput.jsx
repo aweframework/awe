@@ -3,6 +3,7 @@ import {AutoComplete} from "primereact/autocomplete";
 import {formatMessage, translateLabel} from "../utilities";
 import {getFirstDefinedValue} from "../utilities/general";
 import PropTypes from "prop-types";
+import {autoCompletePassThrough} from "../utilities/testPassThrough";
 
 function ColumnSuggestInput(props) {
   const {
@@ -23,6 +24,7 @@ function ColumnSuggestInput(props) {
     onSuggest,
     classes,
     multiple,
+    owner,
     t
   } = props;
 
@@ -49,6 +51,7 @@ function ColumnSuggestInput(props) {
       tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
       forceSelection={true}
+      pt={autoCompletePassThrough(owner, multiple)}
     />
   );
 }

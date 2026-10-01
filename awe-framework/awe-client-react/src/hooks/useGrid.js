@@ -14,12 +14,20 @@ import { useTranslation } from "react-i18next";
 import AweButton from "../components/AweButton";
 import useComponent from "./useComponent";
 import { useComponentState, useAllComponents } from "./useComponentState";
+import {
+  contextMenuLinkTemplate,
+  contextMenuPassThrough,
+  headerCellPassThrough,
+  selectionColumnPassThrough
+} from "../utilities/testPassThrough";
 
 function mapContextMenu(contextMenu, props) {
   const { t, addActionsTop, address, components } = props;
   return (contextMenu || [])
-    .map(option => components[option.id].attributes)
+    .map(option => ({ ...components[option.id].attributes, optionId: option.id }))
     .map(option => ({
+      optionId: option.optionId,
+      template: contextMenuLinkTemplate,
       label: translateLabel(option.label, t),
       icon: getIconCode(option.icon, "p-menuitem-icon"),
       disabled: option.disabled,
@@ -98,7 +106,7 @@ export function useGrid(id) {
     const { contextMenu = [] } = attributes;
     let contextMenuMapped = mapContextMenu(contextMenu, { t, addActionsTop, address, components });
     if (contextMenuMapped.length > 0) {
-      return <ContextMenu model={contextMenuMapped} ref={cmRef} breakpoint="767px" />;
+      return <ContextMenu model={contextMenuMapped} ref={cmRef} breakpoint="767px" pt={contextMenuPassThrough()} />;
     }
     return null;
   };
@@ -125,6 +133,7 @@ export function useGrid(id) {
       field={`multiselect-${place}`}
       selectionMode="multiple"
       rowSpan={rowSpan}
+      pt={selectionColumnPassThrough()}
       footer={null}
       style={{ textAlign: "center", ...getWidthStyle(null, null, '40px') }}
     /> : null
@@ -144,6 +153,7 @@ export function useGrid(id) {
     const { name, sortField, label, charlength, width, sortable } = col;
     return <Column key={name} field={sortField || name} header={translateLabel(label, t)}
       style={{ textAlign: "center", ...getWidthStyle(charlength, width) }}
+      pt={headerCellPassThrough(name)}
       sortable={sortable} rowSpan={rowSpan} filter={enableFilters} />;
   };
 
@@ -155,6 +165,7 @@ export function useGrid(id) {
       header={translateLabel(label, t)}
       style={{ textAlign: "center" }}
       colSpan={numberOfColumns}
+      pt={headerCellPassThrough(startColumnName)}
     />;
   };
 

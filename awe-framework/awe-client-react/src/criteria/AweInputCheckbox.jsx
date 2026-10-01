@@ -7,6 +7,7 @@ import {translateLabel} from "../utilities";
 import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function AweInputCheckbox(props) {
   const { id } = props;
@@ -33,6 +34,7 @@ function AweInputCheckbox(props) {
             required={required}
             disabled={readonly}
             className={classes}
+            pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
           />
           <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
         </div>
@@ -51,6 +53,7 @@ function AweInputCheckbox(props) {
           required={required}
           disabled={readonly}
           className={classes}
+          pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
         />
         <label className={"cursor-pointer"} htmlFor={address?.component}>{translateLabel(label, t)}</label>
       </div>

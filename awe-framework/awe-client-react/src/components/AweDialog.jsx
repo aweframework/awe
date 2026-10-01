@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { addActionsTop } from "../redux/actions/actions";
 import PropTypes from "prop-types";
+import { dialogPassThrough } from "../utilities/testPassThrough";
 
 function AweDialog(props) {
   const { id, elementList = [] } = props;
@@ -35,6 +36,7 @@ function AweDialog(props) {
       visible={attributes?.isShowing}
       onHide={hide}
       focusOnShow={false}
+      pt={dialogPassThrough(id)}
     >
       {elementList.map((node, index) => Components(node, index))}
     </Dialog>

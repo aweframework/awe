@@ -5,6 +5,7 @@ import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
 import {useSelect} from "../hooks/useSelect";
 import PropTypes from "prop-types";
+import {multiSelectPassThrough} from "../utilities/testPassThrough";
 
 function AweSelectMultiple(props) {
 
@@ -32,6 +33,7 @@ function AweSelectMultiple(props) {
         optionLabel="name"
         options={options}
         showClear={optional}
+        pt={multiSelectPassThrough(id)}
       />
     </AweCriterion>;
 }

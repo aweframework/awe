@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 /**
  * Normalize the text-model value into a number the numeric input can compare against.
@@ -85,6 +86,7 @@ function AweInputNumeric(props) {
         suffix={nf.suffix}
         onValueChange={onValueChange}
         inputStyle={{ textAlign: align || "right" }}
+        pt={{ input: { root: testHook(TestIds.criterionInput) } }}
         onKeyDown={e => e.key === "Enter" && commit(currentValue)}
       />
       {showSlider ? (

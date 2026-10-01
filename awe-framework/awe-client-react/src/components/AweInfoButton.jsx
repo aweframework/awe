@@ -8,6 +8,7 @@ import { useComponentState } from "../hooks/useComponentState";
 import { useTranslation } from "react-i18next";
 import { updateModelWithDependencies } from "../redux/thunks/components";
 import { addActionsTop } from "../redux/actions/actions";
+import { TestIds, testHook } from "../utilities/testIds";
 
 function AweInfoButton(props) {
 
@@ -42,6 +43,7 @@ function AweInfoButton(props) {
       onClick={onClick}
       data-pr-position={"bottom"}
       data-pr-showdelay={settings.helpTimeout}
+      {...testHook(TestIds.infoButton)}
     />
   </span>);
 }

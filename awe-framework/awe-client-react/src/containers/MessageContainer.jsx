@@ -9,6 +9,8 @@ import {Button} from "primereact/button";
 import {useTranslation} from "react-i18next";
 import {Toast} from "primereact/toast";
 import {translateLabel} from "../utilities";
+import {TestIds, testHook} from "../utilities/testIds";
+import {toastPassThrough} from "../utilities/testPassThrough";
 
 /**
  * Message container
@@ -50,8 +52,10 @@ function MessageContainer() {
 
   const confirmFooter =() => {
     return <div className={"flex justify-content-between flex-wrap"}>
-      <Button id="confirm-cancel" label={translateLabel("BUTTON_CANCEL", t)} icon="pi pi-times" onClick={onCancel} className="p-button-secondary"/>
-      <Button id="confirm-accept" label={translateLabel("BUTTON_ACCEPT", t)} icon="pi pi-check" onClick={onAccept}/>
+      <Button id="confirm-cancel" label={translateLabel("BUTTON_CANCEL", t)} icon="pi pi-times" onClick={onCancel} className="p-button-secondary"
+              {...testHook(TestIds.confirmCancel)}/>
+      <Button id="confirm-accept" label={translateLabel("BUTTON_ACCEPT", t)} icon="pi pi-check" onClick={onAccept}
+              {...testHook(TestIds.confirmAccept)}/>
     </div>;
   };
 
@@ -68,9 +72,9 @@ function MessageContainer() {
 
   const {title, message, visible = true} = confirm ?? {visible: false};
   return <>
-    <Toast ref={toastRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition}/>
+    <Toast ref={toastRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition} pt={toastPassThrough()}/>
     <Dialog visible={visible} header={translateLabel(title, t)} footer={confirmFooter()} focusOnShow={false}
-            modal={true} closable={false} closeOnEscape={false}>
+            modal={true} closable={false} closeOnEscape={false} pt={{root: testHook(TestIds.confirmDialog)}}>
       <i className="pi pi-exclamation-triangle m-3 text-center text-warning" style={{fontSize: '8rem'}}/>
       <span>{translateLabel(message, t)}</span>
     </Dialog>

@@ -8,6 +8,7 @@ import { usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
+import { TestIds, testHook } from "../utilities/testIds";
 
 function AweSteps(props) {
   const { id, elementList = [] } = props;
@@ -37,8 +38,11 @@ function AweSteps(props) {
     }
 
     return (
-      <button className={`p-menuitem-link ${stepClass}`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}>
-        <span className="p-steps-number">{iconRenderer(icon, itemIndex + 1)}</span>
+      <button className={`p-menuitem-link ${stepClass}`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}
+        {...testHook(TestIds.wizardStep, {
+          active: activeIndex === itemIndex, completed: activeIndex > itemIndex, attributes: { "option-id": item.value }
+        })}>
+        <span className="p-steps-number" {...testHook(TestIds.wizardStepNumber)}>{iconRenderer(icon, itemIndex + 1)}</span>
         <div className={`p-steps-text`}>
           {titleRenderer(item.title)}
           {labelRenderer(item.label)}
@@ -49,7 +53,7 @@ function AweSteps(props) {
 
   const { disabled, orientation = "horizontal" } = attributes;
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
-  return <div className={`p-steps-container expand expandible-${expandible} orientation-${orientation}`}>
+  return <div className={`p-steps-container expand expandible-${expandible} orientation-${orientation}`} criterion-id={id}>
     <Steps model={values.map((item, index) => ({
       ...item,
       disabled: globalDisabled || disabled || index > activeIndex,

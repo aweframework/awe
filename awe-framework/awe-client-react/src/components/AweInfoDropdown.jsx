@@ -13,6 +13,7 @@ import { addActionsTop } from "../redux/actions/actions";
 import { updateModelWithDependencies } from "../redux/thunks/components";
 import PropTypes from "prop-types";
 import AweWindow from "./AweWindow";
+import { TestIds, testHook } from "../utilities/testIds";
 
 function AweInfoDropdown(props) {
   const { id, elementList = [] } = props;
@@ -48,10 +49,12 @@ function AweInfoDropdown(props) {
         label={translateLabel(computedLabel, t)}
         iconPos={"left"}
         onClick={onClick}
+        {...testHook(TestIds.infoDropdown)}
       />
       {computedUnit}
     </span>
-    <OverlayPanel ref={opRef} dismissable className={"info-dropdown"}>
+    <OverlayPanel ref={opRef} dismissable className={"info-dropdown"}
+      pt={{ root: testHook(TestIds.infoDropdownMenu, { owner: address?.component }) }}>
       {elementList.map((node, index) => Components(node, index))}
     </OverlayPanel>
   </>;

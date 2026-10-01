@@ -13,6 +13,7 @@ import { useView } from "../hooks/useViewRegistry";
 import MenuRegistry from "../redux/registry/MenuRegistry";
 import { useMenuOptions } from "../hooks/useMenuRegistry";
 import AweMenuSearch from "./AweMenuSearch";
+import { menubarPassThrough, panelMenuPassThrough } from "../utilities/testPassThrough";
 
 /**
  * Check if option has children or is a final option
@@ -76,6 +77,7 @@ function optionToItem(option, props) {
   return separator ? getSeparatorModel(option, t) : {
     name, disabled,
     key: name,
+    active: name === currentOption.option,
     label: translateLabel(label, t),
     display: true,
     className: name + (name === currentOption.option ? " p-menuitem-active" : ""),
@@ -200,14 +202,14 @@ function AweMenu(props) {
         {search}
         <PanelMenu className="w-full md:w-20rem" aria-disabled={disabled}
           expandedKeys={expandedKeys} onExpandedKeysChange={onExpand}
-          model={model} />
+          model={model} pt={panelMenuPassThrough(model)} />
       </div>
     );
   } else {
     return (
       <div className="awe-menu-container awe-menu-container-horizontal">
         {search}
-        <Menubar aria-disabled={disabled} model={model} />
+        <Menubar aria-disabled={disabled} model={model} pt={menubarPassThrough()} />
       </div>
     );
   }
