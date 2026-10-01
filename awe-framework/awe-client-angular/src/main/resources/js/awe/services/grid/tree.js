@@ -334,8 +334,8 @@ aweApplication.factory('GridTree',
           component.onBranchExpand = function (data) {
             let  branch = component.loadingBranch;
 
-            // Finish loading parent
-            branch.entity.$$isLoading = false;
+            // Finish loading parent ($$isLoading stays set until the branch is expanded: it drives the
+            // data-loading test hook, and the expansion below re-renders the rows)
             branch.entity.$$loaded = true;
             branch.entity.$$expanded = true;
 
@@ -348,7 +348,11 @@ aweApplication.factory('GridTree',
             component.loadingBranch = null;
             Utilities.timeout(function () {
               component.isLoadingBranch = false;
-              grid.api.treeBase.expandRow(branch);
+              try {
+                grid.api.treeBase.expandRow(branch);
+              } finally {
+                branch.entity.$$isLoading = false;
+              }
             }, 500);
           };
 

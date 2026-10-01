@@ -151,6 +151,13 @@ public class SeleniumUtilities implements IAweInstructions {
       } catch (IOException ioExc) {
         log.error("Error trying to store screenshot at: " + path, ioExc);
       }
+
+      // The DOM next to the screenshot helps diagnosing selector failures; it must never break the assertion
+      try {
+        failureEvidence.storePageSource(path, seleniumModel.getDriver().getPageSource());
+      } catch (Exception exc) {
+        log.warn("Could not read the page source of the failed test", exc);
+      }
     }
 
     // Assert false
@@ -159,8 +166,8 @@ public class SeleniumUtilities implements IAweInstructions {
 
   private boolean isWritable(By selector) {
     try {
-      getElement(selector);
-      return true;
+      // A search box that exists but is hidden (selectors without search) cannot receive text
+      return getElement(selector).isDisplayed();
     } catch (Exception exc) {
       return false;
     }
@@ -2269,6 +2276,7 @@ public class SeleniumUtilities implements IAweInstructions {
     js.executeScript("let seleniumFollowerImg=document.createElement(\"span\");" +
       "seleniumFollowerImg.setAttribute('id', 'selenium_mouse');" +
       "seleniumFollowerImg.setAttribute('style', 'position: absolute; z-index: 99999999999; pointer-events: none; transition: all .1s ease, text-shadow .1s linear; -moz-transition: all .01s linear, text-shadow .1s linear; color: white;-webkit-text-stroke-width: 2px;-webkit-text-stroke-color: #000;');" +
+      // Visual aid for recordings: the pointer icon is injected, it is not a locator and no test looks for it
       "seleniumFollowerImg.classList.add('fa', 'fa-mouse-pointer', 'fa-2x');" +
       "document.body.appendChild(seleniumFollowerImg);" +
       "document.addEventListener('mousemove', function(e) {" +

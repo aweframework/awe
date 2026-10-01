@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -103,6 +104,22 @@ class SeleniumUtilitiesTest {
 
     assertThat(error).hasMessageContaining("Slow path bounded timeout");
     assertThat(elapsedMillis).isLessThan(1500L);
+  }
+
+  @Test
+  void shouldNotWriteOnSearchBoxThatExistsButIsHidden() {
+    WebElement hiddenSearch = mock(WebElement.class);
+    when(hiddenSearch.isDisplayed()).thenReturn(false);
+    WebElement visibleSearch = mock(WebElement.class);
+    when(visibleSearch.isDisplayed()).thenReturn(true);
+    By hidden = By.cssSelector("[data-testid='hidden-search']");
+    By visible = By.cssSelector("[data-testid='visible-search']");
+    doReturn(hiddenSearch).when(driver).findElement(hidden);
+    doReturn(visibleSearch).when(driver).findElement(visible);
+
+    assertThat((Boolean) ReflectionTestUtils.invokeMethod(seleniumUtilities, "isWritable", hidden)).isFalse();
+    assertThat((Boolean) ReflectionTestUtils.invokeMethod(seleniumUtilities, "isWritable", visible)).isTrue();
+    assertThat((Boolean) ReflectionTestUtils.invokeMethod(seleniumUtilities, "isWritable", By.id("missing"))).isFalse();
   }
 
   @Test
@@ -362,8 +379,8 @@ class SeleniumUtilitiesTest {
     ReflectionTestUtils.setField(trackingUtilities, "seleniumModel", trackingModel);
     ReflectionTestUtils.setField(trackingUtilities, "frontEndInstructions", trackingInstructions);
 
-    By usernameSelector = By.cssSelector("[criterion-id='cod_usr'] input,[criterion-id='cod_usr'] textarea");
-    By passwordSelector = By.cssSelector("[criterion-id='pwd_usr'] input,[criterion-id='pwd_usr'] textarea");
+    By usernameSelector = By.cssSelector("[criterion-id='cod_usr'] [data-testid='criterion-input']");
+    By passwordSelector = By.cssSelector("[criterion-id='pwd_usr'] [data-testid='criterion-input']");
     By loginButtonSelector = By.cssSelector("#ButLogIn:not([disabled])");
     By avatarTextSelector = By.cssSelector("#ButUsrAct span.avatar-text");
     By userActionSelector = By.id("ButUsrAct");
