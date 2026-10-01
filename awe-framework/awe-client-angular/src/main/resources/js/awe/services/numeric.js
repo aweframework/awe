@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {getIconTemplate} from "./component";
 import "../directives/plugins/uiNumeric";
 import "../directives/plugins/uiSlider";
@@ -16,7 +17,8 @@ export const templateNumeric =
       ${getIconTemplate("{{::iconClass}}")}
       <input ui-numeric="aweNumericOptions" class="form-control text-right {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly" ng-press-enter="submit($event)"
-             placeholder="{{controller.placeholder| translateMultiple}}" ng-focus="focus()" ng-blur="blur()"/>
+             placeholder="{{controller.placeholder| translateMultiple}}" ng-focus="focus()" ng-blur="blur()"
+             data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>

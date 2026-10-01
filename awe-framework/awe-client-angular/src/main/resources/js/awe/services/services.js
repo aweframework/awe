@@ -21,3 +21,4 @@ import "./validator";
 import "./validationRules";
 import "./maximize";
 import "./panel";
+import "./testIds";

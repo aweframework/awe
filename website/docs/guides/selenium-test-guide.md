@@ -273,6 +273,49 @@ clickButtonAndConfirm("ButCnf");
 - Clicks on accept confirm dialog
 - Waits for a **success** message and closes it
 
+## Stable test hooks (`data-testid`)
+
+AWE criteria expose a small, fixed set of `data-testid` attributes. They name the **part** of a component, never an
+instance, so a test keeps working when AWE replaces the library that renders the component (select2, datepicker...).
+Prefer these hooks to library classes (`.select2-*`, `.datepicker-*`) in your own selectors.
+
+The instance is always identified with the attribute AWE already renders on the criterion container, `criterion-id`.
+Some libraries append their DOM to the end of the `<body>` (the select dropdown and the datepicker popup). Those
+elements carry `data-testid-owner="<criterion id>"` so a test can tell which criterion opened them.
+
+| `data-testid` | Element | Where to find it |
+|---|---|---|
+| `criterion-input` | The real control of the criterion: the `input`, `textarea`, checkbox, radio or hidden input, the value of a text view, or the file chooser of an uploader. In a select or suggest it is the hidden input that holds the value: interact with `select` | Inside `[criterion-id='X']` |
+| `select` | Visible select2 container of a select or suggest (the element to click) | Inside `[criterion-id='X']` |
+| `select-value` | Chosen value of a single select | Inside `[criterion-id='X']` |
+| `select-choice` | One chosen item of a multiple select or suggest | Inside `[criterion-id='X']` |
+| `select-search` | Search input (the one in the dropdown for a single select, the one in the container for a multiple select) | Dropdown, or inside `[criterion-id='X']` |
+| `select-dropdown` | The open dropdown. Only the open dropdown carries the hook | End of `<body>`, with `data-testid-owner` |
+| `select-option` | One option of the open dropdown | Inside the dropdown, with `data-testid-owner` |
+| `datepicker` | The open date popup | End of `<body>`, with `data-testid-owner` |
+| `datepicker-day`, `datepicker-month`, `datepicker-year` | Day, month and year cells of the popup | Inside the popup, with `data-testid-owner` |
+| `upload-filename`, `upload-clear` | Name of the uploaded file and the button that clears it | Inside `[criterion-id='X']` |
+
+The state a test needs is exposed as data attributes, so it does not depend on library classes. The datepicker cells
+carry `data-selected`, `data-active` (the cell that has the keyboard focus) and `data-disabled`, all with the value
+`"true"` or `"false"`. The day cells also carry `data-outside-month`, `"true"` for the days of the previous and next
+month that complete the first and last weeks.
+
+```java
+// Value of the input of a criterion
+By input = By.cssSelector("[criterion-id='Txt'] [data-testid='criterion-input']");
+
+// Option "Yes" of the open dropdown of the criterion "Sta"
+By option = By.cssSelector("[data-testid='select-option'][data-testid-owner='Sta']");
+
+// Enabled days of the current month in the popup of the criterion "Cal"
+By days = By.cssSelector("[data-testid='datepicker'][data-testid-owner='Cal'] "
+  + "[data-testid='datepicker-day'][data-outside-month='false'][data-disabled='false']");
+```
+
+The vocabulary lives in a single JavaScript constant, `TestIds` (`awe-client-angular`, `js/awe/data/testIds.js`), also
+available as an AngularJS constant. Hooks are additive: no existing class, id or attribute is removed.
+
 ## Criteria
 
 The following points describe how to fill the different type of criteria available in AWE screens:

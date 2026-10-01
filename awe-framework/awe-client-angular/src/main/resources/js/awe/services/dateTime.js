@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiDate";
 import "../directives/plugins/uiTime";
 import moment from "moment";
@@ -21,7 +22,7 @@ export const calendarInputTemplate =
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
              ng-model="model.selected" ng-change="component.modelChange()"
              ng-model-options="{updateOn: 'change'}" ng-focus="focus()" ng-blur="blur()"
-             ng-press-enter="submit($event)"/>
+             ng-press-enter="submit($event)" data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
         <i class="fa fa-calendar"></i>
@@ -61,7 +62,8 @@ export const timeInputTemplate =
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-model="model.selected"
              ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}" ng-press-enter="submit($event)"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"/>
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"
+             data-testid="${TestIds.criterionInput}"/>
       <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
         <i class="fa fa-clock-o"></i>

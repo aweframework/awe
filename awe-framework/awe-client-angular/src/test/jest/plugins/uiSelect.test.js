@@ -99,4 +99,82 @@ describe("uiSelect2", () => {
 
     expect(select2Spy).toHaveBeenCalledWith("val", "2");
   });
+
+  describe("test id hooks", () => {
+    const escapeMarkup = text => text;
+
+    let originalDefaults;
+
+    beforeEach(() => {
+      originalDefaults = select2Spy.defaults;
+    });
+
+    afterEach(() => {
+      select2Spy.defaults = originalDefaults;
+    });
+
+    // Behaves like select2 3.5.7: the instance is stored in the element data synchronously while the plugin initializes
+    function stubSelect2Instance(container, dropdown) {
+      select2Spy.mockImplementation(function select2(method) {
+        if (typeof method === "object") {
+          $(this).data("select2", {container, dropdown});
+          return this;
+        }
+        if (method === "container") {
+          return container;
+        }
+        if (method === "dropdown") {
+          return dropdown;
+        }
+        return this;
+      });
+      select2Spy.defaults = {
+        formatResult: function formatResult(result, label, query, escape) {
+          return escape(result.text);
+        },
+        formatSelection: function formatSelection(data, container, escape) {
+          return data ? escape(data.text) : undefined;
+        }
+      };
+    }
+
+    it("wraps the default formatters so options and chosen values carry the vocabulary", () => {
+      stubSelect2Instance($("<div></div>"), $("<div></div>"));
+      compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      const options = select2Spy.mock.calls[0][0];
+      const label = $("<div></div>");
+      const chosen = $("<span class='select2-chosen'></span>");
+
+      expect(options.formatResult({text: "Spain"}, label, {term: ""}, escapeMarkup)).toBe("Spain");
+      expect(options.formatSelection({text: "Spain"}, chosen, escapeMarkup)).toBe("Spain");
+      expect(label.attr("data-testid")).toBe("select-option");
+      expect(label.attr("data-testid-owner")).toBe("country");
+      expect(chosen.attr("data-testid")).toBe("select-value");
+    });
+
+    it("tags the container and its search input when the plugin is created, and the dropdown on select2-open", () => {
+      const container = $("<div class='select2-container'><input class='select2-input'/></div>");
+      const dropdown = $("<div class='select2-drop'><input class='select2-input'/></div>");
+      stubSelect2Instance(container, dropdown);
+      const {element} = compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      expect(container.attr("data-testid")).toBe("select");
+      expect(container.attr("data-testid-owner")).toBe("country");
+      expect(container.find(".select2-input").attr("data-testid")).toBe("select-search");
+      expect(dropdown.attr("data-testid")).toBeUndefined();
+
+      element.trigger($.Event("select2-open"));
+
+      expect(dropdown.attr("data-testid")).toBe("select-dropdown");
+      expect(dropdown.attr("data-testid-owner")).toBe("country");
+      expect(dropdown.find(".select2-input").attr("data-testid")).toBe("select-search");
+
+      element.trigger($.Event("select2-close"));
+
+      expect(dropdown.attr("data-testid")).toBeUndefined();
+    });
+  });
 });
