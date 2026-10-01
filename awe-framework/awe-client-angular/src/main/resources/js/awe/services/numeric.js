@@ -33,7 +33,7 @@ export const templateNumericColumn =
   <div class="edition input input-group-{{::size}} focus-target" title="{{component.model.values[0].title| translateMultiple}}">
     <input ui-numeric="aweNumericOptions" class="form-control text-right col-xs-12 {{classes}} {{component.model.values[0].style}}" autocomplete="off"
            ng-disabled="component.controller.readonly" ng-focus="focus()" ng-blur="blur()"
-           placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-click="click($event)" ng-press-enter="saveRow($event)"/>
+           placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-click="click($event)" ng-press-enter="saveRow($event)" data-testid="${TestIds.criterionInput}"/>
     ${getIconTemplate("{{::iconClass}}")}
   </div>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>

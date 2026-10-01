@@ -1,5 +1,5 @@
-<div class="no-animate ui-grid-cell-contents ui-grid-checkbox text-center" column-id="{{col.name}}">
-  <label class="checkbox">
+<div class="no-animate ui-grid-cell-contents ui-grid-checkbox text-center" column-id="{{col.name}}" data-testid="grid-cell">
+  <label class="checkbox" data-testid="grid-row-checkbox" ng-attr-data-selected="{{!!row.isSelected}}">
     <input type="checkbox" class="px form-control" ng-model="row.isSelected"/>
     <span class="lbl"></span>
   </label>

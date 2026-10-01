@@ -2,9 +2,13 @@ import "../components/lightComponentTestUtils";
 
 import {TestAttributes, TestIds} from "../../../main/resources/js/awe/data/testIds";
 import {
+  ALERT_TEMPLATE_URL,
   bindDatepickerTestIds,
   bindSelect2TestIds,
+  popoverOptions,
+  popoverTemplate,
   tagDatepickerPopup,
+  tagTabdrop,
   wrapSelect2FormatResult,
   wrapSelect2FormatSelection
 } from "../../../main/resources/js/awe/services/testIds";
@@ -20,6 +24,7 @@ describe("test id vocabulary", () => {
       selectValue: "select-value",
       selectSearch: "select-search",
       selectChoice: "select-choice",
+      selectChoiceClose: "select-choice-close",
       selectDropdown: "select-dropdown",
       selectOption: "select-option",
       datepicker: "datepicker",
@@ -27,7 +32,64 @@ describe("test id vocabulary", () => {
       datepickerMonth: "datepicker-month",
       datepickerYear: "datepicker-year",
       uploadFilename: "upload-filename",
-      uploadClear: "upload-clear"
+      uploadClear: "upload-clear",
+      grid: "grid",
+      gridViewport: "grid-viewport",
+      gridHeaderCell: "grid-header-cell",
+      gridHeaderCheckbox: "grid-header-checkbox",
+      gridRow: "grid-row",
+      gridCell: "grid-cell",
+      gridRowCheckbox: "grid-row-checkbox",
+      gridRowSave: "grid-row-save",
+      gridRowCancel: "grid-row-cancel",
+      gridPagination: "grid-pagination",
+      gridPagePrevious: "grid-page-previous",
+      gridPageNext: "grid-page-next",
+      gridGotoPage: "grid-goto-page",
+      gridPageSize: "grid-page-size",
+      gridLoader: "grid-loader",
+      treeIcon: "tree-icon",
+      treeHeaderIcon: "tree-header-icon",
+      tabList: "tab-list",
+      tab: "tab",
+      tabLink: "tab-link",
+      tabLabel: "tab-label",
+      tabPane: "tab-pane",
+      tabdrop: "tabdrop",
+      tabdropToggle: "tabdrop-toggle",
+      tabdropMenu: "tabdrop-menu",
+      wizardStep: "wizard-step",
+      wizardPane: "wizard-pane",
+      button: "button",
+      contextMenu: "context-menu",
+      contextMenuOption: "context-menu-option",
+      contextMenuLink: "context-menu-link",
+      contextSubmenu: "context-submenu",
+      menu: "menu",
+      menuOption: "menu-option",
+      menuLink: "menu-link",
+      menuDropdown: "menu-dropdown",
+      menuSubmenu: "menu-submenu",
+      infoDropdown: "info-dropdown",
+      infoDropdownToggle: "info-dropdown-toggle",
+      infoDropdownMenu: "info-dropdown-menu",
+      infoButton: "info-button",
+      infoButtonLink: "info-button-link",
+      alert: "alert",
+      alertTitle: "alert-title",
+      alertMessage: "alert-message",
+      alertClose: "alert-close",
+      popover: "popover",
+      popoverTitle: "popover-title",
+      popoverContent: "popover-content",
+      dialog: "dialog",
+      dialogClose: "dialog-close",
+      confirmDialog: "confirm-dialog",
+      confirmAccept: "confirm-accept",
+      confirmCancel: "confirm-cancel",
+      loader: "loader",
+      loadingBar: "loading-bar",
+      loadingSpinner: "loading-spinner"
     });
     Object.keys(TestIds).map(name => TestIds[name]).forEach(value => expect(value).toMatch(/^[a-z]+(-[a-z]+)*$/));
   });
@@ -40,7 +102,13 @@ describe("test id vocabulary", () => {
       selected: "data-selected",
       active: "data-active",
       disabled: "data-disabled",
-      outsideMonth: "data-outside-month"
+      outsideMonth: "data-outside-month",
+      open: "data-open",
+      expanded: "data-expanded",
+      loading: "data-loading",
+      completed: "data-completed",
+      type: "data-type",
+      container: "data-container"
     });
   });
 
@@ -121,6 +189,18 @@ describe("select2 test hooks", () => {
     expect(choice.attr("data-testid")).toBe("select-choice");
     expect(choice.attr("data-testid-owner")).toBe("countries");
     expect(choice.find("div").attr("data-testid")).toBeUndefined();
+  });
+
+  it("tags the close link of a chosen item of a multiple select", () => {
+    const wrapped = wrapSelect2FormatSelection(undefined, "countries");
+    const choice = $("<li class='select2-search-choice'><div></div><a href='#' class='select2-search-choice-close'></a></li>");
+
+    wrapped.call({text: item => item.text}, {id: "1", text: "Spain"}, choice.find("div"), escapeMarkup);
+
+    const close = choice.find("a");
+    expect(close.attr("data-testid")).toBe("select-choice-close");
+    expect(close.attr("data-testid-owner")).toBe("countries");
+    expect(close.hasClass("select2-search-choice-close")).toBe(true);
   });
 
   it("returns undefined for an empty selection without failing", () => {
@@ -329,5 +409,147 @@ describe("datepicker test hooks", () => {
 
       expect(popup.find(".datepicker-days td.day").attr("data-testid")).toBeUndefined();
     });
+  });
+});
+
+describe("tabdrop test hooks", () => {
+  const buildTabs = () => $("<ul class='nav nav-tabs'><li class='dropdown hide pull-right tabdrop'>"
+    + "<a class='dropdown-toggle' data-toggle='dropdown' href='#'><i class='fa fa-bars'></i></a>"
+    + "<ul class='dropdown-menu'></ul></li><li data-testid='tab'></li></ul>");
+
+  it("tags the toggle and the menu of the dropdown that tabdrop creates", () => {
+    const tabs = buildTabs();
+    tabs.data("tabdrop", {dropdown: tabs.find("li.tabdrop")});
+
+    tagTabdrop(tabs);
+
+    expect(tabs.find("li.tabdrop").attr("data-testid")).toBe("tabdrop");
+    expect(tabs.find("li.tabdrop > a").attr("data-testid")).toBe("tabdrop-toggle");
+    expect(tabs.find("li.tabdrop > ul").attr("data-testid")).toBe("tabdrop-menu");
+    expect(tabs.find("li.tabdrop > a").attr("class")).toBe("dropdown-toggle");
+  });
+
+  it("finds the dropdown that the real in-repo plugin creates", () => {
+    require("../../../main/resources/js/lib/bootstrap-tabdrop/src/js/bootstrap-tabdrop.js");
+    const tabs = $("<ul class='nav nav-tabs'><li data-testid='tab'><a>One</a></li></ul>").appendTo(document.body);
+
+    tabs.tabdrop();
+    tagTabdrop(tabs);
+
+    expect(tabs.children("li.tabdrop").attr("data-testid")).toBe("tabdrop");
+    expect(tabs.find("li.tabdrop > a.dropdown-toggle").attr("data-testid")).toBe("tabdrop-toggle");
+    expect(tabs.find("li.tabdrop > ul.dropdown-menu").attr("data-testid")).toBe("tabdrop-menu");
+    tabs.remove();
+  });
+
+  it("does nothing when the plugin did not create its dropdown", () => {
+    const tabs = buildTabs();
+
+    expect(() => tagTabdrop(tabs)).not.toThrow();
+    expect(tabs.find("[data-testid='tabdrop']").length).toBe(0);
+  });
+});
+
+describe("popover test hooks", () => {
+  it("keeps the markup Bootstrap relies on and adds the hooks", () => {
+    const popover = $(popoverTemplate("danger", "UserName"));
+
+    expect(popover.is(".popover[role='tooltip']")).toBe(true);
+    expect(popover.attr("data-testid")).toBe("popover");
+    expect(popover.attr("data-type")).toBe("danger");
+    expect(popover.attr("data-testid-owner")).toBe("UserName");
+    expect(popover.find(".arrow").length).toBe(1);
+    expect(popover.find("h3.popover-title").attr("data-testid")).toBe("popover-title");
+    expect(popover.find("div.popover-content").attr("data-testid")).toBe("popover-content");
+  });
+
+  it("omits the owner when the message is not bound to a component", () => {
+    const popover = $(popoverTemplate("info"));
+
+    expect(popover.attr("data-type")).toBe("info");
+    expect(popover.attr("data-testid-owner")).toBeUndefined();
+  });
+
+  it("escapes values so a component id can never inject markup", () => {
+    const popover = $(popoverTemplate("danger", "a\"><script>x</script>"));
+
+    expect(popover.find("script").length).toBe(0);
+    expect(popover.attr("data-testid-owner")).toBe("a\"><script>x</script>");
+  });
+
+  it("builds options with a copy of the Bootstrap allow list that accepts the hook attributes", () => {
+    const defaults = $.fn.popover.Constructor.DEFAULTS.whiteList;
+    const originalAttributes = [...defaults["*"]];
+
+    const options = popoverOptions("success", "Target");
+
+    expect(options.template).toBe(popoverTemplate("success", "Target"));
+    expect(options.whiteList["*"]).toEqual(expect.arrayContaining([...originalAttributes, "data-testid", "data-testid-owner", "data-type"]));
+    expect(options.whiteList.a).toBe(defaults.a);
+    expect(defaults["*"]).toEqual(originalAttributes);
+  });
+
+  it("is rendered by the Bootstrap popover through its official template and whiteList options", () => {
+    const target = $("<div id='Target'></div>").appendTo(document.body);
+    target.popover({container: "body", title: "Title", content: "Content", trigger: "manual", ...popoverOptions("success", "Target")});
+
+    target.popover("show");
+    const shown = $("body > [data-testid='popover']");
+
+    expect(shown.length).toBe(1);
+    expect(shown.hasClass("popover")).toBe(true);
+    expect(shown.attr("data-type")).toBe("success");
+    expect(shown.attr("data-testid-owner")).toBe("Target");
+    expect(shown.find("[data-testid='popover-title']").text()).toBe("Title");
+    expect(shown.find("[data-testid='popover-content']").text()).toBe("Content");
+    target.popover("destroy");
+    target.remove();
+  });
+});
+
+describe("third party templates", () => {
+  let templateCache;
+  let loadingBarProvider;
+
+  beforeEach(() => {
+    angular.mock.module("aweApplication", ["cfpLoadingBarProvider", provider => {
+      loadingBarProvider = provider;
+    }]);
+    inject(["$templateCache", $templateCache => {
+      templateCache = $templateCache;
+    }]);
+  });
+
+  it("gives the global loading bar and its spinner a hook through the official provider templates", () => {
+    const bar = $(loadingBarProvider.loadingBarTemplate);
+    const spinner = $(loadingBarProvider.spinnerTemplate);
+
+    expect(bar.is("#loading-bar[data-testid='loading-bar']")).toBe(true);
+    expect(bar.find(".bar .peg").length).toBe(1);
+    expect(spinner.is("#loading-bar-spinner[data-testid='loading-spinner']")).toBe(true);
+    expect(spinner.find(".spinner-icon").length).toBe(1);
+  });
+
+  it("renders the hooks when the real loading bar starts", () => {
+    inject(["cfpLoadingBar", "$rootScope", "$httpBackend", (loadingBar, $rootScope, $httpBackend) => {
+      $httpBackend.whenPOST("settings").respond({});
+      loadingBar.start();
+      $rootScope.$digest();
+
+      expect($("body > [data-testid='loading-bar']#loading-bar").length).toBe(1);
+      expect($("body > [data-testid='loading-spinner']#loading-bar-spinner").length).toBe(1);
+
+      $("#loading-bar, #loading-bar-spinner").remove();
+    }]);
+  });
+
+  it("registers an alert template with a hooked close button that keeps the default behavior", () => {
+    const alert = $("<div></div>").html(templateCache.get(ALERT_TEMPLATE_URL));
+
+    const close = alert.find("button.close[data-testid='alert-close']");
+    expect(close.length).toBe(1);
+    expect(close.attr("ng-click")).toBe("close({$event: $event})");
+    expect(close.attr("ng-show")).toBe("closeable");
+    expect(alert.find("[ng-transclude]").length).toBe(1);
   });
 });

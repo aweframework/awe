@@ -1,13 +1,14 @@
 import {aweApplication} from "../awe";
 import "./plugins/uiModal";
 import {getIconTemplate} from "../services/component";
+import {TestIds} from "../data/testIds";
 
 const template = `<div ng-attr-id="{{::controller.id}}" ng-cloak>
-  <div class="modal fade" ui-modal on-close="component.closeDialog()" ng-cloak>
+  <div class="modal fade" ui-modal on-close="component.closeDialog()" data-testid="${TestIds.dialog}" ng-attr-data-testid-owner="{{::controller.id}}" ng-cloak>
     <div class="modal-dialog {{::controller.style}}"  ng-class="::{'fullHeight expandible-vertical': isExpandible}">
       <div class="modal-content" ng-class="::{'expand expandible-vertical': isExpandible}">
         <div ng-if="::controller.label" class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="close" data-dismiss="modal" data-testid="${TestIds.dialogClose}">&times;</button>
           <h4 class="modal-title">
             ${getIconTemplate("panel-title-icon")}
             <span translate-multiple="{{::controller.label}}"></span>

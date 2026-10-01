@@ -2,6 +2,7 @@ import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 import {searchOptions} from "../data/menuSearch";
 import _ from "lodash";
+import {TestIds} from "../data/testIds";
 
 function getResolutionType(width) {
   if (width <= 640) {
@@ -21,7 +22,7 @@ aweApplication.directive('aweMenu',
         restrict: 'E',
         replace: false,
         template:
-          `<ul class="awe-menu {{::controller.style}}" ng-class="{'menu-minimized': status.minimized, 'ng-hide': !isVisible()}" ng-cloak>
+          `<ul class="awe-menu {{::controller.style}}" data-testid="${TestIds.menu}" ng-class="{'menu-minimized': status.minimized, 'ng-hide': !isVisible()}" ng-cloak>
             <div class="awe-menu-search awe-menu-search-{{::menuType}}" ng-class="{'open': search.open}" ng-if="searchEnabled && isVisible()" ng-cloak>
               <button type="button" class="awe-menu-search-toggle" ng-click="toggleSearch()"
                       title="{{'BUTTON_SEARCH'| translateMultiple}}" aria-label="{{'BUTTON_SEARCH'| translateMultiple}}">

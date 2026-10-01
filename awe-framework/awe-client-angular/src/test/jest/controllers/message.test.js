@@ -166,6 +166,52 @@ describe("controllers/message.js", function() {
     expect(controller.popover.view.attr("ui-view")).toBe("base");
   });
 
+  it("passes the test hook template to the popover and names the component it points at", function() {
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    const popover = jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
+    $.fn.popover.Constructor = {DEFAULTS: {whiteList: {"*": ["class", "role"], a: ["href"]}}};
+    const action = actionWith({
+      parameters: {type: "error", title: "Field", message: "Check"},
+      callbackTarget: {view: "base", component: "field"}
+    });
+
+    controller.MessageActions.targetMessage(action);
+
+    const options = popover.mock.calls.find(call => typeof call[0] === "object")[0];
+    const template = $(options.template);
+    expect(template.attr("data-testid")).toBe("popover");
+    expect(template.attr("data-type")).toBe("danger");
+    expect(template.attr("data-testid-owner")).toBe("field");
+    expect(options.whiteList["*"]).toEqual(expect.arrayContaining(["data-testid", "data-testid-owner", "data-type", "class"]));
+  });
+
+  it("clears the owner when a popover that is not bound to a component follows a bound one", function() {
+    document.body.innerHTML = '<div ui-view="base"></div><button id="field"></button>';
+    const popover = jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
+    jest.spyOn(actionController, "acceptAction").mockImplementation(() => null);
+    controller.MessageActions.targetMessage(actionWith({
+      parameters: {type: "error", title: "Field", message: "Check"},
+      callbackTarget: {view: "base", component: "field"}
+    }));
+    expect(controller.popover.owner).toBe("field");
+
+    controller.MessageActions.targetMessage(actionWith({parameters: {type: "info", title: "Body", message: "Base"}}));
+
+    expect(controller.popover.owner).toBeUndefined();
+    const options = popover.mock.calls.filter(call => typeof call[0] === "object").pop()[0];
+    expect($(options.template).attr("data-testid-owner")).toBeUndefined();
+  });
+
+  it("does not name an owner for a popover that is not bound to a component", function() {
+    document.body.innerHTML = '<div ui-view="base"></div>';
+    const popover = jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });
+
+    controller.MessageActions.targetMessage(actionWith({parameters: {type: "info", title: "Body", message: "Base"}}));
+
+    const options = popover.mock.calls.find(call => typeof call[0] === "object")[0];
+    expect($(options.template).attr("data-testid-owner")).toBeUndefined();
+  });
+
   it("targets grid cell addresses for target-message popovers", function() {
     document.body.innerHTML = '<div ui-view="base"><div id="grid"><div row-id="1"><span column-id="name"></span></div></div></div>';
     jest.spyOn($.fn, "popover").mockImplementation(function() { return this; });

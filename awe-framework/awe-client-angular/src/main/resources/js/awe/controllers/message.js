@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
+import {popoverOptions} from "../services/testIds";
 
 // Manage the message calls
 aweApplication.controller("MessageController",
@@ -176,6 +177,7 @@ aweApplication.controller("MessageController",
           // Get message target
           let address = action.attr("callbackTarget") || {};
           if ("view" in address && "component" in address) {
+            $ctrl.popover.owner = address.component;
             if ("column" in address && "row" in address) {
               $ctrl.popover.target = $(`#${address.component} [row-id='${address.row}'] [column-id='${address.column}']`);
             } else {
@@ -183,6 +185,7 @@ aweApplication.controller("MessageController",
             }
             $ctrl.popover.view = $(`[ui-view='${address.view}']`);
           } else {
+            $ctrl.popover.owner = undefined;
             $ctrl.popover.target = $("body");
             $ctrl.popover.view = $("[ui-view='base']");
           }
@@ -195,7 +198,8 @@ aweApplication.controller("MessageController",
             title: "title" in $ctrl.popover.text ? $ctrl.popover.text.title : "",
             content: "message" in $ctrl.popover.text ? $ctrl.popover.text.message : "",
             placement: "auto bottom",
-            trigger: "manual"
+            trigger: "manual",
+            ...popoverOptions($ctrl.popover.type, $ctrl.popover.owner)
           })
             .on('shown.bs.popover', () => $ctrl.startPopover($ctrl.popover))
             .on('hidden.bs.popover', cleanUp)
