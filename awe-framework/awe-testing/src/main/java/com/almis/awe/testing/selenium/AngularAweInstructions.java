@@ -17,9 +17,6 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   // (<span class="select2-match">B</span>ase), so a single text() node never contains the full option.
   private static final String SELECT_OPTION_CONTAINING = "%s[contains(normalize-space(.),%s)]";
 
-  /** Visible help popover of the awe-help directive. It has no test hook yet (pending in the AngularJS client) */
-  private static final String LEGACY_HELP_POPOVER_CSS = ".help.popover:not(.ng-hide)";
-
   private SeleniumModel seleniumModel;
 
   public WebDriver getDriver() {
@@ -188,9 +185,9 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getPopover() {
-    // Message popovers carry a hook. The help popover (awe-help) has none yet, so it is still located by its classes:
-    // the mouse must be moved away from it, or it intercepts the next click
-    return By.cssSelector(css(TestIds.POPOVER) + "," + LEGACY_HELP_POPOVER_CSS);
+    // Message popovers exist only while they are shown. The help popover (awe-help) is always rendered, so it counts
+    // only while it is open. The mouse must be moved away from both, or they intercept the next click
+    return By.cssSelector(css(TestIds.POPOVER) + "," + css(TestIds.HELP_POPOVER) + stateCss(TestAttributes.OPEN, true));
   }
 
   /**

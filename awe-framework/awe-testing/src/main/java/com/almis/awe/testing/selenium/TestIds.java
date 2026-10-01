@@ -48,8 +48,10 @@ public final class TestIds {
   public static final String GRID_ROW_SAVE = "grid-row-save";
   // React only: button that starts the edition of a row
   public static final String GRID_ROW_EDIT = "grid-row-edit";
+  public static final String GRID_PAGE_SIZE = "grid-page-size";
   public static final String GRID_LOADER = "grid-loader";
   public static final String TREE_ICON = "tree-icon";
+  public static final String COLUMN_ICON = "column-icon";
 
   // Tabs and the "more" menu that holds the tabs that do not fit
   public static final String TAB_LIST = "tab-list";
@@ -58,6 +60,9 @@ public final class TestIds {
   // AngularJS only: the React tab list has no "more" menu
   public static final String TABDROP_TOGGLE = "tabdrop-toggle";
   public static final String TABDROP_MENU = "tabdrop-menu";
+
+  // Wizard steps
+  public static final String WIZARD_STEP = "wizard-step";
 
   // Context menu
   public static final String CONTEXT_MENU = "context-menu";
@@ -83,9 +88,15 @@ public final class TestIds {
 
   // Messages
   public static final String ALERT = "alert";
+  public static final String ALERT_TITLE = "alert-title";
+  public static final String ALERT_MESSAGE = "alert-message";
   public static final String ALERT_CLOSE = "alert-close";
   // AngularJS only: popover of a message or of the help (the React client has no popover)
   public static final String POPOVER = "popover";
+  public static final String HELP_POPOVER = "help-popover";
+
+  // Modal dialogs (owner: dialog id)
+  public static final String DIALOG = "dialog";
 
   // Loaders
   public static final String LOADER = "loader";

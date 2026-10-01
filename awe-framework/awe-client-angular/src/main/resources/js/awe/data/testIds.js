@@ -44,6 +44,8 @@ export const TestIds = Object.freeze({
   // Tree grids: expand/collapse icon of a row and the expand/collapse all icon of the header
   treeIcon: "tree-icon",
   treeHeaderIcon: "tree-header-icon",
+  // Icon column of a grid (the element that shows the icon; "data-icon" carries the icon of the cell value)
+  columnIcon: "column-icon",
   // Tab criterion (the tab list, a tab header with its link and label, the content pane) and the tabdrop "more" menu
   tabList: "tab-list",
   tab: "tab",
@@ -76,7 +78,8 @@ export const TestIds = Object.freeze({
   infoDropdownMenu: "info-dropdown-menu",
   infoButton: "info-button",
   infoButtonLink: "info-button-link",
-  // Messages: alerts of the alert zone and the Bootstrap popover shown over a component
+  // Messages: alerts of the alert zone, the Bootstrap popover shown over a component and the help popover (always
+  // rendered by the "awe-help" directive: it is displayed only while "data-open" is "true")
   alert: "alert",
   alertTitle: "alert-title",
   alertMessage: "alert-message",
@@ -84,6 +87,7 @@ export const TestIds = Object.freeze({
   popover: "popover",
   popoverTitle: "popover-title",
   popoverContent: "popover-content",
+  helpPopover: "help-popover",
   // Modal dialogs: the dialog (owner: dialog id) with its close button, and the confirm dialog with its buttons
   dialog: "dialog",
   dialogClose: "dialog-close",
@@ -114,5 +118,7 @@ export const TestAttributes = Object.freeze({
   completed: "data-completed",
   // Message type (success, info, warning, danger) and the grid container a viewport belongs to (body, left, right)
   type: "data-type",
-  container: "data-container"
+  container: "data-container",
+  // Icon shown by an icon column
+  icon: "data-icon"
 });
