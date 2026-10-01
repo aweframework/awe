@@ -1,18 +1,19 @@
 import {aweApplication} from "../awe";
 import {DefaultGridOptions, DefaultSpin} from "../data/options";
+import {TestIds} from "../data/testIds";
 import "./../services/grid/base";
 import "./gridHeader";
 
-const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" class="grid expandible-vertical table-light {{::component.gridStyle}}" ui-dependency="dependencies" ng-cloak>
+export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ui-dependency="dependencies" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>
   <div ng-if="component.fixedHeaders" ng-attr-id="grid-header-{{::gridId}}" awe-grid-header="gridOptions" ng-cloak></div>
   <div ng-attr-id="scope-{{::gridId}}" class="expand expandible-vertical grid-container" ng-cloak>
     <div ng-if="::component.editable" class="save-button">
-      <button id="{{::gridId}}-grid-row-cancel" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-danger grid-row-cancel" title="{{'BUTTON_CANCEL'| translateMultiple}}" ng-click="onCancelRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow">
+      <button id="{{::gridId}}-grid-row-cancel" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-danger grid-row-cancel" data-testid="${TestIds.gridRowCancel}" title="{{'BUTTON_CANCEL'| translateMultiple}}" ng-click="onCancelRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow">
         <i class="fa" ng-class="{'fa-refresh fa-spin': component.rowAction === 'cancel' && component.savingRow, 'fa-close': component.rowAction !== 'cancel'}"></i>
         <span class="button-text" translate-multiple="BUTTON_CANCEL"></span>
       </button>
-      <button id="{{::gridId}}-grid-row-save" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-primary grid-row-save" title="{{'BUTTON_SAVE_ROW'| translateMultiple}}" ng-click="onSaveRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow">
+      <button id="{{::gridId}}-grid-row-save" type="button" ng-class="::component.gridButtonClass" class="btn-awe btn-primary grid-row-save" data-testid="${TestIds.gridRowSave}" title="{{'BUTTON_SAVE_ROW'| translateMultiple}}" ng-click="onSaveRow()" ng-attr-tabindex="{{component.isEditing ? 0 : -1}}" ng-disabled="component.savingRow">
         <i class="fa" ng-class="{'fa-refresh fa-spin': component.rowAction === 'save' && component.savingRow, 'fa-save': component.rowAction !== 'save'}"></i>
         <span class="button-text" translate-multiple="BUTTON_SAVE_ROW"></span>
       </button>
@@ -23,37 +24,37 @@ const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visibl
     <div class="pagination-content grid-buttons fixed-height {{component.footerButtonStyle}}">
       <div ng-transclude></div>
     </div>
-    <div ng-if="::!controller.disablePagination" class="pagination-content {{component.footerPaginationStyle}}">
+    <div ng-if="::!controller.disablePagination" class="pagination-content {{component.footerPaginationStyle}}" data-testid="${TestIds.gridPagination}">
       <div ng-if="model.records > 0 && component.bigGrid">
         <div class="hidden-xs col-sm-8 text-center pagination-content">
           <ul uib-pagination ng-change="component.changePage()" total-items="model.records" items-per-page="component.getMax()" ng-model="component.currentPage" num-pages="model.total" max-size="5" class="pagination pagination-{{::size}}"
                       previous-text="{{'SCREEN_TEXT_GRID_PREVIOUS'| translateMultiple}}" next-text="{{'SCREEN_TEXT_GRID_NEXT'| translateMultiple}}" force-ellipses="true" boundary-link-numbers="true"
                       first-text="{{'SCREEN_TEXT_GRID_FIRST'| translateMultiple}}" last-text="{{'SCREEN_TEXT_GRID_LAST'| translateMultiple}}"></ul>
-          <input ng-if="model.total > 1" class="pagination-goto" placeholder="..." type="number" ng-blur="onGoToPageChanged($event)" ng-keypress="onGoToPageChanged($event)" />
+          <input ng-if="model.total > 1" class="pagination-goto" data-testid="${TestIds.gridGotoPage}" placeholder="..." type="number" ng-blur="onGoToPageChanged($event)" ng-keypress="onGoToPageChanged($event)" />
         </div>
         <div class="hidden-xs col-sm-4 text-right pagination-content">
           {{component.paginationText}}
           <div ng-if="::controller.pagerValues.length" class="pagination-pager">
-            <select class="grid-pager input input-group-{{::size}}" ng-options="value as value for value in controller.pagerValues" ng-model="controller.max" ng-change="component.updateRowsByPage()"></select>
+            <select class="grid-pager input input-group-{{::size}}" data-testid="${TestIds.gridPageSize}" ng-options="value as value for value in controller.pagerValues" ng-model="controller.max" ng-change="component.updateRowsByPage()"></select>
           </div>
         </div>
       </div>
       <div class="col-xs-12 pagination-content text-right" ng-if="model.records > 0 && !component.bigGrid">
         <ul ng-class="::component.gridPaginationClass">
           <li ng-class="{disabled: model.page <= 1}">
-            <a href="#" ng-click="component.setPage(model.page - 1)" title="{{'SCREEN_TEXT_GRID_PREVIOUS'| translateMultiple}}"><i class="fa fa-arrow-circle-left"></i></a>
+            <a href="#" data-testid="${TestIds.gridPagePrevious}" ng-attr-data-disabled="{{model.page <= 1}}" ng-click="component.setPage(model.page - 1)" title="{{'SCREEN_TEXT_GRID_PREVIOUS'| translateMultiple}}"><i class="fa fa-arrow-circle-left"></i></a>
           </li>
         </ul>
         <div class="pagination-content pagination-number">{{component.paginationTextSmall}}</div>
         <ul ng-class="::component.gridPaginationClass">
           <li ng-class="{disabled: model.page >= model.total}">
-            <a href="#" ng-click="component.setPage(model.page + 1)" title="{{'SCREEN_TEXT_GRID_NEXT'| translateMultiple}}"><i class="fa fa-arrow-circle-right"></i></a>
+            <a href="#" data-testid="${TestIds.gridPageNext}" ng-attr-data-disabled="{{model.page >= model.total}}" ng-click="component.setPage(model.page + 1)" title="{{'SCREEN_TEXT_GRID_NEXT'| translateMultiple}}"><i class="fa fa-arrow-circle-right"></i></a>
           </li>
         </ul>
       </div>
     </div>
   </div>
-  <awe-loader class="loader grid-loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader grid-loader" data-testid="${TestIds.gridLoader}" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
 // Grid directive

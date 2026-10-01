@@ -48,7 +48,7 @@ export const uploaderColumnTemplate = `<div ng-show="component.controller.visibl
       </div>
     </div>
     <div ng-show="component.model.selected === null && !component.uploading" class="pixel-file-input {{classes}} no-animate"
-         ng-disabled="component.controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)">
+         ng-disabled="component.controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)" data-testid="${TestIds.criterionInput}">
       ${getIconTemplate("{{::iconClass}}")}
       <span class="pfi-filename pfi-placeholder">{{::component.controller.placeholder| translateMultiple}}</span>
       <div class="pfi-actions" ng-if="!component.controller.readonly">
@@ -57,9 +57,9 @@ export const uploaderColumnTemplate = `<div ng-show="component.controller.visibl
     </div>
     <div ng-show="component.model.selected !== null && !component.uploading" class="pixel-file-input {{classes}} no-animate" ng-disabled="component.controller.readonly">
       ${getIconTemplate("{{::iconClass}}")}
-      <span class="pfi-filename" ng-click="downloadFile($event)">{{component.visibleValue}}</span>
+      <span class="pfi-filename" ng-click="downloadFile($event)" data-testid="${TestIds.uploadFilename}">{{component.visibleValue}}</span>
       <div class="pfi-actions" ng-if="!component.controller.readonly">
-        <button type="button" ng-click="clearFile($event)" class="btn btn-awe btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()"><i class="fa {{component.deleting ? 'fa-refresh fa-spin' : 'fa-times'}}"></i> <span translate-multiple="BUTTON_CLEAR"></span></button>
+        <button type="button" ng-click="clearFile($event)" class="btn btn-awe btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()" data-testid="${TestIds.uploadClear}"><i class="fa {{component.deleting ? 'fa-refresh fa-spin' : 'fa-times'}}"></i> <span translate-multiple="BUTTON_CLEAR"></span></button>
       </div>
     </div>
   </div>

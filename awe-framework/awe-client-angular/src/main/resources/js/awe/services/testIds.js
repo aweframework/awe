@@ -2,7 +2,8 @@ import {aweApplication} from "../awe";
 import {TestAttributes, TestIds} from "../data/testIds";
 
 /**
- * Test hooks for DOM that AWE does not render itself (select2 and bootstrap-datepicker).
+ * Test hooks for DOM that AWE does not render itself (select2, bootstrap-datepicker, tabdrop, Bootstrap popovers,
+ * the angular-loading-bar elements and the UI Bootstrap alert).
  *
  * Everything here uses the official extension points of the plugins (formatters, plugin events, plugin methods).
  * Vendor code is never patched, and no class or id is removed or renamed: hooks are additive data attributes.
@@ -11,9 +12,33 @@ aweApplication
   .constant("TestIds", TestIds)
   .constant("TestAttributes", TestAttributes);
 
+/** Template registered for the UI Bootstrap alert so its close button carries a hook */
+export const ALERT_TEMPLATE_URL = "awe/template/alert.html";
+
+const ALERT_TEMPLATE = `<button ng-show="closeable" type="button" class="close" ng-click="close({$event: $event})" data-testid="${TestIds.alertClose}">
+  <span aria-hidden="true">&times;</span>
+  <span class="sr-only">Close</span>
+</button>
+<div ng-transclude></div>
+`;
+
+const LOADING_BAR_TEMPLATE = `<div id="loading-bar" ${TestAttributes.testId}="${TestIds.loadingBar}"><div class="bar"><div class="peg"></div></div></div>`;
+const LOADING_SPINNER_TEMPLATE = `<div id="loading-bar-spinner" ${TestAttributes.testId}="${TestIds.loadingSpinner}"><div class="spinner-icon"></div></div>`;
+
+// The loading bar and the alert are rendered by third party directives: the templates they officially accept add the hooks
+aweApplication
+  .config(["cfpLoadingBarProvider", function (loadingBarProvider) {
+    loadingBarProvider.loadingBarTemplate = LOADING_BAR_TEMPLATE;
+    loadingBarProvider.spinnerTemplate = LOADING_SPINNER_TEMPLATE;
+  }])
+  .run(["$templateCache", function ($templateCache) {
+    $templateCache.put(ALERT_TEMPLATE_URL, ALERT_TEMPLATE);
+  }]);
+
 const SELECT2_SEARCH = ".select2-input";
 const SELECT2_CHOSEN = ".select2-chosen";
 const SELECT2_CHOICE = ".select2-search-choice";
+const SELECT2_CHOICE_CLOSE = ".select2-search-choice-close";
 const DATEPICKER_EVENTS_NAMESPACE = "testid";
 
 /**
@@ -94,7 +119,9 @@ export function wrapSelect2FormatSelection(original, owner) {
       tag(target, TestIds.selectValue, resolveOwner(owner));
     } else {
       // select2 replaces the inner div of a multiple choice, so the hook goes on the choice item
-      tag(target.closest(SELECT2_CHOICE), TestIds.selectChoice, resolveOwner(owner));
+      const choice = target.closest(SELECT2_CHOICE);
+      tag(choice, TestIds.selectChoice, resolveOwner(owner));
+      tag(choice.children(SELECT2_CHOICE_CLOSE), TestIds.selectChoiceClose, resolveOwner(owner));
     }
     return markup;
   };
@@ -218,5 +245,62 @@ export function bindDatepickerTestIds(elem, owner) {
       disconnect();
       elem.off(`.${DATEPICKER_EVENTS_NAMESPACE}`);
     }
+  };
+}
+
+/**
+ * Tag the dropdown that tabdrop creates ("more" toggle and the menu that receives the tabs that do not fit).
+ * It uses the plugin instance, so the in-repo tabdrop source is not touched. The tabs moved into the menu keep their
+ * own hooks, because they are AWE markup.
+ * @param {jQuery} elem Tab list the plugin was initialized on
+ */
+export function tagTabdrop(elem) {
+  const instance = elem.data("tabdrop");
+  const dropdown = instance && instance.dropdown;
+  if (dropdown && dropdown.length) {
+    tag(dropdown, TestIds.tabdrop);
+    tag(dropdown.children("a.dropdown-toggle"), TestIds.tabdropToggle);
+    tag(dropdown.children("ul.dropdown-menu"), TestIds.tabdropMenu);
+  }
+}
+
+/**
+ * Escape a value for a double quoted HTML attribute
+ * @param {string} value Value
+ * @return {string} Escaped value
+ */
+function escapeAttribute(value) {
+  return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/**
+ * Build the template of a Bootstrap popover. It is the default Bootstrap template plus the hooks, so the plugin keeps
+ * working with the same classes.
+ * @param {string} type Message type (success, info, warning, danger)
+ * @param {string} [owner] Id of the component the message points at
+ * @return {string} Popover template
+ */
+export function popoverTemplate(type, owner) {
+  const ownerAttribute = owner ? ` ${TestAttributes.owner}="${escapeAttribute(owner)}"` : "";
+  return `<div class="popover" role="tooltip" ${TestAttributes.testId}="${TestIds.popover}" ${TestAttributes.type}="${escapeAttribute(type)}"${ownerAttribute}>`
+    + `<div class="arrow"></div>`
+    + `<h3 class="popover-title" ${TestAttributes.testId}="${TestIds.popoverTitle}"></h3>`
+    + `<div class="popover-content" ${TestAttributes.testId}="${TestIds.popoverContent}"></div></div>`;
+}
+
+/**
+ * Options that make a Bootstrap popover render the test hooks, through the official "template" and "whiteList" options.
+ * Bootstrap sanitizes the template and removes every attribute that is not in its allow list, so the hook attributes
+ * are added to a copy of the list (the plugin defaults stay untouched).
+ * @param {string} type Message type (success, info, warning, danger)
+ * @param {string} [owner] Id of the component the message points at
+ * @return {{template: string, whiteList: object|undefined}} Popover options
+ */
+export function popoverOptions(type, owner) {
+  const defaults = $.fn.popover && $.fn.popover.Constructor && $.fn.popover.Constructor.DEFAULTS.whiteList;
+  const hooks = [TestAttributes.testId, TestAttributes.owner, TestAttributes.type];
+  return {
+    template: popoverTemplate(type, owner),
+    whiteList: defaults ? {...defaults, "*": [...(defaults["*"] || []), ...hooks]} : undefined
   };
 }

@@ -1,8 +1,9 @@
 import {aweApplication} from "../awe";
 import "../services/contextMenu";
+import {TestIds} from "../data/testIds";
 
 const template =
-`<ul ng-if="::contextMenu" ng-show="contextMenu.isVisible()" class="context-menu dropdown-menu ng-hide" role="menu" ng-cloak>
+`<ul ng-if="::contextMenu" ng-show="contextMenu.isVisible()" class="context-menu dropdown-menu ng-hide" role="menu" data-testid="${TestIds.contextMenu}" ng-cloak>
   <awe-context-option ng-repeat="option in contextMenuData track by option.id" option-id="{{::option.id}}" option="option"></awe-context-option>
 </ul>`;
 

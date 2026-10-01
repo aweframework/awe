@@ -28,7 +28,7 @@ export const textColumnTemplate = `<div ng-show="component.controller.visible" c
     <div class="input input-group-{{::size}} focus-target" title="{{component.model.values[0].title| translateMultiple}}">
       <input type="text" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected"
              placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}" autocomplete="off"
-             ng-focus="focus()" ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)"/>
+             ng-focus="focus()" ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)" data-testid="${TestIds.criterionInput}"/>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
   </span>
@@ -57,7 +57,7 @@ export const textViewColumnTemplate = `<div ng-show="component.controller.visibl
   <span class="{{classes}} {{component.model.values[0].style}} col-xs-{{(component.controller.unit || component.model.values[0].unit) ? '10' : '12'}}" ng-cloak
    title="{{component.model.values[0].title| translateMultiple}}">
     ${getIconTemplate("text-icon fa-fw")}
-    <span class="text-value" ng-cloak>{{component.visibleValue}}</span>
+    <span class="text-value" data-testid="${TestIds.criterionInput}" ng-cloak>{{component.visibleValue}}</span>
   </span>
   <span ng-if="component.controller.unit || component.model.values[0].unit" class="col-xs-2 text-right" ng-cloak>
     <span class="label label-warning" translate-multiple="{{component.controller.unit || component.model.values[0].unit}}"></span>
@@ -92,7 +92,7 @@ export const passwordColumnTemplate = `<div ng-show="component.controller.visibl
     <div class="input input-group-{{::size}} focus-target"><!--  ng-class="{'input-group': component.controller.unit, 'has-warning has-feedback': $root.isCapsLockOn}" -->
       <input type="password" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected"
              placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)" autocomplete="off"/>
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
       <span ng-show="$root.isCapsLockOn" class="fa fa-{{::size}} fa-arrow-circle-up form-control-feedback"></span>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
@@ -123,7 +123,7 @@ export const textareaColumnTemplate = `<div ng-show="component.controller.visibl
     <div class="input focus-target">
       <textarea class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-model="component.model.selected" ng-disabled="component.controller.readonly" autocomplete="off"
                 placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
-                ng-focus="focus()" ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()"></textarea>
+                ng-focus="focus()" ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" data-testid="${TestIds.criterionInput}"></textarea>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
   </span>

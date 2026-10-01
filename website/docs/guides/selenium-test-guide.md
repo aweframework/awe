@@ -275,31 +275,97 @@ clickButtonAndConfirm("ButCnf");
 
 ## Stable test hooks (`data-testid`)
 
-AWE criteria expose a small, fixed set of `data-testid` attributes. They name the **part** of a component, never an
-instance, so a test keeps working when AWE replaces the library that renders the component (select2, datepicker...).
-Prefer these hooks to library classes (`.select2-*`, `.datepicker-*`) in your own selectors.
+AWE components expose a small, fixed set of `data-testid` attributes. They name the **part** of a component, never an
+instance, so a test keeps working when AWE replaces the library that renders the component (select2, datepicker,
+ui-grid, Bootstrap...). Prefer these hooks to library classes (`.select2-*`, `.datepicker-*`, `.ui-grid-*`, `.modal`,
+`.nav-tabs`, `.fa-*`...) in your own selectors.
 
-The instance is always identified with the attribute AWE already renders on the criterion container, `criterion-id`.
-Some libraries append their DOM to the end of the `<body>` (the select dropdown and the datepicker popup). Those
-elements carry `data-testid-owner="<criterion id>"` so a test can tell which criterion opened them.
+The instance is always identified with the attribute AWE already renders: `criterion-id` on a criterion container,
+`grid-id` / `tree-grid-id`, `row-id` and `column-id` in grids, `option-id` in a context menu, `name` in the application
+menu, `info-dropdown-id`, `dialog-id` and the `id` of buttons and panes. Some libraries append their DOM to the end of the
+`<body>` (the select dropdown, the datepicker popup, popovers). Those elements carry `data-testid-owner="<component id>"`
+so a test can tell which component opened them.
+
+### Criteria
 
 | `data-testid` | Element | Where to find it |
 |---|---|---|
-| `criterion-input` | The real control of the criterion: the `input`, `textarea`, checkbox, radio or hidden input, the value of a text view, or the file chooser of an uploader. In a select or suggest it is the hidden input that holds the value: interact with `select` | Inside `[criterion-id='X']` |
+| `criterion-input` | The real control of the criterion: the `input`, `textarea`, checkbox, radio or hidden input, the value of a text view, or the file chooser of an uploader. In a select or suggest it is the hidden input that holds the value: interact with `select`. The editors of the cells of an editable grid carry it too | Inside `[criterion-id='X']`, or inside the grid cell |
 | `select` | Visible select2 container of a select or suggest (the element to click) | Inside `[criterion-id='X']` |
 | `select-value` | Chosen value of a single select | Inside `[criterion-id='X']` |
-| `select-choice` | One chosen item of a multiple select or suggest | Inside `[criterion-id='X']` |
+| `select-choice`, `select-choice-close` | One chosen item of a multiple select or suggest, and the link that removes it | Inside `[criterion-id='X']` |
 | `select-search` | Search input (the one in the dropdown for a single select, the one in the container for a multiple select) | Dropdown, or inside `[criterion-id='X']` |
 | `select-dropdown` | The open dropdown. Only the open dropdown carries the hook | End of `<body>`, with `data-testid-owner` |
 | `select-option` | One option of the open dropdown | Inside the dropdown, with `data-testid-owner` |
 | `datepicker` | The open date popup | End of `<body>`, with `data-testid-owner` |
 | `datepicker-day`, `datepicker-month`, `datepicker-year` | Day, month and year cells of the popup | Inside the popup, with `data-testid-owner` |
-| `upload-filename`, `upload-clear` | Name of the uploaded file and the button that clears it | Inside `[criterion-id='X']` |
+| `upload-filename`, `upload-clear` | Name of the uploaded file and the button that clears it | Inside `[criterion-id='X']`, or inside the grid cell |
+| `loader` | Loader of a criterion or any other component | Inside the component |
 
-The state a test needs is exposed as data attributes, so it does not depend on library classes. The datepicker cells
-carry `data-selected`, `data-active` (the cell that has the keyboard focus) and `data-disabled`, all with the value
-`"true"` or `"false"`. The day cells also carry `data-outside-month`, `"true"` for the days of the previous and next
-month that complete the first and last weeks.
+### Grids and trees
+
+| `data-testid` | Element | Where to find it |
+|---|---|---|
+| `grid` | Root of a grid or tree grid | `[grid-id='X']`, `[tree-grid-id='X']` |
+| `grid-header-cell` | Header cell of a column | Inside the grid, with `column-id` |
+| `grid-header-checkbox` | Label of the "select all" checkbox. `data-selected` | Inside the grid |
+| `grid-viewport` | Scrollable zone of the rows. `data-container` is `body`, `left` or `right` (frozen columns) | Inside the grid |
+| `grid-row` | A row, with `row-id`. `data-selected` | Inside the viewport |
+| `grid-cell` | A cell: the element that carries `column-id`, whatever it renders (value, editor, checkbox, tree icon) | Inside a row, with `column-id` |
+| `grid-row-checkbox` | Label of the selection checkbox of a row. `data-selected` | Inside the cell |
+| `grid-row-save`, `grid-row-cancel` | Save and cancel buttons of an editable grid | Inside the grid |
+| `grid-pagination`, `grid-page-previous`, `grid-page-next`, `grid-goto-page`, `grid-page-size` | Footer pagination, its previous/next arrows (`data-disabled`) of the compact pager, the "go to page" input and the page size select | Inside the grid |
+| `grid-loader` | Loader of the grid (also the pivot table) | Inside the grid |
+| `tree-icon` | Expand/collapse icon of a tree row. `data-expanded` and `data-loading` | Inside the cell |
+| `tree-header-icon` | Expand/collapse all icon of the header | Inside the grid |
+
+### Tabs and wizards
+
+| `data-testid` | Element | Where to find it |
+|---|---|---|
+| `tab-list` | The tab headers of a tab criterion. `data-disabled` | Inside `[criterion-id='X']` |
+| `tab`, `tab-link`, `tab-label` | A tab header (`li` with the `tab-<value>` id and `data-active`), the link to click and the label | Inside the tab list, or inside the `tabdrop-menu` when the tab does not fit |
+| `tab-pane` | Content of a tab, with the pane `id`. `data-active` | Inside `[criterion-id='X']` |
+| `tabdrop`, `tabdrop-toggle`, `tabdrop-menu` | The "more" dropdown that holds the tabs that do not fit, the button that opens it and its menu | Inside the tab list |
+| `wizard-step`, `wizard-pane` | A step header (`data-active` and `data-completed`) and a content pane (`data-active`) | Inside `[criterion-id='X']` |
+
+### Buttons, menus and info
+
+| `data-testid` | Element | Where to find it |
+|---|---|---|
+| `button` | The `<button>` of a button, with the button `id` (also inside grid cells) | Anywhere |
+| `context-menu`, `context-menu-option`, `context-menu-link`, `context-submenu` | A context menu, an option (with `option-id`), its link (`data-disabled`) and a nested menu | Inside the component that owns the menu |
+| `menu`, `menu-option`, `menu-link`, `menu-dropdown`, `menu-submenu` | The application menu, an option (`data-active`, `data-open`), its link (with `name`), the first level dropdown and the nested submenus (`data-open`) | Inside the menu |
+| `info-dropdown`, `info-dropdown-toggle`, `info-dropdown-menu` | An info dropdown (with `info-dropdown-id`), the link that opens it and its menu | Anywhere |
+| `info-button`, `info-button-link` | An info button and its link | Anywhere |
+
+### Messages, dialogs and loaders
+
+| `data-testid` | Element | Where to find it |
+|---|---|---|
+| `alert`, `alert-title`, `alert-message`, `alert-close` | An alert of the alert zone (`data-type` is `success`, `info`, `warning` or `danger`), its title, its text and its close button | Alert zone |
+| `popover`, `popover-title`, `popover-content` | The message shown over a component (`data-type`, and `data-testid-owner` with the component it points at) | End of `<body>` |
+| `dialog`, `dialog-close` | A modal dialog (with `data-testid-owner` = dialog id) and the button of its header that closes it | Inside `[dialog-id='X']` |
+| `confirm-dialog`, `confirm-accept`, `confirm-cancel` | The confirm dialog and its buttons | End of the alert zone |
+| `loader` | A component loader (criteria, columns, selects). Grids use `grid-loader` | Inside the component |
+| `loading-bar`, `loading-spinner` | The global loading bar and its spinner. They exist only while the application is loading | End of `<body>` |
+
+### State
+
+The state a test needs is exposed as data attributes, so it does not depend on library classes. They are always `"true"`
+or `"false"`, except `data-type` and `data-container`:
+
+| Attribute | Meaning |
+|---|---|
+| `data-selected` | Selected row or checkbox, selected datepicker cell |
+| `data-active` | Active tab, wizard step, wizard or tab pane and menu option; the datepicker cell that has the keyboard focus |
+| `data-disabled` | Disabled tab list, context menu link, previous/next page arrow or datepicker cell |
+| `data-open` | Menu option or submenu that is open |
+| `data-expanded`, `data-loading` | Tree row that is expanded, or that is loading its children |
+| `data-completed` | Wizard step that is already done |
+| `data-outside-month` | Datepicker day that belongs to the previous or next month |
+| `data-type` | Type of a message |
+| `data-container` | Container of a grid viewport: `body`, `left` or `right` |
 
 ```java
 // Value of the input of a criterion
@@ -311,6 +377,14 @@ By option = By.cssSelector("[data-testid='select-option'][data-testid-owner='Sta
 // Enabled days of the current month in the popup of the criterion "Cal"
 By days = By.cssSelector("[data-testid='datepicker'][data-testid-owner='Cal'] "
   + "[data-testid='datepicker-day'][data-outside-month='false'][data-disabled='false']");
+
+// Cell "name" of the selected rows of the grid "Grd"
+By cell = By.cssSelector("[grid-id='Grd'] [data-testid='grid-row'][data-selected='true'] "
+  + "[data-testid='grid-cell'][column-id='name']");
+
+// Active tab of the criterion "Tab" and the danger alerts
+By tab = By.cssSelector("[criterion-id='Tab'] [data-testid='tab'][data-active='true']");
+By danger = By.cssSelector("[data-testid='alert'][data-type='danger']");
 ```
 
 The vocabulary lives in a single JavaScript constant, `TestIds` (`awe-client-angular`, `js/awe/data/testIds.js`), also

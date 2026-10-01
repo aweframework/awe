@@ -22,7 +22,7 @@
     <h1 class="hidden" ng-cloak></h1>
     <p class="hidden" ng-cloak></p>
     <div class="alert-zone" ng-controller="MessageController as $message" ng-cloak>
-      <div uib-alert class="alert alert-dark alert-awe alert-{{alert.type}}" ng-animate="alert" ng-repeat="alert in $message.alerts" close="$message.closeAlert($index)"><strong translate="{{::alert.title}}" ng-cloak>.</strong>&nbsp; <span class="description" translate="{{::alert.msg}}" ng-cloak></span></div>
+      <div uib-alert template-url="awe/template/alert.html" data-testid="alert" ng-attr-data-type="{{alert.type}}" class="alert alert-dark alert-awe alert-{{alert.type}}" ng-animate="alert" ng-repeat="alert in $message.alerts" close="$message.closeAlert($index)"><strong data-testid="alert-title" translate="{{::alert.title}}" ng-cloak>.</strong>&nbsp; <span class="description" data-testid="alert-message" translate="{{::alert.msg}}" ng-cloak></span></div>
       <awe-confirm ng-cloak></awe-confirm>
       <awe-help ng-cloak></awe-help>
     </div>

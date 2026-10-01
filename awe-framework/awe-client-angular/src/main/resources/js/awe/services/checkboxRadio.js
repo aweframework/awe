@@ -52,7 +52,7 @@ export const templateInputCheckbox = `<div ng-show="controller.visible" class="c
 export const templateColumnCheckbox = `<div ng-show="component.controller.visible" class="validator column-input criterion column-checkbox no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
   <div class="input">
     <label class="checkbox" title="{{component.model.values[0].title | translateMultiple}}" >
-      <input type="checkbox" class="px form-control" ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="component.controller.readonly || !component.editing"/>
+      <input type="checkbox" class="px form-control" ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="component.controller.readonly || !component.editing" data-testid="${TestIds.criterionInput}"/>
       <span class="lbl"></span>
     </label>
   </div>

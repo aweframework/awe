@@ -50,7 +50,7 @@ export const templateSelectorColumn =
   <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input input-group-{{::size}} focus-target">
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}" value="{{component.model.selected}}"
-             ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off"/>
+             ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
   </span>

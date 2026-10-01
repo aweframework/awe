@@ -30,7 +30,7 @@ export const templateColumnColor = `<div ng-show="component.controller.visible" 
     <div ng-class="::groupClass" ng-cloak>
       <div class="validator input-group colorpicker-element input-group-{{::size}} focus-target">
         <input type="text" class="form-control {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-press-enter="saveRow($event)"
-               ng-blur="blur()" ng-click="click($event)" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-change="component.columnModelChange()"/>
+               ng-blur="blur()" ng-click="click($event)" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-change="component.columnModelChange()" data-testid="${TestIds.criterionInput}"/>
         <span ng-if="!component.controller.readonly" class="input-group-addon" colorpicker ng-model="component.model.selected" ng-change="component.columnModelChange()" ><i ng-class="{'transparent': !component.model.selected}" ng-style="{backgroundColor: component.model.selected}"></i></span>
         <span ng-if="component.controller.readonly" class="input-group-addon disabled"><i ng-class="{'transparent': !component.model.selected}" ng-style="{backgroundColor: component.model.selected}"></i></span>
       </div>

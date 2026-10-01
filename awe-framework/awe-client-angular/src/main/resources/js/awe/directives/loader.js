@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestAttributes, TestIds} from "../data/testIds";
 
 // Loader directive
 aweApplication.directive('aweLoader',
@@ -16,6 +17,11 @@ aweApplication.directive('aweLoader',
       return {
         restrict: 'E',
         link: function (scope, elem, attrs) {
+          // Test hook: every loader is a "loader" unless its owner gave it a more specific hook
+          if (!elem.attr(TestAttributes.testId)) {
+            elem.attr(TestAttributes.testId, TestIds.loader);
+          }
+
           /**
            * Compile the template
            * @param {type} template

@@ -155,7 +155,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(column.sortField).toBe("tutu");
     expect(column.enableFiltering).toBe(false);
     expect(column.footerCellTemplate).toBe("grid/footer");
-    expect(column.cellTemplate).toBe("<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\"><awe-column-text " +
+    expect(column.cellTemplate).toBe("<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\" data-testid=\"grid-cell\"><awe-column-text " +
       "cell-address='{\"hash\":\"{{row.uid}}\", \"view\":\"viewId\", \"component\":\"componentId\", \"row\":\"{{row.entity.id}}\", \"column\":\"{{col.name}}\"}'/></div>");
 
     expect(column2.enableSorting).toBe(true);

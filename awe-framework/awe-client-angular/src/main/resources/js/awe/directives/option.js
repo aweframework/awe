@@ -1,13 +1,16 @@
 import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
+import {TestIds} from "../data/testIds";
 
-const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class="getOptionClasses()" ng-cloak>
-  <a ng-if="::!controller.separator" title="{{::optionTitle| translateMultiple}}" name="{{::optionName}}" class="{{::optionStyle}}"
+const template = `<li class="awe-option {{::getStaticOptionClasses()}}" ng-class="getOptionClasses()" data-testid="${TestIds.menuOption}"
+    ng-attr-data-active="{{isActive()}}" ng-attr-data-open="{{isOpen()}}" ng-cloak>
+  <a ng-if="::!controller.separator" title="{{::optionTitle| translateMultiple}}" name="{{::optionName}}" class="{{::optionStyle}}" data-testid="${TestIds.menuLink}"
      ng-click="optionClick()">
     ${getIconTemplate("menu-icon")}
     <span ng-if="::optionText" class="mm-text" translate-multiple="{{::optionText}}"></span>
   </a>
-  <ul ng-if="::hasVisibleChildren()" class="{{::getStaticSubmenuClasses()}}" ng-class="getSubmenuClasses()">
+  <ul ng-if="::hasVisibleChildren()" class="{{::getStaticSubmenuClasses()}}" ng-class="getSubmenuClasses()"
+      ng-attr-data-testid="{{::firstLevel ? '${TestIds.menuDropdown}' : '${TestIds.menuSubmenu}'}}" ng-attr-data-open="{{isOpen()}}">
     <div ng-if="::optionText" class="mmc-title" translate-multiple="{{::optionText}}"></div>
     <awe-option ng-repeat="option in controller.options| allowedOption track by option.id" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}" close-first-level="closeFirstLevel()" first-level="false" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}" option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
   </ul>
@@ -74,8 +77,15 @@ aweApplication.directive('aweOption',
                * Check if option is opened
                */
               let  isOpened = function () {
-                return scope.optionName in scope.selectedOption.opened;
+                return !!scope.selectedOption && !!scope.selectedOption.opened && scope.optionName in scope.selectedOption.opened;
               };
+
+              /**
+               * Test hooks: state of the option as boolean values. They run on every digest, so they never fail when
+               * the selected option is not set yet, and an option without name (separator) is never active
+               */
+              scope.isOpen = () => isOpened();
+              scope.isActive = () => !!scope.optionName && !!scope.selectedOption && scope.selectedOption.name === scope.optionName;
 
               /**
                * Check if option is opened

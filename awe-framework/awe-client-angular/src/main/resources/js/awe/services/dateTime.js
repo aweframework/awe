@@ -39,7 +39,7 @@ export const calendarColumnTemplate =
       <input type="text" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" placeholder="{{::component.controller.placeholder| translateMultiple}}"
              ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-blur="blur()"
              ng-model-options="{updateOn: 'change'}" ng-click="click($event)" ng-change="component.columnModelChange()"
-             ng-press-enter="saveRow($event)" autocomplete="off"/>
+             ng-press-enter="saveRow($event)" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
       <span class="input-group-addon add-on">
         <i class="fa fa-calendar"></i>
       </span>
@@ -80,7 +80,7 @@ export const timeColumnTemplate =
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on col-xs-12 {{classes}} {{component.model.values[0].style}}"
              ng-press-enter="saveRow($event)" autocomplete="off" ng-model="component.model.selected" ng-disabled="component.controller.readonly"
              ng-model-options="{updateOn: 'change'}" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-focus="focus()"
-             ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" initialized="initialized"/>
+             ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" initialized="initialized" data-testid="${TestIds.criterionInput}"/>
       <span class="input-group-addon add-on">
         <i class="fa fa-clock-o"></i>
       </span>

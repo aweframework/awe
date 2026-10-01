@@ -1,6 +1,7 @@
 import {aweApplication} from "../../awe";
 import {ClientActions} from "../../data/actions";
 import "../wizardpanel";
+import {TestIds} from "../../data/testIds";
 import "../../services/panelable";
 
 // Template
@@ -10,7 +11,7 @@ const template =
  <div class="{{::criterionClass}} expand expandible-vertical">
   <div class="wizard-wrapper">
     <ul class="wizard-steps" ng-class="{disabled:isDisabled()}">
-      <li ng-class="{'active':model.selectedIndex === $index, 'completed':model.selectedIndex > $index}" ng-repeat="wizard in model.values track by wizard.value" ng-click="clickTab(wizard.value)">
+      <li ng-class="{'active':model.selectedIndex === $index, 'completed':model.selectedIndex > $index}" ng-repeat="wizard in model.values track by wizard.value" ng-click="clickTab(wizard.value)" data-testid="${TestIds.wizardStep}" ng-attr-data-active="{{model.selectedIndex === $index}}" ng-attr-data-completed="{{model.selectedIndex > $index}}">
         <span class="wizard-step-number">{{$index + 1}}</span>
         <span class="wizard-step-caption">
           <span translate-multiple="{{::controller.label}}"></span> {{$index + 1}}

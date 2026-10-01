@@ -1,8 +1,9 @@
 import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
+import {TestIds} from "../data/testIds";
 
-const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id}}" title="{{controller.title| translateMultiple}}" class="info nav-icon-btn {{::controller.style}}" ng-class="::{'dropdown': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
-  <a ng-click="infoClick()" ng-class="::{'dropdown-toggle': controller.hasChildren}" ng-attr-data-toggle="{{controller.hasChildren ? 'dropdown' : ''}}">
+const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id}}" title="{{controller.title| translateMultiple}}" class="info nav-icon-btn {{::controller.style}}" data-testid="${TestIds.infoDropdown}" ng-class="::{'dropdown': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
+  <a ng-click="infoClick()" data-testid="${TestIds.infoDropdownToggle}" ng-class="::{'dropdown-toggle': controller.hasChildren}" ng-attr-data-toggle="{{controller.hasChildren ? 'dropdown' : ''}}">
     ${getIconTemplate("nav-icon")}
     <span ng-if="controller.unit" class="label" translate-multiple="{{controller.unit}}"></span>
     <span ng-if="model.values[0].label" class="info-text" translate-multiple="{{model.values[0].label}}"></span>
@@ -10,7 +11,7 @@ const template = `<li ng-show="controller.visible" ng-attr-id="{{::controller.id
     <span ng-if="controller.label" class="info-text" translate-multiple="{{controller.label}}"></span>
     <span ng-if="controller.title" class="small-screen-text" translate-multiple="{{controller.title}}"></span>
   </a>
-  <ul ng-if="::controller.hasChildren" class="dropdown-menu {{::controller.dropdownStyle}}" ng-transclude></ul>
+  <ul ng-if="::controller.hasChildren" class="dropdown-menu {{::controller.dropdownStyle}}" data-testid="${TestIds.infoDropdownMenu}" ng-transclude></ul>
 </li>`;
 
 // Info dropdown directive
