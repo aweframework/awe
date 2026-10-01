@@ -340,8 +340,9 @@ class SeleniumUtilitiesTest {
     ReflectionTestUtils.setField(seleniumUtilities, "seleniumModel", reactModel);
     ReflectionTestUtils.setField(seleniumUtilities, "frontEndInstructions", reactInstructions);
 
-    By avatarTextSelector = By.cssSelector("#ButUsrAct span.avatar-text");
-    By userActionSelector = By.id("ButUsrAct");
+    // The React shell shows the logged user with an avatar (it carries the id) and its name, both with a test hook
+    By avatarTextSelector = By.cssSelector("[data-testid='avatar-name']");
+    By userActionSelector = reactInstructions.getRequiredPostLoginShellControls().get(0);
     WebElement avatarText = mockVisibleElement("Manager (test)", true);
     WebElement userAction = mockVisibleElement("", true);
 

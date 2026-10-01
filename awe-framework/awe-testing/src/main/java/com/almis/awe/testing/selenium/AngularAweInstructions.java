@@ -15,7 +15,7 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
 
   // Match the whole label text: select2 splits it into several text nodes when it highlights the search term
   // (<span class="select2-match">B</span>ase), so a single text() node never contains the full option.
-  private static final String SELECT_OPTION_CONTAINING = "%s[contains(normalize-space(.),'%s')]";
+  private static final String SELECT_OPTION_CONTAINING = "%s[contains(normalize-space(.),%s)]";
 
   /** Visible help popover of the awe-help directive. It has no test hook yet (pending in the AngularJS client) */
   private static final String LEGACY_HELP_POPOVER_CSS = ".help.popover:not(.ng-hide)";
@@ -74,9 +74,9 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   private String getParentXpath(String gridId, String rowId, String columnId) {
-    String cell = "//*[" + xpath(TestIds.GRID_CELL) + " and @column-id='" + columnId + "']";
+    String cell = "//*[" + xpath(TestIds.GRID_CELL) + " and @column-id=" + XpathLiterals.of(columnId) + "]";
     return containsGridOrTreeGrid(gridId) + Optional.ofNullable(rowId)
-      .map(r -> "//*[" + xpath(TestIds.GRID_ROW) + " and @row-id='" + r + "']" + cell)
+      .map(r -> "//*[" + xpath(TestIds.GRID_ROW) + " and @row-id=" + XpathLiterals.of(r) + "]" + cell)
       .orElse("//*[" + xpath(TestIds.GRID_ROW) + " and " + stateXpath(TestAttributes.SELECTED, true) + "]" + cell);
   }
 
@@ -85,7 +85,7 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   private String getGridHeaderXpath(String gridId, String columnId) {
-    return containsGridOrTreeGrid(gridId) + "//*[" + xpath(TestIds.GRID_HEADER_CELL) + " and @column-id='" + columnId + "']";
+    return containsGridOrTreeGrid(gridId) + "//*[" + xpath(TestIds.GRID_HEADER_CELL) + " and @column-id=" + XpathLiterals.of(columnId) + "]";
   }
 
   public By getGridScrollZone(String gridId) {
@@ -104,7 +104,8 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
    * @return Xpath string
    */
   private String containsGridOrTreeGrid(String gridId) {
-    return String.format("//*[@grid-id='%s' or @tree-grid-id='%s']", gridId, gridId);
+    String literal = XpathLiterals.of(gridId);
+    return String.format("//*[@grid-id=%s or @tree-grid-id=%s]", literal, literal);
   }
 
   public By getDatepicker() {
@@ -120,8 +121,9 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getCellFromDatepicker(String type, String search) {
-    return By.xpath(String.format("//*[%s]//*[%s and not(%s)]//text()[.='%s']/..",
-      xpath(TestIds.DATEPICKER), xpath(getDatepickerCellTestId(type)), stateXpath(TestAttributes.OUTSIDE_MONTH, true), search));
+    return By.xpath(String.format("//*[%s]//*[%s and not(%s)]//text()[.=%s]/..",
+      xpath(TestIds.DATEPICKER), xpath(getDatepickerCellTestId(type)), stateXpath(TestAttributes.OUTSIDE_MONTH, true),
+      XpathLiterals.of(search)));
   }
 
   /**
@@ -173,12 +175,12 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getGridCellText(String gridId, String rowId, String columnId, String search) {
-    return By.xpath(String.format("%s//text()[contains(.,'%s')]/..", getParentXpath(gridId, rowId, columnId), search));
+    return By.xpath(String.format("%s//text()[contains(.,%s)]/..", getParentXpath(gridId, rowId, columnId), XpathLiterals.of(search)));
   }
 
   public By findGridCell(String gridId, String search) {
-    return By.xpath(String.format("%s//*[%s]//*[%s]//text()[contains(.,'%s')]/..",
-      getGridXpath(gridId), xpath(TestIds.GRID_ROW), xpath(TestIds.GRID_CELL), search));
+    return By.xpath(String.format("%s//*[%s]//*[%s]//text()[contains(.,%s)]/..",
+      getGridXpath(gridId), xpath(TestIds.GRID_ROW), xpath(TestIds.GRID_CELL), XpathLiterals.of(search)));
   }
 
   public RowEditBehavior getRowEditBehavior() {
@@ -196,7 +198,8 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
    * vocabulary ({@link TestIds}) in new tests.
    */
   public By containsText(String clazz, String contains) {
-    return By.xpath(String.format("//*[contains(@class,'%s')]//text()[contains(.,'%s')]/..", clazz, contains));
+    return By.xpath(String.format("//*[contains(@class,%s)]//text()[contains(.,%s)]/..",
+      XpathLiterals.of(clazz), XpathLiterals.of(contains)));
   }
 
   public By getMessage(String type) {
@@ -212,8 +215,8 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getMenuOpenedChildren(String option) {
-    return By.xpath(String.format("//*[%s and @name='%s']/following-sibling::*[(%s or %s) and %s]",
-      xpath(TestIds.MENU_LINK), option, xpath(TestIds.MENU_DROPDOWN), xpath(TestIds.MENU_SUBMENU),
+    return By.xpath(String.format("//*[%s and @name=%s]/following-sibling::*[(%s or %s) and %s]",
+      xpath(TestIds.MENU_LINK), XpathLiterals.of(option), xpath(TestIds.MENU_DROPDOWN), xpath(TestIds.MENU_SUBMENU),
       stateXpath(TestAttributes.OPEN, true)));
   }
 
@@ -354,7 +357,7 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getSelectResult(String match) {
-    return By.xpath(String.format(SELECT_OPTION_CONTAINING, getSelectOptionXpath(), match));
+    return By.xpath(String.format(SELECT_OPTION_CONTAINING, getSelectOptionXpath(), XpathLiterals.of(match)));
   }
 
   public By getSelectChosen(String criterionName) {
@@ -404,7 +407,7 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getSuggestResult(String match) {
-    return By.xpath(String.format(SELECT_OPTION_CONTAINING, getSelectOptionXpath(), match));
+    return By.xpath(String.format(SELECT_OPTION_CONTAINING, getSelectOptionXpath(), XpathLiterals.of(match)));
   }
 
   public boolean datePickerRequiresManualClick() {
