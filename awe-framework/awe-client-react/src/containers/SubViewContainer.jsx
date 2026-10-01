@@ -6,6 +6,7 @@ import {useLocation, useParams} from "react-router";
 import {loadScreen} from "../redux/thunks/screen";
 import {useDispatch} from "react-redux";
 import {ProgressSpinner} from "primereact/progressspinner";
+import {TestIds, testHook} from "../utilities/testIds";
 import ViewRegistry from "../redux/registry/ViewRegistry";
 import { useView } from "../hooks/useViewRegistry";
 
@@ -33,7 +34,7 @@ function SubViewContainer() {
   }, [dispatch, subScreenId, screenReloadToken]);
 
   return view.loading ?
-    <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center"/></div> : (
+    <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center" pt={{root: testHook(TestIds.loadingSpinner)}}/></div> : (
     <div className={"expand expandible-vertical"}>
       <Helmet>
         <title>{translateLabel(view.title, t)}</title>

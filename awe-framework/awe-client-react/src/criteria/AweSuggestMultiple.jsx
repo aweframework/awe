@@ -9,6 +9,7 @@ import useSuggest from "../hooks/useSuggest";
 import {translateLabel} from "../utilities";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
+import {autoCompletePassThrough} from "../utilities/testPassThrough";
 
 function AweSuggestMultiple(props) {
   const { id } = props;
@@ -44,6 +45,7 @@ function AweSuggestMultiple(props) {
         className={classes}
         appendTo={document.body}
         forceSelection
+        pt={autoCompletePassThrough(id, true)}
       />
     </AweCriterion>
   );

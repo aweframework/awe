@@ -10,6 +10,8 @@ import { usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
+import { TestIds, testHook } from "../utilities/testIds";
+import { tabMenuPassThrough } from "../utilities/testPassThrough";
 import AweWindow from "./AweWindow";
 
 function AweTabs(props) {
@@ -20,7 +22,7 @@ function AweTabs(props) {
   const { values, activeIndex, selectIndex } = usePanelable(model, address);
 
   const titleRenderer = (title) => title ? <span className={`p-tab-supertitle`}>{translateLabel(title, t)}</span> : null;
-  const labelRenderer = (label) => label ? <span className={`p-tab-title`}>{translateLabel(label, t)}</span> : null;
+  const labelRenderer = (label) => label ? <span className={`p-tab-title`} {...testHook(TestIds.tabLabel)}>{translateLabel(label, t)}</span> : null;
   const iconRenderer = (icon) => icon ? <span className="p-tab-icon">{getIconCode(icon)}</span> : null;
   const unitRenderer = (unit) => unit ? <Badge className="p-tab-unit" value={translateLabel(unit, t)}></Badge> : null;
 
@@ -30,7 +32,7 @@ function AweTabs(props) {
   };
 
   const itemRenderer = (item, itemIndex) => (
-    <button className={`p-menuitem-link`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}>
+    <button className={`p-menuitem-link`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1} {...testHook(TestIds.tabLink)}>
       {iconRenderer(item.icon)}
       <div className={`p-tab-text`}>
         {titleRenderer(item.title)}
@@ -43,13 +45,14 @@ function AweTabs(props) {
   const { disabled, orientation = "horizontal" } = attributes;
   const expandible = orientation === "horizontal" ? "vertical" : "horizontal";
   const className = classNames("p-tabmenu-container", "expand", "expandible-" + expandible, "orientation-" + orientation);
-  return <div className={className}>
+  return <div className={className} criterion-id={id}>
     <TabMenu id={id} model={values.map((item, index) => ({
       ...item,
       disabled: globalDisabled || disabled,
       template: (item) => itemRenderer(item, index)
     }))}
       activeIndex={activeIndex}
+      pt={tabMenuPassThrough(values, activeIndex, globalDisabled || disabled)}
       onTabChange={onChange} />
     {elementList
       .filter(item => item.elementType === "TabContainer")

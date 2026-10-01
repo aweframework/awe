@@ -57,6 +57,7 @@ function ColumnSuggest(props) {
       onSuggest={onSuggest}
       classes={classes}
       multiple={false}
+      owner={props.address?.component}
       t={t}
     />
   );

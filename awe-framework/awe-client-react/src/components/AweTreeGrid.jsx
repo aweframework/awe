@@ -15,6 +15,8 @@ import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
 import {ProgressSpinner} from "primereact/progressspinner";
 import PropTypes from "prop-types";
+import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function AweTreeGrid(props) {
   const { id } = props;
@@ -157,7 +159,8 @@ function AweTreeGrid(props) {
     const style = { marginLeft: rowData.level * 16 + 'px', visibility: (rowData.leaf === false || (rowData.children && rowData.children.length)) ? 'visible' : 'hidden' };
     if (column === expandColumn) {
       return <div className="p-treetable-expander-column">
-        <button type="button" className="p-treetable-toggler p-link p-unselectable-text" onClick={() => onTogglerClick(rowData.data[treeId])} tabIndex={-1} style={style}>
+        <button type="button" className="p-treetable-toggler p-link p-unselectable-text" onClick={() => onTogglerClick(rowData.data[treeId])} tabIndex={-1} style={style}
+          {...testHook(TestIds.treeIcon, { expanded: !!rowData?.$row?.expanded, attributes: { "row-id": rowData.data[treeId] } })}>
           <i className={iconClassName}></i>
           <Ripple />
         </button>
@@ -191,7 +194,8 @@ function AweTreeGrid(props) {
       emptyMessage={""}
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable
-      loadingIcon={<ProgressSpinner />}
+      loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}
+      pt={gridPassThrough({ gridId: address?.component, tree: true })}
     >
       {
         columnModel
@@ -204,6 +208,7 @@ function AweTreeGrid(props) {
               body={rowData => cellTemplate(rowData, name)}
               bodyClassName="p-cell-editing"
               bodyStyle={{ ...getWidthStyle(charlength, width), textAlign: align }}
+              pt={bodyCellPassThrough(name)}
             />;
           })
       }

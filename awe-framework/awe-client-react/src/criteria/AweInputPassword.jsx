@@ -6,6 +6,7 @@ import {useTranslation} from "react-i18next";
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function AweInputPassword(props) {
   const { id } = props;
@@ -28,6 +29,7 @@ function AweInputPassword(props) {
         onKeyDown={e => e.key === "Enter" && onSubmit()}
         required={required}
         disabled={readonly}
+        {...testHook(TestIds.criterionInput)}
       />
     </AweCriterion>
   );

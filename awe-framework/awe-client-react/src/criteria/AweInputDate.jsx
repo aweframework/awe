@@ -9,6 +9,7 @@ import {updateModelWithDependencies as updateThunk} from "../redux/thunks/compon
 import AweCriterion from "./AweCriterion";
 import useText from "../hooks/useText";
 import PropTypes from "prop-types";
+import {calendarPassThrough} from "../utilities/testPassThrough";
 
 function AweInputDate(props) {
   const { id } = props;
@@ -38,6 +39,7 @@ function AweInputDate(props) {
         required={required}
         disabled={readonly}
         locale={settings.language}
+        pt={calendarPassThrough(address?.component)}
         showButtonBar
       />
     </AweCriterion>

@@ -4,6 +4,7 @@ import { translateNumberFormat } from "../utilities/numbers";
 import { formatMessage, translateLabel } from "../utilities";
 import { classNames } from "../utilities/components";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { updateModelWithDependencies } from "../redux/thunks/components";
@@ -43,6 +44,7 @@ function ColumnNumeric(props) {
       invalid={error}
       inputStyle={{ textAlign: align || "right" }}
       onValueChange={onChange}
+      pt={{ input: { root: testHook(TestIds.criterionInput) } }}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{ position: "bottom", className: "validation-tooltip" }}
     />

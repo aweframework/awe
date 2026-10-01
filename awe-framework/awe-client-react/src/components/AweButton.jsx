@@ -10,6 +10,7 @@ import { addActionsTop } from "../redux/actions/actions";
 import { updateModelWithDependencies as updateThunk } from "../redux/thunks/components";
 import PropTypes from "prop-types";
 import { Skeleton } from "primereact/skeleton";
+import { TestIds, testHook } from "../utilities/testIds";
 
 const { BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL } = ButtonTypes;
 
@@ -65,6 +66,7 @@ function AweButton(props) {
       onClick={onClick}
       data-pr-position={"bottom"}
       data-pr-showdelay={settings.helpTimeout}
+      {...testHook(TestIds.button)}
     />
   </>);
 }

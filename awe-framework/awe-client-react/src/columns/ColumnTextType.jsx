@@ -4,6 +4,7 @@ import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import {getFirstDefinedValue, isEmpty} from "../utilities/general";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
@@ -76,6 +77,7 @@ function ColumnTextType(props) {
       onKeyDown={onKeyDown}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
+      {...testHook(TestIds.criterionInput)}
     />
   </div>;
 }

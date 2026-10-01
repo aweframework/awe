@@ -11,6 +11,7 @@ import {
 } from "../utilities/dates";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {calendarPassThrough} from "../utilities/testPassThrough";
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
@@ -59,6 +60,7 @@ function ColumnFilteredDate(props) {
       dateFormat="dd/mm/yy"
       onChange={onChange}
       locale={settings.language}
+      pt={calendarPassThrough(address.component)}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{ position: "bottom", className: "validation-tooltip" }}
     />

@@ -4,6 +4,7 @@ import {formatMessage, getHelpTooltipNode, getIconCode, translateLabel} from "..
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import "./AweCriterion.less";
+import {TestIds, testHook} from "../utilities/testIds";
 import PropTypes from "prop-types";
 
 const AweCriterion = ({children, address, attributes, validationRules,
@@ -51,7 +52,8 @@ const AweCriterion = ({children, address, attributes, validationRules,
   const getUnit = () => {
     if (unit) {
       return (
-        <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}>
+        <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}
+              {...testHook(TestIds.criterionUnit)}>
           {translateLabel(unit, t)}
         </span>
       );

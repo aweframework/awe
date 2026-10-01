@@ -15,6 +15,7 @@ import { addActionsTop } from "../redux/actions/actions";
 import { updateModelWithDependencies } from "../redux/thunks/components";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
+import { TestIds, testHook } from "../utilities/testIds";
 
 function AweAvatar(props) {
   const { id, elementList = [] } = props;
@@ -34,7 +35,7 @@ function AweAvatar(props) {
   const computedIcon = getFirstDefinedValue(values?.[0]?.icon, icon);
   const computedUnit = getFirstDefinedValue(values?.[0]?.unit, unit);
   const unitBadge = computedUnit && <Badge value={computedUnit} />;
-  const labelSpan = showLabel && <span className={"avatar-name"} >{translateLabel(computedLabel, t)}</span>;
+  const labelSpan = showLabel && <span className={"avatar-name"} {...testHook(TestIds.avatarName)}>{translateLabel(computedLabel, t)}</span>;
 
   const onClick = useCallback((e) => {
     if ((actions || []).length > 0) {
@@ -45,7 +46,7 @@ function AweAvatar(props) {
   }, [actions, address, dispatch, elementList, props]);
 
   const dropdown = actions.length === 0 && elementList.length > 0 && (
-    <OverlayPanel ref={opRef} dismissable className={"info-dropdown"}>
+    <OverlayPanel ref={opRef} dismissable className={"info-dropdown"} pt={{ root: testHook(TestIds.infoDropdownMenu, { owner: id }) }}>
       {elementList.map((node, index) => Components(node, index))}
     </OverlayPanel>
   );
@@ -61,7 +62,8 @@ function AweAvatar(props) {
         icon={!computedImage && getIconCode(computedIcon, "p-button-icon p-c p-button-icon-left")}
         disabled={globalDisabled || disabled}
         label={!computedImage && !computedIcon && (computedLabel || "").charAt(0).toUpperCase()}
-        title={translateLabel(computedLabel, t)}>
+        title={translateLabel(computedLabel, t)}
+        pt={{ root: testHook(TestIds.avatar) }}>
         {unitBadge}
       </Avatar>
       {labelSpan}

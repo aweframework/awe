@@ -9,6 +9,7 @@ import {updateModelWithDependencies} from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
 import {getFirstDefinedValue} from "../utilities/general";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
 
@@ -41,6 +42,7 @@ function ColumnButton(props) {
     label={label ? translateLabel(label, t) : null}
     iconPos={"left"}
     onClick={onClick}
+    {...testHook(TestIds.button)}
   />;
 }
 

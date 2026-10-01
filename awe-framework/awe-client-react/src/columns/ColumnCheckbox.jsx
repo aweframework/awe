@@ -7,6 +7,7 @@ import {updateModelWithDependencies} from "../redux/thunks/components";
 import {getFirstDefinedValue} from "../utilities/general";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function ColumnCheckbox(props) {
   const {required, readonly, style, data, attrs, address} = props;
@@ -23,14 +24,16 @@ function ColumnCheckbox(props) {
     }
   }, [data]);
 
+  const checked = !!cellValue;
   const classes = classNames(style, cellStyle, {"p-invalid": error}, {"hidden": !visible});
 
   return <InputSwitch
     className={classes}
-    checked={!!cellValue}
+    checked={checked}
     required={getFirstDefinedValue(cellRequired, required, false)}
     disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
     onChange={onChange}
+    pt={{ root: testHook(TestIds.criterionInput, { selected: checked }) }}
     tooltip={formatMessage(error, t)}
     tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
   />;

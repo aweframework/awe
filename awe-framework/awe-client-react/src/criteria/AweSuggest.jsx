@@ -11,6 +11,7 @@ import { Skeleton } from "primereact/skeleton";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
 import { Tooltip } from "primereact/tooltip";
+import { autoCompletePassThrough } from "../utilities/testPassThrough";
 
 function AweSuggest(props) {
   const { id, style: propsStyle } = props;
@@ -128,6 +129,7 @@ function AweSuggest(props) {
         forceSelection={true}
         virtualScrollerOptions={virtualSettings}
         itemTemplate={itemTemplate}
+        pt={autoCompletePassThrough(id)}
       />
     </AweCriterion>
   );

@@ -3,6 +3,7 @@ import {Dropdown} from "primereact/dropdown";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
 import {useSelect} from "../hooks/useSelect";
 import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
 
@@ -29,6 +30,8 @@ function ColumnSelect(props) {
       className={classes}
       invalid={error}
       appendTo={document.body}
+      valueTemplate={selectValueTemplate}
+      pt={dropdownPassThrough(address.component)}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     />

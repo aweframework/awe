@@ -13,6 +13,7 @@ import {useTranslation} from "react-i18next";
 import {addActionsTop} from "../redux/actions/actions";
 import useText from "../hooks/useText";
 import PropTypes from "prop-types";
+import { TestIds, testHook } from "../utilities/testIds";
 
 const {INITIAL, UPLOADING, UPLOADED} = UploadStatus;
 
@@ -59,6 +60,7 @@ function AweInputUploader(props) {
         placeholder={translateLabel(placeholder, t)}
         disabled={readonly}
         readOnly={true}
+        {...testHook(TestIds.uploadFilename)}
       />
       {status === UPLOADING && (
         <ProgressBar style={{ width: "100%" }} className={"mt-2"} value={progress || 0} />
@@ -78,6 +80,7 @@ function AweInputUploader(props) {
         disabled={readonly}
         withcredentials={"true"}
         chooseLabel={translateLabel("BUTTON_CHOOSE", t)}
+        pt={{ input: testHook(TestIds.criterionInput) }}
       />
       <Button
         className={classNames("p-button-secondary", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== UPLOADED, "p-invalid": error })}
@@ -86,6 +89,7 @@ function AweInputUploader(props) {
         label={translateLabel("BUTTON_CLEAR", t)}
         onClick={onDelete}
         disabled={readonly}
+        {...testHook(TestIds.uploadClear)}
       />
     </AweCriterion>
   );

@@ -6,6 +6,7 @@ import {fromTime, toTime} from "../utilities/dates";
 import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
+import {calendarPassThrough} from "../utilities/testPassThrough";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import {getFirstDefinedValue} from "../utilities/general";
 
@@ -40,6 +41,7 @@ function ColumnTime(props) {
       showSeconds
       onChange={onChange}
       locale={settings.language}
+      pt={calendarPassThrough(address.component)}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}
     />

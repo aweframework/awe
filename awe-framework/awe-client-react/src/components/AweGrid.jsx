@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
@@ -12,6 +12,8 @@ import {addActionsTop} from "../redux/actions/actions";
 import {useGrid} from "../hooks/useGrid";
 import {ProgressSpinner} from "primereact/progressspinner";
 import PropTypes from "prop-types";
+import {bodyCellPassThrough, gridPassThrough} from "../utilities/testPassThrough";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function AweGrid(props) {
   const { id } = props;
@@ -125,7 +127,14 @@ function AweGrid(props) {
     return null;
   }, [attributes, footerColumnTemplate, postColumnTemplates, preColumnTemplates]);
 
-  const rowClassName = useCallback((data) => [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" "), []);
+  // PrimeReact does not expose the data of a row to the pass-through of the row, and the order of the rendered rows
+  // depends on its own sort and filter. It evaluates "rowClassName" with the row data right before the row pass-through
+  // in the same render, so the id of the row being rendered is kept here to give the row its "row-id".
+  const renderingRowId = useRef(null);
+  const rowClassName = useCallback((data) => {
+    renderingRowId.current = data.id;
+    return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
+  }, []);
 
   const { style, headerModel = [], columnModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false } = attributes;
   const { records = 0, values = [] } = model;
@@ -161,7 +170,8 @@ function AweGrid(props) {
       onSort={onSort}
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
-      loadingIcon={<ProgressSpinner />}
+      loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}
+      pt={gridPassThrough({ gridId: address?.component, getRowId: () => renderingRowId.current })}
     >
       {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}
       {
@@ -177,6 +187,7 @@ function AweGrid(props) {
               bodyClassName={`p-cell-editing ${name}`}
               style={{ ...getWidthStyle(charlength, width) }}
               bodyStyle={{ textAlign: align, justifyContent: align }}
+              pt={bodyCellPassThrough(name)}
             />;
           })
       }

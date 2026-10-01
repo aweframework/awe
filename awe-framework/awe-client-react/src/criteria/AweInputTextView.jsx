@@ -9,6 +9,7 @@ import {addActionsTop} from "../redux/actions/actions";
 import AweCriterion from "./AweCriterion";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function AweInputTextView(props) {
   const { id } = props;
@@ -38,7 +39,8 @@ function AweInputTextView(props) {
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
       groupClass="flex p-2" generateIcon={false} generateUnit={false}>
       {iconNode}
-      <button className={classes} tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}>{getVisibleTextData(textToShow, t)}</button>
+      <button className={classes} tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}
+        {...testHook(TestIds.criterionInput)}>{getVisibleTextData(textToShow, t)}</button>
       {unitNode}
     </AweCriterion>
   );
