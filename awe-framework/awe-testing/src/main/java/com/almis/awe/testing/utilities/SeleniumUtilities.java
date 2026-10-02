@@ -43,6 +43,7 @@ public class SeleniumUtilities implements IAweInstructions {
 
   // Constants
   private static final Integer RETRY_COUNT = 10;
+  private static final int STALE_RETRY_COUNT = 3;
   private static final String TEXT_VALUE = " text: '";
 
   private FailureEvidence failureEvidence = new FailureEvidence();
@@ -502,12 +503,29 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Click on an element
+   * Click on an element. A client may replace the element between finding and clicking it (a list that is filtered
+   * while the text is typed), so a stale element is looked up again before giving up
    *
    * @param selector Element selector
    */
   private void click(By selector) {
-    click(getElement(selector));
+    StaleElementReferenceException staleException = null;
+    for (int attempt = 0; attempt < STALE_RETRY_COUNT; attempt++) {
+      // Wait until element is clickable (the selector is resolved again on every check)
+      waitUntil(elementToBeClickable(selector));
+      WebElement element = getElement(selector);
+      try {
+        performClick(element);
+        return;
+      } catch (StaleElementReferenceException exc) {
+        staleException = exc;
+        log.debug("The element to click was replaced, looking for it again: {}", selector);
+      } catch (Exception exc) {
+        assertWithScreenshot("Clicking on element: " + element + "\n" + exc.getMessage(), false, exc);
+        return;
+      }
+    }
+    assertWithScreenshot("Clicking on element: " + selector + "\n" + staleException.getMessage(), false, staleException);
   }
 
   /**
@@ -516,23 +534,50 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param element Element
    */
   private void click(WebElement element) {
-    String conditionMessage = "";
     // Wait until element is clickable
     waitUntil(elementToBeClickable(element));
 
     // Click on element
     try {
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .click(element)
-        .pause(100)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+      performClick(element);
     } catch (Exception exc) {
       assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
     }
+  }
+
+  /**
+   * A click on an element placed on the last pixels of the viewport is lost by the browser (an update button at the
+   * bottom of a screen did nothing), so the elements close to an edge are brought to the center before clicking them
+   *
+   * @param element Element
+   */
+  private void scrollAwayFromTheViewportEdge(WebElement element) {
+    WebDriver driver = seleniumModel.getDriver();
+    if (driver instanceof JavascriptExecutor) {
+      try {
+        ((JavascriptExecutor) driver).executeScript(
+          "var rect = arguments[0].getBoundingClientRect();"
+            + "if (rect.top < 60 || rect.bottom > window.innerHeight - 60) {"
+            + "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});}", element);
+      } catch (Exception exc) {
+        // The click itself scrolls the element into view
+        log.debug("Could not scroll the element away from the viewport edge", exc);
+      }
+    }
+  }
+
+  /**
+   * Move to an element and click on it
+   *
+   * @param element Element
+   */
+  private void performClick(WebElement element) {
+    scrollAwayFromTheViewportEdge(element);
+    new Actions(seleniumModel.getDriver())
+      .moveToElement(element)
+      .click(element)
+      .pause(100)
+      .perform();
   }
 
   /**
@@ -1089,6 +1134,8 @@ public class SeleniumUtilities implements IAweInstructions {
     // The panel this step opened stays open after choosing: close it so it does not cover the next steps
     if (openedPanel) {
       new Actions(seleniumModel.getDriver()).sendKeys(Keys.ESCAPE).perform();
+      // The panel leaves with an exit animation: the next item must find it closed, or it would take it for an open one
+      waitUntil(invisibilityOfElementLocated(searchBox));
     }
   }
 

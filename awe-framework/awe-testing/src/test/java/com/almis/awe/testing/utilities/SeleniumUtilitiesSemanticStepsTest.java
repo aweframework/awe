@@ -14,6 +14,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -28,6 +29,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -36,6 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -333,12 +336,46 @@ class SeleniumUtilitiesSemanticStepsTest {
       WebElement search = show(searchBox, "");
       when(search.getAttribute("value")).thenReturn("");
       return null;
-    }).doNothing().when((Interactive) driver).perform(any());
+    }).doNothing().doNothing().doAnswer(invocation -> {
+      // Closing the panel removes it
+      when(driver.findElement(argThat(searchBox::equals))).thenThrow(new NoSuchElementException("panel closed"));
+      return null;
+    }).when((Interactive) driver).perform(any());
 
     utilities.suggestMultiple("Months", "October", "October");
 
     // Open the panel, type, choose the option and close the panel
     verify((Interactive) driver, atLeast(4)).perform(any());
+  }
+
+  @Test
+  void shouldWaitForThePanelToBeGoneBeforeTheNextStepSoItIsNotTakenForAnOpenOne() {
+    use(new ReactAweInstructions());
+    String parent = instructions.getCriterionCss("Months");
+    By searchBox = instructions.getSuggestMultipleInput(parent);
+    show(instructions.getSelectChoice(parent), "");
+    show(instructions.getSelectDropdownList(), "");
+    show(instructions.getSuggestResult("October"), "October");
+    AtomicInteger performed = new AtomicInteger();
+    AtomicInteger checksAfterEscape = new AtomicInteger();
+    WebElement search = mock(WebElement.class);
+    when(search.isEnabled()).thenReturn(true);
+    when(search.getAttribute("value")).thenReturn("");
+    // The panel is still displayed when the escape key is pressed and takes some checks to leave (exit animation)
+    properties.setTimeout(Duration.ofSeconds(5));
+    when(search.isDisplayed()).thenAnswer(invocation -> performed.get() < 4 || checksAfterEscape.incrementAndGet() < 3);
+    doAnswer(invocation -> {
+      if (performed.incrementAndGet() == 1) {
+        when(driver.findElement(argThat(searchBox::equals))).thenReturn(search);
+        when(driver.findElements(argThat(searchBox::equals))).thenReturn(List.of(search));
+      }
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.suggestMultiple("Months", "October", "October")).doesNotThrowAnyException();
+
+    // The step did not finish before the panel was gone
+    assertThat(checksAfterEscape.get()).isGreaterThanOrEqualTo(3);
   }
 
   @Test
@@ -350,6 +387,40 @@ class SeleniumUtilitiesSemanticStepsTest {
 
     // Type and choose the option, nothing else
     verify((Interactive) driver, times(2)).perform(any());
+  }
+
+  @Test
+  void shouldClickAgainAnOptionThatTheClientReplacedWhileItWasBeingChosen() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+    // Typing, then the first click finds the option stale (the list was filtered meanwhile) and the second one works
+    doNothing().doThrow(new StaleElementReferenceException("replaced by the filtered list")).doNothing()
+      .when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.suggestMultiple("Months", "October", "October")).doesNotThrowAnyException();
+
+    verify((Interactive) driver, times(3)).perform(any());
+  }
+
+  @Test
+  void shouldBringAnElementCloseToTheEdgeOfTheViewportToTheCenterBeforeClickingIt() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+
+    utilities.suggestMultiple("Months", "October", "October");
+
+    // A click on a button placed on the last pixels of the viewport is lost by the browser
+    verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
+      argThat((String script) -> script.contains("scrollIntoView") && script.contains("innerHeight")), any());
+  }
+
+  @Test
+  void shouldFailWhenAnOptionIsReplacedOnEveryAttempt() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+    doNothing().doThrow(new StaleElementReferenceException("replaced again")).when((Interactive) driver).perform(any());
+
+    assertThrows(AssertionFailedError.class, () -> utilities.suggestMultiple("Months", "October", "October"));
   }
 
   @Test

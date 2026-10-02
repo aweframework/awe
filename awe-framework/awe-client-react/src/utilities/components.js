@@ -349,7 +349,8 @@ export function getCriterionData(criterion, model, props, forPrinting) {
   const {attributes = {}} = criterion;
   const value = getDataDependingOnList(getSelectedValues(model));
   return {
-    ...(value !== null ? {[attributes.id]: value} : {}),
+    // An empty criterion is sent with a null value (as the AngularJS client does), services read it as empty
+    ...(attributes.id !== undefined ? {[attributes.id]: value ?? null} : {}),
     ...forPrinting ? getCriterionPrintData(criterion, model, props) : {},
   };
 }
@@ -367,7 +368,8 @@ export function getCriterionDataAsList(criterion, model, props, forPrinting) {
   const {attributes = {}} = criterion;
   const value = getSelectedValues(model);
   return {
-    ...(value !== null ? {[attributes.id]: value} : {}),
+    // An empty criterion is sent with a null value (as the AngularJS client does), services read it as empty
+    ...(attributes.id !== undefined ? {[attributes.id]: value ?? null} : {}),
     ...forPrinting ? getCriterionPrintData(criterion, model, props) : {},
   };
 }

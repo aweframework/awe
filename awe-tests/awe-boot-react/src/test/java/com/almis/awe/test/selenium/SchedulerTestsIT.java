@@ -181,7 +181,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
    * @param type   Repeat type
    */
   private void changeTaskLaunch(Integer number, String type) {
-    clickTab("update-scheduler-task", "ENUM_TASK_STEP_LAUNCH");
+    clickTab("update-scheduler-task", "Launch");
 
     // Insert text
     writeText("RptNum", number.toString());
@@ -660,7 +660,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickCheckbox("LchSetWrn");
 
     // Click on tab
-    clickTab("update-scheduler-task", "ENUM_TASK_STEP_PARAMS");
+    clickTab("update-scheduler-task", "Parameters");
 
     // UPDATE PARAMETERS
 
@@ -674,7 +674,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     saveRow("ParameterList");
 
     // Click on tab
-    clickTab("update-scheduler-task", "ENUM_TASK_STEP_REPORT");
+    clickTab("update-scheduler-task", "Report");
 
     // UPDATE REPORT
 
@@ -847,7 +847,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     changeTaskData("Test scheduled task (once)", "Test scheduled task description (once)");
 
     // UPDATE TASK LAUNCH
-    clickTab("update-scheduler-task", "ENUM_TASK_STEP_LAUNCH");
+    clickTab("update-scheduler-task", "Launch");
 
     // Suggest on selector
     selectContain("RptTyp", "Once");
@@ -882,7 +882,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     changeTaskData("Test scheduled task (custom)", "Test scheduled task description (custom)");
 
     // UPDATE TASK LAUNCH
-    clickTab("update-scheduler-task", "ENUM_TASK_STEP_LAUNCH");
+    clickTab("update-scheduler-task", "Launch");
 
     // Suggest on selector
     selectContain("RptTyp", "Custom");
@@ -942,7 +942,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     changeTaskData("Test scheduled task dependencies", "Test scheduled task description dependencies");
 
     // UPDATE TASK DEPENDENCIES
-    clickTab("update-scheduler-task", "ENUM_TASK_STEP_DEPENDENCIES");
+    clickTab("update-scheduler-task", "Dependencies");
 
     // Click on add button
     clickButton("ButAddDependency");
