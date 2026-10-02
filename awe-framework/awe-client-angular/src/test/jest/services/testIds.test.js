@@ -84,6 +84,7 @@ describe("test id vocabulary", () => {
       popoverContent: "popover-content",
       helpPopover: "help-popover",
       columnIcon: "column-icon",
+      logViewer: "log-viewer",
       dialog: "dialog",
       dialogClose: "dialog-close",
       confirmDialog: "confirm-dialog",
@@ -554,5 +555,16 @@ describe("third party templates", () => {
     expect(close.attr("ng-click")).toBe("close({$event: $event})");
     expect(close.attr("ng-show")).toBe("closeable");
     expect(alert.find("[ng-transclude]").length).toBe(1);
+  });
+});
+
+describe("test ids of the templates", () => {
+  it("marks the text of the log viewer, which is the element that the tests read", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const template = fs.readFileSync(path.resolve(__dirname,
+      "../../../main/resources/templates/angular/logViewer.html"), "utf8");
+
+    expect(template).toContain(`<pre class="visible-text" data-testid="${TestIds.logViewer}"></pre>`);
   });
 });

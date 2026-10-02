@@ -1,7 +1,5 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.selenium.TestAttributes;
-import com.almis.awe.testing.selenium.TestIds;
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
@@ -12,27 +10,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 @Tag("CRUDCriteriaMatrixIT")
 class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
 
-  /** Day of the open datepicker that can be picked */
-  private static final String ENABLED_DATEPICKER_DAY = TestIds.css(TestIds.DATEPICKER_DAY)
-    + TestAttributes.css(TestAttributes.DISABLED, false);
-
-  /**
-   * Icon that a multioperation grid shows for a row
-   *
-   * @param icon Icon of the operation (one of the icon classes of the cell value)
-   * @return Css selector
-   */
-  private static String multioperationIcon(String icon) {
-    return "[grid-id='GrdMuo'] [column-id='RowIco'] " + TestIds.css(TestIds.COLUMN_ICON)
-      + "[" + TestAttributes.ICON + "~='" + icon + "']";
-  }
-
   /**
    * Log into the application
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -40,7 +23,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
   }
 
   /**
@@ -54,11 +37,8 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     // Select module
     selectModule("Test");
 
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -100,7 +80,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     writeText("Txt", "Texto Normal");
 
     // Check text on criterion
-    checkText("label[for=Unt]", "Texto Normal");
+    checkCriterionLabel("Unt", "Texto Normal");
 
     // Write text on criterion
     writeText("TxtReq", "Text Required");
@@ -119,7 +99,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     writeText("Num", "10000");
 
     // Check text on criterion
-    checkText("label[for=Unt]", "Numeric");
+    checkCriterionLabel("Unt", "Numeric");
 
     // Write text on numeric
     writeText("NumReq", "-20000");
@@ -150,13 +130,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickDate("FilCal");
 
     // Click on selector
-    click(ENABLED_DATEPICKER_DAY);
+    clickEnabledDatepickerDay();
 
     // Click on date
     clickDate("FilCalReq");
 
     // Click on selector
-    click(ENABLED_DATEPICKER_DAY);
+    clickEnabledDatepickerDay();
 
     // Check date contents
     checkCriterionContents("Cal", "23/10/1978");
@@ -278,13 +258,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickCheckbox("ChkBoxVa1");
 
     // Check text on criterion
-    checkText("label[for=Unt]", "Inf");
+    checkCriterionLabel("Unt", "Inf");
 
     // Click checkbox
     clickCheckbox("ChkBoxVa2");
 
     // Check text on criterion
-    checkText("[criterion-id='Unt'] .unit", "Inf");
+    checkCriterionUnit("Unt", "Inf");
 
     // Click checkbox
     clickCheckbox("ChkBoxVa5");
@@ -296,13 +276,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickCheckbox("RadBox1");
 
     // Check text on criterion
-    checkText("[criterion-id='Unt'] .unit", "EUR");
+    checkCriterionUnit("Unt", "EUR");
 
     // Click checkbox
     clickCheckbox("RadBox3");
 
     // Check text on criterion
-    checkText("[criterion-id='Unt'] .unit", "USD");
+    checkCriterionUnit("Unt", "USD");
 
     // Click checkbox
     clickCheckbox("RadBox4");
@@ -339,7 +319,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickButton("ButCnf");
 
     // Wait for error message
-    checkVisible("div.error-container");
+    checkValidationErrorVisible();
 
     // Check suggest value
     checkSelectContents("SugRea", "test (Manager)");
@@ -483,10 +463,10 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     waitForButton("ButIco");
 
     // Verify that button is not visible
-    checkNotVisible("#ButCnfTs1");
+    checkButtonNotVisible("ButCnfTs1");
 
     // Verify that button is not visible
-    checkNotVisible("#ButCnfTs2");
+    checkButtonNotVisible("ButCnfTs2");
 
     // Select on selector
     selectContain("ButSel", "No");
@@ -498,7 +478,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     waitForButton("ButIco");
 
     // Verify that button is disabled
-    checkVisible("#ButCnfTs1[disabled]");
+    checkButtonDisabled("ButCnfTs1");
 
     // Wait for button
     waitForButton("ButCnfTs2");
@@ -516,7 +496,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     waitForButton("ButCnfTs1");
 
     // Verify that button is not visible
-    checkNotVisible("#ButCnfTs2");
+    checkButtonNotVisible("ButCnfTs2");
   }
 
   /**
@@ -573,10 +553,10 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickTab("TabSelMat", "ENUM_MATRIX_MULTISELECT");
 
     // Verify that button is present
-    checkPresence("[grid-id='GrdMus']");
+    checkGridPresent("GrdMus");
 
     // Verify that button is not visible
-    checkNotVisible("[grid-id='GrdMus']");
+    checkGridNotVisible("GrdMus");
   }
 
   /**
@@ -600,10 +580,10 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     waitForContextButton("CtxGrdStaAdd");
 
     // Click on component mask
-    click("div.component-mask");
+    closeContextMenu();
 
     // Wait for context menu to hide
-    checkNotVisible(TestIds.css(TestIds.CONTEXT_MENU));
+    checkContextMenuNotVisible();
 
     // Context menu on grid
     contextMenuRowContents("GrdSta", "awedb2");
@@ -612,13 +592,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     waitForContextButton("CtxGrdStaDel");
 
     // Click on component mask
-    click("div.component-mask");
+    closeContextMenu();
 
     // Wait for context menu to hide
-    checkNotVisible(TestIds.css(TestIds.CONTEXT_MENU));
+    checkContextMenuNotVisible();
 
     // Click on viewport
-    click("[grid-id='GrdSta'] " + TestIds.css(TestIds.GRID_VIEWPORT) + TestAttributes.css(TestAttributes.CONTAINER, "body"));
+    clickGridViewport("GrdSta");
 
     // Click row contents
     clickRowContents("GrdSta", "awedb2");
@@ -675,7 +655,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickDate("GrdEdi", "FilDat");
 
     // Click on selector
-    click(ENABLED_DATEPICKER_DAY);
+    clickEnabledDatepickerDay();
 
     // Get selector text
     String date = getText("GrdEdi", "FilDat");
@@ -741,13 +721,13 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickButton("ButGrdMuoAdd");
 
     // Wait for visible
-    waitForCssSelector(multioperationIcon("fa-plus"));
+    checkGridIconVisible("GrdMuo", "RowIco", "plus");
 
     // Save row
     saveRow("GrdMuo");
 
     // Check icon
-    checkVisible(multioperationIcon("fa-plus"));
+    checkGridIconVisible("GrdMuo", "RowIco", "plus");
 
     // Edit row
     editRow("GrdMuo", "1", "Des2");
@@ -759,7 +739,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     saveRow("GrdMuo");
 
     // Check icon
-    checkVisible(multioperationIcon("fa-edit"));
+    checkGridIconVisible("GrdMuo", "RowIco", "edit");
 
     // Context menu on grid
     contextMenu("GrdMuo", "3", "Des2");
@@ -768,7 +748,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickContextButton("CtxGrdMuoDel");
 
     // Check icon
-    checkVisible(multioperationIcon("fa-trash"));
+    checkGridIconVisible("GrdMuo", "RowIco", "trash");
   }
 
   /**
@@ -828,7 +808,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickContextButton("CtxTreGrdEdiDel");
 
     // Check not visible
-    checkNotVisible("[tree-grid-id='TreGrdEdi'] [row-id='ProOperator']");
+    checkTreeRowNotVisible("TreGrdEdi", "ProOperator");
   }
 
   /**
@@ -861,7 +841,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickContextButton("CtxTreGrdLoaEdiAddSel", "CtxTreGrdLoaEdiAddChl");
 
     // Check new row visible
-    checkVisible("[tree-grid-id='TreGrdLoaEdi'] [row-id='new-row-0']");
+    checkTreeRowVisible("TreGrdLoaEdi", "new-row-0");
 
     // Pause
     pause(250);
@@ -879,7 +859,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickContextButton("CtxTreGrdLoaEdiDel");
 
     // Check visible
-    checkVisible("[tree-grid-id='TreGrdLoaEdi'] .DELETE [row-id='ProOperator']");
+    checkTreeRowDeleted("TreGrdLoaEdi", "ProOperator");
   }
 
   /**
@@ -902,7 +882,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickTreeButton(gridId, "ProOperator");
 
     // Check not visible
-    checkNotVisible("[tree-grid-id='" + gridId + "'] [row-id='ProAdministrator-ModBase'] " + TestIds.css(TestIds.TREE_ICON));
+    checkTreeIconNotVisible(gridId, "ProAdministrator-ModBase");
 
     // Click on button
     clickTreeButton(gridId, "ProAdministrator");
@@ -917,7 +897,7 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickTreeButton(gridId, "ProGeneral");
 
     // Check visible
-    checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProGeneral-ModBase'] " + TestIds.css(TestIds.TREE_ICON));
+    checkTreeIconVisible(gridId, "ProGeneral-ModBase");
   }
 
   /**
@@ -946,6 +926,6 @@ class CriteriaAndMatrixTestsIT extends SeleniumUtilities {
     clickTreeButton(gridId, "ProGeneral-ModBase");
 
     // Check visible
-    checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProOperator-ModBase']");
+    checkTreeRowVisible(gridId, "ProOperator-ModBase");
   }
 }

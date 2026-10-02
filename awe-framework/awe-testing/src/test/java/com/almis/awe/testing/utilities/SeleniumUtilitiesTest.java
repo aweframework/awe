@@ -412,6 +412,65 @@ class SeleniumUtilitiesTest {
     );
   }
 
+  @Test
+  void shouldWaitForTheCurrentOptionInsteadOfTheMenuDropdownWhenTheClientKeepsItsMenuOpen() {
+    useReactInstructions();
+    // The React side menu does not collapse after a click: its nested options stay displayed
+    WebElement openSubmenu = mockVisibleElement("", true);
+    when(driver.findElements(argThat(By.cssSelector("[data-testid='menu-submenu']")::equals)))
+      .thenReturn(List.of(openSubmenu));
+    By activeOption = By.cssSelector("[data-testid='menu-option'][option-name='criteria-test'][data-active='true']");
+    WebElement activeElement = mockVisibleElement("Criteria test", true);
+    when(driver.findElement(argThat(activeOption::equals))).thenReturn(activeElement);
+    when(driver.findElements(argThat(activeOption::equals))).thenReturn(List.of(activeElement));
+
+    assertThatCode(() -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "waitForMenuOption", "criteria-test"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWhenTheScreenOfTheOptionNeverBecomesTheCurrentOne() {
+    useReactInstructions();
+
+    assertThrows(AssertionFailedError.class,
+      () -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "waitForMenuOption", "criteria-test"));
+  }
+
+  @Test
+  void shouldKeepWaitingForTheMenuDropdownToCloseWhenTheClientCollapsesItsMenu() {
+    IAweFrontEndInstructions angular = (IAweFrontEndInstructions) ReflectionTestUtils
+      .getField(seleniumUtilities, "frontEndInstructions");
+    assertThat(angular.getMenuActiveOption("criteria-test")).isNull();
+
+    // The dropdown is closed
+    assertThatCode(() -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "waitForMenuOption", "criteria-test"))
+      .doesNotThrowAnyException();
+
+    // The dropdown stays open
+    WebElement openDropdown = mockVisibleElement("", true);
+    when(driver.findElements(any(By.class))).thenReturn(List.of(openDropdown));
+    when(driver.findElement(any(By.class))).thenReturn(openDropdown);
+    assertThrows(AssertionFailedError.class,
+      () -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "waitForMenuOption", "criteria-test"));
+  }
+
+  private void useReactInstructions() {
+    AweTestConfigProperties reactProperties = new AweTestConfigProperties();
+    reactProperties.setFrontend(FrontendType.REACT);
+    reactProperties.setStartUrl("http://localhost:8080/");
+    reactProperties.setScreenshotPath(tempDir.toString());
+    reactProperties.setTimeout(Duration.ofMillis(150));
+    SeleniumModel reactModel = new SeleniumModel()
+      .setDriver(driver)
+      .setCurrentOption("react-unit-test")
+      .setProperties(reactProperties);
+    ReactAweInstructions reactInstructions = new ReactAweInstructions();
+    reactInstructions.setSeleniumModel(reactModel);
+    ReflectionTestUtils.setField(seleniumUtilities, "properties", reactProperties);
+    ReflectionTestUtils.setField(seleniumUtilities, "seleniumModel", reactModel);
+    ReflectionTestUtils.setField(seleniumUtilities, "frontEndInstructions", reactInstructions);
+  }
+
   private WebElement mockVisibleElement(String text, boolean enabled) {
     WebElement element = mock(WebElement.class);
     when(element.isDisplayed()).thenReturn(true);

@@ -1,17 +1,10 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.selenium.TestAttributes;
-import com.almis.awe.testing.selenium.TestIds;
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -22,7 +15,7 @@ class PrintTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -32,7 +25,7 @@ class PrintTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
   }
 
   /**
@@ -48,11 +41,8 @@ class PrintTestsIT extends SeleniumUtilities {
     // Select module
     selectModule("Test");
 
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -139,9 +129,7 @@ class PrintTestsIT extends SeleniumUtilities {
     verifyPrintScreen(false, "test", "chart", "grid-and-chart");
 
     // Check for pager values selector
-    Select select = new Select(getDriver().findElement(By.cssSelector(TestIds.css(TestIds.GRID_PAGE_SIZE))));
-    WebElement option = select.getFirstSelectedOption();
-    assertEquals("25", option.getText());
+    checkGridPageSize("25");
   }
 
   /**
@@ -203,7 +191,6 @@ class PrintTestsIT extends SeleniumUtilities {
     checkAndCloseMessage("success");
 
     // Wait for the print dialog to be closed: data-open is false once Bootstrap has removed the dialog and its backdrop
-    checkNotVisible(TestIds.css(TestIds.DIALOG) + "[" + TestAttributes.OWNER + "='PrnOpt']"
-      + TestAttributes.css(TestAttributes.OPEN, true));
+    checkDialogClosed("PrnOpt");
   }
 }

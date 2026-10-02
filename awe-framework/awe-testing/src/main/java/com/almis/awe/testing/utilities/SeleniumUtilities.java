@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
@@ -404,7 +405,16 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param expectedText Expected text inside selector
    */
   private void waitForExpectedSelectorResult(String cssSelector, String expectedText) {
-    By resultSelector = By.cssSelector(cssSelector);
+    waitForExpectedSelectorResult(By.cssSelector(cssSelector), expectedText);
+  }
+
+  /**
+   * Waits for the login result without over-constraining expected login-screen errors.
+   *
+   * @param resultSelector Selector to check
+   * @param expectedText   Expected text inside selector
+   */
+  private void waitForExpectedSelectorResult(By resultSelector, String expectedText) {
     waitForLoadingBar();
     waitUntil(or(loginFormResultReady(resultSelector, expectedText), authenticatedShellReady(resultSelector, expectedText)));
 
@@ -715,7 +725,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   private void clickRowContentsFromSelector(String gridId, String search) {
-    clickRowFromSelector(frontEndInstructions.findGridCell(gridId, search));
+    clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
   }
 
   /**
@@ -1176,11 +1186,27 @@ public class SeleniumUtilities implements IAweInstructions {
       optionNumber++;
     }
 
-    // Wait for element not visible
-    waitUntil(invisibilityOfElementLocated(frontEndInstructions.getMenuDropdown()));
+    // Wait for the click to take effect
+    waitForMenuOption(menuOptions[menuOptions.length - 1]);
 
     // Wait for loading bar
     waitForLoadingBar();
+  }
+
+  /**
+   * Wait until the click on a menu option has taken effect: the menu dropdown is closed or, in a client whose menu
+   * stays open, the screen of the option is the current one
+   *
+   * @param option Last option clicked
+   */
+  protected void waitForMenuOption(String option) {
+    By activeOption = frontEndInstructions.getMenuActiveOption(option);
+    if (activeOption != null) {
+      waitUntil(visibilityOfElementLocated(activeOption));
+    } else {
+      // Wait for element not visible
+      waitUntil(invisibilityOfElementLocated(frontEndInstructions.getMenuDropdown()));
+    }
   }
 
   private void clickOption(int optionNumber, String option, String[] options) {
@@ -2674,6 +2700,66 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param checkText   Text to check inside selector
    */
   protected void checkLogin(String username, String password, String cssSelector, String checkText) {
+    // Fill the login form and submit it
+    submitLogin(username, password);
+
+    // Wait for login result or authenticated shell readiness
+    waitForExpectedSelectorResult(cssSelector, checkText);
+
+    // Assertion
+    checkText(cssSelector, checkText);
+  }
+
+  /**
+   * Log into the application and check the name of the logged user
+   *
+   * @param username Login of the user
+   * @param password Password
+   * @param userName Name that the application shows for the logged user
+   */
+  protected void checkLogin(String username, String password, String userName) {
+    By loggedUser = frontEndInstructions.getLoggedUser();
+
+    // Fill the login form and submit it
+    submitLogin(username, password);
+
+    // Wait for the authenticated shell
+    waitForExpectedSelectorResult(loggedUser, userName);
+
+    // Assertion
+    checkText(loggedUser, userName);
+  }
+
+  /**
+   * Try to log into the application with credentials that the application rejects, and check the message
+   *
+   * @param username    Login of the user
+   * @param password    Password
+   * @param messageType Type of the message that the application shows (success, info, warning, danger)
+   * @param title       Title of the message
+   * @param message     Text of the message
+   */
+  protected void checkLoginRejected(String username, String password, String messageType, String title, String message) {
+    By messageText = frontEndInstructions.getMessageText(messageType);
+
+    // Fill the login form and submit it
+    submitLogin(username, password);
+
+    // Wait for the message of the login screen
+    waitForExpectedSelectorResult(messageText, message);
+
+    // Assertions
+    checkText(messageText, message);
+    checkMessageTitle(messageType, title);
+  }
+
+  /**
+   * Fill the login form and submit it
+   *
+   * @param username Login of the user
+   * @param password Password
+   */
+  private void submitLogin(String username, String password) {
     // Go to base URL
     goToUrl(seleniumModel.getBaseUrl());
 
@@ -2695,12 +2781,6 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Click button
     clickButton("ButLogIn", true);
-
-    // Wait for login result or authenticated shell readiness
-    waitForExpectedSelectorResult(cssSelector, checkText);
-
-    // Assertion
-    checkText(cssSelector, checkText);
   }
 
   /**
@@ -2721,6 +2801,29 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait for text in selector
     checkText(cssSelector, checkText);
+  }
+
+  /**
+   * Log out the application and check that the login screen is shown
+   */
+  protected void checkLogout() {
+    By marker = frontEndInstructions.getLoginScreenMarker();
+
+    // Test title
+    setTestTitle("Logout test: Log out the application");
+
+    // Wait for element not visible
+    waitForLoadingBar();
+
+    // Open the user menu when the logout button is inside it
+    Optional.ofNullable(frontEndInstructions.getUserMenuButtonId()).ifPresent(this::clickInfoButton);
+
+    // Click on logout
+    clickButton("ButLogOut", true);
+
+    // Wait for the login screen
+    waitForSelector(marker);
+    checkText(marker, frontEndInstructions.getLoginScreenText());
   }
 
   /**
@@ -2763,5 +2866,426 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Accept message
     checkAndCloseMessage("info");
+  }
+  /*
+  =================================
+  SEMANTIC STEPS
+
+  Steps that tests can express without selectors or automation types: the front end instructions locate what they ask
+  for (see IAweFrontEndInstructions), so the same step runs on every client.
+  =================================
+  */
+
+  /**
+   * Check the title of a message
+   *
+   * @param messageType Message type (success, info, warning, danger)
+   * @param text        Expected title
+   */
+  protected void checkMessageTitle(String messageType, String text) {
+    By selector = frontEndInstructions.getMessageTitle(messageType);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check the text of a message
+   *
+   * @param messageType Message type (success, info, warning, danger)
+   * @param text        Expected text
+   */
+  protected void checkMessageText(String messageType, String text) {
+    By selector = frontEndInstructions.getMessageText(messageType);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check that an option of the application menu is visible and contains a text
+   *
+   * @param option Option name
+   * @param text   Text that the option contains
+   */
+  protected void checkMenuOption(String option, String text) {
+    By selector = frontEndInstructions.getMenuOptionItem(option);
+    checkVisible(selector);
+    waitForText(selector, text);
+  }
+
+  /**
+   * Check the label of a criterion
+   *
+   * @param criterionName Criterion name
+   * @param text          Expected label
+   */
+  protected void checkCriterionLabel(String criterionName, String text) {
+    By selector = frontEndInstructions.getCriterionLabel(criterionName);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check the unit addon of a criterion
+   *
+   * @param criterionName Criterion name
+   * @param text          Expected unit
+   */
+  protected void checkCriterionUnit(String criterionName, String text) {
+    By selector = frontEndInstructions.getCriterionUnit(criterionName);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check that the screen shows validation errors
+   */
+  protected void checkValidationErrorVisible() {
+    checkVisible(frontEndInstructions.getValidationError());
+  }
+
+  /**
+   * Click on a day of the open datepicker that can be picked
+   */
+  protected void clickEnabledDatepickerDay() {
+    click(frontEndInstructions.getEnabledDatepickerDay());
+  }
+
+  /**
+   * Check the number of the active step of a wizard
+   *
+   * @param number Expected number of the step
+   */
+  protected void checkActiveWizardStep(String number) {
+    By selector = frontEndInstructions.getActiveWizardStepNumber();
+    checkVisible(selector);
+    checkTextContains(selector, number);
+  }
+
+  /**
+   * Check that a tag list contains a text
+   *
+   * @param tagListId Tag list identifier
+   * @param text      Text that the tag list contains
+   */
+  protected void checkTagListContains(String tagListId, String text) {
+    By selector = frontEndInstructions.getTagList(tagListId);
+    checkVisible(selector);
+    checkTextContains(selector, text);
+  }
+
+  /**
+   * Check that a chart is displayed
+   *
+   * @param chartId Chart identifier
+   */
+  protected void checkChartVisible(String chartId) {
+    checkVisible(frontEndInstructions.getChart(chartId));
+  }
+
+  /**
+   * Wait until the log viewer shows a text
+   *
+   * @param text Text that the log contains
+   */
+  protected void checkLogViewerContains(String text) {
+    By selector = frontEndInstructions.getLogViewer();
+    waitForText(selector, text);
+    checkTextContains(selector, text);
+  }
+
+  /**
+   * Check a text inside the frame that embeds an external application. The frame is the only one of the screen, and the
+   * content is the one of the external application, so the selector of the element to read is supplied by the caller
+   *
+   * @param contentCssSelector CSS selector of the element to read, inside the embedded application
+   * @param text               Expected text
+   */
+  protected void checkTextInEmbeddedFrame(String contentCssSelector, String text) {
+    By frameSelector = frontEndInstructions.getEmbeddedFrame();
+
+    // Wait for the frame
+    waitForSelector(frameSelector);
+
+    // Switch driver to the frame
+    seleniumModel.getDriver().switchTo().frame(getElement(frameSelector));
+    try {
+      checkText(contentCssSelector, text);
+    } finally {
+      // Return driver
+      seleniumModel.getDriver().switchTo().defaultContent();
+    }
+  }
+
+  /**
+   * Invalidate the session of the user from another window, as if it had been closed on the server
+   */
+  protected void invalidateSession() {
+    ((JavascriptExecutor) seleniumModel.getDriver()).executeScript("var winNew = window.open('" + getBaseUrl()
+      + "session/invalidate','_blank', 'width=1, height=1');setTimeout(function(){ winNew.close();}, 1000);");
+  }
+
+  /**
+   * Check that a button is displayed, whatever its state
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonVisible(String buttonId) {
+    checkVisible(frontEndInstructions.getAnyButton(buttonId));
+  }
+
+  /**
+   * Check that a button is not displayed
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonNotVisible(String buttonId) {
+    checkNotVisible(frontEndInstructions.getAnyButton(buttonId));
+  }
+
+  /**
+   * Check that a button is displayed and disabled
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonDisabled(String buttonId) {
+    checkVisible(frontEndInstructions.getDisabledButton(buttonId));
+  }
+
+  /**
+   * Check that a grid exists in the screen, even if it is hidden
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridPresent(String gridId) {
+    waitUntil(presenceOfElementLocated(frontEndInstructions.getGrid(gridId)));
+  }
+
+  /**
+   * Check that a grid is not displayed
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotVisible(String gridId) {
+    checkNotVisible(frontEndInstructions.getGrid(gridId));
+  }
+
+  /**
+   * Check that every row of a grid is selected (the checkbox of its header is checked)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkAllRowsSelected(String gridId) {
+    waitUntil(presenceOfElementLocated(frontEndInstructions.getGridHeaderCheckboxSelected(gridId)));
+  }
+
+  /**
+   * Click on the area of a grid that shows its rows (outside any row)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridViewport(String gridId) {
+    click(frontEndInstructions.getGridScrollZone(gridId));
+  }
+
+  /**
+   * Check the number of rows that a grid shows in each page
+   *
+   * @param size Expected page size
+   */
+  protected void checkGridPageSize(String size) {
+    By selector = frontEndInstructions.getGridPageSize();
+    waitForSelector(selector);
+    WebElement pageSize = getElement(selector);
+
+    // A native selector shows all its options: the page size is the selected one
+    String shown = "select".equalsIgnoreCase(pageSize.getTagName())
+      ? new Select(pageSize).getFirstSelectedOption().getText()
+      : pageSize.getText();
+    assertWithScreenshot(selector + TEXT_VALUE + shown + "' isn't equal to " + size, shown.equals(size));
+  }
+
+  /**
+   * Check that the icon that a column of a grid shows is displayed
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param icon     Name of the icon, without the prefix of the icon library (for instance {@code plus})
+   */
+  protected void checkGridIconVisible(String gridId, String columnId, String icon) {
+    checkVisible(frontEndInstructions.getGridIcon(gridId, columnId, icon));
+  }
+
+  /**
+   * Check that a column of a grid shows a success icon
+   *
+   * @param columnId Column identifier
+   */
+  protected void checkColumnSuccessIcon(String columnId) {
+    checkVisible(frontEndInstructions.getColumnSuccessIcon(columnId));
+  }
+
+  /**
+   * Check that a row of a tree grid is displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeRowVisible(String gridId, String rowId) {
+    checkVisible(frontEndInstructions.getTreeRow(gridId, rowId));
+  }
+
+  /**
+   * Check that a row of a tree grid is not displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeRowNotVisible(String gridId, String rowId) {
+    checkNotVisible(frontEndInstructions.getTreeRow(gridId, rowId));
+  }
+
+  /**
+   * Check that a row of a tree grid is displayed as deleted
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeRowDeleted(String gridId, String rowId) {
+    checkVisible(frontEndInstructions.getDeletedTreeRow(gridId, rowId));
+  }
+
+  /**
+   * Check that the icon to expand or collapse a row of a tree grid is displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeIconVisible(String gridId, String rowId) {
+    checkVisible(frontEndInstructions.getTreeRowIcon(gridId, rowId));
+  }
+
+  /**
+   * Check that the icon to expand or collapse a row of a tree grid is not displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeIconNotVisible(String gridId, String rowId) {
+    checkNotVisible(frontEndInstructions.getTreeRowIcon(gridId, rowId));
+  }
+
+  /**
+   * Close the open context menu without choosing an option
+   */
+  protected void closeContextMenu() {
+    By mask = frontEndInstructions.getContextMenuMask();
+    if (mask != null) {
+      click(mask);
+    } else {
+      new Actions(seleniumModel.getDriver()).sendKeys(Keys.ESCAPE).perform();
+    }
+  }
+
+  /**
+   * Check that no context menu is displayed
+   */
+  protected void checkContextMenuNotVisible() {
+    checkNotVisible(frontEndInstructions.getContextMenu());
+  }
+
+  /**
+   * Check that a modal dialog has been closed
+   *
+   * @param dialogId Dialog identifier
+   */
+  protected void checkDialogClosed(String dialogId) {
+    checkNotVisible(frontEndInstructions.getOpenDialog(dialogId));
+  }
+
+  /**
+   * Open the list of suggestions of a criterion
+   *
+   * @param criterionName Criterion name
+   */
+  protected void openSuggest(String criterionName) {
+    click(frontEndInstructions.getSuggestChoice(frontEndInstructions.getCriterionCss(criterionName)));
+  }
+
+  /**
+   * Write text in the search box of the open suggest list of a criterion
+   *
+   * @param criterionName Criterion name
+   * @param text          Text to search
+   */
+  protected void writeSuggestSearch(String criterionName, CharSequence text) {
+    writeText(frontEndInstructions.getSuggestInput(frontEndInstructions.getCriterionCss(criterionName)), text);
+  }
+
+  /**
+   * Check the number of results that the open select or suggest list shows
+   *
+   * @param expected Expected number of results
+   */
+  protected void checkSuggestResultCount(int expected) {
+    if (expected > 0) {
+      checkVisible(frontEndInstructions.getSelectOption(expected));
+    }
+    checkNotVisible(frontEndInstructions.getSelectOption(expected + 1));
+  }
+
+  /**
+   * Suggest an element after a first search that is replaced by a second one while the first is still loading
+   *
+   * @param criterionName Criterion name
+   * @param search1       First search
+   * @param search2       Second search
+   * @param match         Label of the result to pick
+   * @param pause         Milliseconds to wait between the searches
+   */
+  protected void suggestReplacingSearch(String criterionName, String search1, String search2, String match, Integer pause) {
+    openSuggest(criterionName);
+    delayedSearch(frontEndInstructions.getSuggestInput(frontEndInstructions.getCriterionCss(criterionName)),
+      search1, search2, match, pause);
+  }
+
+  /**
+   * Suggest an element of a multiple suggest after a first search that is replaced by a second one while the first is
+   * still loading
+   *
+   * @param criterionName Criterion name
+   * @param search1       First search
+   * @param search2       Second search
+   * @param match         Label of the result to pick
+   * @param pause         Milliseconds to wait between the searches
+   */
+  protected void suggestMultipleReplacingSearch(String criterionName, String search1, String search2, String match, Integer pause) {
+    delayedSearch(frontEndInstructions.getSuggestMultipleInput(frontEndInstructions.getCriterionCss(criterionName)),
+      search1, search2, match, pause);
+  }
+
+  /**
+   * Search, wait, search again and pick a result
+   *
+   * @param searchBox Search box
+   * @param search1   First search
+   * @param search2   Second search
+   * @param match     Label of the result to pick
+   * @param pause     Milliseconds to wait between the searches
+   */
+  private void delayedSearch(By searchBox, String search1, String search2, String match, Integer pause) {
+    // Write text
+    writeText(searchBox, search1);
+
+    // Pause
+    pause(pause);
+
+    // Clear text
+    clearText(searchBox);
+
+    // Write select
+    writeTextOnDriver(searchBox, search2);
+
+    // Click selector
+    selectResult(match);
   }
 }

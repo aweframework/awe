@@ -62,6 +62,8 @@ class AngularAweInstructionsTest {
       + "//*[@data-testid='grid-cell' and @column-id='Col']//text()[contains(.,'abc')]/..");
     assertThat(instructions.findGridCell(null, "abc")).hasToString("By.xpath: "
       + "//*[@data-testid='grid-row']//*[@data-testid='grid-cell']//text()[contains(.,'abc')]/..");
+    // A row is selected by clicking on its cell
+    assertThat(instructions.findGridRowSelection("Grd", "abc")).isEqualTo(instructions.findGridCell("Grd", "abc"));
     assertThat(instructions.getGridSaveButton()).hasToString("By.cssSelector: [data-testid='grid-row-save']:not([disabled])");
     assertThat(instructions.getGridSaveButton("Grd")).hasToString("By.cssSelector: #Grd-grid-row-save:not([disabled])");
     assertThat(instructions.getGridLoaderSelector()).hasToString("By.cssSelector: [data-testid='grid-loader']");
@@ -175,5 +177,71 @@ class AngularAweInstructionsTest {
       String xpath = locator.toString().substring("By.xpath: ".length());
       assertThat(XPathFactory.newInstance().newXPath().compile(xpath)).as(xpath).isNotNull();
     }
+  }
+  @Test
+  void shouldLocateTheSessionStepsThroughTheAngularShell() {
+    assertThat(instructions.getLoggedUser()).hasToString("By.cssSelector: #ButUsrAct span.avatar-text");
+    // The logout button is visible in the shell: there is no user menu to open
+    assertThat(instructions.getUserMenuButtonId()).isNull();
+    assertThat(instructions.getLoginScreenMarker()).hasToString("By.cssSelector: .slogan");
+    assertThat(instructions.getLoginScreenText()).isEqualTo("Almis Web Engine");
+  }
+
+  @Test
+  void shouldLocateTheTitleAndTheTextOfAMessageByItsType() {
+    assertThat(instructions.getMessageTitle("warning")).hasToString(
+      "By.cssSelector: [data-testid='alert'][data-type='warning'] [data-testid='alert-title']");
+    assertThat(instructions.getMessageText("warning")).hasToString(
+      "By.cssSelector: [data-testid='alert'][data-type='warning'] [data-testid='alert-message']");
+  }
+
+  @Test
+  void shouldLocateTheElementsOfTheCriteriaAndTheScreen() {
+    assertThat(instructions.getMenuOptionItem("test"))
+      .hasToString("By.cssSelector: [data-testid='menu-option'][option-name='test']");
+    assertThat(instructions.getCriterionLabel("Unt")).hasToString("By.cssSelector: label[for='Unt']");
+    assertThat(instructions.getCriterionUnit("Unt")).hasToString("By.cssSelector: [criterion-id='Unt'] .unit");
+    assertThat(instructions.getValidationError()).hasToString("By.cssSelector: div.error-container");
+    assertThat(instructions.getEnabledDatepickerDay())
+      .hasToString("By.cssSelector: [data-testid='datepicker-day'][data-disabled='false']");
+    assertThat(instructions.getActiveWizardStepNumber()).hasToString(
+      "By.cssSelector: [data-testid='wizard-step'][data-active='true'] > span.wizard-step-number");
+    assertThat(instructions.getTagList("tags")).hasToString("By.cssSelector: [awe-tag-list='tags'] span");
+    assertThat(instructions.getChart("Chr")).hasToString("By.cssSelector: [chart-id='Chr'] svg");
+    assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
+    assertThat(instructions.getEmbeddedFrame()).hasToString("By.cssSelector: iframe");
+    assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(
+      "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'][data-open='true']");
+  }
+
+  @Test
+  void shouldLocateButtonsInAnyState() {
+    assertThat(instructions.getAnyButton("ButAct")).hasToString("By.cssSelector: #ButAct");
+    assertThat(instructions.getDisabledButton("ButAct")).hasToString("By.cssSelector: #ButAct[disabled]");
+  }
+
+  @Test
+  void shouldLocateTheGridsTheContextMenuAndTheTreeRows() {
+    assertThat(instructions.getGrid("Grd")).hasToString("By.cssSelector: [grid-id='Grd']");
+    assertThat(instructions.getGridHeaderCheckboxSelected("Grd")).hasToString("By.cssSelector: "
+      + "[data-testid='grid'] [id='scope-Grd'] [data-testid='grid-header-checkbox'][data-selected='true']");
+    assertThat(instructions.getContextMenu()).hasToString("By.cssSelector: [data-testid='context-menu']");
+    assertThat(instructions.getContextMenuMask()).hasToString("By.cssSelector: div.component-mask");
+    assertThat(instructions.getGridPageSize()).hasToString("By.cssSelector: [data-testid='grid-page-size']");
+    assertThat(instructions.getGridIcon("Grd", "Ico", "plus")).hasToString("By.cssSelector: "
+      + "[grid-id='Grd'] [column-id='Ico'] [data-testid='column-icon'][data-icon~='fa-plus']");
+    assertThat(instructions.getColumnSuccessIcon("Sta"))
+      .hasToString("By.cssSelector: [column-id='Sta']:first-child span.text-success");
+    assertThat(instructions.getTreeRow("Tre", "R1")).hasToString("By.cssSelector: [tree-grid-id='Tre'] [row-id='R1']");
+    assertThat(instructions.getTreeRowIcon("Tre", "R1"))
+      .hasToString("By.cssSelector: [tree-grid-id='Tre'] [row-id='R1'] [data-testid='tree-icon']");
+    assertThat(instructions.getDeletedTreeRow("Tre", "R1"))
+      .hasToString("By.cssSelector: [tree-grid-id='Tre'] .DELETE [row-id='R1']");
+  }
+
+  @Test
+  void shouldLocateTheNthOptionOfTheOpenDropdown() {
+    assertThat(instructions.getSelectOption(2)).hasToString(
+      "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[2]");
   }
 }

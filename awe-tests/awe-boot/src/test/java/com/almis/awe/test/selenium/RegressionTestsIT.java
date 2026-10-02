@@ -1,40 +1,21 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.selenium.TestAttributes;
-import com.almis.awe.testing.selenium.TestIds;
 import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
 
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class RegressionTestsIT extends SeleniumUtilities {
-
-  /** Day of the open datepicker that can be picked */
-  private static final String ENABLED_DATEPICKER_DAY = TestIds.css(TestIds.DATEPICKER_DAY)
-    + TestAttributes.css(TestAttributes.DISABLED, false);
-
-  /** Search input of the open select dropdown */
-  private static final String OPEN_SELECT_SEARCH = TestIds.css(TestIds.SELECT_DROPDOWN) + " " + TestIds.css(TestIds.SELECT_SEARCH);
-
-  /** Options of the open select dropdown */
-  private static final String SELECT_OPTIONS_XPATH = "//*[" + TestIds.xpath(TestIds.SELECT_DROPDOWN) + "]//*["
-    + TestIds.xpath(TestIds.SELECT_OPTION) + "]";
-
-  /** Title and message of the warning alert */
-  private static final String WARNING_ALERT = TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, "warning");
-  private static final String WARNING_ALERT_TITLE = WARNING_ALERT + " " + TestIds.css(TestIds.ALERT_TITLE);
-  private static final String WARNING_ALERT_MESSAGE = WARNING_ALERT + " " + TestIds.css(TestIds.ALERT_MESSAGE);
 
   /**
    * Log into the application
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -42,7 +23,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
   }
 
   /**
@@ -144,7 +125,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickCheckbox("RadBox3");
 
     // Wait for text
-    checkText("[criterion-id='Unt'] .unit", "USD");
+    checkCriterionUnit("Unt", "USD");
   }
 
   /**
@@ -165,7 +146,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickDate("FilCalRea");
 
     // Click on selector
-    click(ENABLED_DATEPICKER_DAY);
+    clickEnabledDatepickerDay();
   }
 
   /**
@@ -219,11 +200,10 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickButton("ButRst");
 
     // Suggest delayed
-    click("[criterion-id='Sug'] " + TestIds.css(TestIds.SELECT));
-    suggestDelayed(OPEN_SELECT_SEARCH, "tee", "test", "test", 800);
+    suggestReplacingSearch("Sug", "tee", "test", "test", 800);
 
     // Suggest delayed
-    suggestDelayed("[criterion-id='SugMulReq'] " + TestIds.css(TestIds.SELECT_SEARCH), "tee", "test", "test", 800);
+    suggestMultipleReplacingSearch("SugMulReq", "tee", "test", "test", 800);
 
     // Check selector
     checkMultipleSelectorContents("SugMulReq", "test (test@test.com)");
@@ -238,18 +218,17 @@ class RegressionTestsIT extends SeleniumUtilities {
     setTestTitle("Wrong login");
 
     // Do logout
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
 
     // Check wrong login
-    checkLogin("test", "lala", WARNING_ALERT_MESSAGE, "The credentials entered for the user -test- are not valid");
-    checkText(WARNING_ALERT_TITLE, "Invalid credentials");
+    checkLoginRejected("test", "lala", "warning", "Invalid credentials",
+      "The credentials entered for the user -test- are not valid");
 
     // Check wrong login
-    checkLogin("tutu", "lala", WARNING_ALERT_MESSAGE, "Username -tutu- is wrong or inactive");
-    checkText(WARNING_ALERT_TITLE, "Wrong username");
+    checkLoginRejected("tutu", "lala", "warning", "Wrong username", "Username -tutu- is wrong or inactive");
 
     // Do right login
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -315,34 +294,31 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickButton("ButRst");
 
     // Click on suggest
-    click("[criterion-id='CrtNam'] " + TestIds.css(TestIds.SELECT));
+    openSuggest("CrtNam");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeText(By.cssSelector(OPEN_SELECT_SEARCH), "a");
+    writeSuggestSearch("CrtNam", "a");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeText(By.cssSelector(OPEN_SELECT_SEARCH), "s");
+    writeSuggestSearch("CrtNam", "s");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeText(By.cssSelector(OPEN_SELECT_SEARCH), "p");
+    writeSuggestSearch("CrtNam", "p");
 
     // Pause
     pause(1000);
-
-    // Check there's one result
-    checkVisible(By.xpath("(" + SELECT_OPTIONS_XPATH + ")[1]"));
 
     // Check there's only one result
-    checkNotVisible(By.xpath("(" + SELECT_OPTIONS_XPATH + ")[2]"));
+    checkSuggestResultCount(1);
 
     // Click selector
     selectResult("asp");
@@ -458,8 +434,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     selectAllRowsOfGrid("GrdUsrLst");
 
     // Wait for button
-    checkPresence(TestIds.css(TestIds.GRID) + " [id='scope-GrdUsrLst'] " + TestIds.css(TestIds.GRID_HEADER_CHECKBOX)
-      + TestAttributes.css(TestAttributes.SELECTED, true));
+    checkAllRowsSelected("GrdUsrLst");
   }
 
   /**
@@ -528,42 +503,13 @@ class RegressionTestsIT extends SeleniumUtilities {
   }
 
   /**
-   * Suggest delayed
-   *
-   * @param searchInput Selector of the search input
-   * @param search1  Search on first case
-   * @param search2  Search on second case
-   * @param match    Match result
-   * @param pause    Pause
-   */
-  private void suggestDelayed(String searchInput, String search1, String search2, String match, Integer pause) {
-    // Write text
-    writeText(By.cssSelector(searchInput), search1);
-
-    // Pause
-    pause(pause);
-
-    // Clear text
-    clearText(searchInput);
-
-    // Write select
-    writeTextOnDriver(By.cssSelector(searchInput), search2);
-
-    // Click selector
-    selectResult(match);
-  }
-
-  /**
    * Select test module
    */
   private void selectTestModule() {
     // Select module
     selectModule("Test");
 
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 }
