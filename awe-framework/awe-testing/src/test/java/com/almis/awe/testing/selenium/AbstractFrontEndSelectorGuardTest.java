@@ -180,6 +180,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getParentCss(grid, null, null)", () -> i.getParentCss(GRID, null, null));
     catalog.put("getParentCss(grid, null, column)", () -> i.getParentCss(GRID, null, COLUMN));
     catalog.put("getParentCss(grid, row, column)", () -> cell);
+    catalog.put("getEditingParentCss", () -> i.getEditingParentCss(GRID, COLUMN));
     catalog.put("getCriterionInput", () -> i.getCriterionInput(criterion));
     catalog.put("getCriterionInput(cell)", () -> i.getCriterionInput(cell));
     catalog.put("getLoaderSelector", i::getLoaderSelector);
@@ -223,6 +224,8 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("findGridCell(any grid)", () -> i.findGridCell(null, TEXT));
     catalog.put("findGridRowSelection(grid)", () -> i.findGridRowSelection(GRID, TEXT));
     catalog.put("findGridRowSelection(any grid)", () -> i.findGridRowSelection(null, TEXT));
+    catalog.put("findGridSelectedRow(grid)", () -> i.findGridSelectedRow(GRID, TEXT));
+    catalog.put("findGridSelectedRow(any grid)", () -> i.findGridSelectedRow(null, TEXT));
     catalog.put("getCheckbox", () -> i.getCheckbox(criterion));
     catalog.put("getCheckbox(cell)", () -> i.getCheckbox(cell));
     catalog.put("getCheckboxChecked(checked)", () -> i.getCheckboxChecked(CRITERION, true));

@@ -8,8 +8,6 @@ ApplicationTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (
 ApplicationTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
 ApplicationTestsIT.java:waitForText("react-lazylog", "[SCHEDULER]")
 ApplicationTestsIT.java:checkTextContains(".react-lazylog", "[SCHEDULER]")
-CRUDTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-CRUDTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
 CriteriaAndMatrixTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
 CriteriaAndMatrixTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
 CriteriaAndMatrixTestsIT.java:waitForText("p-menuitem-text", "Tests")
@@ -118,10 +116,3 @@ SchedulerTestsIT.java:checkNotVisible("#ButDea")
 SchedulerTestsIT.java:checkVisible("#ButAct")
 SchedulerTestsIT.java:checkNotVisible("#ButAct")
 SchedulerTestsIT.java:checkVisible("#ButDea")
-WebsocketTestsIT.java:import org.openqa.selenium.JavascriptExecutor;
-WebsocketTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-WebsocketTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
-WebsocketTestsIT.java:((JavascriptExecutor) getDriver()).executeScript(a);
-WebsocketTestsIT.java:((JavascriptExecutor) getDriver()).executeScript(a);
-WebsocketTestsIT.java:((JavascriptExecutor) getDriver()).executeScript(a);
-WebsocketTestsIT.java:checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)")

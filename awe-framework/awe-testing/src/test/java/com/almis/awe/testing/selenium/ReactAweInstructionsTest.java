@@ -58,6 +58,8 @@ class ReactAweInstructionsTest {
       + "[data-testid='grid-row'][data-selected='true'] [data-testid='grid-cell'][column-id='Col'] ");
     assertThat(instructions.getParentCss("Grd", "R1", "Col")).isEqualTo("[data-testid='grid'][grid-id='Grd'] "
       + "[data-testid='grid-row'][row-id='R1'] [data-testid='grid-cell'][column-id='Col'] ");
+    assertThat(instructions.getEditingParentCss("Grd", "Col")).isEqualTo("[data-testid='grid'][grid-id='Grd'] "
+      + "[data-testid='grid-row'][data-editing='true'] [data-testid='grid-cell'][column-id='Col'] ");
 
     assertThat(instructions.getGridCell("Grd", "R1", "Col")).hasToString("By.xpath: "
       + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"
@@ -89,6 +91,16 @@ class ReactAweInstructionsTest {
       + row + "//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')])[1]");
     assertThat(instructions.findGridRowSelection(null, "It's").toString())
       .contains("contains(normalize-space(.),\"It's\")").startsWith("By.xpath: (//*[@data-testid='grid-row']");
+  }
+
+  @Test
+  void shouldFindARowThatIsAlreadySelectedByItsState() {
+    assertThat(instructions.findGridSelectedRow("Grd", "abc")).hasToString("By.xpath: "
+      + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @data-selected='true']"
+      + "[.//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')]]");
+    assertThat(instructions.findGridSelectedRow(null, "It's").toString())
+      .startsWith("By.xpath: //*[@data-testid='grid-row' and @data-selected='true']")
+      .contains("contains(normalize-space(.),\"It's\")");
   }
 
   @Test
@@ -256,7 +268,8 @@ class ReactAweInstructionsTest {
       instructions.getTabActive("Tab", "Lbl"), instructions.getMenuOpenedChildren("Opt"),
       instructions.getSelectDropdownListLastElement(), instructions.getSelectResult("Yes"),
       instructions.getSuggestResult("Yes"), instructions.getSuggestDropdownListLastElement(),
-      instructions.findGridRowSelection("Grd", "abc"), instructions.findGridRowSelection(null, "It's"));
+      instructions.findGridRowSelection("Grd", "abc"), instructions.findGridRowSelection(null, "It's"),
+      instructions.findGridSelectedRow("Grd", "abc"), instructions.findGridSelectedRow(null, "It's"));
 
     for (By locator : locators) {
       String xpath = locator.toString().substring("By.xpath: ".length());

@@ -131,8 +131,10 @@ function AweGrid(props) {
   // depends on its own sort and filter. It evaluates "rowClassName" with the row data right before the row pass-through
   // in the same render, so the id of the row being rendered is kept here to give the row its "row-id".
   const renderingRowId = useRef(null);
+  const renderingRowEditing = useRef(false);
   const rowClassName = useCallback((data) => {
     renderingRowId.current = data.id;
+    renderingRowEditing.current = !!data.$row?.editing;
     return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
   }, []);
 
@@ -171,7 +173,11 @@ function AweGrid(props) {
       onFilter={onFilter}
       filters={filters} filterDisplay={"menu"}
       loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}
-      pt={gridPassThrough({ gridId: address?.component, getRowId: () => renderingRowId.current })}
+      pt={gridPassThrough({
+        gridId: address?.component,
+        getRowId: () => renderingRowId.current,
+        isRowEditing: () => renderingRowEditing.current
+      })}
     >
       {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}
       {

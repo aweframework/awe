@@ -5,7 +5,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.JavascriptExecutor;
 
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -16,7 +15,7 @@ class WebsocketTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -24,7 +23,8 @@ class WebsocketTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    // The application asks for a confirmation before logging out
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -38,17 +38,14 @@ class WebsocketTestsIT extends SeleniumUtilities {
     // Do broadcast test
     broadcastMessageToUser("test", "This is a broadcast message test");
 
-    String a = "var winNew = window.open('" + getBaseUrl() + "session/invalidate','_blank', 'width=1, height=1');setTimeout(function(){ winNew.close();}, 1000);";
-    ((JavascriptExecutor) getDriver()).executeScript(a);
+    // Invalidate the session of the user from another window
+    invalidateSession();
 
-    // Pause 5 seconds
-    pause(5000);
-
-    // Accept danger message
-    checkAndCloseMessage("warn");
+    // Accept the warning message: it is shown only for a few seconds, so wait for it instead of pausing
+    checkAndCloseMessage("warning");
 
     // Do login
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
 
     // Do broadcast test
     broadcastMessageToUser("test", "This is a broadcast message test");

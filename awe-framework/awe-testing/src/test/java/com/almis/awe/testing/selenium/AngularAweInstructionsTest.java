@@ -46,6 +46,8 @@ class AngularAweInstructionsTest {
       "[data-testid='grid'] [id='scope-Grd'] [data-testid='grid-row'][data-selected='true'] [data-testid='grid-cell'][column-id='Col'] ");
     assertThat(instructions.getParentCss("Grd", "R1", "Col")).isEqualTo(
       "[data-testid='grid'] [id='scope-Grd'] [data-testid='grid-row'][row-id='R1'] [data-testid='grid-cell'][column-id='Col'] ");
+    // AngularJS edits the selected row, so its editors are located the same way
+    assertThat(instructions.getEditingParentCss("Grd", "Col")).isEqualTo(instructions.getParentCss("Grd", null, "Col"));
 
     assertThat(instructions.getGridCell("Grd", "R1", "Col")).hasToString("By.xpath: "
       + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @row-id='R1']"

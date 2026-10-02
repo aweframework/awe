@@ -110,6 +110,9 @@ export const TestAttributes = Object.freeze({
   testId: "data-testid",
   owner: "data-testid-owner",
   selected: "data-selected",
+  // React only: a grid row is being edited (it is independent from the selection: a multiselect grid can toggle the
+  // selection of a row while the user double clicks it to edit it)
+  editing: "data-editing",
   active: "data-active",
   disabled: "data-disabled",
   outsideMonth: "data-outside-month",
@@ -128,6 +131,7 @@ export const TestAttributes = Object.freeze({
  */
 const STATE_ATTRIBUTES = {
   selected: TestAttributes.selected,
+  editing: TestAttributes.editing,
   active: TestAttributes.active,
   disabled: TestAttributes.disabled,
   outsideMonth: TestAttributes.outsideMonth,
@@ -143,7 +147,7 @@ const STATE_ATTRIBUTES = {
  * @param {object} [options] Hook options
  * @param {string} [options.owner] Id of the component that owns an overlay rendered outside of it
  * @param {boolean} [options.selected] Boolean states (selected, active, disabled, outsideMonth, open, expanded,
- * loading, completed): rendered as "true"/"false" and skipped when undefined
+ * loading, completed, editing): rendered as "true"/"false" and skipped when undefined
  * @param {string} [options.type] Message type
  * @param {string} [options.container] Container of a grid viewport
  * @param {object} [options.attributes] Extra attributes (AWE identifiers such as "row-id")
