@@ -73,6 +73,7 @@ export function selectValueTemplate(option, props) {
 export function dropdownPassThrough(owner) {
   return {
     root: testHook(TestIds.select),
+    trigger: testHook(TestIds.selectTrigger),
     panel: testHook(TestIds.selectDropdown, { owner }),
     filterInput: testHook(TestIds.selectSearch),
     item: optionPassThrough(owner)
@@ -89,6 +90,7 @@ export function multiSelectPassThrough(owner) {
     root: testHook(TestIds.select),
     token: testHook(TestIds.selectChoice),
     removeTokenIcon: testHook(TestIds.selectChoiceClose),
+    trigger: testHook(TestIds.selectTrigger),
     panel: testHook(TestIds.selectDropdown, { owner }),
     filterInput: { root: testHook(TestIds.selectSearch) },
     item: optionPassThrough(owner)

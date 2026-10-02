@@ -350,7 +350,8 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getSelectChoice(String parentSelector) {
-    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT)));
+    // The arrow opens the panel: the middle of a short multiple select can be its clear icon, which empties the select
+    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_TRIGGER)));
   }
 
   public By getSelectLoader(String parentSelector) {

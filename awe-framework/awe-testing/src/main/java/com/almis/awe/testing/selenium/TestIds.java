@@ -30,6 +30,8 @@ public final class TestIds {
   public static final String SELECT_CHOICE = "select-choice";
   public static final String SELECT_CHOICE_CLOSE = "select-choice-close";
   public static final String SELECT_DROPDOWN = "select-dropdown";
+  /** React only: arrow that opens the panel of a select */
+  public static final String SELECT_TRIGGER = "select-trigger";
   public static final String SELECT_OPTION = "select-option";
 
   // Date criteria: popup and its day, month and year cells

@@ -60,6 +60,8 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
       },
       lng: settings.language,
       fallbackLng: "en-GB",
+      // The texts of AWE use one namespace and a colon is part of a text ("00:00"): it is not a namespace separator
+      nsSeparator: false,
 
       interpolation: {
         escapeValue: false

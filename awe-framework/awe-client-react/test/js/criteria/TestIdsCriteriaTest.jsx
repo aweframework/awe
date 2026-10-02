@@ -195,6 +195,16 @@ describe("awe-react-client/test/js/criteria/TestIdsCriteriaTest.jsx", () => {
       items.forEach(item => expect(item.getAttribute("data-testid-owner")).toBe("Sta"));
     });
 
+    it("exposes the trigger of a select and opens its panel from it", () => {
+      const { container } = renderWithProviders(<AweSelect id="Sta" />,
+        { preloadedState: criterion("Sta", options, { placeholder: "pick" }) });
+
+      const trigger = container.querySelector(`[criterion-id='Sta'] ${hook("select-trigger")}`);
+      expect(trigger).not.toBeNull();
+      fireEvent.click(trigger);
+      expect(document.querySelector(hook("select-dropdown"))).not.toBeNull();
+    });
+
     it("shows the placeholder as value when nothing is selected", () => {
       const { container } = renderWithProviders(<AweSelect id="Sta" />,
         { preloadedState: criterion("Sta", [{ label: "One", value: "1" }], { placeholder: "pick", optional: true }) });
@@ -231,6 +241,19 @@ describe("awe-react-client/test/js/criteria/TestIdsCriteriaTest.jsx", () => {
       const items = Array.from(dropdown.querySelectorAll(hook("select-option")));
       expect(items.map(item => item.getAttribute("data-selected"))).toEqual(["true", "true", "false"]);
       expect(dropdown.querySelector(hook("select-search"))).not.toBeNull();
+    });
+
+    it("exposes the trigger of a multiple select and opens its panel from it", () => {
+      const multiple = [{ label: "One", value: "1", selected: true }, { label: "Two", value: "2" }];
+      const { container } = renderWithProviders(<AweSelectMultiple id="Mul" />,
+        { preloadedState: criterion("Mul", multiple, { optional: true }) });
+
+      // A short multiple select shows its clear icon in the middle: clicking the trigger never clears its values
+      const trigger = container.querySelector(`[criterion-id='Mul'] ${hook("select-trigger")}`);
+      expect(trigger).not.toBeNull();
+      expect(document.querySelector(hook("select-dropdown"))).toBeNull();
+      fireEvent.click(trigger);
+      expect(document.querySelector(hook("select-dropdown"))).not.toBeNull();
     });
   });
 

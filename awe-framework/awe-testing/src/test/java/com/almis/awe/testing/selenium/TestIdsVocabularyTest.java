@@ -64,6 +64,7 @@ class TestIdsVocabularyTest {
       .containsEntry("avatarName", TestIds.AVATAR_NAME)
       .containsEntry("criterionUnit", TestIds.CRITERION_UNIT)
       .containsEntry("gridRowEdit", TestIds.GRID_ROW_EDIT)
+      .containsEntry("selectTrigger", TestIds.SELECT_TRIGGER)
       .containsEntry("wizardStepNumber", TestIds.WIZARD_STEP_NUMBER)
       .containsEntry("loadingSpinner", TestIds.LOADING_SPINNER);
   }
