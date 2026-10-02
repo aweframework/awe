@@ -56,4 +56,13 @@ describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
 
     fireEvent.click(screen.getByTestId("autoload-button"));
   });
+
+  it('marks the container of the log with the log-viewer hook', async () => {
+    const { container } = renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
+
+    jest.advanceTimersByTime(150);
+
+    expect(await screen.findByPlaceholderText("Search")).toBeDefined();
+    expect(container.querySelector("[data-testid='log-viewer']")).not.toBeNull();
+  });
 });

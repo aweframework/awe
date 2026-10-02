@@ -190,6 +190,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getMenuOption", () -> i.getMenuOption(LABEL));
     catalog.put("getMenuOpenedChildren", () -> i.getMenuOpenedChildren(LABEL));
     catalog.put("getMenuDropdown", i::getMenuDropdown);
+    catalog.put("getMenuActiveOption", () -> i.getMenuActiveOption(LABEL));
     catalog.put("getButton", () -> i.getButton("ButId"));
     catalog.put("getRequiredPostLoginShellControls", i::getRequiredPostLoginShellControls);
     catalog.put("getOptionalPostLoginShellControls", i::getOptionalPostLoginShellControls);
@@ -220,6 +221,8 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridCellText(selected)", () -> i.getGridCellText(GRID, null, COLUMN, TEXT));
     catalog.put("findGridCell(grid)", () -> i.findGridCell(GRID, TEXT));
     catalog.put("findGridCell(any grid)", () -> i.findGridCell(null, TEXT));
+    catalog.put("findGridRowSelection(grid)", () -> i.findGridRowSelection(GRID, TEXT));
+    catalog.put("findGridRowSelection(any grid)", () -> i.findGridRowSelection(null, TEXT));
     catalog.put("getCheckbox", () -> i.getCheckbox(criterion));
     catalog.put("getCheckbox(cell)", () -> i.getCheckbox(cell));
     catalog.put("getCheckboxChecked(checked)", () -> i.getCheckboxChecked(CRITERION, true));
@@ -243,6 +246,36 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getSuggestMultipleInput", () -> i.getSuggestMultipleInput(criterion));
     catalog.put("getSuggestMultipleChoiceClose", () -> i.getSuggestMultipleChoiceClose(criterion));
     catalog.put("getSuggestResult", () -> i.getSuggestResult(TEXT));
+    catalog.put("getLoggedUser", i::getLoggedUser);
+    catalog.put("getUserMenuButtonId", i::getUserMenuButtonId);
+    catalog.put("getLoginScreenMarker", i::getLoginScreenMarker);
+    catalog.put("getLoginScreenText", i::getLoginScreenText);
+    catalog.put("getMessageTitle", () -> i.getMessageTitle("warning"));
+    catalog.put("getMessageText", () -> i.getMessageText("warning"));
+    catalog.put("getMenuOptionItem", () -> i.getMenuOptionItem(LABEL));
+    catalog.put("getCriterionLabel", () -> i.getCriterionLabel(CRITERION));
+    catalog.put("getCriterionUnit", () -> i.getCriterionUnit(CRITERION));
+    catalog.put("getValidationError", i::getValidationError);
+    catalog.put("getEnabledDatepickerDay", i::getEnabledDatepickerDay);
+    catalog.put("getActiveWizardStepNumber", i::getActiveWizardStepNumber);
+    catalog.put("getTagList", () -> i.getTagList("Tags"));
+    catalog.put("getChart", () -> i.getChart("Chr"));
+    catalog.put("getLogViewer", i::getLogViewer);
+    catalog.put("getEmbeddedFrame", i::getEmbeddedFrame);
+    catalog.put("getOpenDialog", () -> i.getOpenDialog("Dia"));
+    catalog.put("getAnyButton", () -> i.getAnyButton("ButId"));
+    catalog.put("getDisabledButton", () -> i.getDisabledButton("ButId"));
+    catalog.put("getGrid", () -> i.getGrid(GRID));
+    catalog.put("getGridHeaderCheckboxSelected", () -> i.getGridHeaderCheckboxSelected(GRID));
+    catalog.put("getContextMenu", i::getContextMenu);
+    catalog.put("getContextMenuMask", i::getContextMenuMask);
+    catalog.put("getGridPageSize", i::getGridPageSize);
+    catalog.put("getGridIcon", () -> i.getGridIcon(GRID, COLUMN, "plus"));
+    catalog.put("getColumnSuccessIcon", () -> i.getColumnSuccessIcon(COLUMN));
+    catalog.put("getTreeRow", () -> i.getTreeRow(GRID, ROW));
+    catalog.put("getTreeRowIcon", () -> i.getTreeRowIcon(GRID, ROW));
+    catalog.put("getDeletedTreeRow", () -> i.getDeletedTreeRow(GRID, ROW));
+    catalog.put("getSelectOption", () -> i.getSelectOption(2));
     return catalog;
   }
 

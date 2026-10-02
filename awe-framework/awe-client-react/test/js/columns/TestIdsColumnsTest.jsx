@@ -101,4 +101,18 @@ describe("awe-react-client/test/js/columns/TestIdsColumnsTest.jsx", () => {
     expect(container.querySelector(hook("select-choice")).textContent).toBe("One");
     expect(container.querySelector(hook("select-search")).tagName).toBe("INPUT");
   });
+
+  it("exposes column-icon and the icon on the icon column", () => {
+    const { container } = renderWithProviders(Columns({
+      component: "icon",
+      model: { values: [] },
+      numberFormat: {},
+      address: { component: "Grd", view: "report", column: "col", row: "row" },
+      settings: { language: "en" }
+    }, { value: "fa-plus", icon: "plus" }, {}, true));
+
+    const icon = container.querySelector(hook("column-icon"));
+    expect(icon).not.toBeNull();
+    expect(icon.getAttribute("data-icon")).toBe("plus");
+  });
 });

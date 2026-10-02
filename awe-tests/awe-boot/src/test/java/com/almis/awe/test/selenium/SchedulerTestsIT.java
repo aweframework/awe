@@ -17,7 +17,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
   }
 
   /**
@@ -982,8 +982,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickButton("ButAct");
 
     // Check success execution
-    checkNotVisible("#ButAct");
-    checkVisible("#ButDea");
+    checkButtonNotVisible("ButAct");
+    checkButtonVisible("ButDea");
   }
 
   /**
@@ -1013,7 +1013,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     pause(5000);
 
     // Check success execution
-    checkVisible("[column-id='ExeStaIco']:first-child span.text-success");
+    checkColumnSuccessIcon("ExeStaIco");
   }
 
   /**
@@ -1042,8 +1042,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickButton("ButDea", true);
 
     // Check success execution
-    checkNotVisible("#ButDea");
-    checkVisible("#ButAct");
+    checkButtonNotVisible("ButDea");
+    checkButtonVisible("ButAct");
   }
 
   /**
@@ -1069,8 +1069,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickButton("ButAct", true);
 
     // Check success execution
-    checkNotVisible("#ButAct");
-    checkVisible("#ButDea");
+    checkButtonNotVisible("ButAct");
+    checkButtonVisible("ButDea");
   }
 
   /**

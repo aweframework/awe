@@ -189,6 +189,15 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
       getGridXpath(gridId), xpath(TestIds.GRID_ROW), xpath(TestIds.GRID_CELL), XpathLiterals.of(search)));
   }
 
+  public By findGridRowSelection(String gridId, String search) {
+    // A multiselect grid selects a row only through its checkbox (it comes before the cells in the row); the others,
+    // by clicking the cell
+    String literal = XpathLiterals.of(search);
+    String cell = "//*[" + xpath(TestIds.GRID_CELL) + " and contains(normalize-space(.)," + literal + ")]";
+    String row = getGridXpath(gridId) + "//*[" + xpath(TestIds.GRID_ROW) + "][." + cell + "]";
+    return By.xpath("(" + row + "//*[" + xpath(TestIds.GRID_ROW_CHECKBOX) + "] | " + row + cell + ")[1]");
+  }
+
   public RowEditBehavior getRowEditBehavior() {
     return RowEditBehavior.DOUBLE_CLICK;
   }
@@ -211,7 +220,8 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public MenuBehavior getMenuBehavior() {
-    return MenuBehavior.CLICK_FIRST_AND_OPTION;
+    // The side menu keeps its options open after a click, so clicking an open parent again would collapse it
+    return MenuBehavior.CLICK_ALL;
   }
 
   public By getMenuOption(String option) {
@@ -226,6 +236,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public By getMenuDropdown() {
     return By.cssSelector(css(TestIds.MENU_SUBMENU));
+  }
+
+  public By getMenuActiveOption(String option) {
+    // The side menu does not collapse after a click: the option is marked as active once its screen is the current one
+    return By.cssSelector(String.format("%s[option-name='%s']%s", css(TestIds.MENU_OPTION), option,
+      stateCss(TestAttributes.ACTIVE, true)));
   }
 
   public By getButton(String buttonId) {
@@ -246,8 +262,9 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getInfoButton(String buttonId) {
-    // An info button and the button of an info dropdown carry the id that AWE gives to them
-    return By.cssSelector(String.format("%s#%s,%s#%s", css(TestIds.INFO_BUTTON), buttonId, css(TestIds.INFO_DROPDOWN), buttonId));
+    // An info button, the button of an info dropdown and the avatar of the user menu carry the id that AWE gives to them
+    return By.cssSelector(String.format("%s#%s,%s#%s,%s#%s", css(TestIds.INFO_BUTTON), buttonId,
+      css(TestIds.INFO_DROPDOWN), buttonId, css(TestIds.AVATAR), buttonId));
   }
 
   public By getTreeButton(String gridId, String rowId) {
@@ -418,5 +435,58 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public boolean datePickerRequiresManualClick() {
     return false;
+  }
+
+  public By getLoggedUser() {
+    return By.cssSelector(css(TestIds.AVATAR_NAME));
+  }
+
+  public String getUserMenuButtonId() {
+    // The logout button is inside the menu of the avatar, which opens on click
+    return USER_ACTION_ID;
+  }
+
+  public By getLoginScreenMarker() {
+    return By.cssSelector("#ButLogIn");
+  }
+
+  public String getLoginScreenText() {
+    return "Login";
+  }
+
+  public By getCriterionUnit(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + css(TestIds.CRITERION_UNIT));
+  }
+
+  public By getEnabledDatepickerDay() {
+    // Days of the previous and the next month, and days that cannot be selected, are not valid cells
+    return By.cssSelector(css(TestIds.DATEPICKER_DAY) + ":not(" + stateCss(TestAttributes.DISABLED, true) + "):not("
+      + stateCss(TestAttributes.OUTSIDE_MONTH, true) + ")");
+  }
+
+  public By getActiveWizardStepNumber() {
+    return By.cssSelector(css(TestIds.WIZARD_STEP) + stateCss(TestAttributes.ACTIVE, true) + " "
+      + css(TestIds.WIZARD_STEP_NUMBER));
+  }
+
+  public By getContextMenuMask() {
+    // The context menu closes with the keyboard: there is no mask to click
+    return null;
+  }
+
+  public By getGridIcon(String gridId, String columnId, String icon) {
+    // The hook carries the icon classes the column received: match one whole class (as in AngularJS), so that
+    // "plus" does not also match "plus-circle"
+    return By.cssSelector("[grid-id='" + gridId + "'] [column-id='" + columnId + "'] " + css(TestIds.COLUMN_ICON)
+      + "[" + TestAttributes.ICON + "~='" + icon + "']");
+  }
+
+  public By getTreeRow(String gridId, String rowId) {
+    return By.cssSelector(String.format("[tree-grid-id='%s'] %s[row-id='%s']", gridId, css(TestIds.GRID_ROW), rowId));
+  }
+
+  public By getTreeRowIcon(String gridId, String rowId) {
+    // The rows of a tree grid have no hook for their icon: the icon carries the row identifier
+    return getTreeButton(gridId, rowId);
   }
 }

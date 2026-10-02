@@ -44,6 +44,7 @@ public final class TestIds {
   public static final String GRID_HEADER_CELL = "grid-header-cell";
   public static final String GRID_HEADER_CHECKBOX = "grid-header-checkbox";
   public static final String GRID_ROW = "grid-row";
+  public static final String GRID_ROW_CHECKBOX = "grid-row-checkbox";
   public static final String GRID_CELL = "grid-cell";
   public static final String GRID_ROW_SAVE = "grid-row-save";
   // React only: button that starts the edition of a row
@@ -83,7 +84,7 @@ public final class TestIds {
   // React only: avatar of the logged user (it carries the id and the user name as title) and the name shown next to it
   public static final String AVATAR = "avatar";
   public static final String AVATAR_NAME = "avatar-name";
-  // React only: number of a wizard step
+  // React only: the number of a wizard step
   public static final String WIZARD_STEP_NUMBER = "wizard-step-number";
 
   // Messages
@@ -97,6 +98,9 @@ public final class TestIds {
 
   // Modal dialogs (owner: dialog id)
   public static final String DIALOG = "dialog";
+
+  // Log viewer: the element that holds the text of the log
+  public static final String LOG_VIEWER = "log-viewer";
 
   // Loaders
   public static final String LOADER = "loader";

@@ -8,6 +8,7 @@ import {useComponentState} from "../hooks/useComponentState";
 import {updateAttributes} from "../redux/actions/components";
 import {fetchLogAction} from "../redux/thunks/files";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 /**
  * AWE Log Viewer component
@@ -51,7 +52,7 @@ function AweLogViewer(props) {
     checkAutoRefresh();
   }, [autorefresh, offset]);
 
-  return visible ? <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id}>
+  return visible ? <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id} {...testHook(TestIds.logViewer)}>
     <Button data-testid="autoload-button"
       className={"p-button-text p-button-rounded log-button-autoload"}
       icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}

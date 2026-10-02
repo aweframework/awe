@@ -15,7 +15,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
   }
 
   /**
@@ -993,10 +993,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     waitForButton("ButBck");
 
     // Check text
-    waitForText("visible-text", "[SCHEDULER]");
-
-    // Check text
-    checkTextContains(".visible-text", "[SCHEDULER]");
+    checkLogViewerContains("[SCHEDULER]");
 
     // Click back button
     clickButton("ButBck", true);

@@ -49,6 +49,8 @@ export const TestIds = Object.freeze({
   gridLoader: "grid-loader",
   // Tree grids: expand/collapse icon of a row
   treeIcon: "tree-icon",
+  // Icon column of a grid (the element that shows the icon; "data-icon" carries the icon of the cell value)
+  columnIcon: "column-icon",
   // Tab criterion: the tab list, a tab header ("option-id") with its link and label, the content pane
   tabList: "tab-list",
   tab: "tab",
@@ -77,6 +79,8 @@ export const TestIds = Object.freeze({
   // React only: avatar of the logged user in the header (the avatar itself and the user name that goes with it)
   avatar: "avatar",
   avatarName: "avatar-name",
+  // Log viewer: the element that holds the text of the log
+  logViewer: "log-viewer",
   // Info dropdowns (the element that carries the id), its toggle and menu, and info buttons
   infoDropdown: "info-dropdown",
   infoDropdownToggle: "info-dropdown-toggle",
@@ -114,7 +118,9 @@ export const TestAttributes = Object.freeze({
   loading: "data-loading",
   completed: "data-completed",
   type: "data-type",
-  container: "data-container"
+  container: "data-container",
+  // Icon shown by an icon column
+  icon: "data-icon"
 });
 
 /**

@@ -81,6 +81,17 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldSelectARowThroughItsCheckboxWhenTheGridHasOneAndThroughItsCellOtherwise() {
+    String row = "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row']"
+      + "[.//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')]]";
+    assertThat(instructions.findGridRowSelection("Grd", "abc")).hasToString("By.xpath: ("
+      + row + "//*[@data-testid='grid-row-checkbox'] | "
+      + row + "//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')])[1]");
+    assertThat(instructions.findGridRowSelection(null, "It's").toString())
+      .contains("contains(normalize-space(.),\"It's\")").startsWith("By.xpath: (//*[@data-testid='grid-row']");
+  }
+
+  @Test
   void shouldLocateGridSaveButtonsAndLoaders() {
     assertThat(instructions.getGridSaveButton()).hasToString("By.cssSelector: [data-testid='grid-row-save']:not([disabled])");
     assertThat(instructions.getGridSaveButton("Grd")).hasToString("By.cssSelector: "
@@ -173,15 +184,17 @@ class ReactAweInstructionsTest {
 
   @Test
   void shouldLocateMenusMessagesAndButtonsByTheirHooksAndIds() {
-    assertThat(instructions.getMenuBehavior()).isEqualTo(MenuBehavior.CLICK_FIRST_AND_OPTION);
+    assertThat(instructions.getMenuBehavior()).isEqualTo(MenuBehavior.CLICK_ALL);
     assertThat(instructions.getMenuOption("Opt")).hasToString("By.cssSelector: [data-testid='menu-link'][name='Opt']");
     assertThat(instructions.getMenuOpenedChildren("Opt")).hasToString("By.xpath: "
       + "//*[@data-testid='menu-option' and @option-name='Opt' and @data-open='true']");
     assertThat(instructions.getMenuDropdown()).hasToString("By.cssSelector: [data-testid='menu-submenu']");
+    assertThat(instructions.getMenuActiveOption("Opt")).hasToString("By.cssSelector: "
+      + "[data-testid='menu-option'][option-name='Opt'][data-active='true']");
     assertThat(instructions.getContextButton("Ctx")).hasToString("By.cssSelector: [data-testid='context-menu'] "
       + "[data-testid='context-menu-link'][option-id='Ctx']:not([data-disabled='true'])");
     assertThat(instructions.getInfoButton("Inf")).hasToString("By.cssSelector: "
-      + "[data-testid='info-button']#Inf,[data-testid='info-dropdown']#Inf");
+      + "[data-testid='info-button']#Inf,[data-testid='info-dropdown']#Inf,[data-testid='avatar']#Inf");
     assertThat(instructions.getButton("ButOk")).hasToString("By.cssSelector: #ButOk:not([disabled])");
   }
 
@@ -242,11 +255,60 @@ class ReactAweInstructionsTest {
       instructions.getCellFromDatepicker("year", "1978"), instructions.getTab("Tab", "Lbl"),
       instructions.getTabActive("Tab", "Lbl"), instructions.getMenuOpenedChildren("Opt"),
       instructions.getSelectDropdownListLastElement(), instructions.getSelectResult("Yes"),
-      instructions.getSuggestResult("Yes"), instructions.getSuggestDropdownListLastElement());
+      instructions.getSuggestResult("Yes"), instructions.getSuggestDropdownListLastElement(),
+      instructions.findGridRowSelection("Grd", "abc"), instructions.findGridRowSelection(null, "It's"));
 
     for (By locator : locators) {
       String xpath = locator.toString().substring("By.xpath: ".length());
       assertThat(XPathFactory.newInstance().newXPath().compile(xpath)).as(xpath).isNotNull();
     }
+  }
+  @Test
+  void shouldLocateTheSessionStepsThroughTheAvatarAndTheLoginButton() {
+    assertThat(instructions.getLoggedUser()).hasToString("By.cssSelector: [data-testid='avatar-name']");
+    // The logout button is inside the user menu, which opens on click
+    assertThat(instructions.getUserMenuButtonId()).isEqualTo("ButUsrAct");
+    assertThat(instructions.getLoginScreenMarker()).hasToString("By.cssSelector: #ButLogIn");
+    assertThat(instructions.getLoginScreenText()).isEqualTo("Login");
+  }
+
+  @Test
+  void shouldLocateTheUnitTheWizardStepAndTheDatepickerDayThroughTheirHooks() {
+    assertThat(instructions.getCriterionUnit("Unt"))
+      .hasToString("By.cssSelector: [criterion-id='Unt'] [data-testid='criterion-unit']");
+    assertThat(instructions.getActiveWizardStepNumber()).hasToString(
+      "By.cssSelector: [data-testid='wizard-step'][data-active='true'] [data-testid='wizard-step-number']");
+    assertThat(instructions.getEnabledDatepickerDay()).hasToString("By.cssSelector: "
+      + "[data-testid='datepicker-day']:not([data-disabled='true']):not([data-outside-month='true'])");
+  }
+
+  @Test
+  void shouldLocateTheTreeRowsThroughTheGridRowHook() {
+    assertThat(instructions.getTreeRow("Tre", "R1")).hasToString(
+      "By.cssSelector: [tree-grid-id='Tre'] [data-testid='grid-row'][row-id='R1']");
+    assertThat(instructions.getTreeRowIcon("Tre", "R1")).hasToString(
+      "By.cssSelector: [tree-grid-id='Tre'] [data-testid='tree-icon'][row-id='R1']");
+  }
+
+  @Test
+  void shouldLocateTheIconOfAColumnByTheNameOfTheIcon() {
+    assertThat(instructions.getGridIcon("Grd", "Ico", "plus")).hasToString("By.cssSelector: "
+      + "[grid-id='Grd'] [column-id='Ico'] [data-testid='column-icon'][data-icon~='plus']");
+  }
+
+  @Test
+  void shouldCloseTheContextMenuWithoutAMask() {
+    assertThat(instructions.getContextMenuMask()).isNull();
+  }
+
+  @Test
+  void shouldShareTheHooksOfTheMessagesTheDialogsAndTheLogViewerWithAngularJs() {
+    assertThat(instructions.getMessageTitle("warning")).hasToString(
+      "By.cssSelector: [data-testid='alert'][data-type='warning'] [data-testid='alert-title']");
+    assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(
+      "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'][data-open='true']");
+    assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
+    assertThat(instructions.getSelectOption(1)).hasToString(
+      "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[1]");
   }
 }

@@ -100,11 +100,24 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By getMenuOpenedChildren(String option);
 
   /**
-   * Get menu dropdown
+   * Get menu dropdown. It must disappear once an option has been clicked, unless the client keeps its menu open (see
+   * {@link #getMenuActiveOption(String)})
    *
    * @return Menu dropdown selector
    */
   By getMenuDropdown();
+
+  /**
+   * Get a menu option once its screen is the current one. A client whose menu stays open after a click (a side menu
+   * that does not collapse) returns it so that the tests wait for the screen instead of for the dropdown to close.
+   * By default it returns null: the tests wait for {@link #getMenuDropdown()} to disappear.
+   *
+   * @param option Option to check
+   * @return Selector of the option while its screen is the current one, or null when the client closes its dropdown
+   */
+  default By getMenuActiveOption(String option) {
+    return null;
+  }
 
   /*
   =================================
@@ -342,6 +355,18 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By findGridCell(String gridId, String search);
 
   /**
+   * Find the element to click to select the row that contains a text. By default it is the cell that contains it; a
+   * client whose multiselect grids select a row only through its checkbox returns the checkbox.
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param search Text to search
+   * @return Selector of the element that selects the row
+   */
+  default By findGridRowSelection(String gridId, String search) {
+    return findGridCell(gridId, search);
+  }
+
+  /**
    * Get row edit behavior
    * @return Row edit behavior
    */
@@ -546,4 +571,317 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return true if manual click is needed, false otherwise.
    */
   boolean datePickerRequiresManualClick();
+
+  /*
+  =================================
+  SEMANTIC STEPS
+
+  The methods below locate what the semantic steps of SeleniumUtilities ask for (the logged user, the title of a
+  message, the active step of a wizard...). They are default methods so that implementations written before them keep
+  compiling: the default is the rendering of the AngularJS client (through the shared hooks whenever there is one) and
+  the clients that render something else override it.
+  =================================
+  */
+
+  /**
+   * Get the element that shows the name of the logged user once the user is logged in
+   *
+   * @return Logged user selector
+   */
+  default By getLoggedUser() {
+    return By.cssSelector("#ButUsrAct span.avatar-text");
+  }
+
+  /**
+   * Get the identifier of the button that opens the user menu, when the logout button is inside it. By default it returns
+   * null: the logout button is visible in the shell
+   *
+   * @return Identifier of the user menu button, or null when there is no menu to open
+   */
+  default String getUserMenuButtonId() {
+    return null;
+  }
+
+  /**
+   * Get the element that shows the login screen once the user has logged out
+   *
+   * @return Login screen marker selector
+   * @see #getLoginScreenText()
+   */
+  default By getLoginScreenMarker() {
+    return By.cssSelector(".slogan");
+  }
+
+  /**
+   * Get the text that {@link #getLoginScreenMarker()} shows
+   *
+   * @return Text of the login screen marker
+   */
+  default String getLoginScreenText() {
+    return "Almis Web Engine";
+  }
+
+  /**
+   * Get the title of a message
+   *
+   * @param type Message type (success, info, warning, danger)
+   * @return Message title selector
+   */
+  default By getMessageTitle(String type) {
+    return By.cssSelector(TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, type) + " "
+      + TestIds.css(TestIds.ALERT_TITLE));
+  }
+
+  /**
+   * Get the text of a message
+   *
+   * @param type Message type (success, info, warning, danger)
+   * @return Message text selector
+   */
+  default By getMessageText(String type) {
+    return By.cssSelector(TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, type) + " "
+      + TestIds.css(TestIds.ALERT_MESSAGE));
+  }
+
+  /**
+   * Get an option of the application menu (the element that holds its link and its children)
+   *
+   * @param option Option name
+   * @return Menu option selector
+   */
+  default By getMenuOptionItem(String option) {
+    return By.cssSelector(TestIds.css(TestIds.MENU_OPTION) + "[option-name='" + option + "']");
+  }
+
+  /**
+   * Get the label of a criterion
+   *
+   * @param criterionName Criterion name
+   * @return Criterion label selector
+   */
+  default By getCriterionLabel(String criterionName) {
+    return By.cssSelector("label[for='" + criterionName + "']");
+  }
+
+  /**
+   * Get the unit addon of a criterion (the text after the input, such as "EUR")
+   *
+   * @param criterionName Criterion name
+   * @return Criterion unit selector
+   */
+  default By getCriterionUnit(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " .unit");
+  }
+
+  /**
+   * Get the container of the validation errors of the screen
+   *
+   * @return Validation error container selector
+   */
+  default By getValidationError() {
+    return By.cssSelector("div.error-container");
+  }
+
+  /**
+   * Get a day of the open datepicker that can be picked
+   *
+   * @return Enabled day selector
+   */
+  default By getEnabledDatepickerDay() {
+    return By.cssSelector(TestIds.css(TestIds.DATEPICKER_DAY) + TestAttributes.css(TestAttributes.DISABLED, false));
+  }
+
+  /**
+   * Get the number of the active step of a wizard
+   *
+   * @return Active wizard step number selector
+   */
+  default By getActiveWizardStepNumber() {
+    return By.cssSelector(TestIds.css(TestIds.WIZARD_STEP) + TestAttributes.css(TestAttributes.ACTIVE, true)
+      + " > span.wizard-step-number");
+  }
+
+  /**
+   * Get the tag list of a screen (the AWE component that shows a list of tags)
+   *
+   * @param tagListId Tag list identifier
+   * @return Tag list selector
+   */
+  default By getTagList(String tagListId) {
+    return By.cssSelector("[awe-tag-list='" + tagListId + "'] span");
+  }
+
+  /**
+   * Get a chart
+   *
+   * @param chartId Chart identifier
+   * @return Selector of what the chart renders
+   */
+  default By getChart(String chartId) {
+    return By.cssSelector("[chart-id='" + chartId + "'] svg");
+  }
+
+  /**
+   * Get the element that holds the text of the log viewer
+   *
+   * @return Log viewer selector
+   */
+  default By getLogViewer() {
+    return By.cssSelector(TestIds.css(TestIds.LOG_VIEWER));
+  }
+
+  /**
+   * Get the frame that embeds an external application in a screen
+   *
+   * @return Frame selector
+   */
+  default By getEmbeddedFrame() {
+    return By.cssSelector("iframe");
+  }
+
+  /**
+   * Get an open modal dialog
+   *
+   * @param dialogId Dialog identifier
+   * @return Open dialog selector
+   */
+  default By getOpenDialog(String dialogId) {
+    return By.cssSelector(TestIds.css(TestIds.DIALOG) + TestAttributes.css(TestAttributes.OWNER, dialogId)
+      + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get a button whatever its state (enabled or disabled)
+   *
+   * @param buttonId Button identifier
+   * @return Button selector
+   */
+  default By getAnyButton(String buttonId) {
+    return By.cssSelector("#" + buttonId);
+  }
+
+  /**
+   * Get a disabled button
+   *
+   * @param buttonId Button identifier
+   * @return Disabled button selector
+   */
+  default By getDisabledButton(String buttonId) {
+    return By.cssSelector("#" + buttonId + "[disabled]");
+  }
+
+  /**
+   * Get a grid (or a tree grid)
+   *
+   * @param gridId Grid identifier
+   * @return Grid selector
+   */
+  default By getGrid(String gridId) {
+    return By.cssSelector("[grid-id='" + gridId + "']");
+  }
+
+  /**
+   * Get the checkbox of the header of a grid once all its rows are selected
+   *
+   * @param gridId Grid identifier
+   * @return Selected header checkbox selector
+   */
+  default By getGridHeaderCheckboxSelected(String gridId) {
+    return By.cssSelector(getParentCss(gridId, null, null) + TestAttributes.css(TestAttributes.SELECTED, true));
+  }
+
+  /**
+   * Get the open context menu
+   *
+   * @return Context menu selector
+   */
+  default By getContextMenu() {
+    return By.cssSelector(TestIds.css(TestIds.CONTEXT_MENU));
+  }
+
+  /**
+   * Get the mask that covers the screen while a context menu is open, and closes the menu when it is clicked. By default
+   * it returns null: the client closes its context menu with the keyboard
+   *
+   * @return Context menu mask selector, or null when the client has no mask
+   */
+  default By getContextMenuMask() {
+    return By.cssSelector("div.component-mask");
+  }
+
+  /**
+   * Get the selector of the page size of a grid
+   *
+   * @return Grid page size selector
+   */
+  default By getGridPageSize() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_PAGE_SIZE));
+  }
+
+  /**
+   * Get the icon that a column of a grid shows for a row
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param icon     Name of the icon, without the prefix of the icon library (for instance {@code plus})
+   * @return Icon selector
+   */
+  default By getGridIcon(String gridId, String columnId, String icon) {
+    return By.cssSelector("[grid-id='" + gridId + "'] [column-id='" + columnId + "'] " + TestIds.css(TestIds.COLUMN_ICON)
+      + "[" + TestAttributes.ICON + "~='fa-" + icon + "']");
+  }
+
+  /**
+   * Get the success icon of a column of a grid
+   *
+   * @param columnId Column identifier
+   * @return Success icon selector
+   */
+  default By getColumnSuccessIcon(String columnId) {
+    return By.cssSelector("[column-id='" + columnId + "']:first-child span.text-success");
+  }
+
+  /**
+   * Get a row of a tree grid
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   * @return Tree row selector
+   */
+  default By getTreeRow(String gridId, String rowId) {
+    return By.cssSelector("[tree-grid-id='" + gridId + "'] [row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get the expand/collapse icon of a row of a tree grid
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   * @return Tree row icon selector
+   */
+  default By getTreeRowIcon(String gridId, String rowId) {
+    return By.cssSelector("[tree-grid-id='" + gridId + "'] [row-id='" + rowId + "'] " + TestIds.css(TestIds.TREE_ICON));
+  }
+
+  /**
+   * Get a row of a tree grid that has been marked as deleted
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   * @return Deleted tree row selector
+   */
+  default By getDeletedTreeRow(String gridId, String rowId) {
+    return By.cssSelector("[tree-grid-id='" + gridId + "'] .DELETE [row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get an option of the open select dropdown (or suggest list) by its position
+   *
+   * @param position Position of the option (the first is 1)
+   * @return Option selector
+   */
+  default By getSelectOption(int position) {
+    return By.xpath("(//*[" + TestIds.xpath(TestIds.SELECT_DROPDOWN) + "]//*[" + TestIds.xpath(TestIds.SELECT_OPTION)
+      + "])[" + position + "]");
+  }
 }
