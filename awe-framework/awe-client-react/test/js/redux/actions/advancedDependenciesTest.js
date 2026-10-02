@@ -1474,6 +1474,199 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       expect(dispatch).toHaveBeenCalled();
     });
 
+    it('no relanza una dependencia de currentRowValue cuando solo cambia otra celda de la tabla', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'currentRowValue',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'value2',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: false
+      }];
+
+      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dispatch.mockClear();
+
+      // Another cell of the row changes: the model is updated, but the watched cell keeps its value
+      mockState.components.gridComp.model = {
+        ...mockState.components.gridComp.model,
+        values: [
+          { id: 1, col1: 'value1', col2: 'other' },
+          { id: 2, col1: 'value2', col2: 'changed', editing: true },
+          { id: 3, col1: 'value3', col2: 'other' }
+        ],
+        modelVersion: 1
+      };
+      dependencies.checkDependencies(mockState, dispatch);
+
+      expect(dispatch).not.toHaveBeenCalled();
+
+      // The watched cell changes: the dependency is launched
+      mockState.components.gridComp.model = {
+        ...mockState.components.gridComp.model,
+        values: [
+          { id: 1, col1: 'value1', col2: 'other' },
+          { id: 2, col1: 'new value', col2: 'changed', editing: true },
+          { id: 3, col1: 'value3', col2: 'other' }
+        ],
+        modelVersion: 2
+      };
+      dependencies.checkDependencies(mockState, dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('no lanza la comprobacion unique al empezar a editar una fila que no ha cambiado', () => {
+      mockState.components.gridComp = {
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [{
+            id: 'col1',
+            dependencies: [{
+              type: 'and',
+              elements: [{ id: 'gridComp', attribute1: 'currentRowValue', column1: 'col1' }],
+              source: 'query',
+              serverAction: 'unique',
+              targetAction: 'UniqueCheck',
+              initial: false
+            }]
+          }],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: {
+          values: [
+            { id: 1, col1: 'value1', $row: {} },
+            { id: 2, col1: 'value2', $row: {} }
+          ]
+        },
+        dependencies: []
+      };
+
+      dependencies.initializeDependencies('testView', mockState, dispatch);
+      dispatch.mockClear();
+
+      // The user starts editing the second row without changing it
+      mockState.components.gridComp.model = {
+        values: [
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 2, col1: 'value2', $row: { editing: true } }
+        ],
+        modelVersion: 1
+      };
+      dependencies.checkDependencies(mockState, dispatch);
+
+      expect(dispatch).not.toHaveBeenCalled();
+
+      // The user changes the value: the check is launched
+      mockState.components.gridComp.model = {
+        values: [
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 2, col1: 'new value', $row: { editing: true } }
+        ],
+        modelVersion: 2
+      };
+      dependencies.checkDependencies(mockState, dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    describe('currentRowValue de la fila en edicion', () => {
+      const buildGrid = (serverAction, values) => ({
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [{
+            id: 'col1',
+            dependencies: [{
+              type: 'and',
+              elements: [{ id: 'gridComp', attribute1: 'currentRowValue', column1: 'col1' }],
+              source: 'query',
+              ...(serverAction ? { serverAction } : {}),
+              targetAction: 'UniqueCheck',
+              initial: false
+            }]
+          }],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: { values },
+        dependencies: []
+      });
+
+      const startEditing = (values, version = 1) => ({ values, modelVersion: version });
+
+      it('reporta de inmediato un duplicado en una fila nueva con valor por defecto', () => {
+        mockState.components.gridComp = buildGrid('unique', [
+          { id: 1, col1: 'value1', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 'new-row-1', col1: 'value1', $row: { editing: true } }
+        ]);
+        dependencies.checkDependencies(mockState, dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('reporta de inmediato un duplicado en una fila copiada', () => {
+        mockState.components.gridComp = buildGrid('unique', [
+          { id: 1, col1: 'value1', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 'copied-row-1', col1: 'value1', $row: { editing: true } }
+        ]);
+        dependencies.checkDependencies(mockState, dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('reporta de inmediato un duplicado en una fila INSERT de una tabla multioperacion', () => {
+        mockState.components.gridComp = buildGrid('unique', [
+          { id: 1, col1: 'value1', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 7, col1: 'value1', $row: { editing: true, operation: 'INSERT' } }
+        ]);
+        dependencies.checkDependencies(mockState, dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('reevalua la dependencia cuando la fila en edicion cambia a otra con el mismo valor', () => {
+        mockState.components.gridComp = buildGrid(null, [
+          { id: 1, col1: 'same', $row: { editing: true } },
+          { id: 2, col1: 'same', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'same', $row: {} },
+          { id: 2, col1: 'same', $row: { editing: true } }
+        ]);
+        dependencies.checkDependencies(mockState, dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+    });
+
     it('debería obtener prevCurrentRowValue', () => {
       mockComponent.dependencies = [{
         type: 'and',

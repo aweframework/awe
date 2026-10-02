@@ -17,7 +17,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    // The application asks for a confirmation before logging out
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -186,7 +187,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("RptNum", number.toString());
 
     // Suggest on selector
-    suggest("RptTyp", type, type);
+    selectContain("RptTyp", type);
 
     // Calculate fire times
     clickButton("ButUpdateFireTimes", true);
@@ -231,7 +232,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("Prt", "21212");
 
     // Suggest on selector
-    suggest("Pro", "ftp", "ftp");
+    selectContain("Pro", "FTP");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
@@ -260,7 +261,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("Des", "Test Calendar Description");
 
     // Suggest on selector
-    suggest("Act", "Yes", "Yes");
+    selectContain("Act", "Yes");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
@@ -286,7 +287,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     changeTaskData("Test manual task", "Test manual task description");
 
     // Suggest on selector
-    suggest("TypExe", "Maintain", "Maintain");
+    selectContain("TypExe", "Maintain");
 
     // Suggest on selector
     suggest("maintain", "waitSomeSeconds", "waitSomeSeconds");
@@ -330,7 +331,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL REPORT
 
     // Suggest on selector
-    suggest("RepTyp", "Broadcast", "Broadcast");
+    selectContain("RepTyp", "Broadcast");
 
     // Suggest on selector
     suggestMultipleList("RepSndSta", "Warning", "Error");
@@ -371,7 +372,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("TimOutExe", "59");
 
     // Suggest on selector
-    suggest("TypExe", "Maintain", "Maintain");
+    selectContain("TypExe", "Maintain");
 
     // Suggest on selector
     suggest("maintain", "waitSomeSeconds", "waitSomeSeconds");
@@ -405,10 +406,10 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL SCHEDULE
 
     // Suggest on selector
-    suggest("TypLch", "Scheduled", "Scheduled");
+    selectContain("TypLch", "Scheduled");
 
     // Suggest on selector
-    suggest("RptTyp", "Seconds", "Seconds");
+    selectContain("RptTyp", "Seconds");
 
     // Insert text
     writeText("RptNum", "1200");
@@ -427,7 +428,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL REPORT
 
     // Suggest on selector
-    suggest("RepTyp", "Broadcast", "Broadcast");
+    selectContain("RepTyp", "Broadcast");
 
     // Suggest on selector
     suggestMultipleList("RepSndSta", "Warning", "Stopped");
@@ -468,10 +469,10 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("TimOutExe", "60");
 
     // Suggest on selector
-    suggest("Act", "No", "No");
+    selectContain("Act", "No");
 
     // Suggest on selector
-    suggest("TypExe", "Maintain", "Maintain");
+    selectContain("TypExe", "Maintain");
 
     // Suggest on selector
     suggest("maintain", "waitSomeSeconds", "waitSomeSeconds");
@@ -505,10 +506,10 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL SCHEDULE
 
     // Suggest on selector
-    suggest("TypLch", "File", "File");
+    selectContain("TypLch", "File");
 
     // Suggest on selector
-    suggest("RptTyp", "Hours", "Hours");
+    selectContain("RptTyp", "Hours");
 
     // Insert text
     writeText("RptNum", "1");
@@ -533,7 +534,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // FILL REPORT
 
     // Suggest on selector
-    suggest("RepTyp", "Broadcast", "Broadcast");
+    selectContain("RepTyp", "Broadcast");
 
     // Suggest on selector
     suggestMultipleList("RepSndSta", "Error", "Stopped");
@@ -568,7 +569,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("Nom", "Test Server updated");
 
     // Suggest on selector
-    suggest("Pro", "Folder", "Folder");
+    selectContain("Pro", "Folder");
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
@@ -597,7 +598,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     writeText("Des", "Test Calendar Description updated");
 
     // Suggest on selector
-    suggest("Act", "Yes", "Yes");
+    selectContain("Act", "Yes");
 
     // Add dates
     clickButton("ButDatAdd");
@@ -678,7 +679,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     // UPDATE REPORT
 
     // Suggest on selector
-    suggest("RepTyp", "E-mail", "E-mail");
+    selectContain("RepTyp", "E-mail");
 
     // Suggest on selector
     suggestMultiple("RepSndSta", "Ok", "Ok");
@@ -849,7 +850,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickTab("update-scheduler-task", "ENUM_TASK_STEP_LAUNCH");
 
     // Suggest on selector
-    suggest("RptTyp", "Once", "Once");
+    selectContain("RptTyp", "Once");
 
     // Select day
     selectDay("schExeDate", Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
@@ -884,7 +885,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickTab("update-scheduler-task", "ENUM_TASK_STEP_LAUNCH");
 
     // Suggest on selector
-    suggest("RptTyp", "Custom", "Custom");
+    selectContain("RptTyp", "Custom");
 
     // Suggest on selector
     suggest("IdeCal", "Test Calendar", "Test Calendar");
@@ -982,8 +983,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickButton("ButAct");
 
     // Check success execution
-    checkNotVisible("#ButAct");
-    checkVisible("#ButDea");
+    checkButtonNotVisible("ButAct");
+    checkButtonVisible("ButDea");
   }
 
   /**
@@ -1009,7 +1010,7 @@ class SchedulerTestsIT extends SeleniumUtilities {
     pause(5000);
 
     // Check success execution
-    checkVisible("[column-id='ExeStaIco']:first-child span.text-success");
+    checkColumnSuccessIcon("ExeStaIco");
   }
 
   /**
@@ -1038,8 +1039,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickButton("ButDea", true);
 
     // Check success execution
-    checkNotVisible("#ButDea");
-    checkVisible("#ButAct");
+    checkButtonNotVisible("ButDea");
+    checkButtonVisible("ButAct");
   }
 
   /**
@@ -1065,8 +1066,8 @@ class SchedulerTestsIT extends SeleniumUtilities {
     clickButton("ButAct", true);
 
     // Check success execution
-    checkNotVisible("#ButAct");
-    checkVisible("#ButDea");
+    checkButtonNotVisible("ButAct");
+    checkButtonVisible("ButDea");
   }
 
   /**

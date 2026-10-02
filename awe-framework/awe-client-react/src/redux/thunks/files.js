@@ -15,7 +15,7 @@ function updateLog (actions = [], setLogText, setOffset) {
     .flat();
 
   if (newLines.length !== 0) {
-    setLogText(prevLogText => (isEmpty(prevLogText.trim()) ? " " : prevLogText + "\n") + newLines.join("\n"));
+    setLogText(prevLogText => (isEmpty((prevLogText || "").trim()) ? " " : prevLogText + "\n") + newLines.join("\n"));
     setOffset(prev => prev + newLines.length);
   }
 }
