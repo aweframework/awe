@@ -69,6 +69,15 @@ class TestIdsVocabularyTest {
   }
 
   @Test
+  void shouldDeclareInTheReactVocabularyTheAttributesOnlyReactRenders() throws IOException {
+    Map<String, String> react = readJavaScriptConstant(REACT_VOCABULARY_FILE, "TestAttributes");
+    Map<String, String> angular = readJavaScriptConstant(ANGULAR_VOCABULARY_FILE, "TestAttributes");
+
+    assertThat(react).containsEntry("editing", TestAttributes.EDITING);
+    assertThat(angular).doesNotContainKey("editing");
+  }
+
+  @Test
   void shouldRenderHooksAsSelectors() {
     assertThat(TestIds.css(TestIds.GRID_ROW)).isEqualTo("[data-testid='grid-row']");
     assertThat(TestIds.xpath(TestIds.GRID_ROW)).isEqualTo("@data-testid='grid-row'");

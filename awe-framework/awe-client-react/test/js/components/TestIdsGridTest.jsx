@@ -75,6 +75,19 @@ describe("awe-react-client/test/js/components/TestIdsGridTest.jsx", () => {
       expect(trs[0].tagName).toBe("TR");
     });
 
+    it("exposes which rows are being edited apart from which are selected", () => {
+      // A row can be edited without being selected (a multiselect grid toggles the selection on a double click)
+      const editing = [
+        { id: "r1", name: "Ann", age: 30, selected: true },
+        { id: "r2", name: "Bob", age: 41, $row: { editing: true } }
+      ];
+      const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState({}, editing) });
+
+      const trs = Array.from(container.querySelectorAll(`[grid-id='Grd'] ${hook("grid-row")}`));
+      expect(trs.map(tr => tr.getAttribute("data-editing"))).toEqual(["false", "true"]);
+      expect(trs.map(tr => tr.getAttribute("data-selected"))).toEqual(["true", "false"]);
+    });
+
     it("exposes the cells with their column and row", () => {
       const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState({}, rows) });
 

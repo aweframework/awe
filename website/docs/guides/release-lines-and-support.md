@@ -61,6 +61,10 @@ pipeline, stops `Launch Sonar` (and with it the release jobs), and prevents Reno
 automerging. Each suite is retried once automatically on a script or runner failure to absorb
 an occasional flaky run; a real regression fails twice, and a timeout is not retried.
 `support/4.x` keeps its own pipeline configuration, where they are still non-blocking.
+The same four suites run twice per browser: against the AngularJS test application
+(`awe-tests/awe-boot`, jobs `Firefox IT` and `Chrome IT`) and against the React engine test
+application (`awe-tests/awe-boot-react`, jobs `Firefox IT React` and `Chrome IT React`). Both
+sets block in the same way.
 
 Only failed tests leave evidence. Open the pipeline **Tests** tab, pick the failed test and use
 **View details** to see its screenshot; the test output also links the screenshot and the video, and the
@@ -72,17 +76,19 @@ they behave the same whether the tag came from `develop` or from `support/4.x`.
 
 Merge-request pipelines are selective: jobs are added according to the paths the merge
 request touches. A change limited to `website/` builds only the documentation site; a change
-limited to `awe-framework/awe-client-angular/` runs the frontend unit tests, the Selenium
-suites, Sonar and dependency scanning but not the database matrix; a backend change runs
-the build, the database matrix, the Selenium suites, Sonar, dependency scanning and the
-javadoc check, but neither the frontend unit tests nor the documentation build. A change to
+limited to `awe-framework/awe-client-angular/` runs the frontend unit tests, the AngularJS
+Selenium suites, Sonar and dependency scanning but not the database matrix nor the React
+Selenium suites; a change limited to `awe-framework/awe-client-react/` runs the React unit
+tests and lint, both sets of Selenium suites, Sonar and dependency scanning; a backend change
+runs the build, the database matrix, both sets of Selenium suites, Sonar, dependency scanning
+and the javadoc check, but neither the frontend unit tests nor the documentation build. A change to
 `.gitlab-ci.yml` counts as touching everything; a change to the root `pom.xml` counts as a
 backend change. Branch pipelines on `develop`, `master` and `support/*` always run the
 complete set. Merge-request pipelines are interruptible, so a new
 push cancels the superseded pipeline automatically; pipelines on protected branches are not
 cancelled. Database and browser jobs are generated from `parallel:matrix` definitions
-(`Embedded DB Tests`, one job per database engine with and without Flyway, `Firefox IT` and
-`Chrome IT` per suite), and every job has a timeout of roughly twice its observed duration.
+(`Embedded DB Tests`, one job per database engine with and without Flyway, `Firefox IT`,
+`Chrome IT`, `Firefox IT React` and `Chrome IT React` per suite), and every job has a timeout of roughly twice its observed duration.
 
 Support branches must be **protected branches** in GitLab (the pattern `support/*` is
 protected with the same policy as `develop`). The credentials used by `Build package`

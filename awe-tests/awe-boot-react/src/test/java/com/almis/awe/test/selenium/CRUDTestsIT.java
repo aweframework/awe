@@ -17,7 +17,7 @@ class CRUDTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,8 @@ class CRUDTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    // The application asks for a confirmation before logging out
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -677,7 +678,7 @@ class CRUDTestsIT extends SeleniumUtilities {
     checkCriterionContents("Usr", "test selenium");
 
     // Store and confirm
-    clickButtonAndConfirm("ButCnf", "warn");
+    clickButtonAndConfirm("ButCnf", "warning");
   }
 
   /**

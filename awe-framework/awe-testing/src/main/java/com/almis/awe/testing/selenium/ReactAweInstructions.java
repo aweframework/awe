@@ -72,6 +72,16 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   /**
+   * The row being edited is not always the selected one: the row is edited with a double click, and in a grid with
+   * multiple selection the two clicks may toggle its selection on and off, so the editors are located by the edit state
+   */
+  @Override
+  public String getEditingParentCss(String gridId, String columnId) {
+    return getGridScopeCss(gridId) + " " + css(TestIds.GRID_ROW) + stateCss(TestAttributes.EDITING, true)
+      + " " + css(TestIds.GRID_CELL) + "[column-id='" + columnId + "'] ";
+  }
+
+  /**
    * Get grid scope in css
    *
    * @param gridId Grid identifier
@@ -196,6 +206,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     String cell = "//*[" + xpath(TestIds.GRID_CELL) + " and contains(normalize-space(.)," + literal + ")]";
     String row = getGridXpath(gridId) + "//*[" + xpath(TestIds.GRID_ROW) + "][." + cell + "]";
     return By.xpath("(" + row + "//*[" + xpath(TestIds.GRID_ROW_CHECKBOX) + "] | " + row + cell + ")[1]");
+  }
+
+  public By findGridSelectedRow(String gridId, String search) {
+    return By.xpath(String.format("%s//*[%s and %s][.//*[%s and contains(normalize-space(.),%s)]]", getGridXpath(gridId),
+      xpath(TestIds.GRID_ROW), stateXpath(TestAttributes.SELECTED, true), xpath(TestIds.GRID_CELL),
+      XpathLiterals.of(search)));
   }
 
   public RowEditBehavior getRowEditBehavior() {

@@ -298,6 +298,46 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThat(utilities.events).containsExactly("menu:ButUsrAct", "click:ButLogOut");
   }
 
+  @Test
+  void shouldAcceptTheConfirmationOfAnApplicationThatAsksForItBeforeLoggingOut() {
+    use(new ReactAweInstructions());
+    show(instructions.getLoginScreenMarker(), "Login");
+
+    utilities.checkLogoutWithConfirmation();
+
+    assertThat(utilities.events).containsExactly("menu:ButUsrAct", "click:ButLogOut", "accept-confirm");
+  }
+
+  @Test
+  void shouldFailWhenTheLoginScreenIsNotShownAfterConfirmingTheLogout() {
+    use(new ReactAweInstructions());
+    show(instructions.getLoginScreenMarker(), "Other");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkLogoutWithConfirmation());
+  }
+
+  @Test
+  void shouldLeaveARowAsItIsWhenTheClientKeepsItSelected() {
+    use(new ReactAweInstructions());
+    // The element to click is never shown: the step must not try to click it
+    show(instructions.findGridSelectedRow("Grd", "abc"), "abc");
+
+    assertThatCode(() -> utilities.clickRowContents("Grd", "abc")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldClickARowThatIsNotSelectedYet() {
+    use(new ReactAweInstructions());
+
+    assertThrows(AssertionFailedError.class, () -> utilities.clickRowContents("Grd", "abc"));
+  }
+
+  @Test
+  void shouldAlwaysClickTheRowWhenTheClientDoesNotKeepItsSelection() {
+    assertThat(instructions.findGridSelectedRow("Grd", "abc")).isNull();
+    assertThrows(AssertionFailedError.class, () -> utilities.clickRowContents("Grd", "abc"));
+  }
+
   private WebElement option(String text, boolean selected) {
     WebElement option = mock(WebElement.class);
     when(option.getText()).thenReturn(text);
@@ -342,6 +382,11 @@ class SeleniumUtilitiesSemanticStepsTest {
     @Override
     protected void clickButton(String buttonId, boolean wait) {
       events.add("click:" + buttonId);
+    }
+
+    @Override
+    protected void acceptConfirm() {
+      events.add("accept-confirm");
     }
 
     @Override

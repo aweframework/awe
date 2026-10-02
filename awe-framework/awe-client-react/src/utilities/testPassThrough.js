@@ -132,9 +132,10 @@ export function paginatorPassThrough() {
  * @param {string} options.gridId Grid identifier
  * @param {boolean} [options.tree] The grid is a tree grid (the identifier is rendered as "tree-grid-id")
  * @param {function} [options.getRowId] Function that returns the id of the row PrimeReact is rendering
+ * @param {function} [options.isRowEditing] Function that tells if the row PrimeReact is rendering is being edited
  * @returns {object} DataTable or TreeTable pt
  */
-export function gridPassThrough({ gridId, tree = false, getRowId }) {
+export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing }) {
   const pt = {
     root: testHook(TestIds.grid, { attributes: { [tree ? "tree-grid-id" : "grid-id"]: gridId } }),
     paginator: paginatorPassThrough()
@@ -147,6 +148,7 @@ export function gridPassThrough({ gridId, tree = false, getRowId }) {
       const rowId = getRowId?.();
       return testHook(TestIds.gridRow, {
         selected: context.selected,
+        editing: isRowEditing ? !!isRowEditing() : undefined,
         attributes: rowId !== undefined ? { "row-id": rowId } : {}
       });
     };

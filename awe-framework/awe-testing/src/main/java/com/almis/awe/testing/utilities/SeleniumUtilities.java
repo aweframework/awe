@@ -725,6 +725,15 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   private void clickRowContentsFromSelector(String gridId, String search) {
+    // Leave the row as it is when the client keeps it selected: selecting it again would unselect it. Wait for the grid
+    // to be loaded first, so a row of the previous result set is not taken as the selected one
+    By selected = frontEndInstructions.findGridSelectedRow(gridId, search);
+    if (selected != null) {
+      waitUntil(checkIfGridLoaderIsNotVisible());
+      if (!seleniumModel.getDriver().findElements(selected).isEmpty()) {
+        return;
+      }
+    }
     clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
   }
 
@@ -1506,7 +1515,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickDate(String gridId, String columnId) {
-    clickDateFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    clickDateFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -1539,7 +1548,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDate(String gridId, String columnId, CharSequence dateValue) {
     // Select date with parent selector
-    selectDateFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), dateValue);
+    selectDateFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), dateValue);
   }
 
   /**
@@ -1574,7 +1583,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDay(String gridId, String columnId, @Nonnull Integer day) {
     // Select date with parent selector
-    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), DAY, day.toString());
+    selectFromDatepicker(frontEndInstructions.getEditingParentCss(gridId, columnId), DAY, day.toString());
   }
 
   /**
@@ -1629,7 +1638,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectMonth(String gridId, String columnId, String month) {
     // Select date with parent selector
-    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), MONTH, month);
+    selectFromDatepicker(frontEndInstructions.getEditingParentCss(gridId, columnId), MONTH, month);
   }
 
   /**
@@ -1664,7 +1673,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectYear(String gridId, String columnId, @Nonnull Integer year) {
     // Select date with parent selector
-    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), YEAR, year.toString());
+    selectFromDatepicker(frontEndInstructions.getEditingParentCss(gridId, columnId), YEAR, year.toString());
   }
 
   /**
@@ -1900,7 +1909,9 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeText(String gridId, String rowId, String columnId, CharSequence text, boolean clearText) {
     // Write text on grid
-    By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getParentCss(gridId, rowId, columnId));
+    String parentCss = rowId == null ? frontEndInstructions.getEditingParentCss(gridId, columnId)
+      : frontEndInstructions.getParentCss(gridId, rowId, columnId);
+    By selector = frontEndInstructions.getCriterionInput(parentCss);
     writeTextFromSelector(selector, text, clearText, selector);
   }
 
@@ -1962,7 +1973,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectFirst(String gridId, String columnId) {
-    selectFirstFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    selectFirstFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -1992,7 +2003,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectLast(String gridId, String columnId) {
-    selectLastFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    selectLastFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -2024,7 +2035,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void selectContain(String gridId, String columnId, String label) {
-    selectContainFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), label);
+    selectContainFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), label);
   }
 
   /**
@@ -2107,7 +2118,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void suggest(String gridId, String columnId, String search, String label) {
-    suggestFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), search, label);
+    suggestFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), search, label);
   }
 
   /**
@@ -2141,7 +2152,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search   Search string
    */
   protected void suggestLast(String gridId, String columnId, String search) {
-    suggestLastFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), search);
+    suggestLastFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), search);
   }
 
   /**
@@ -2226,7 +2237,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Text to find in label
    */
   protected void suggestMultiple(String gridId, String columnId, boolean clear, String search, String label) {
-    suggestMultipleFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), clear, search, label);
+    suggestMultipleFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), clear, search, label);
   }
 
   /**
@@ -2807,6 +2818,23 @@ public class SeleniumUtilities implements IAweInstructions {
    * Log out the application and check that the login screen is shown
    */
   protected void checkLogout() {
+    logout(false);
+  }
+
+  /**
+   * Log out of an application that asks for a confirmation first, and check that the login screen
+   * is shown
+   */
+  protected void checkLogoutWithConfirmation() {
+    logout(true);
+  }
+
+  /**
+   * Log out the application and check that the login screen is shown
+   *
+   * @param confirm Accept the confirmation that the application asks for
+   */
+  private void logout(boolean confirm) {
     By marker = frontEndInstructions.getLoginScreenMarker();
 
     // Test title
@@ -2820,6 +2848,11 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Click on logout
     clickButton("ButLogOut", true);
+
+    // Accept the confirmation
+    if (confirm) {
+      acceptConfirm();
+    }
 
     // Wait for the login screen
     waitForSelector(marker);

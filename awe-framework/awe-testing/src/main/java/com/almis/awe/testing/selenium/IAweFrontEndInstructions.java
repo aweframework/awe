@@ -28,6 +28,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   String getParentCss(String gridId, String rowId, String columnId);
 
   /**
+   * Retrieve the parent selector in css of a cell of the row being edited, where the editor of the cell is. By default
+   * it is the selected row, as the clients edit the row the user selects; a client that can edit a row that is not
+   * selected overrides it
+   *
+   * @param gridId   Grid id
+   * @param columnId Column id
+   * @return Css parent selector
+   */
+  default String getEditingParentCss(String gridId, String columnId) {
+    return getParentCss(gridId, null, columnId);
+  }
+
+  /**
    * Retrieve criterion css selector
    *
    * @param parentSelector Parent selector
@@ -364,6 +377,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   default By findGridRowSelection(String gridId, String search) {
     return findGridCell(gridId, search);
+  }
+
+  /**
+   * Find the row that contains a text when it is already selected. A client that keeps the selection of a grid when
+   * the user comes back to its screen or searches again, and that toggles a selected row when it is selected again,
+   * returns it, so that selecting a row that is already selected leaves it as it is. By default there is no such row.
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param search Text to search
+   * @return Selector of the selected row, or null if the client does not keep the selection
+   */
+  default By findGridSelectedRow(String gridId, String search) {
+    return null;
   }
 
   /**

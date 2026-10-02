@@ -14,7 +14,7 @@ const ANGULAR_VOCABULARY = path.resolve(
 const REACT_ONLY_TEST_IDS = [
   'avatar', 'avatarName', 'criterionUnit', 'gridRowEdit', 'wizardStepNumber'
 ];
-const REACT_ONLY_ATTRIBUTES = [];
+const REACT_ONLY_ATTRIBUTES = ['editing'];
 
 /**
  * Read the entries of a frozen constant ("export const Name = Object.freeze({ key: "value", ... })")
@@ -58,6 +58,11 @@ describe('awe-react-client/test/js/utilities/testIdsTest.js', () => {
     const reactOnly = Object.keys(TestIds).filter(key => !(key in angularIds));
     expect(reactOnly.sort()).toEqual([...REACT_ONLY_TEST_IDS].sort());
     REACT_ONLY_TEST_IDS.forEach(key => expect(Object.values(angularIds)).not.toContain(TestIds[key]));
+  });
+
+  it('declares the React only attributes explicitly and nothing else', () => {
+    const reactOnly = Object.keys(TestAttributes).filter(key => !(key in angularAttributes));
+    expect(reactOnly.sort()).toEqual([...REACT_ONLY_ATTRIBUTES].sort());
   });
 
   it('uses unique values', () => {

@@ -131,6 +131,23 @@ stages:
   - awe-framework/awe-client-react/**/*
 .paths-angular-templates: &paths-angular-templates   # served by TemplateController and compared by awe-boot unit tests
   - awe-framework/awe-client-angular/src/main/resources/templates/**/*
+.paths-react-it: &paths-react-it   # .paths-backend plus the React client: keep both lists in step
+  - .gitlab-ci.yml
+  - pom.xml
+  - .m2/**/*
+  - awe-framework/pom.xml
+  - awe-framework/awe-dependencies/**/*
+  - awe-framework/awe-model/**/*
+  - awe-framework/awe-generic-screens/**/*
+  - awe-framework/awe-controller/**/*
+  - awe-framework/awe-testing/**/*
+  - awe-framework/awe-modules/**/*
+  - awe-framework/awe-starters/**/*
+  - awe-framework/awe-boot-angular-archetype/**/*
+  - awe-framework/awe-boot-react-archetype/**/*
+  - awe-framework/awe-client-react/**/*
+  - awe-tests/**/*
+  - awe-samples/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -158,6 +175,9 @@ stages:
 .if-mr-angular-templates: &if-mr-angular-templates
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-angular-templates
+.if-mr-react-it: &if-mr-react-it
+  if: '$CI_MERGE_REQUEST_IID'
+  changes: *paths-react-it
 .if-mr-website: &if-mr-website
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-website
@@ -284,6 +304,10 @@ Build project:
       - awe-tests/awe-boot/target/awe-boot.jar
       # AWE modules installed by this build, consumed by the browser testing jobs
       - .m2/repository/com/almis/awe/
+      # React client bundle: awe-tests/awe-boot-react consumes it from disk (file: npm dependency),
+      # not from the Maven repository, so the React browser suites need it as an artifact. If it is
+      # missing, the "require react client dist" enforcer rule of that module fails at initialize.
+      - awe-framework/awe-client-react/dist/
       # Aggregate SBOM: kept as a plain artifact and attached to the image by "Build package".
       # It is deliberately NOT declared as a "reports: cyclonedx" artifact: GitLab's dependency
       # list requires its own CycloneDX properties (gitlab:meta:schema_version, input_file:path)
@@ -512,6 +536,11 @@ Javadoc test:
       - runner_system_failure
   timeout: 30m
   variables:
+    # Test application that runs the suites: awe-tests/awe-boot (AngularJS) or awe-tests/awe-boot-react
+    IT_APP_MODULE: awe-tests/awe-boot
+    # What the job runs: the JUnit tag group of the matrix entry (TEST_TAGS) by default; the React jobs
+    # run the IT classes of their matrix entry (TEST_CLASSES) instead
+    IT_SELECTION: -Dgroups=${TEST_TAGS}
     SCREEN_WIDTH: 1440
     SCREEN_HEIGHT: 1080
     FF_NETWORK_PER_BUILD: "true"
@@ -524,7 +553,7 @@ Javadoc test:
   before_script:
     - apt-get update -qq && apt-get install -y -qq fontconfig fonts-dejavu >/dev/null
   script:
-    - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/selenium-evidence/ -Dgroups="${TEST_TAGS}" -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
+    - mvn -f ${IT_APP_MODULE}/pom.xml $MAVEN_CLI_OPTS verify $IT_OPTS -Dawe.test.browser=${BROWSER} -Dawe.test.screenshot-path=${CI_PROJECT_DIR}/selenium-evidence/ ${IT_SELECTION} -Djacoco.file.name=jacoco-${TEST_NAME}-it.exec -Djacoco.port=$TEST_PORT
     - echo "I am going to wait for 10 seconds only to ensure .exec file generation"
     - sleep 10
   after_script:
@@ -539,13 +568,13 @@ Javadoc test:
   artifacts:
     paths:
       - selenium-evidence/
-      - awe-tests/awe-boot/target/tests/
-      - awe-tests/awe-boot/target/surefire-reports/
-      - awe-tests/awe-boot/target/jacoco-${TEST_NAME}-it.exec
+      - ${IT_APP_MODULE}/target/tests/
+      - ${IT_APP_MODULE}/target/surefire-reports/
+      - ${IT_APP_MODULE}/target/jacoco-${TEST_NAME}-it.exec
     expire_in: 1 day
     reports:
       junit:
-        - awe-tests/awe-boot/target/surefire-reports/TEST-*.xml
+        - ${IT_APP_MODULE}/target/surefire-reports/TEST-*.xml
     when: always
   rules:
     - <<: *if-mr-code
@@ -605,6 +634,53 @@ Chrome IT:
         TEST_PORT: "6308"
         TEST_NAME: chrome-scheduler
 
+# The browser suites against the React engine test application. They run when the backend or the React
+# client changes; a change limited to the AngularJS client does not select them.
+# The React test application has its own IT classes, and they are migrated one by one to the semantic
+# steps of SeleniumUtilities (#812): a React job runs only the classes listed in TEST_CLASSES (comma
+# separated, as -Dit.test takes them), never a whole JUnit tag group, which would also run the classes
+# that are not migrated yet. Add a class to the entry of its group when it is migrated, or add an entry
+# (with its own port and name) when the group has none yet; the groups are:
+#   ApplicationIntegrationIT: ApplicationTestsIT, IntegrationTestsIT           (port 6309 / 6313)
+#   CRUDCriteriaMatrixIT: CRUDTestsIT, CriteriaAndMatrixTestsIT                (port 6310 / 6314)
+#   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT   (port 6311 / 6315)
+#   SchedulerIT: SchedulerTestsIT                                              (port 6312 / 6316)
+# List .react-testing LAST in "extends": variables are merged, but "rules" is an array and the last
+# template that defines it wins, so another order would bring back the AngularJS selection rules.
+.react-testing:
+  variables:
+    IT_APP_MODULE: awe-tests/awe-boot-react
+    IT_SELECTION: -Dit.test=${TEST_CLASSES}
+  rules:
+    - <<: *if-mr-react-it
+    - <<: *if-branches
+
+Firefox IT React:
+  extends:
+    - .firefox-testing
+    - .react-testing
+  parallel:
+    matrix:
+      - TEST_CLASSES: CRUDTestsIT
+        TEST_PORT: "6310"
+        TEST_NAME: react-firefox-crud-criteria-matrix
+      - TEST_CLASSES: WebsocketTestsIT
+        TEST_PORT: "6311"
+        TEST_NAME: react-firefox-regression-websocket-print
+
+Chrome IT React:
+  extends:
+    - .chrome-testing
+    - .react-testing
+  parallel:
+    matrix:
+      - TEST_CLASSES: CRUDTestsIT
+        TEST_PORT: "6314"
+        TEST_NAME: react-chrome-crud-criteria-matrix
+      - TEST_CLASSES: WebsocketTestsIT
+        TEST_PORT: "6315"
+        TEST_NAME: react-chrome-regression-websocket-print
+
 gemnasium-maven-dependency_scanning:
   stage: test
   timeout: 15m
@@ -655,6 +731,12 @@ Launch Sonar:
       optional: true
     - job: Firefox IT
     - job: Chrome IT
+    # Optional only because a merge request limited to the AngularJS client does not run them;
+    # whenever they run they gate Sonar (and the release jobs) like the AngularJS suites.
+    - job: Firefox IT React
+      optional: true
+    - job: Chrome IT React
+      optional: true
   cache:
     - key: ${CI_COMMIT_REF_SLUG}
       policy: pull
