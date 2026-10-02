@@ -17,6 +17,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Interactive;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -33,8 +34,11 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -56,7 +60,7 @@ class SeleniumUtilitiesSemanticStepsTest {
 
   @BeforeEach
   void setUp() throws Exception {
-    driver = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class, JavascriptExecutor.class));
+    driver = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class, JavascriptExecutor.class, Interactive.class));
     when(driver.findElements(any(By.class))).thenReturn(Collections.emptyList());
     when(driver.findElement(any(By.class))).thenThrow(new NoSuchElementException("missing element"));
     File screenshot = Files.createTempFile(tempDir, "semantic-steps", ".png").toFile();
@@ -314,6 +318,38 @@ class SeleniumUtilitiesSemanticStepsTest {
     show(instructions.getLoginScreenMarker(), "Other");
 
     assertThrows(AssertionFailedError.class, () -> utilities.checkLogoutWithConfirmation());
+  }
+
+  @Test
+  void shouldOpenThePanelOfAMultipleSelectBeforeSearchingInItAndCloseItAfterwards() throws Exception {
+    use(new ReactAweInstructions());
+    String parent = instructions.getCriterionCss("Months");
+    By searchBox = instructions.getSuggestMultipleInput(parent);
+    show(instructions.getSelectChoice(parent), "");
+    show(instructions.getSelectDropdownList(), "");
+    show(instructions.getSuggestResult("October"), "October");
+    // The search box only exists once the panel is open: the first action on the page (the click) opens it
+    doAnswer(invocation -> {
+      WebElement search = show(searchBox, "");
+      when(search.getAttribute("value")).thenReturn("");
+      return null;
+    }).doNothing().when((Interactive) driver).perform(any());
+
+    utilities.suggestMultiple("Months", "October", "October");
+
+    // Open the panel, type, choose the option and close the panel
+    verify((Interactive) driver, atLeast(4)).perform(any());
+  }
+
+  @Test
+  void shouldNotOpenAnyPanelWhenTheSearchBoxOfAMultipleChoiceIsAlwaysThere() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+
+    utilities.suggestMultiple("Months", "October", "October");
+
+    // Type and choose the option, nothing else
+    verify((Interactive) driver, times(2)).perform(any());
   }
 
   @Test

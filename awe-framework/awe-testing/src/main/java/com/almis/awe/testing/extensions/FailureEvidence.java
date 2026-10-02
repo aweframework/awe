@@ -7,6 +7,8 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +19,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Builds unique, sortable names for test evidence (videos and screenshots) and applies the
@@ -31,6 +37,7 @@ import java.util.function.Function;
 public class FailureEvidence {
 
   private static final String TIMESTAMP_PATTERN = "yyyy-MM-dd_HH-mm-ss-SSS";
+  private static final int MAX_PRINTED_CONSOLE_ENTRIES = 10;
   private static final String ERROR_MARKER = "[ERROR]-";
 
   private static final String PROJECT_DIR_VARIABLE = "CI_PROJECT_DIR";
@@ -196,6 +203,47 @@ public class FailureEvidence {
       return Optional.of(target);
     } catch (Exception exc) {
       log.warn("Test failed but the page source could not be stored", exc);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Store the browser console (JavaScript errors, warnings and logs) of a failed test next to its screenshot: same
+   * name, {@code .console.log} extension. The severe entries are also printed in the test output, since a blank
+   * screen caused by a client crash is otherwise undiagnosable. Drivers that do not expose the browser logs
+   * (Firefox, remote drivers…) are tolerated. Never throws: it must not mask the original test failure.
+   *
+   * @param screenshotTarget Path of the failure screenshot the console belongs to
+   * @param driver           Driver of the failed test (may be null)
+   * @return Path of the stored console log, if any
+   */
+  public Optional<Path> storeBrowserConsole(Path screenshotTarget, WebDriver driver) {
+    if (driver == null) {
+      return Optional.empty();
+    }
+
+    try {
+      List<LogEntry> entries = new ArrayList<>();
+      driver.manage().logs().get(LogType.BROWSER).forEach(entries::add);
+      if (entries.isEmpty()) {
+        log.debug("The browser console of the failed test is empty");
+        return Optional.empty();
+      }
+
+      String fileName = screenshotTarget.getFileName().toString();
+      String baseName = fileName.toLowerCase().endsWith(".png") ? fileName.substring(0, fileName.length() - 4) : fileName;
+      Path target = screenshotTarget.resolveSibling(baseName + ".console.log");
+      Files.createDirectories(target.getParent());
+      Files.write(target, entries.stream().map(LogEntry::toString).collect(Collectors.joining("\n", "", "\n"))
+        .getBytes(StandardCharsets.UTF_8));
+      print("Failure browser console: " + describe(target));
+      entries.stream()
+        .filter(entry -> Level.SEVERE.equals(entry.getLevel()))
+        .limit(MAX_PRINTED_CONSOLE_ENTRIES)
+        .forEach(entry -> print("Browser console " + entry.getLevel() + ": " + entry.getMessage()));
+      return Optional.of(target);
+    } catch (Exception exc) {
+      log.warn("Test failed but the browser console could not be stored", exc);
       return Optional.empty();
     }
   }

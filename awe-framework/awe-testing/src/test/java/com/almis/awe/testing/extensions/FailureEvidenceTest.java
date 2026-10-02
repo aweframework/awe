@@ -7,6 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.UnsupportedCommandException;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.Logs;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 
@@ -21,8 +26,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -361,6 +368,75 @@ class FailureEvidenceTest {
 
     assertThat(stored).isEmpty();
     assertThat(output()).isEmpty();
+  }
+
+  // ---- Browser console ----
+
+  private WebDriver driverWithConsole(List<LogEntry> entries) {
+    WebDriver consoleDriver = mock(WebDriver.class);
+    WebDriver.Options options = mock(WebDriver.Options.class);
+    Logs logs = mock(Logs.class);
+    when(consoleDriver.manage()).thenReturn(options);
+    when(options.logs()).thenReturn(logs);
+    when(logs.get(LogType.BROWSER)).thenReturn(new LogEntries(entries));
+    return consoleDriver;
+  }
+
+  @Test
+  void storeBrowserConsoleWritesSiblingLogAndAnnouncesIt() throws IOException {
+    environment.put("CI_PROJECT_DIR", tempDir.toString());
+    environment.put("CI_JOB_URL", "https://gitlab.example/group/project/-/jobs/42");
+    Path screenshot = tempDir.resolve("shots").resolve("failure.png");
+    WebDriver consoleDriver = driverWithConsole(List.of(
+      new LogEntry(Level.SEVERE, 1L, "Uncaught TypeError: x is undefined"),
+      new LogEntry(Level.WARNING, 2L, "deprecated call")));
+
+    Optional<Path> stored = evidence.storeBrowserConsole(screenshot, consoleDriver);
+
+    Path expected = tempDir.resolve("shots").resolve("failure.console.log");
+    assertThat(stored).contains(expected);
+    assertThat(Files.readString(expected, StandardCharsets.UTF_8))
+      .contains("SEVERE").contains("Uncaught TypeError: x is undefined").contains("deprecated call");
+    assertThat(output()).contains(
+      "Failure browser console: https://gitlab.example/group/project/-/jobs/42/artifacts/file/shots/failure.console.log");
+  }
+
+  @Test
+  void storeBrowserConsolePrintsTheSevereEntries() {
+    Path screenshot = tempDir.resolve("shots").resolve("failure.png");
+    WebDriver consoleDriver = driverWithConsole(List.of(
+      new LogEntry(Level.SEVERE, 1L, "Uncaught TypeError: x is undefined"),
+      new LogEntry(Level.INFO, 2L, "just information")));
+
+    evidence.storeBrowserConsole(screenshot, consoleDriver);
+
+    assertThat(output()).contains("Uncaught TypeError: x is undefined").doesNotContain("just information");
+  }
+
+  @Test
+  void storeBrowserConsoleWithoutEntriesStoresNothing() {
+    Optional<Path> stored = evidence.storeBrowserConsole(tempDir.resolve("shots").resolve("failure.png"),
+      driverWithConsole(List.of()));
+
+    assertThat(stored).isEmpty();
+    assertThat(output()).isEmpty();
+  }
+
+  @Test
+  void storeBrowserConsoleWhenTheDriverDoesNotSupportLogsDoesNotThrow() {
+    WebDriver unsupported = mock(WebDriver.class);
+    WebDriver.Options options = mock(WebDriver.Options.class);
+    when(unsupported.manage()).thenReturn(options);
+    when(options.logs()).thenThrow(new UnsupportedCommandException("logs are not supported"));
+
+    assertThatCode(() -> evidence.storeBrowserConsole(tempDir.resolve("shots").resolve("failure.png"), unsupported))
+      .doesNotThrowAnyException();
+    assertThat(evidence.storeBrowserConsole(tempDir.resolve("shots").resolve("failure.png"), unsupported)).isEmpty();
+  }
+
+  @Test
+  void storeBrowserConsoleWithoutDriverStoresNothing() {
+    assertThat(evidence.storeBrowserConsole(tempDir.resolve("shots").resolve("failure.png"), null)).isEmpty();
   }
 
   @Test

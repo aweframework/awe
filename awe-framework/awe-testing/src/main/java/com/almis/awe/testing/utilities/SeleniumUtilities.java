@@ -159,6 +159,9 @@ public class SeleniumUtilities implements IAweInstructions {
       } catch (Exception exc) {
         log.warn("Could not read the page source of the failed test", exc);
       }
+
+      // A blank screen caused by a client crash can only be diagnosed with the browser console
+      failureEvidence.storeBrowserConsole(path, seleniumModel.getDriver());
     }
 
     // Assert false
@@ -1044,12 +1047,15 @@ public class SeleniumUtilities implements IAweInstructions {
     // Safecheck
     int safecheck = 0;
     By searchBox = frontEndInstructions.getSuggestMultipleInput(parentSelector);
+    boolean panelBased = frontEndInstructions.multipleChoiceUsesPanel();
 
     // Wait for element present
     waitUntil(checkIfLoaderIsNotVisible());
 
-    // Wait for element present
-    waitUntil(presenceOfElementLocated(searchBox));
+    // Wait for element present. A panel based multiple choice shows its search box only once the panel is open
+    if (!panelBased) {
+      waitUntil(presenceOfElementLocated(searchBox));
+    }
 
     // Clear selector
     if (clear) {
@@ -1060,7 +1066,18 @@ public class SeleniumUtilities implements IAweInstructions {
       }
     }
 
-    // Write search text
+    // Open the panel when the search box lives inside it (a multiple select). A multiple suggest keeps its search box in
+    // the criterion, so nothing is opened and the panel steps below are skipped
+    boolean openedPanel = panelBased && getElements(searchBox).isEmpty();
+    if (openedPanel) {
+      selectClick(parentSelector);
+    }
+    waitUntil(presenceOfElementLocated(searchBox));
+
+    // Write search text (the panel keeps the text of the previous search)
+    if (openedPanel) {
+      clearText(searchBox);
+    }
     sendKeys(searchBox, search);
 
     // Wait for loading bar
@@ -1068,6 +1085,11 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Select result on list
     suggestResult(label);
+
+    // The panel this step opened stays open after choosing: close it so it does not cover the next steps
+    if (openedPanel) {
+      new Actions(seleniumModel.getDriver()).sendKeys(Keys.ESCAPE).perform();
+    }
   }
 
   /**

@@ -97,6 +97,7 @@ class AngularAweInstructionsTest {
       .hasToString("By.cssSelector: [criterion-id='Sel'] [data-testid='select-search']");
     assertThat(instructions.getSuggestMultipleChoiceClose(criterion))
       .hasToString("By.cssSelector: [criterion-id='Sel'] [data-testid='select-choice-close']");
+    assertThat(instructions.multipleChoiceUsesPanel()).isFalse();
   }
 
   @Test

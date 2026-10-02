@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {translateLabel} from "../utilities";
-import {classNames, parseValidationRules} from "../utilities/components";
+import {classNames, isVoidElement, parseValidationRules} from "../utilities/components";
 import {Components} from "../utilities/structure";
 import {useTranslation} from "react-i18next";
 import {updateMultipleComponentsWithDependencies} from "../redux/thunks/components";
@@ -64,6 +64,11 @@ function AweTagList(props) {
   }, [elementList, model.values, address]);
 
   const classes = classNames({ [`expandible-${expand}`]: expand }, style, { "hidden": !visible });
+
+  // Void elements (hr, br...) cannot have children
+  if (isVoidElement(type)) {
+    return React.createElement(type, {id: id, className: classes});
+  }
 
   return React.createElement(type || "div", {
     id: id,
