@@ -480,6 +480,71 @@ By option = By.xpath("//*[@data-testid='select-dropdown']//*[@data-testid='selec
   + "[contains(normalize-space(.),'Base')]");
 ```
 
+## Keeping browser tests free of selectors
+
+The `*IT` test classes should only describe **screen steps**: click this button, select this value, check this message.
+How an element is found (a selector, a `data-testid` hook, an xpath) and which tool drives the browser belong to the
+front-end instructions and `SeleniumUtilities`, so the same test keeps working when the web engine is replaced (AngularJS
+or React) or when the automation tool changes. Locators written in the examples above (`TestIds`, `By`) are for the
+helper classes of your product that extend `SeleniumUtilities`, not for the test classes.
+
+In a test class do not use:
+
+- Selenium imports (`org.openqa.selenium.*`) or types: `By`, `WebDriver` (`getDriver()`), `WebElement`, `Select`,
+  `JavascriptExecutor` (`executeScript(...)`), `Actions`.
+- `TestIds` and `TestAttributes`.
+- Selector literals in the helpers that take one: `click`, `clearText`, `checkText`, `checkTextContains`,
+  `checkTextNotContains`, `checkPresence`, `checkVisible`, `checkNotVisible`, `checkVisibleAndContains`,
+  `checkTextInEmbeddedFrame`, `waitForCssSelector`, `waitForText` with a class, `checkLogin` with a selector and
+  `checkLogout` with a selector. Use the semantic steps instead, for instance `checkLogin("test", "test", "Manager (test)")`
+  and `checkLogout()`.
+
+`BrowserTestSourceGuard` (`com.almis.awe.testing.guard`, in `awe-testing`) checks this rule over the Java sources, without
+needing a browser or any Selenium class. By default it scans only the test classes (`*IT.java`), because the helper
+classes of your product are where locators belong; `.files("*Page.java")` (any glob over the file name) scans other files. AWE applies it to its own test applications in a unit test (`All UT`), and a
+product can do the same with a test of its own:
+
+```java
+@Test
+void shouldKeepTheBrowserTestsFreeOfSelectors() throws IOException {
+  Report report = BrowserTestSourceGuard.create()
+    .allow("FileManagerIT.java", "checkTextInEmbeddedFrame(\"ol.breadcrumb a\", \"Files\")",
+      "The file manager is a third-party application inside a frame")
+    .scan(Path.of("src/test/java/com/mycompany/selenium")); // only the *IT.java files unless .files(glob) is set
+
+  assertThat(report.isClean()).as(report.describe()).isTrue();
+}
+```
+
+The report lists every violation with its file, line, rule and snippet. The selector check is a heuristic: it only looks
+at the selector argument of the helpers above, and a literal counts as a selector when it contains `[ ] # . > + ~ * / :`
+or a space. A plain tag name (`"button"`) is not detected, and neither are selectors built in a variable, so the guard
+prevents the common cases but does not replace review.
+
+### Allowing a justified exception
+
+When an exception is justified, allow that exact snippet in that file and say why. The reason is mandatory, and an
+allowance that no longer matches the code is reported (as stale) so it is removed with the code it excused. The snippet is
+the one printed in the report: the offending line, or the whole call for a selector literal. Use
+`allow(file, snippet, reason, times)` to allow an exact number of occurrences.
+
+### Migrating an existing suite step by step
+
+If a suite already has violations, list them in a baseline file and let the guard work as a ratchet: a new violation fails,
+and so does a listed violation that has disappeared, so the baseline only shrinks until the suite is migrated and the
+file is deleted.
+
+```java
+String baseline = BrowserTestSourceGuard.create().scan(testSources).toBaseline(); // write it to a file once
+
+Report report = BrowserTestSourceGuard.create()
+  .allowBaseline(Path.of("src/test/resources/browser-test-guard-baseline.txt"), "Pending migration to semantic steps")
+  .scan(testSources);
+```
+
+Each line of the baseline is `file:snippet`; blank lines and lines starting with `#` are ignored, and a violation repeated
+in a file is listed once per occurrence.
+
 ## Criteria
 
 The following points describe how to fill the different type of criteria available in AWE screens:

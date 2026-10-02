@@ -1,0 +1,127 @@
+# Violations of the browser test rule (no selectors, no automation-tool types in the IT classes) that the
+# Selenium tests of this application still have. Format: <file>:<snippet>, one line per occurrence.
+#
+# This is a ratchet, see BrowserTestSourcesGuardTest: a new violation fails the build, and so does a line below that
+# no longer matches the sources (delete it). Do not add lines: use a semantic step of SeleniumUtilities instead.
+# Regenerate after a migration with BrowserTestSourceGuard.create().scan(dir).toBaseline().
+ApplicationTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+ApplicationTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+ApplicationTestsIT.java:waitForText("react-lazylog", "[SCHEDULER]")
+ApplicationTestsIT.java:checkTextContains(".react-lazylog", "[SCHEDULER]")
+CRUDTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+CRUDTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+CriteriaAndMatrixTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+CriteriaAndMatrixTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+CriteriaAndMatrixTestsIT.java:waitForText("p-menuitem-text", "Tests")
+CriteriaAndMatrixTestsIT.java:checkVisible(".p-menuitem.test")
+CriteriaAndMatrixTestsIT.java:checkText("label[for=Unt]", "Texto Normal")
+CriteriaAndMatrixTestsIT.java:checkText("label[for=Unt]", "Numeric")
+CriteriaAndMatrixTestsIT.java:click(".p-datepicker .p-datepicker-calendar td span:not(.p-disabled)")
+CriteriaAndMatrixTestsIT.java:click(".p-datepicker .p-datepicker-calendar td span:not(.p-disabled)")
+CriteriaAndMatrixTestsIT.java:checkText("label[for=Unt]", "Inf")
+CriteriaAndMatrixTestsIT.java:checkText("[criterion-id='Unt'] .p-inputgroup-addon:last-of-type", "Inf")
+CriteriaAndMatrixTestsIT.java:checkText("[criterion-id='Unt'] .p-inputgroup-addon:last-of-type", "EUR")
+CriteriaAndMatrixTestsIT.java:checkText("[criterion-id='Unt'] .p-inputgroup-addon:last-of-type", "USD")
+CriteriaAndMatrixTestsIT.java:checkVisible("div.error-container")
+CriteriaAndMatrixTestsIT.java:checkNotVisible("#ButCnfTs1")
+CriteriaAndMatrixTestsIT.java:checkNotVisible("#ButCnfTs2")
+CriteriaAndMatrixTestsIT.java:checkVisible("#ButCnfTs1[disabled]")
+CriteriaAndMatrixTestsIT.java:checkNotVisible("#ButCnfTs2")
+CriteriaAndMatrixTestsIT.java:checkPresence("[grid-id='GrdMus']")
+CriteriaAndMatrixTestsIT.java:checkNotVisible("[grid-id='GrdMus']")
+CriteriaAndMatrixTestsIT.java:click("div.component-mask")
+CriteriaAndMatrixTestsIT.java:checkNotVisible(".context-menu")
+CriteriaAndMatrixTestsIT.java:click("div.component-mask")
+CriteriaAndMatrixTestsIT.java:checkNotVisible(".context-menu")
+CriteriaAndMatrixTestsIT.java:click("[grid-id='GrdSta'] div.ui-grid-viewport")
+CriteriaAndMatrixTestsIT.java:click(".datepicker td.day:not(.disabled)")
+CriteriaAndMatrixTestsIT.java:waitForCssSelector("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-plus")
+CriteriaAndMatrixTestsIT.java:checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-plus")
+CriteriaAndMatrixTestsIT.java:checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-edit")
+CriteriaAndMatrixTestsIT.java:checkVisible("[grid-id='GrdMuo'] [column-id='RowIco'] span.fa.fa-trash")
+CriteriaAndMatrixTestsIT.java:checkNotVisible("[tree-grid-id='TreGrdEdi'] [row-id='ProOperator']")
+CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='TreGrdLoaEdi'] [row-id='new-row-0']")
+CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='TreGrdLoaEdi'] .DELETE [row-id='ProOperator']")
+CriteriaAndMatrixTestsIT.java:checkNotVisible("[tree-grid-id='" + gridId + "'] [row-id='ProAdministrator-ModBase'] i.tree-icon")
+CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProGeneral-ModBase'] i.tree-icon")
+CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProOperator-ModBase']")
+IntegrationTestsIT.java:import org.openqa.selenium.By;
+IntegrationTestsIT.java:import org.openqa.selenium.WebElement;
+IntegrationTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+IntegrationTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+IntegrationTestsIT.java:checkNotVisible("#ButPrn")
+IntegrationTestsIT.java:waitForText("mm-text", "Tests")
+IntegrationTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")
+IntegrationTestsIT.java:checkLogout(".slogan", "Almis Web Engine")
+IntegrationTestsIT.java:checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)")
+IntegrationTestsIT.java:checkVisibleAndContains("li[option-name='test']", "Tests")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrLinTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrBarTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrAreTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrPieTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrDonutTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrStockTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrBarHorTst'] svg")
+IntegrationTestsIT.java:checkVisible("[chart-id='ChrSemiCircleTst'] svg")
+IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "1")
+IntegrationTestsIT.java:checkVisibleAndContains("[awe-tag-list='wizard-tag-list-1'] > span", "Manager (test)")
+IntegrationTestsIT.java:checkVisibleAndContains("[awe-tag-list='wizard-tag-list-2'] span", "MANAGER (TEST)")
+IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "2")
+IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "3")
+IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "4")
+IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
+IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
+IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
+IntegrationTestsIT.java:getDriver().switchTo().frame(iframe);
+IntegrationTestsIT.java:checkText("ol.breadcrumb a", "angular-filemanager")
+IntegrationTestsIT.java:getDriver().switchTo().defaultContent();
+PrintTestsIT.java:import org.openqa.selenium.By;
+PrintTestsIT.java:import org.openqa.selenium.WebElement;
+PrintTestsIT.java:import org.openqa.selenium.support.ui.Select;
+PrintTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+PrintTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+PrintTestsIT.java:waitForText("mm-text", "Tests")
+PrintTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")
+PrintTestsIT.java:Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
+PrintTestsIT.java:Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
+PrintTestsIT.java:Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
+PrintTestsIT.java:WebElement option = select.getFirstSelectedOption();
+PrintTestsIT.java:checkNotVisible(".modal-backdrop")
+RegressionTestsIT.java:import org.openqa.selenium.By;
+RegressionTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+RegressionTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+RegressionTestsIT.java:checkText("[criterion-id='Unt'] .unit", "USD")
+RegressionTestsIT.java:click(".datepicker td.day:not(.disabled)")
+RegressionTestsIT.java:click("[criterion-id='Sug'] .select2-choice")
+RegressionTestsIT.java:checkLogout(".slogan", "Almis Web Engine")
+RegressionTestsIT.java:checkLogin("test", "lala", ".alert.alert-warning div", "Invalid credentials The credentials entered for the user -test- are not valid")
+RegressionTestsIT.java:checkLogin("tutu", "lala", ".alert.alert-warning div", "Wrong username Username -tutu- is wrong or inactive")
+RegressionTestsIT.java:checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)")
+RegressionTestsIT.java:click("[criterion-id='CrtNam'] .select2-choice")
+RegressionTestsIT.java:writeText(By.cssSelector("#select2-drop input.select2-input"), "a");
+RegressionTestsIT.java:writeText(By.cssSelector("#select2-drop input.select2-input"), "s");
+RegressionTestsIT.java:writeText(By.cssSelector("#select2-drop input.select2-input"), "p");
+RegressionTestsIT.java:checkVisible(".select2-result:first-child")
+RegressionTestsIT.java:checkNotVisible(".select2-result:not(:first-child)")
+RegressionTestsIT.java:checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked")
+RegressionTestsIT.java:writeText(By.cssSelector(selector + " input.select2-input"), search1);
+RegressionTestsIT.java:clearText(selector + " input.select2-input")
+RegressionTestsIT.java:writeTextOnDriver(By.cssSelector(selector + " input.select2-input"), search2);
+RegressionTestsIT.java:waitForText("mm-text", "Tests")
+RegressionTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")
+SchedulerTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+SchedulerTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+SchedulerTestsIT.java:checkNotVisible("#ButAct")
+SchedulerTestsIT.java:checkVisible("#ButDea")
+SchedulerTestsIT.java:checkVisible("[column-id='ExeStaIco']:first-child span.text-success")
+SchedulerTestsIT.java:checkNotVisible("#ButDea")
+SchedulerTestsIT.java:checkVisible("#ButAct")
+SchedulerTestsIT.java:checkNotVisible("#ButAct")
+SchedulerTestsIT.java:checkVisible("#ButDea")
+WebsocketTestsIT.java:import org.openqa.selenium.JavascriptExecutor;
+WebsocketTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
+WebsocketTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
+WebsocketTestsIT.java:((JavascriptExecutor) getDriver()).executeScript(a);
+WebsocketTestsIT.java:((JavascriptExecutor) getDriver()).executeScript(a);
+WebsocketTestsIT.java:((JavascriptExecutor) getDriver()).executeScript(a);
+WebsocketTestsIT.java:checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)")
