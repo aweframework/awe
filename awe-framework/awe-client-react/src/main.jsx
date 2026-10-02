@@ -17,6 +17,7 @@ import 'font-awesome/css/font-awesome.css';
 import 'animate.css/animate.css';
 import 'material-icons/iconfont/material-icons.css';
 import './assets/css/layout.css';
+import './assets/css/bootstrap-grid-compat.css';
 
 // Pages
 import './assets/css/pages/signin.css';
