@@ -273,6 +273,32 @@ clickButtonAndConfirm("ButCnf");
 - Clicks on accept confirm dialog
 - Waits for a **success** message and closes it
 
+## API compatibility of `awe-testing`
+
+Products extend `SeleniumUtilities` and compile against `awe-testing`, so its **public and protected API is a compatibility
+contract**: a new `awe-testing` release must not break a test suite that compiled against the previous one. Adding members
+or deprecating them (`@Deprecated`) is allowed; removing or changing the signature of a public or protected member is not.
+
+The contract is enforced by the build. The `awe-testing` module runs [japicmp](https://siom79.github.io/japicmp/) in the
+`verify` phase and compares the freshly built jar with the last published release, set by the
+`awe-testing.api-baseline.version` property in `awe-framework/awe-testing/pom.xml`. The build fails on any binary or source
+incompatible change of a public or protected member of an `awe-testing` class. The report is written to
+`awe-framework/awe-testing/target/japicmp/`.
+
+The check only sees the `awe-testing` classes: their third-party supertypes (Selenium, JUnit, Spring) are not on the
+comparison classpath. A change that comes from those libraries (for example a Selenium upgrade that changes a type used
+in a signature) is not detected by this check; it shows up when the product's suite is compiled.
+
+If a break is intentional, document it in the changelog and add a narrow, commented exclusion in that pom (never a blanket
+ignore). After each release of `develop` (5.x), bump the baseline property to the version just released, so the next
+release is checked against it (see the release steps in `CONTRIBUTING.md`). To run the check on its own:
+
+```
+mvn verify -pl awe-framework/awe-testing -DskipTests
+```
+
+Use `-Djapicmp.skip=true` to skip it locally (for example when you are offline and the baseline is not in your local repository).
+
 ## Stable test hooks (`data-testid`)
 
 AWE components expose a small, fixed set of `data-testid` attributes. They name the **part** of a component, never an

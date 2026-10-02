@@ -73,6 +73,10 @@ of scope for `support/*` and belong on `develop` instead.
 | `develop` | `Start a new release` (manual) | `mvn gitflow:release` (develop -> master) | `vX.Y.Z` (`5.0.0`, `5.1.0`, ...) | `5.Y.Z` |
 | `support/4.x` | `Start a new release` (manual) | `bin/support-release.sh` (hotfix flow, no merge to master/develop) | `vX.Y.Z` (`4.12.10`, `4.13.0`, ...) | `4.13.x` |
 
+After a release of `develop`, bump `awe-testing.api-baseline.version` in `awe-framework/awe-testing/pom.xml` to the
+version just released (it is the API compatibility baseline of `awe-testing`, checked by japicmp in the build; see
+the Selenium test guide). `support/*` keeps the last 4.x release as its baseline.
+
 Both jobs appear in the pipeline of their branch and are started manually. On `support/*`
 the version stays in the `4.x` series; once `develop` moves to `5.0.0-SNAPSHOT`, its
 releases produce `5.0.0` and later versions. Tag pipelines (Maven Central deploy, release notes, GitLab release, milestone
