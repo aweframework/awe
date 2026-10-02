@@ -598,6 +598,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   boolean datePickerRequiresManualClick();
 
+  /**
+   * Check if the search box of a multiple choice (multiple select or suggest) lives inside a panel that must be
+   * opened first, and stays open after choosing. Engines whose search box is always on the page keep the default.
+   * @return true if the panel must be opened before searching, false otherwise.
+   */
+  default boolean multipleChoiceUsesPanel() {
+    return false;
+  }
+
   /*
   =================================
   SEMANTIC STEPS

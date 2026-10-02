@@ -442,7 +442,11 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getSuggestMultipleInput(String parentSelector) {
-    return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.SELECT_SEARCH)));
+    // The search of a multiple suggest lives in the criterion; the one of a multiple select lives in its panel,
+    // which is rendered outside the criterion. PrimeReact only renders a panel while it is open, and the steps close
+    // the panel they open, so the panel search box belongs to the select being edited
+    return By.cssSelector(String.format("%s %s, %s %s", parentSelector, css(TestIds.SELECT_SEARCH),
+      css(TestIds.SELECT_DROPDOWN), css(TestIds.SELECT_SEARCH)));
   }
 
   public By getSuggestMultipleChoiceClose(String parentSelector) {
@@ -451,6 +455,12 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public boolean datePickerRequiresManualClick() {
     return false;
+  }
+
+  @Override
+  public boolean multipleChoiceUsesPanel() {
+    // The filter of the multiple select is rendered inside its panel
+    return true;
   }
 
   public By getLoggedUser() {

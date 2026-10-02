@@ -17,3 +17,4 @@ import './AweWindowTest';
 import './AweDialogTest';
 import './AweButtonTest.jsx';
 import './AweTagListTest.jsx';
+import './TagTest.jsx';

@@ -9,6 +9,21 @@ import {ComponentType, getFirstDefinedAndNotNullValue, isEmpty} from "./general"
 import {extractCellModel, getGridData, getGridIdentifier} from "./grid";
 
 /**
+ * HTML void elements: React refuses to render them with children (not even an empty label)
+ * @type {Set<string>}
+ */
+const VOID_ELEMENTS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+
+/**
+ * Check whether an HTML tag is a void element, which cannot have children
+ * @param {string} type Tag name
+ * @returns {boolean} True when the tag is a void element
+ */
+export function isVoidElement(type) {
+  return typeof type === "string" && VOID_ELEMENTS.has(type.toLowerCase());
+}
+
+/**
  * Upload status
  * @type {{UPLOADING: string, INITIAL: string, UPLOADED: string}}
  */
