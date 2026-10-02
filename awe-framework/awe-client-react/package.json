@@ -29,7 +29,7 @@
   "description": "AWE React client",
   "dependencies": {
     "@redux-devtools/extension": "^3.3.0",
-    "@reduxjs/toolkit": "1.9.5",
+    "@reduxjs/toolkit": "1.9.7",
     "@stomp/stompjs": "7.0.0",
     "animate.css": "4.1.1",
     "autoprefixer": "10.4.20",
