@@ -4,10 +4,6 @@
 # This is a ratchet, see BrowserTestSourcesGuardTest: a new violation fails the build, and so does a line below that
 # no longer matches the sources (delete it). Do not add lines: use a semantic step of SeleniumUtilities instead.
 # Regenerate after a migration with BrowserTestSourceGuard.create().scan(dir).toBaseline().
-ApplicationTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-ApplicationTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
-ApplicationTestsIT.java:waitForText("react-lazylog", "[SCHEDULER]")
-ApplicationTestsIT.java:checkTextContains(".react-lazylog", "[SCHEDULER]")
 CriteriaAndMatrixTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
 CriteriaAndMatrixTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
 CriteriaAndMatrixTestsIT.java:waitForText("p-menuitem-text", "Tests")
@@ -107,12 +103,3 @@ RegressionTestsIT.java:clearText(selector + " input.select2-input")
 RegressionTestsIT.java:writeTextOnDriver(By.cssSelector(selector + " input.select2-input"), search2);
 RegressionTestsIT.java:waitForText("mm-text", "Tests")
 RegressionTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")
-SchedulerTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-SchedulerTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
-SchedulerTestsIT.java:checkNotVisible("#ButAct")
-SchedulerTestsIT.java:checkVisible("#ButDea")
-SchedulerTestsIT.java:checkVisible("[column-id='ExeStaIco']:first-child span.text-success")
-SchedulerTestsIT.java:checkNotVisible("#ButDea")
-SchedulerTestsIT.java:checkVisible("#ButAct")
-SchedulerTestsIT.java:checkNotVisible("#ButAct")
-SchedulerTestsIT.java:checkVisible("#ButDea")

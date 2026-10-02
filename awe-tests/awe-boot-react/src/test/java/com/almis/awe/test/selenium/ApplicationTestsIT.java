@@ -15,7 +15,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,7 +25,8 @@ class ApplicationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    // The application asks for a confirmation before logging out
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -993,10 +994,7 @@ class ApplicationTestsIT extends SeleniumUtilities {
     waitForButton("ButBck");
 
     // Check text
-    waitForText("react-lazylog", "[SCHEDULER]");
-
-    // Check text
-    checkTextContains(".react-lazylog", "[SCHEDULER]");
+    checkLogViewerContains("[SCHEDULER]");
 
     // Click back button
     clickButton("ButBck", true);

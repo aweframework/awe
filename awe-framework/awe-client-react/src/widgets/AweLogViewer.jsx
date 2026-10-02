@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {LazyLog} from 'react-lazylog';
 import {getIconCode} from "../utilities";
+import {isEmpty} from "../utilities/general";
 import {Button} from "primereact/button";
 import "./AweLogViewer.less";
 import {useDispatch} from "react-redux";
@@ -52,12 +53,20 @@ function AweLogViewer(props) {
     checkAutoRefresh();
   }, [autorefresh, offset]);
 
+  // react-lazylog keeps the text after the last line break as a typed array and concatenates it into
+  // its line list, which then holds the bytes as numbers and crashes the whole screen when rendered.
+  // Closing the text with a line break leaves nothing after the last line break.
+  // A missing text is an empty one. A blank text is kept as a single blank line: an empty text made the screen
+  // crash in the real application once the first lines arrived, a blank line does not.
+  const safeText = isEmpty(logText) ? " " : logText;
+  const lazyLogText = safeText.endsWith("\n") ? safeText : safeText + "\n";
+
   return visible ? <div className={"expand expandible-vertical panel-body p-0 log-container"} id={id} {...testHook(TestIds.logViewer)}>
     <Button data-testid="autoload-button"
       className={"p-button-text p-button-rounded log-button-autoload"}
       icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
       onClick={toggleAutoRefresh} />
-    <LazyLog text={logText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1} />
+    <LazyLog text={lazyLogText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1} />
     <div className={"log-loading-dots " + (!showLoadingDots ? "hidden" : "")}>
       {getIconCode("circle", "fa-fw fade1 animation-dot")}
       {getIconCode("circle", "fa-fw fade2 animation-dot")}

@@ -433,6 +433,9 @@ public class SeleniumUtilities implements IAweInstructions {
     String conditionMessage = "";
     try {
       WebElement element = getElement(selector);
+      // The Actions API does not scroll: Firefox refuses to move to an element outside the viewport
+      // (e.g. the row just added at the bottom of a long grid), Chrome scrolls on its own
+      ((JavascriptExecutor) seleniumModel.getDriver()).executeScript("arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest'});", element);
       new Actions(seleniumModel.getDriver())
         .sendKeys(element, text)
         .pause(200)

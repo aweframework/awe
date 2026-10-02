@@ -23,7 +23,8 @@ import {
   getFooterValue,
   getGridIdentifier,
   getRowIndex,
-  getSelectedRowIndex
+  getSelectedRowIndex,
+  OperationType
 } from "../../utilities/grid";
 import { compareEqualValues, getFirstDefinedAndNotNullValue, isEmpty, isEmptyCell } from "../../utilities/general";
 
@@ -348,10 +349,13 @@ function getTriggers(element, component) {
   return triggers;
 }
 
+// Attributes that depend on the whole grid model (row set or selection), so any model update may change them.
+// "currentRowValue" is not one of them: it is the value of a single cell, and its value is already compared
+// on every check; launching it on any other model update would validate untouched cells again
+// (e.g. the unique check of a key column each time another column of the same row is edited).
 const MODEL_CONTEXT_ATTRIBUTES = new Set([
   "selectedRows",
   "selectedRowValue",
-  "currentRowValue",
   "prevCurrentRowValue",
   "nextCurrentRowValue",
   "prevRowValue",
@@ -782,9 +786,33 @@ function initializeDependency(dependency, component, state) {
   return dependency.initial;
 }
 
+/**
+ * Check if a row of a grid is a stored record: it is not one that the user has added or copied
+ * @param {object} component Grid component
+ * @param {string|number} rowId Row identifier
+ * @returns {boolean} The row is a stored record
+ */
+function isStoredRow(component, rowId) {
+  const gridId = getGridIdentifier(component.attributes);
+  const row = (component.model?.values || []).find(value => String(value[gridId]) === String(rowId));
+  const isNewId = /^(new|copied)-row-/.test(String(rowId));
+  return !isNewId && row?.$row?.operation !== OperationType.INSERT;
+}
+
 function hasChanged(dependency, component, state) {
   const newValues = evaluateDependency(dependency, component, state).values;
   const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
+
+  // A unique check validates what the user has just typed. When the row of a stored record shows up for the first
+  // time (the user starts editing it) there is nothing typed yet: remember the values and wait for a change,
+  // otherwise the row would be reported as a duplicate of itself. A new or copied row may already hold a value
+  // (a default one, or the copied one), so it is checked at once.
+  if (!DEPENDENCY_VALUES[component.address?.view][componentId] && dependency[state.settings.serverActionKey] === "unique"
+    && isStoredRow(component, dependency.address?.row)) {
+    checkAndStoreResult(dependency, component, state);
+    return false;
+  }
+
   const storedData = DEPENDENCY_VALUES[component.address?.view][componentId] || {};
   const modelContext = getDependencyModelContext(dependency, component, state);
   const currentModelHash = hashContext(modelContext);
