@@ -939,7 +939,15 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     };
 
     const result = getCriterionData(criterion, model, {}, false);
-    expect(result).toEqual({});
+    // Like the AngularJS client, an empty criterion is sent with a null value, never omitted
+    expect(result).toEqual({ criterionId: null });
+    expect(Object.keys(result)).toContain('criterionId');
+  });
+
+  it('should get criterion data with null value when the model has no values', () => {
+    const criterion = { attributes: { id: 'criterionId', component: 'text' } };
+
+    expect(getCriterionData(criterion, {}, {}, false)).toEqual({ criterionId: null });
   });
 
   // Tests for getCriterionDataAsList
