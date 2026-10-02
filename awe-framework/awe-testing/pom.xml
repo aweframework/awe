@@ -23,6 +23,11 @@
     <log4j-over-slf4j.version>1.7.36</log4j-over-slf4j.version>
     <sonar.exclusions>src/**</sonar.exclusions>
     <skip.delombok>false</skip.delombok>
+    <!-- API compatibility baseline: last published release whose public/protected API must stay
+         compatible. Products (e.g. FMB) compile and subclass against it. Bump it after each release
+         that is meant to become the new compatibility reference. Skip locally with -Djapicmp.skip=true. -->
+    <awe-testing.api-baseline.version>4.12.10</awe-testing.api-baseline.version>
+    <japicmp.skip>false</japicmp.skip>
   </properties>
 
   <dependencies>
@@ -85,6 +90,50 @@
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
+      </plugin>
+      <!-- API compatibility check against the last published release (see the baseline property) -->
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <version>${plugin-japicmp.version}</version>
+        <executions>
+          <execution>
+            <id>api-compatibility</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>cmp</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <oldVersion>
+            <dependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${awe-testing.api-baseline.version}</version>
+              <type>jar</type>
+            </dependency>
+          </oldVersion>
+          <newVersion>
+            <file>
+              <path>${project.build.directory}/${project.build.finalName}.jar</path>
+            </file>
+          </newVersion>
+          <parameter>
+            <!-- Products subclass SeleniumUtilities, so protected members are part of the contract -->
+            <onlyModified>true</onlyModified>
+            <accessModifier>protected</accessModifier>
+            <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+            <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+            <breakBuildIfCausedByExclusion>false</breakBuildIfCausedByExclusion>
+            <includeSynthetic>false</includeSynthetic>
+            <!-- Third-party supertypes (Selenium, JUnit, Spring) are not on the comparison classpath;
+                 only the awe-testing classes themselves are compared -->
+            <ignoreMissingClasses>true</ignoreMissingClasses>
+            <skipPomModules>true</skipPomModules>
+          </parameter>
+          <skip>${japicmp.skip}</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>
