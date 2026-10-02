@@ -25,6 +25,7 @@ module.exports = {
     '**/utilities/menuSearchTest.{js,jsx}',
     '**/utilities/numbersTest.{js,jsx}',
     '**/utilities/componentsTest.{js,jsx}',
+    '**/utilities/classChangesTest.{js,jsx}',
     '**/redux/registry/ComponentRegistryTest.{js,jsx}',
     '**/hooks/useTextTest.{js,jsx}',
     '**/hooks/useComponentTest.{js,jsx}',

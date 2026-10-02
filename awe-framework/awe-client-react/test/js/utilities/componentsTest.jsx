@@ -652,6 +652,30 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     expect(result.values[2].selected).toBe(false);
   });
 
+  it('should flatten a selected list returned as an array of arrays (ARRAY transform)', () => {
+    const model = {
+      selected: [['2', '3']],
+      values: [
+        { value: '0', label: 'Ok' },
+        { value: '2', label: 'Warning' },
+        { value: '3', label: 'Stopped' }
+      ]
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values.map(value => value.selected)).toEqual([false, true, true]);
+  });
+
+  it('should keep the selected items of a nested array when the options list is empty', () => {
+    const model = {
+      selected: [['test']],
+      values: []
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values).toEqual([{ value: 'test', selected: true }]);
+  });
+
   it('should fix model with empty values but selected items', () => {
     const model = {
       selected: [{ value: '1', label: 'Item 1' }],
@@ -735,6 +759,26 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
     expect(result.parent).toEqual(['parent']);
     expect(result.child1).toEqual(['parent', 'child1']);
     expect(result.child2).toEqual(['parent', 'child2']);
+  });
+
+  it('should not register the dependency elements as components of the structure', () => {
+    const element = {
+      id: 'parent',
+      elementType: 'Container',
+      elementList: [
+        {
+          id: 'first',
+          elementType: 'Criteria',
+          elementList: [
+            { elementType: 'Dependency', elementList: [{ id: 'second', elementType: 'DependencyElement' }] }
+          ]
+        },
+        { id: 'tag', elementType: 'Tag', elementList: [{ id: 'second', elementType: 'Criteria' }] }
+      ]
+    };
+
+    const result = inspectComponentStructure(element, [], {});
+    expect(result.second).toEqual(['parent', 'tag', 'second']);
   });
 
   it('should handle Dialog in component structure', () => {

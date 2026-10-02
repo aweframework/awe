@@ -1,6 +1,7 @@
 import * as screenThunks from '../../../../src/redux/thunks/screen';
 import { ADD_ACTIONS_TOP } from '../../../../src/redux/actions/actions';
 import { navigationActions } from '../../../../src/redux/actions/navigation';
+import { clearClassChanges, rememberClassChange } from '../../../../src/utilities/classChanges';
 
 describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
   let dispatch;
@@ -247,6 +248,27 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
           })
         })
       ]);
+    });
+
+    it('forgets the remembered class changes of the previous screen when a screen is loaded', async () => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({ structure: {}, components: [], messages: [], screen: {} })
+      });
+      rememberClassChange('#previousScreenNode', 'hidden', 'remove');
+
+      await screenThunks.loadScreen('view-a', 'option-a', (key) => key)(dispatch, () => ({
+        settings: { token: 'TOK' },
+        components: {}
+      }));
+
+      const node = document.createElement('div');
+      node.id = 'previousScreenNode';
+      node.className = 'hidden';
+      document.body.appendChild(node);
+      await Promise.resolve();
+      expect(node.classList.contains('hidden')).toBe(true);
+      clearClassChanges();
     });
 
     it('navega sin mensaje UI cuando el estado contiene componentes malformados sin address', async () => {

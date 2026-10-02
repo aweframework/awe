@@ -25,6 +25,7 @@ import {getFormValues} from "../selectors/form";
 import {updateSettings} from "../actions/settings";
 import {getAllComponents} from "../selectors/componentSelectors";
 import {getFirstDefinedAndNotNullValue} from "../../utilities/general";
+import {clearClassChanges} from "../../utilities/classChanges";
 import {navigationActions} from "../actions/navigation";
 
 let downloadIdentifier = 0;
@@ -85,7 +86,8 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
 
     const componentStructure = inspectComponentStructure(response.structure, [], {});
 
-    // Clear previous view components before loading the new ones.
+    // Forget the class changes of the previous screen and clear its components before loading the new ones.
+    clearClassChanges();
     dispatch({ ...clearComponents(view), settings });
 
     // Register components with their dependencies.

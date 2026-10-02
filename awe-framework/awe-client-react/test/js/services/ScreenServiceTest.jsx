@@ -5,6 +5,7 @@ import {MemoryRouter} from "react-router";
 import useScreenService from "../../../src/services/ScreenService";
 import { navigationActions } from "../../../src/redux/actions/navigation";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
+import {clearClassChanges} from "../../../src/utilities/classChanges";
 
 const preloadedState = {
   settings: DEFAULT_SETTINGS
@@ -46,6 +47,7 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
   });
 
   afterEach(function () {
+    clearClassChanges();
     jest.useRealTimers();
     jest.restoreAllMocks();
   });
@@ -199,6 +201,43 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
     // Spies
     await waitFor(() => expect(dispatchSpy).toHaveBeenCalled());
+  });
+
+  // Class changes on nodes that are not mounted yet (inactive tabs)
+  it('should apply a css class change when the target node is mounted later', async function() {
+    jest.useFakeTimers();
+
+    actions["remove-class"]({target: "#lazyNode", parameters:{targetAction: "hidden"}}, props);
+    jest.advanceTimersByTime(500);
+
+    const node = document.createElement("div");
+    node.id = "lazyNode";
+    node.className = "row hidden";
+    document.body.appendChild(node);
+    await Promise.resolve();
+    jest.advanceTimersByTime(100);
+
+    expect(node.classList.contains("hidden")).toBe(false);
+    expect(node.classList.contains("row")).toBe(true);
+    node.remove();
+  });
+
+  it('should apply again a css class change when the target node is remounted', async function() {
+    jest.useFakeTimers();
+
+    actions["remove-class"]({target: "#lazyNode2", parameters:{targetAction: "hidden"}}, props);
+    jest.advanceTimersByTime(500);
+
+    for (let i = 0; i < 2; i++) {
+      const node = document.createElement("div");
+      node.id = "lazyNode2";
+      node.className = "hidden";
+      document.body.appendChild(node);
+      await Promise.resolve();
+      jest.advanceTimersByTime(100);
+      expect(node.classList.contains("hidden")).toBe(false);
+      node.remove();
+    }
   });
 
   // Redirect action
