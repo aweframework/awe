@@ -556,7 +556,10 @@ public class SeleniumUtilities implements IAweInstructions {
     if (driver instanceof JavascriptExecutor) {
       try {
         ((JavascriptExecutor) driver).executeScript(
-          "var rect = arguments[0].getBoundingClientRect();"
+          // An element inside a list with its own scroll (the options of a select) is first shown inside that list, or
+          // a click on it would reach what lies below the list (Firefox does not scroll the list on its own)
+          "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest'});"
+            + "var rect = arguments[0].getBoundingClientRect();"
             + "if (rect.top < 60 || rect.bottom > window.innerHeight - 60) {"
             + "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});}", element);
       } catch (Exception exc) {

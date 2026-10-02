@@ -125,7 +125,8 @@ class ReactAweInstructionsTest {
   void shouldLocateSelectPartsByTheirHooks() {
     String criterion = instructions.getCriterionCss("Sel");
 
-    assertThat(instructions.getSelectChoice(criterion)).hasToString("By.cssSelector: [criterion-id='Sel'] [data-testid='select']");
+    // The arrow opens the panel: the middle of a short multiple select can be its clear icon
+    assertThat(instructions.getSelectChoice(criterion)).hasToString("By.cssSelector: [criterion-id='Sel'] [data-testid='select-trigger']");
     assertThat(instructions.getSelectChosen("Sel")).hasToString("By.cssSelector: [criterion-id='Sel'] [data-testid='select-value']");
     assertThat(instructions.getSelectMultipleTextContainer("Sel"))
       .hasToString("By.cssSelector: [criterion-id='Sel'] [data-testid='select-choice']");

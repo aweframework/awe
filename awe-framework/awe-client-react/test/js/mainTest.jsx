@@ -47,6 +47,16 @@ describe('awe-react-client/test/js/mainTest.jsx', () => {
     expect(render).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps a colon in a label (a time such as "00:00" is not a namespace and a key)', async () => {
+    fetchJson.mockResolvedValue({language: 'es-ES'});
+    i18nInit.mockResolvedValue();
+
+    loadMain();
+    await flushPromises();
+
+    expect(i18nInit).toHaveBeenCalledWith(expect.objectContaining({nsSeparator: false}));
+  });
+
   it('logs the error and does not render when the settings cannot be loaded', async () => {
     const error = new Error('settings unavailable');
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});

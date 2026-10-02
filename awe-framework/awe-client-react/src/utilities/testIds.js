@@ -21,6 +21,8 @@ export const TestIds = Object.freeze({
   selectChoice: "select-choice",
   selectChoiceClose: "select-choice-close",
   selectDropdown: "select-dropdown",
+  // React only: arrow that opens the overlay panel (the middle of a short select can be its clear icon)
+  selectTrigger: "select-trigger",
   selectOption: "select-option",
   // Date criteria: calendar overlay and its day, month and year cells
   datepicker: "datepicker",

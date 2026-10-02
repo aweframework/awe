@@ -415,6 +415,18 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldScrollAnOptionIntoItsOwnScrollableListBeforeClickingIt() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+
+    utilities.suggestMultiple("Months", "October", "October");
+
+    // The last option of a list with its own scroll can be clipped by the list: a click on it would reach what lies below
+    verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
+      argThat((String script) -> script.contains("innerHeight") && script.contains("block: 'nearest'")), any());
+  }
+
+  @Test
   void shouldFailWhenAnOptionIsReplacedOnEveryAttempt() {
     show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
     show(instructions.getSuggestResult("October"), "October");
