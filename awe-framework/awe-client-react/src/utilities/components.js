@@ -494,7 +494,8 @@ export function getComponentData(component, props, forPrinting, model = "model")
  * @return {object} Model fixed
  */
 export function fixModel(model, isGrid) {
-  let selected = asArray(model.selected).map(value => fixSelectedModel(value));
+  // Multiple values loaded with the ARRAY transform arrive as a list inside the selected list
+  let selected = asArray(model.selected).flat(Infinity).map(value => fixSelectedModel(value));
   let values = model.values;
   const selectedValues = [...selected.map(value => value?.value), ...values
     .filter(value => value.selected)
@@ -589,7 +590,8 @@ export function inspectComponentStructure(element, context, inspected) {
     element.elementType = element.treegrid ? "TreeGrid" : elementType;
   }
 
-  if (id && !(id in inspected)) {
+  // Dependency elements only reference components, they are not part of the structure
+  if (id && elementType !== "DependencyElement" && !(id in inspected)) {
     nextContext = [...nextContext, id];
     inspected[id] = nextContext;
   }
