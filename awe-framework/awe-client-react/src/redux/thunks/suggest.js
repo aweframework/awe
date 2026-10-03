@@ -31,7 +31,7 @@ export const suggestAction = (event, text, props) => {
 
 /**
  * Initial suggest
- * @param {string} suggest   Suggestion text
+ * @param {string|string[]} suggest   Suggestion text (or the values of a multiple suggest)
  * @param props Suggest properties
  * @memberOf Components
  */
@@ -47,8 +47,10 @@ export const initialSuggestAction = (suggest, { address, serverAction, targetAct
     );
 
     const datalist = manageFillAction(response, dispatch);
+    // A multiple suggest checks all its values at once
+    const suggested = [suggest].flat().map(String);
     const selectedItems = (datalist.rows || [])
-      .filter(item => String(item.value) === String(suggest))
+      .filter(item => suggested.includes(String(item.value)))
       .map(item => ({ ...item, selected: true }));
 
     // Redux updates

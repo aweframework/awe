@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {AutoComplete} from "primereact/autocomplete";
 import {classNames} from "../utilities/components";
 import "./AweSuggest.less";
@@ -21,7 +21,24 @@ function AweSuggestMultiple(props) {
   const [suggestions, setSuggestions] = useState([...model.values]);
   const [value, setValue] = useState(model.values.filter(item => item.selected) || []);
 
-  const { onChange, onKeyPress, onSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
+  const { onChange, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
+
+  // Show the selected values again when the model changes (a dependency or an action selects other values)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setValue((model.values || []).filter(item => item.selected));
+  }, [model.values]);
+
+  // Retrieve the labels of the values that were selected without one (a server action selects only their values)
+  useEffect(() => {
+    if (attributes?.checkTarget && value.some(item => !item.label)) {
+      initialSuggest(value.map(item => item.value));
+    }
+  }, [value]);
 
   const { placeholder, required, readonly, timeout, size, error } = attributes;
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });

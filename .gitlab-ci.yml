@@ -667,7 +667,7 @@ Firefox IT React:
       - TEST_CLASSES: CRUDTestsIT
         TEST_PORT: "6310"
         TEST_NAME: react-firefox-crud-criteria-matrix
-      - TEST_CLASSES: WebsocketTestsIT,PrintTestsIT
+      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6311"
         TEST_NAME: react-firefox-regression-websocket-print
       - TEST_CLASSES: SchedulerTestsIT
@@ -686,7 +686,7 @@ Chrome IT React:
       - TEST_CLASSES: CRUDTestsIT
         TEST_PORT: "6314"
         TEST_NAME: react-chrome-crud-criteria-matrix
-      - TEST_CLASSES: WebsocketTestsIT,PrintTestsIT
+      - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
         TEST_PORT: "6315"
         TEST_NAME: react-chrome-regression-websocket-print
       - TEST_CLASSES: SchedulerTestsIT

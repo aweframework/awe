@@ -1,5 +1,6 @@
 package com.almis.awe.test.service;
 
+import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.client.grid.UpdateCellActionBuilder;
 import com.almis.awe.builder.enumerates.Action;
 import com.almis.awe.builder.screen.ScreenBuilder;
@@ -621,5 +622,15 @@ public class DummyService extends ServiceConfig {
   public ServiceData updateCell() throws AWException {
     // Fill serviceData with dataList
     return new ServiceData().addClientAction(new UpdateCellActionBuilder(new ComponentAddress("report", "GrdEdi", "3", "Txt"), new CellData("Prueba de texto")).build());
+  }
+
+  /**
+   * Fill a suggest multiple with data
+   *
+   * @return Service data with the select action
+   */
+  public ServiceData testSuggestMultiple() {
+    logger.info("Launching a suggest multiple select action");
+    return new ServiceData().addClientAction(new SelectActionBuilder("SugMul", List.of("test", "pei")).build());
   }
 }
