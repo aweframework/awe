@@ -30,4 +30,10 @@ describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
     expect(document.querySelector("div.p-panel")).not.toBeNull();
   });
 
+  it('exposes its identifier as the window-id attribute, the one that dependency actions target', () => {
+    renderWithProviders(<AweWindow id="ExecutionsWindow" style="expand hidden"/>, {preloadedState});
+
+    expect(document.querySelector("[window-id='ExecutionsWindow']")).toBe(document.querySelector("div.p-panel"));
+  });
+
 });

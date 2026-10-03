@@ -83,6 +83,12 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateTheSuccessIconOfAColumnInsideItsCell() {
+    assertThat(instructions.getColumnSuccessIcon("Sta"))
+      .hasToString("By.cssSelector: [column-id='Sta'] [data-testid='column-icon'] .text-success");
+  }
+
+  @Test
   void shouldSelectARowThroughItsCheckboxWhenTheGridHasOneAndThroughItsCellOtherwise() {
     String row = "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row']"
       + "[.//*[@data-testid='grid-cell' and contains(normalize-space(.),'abc')]]";

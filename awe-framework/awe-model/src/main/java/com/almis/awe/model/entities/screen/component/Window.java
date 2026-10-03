@@ -4,7 +4,6 @@ import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -35,7 +34,6 @@ import java.util.List;
 @NoArgsConstructor
 @Accessors(chain = true)
 @XStreamAlias("window")
-@JsonIgnoreProperties({"id"})
 public class Window extends Component {
 
   private static final long serialVersionUID = 5159433149044786985L;

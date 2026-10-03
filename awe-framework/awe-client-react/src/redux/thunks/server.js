@@ -16,7 +16,9 @@ export const serverAction = (action, forPrinting = false, t = (o) => o) => {
       const response = await fetchAction(
         serverAction,
         targetAction,
-        { ...getFormValues(getState(), forPrinting, t), ...parameters },
+        // Form values win over the action parameters (as in the AngularJS client): the action always carries
+        // null target, value and label, which would otherwise wipe a component or column with that name
+        { ...parameters, ...getFormValues(getState(), forPrinting, t) },
         settings.token,
         null
       );

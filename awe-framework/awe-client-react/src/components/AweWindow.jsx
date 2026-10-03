@@ -36,6 +36,7 @@ function AweWindow(props) {
     {getHelpTooltipNode(help, helpImage, t,`.help-target-${id}`)}
     <Panel
       id={id}
+      window-id={id}
       className={classes}
       header={getHeader()}
       icons={getIcon()}>
