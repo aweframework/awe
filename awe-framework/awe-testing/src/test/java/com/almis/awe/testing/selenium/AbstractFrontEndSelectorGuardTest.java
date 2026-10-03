@@ -261,6 +261,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getValidationError", i::getValidationError);
     catalog.put("getEnabledDatepickerDay", i::getEnabledDatepickerDay);
     catalog.put("getActiveWizardStepNumber", i::getActiveWizardStepNumber);
+    catalog.put("getActiveWizardStep", () -> i.getActiveWizardStep("2"));
     catalog.put("getTagList", () -> i.getTagList("Tags"));
     catalog.put("getChart", () -> i.getChart("Chr"));
     catalog.put("getLogViewer", i::getLogViewer);

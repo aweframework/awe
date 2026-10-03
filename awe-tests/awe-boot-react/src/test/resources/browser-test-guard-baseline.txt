@@ -39,33 +39,3 @@ CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='TreGrdLoaEdi'] .DELET
 CriteriaAndMatrixTestsIT.java:checkNotVisible("[tree-grid-id='" + gridId + "'] [row-id='ProAdministrator-ModBase'] i.tree-icon")
 CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProGeneral-ModBase'] i.tree-icon")
 CriteriaAndMatrixTestsIT.java:checkVisible("[tree-grid-id='" + gridId + "'] [row-id='ProOperator-ModBase']")
-IntegrationTestsIT.java:import org.openqa.selenium.By;
-IntegrationTestsIT.java:import org.openqa.selenium.WebElement;
-IntegrationTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-IntegrationTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
-IntegrationTestsIT.java:checkNotVisible("#ButPrn")
-IntegrationTestsIT.java:waitForText("mm-text", "Tests")
-IntegrationTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")
-IntegrationTestsIT.java:checkLogout(".slogan", "Almis Web Engine")
-IntegrationTestsIT.java:checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)")
-IntegrationTestsIT.java:checkVisibleAndContains("li[option-name='test']", "Tests")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrLinTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrBarTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrAreTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrPieTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrDonutTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrStockTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrBarHorTst'] svg")
-IntegrationTestsIT.java:checkVisible("[chart-id='ChrSemiCircleTst'] svg")
-IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "1")
-IntegrationTestsIT.java:checkVisibleAndContains("[awe-tag-list='wizard-tag-list-1'] > span", "Manager (test)")
-IntegrationTestsIT.java:checkVisibleAndContains("[awe-tag-list='wizard-tag-list-2'] span", "MANAGER (TEST)")
-IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "2")
-IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "3")
-IntegrationTestsIT.java:checkVisibleAndContains("li.active > span.wizard-step-number", "4")
-IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
-IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
-IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
-IntegrationTestsIT.java:getDriver().switchTo().frame(iframe);
-IntegrationTestsIT.java:checkText("ol.breadcrumb a", "angular-filemanager")
-IntegrationTestsIT.java:getDriver().switchTo().defaultContent();

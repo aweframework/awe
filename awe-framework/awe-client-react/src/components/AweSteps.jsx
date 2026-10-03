@@ -8,7 +8,7 @@ import { usePanelable } from "../hooks/usePanelable";
 import { useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import PropTypes from "prop-types";
-import { TestIds, testHook } from "../utilities/testIds";
+import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
 
 function AweSteps(props) {
   const { id, elementList = [] } = props;
@@ -40,7 +40,7 @@ function AweSteps(props) {
     return (
       <button className={`p-menuitem-link ${stepClass}`} onClick={() => onChange({ index: itemIndex })} tabIndex={-1}
         {...testHook(TestIds.wizardStep, {
-          active: activeIndex === itemIndex, completed: activeIndex > itemIndex, attributes: { "option-id": item.value }
+          active: activeIndex === itemIndex, completed: activeIndex > itemIndex, attributes: { "option-id": item.value, [TestAttributes.stepNumber]: String(itemIndex + 1) }
         })}>
         <span className="p-steps-number" {...testHook(TestIds.wizardStepNumber)}>{iconRenderer(icon, itemIndex + 1)}</span>
         <div className={`p-steps-text`}>

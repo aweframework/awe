@@ -25,6 +25,7 @@
   <locale name="BUTTON_SET_VALUE1" value="Mettre &apos;Valor1&apos;"/>
   <locale name="BUTTON_SET_VALUE2" value="Mettre &apos;Valor2&apos;"/>
   <locale name="BUTTON_SET_VALUE3" value="Mettre &apos;Valor3&apos;"/>
+  <locale name="COLUMN_COUNTRY" value="Pays"/>
   <locale name="COLUMN_NUMERIC" value="Numérique (test)"/>
   <locale name="ELEMENT_TYPE_GRID" value="Grid"/>
   <locale name="ENUM_MATRIX_EDITABLE" value="Modifiable"/>

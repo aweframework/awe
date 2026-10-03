@@ -8,6 +8,7 @@ import {useDispatch} from "react-redux";
 import {useComponentState} from "../hooks/useComponentState";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
 
 function generateTagListRow(elements, row) {
   let template = JSON.stringify(elements);
@@ -64,15 +65,17 @@ function AweTagList(props) {
   }, [elementList, model.values, address]);
 
   const classes = classNames({ [`expandible-${expand}`]: expand }, style, { "hidden": !visible });
+  const hook = testHook(TestIds.tagList, { attributes: { "tag-list-id": id } });
 
   // Void elements (hr, br...) cannot have children
   if (isVoidElement(type)) {
-    return React.createElement(type, {id: id, className: classes});
+    return React.createElement(type, {id: id, className: classes, ...hook});
   }
 
   return React.createElement(type || "div", {
     id: id,
     className: classes,
+    ...hook,
     children: [...[translateLabel(label, t)], ...((tagList || []).map((node, index) => Components(node, index)))]
   });
 }

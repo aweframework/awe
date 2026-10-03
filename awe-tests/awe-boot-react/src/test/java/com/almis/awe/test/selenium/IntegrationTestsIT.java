@@ -5,8 +5,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("ApplicationIntegrationIT")
@@ -17,7 +15,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,7 +23,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -79,7 +77,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     waitForButton("ButRst");
 
     // Verify that ButPrn button is not visible
-    checkNotVisible("#ButPrn");
+    checkButtonNotVisible("ButPrn");
 
     // Go to screen
     gotoScreen("settings", "screen-configuration");
@@ -126,11 +124,8 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Select module
     selectModule("Test");
 
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -162,12 +157,12 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Wait for button
     waitForButton("ButRst");
 
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogoutWithConfirmation();
 
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
 
     // Verify that ButPrn button is not visible
-    checkVisibleAndContains("li[option-name='test']", "Tests");
+    checkMenuOption("test", "Tests");
 
   }
 
@@ -201,28 +196,28 @@ class IntegrationTestsIT extends SeleniumUtilities {
     gotoScreen("test", "chart", "chart-test");
 
     // Check visible
-    checkVisible("[chart-id='ChrLinTst'] svg");
+    checkChartVisible("ChrLinTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrBarTst'] svg");
+    checkChartVisible("ChrBarTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrAreTst'] svg");
+    checkChartVisible("ChrAreTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrPieTst'] svg");
+    checkChartVisible("ChrPieTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrDonutTst'] svg");
+    checkChartVisible("ChrDonutTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrStockTst'] svg");
+    checkChartVisible("ChrStockTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrBarHorTst'] svg");
+    checkChartVisible("ChrBarHorTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrSemiCircleTst'] svg");
+    checkChartVisible("ChrSemiCircleTst");
   }
 
   /**
@@ -237,13 +232,13 @@ class IntegrationTestsIT extends SeleniumUtilities {
     gotoScreen("test", "wizard-test");
 
     // Check visibility
-    checkVisibleAndContains("li.active > span.wizard-step-number", "1");
+    checkActiveWizardStep("1");
 
     // Check visibility
-    checkVisibleAndContains("[awe-tag-list='wizard-tag-list-1'] > span", "Manager (test)");
+    checkTagListContains("wizard-tag-list-1", "Manager (test)");
 
     // Check visibility
-    checkVisibleAndContains("[awe-tag-list='wizard-tag-list-2']   span", "MANAGER (TEST)");
+    checkTagListContains("wizard-tag-list-2", "MANAGER (TEST)");
 
     // Write text
     writeText("epa", "aaa");
@@ -255,7 +250,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep2");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "2");
+    checkActiveWizardStep("2");
 
     // Write text
     writeText("lala", "aaa");
@@ -270,7 +265,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep3");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "3");
+    checkActiveWizardStep("3");
 
     // Write text
     writeText("epa12", "aaa");
@@ -282,7 +277,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep4");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "4");
+    checkActiveWizardStep("4");
 
     // Write text
     writeText("epa121", "aaa");
@@ -326,17 +321,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Go to screen
     gotoScreen("test", "filemanager-test");
 
-    // Wait for iframe
-    waitForCssSelector("iframe");
-
-    // Switch driver
-    WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
-    getDriver().switchTo().frame(iframe);
-
-    // Check visible
-    checkText("ol.breadcrumb a", "angular-filemanager");
-
-    // Return driver
-    getDriver().switchTo().defaultContent();
+    // Check the content of the embedded application (its selector is not an AWE one)
+    checkTextInEmbeddedFrame("ol.breadcrumb a", "angular-filemanager");
   }
 }

@@ -18,6 +18,7 @@ import _ from "lodash";
 import {useComponentState} from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import {classNames} from "../utilities/components";
+import {TestIds, testHook} from "../utilities/testIds";
 import {registerChart, unregisterChart} from "../utilities/chartRegistry";
 
 /**
@@ -202,6 +203,7 @@ function AweChart(props) {
   const containerRef = useRef(null);
   const chartRef = useRef(null);
   const activeRef = useRef(false);
+  const [rendered, setRendered] = useState(false);
   const redrawRef = useRef(() => { });
   const [animating, setAnimating] = useState((model?.values || []).length > 0);
   // Tracks whether the one-shot cold-start delayed reflow has already been
@@ -251,6 +253,7 @@ function AweChart(props) {
 
   const afterChartCreated = useCallback((chart) => {
     chartRef.current = chart;
+    setRendered(true);
     registerChart(id, chart);
     activeRef.current = true;
     redrawRef.current = _.debounce(safeReflow, 50);
@@ -285,7 +288,8 @@ function AweChart(props) {
 
   const { style, visible } = attributes;
   const classes = classNames("awe-chart", "expand", "highcharts-dark", style, { "hidden": !visible });
-  return <div className={classes} id={id} ref={containerRef}>
+  return <div className={classes} id={id} ref={containerRef}
+    {...testHook(TestIds.chart, { rendered, attributes: { "chart-id": id } })}>
     <HighchartsReact
       key={i18n.language}
       highcharts={Highcharts}

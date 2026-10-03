@@ -661,7 +661,7 @@ Firefox IT React:
     - .react-testing
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationTestsIT
+      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
         TEST_PORT: "6309"
         TEST_NAME: react-firefox-application-integration
       - TEST_CLASSES: CRUDTestsIT
@@ -680,7 +680,7 @@ Chrome IT React:
     - .react-testing
   parallel:
     matrix:
-      - TEST_CLASSES: ApplicationTestsIT
+      - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
         TEST_PORT: "6313"
         TEST_NAME: react-chrome-application-integration
       - TEST_CLASSES: CRUDTestsIT

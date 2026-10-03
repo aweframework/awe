@@ -1915,6 +1915,15 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
     expect(document.querySelector("div#chart")).not.toBeNull();
   });
 
+  it('exposes the test hook of the chart with its identifier once the chart is rendered', () => {
+    renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {preloadedState});
+
+    const hook = document.querySelector("[data-testid='chart']");
+    expect(hook).not.toBeNull();
+    expect(hook.getAttribute("chart-id")).toBe("chart");
+    expect(hook.getAttribute("data-rendered")).toBe("true");
+  });
+
   it('offers its image to be printed while it is rendered', () => {
     const {unmount} = renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {preloadedState});
 

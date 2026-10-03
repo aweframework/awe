@@ -62,9 +62,11 @@ class TestIdsVocabularyTest {
 
     assertThat(react).containsEntry("avatar", TestIds.AVATAR)
       .containsEntry("avatarName", TestIds.AVATAR_NAME)
+      .containsEntry("chart", TestIds.CHART)
       .containsEntry("criterionUnit", TestIds.CRITERION_UNIT)
       .containsEntry("gridRowEdit", TestIds.GRID_ROW_EDIT)
       .containsEntry("selectTrigger", TestIds.SELECT_TRIGGER)
+      .containsEntry("tagList", TestIds.TAG_LIST)
       .containsEntry("wizardStepNumber", TestIds.WIZARD_STEP_NUMBER)
       .containsEntry("loadingSpinner", TestIds.LOADING_SPINNER);
   }
@@ -74,8 +76,10 @@ class TestIdsVocabularyTest {
     Map<String, String> react = readJavaScriptConstant(REACT_VOCABULARY_FILE, "TestAttributes");
     Map<String, String> angular = readJavaScriptConstant(ANGULAR_VOCABULARY_FILE, "TestAttributes");
 
-    assertThat(react).containsEntry("editing", TestAttributes.EDITING);
-    assertThat(angular).doesNotContainKey("editing");
+    assertThat(react).containsEntry("editing", TestAttributes.EDITING)
+      .containsEntry("rendered", TestAttributes.RENDERED)
+      .containsEntry("stepNumber", TestAttributes.STEP_NUMBER);
+    assertThat(angular).doesNotContainKeys("editing", "rendered", "stepNumber");
   }
 
   @Test

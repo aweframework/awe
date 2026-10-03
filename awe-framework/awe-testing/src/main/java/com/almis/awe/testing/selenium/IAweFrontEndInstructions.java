@@ -737,6 +737,18 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the active step of a wizard, identified by its number. The client may show something else than the number in
+   * the step (an icon), so the number is part of the selector
+   *
+   * @param number Number of the step, starting at 1
+   * @return Active wizard step selector
+   */
+  default By getActiveWizardStep(String number) {
+    return By.xpath("//*[" + TestIds.xpath(TestIds.WIZARD_STEP) + " and " + TestAttributes.xpath(TestAttributes.ACTIVE, true)
+      + "]/span[contains(@class,'wizard-step-number') and contains(normalize-space(.)," + XpathLiterals.of(number) + ")]");
+  }
+
+  /**
    * Get the tag list of a screen (the AWE component that shows a list of tags)
    *
    * @param tagListId Tag list identifier

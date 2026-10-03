@@ -209,6 +209,9 @@ class AngularAweInstructionsTest {
       .hasToString("By.cssSelector: [data-testid='datepicker-day'][data-disabled='false']");
     assertThat(instructions.getActiveWizardStepNumber()).hasToString(
       "By.cssSelector: [data-testid='wizard-step'][data-active='true'] > span.wizard-step-number");
+    assertThat(instructions.getActiveWizardStep("2")).hasToString("By.xpath: "
+      + "//*[@data-testid='wizard-step' and @data-active='true']/span[contains(@class,'wizard-step-number') "
+      + "and contains(normalize-space(.),'2')]");
     assertThat(instructions.getTagList("tags")).hasToString("By.cssSelector: [awe-tag-list='tags'] span");
     assertThat(instructions.getChart("Chr")).hasToString("By.cssSelector: [chart-id='Chr'] svg");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
