@@ -182,6 +182,10 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(getParentXpath(gridId, rowId, columnId));
   }
 
+  public By getColumnSuccessIcon(String columnId) {
+    return By.cssSelector("[column-id='" + columnId + "'] " + css(TestIds.COLUMN_ICON) + " .text-success");
+  }
+
   public By getGridSaveButton() {
     return By.cssSelector(css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
   }
