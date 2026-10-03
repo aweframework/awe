@@ -368,11 +368,19 @@ const MODEL_CONTEXT_ATTRIBUTES = new Set([
   "nextRow"
 ]);
 
-function getTriggerModelContext(trigger, state) {
-  if (!MODEL_CONTEXT_ATTRIBUTES.has(trigger.attribute)) {
-    return null;
-  }
+/**
+ * Check if a trigger reads the default value of a grid (the number of selected rows)
+ * @param {object} trigger Trigger
+ * @param {object} component Component the trigger points to
+ * @returns {boolean} The trigger is the selection count of a grid
+ */
+function isGridSelectionCount(trigger, component) {
+  return Boolean(component?.attributes?.columnModel)
+    && !trigger.address.column
+    && ["value", "text"].includes(trigger.attribute);
+}
 
+function getTriggerModelContext(trigger, state) {
   const allComponents = getAllComponents(state);
   const componentId = trigger.address.component;
   if (!(componentId in allComponents) && !isGroup(componentId, allComponents)) {
@@ -380,6 +388,22 @@ function getTriggerModelContext(trigger, state) {
   }
 
   const component = getComponent(componentId, allComponents);
+
+  // The value of a grid is the number of selected rows: moving the selection to another row keeps that count, but
+  // the dependency must be launched again (AngularJS launches it on every selection change)
+  if (isGridSelectionCount(trigger, component)) {
+    const gridId = getGridIdentifier(component.attributes);
+    return {
+      componentId,
+      attribute: trigger.attribute,
+      selection: (component.model?.values || []).filter(row => row.selected).map(row => row[gridId])
+    };
+  }
+
+  if (!MODEL_CONTEXT_ATTRIBUTES.has(trigger.attribute)) {
+    return null;
+  }
+
   const modelVersion = component?.model?.modelVersion ?? 0;
 
   return {

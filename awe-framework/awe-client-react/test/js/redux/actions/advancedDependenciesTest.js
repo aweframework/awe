@@ -1522,6 +1522,46 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       expect(dispatch).toHaveBeenCalled();
     });
 
+    describe('number of selected rows of a grid', () => {
+      const buildDependency = () => [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          condition: 'eq',
+          value: 1,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: false
+      }];
+
+      const withRows = (selectedId, version, col1 = 'value') => ({
+        values: [1, 2, 3].map(id => ({ id, col1: `${col1}${id}`, selected: id === selectedId })),
+        modelVersion: version
+      });
+
+      beforeEach(() => {
+        mockState.components.gridComp.model = withRows(1, 0);
+        mockComponent.dependencies = buildDependency();
+        dependencies.initializeDependencies('testView', mockState, dispatch);
+        dispatch.mockClear();
+      });
+
+      it('relaunches the dependency when the selection moves to another row and the count stays the same', () => {
+        mockState.components.gridComp.model = withRows(2, 1);
+        dependencies.checkDependencies(mockState, dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('does not relaunch the dependency when the selection is the same row', () => {
+        mockState.components.gridComp.model = withRows(1, 1, 'changed');
+        dependencies.checkDependencies(mockState, dispatch);
+
+        expect(dispatch).not.toHaveBeenCalled();
+      });
+    });
+
     it('no lanza la comprobacion unique al empezar a editar una fila que no ha cambiado', () => {
       mockState.components.gridComp = {
         address: { view: 'testView', component: 'gridComp' },
