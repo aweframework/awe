@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -114,6 +115,22 @@ class SeleniumUtilitiesSemanticStepsTest {
   @Test
   void shouldFailWhenTheMessageIsNeverShown() {
     assertThrows(AssertionFailedError.class, () -> utilities.checkMessageTitle("danger", "Title"));
+  }
+
+  @Test
+  void shouldWaitForTheValueOfACriterionThatAnAsynchronousActionIsStillChanging() {
+    WebElement input = show(instructions.getCriterionInput(instructions.getCriterionCss("SugTst")), "");
+    when(input.getAttribute("value")).thenReturn("5 (DjrRepPth)", "5 (DjrRepPth)", "6 (DjrHdgPag)");
+
+    assertThatCode(() -> utilities.checkCriterionContents("SugTst", "DjrHdgPag")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWhenTheValueOfACriterionNeverContainsTheText() {
+    WebElement input = show(instructions.getCriterionInput(instructions.getCriterionCss("SugTst")), "");
+    when(input.getAttribute("value")).thenReturn("5 (DjrRepPth)");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkCriterionContents("SugTst", "DjrHdgPag"));
   }
 
   @Test
@@ -429,6 +446,34 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCloseEveryMessageOfAStackOneByOne() {
+    By close = instructions.getMessage("danger");
+    List<WebElement> stack = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      WebElement message = mock(WebElement.class);
+      when(message.isDisplayed()).thenReturn(true);
+      when(message.isEnabled()).thenReturn(true);
+      stack.add(message);
+    }
+    when(driver.findElements(argThat(close::equals))).thenAnswer(invocation -> new ArrayList<>(stack));
+    when(driver.findElement(argThat(close::equals))).thenAnswer(invocation -> stack.get(0));
+    // Closing a message leaves the rest of the stack where it was
+    doAnswer(invocation -> stack.remove(0)).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.closeMessages("danger", 3)).doesNotThrowAnyException();
+
+    assertThat(stack).isEmpty();
+  }
+
+  @Test
+  void shouldFailWhenTheStackHasFewerMessagesThanExpected() {
+    By close = instructions.getMessage("danger");
+    show(close, "");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.closeMessages("danger", 2));
+  }
+
+  @Test
   void shouldFailWhenAnOptionIsNeverDisplayed() {
     show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
     show(instructions.getSuggestResult("October"), "October");
@@ -448,6 +493,31 @@ class SeleniumUtilitiesSemanticStepsTest {
     // A click on a button placed on the last pixels of the viewport is lost by the browser
     verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
       argThat((String script) -> script.contains("scrollIntoView") && script.contains("innerHeight")), any());
+  }
+
+  @Test
+  void shouldBringTheSearchBoxOfAMultipleSuggestToTheCenterBeforeTypingInIt() {
+    WebElement searchBox = show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+
+    utilities.suggestMultiple("Months", "October", "October");
+
+    // The suggestions panel is aligned when it opens: a later scroll leaves it misplaced until the next render, and the
+    // option moves from under the pointer when the search box loses the focus on the press of the click
+    verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
+      argThat((String script) -> script.contains("block: 'center'") && !script.contains("innerHeight")), eq(searchBox));
+  }
+
+  @Test
+  void shouldBringTheSearchBoxOfAReplacedSearchToTheCenterBeforeTypingInIt() {
+    WebElement searchBox = show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    when(searchBox.getAttribute("value")).thenReturn("");
+    show(instructions.getSuggestResult("October"), "October");
+
+    utilities.suggestMultipleReplacingSearch("Months", "Oct", "October", "October", 10);
+
+    verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
+      argThat((String script) -> script.contains("block: 'center'") && !script.contains("innerHeight")), eq(searchBox));
   }
 
   @Test

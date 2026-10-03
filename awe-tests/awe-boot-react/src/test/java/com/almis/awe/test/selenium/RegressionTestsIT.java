@@ -5,7 +5,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
 
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -16,7 +15,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -24,7 +23,7 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -54,7 +53,8 @@ class RegressionTestsIT extends SeleniumUtilities {
     waitForButton("ButPrn");
 
     // Click on tab
-    clickTab("TabSelMat", "ENUM_MATRIX_EDITABLE");
+    // The React client shows the translated label of the tab
+    clickTab("TabSelMat", "Editable");
 
     // Check row contents
     checkRowContents("Prueba - adminflare");
@@ -84,7 +84,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     checkRowContents("test");
 
     // Check criterion value
-    checkSelectContents("CrtUsr", "te");
+    checkSuggestContents("CrtUsr", "te");
   }
 
   /**
@@ -104,8 +104,9 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Write on criterion
     writeText("TxtReq", "aaa");
 
-    // Write on criterion
-    writeText("Unt", "325.274,50");
+    // Write on criterion (the numeric input of the React client takes a typed "." as its decimal separator, so the
+    // thousands separator is not typed: the client adds it)
+    writeText("Unt", "325274,50");
 
     // Assert text
     checkCriterionContents("Unt", "325.274,50");
@@ -126,7 +127,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickCheckbox("RadBox3");
 
     // Wait for text
-    checkText("[criterion-id='Unt'] .unit", "USD");
+    checkCriterionUnit("Unt", "USD");
   }
 
   /**
@@ -147,7 +148,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickDate("FilCalRea");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
+    clickEnabledDatepickerDay();
   }
 
   /**
@@ -183,7 +184,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     waitForButton("ButRst");
 
     // Wait for button
-    checkSelectContents("CrtUsr", "test");
+    checkSuggestContents("CrtUsr", "test");
   }
 
   /**
@@ -201,11 +202,10 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickButton("ButRst");
 
     // Suggest delayed
-    click("[criterion-id='Sug'] .select2-choice");
-    suggestDelayed("#select2-drop", "tee", "test", "test", 800);
+    suggestReplacingSearch("Sug", "tee", "test", "test", 800);
 
     // Suggest delayed
-    suggestDelayed("[criterion-id='SugMulReq']", "tee", "test", "test", 800);
+    suggestMultipleReplacingSearch("SugMulReq", "tee", "test", "test", 800);
 
     // Check selector
     checkMultipleSelectorContents("SugMulReq", "test (test@test.com)");
@@ -220,16 +220,17 @@ class RegressionTestsIT extends SeleniumUtilities {
     setTestTitle("Wrong login");
 
     // Do logout
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogoutWithConfirmation();
 
     // Check wrong login
-    checkLogin("test", "lala", ".alert.alert-warning div", "Invalid credentials  The credentials entered for the user -test- are not valid");
+    checkLoginRejected("test", "lala", "warning", "Invalid credentials",
+      "The credentials entered for the user -test- are not valid");
 
     // Check wrong login
-    checkLogin("tutu", "lala", ".alert.alert-warning div", "Wrong username  Username -tutu- is wrong or inactive");
+    checkLoginRejected("tutu", "lala", "warning", "Wrong username", "Username -tutu- is wrong or inactive");
 
     // Do right login
-    checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -295,34 +296,31 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickButton("ButRst");
 
     // Click on suggest
-    click("[criterion-id='CrtNam'] .select2-choice");
+    openSuggest("CrtNam");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeText(By.cssSelector("#select2-drop input.select2-input"), "a");
+    writeSuggestSearch("CrtNam", "a");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeText(By.cssSelector("#select2-drop input.select2-input"), "s");
+    writeSuggestSearch("CrtNam", "s");
 
     // Pause
     pause(1000);
 
     // Write text
-    writeText(By.cssSelector("#select2-drop input.select2-input"), "p");
+    writeSuggestSearch("CrtNam", "p");
 
     // Pause
     pause(1000);
-
-    // Check there's one result
-    checkVisible(".select2-result:first-child");
 
     // Check there's only one result
-    checkNotVisible(".select2-result:not(:first-child)");
+    checkSuggestResultCount(1);
 
     // Click selector
     selectResult("asp");
@@ -438,7 +436,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     selectAllRowsOfGrid("GrdUsrLst");
 
     // Wait for button
-    checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked");
+    checkAllRowsSelected("GrdUsrLst");
   }
 
   /**
@@ -454,6 +452,10 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Go to screen
     gotoScreen("test", "criteria", "criteria-test-left");
 
+    // The screen loads criteria from queries that do not exist, and the client keeps its buttons blocked until the user
+    // has closed the six error messages
+    closeMessages("danger", 6);
+
     // Wait for button
     waitForButton("ButPrn");
 
@@ -464,19 +466,19 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickButton("ButtonLoadSuggest", true);
 
     // Check suggest value
-    checkSelectContents("SugTst", "DjrRepPth");
+    checkSuggestContents("SugTst", "DjrRepPth");
 
     // Click on button
     clickButton("ButtonLoadSuggest2", true);
 
     // Check suggest value
-    checkSelectContents("SugTst", "DjrHdgPag");
+    checkSuggestContents("SugTst", "DjrHdgPag");
 
     // Click on button
     clickButton("ButtonResetSuggest", true);
 
     // Check suggest value
-    checkSelectContents("SugTst", "");
+    checkSuggestContents("SugTst", "");
   }
 
   /**
@@ -502,34 +504,8 @@ class RegressionTestsIT extends SeleniumUtilities {
     waitForButton("ButPrn");
 
     // Check suggest value
-    checkMultipleSelectorContents("SugMul", "pei (pei@test.com)");
+    // The database of the React test application has no user "pei", so the dependency selects only the user "test"
     checkMultipleSelectorContents("SugMul", "test (test@test.com)");
-  }
-
-  /**
-   * Suggest delayed
-   *
-   * @param selector Selector
-   * @param search1  Search on first case
-   * @param search2  Search on second case
-   * @param match    Match result
-   * @param pause    Pause
-   */
-  private void suggestDelayed(String selector, String search1, String search2, String match, Integer pause) {
-    // Write text
-    writeText(By.cssSelector(selector + " input.select2-input"), search1);
-
-    // Pause
-    pause(pause);
-
-    // Clear text
-    clearText(selector + " input.select2-input");
-
-    // Write select
-    writeTextOnDriver(By.cssSelector(selector + " input.select2-input"), search2);
-
-    // Click selector
-    selectResult(match);
   }
 
   /**
@@ -539,10 +515,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Select module
     selectModule("Test");
 
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 }

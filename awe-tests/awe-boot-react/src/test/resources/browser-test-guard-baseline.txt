@@ -69,25 +69,3 @@ IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelect
 IntegrationTestsIT.java:getDriver().switchTo().frame(iframe);
 IntegrationTestsIT.java:checkText("ol.breadcrumb a", "angular-filemanager")
 IntegrationTestsIT.java:getDriver().switchTo().defaultContent();
-RegressionTestsIT.java:import org.openqa.selenium.By;
-RegressionTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-RegressionTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
-RegressionTestsIT.java:checkText("[criterion-id='Unt'] .unit", "USD")
-RegressionTestsIT.java:click(".datepicker td.day:not(.disabled)")
-RegressionTestsIT.java:click("[criterion-id='Sug'] .select2-choice")
-RegressionTestsIT.java:checkLogout(".slogan", "Almis Web Engine")
-RegressionTestsIT.java:checkLogin("test", "lala", ".alert.alert-warning div", "Invalid credentials The credentials entered for the user -test- are not valid")
-RegressionTestsIT.java:checkLogin("tutu", "lala", ".alert.alert-warning div", "Wrong username Username -tutu- is wrong or inactive")
-RegressionTestsIT.java:checkLogin("test", "test", "#ButUsrAct span.info-text", "Manager (test)")
-RegressionTestsIT.java:click("[criterion-id='CrtNam'] .select2-choice")
-RegressionTestsIT.java:writeText(By.cssSelector("#select2-drop input.select2-input"), "a");
-RegressionTestsIT.java:writeText(By.cssSelector("#select2-drop input.select2-input"), "s");
-RegressionTestsIT.java:writeText(By.cssSelector("#select2-drop input.select2-input"), "p");
-RegressionTestsIT.java:checkVisible(".select2-result:first-child")
-RegressionTestsIT.java:checkNotVisible(".select2-result:not(:first-child)")
-RegressionTestsIT.java:checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked")
-RegressionTestsIT.java:writeText(By.cssSelector(selector + " input.select2-input"), search1);
-RegressionTestsIT.java:clearText(selector + " input.select2-input")
-RegressionTestsIT.java:writeTextOnDriver(By.cssSelector(selector + " input.select2-input"), search2);
-RegressionTestsIT.java:waitForText("mm-text", "Tests")
-RegressionTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")

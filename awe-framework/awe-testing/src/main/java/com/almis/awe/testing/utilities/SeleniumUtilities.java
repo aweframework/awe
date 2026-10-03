@@ -455,6 +455,27 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Bring the search box of a suggest to the center of the viewport before typing in it. The suggestions panel is
+   * aligned when it opens (below the search box when there is room, above it otherwise) and a scroll after that leaves
+   * it misplaced until the next render of the client, which happens when the search box loses the focus on the press of
+   * the click on an option: the option moves from under the pointer and the click is lost.
+   *
+   * @param selector Search box selector
+   */
+  private void scrollToTheCenter(By selector) {
+    WebDriver driver = seleniumModel.getDriver();
+    if (driver instanceof JavascriptExecutor) {
+      try {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
+          getElement(selector));
+      } catch (Exception exc) {
+        // Typing in it scrolls it into view
+        log.debug("Could not scroll the search box to the center", exc);
+      }
+    }
+  }
+
+  /**
    * Clear text on criterion
    *
    * @param selector Criterion selector
@@ -1130,6 +1151,9 @@ public class SeleniumUtilities implements IAweInstructions {
     if (openedPanel) {
       clearText(searchBox);
     }
+    if (!panelBased) {
+      scrollToTheCenter(searchBox);
+    }
     sendKeys(searchBox, search);
 
     // Wait for loading bar
@@ -1222,6 +1246,14 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkCriterionContains(By selector, String text) {
+    // An asynchronous action may still be changing the value: wait for it, then assert (with evidence) what is shown
+    try {
+      new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout())
+        .until(driver -> String.valueOf(driver.findElement(selector).getAttribute("value")).contains(text));
+    } catch (Exception exc) {
+      log.debug("The value of {} does not contain '{}' yet", selector, text);
+    }
+
     String nodeText = getElement(selector).getAttribute("value");
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
@@ -2458,6 +2490,27 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Close the messages of a stack one by one. A screen that shows several messages (one per failed query) keeps its
+   * controls blocked until the user has closed all of them
+   *
+   * @param messageType Message type (success, info, warning, danger)
+   * @param count       Number of messages to close
+   */
+  protected void closeMessages(String messageType, int count) {
+    By messageSelector = frontEndInstructions.getMessage(messageType);
+
+    for (int closed = 0; closed < count; closed++) {
+      // Wait for a message to close
+      waitUntil(elementToBeClickable(messageSelector));
+      WebElement message = getElement(messageSelector);
+
+      // Close it and wait for it to leave (the client may show the next message of the stack in its place)
+      click(messageSelector);
+      waitUntil(driver -> !getElements(messageSelector).contains(message));
+    }
+  }
+
+  /**
    * Click on confirm button, accept confirmation and accept message
    *
    * @param button Button name
@@ -3393,6 +3446,8 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void delayedSearch(By searchBox, String search1, String search2, String match, Integer pause) {
     // Write text
+    waitUntil(presenceOfElementLocated(searchBox));
+    scrollToTheCenter(searchBox);
     writeText(searchBox, search1);
 
     // Pause

@@ -439,5 +439,8 @@
     <java classname="com.almis.awe.test.service.DummyService" method="updateCell"/>
   </service>
 
+  <service id="testSuggestMultiple">
+    <java classname="com.almis.awe.test.service.DummyService" method="testSuggestMultiple" />
+  </service>
 
 </services>
