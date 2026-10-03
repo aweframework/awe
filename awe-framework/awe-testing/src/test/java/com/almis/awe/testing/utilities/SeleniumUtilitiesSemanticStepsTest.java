@@ -6,6 +6,7 @@ import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.selenium.AngularAweInstructions;
 import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.ReactAweInstructions;
+import com.almis.awe.testing.selenium.TestAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -211,6 +212,17 @@ class SeleniumUtilitiesSemanticStepsTest {
     when(pageSize.getTagName()).thenReturn("div");
 
     assertThatCode(() -> utilities.checkGridPageSize("25")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldReadThePageSizeFromItsValueWhenTheTextRepeatsIt() {
+    // A dropdown holds a hidden native selector whose option repeats the visible label
+    WebElement pageSize = show(instructions.getGridPageSize(), "25\n25");
+    when(pageSize.getTagName()).thenReturn("div");
+    when(pageSize.getAttribute(TestAttributes.VALUE)).thenReturn("25");
+
+    assertThatCode(() -> utilities.checkGridPageSize("25")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkGridPageSize("10"));
   }
 
   @Test

@@ -1,5 +1,5 @@
 import React from "react";
-import { testHook, TestIds } from "./testIds";
+import { testHook, TestAttributes, TestIds } from "./testIds";
 
 /**
  * PrimeReact pass-through ("pt") builders that add the test hooks (data-testid) to the parts of the components the
@@ -124,7 +124,8 @@ export function paginatorPassThrough() {
     root: testHook(TestIds.gridPagination),
     prevPageButton: ({ context }) => testHook(TestIds.gridPagePrevious, { disabled: context?.disabled }),
     nextPageButton: ({ context }) => testHook(TestIds.gridPageNext, { disabled: context?.disabled }),
-    RPPDropdown: { root: testHook(TestIds.gridPageSize) }
+    // The text of the dropdown repeats the page size (its hidden native selector also holds it): expose it as a value
+    RPPDropdown: { root: ({ props }) => testHook(TestIds.gridPageSize, { attributes: { [TestAttributes.value]: props?.value } }) }
   };
 }
 

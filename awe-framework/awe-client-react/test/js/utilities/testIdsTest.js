@@ -14,7 +14,7 @@ const ANGULAR_VOCABULARY = path.resolve(
 const REACT_ONLY_TEST_IDS = [
   'avatar', 'avatarName', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'wizardStepNumber'
 ];
-const REACT_ONLY_ATTRIBUTES = ['editing'];
+const REACT_ONLY_ATTRIBUTES = ['editing', 'value'];
 
 /**
  * Read the entries of a frozen constant ("export const Name = Object.freeze({ key: "value", ... })")

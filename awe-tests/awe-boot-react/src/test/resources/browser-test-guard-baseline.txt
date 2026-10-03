@@ -69,18 +69,6 @@ IntegrationTestsIT.java:WebElement iframe = getDriver().findElement(By.cssSelect
 IntegrationTestsIT.java:getDriver().switchTo().frame(iframe);
 IntegrationTestsIT.java:checkText("ol.breadcrumb a", "angular-filemanager")
 IntegrationTestsIT.java:getDriver().switchTo().defaultContent();
-PrintTestsIT.java:import org.openqa.selenium.By;
-PrintTestsIT.java:import org.openqa.selenium.WebElement;
-PrintTestsIT.java:import org.openqa.selenium.support.ui.Select;
-PrintTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
-PrintTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")
-PrintTestsIT.java:waitForText("mm-text", "Tests")
-PrintTestsIT.java:checkVisible("[translate-multiple='MENU_TEST'")
-PrintTestsIT.java:Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
-PrintTestsIT.java:Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
-PrintTestsIT.java:Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
-PrintTestsIT.java:WebElement option = select.getFirstSelectedOption();
-PrintTestsIT.java:checkNotVisible(".modal-backdrop")
 RegressionTestsIT.java:import org.openqa.selenium.By;
 RegressionTestsIT.java:checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)")
 RegressionTestsIT.java:checkLogout("#ButLogIn .p-button-label", "Login")

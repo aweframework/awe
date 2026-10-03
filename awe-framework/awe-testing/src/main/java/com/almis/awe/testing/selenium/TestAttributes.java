@@ -25,6 +25,10 @@ public final class TestAttributes {
   public static final String TYPE = "data-type";
   public static final String CONTAINER = "data-container";
   public static final String ICON = "data-icon";
+  /**
+   * Value of a control whose text repeats it, such as the page size of a grid. Only the React client renders it
+   */
+  public static final String VALUE = "data-value";
 
   private TestAttributes() {
     // Constants only

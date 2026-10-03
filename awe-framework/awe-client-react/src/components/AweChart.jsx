@@ -18,6 +18,7 @@ import _ from "lodash";
 import {useComponentState} from "../hooks/useComponentState";
 import PropTypes from "prop-types";
 import {classNames} from "../utilities/components";
+import {registerChart, unregisterChart} from "../utilities/chartRegistry";
 
 /**
  * List of magnitudes
@@ -250,6 +251,7 @@ function AweChart(props) {
 
   const afterChartCreated = useCallback((chart) => {
     chartRef.current = chart;
+    registerChart(id, chart);
     activeRef.current = true;
     redrawRef.current = _.debounce(safeReflow, 50);
     redrawRef.current();
@@ -259,15 +261,16 @@ function AweChart(props) {
         onAnimationEnd();
       });
     });
-  }, [onAnimationEnd, safeReflow]);
+  }, [id, onAnimationEnd, safeReflow]);
 
   useEffect(() => {
     return () => {
       activeRef.current = false;
       redrawRef.current.cancel?.();
+      unregisterChart(id, chartRef.current);
       chartRef.current = null;
     };
-  }, []);
+  }, [id]);
 
   // Trigger a guarded reflow only when the chart inputs actually change.
   useEffect(() => {
