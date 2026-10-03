@@ -101,6 +101,12 @@ public final class TestIds {
   // Modal dialogs (owner: dialog id)
   public static final String DIALOG = "dialog";
 
+  // React only: chart (the instance is identified by "chart-id"; "data-rendered" tells that the chart was drawn)
+  public static final String CHART = "chart";
+
+  // React only: tag list (the instance is identified by "tag-list-id")
+  public static final String TAG_LIST = "tag-list";
+
   // Log viewer: the element that holds the text of the log
   public static final String LOG_VIEWER = "log-viewer";
 

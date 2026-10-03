@@ -157,7 +157,7 @@ class SeleniumUtilitiesSemanticStepsTest {
   void shouldCheckTheCriterionLabelAndUnitAndTheActiveWizardStep() {
     show(instructions.getCriterionLabel("Unt"), "Texto Normal");
     show(instructions.getCriterionUnit("Unt"), "EUR");
-    show(instructions.getActiveWizardStepNumber(), "2");
+    show(instructions.getActiveWizardStep("2"), "2");
 
     assertThatCode(() -> utilities.checkCriterionLabel("Unt", "Texto Normal")).doesNotThrowAnyException();
     assertThatCode(() -> utilities.checkCriterionUnit("Unt", "EUR")).doesNotThrowAnyException();

@@ -500,6 +500,24 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
       + css(TestIds.WIZARD_STEP_NUMBER));
   }
 
+  @Override
+  public By getActiveWizardStep(String number) {
+    // The step shows an icon instead of its number when it has one, so the number is read from the hook
+    return By.xpath(String.format("//*[%s and %s and %s]", xpath(TestIds.WIZARD_STEP),
+      stateXpath(TestAttributes.ACTIVE, true), stateXpath(TestAttributes.STEP_NUMBER, number)));
+  }
+
+  @Override
+  public By getTagList(String tagListId) {
+    return By.cssSelector(css(TestIds.TAG_LIST) + "[tag-list-id='" + tagListId + "']");
+  }
+
+  @Override
+  public By getChart(String chartId) {
+    // The chart carries its identifier and tells when it has been drawn
+    return By.cssSelector(css(TestIds.CHART) + "[chart-id='" + chartId + "']" + stateCss(TestAttributes.RENDERED, true));
+  }
+
   public By getContextMenuMask() {
     // The context menu closes with the keyboard: there is no mask to click
     return null;

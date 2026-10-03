@@ -29,6 +29,14 @@ public final class TestAttributes {
    * Value of a control whose text repeats it, such as the page size of a grid. Only the React client renders it
    */
   public static final String VALUE = "data-value";
+  /**
+   * The component drew its content, such as a chart. Only the React client renders it
+   */
+  public static final String RENDERED = "data-rendered";
+  /**
+   * Number of a wizard step, which the step may replace with an icon. Only the React client renders it
+   */
+  public static final String STEP_NUMBER = "data-step-number";
 
   private TestAttributes() {
     // Constants only

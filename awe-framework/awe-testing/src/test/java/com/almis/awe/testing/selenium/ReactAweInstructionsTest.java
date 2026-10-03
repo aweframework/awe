@@ -304,6 +304,23 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateTheActiveWizardStepByItsNumberEvenWhenTheStepShowsAnIcon() {
+    assertThat(instructions.getActiveWizardStep("2")).hasToString("By.xpath: "
+      + "//*[@data-testid='wizard-step' and @data-active='true' and @data-step-number='2']");
+  }
+
+  @Test
+  void shouldLocateATagListThroughItsHook() {
+    assertThat(instructions.getTagList("tags")).hasToString("By.cssSelector: [data-testid='tag-list'][tag-list-id='tags']");
+  }
+
+  @Test
+  void shouldLocateAChartThroughItsHookOnceItIsRendered() {
+    assertThat(instructions.getChart("ChrLinTst")).hasToString("By.cssSelector: "
+      + "[data-testid='chart'][chart-id='ChrLinTst'][data-rendered='true']");
+  }
+
+  @Test
   void shouldLocateTheTreeRowsThroughTheGridRowHook() {
     assertThat(instructions.getTreeRow("Tre", "R1")).hasToString(
       "By.cssSelector: [tree-grid-id='Tre'] [data-testid='grid-row'][row-id='R1']");

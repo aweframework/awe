@@ -81,6 +81,10 @@ export const TestIds = Object.freeze({
   // React only: avatar of the logged user in the header (the avatar itself and the user name that goes with it)
   avatar: "avatar",
   avatarName: "avatar-name",
+  // React only: chart (the instance is identified by "chart-id"); "data-rendered" tells that the chart was drawn
+  chart: "chart",
+  // React only: tag list (the instance is identified by "tag-list-id")
+  tagList: "tag-list",
   // Log viewer: the element that holds the text of the log
   logViewer: "log-viewer",
   // Info dropdowns (the element that carries the id), its toggle and menu, and info buttons
@@ -122,6 +126,10 @@ export const TestAttributes = Object.freeze({
   expanded: "data-expanded",
   loading: "data-loading",
   completed: "data-completed",
+  // React only: the component drew its content (a chart)
+  rendered: "data-rendered",
+  // React only: number of a wizard step (the step shows an icon instead of its number when it has one)
+  stepNumber: "data-step-number",
   type: "data-type",
   container: "data-container",
   // Icon shown by an icon column
@@ -142,7 +150,8 @@ const STATE_ATTRIBUTES = {
   open: TestAttributes.open,
   expanded: TestAttributes.expanded,
   loading: TestAttributes.loading,
-  completed: TestAttributes.completed
+  completed: TestAttributes.completed,
+  rendered: TestAttributes.rendered
 };
 
 /**
@@ -151,7 +160,7 @@ const STATE_ATTRIBUTES = {
  * @param {object} [options] Hook options
  * @param {string} [options.owner] Id of the component that owns an overlay rendered outside of it
  * @param {boolean} [options.selected] Boolean states (selected, active, disabled, outsideMonth, open, expanded,
- * loading, completed, editing): rendered as "true"/"false" and skipped when undefined
+ * loading, completed, rendered, editing): rendered as "true"/"false" and skipped when undefined
  * @param {string} [options.type] Message type
  * @param {string} [options.container] Container of a grid viewport
  * @param {object} [options.attributes] Extra attributes (AWE identifiers such as "row-id")

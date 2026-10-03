@@ -3121,9 +3121,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param number Expected number of the step
    */
   protected void checkActiveWizardStep(String number) {
-    By selector = frontEndInstructions.getActiveWizardStepNumber();
-    checkVisible(selector);
-    checkTextContains(selector, number);
+    checkVisible(frontEndInstructions.getActiveWizardStep(number));
   }
 
   /**

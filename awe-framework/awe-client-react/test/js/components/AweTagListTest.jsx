@@ -40,6 +40,17 @@ describe('awe-react-client/test/js/components/AweTagListTest.jsx', () => {
     expect(root.textContent).toContain('My Tags');
   });
 
+  it('exposes the test hook of the tag list with its identifier', () => {
+    const { container } = renderWithProviders(
+      <AweTagList id="tag1" elementList={[{ type: 'div', text: 'hello' }]} />,
+      { preloadedState: baseState() }
+    );
+
+    const hook = container.querySelector("[data-testid='tag-list']");
+    expect(hook).toBe(container.querySelector('#tag1'));
+    expect(hook.getAttribute('tag-list-id')).toBe('tag1');
+  });
+
   it('dispatches UPDATE_MULTIPLE_COMPONENTS on mount with components built from elementList and model values',() => {
     const elementList = [
       { id: 'innerBtn', type: 'Button', label: 'Row [name]' },

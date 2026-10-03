@@ -11,6 +11,7 @@ module.exports = {
     '**/utilities/mergeUtilsTest.{js,jsx}',
     '**/packaging/bootstrapGridCompatTest.{js,jsx}',
     '**/packaging/packageVersionTest.{js,jsx}',
+    '**/packaging/textUtilitiesTest.{js,jsx}',
     '**/redux/thunks/messagesThunkTest.{js,jsx}',
     '**/redux/thunks/gridThunkTest.{js,jsx}',
     '**/redux/thunks/filesThunkTest.{js,jsx}',

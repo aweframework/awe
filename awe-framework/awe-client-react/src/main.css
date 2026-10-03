@@ -52,6 +52,7 @@ body {
 
 /* Text styles */
 .text-underline { text-decoration: underline; }
+.text-uppercase { text-transform: uppercase; }
 
 /* Material icons default size */
 .material-icons {

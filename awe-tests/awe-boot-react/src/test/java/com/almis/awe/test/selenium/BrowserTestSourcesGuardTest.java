@@ -31,6 +31,8 @@ class BrowserTestSourcesGuardTest {
   @Test
   void shouldNotAddSelectorsOrAutomationToolTypesToTheSeleniumTests() throws IOException {
     Report report = BrowserTestSourceGuard.create()
+      .allow("IntegrationTestsIT.java", "checkTextInEmbeddedFrame(\"ol.breadcrumb a\", \"angular-filemanager\")",
+        "The file manager is a third-party application inside a frame, so its content is not part of the AWE vocabulary")
       .allowBaseline(BASELINE, "Pending migration to semantic steps (#812)")
       .scan(SELENIUM_TESTS);
 
