@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -504,12 +505,14 @@ public class SeleniumUtilities implements IAweInstructions {
 
   /**
    * Click on an element. A client may replace the element between finding and clicking it (a list that is filtered
-   * while the text is typed), so a stale element is looked up again before giving up
+   * while the text is typed), so a replaced element is looked up again before giving up. Chrome reports it as stale,
+   * but Firefox, when the action is already running, finds no box for the detached element and reports that its
+   * origin is not displayed
    *
    * @param selector Element selector
    */
   private void click(By selector) {
-    StaleElementReferenceException staleException = null;
+    WebDriverException staleException = null;
     for (int attempt = 0; attempt < STALE_RETRY_COUNT; attempt++) {
       // Wait until element is clickable (the selector is resolved again on every check)
       waitUntil(elementToBeClickable(selector));
@@ -517,7 +520,7 @@ public class SeleniumUtilities implements IAweInstructions {
       try {
         performClick(element);
         return;
-      } catch (StaleElementReferenceException exc) {
+      } catch (StaleElementReferenceException | MoveTargetOutOfBoundsException exc) {
         staleException = exc;
         log.debug("The element to click was replaced, looking for it again: {}", selector);
       } catch (Exception exc) {

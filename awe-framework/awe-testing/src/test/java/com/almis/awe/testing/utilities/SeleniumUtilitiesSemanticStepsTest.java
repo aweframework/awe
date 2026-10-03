@@ -19,6 +19,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Interactive;
+import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -400,6 +401,29 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThatCode(() -> utilities.suggestMultiple("Months", "October", "October")).doesNotThrowAnyException();
 
     verify((Interactive) driver, times(3)).perform(any());
+  }
+
+  @Test
+  void shouldClickAgainAnOptionThatFirefoxReportsAsNotDisplayedAfterTheClientReplacedIt() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+    // Firefox does not report a replaced element as stale when the action is already running: it finds no box for it
+    doNothing().doThrow(new MoveTargetOutOfBoundsException("Origin element <li> is not displayed")).doNothing()
+      .when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.suggestMultiple("Months", "October", "October")).doesNotThrowAnyException();
+
+    verify((Interactive) driver, times(3)).perform(any());
+  }
+
+  @Test
+  void shouldFailWhenAnOptionIsNeverDisplayed() {
+    show(instructions.getSuggestMultipleInput(instructions.getCriterionCss("Months")), "");
+    show(instructions.getSuggestResult("October"), "October");
+    doNothing().doThrow(new MoveTargetOutOfBoundsException("Origin element <li> is not displayed"))
+      .when((Interactive) driver).perform(any());
+
+    assertThrows(AssertionFailedError.class, () -> utilities.suggestMultiple("Months", "October", "October"));
   }
 
   @Test

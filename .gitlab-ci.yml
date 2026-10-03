@@ -670,6 +670,9 @@ Firefox IT React:
       - TEST_CLASSES: WebsocketTestsIT
         TEST_PORT: "6311"
         TEST_NAME: react-firefox-regression-websocket-print
+      - TEST_CLASSES: SchedulerTestsIT
+        TEST_PORT: "6312"
+        TEST_NAME: react-firefox-scheduler
 
 Chrome IT React:
   extends:
@@ -686,6 +689,9 @@ Chrome IT React:
       - TEST_CLASSES: WebsocketTestsIT
         TEST_PORT: "6315"
         TEST_NAME: react-chrome-regression-websocket-print
+      - TEST_CLASSES: SchedulerTestsIT
+        TEST_PORT: "6316"
+        TEST_NAME: react-chrome-scheduler
 
 gemnasium-maven-dependency_scanning:
   stage: test
