@@ -8,6 +8,7 @@ import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
+import com.almis.awe.testing.selenium.TestAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
@@ -3208,10 +3209,17 @@ public class SeleniumUtilities implements IAweInstructions {
     waitForSelector(selector);
     WebElement pageSize = getElement(selector);
 
-    // A native selector shows all its options: the page size is the selected one
-    String shown = "select".equalsIgnoreCase(pageSize.getTagName())
-      ? new Select(pageSize).getFirstSelectedOption().getText()
-      : pageSize.getText();
+    // A native selector shows all its options: the page size is the selected one. A control whose text repeats the
+    // page size (a dropdown holds a hidden selector too) exposes it as a value
+    String value = pageSize.getAttribute(TestAttributes.VALUE);
+    String shown;
+    if (value != null && !value.isEmpty()) {
+      shown = value;
+    } else if ("select".equalsIgnoreCase(pageSize.getTagName())) {
+      shown = new Select(pageSize).getFirstSelectedOption().getText();
+    } else {
+      shown = pageSize.getText();
+    }
     assertWithScreenshot(selector + TEXT_VALUE + shown + "' isn't equal to " + size, shown.equals(size));
   }
 

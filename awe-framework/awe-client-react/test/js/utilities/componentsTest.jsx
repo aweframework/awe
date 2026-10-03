@@ -24,6 +24,7 @@ import {
 } from "../../../src/utilities/components";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {getDataDependingOnList, getVisibleTextData} from "../../../src/utilities";
+import {registerChart, unregisterChart} from "../../../src/utilities/chartRegistry";
 
 describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
   const address = {component: "tutu", view: "lala"};
@@ -227,6 +228,35 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       "grid.selected": 1,
       "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}
     });
+  });
+
+  it('should send the image of a rendered chart when printing', () => {
+    const chart = {getSVG: jest.fn(() => "<svg>chart</svg>")};
+    registerChart("chartPrint", chart);
+    const chartComponent = {
+      address: {component: "chartPrint", view: "report"},
+      model: {values: []},
+      attributes: {id: "chartPrint"}
+    };
+
+    const data = getComponentData(chartComponent, {...props, components: {chartPrint: chartComponent}}, true);
+    const plainData = getComponentData(chartComponent, props, false);
+    unregisterChart("chartPrint", chart);
+
+    expect(data).toEqual({chartPrint: {image: "<svg>chart</svg>"}});
+    expect(plainData).not.toHaveProperty("chartPrint.image");
+  });
+
+  it('should send the chart as a criterion when printing and it is not rendered', () => {
+    const chartComponent = {
+      address: {component: "chartHidden", view: "report"},
+      model: {values: []},
+      attributes: {id: "chartHidden"}
+    };
+
+    const data = getComponentData(chartComponent, props, true);
+
+    expect(data.chartHidden).toBeNull();
   });
 
   it('should get grid data from pivot table', () => {

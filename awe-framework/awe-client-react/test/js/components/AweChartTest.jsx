@@ -4,6 +4,7 @@ import {act} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 import AweChart, {processChartOptions} from "../../../src/components/AweChart";
 import {updateModel} from "../../../src/redux/actions/components";
+import {getChartImage} from "../../../src/utilities/chartRegistry";
 
 import "../../../src/i18n/i18n";
 
@@ -14,6 +15,7 @@ const mockHighchartsChart = {
   reflow: mockChartReflow,
   setSize: mockChartSetSize,
   redraw: mockChartRedraw,
+  getSVG: jest.fn(() => "<svg>chart</svg>"),
   renderTo: { isConnected: true },
   options: { chart: { options3d: { enabled: true } } },
   series: [{ type: 'pie', isDirty: false, isDirtyData: false, points: [] }],
@@ -1911,6 +1913,16 @@ describe('awe-react-client/test/js/criteria/AweChartTest.jsx', () => {
 
     // check
     expect(document.querySelector("div#chart")).not.toBeNull();
+  });
+
+  it('offers its image to be printed while it is rendered', () => {
+    const {unmount} = renderWithProviders(<div style={{width: "1000px", height: "1000px"}}><AweChart id="chart"/></div>, {preloadedState});
+
+    expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>chart</svg>");
+
+    unmount();
+
+    expect(getChartImage("chart", "PORTRAIT")).toBeUndefined();
   });
 
   it('renders chart component with data', () => {

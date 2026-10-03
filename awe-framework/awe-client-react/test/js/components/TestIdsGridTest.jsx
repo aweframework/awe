@@ -150,7 +150,10 @@ describe("awe-react-client/test/js/components/TestIdsGridTest.jsx", () => {
       const next = pagination.querySelector(hook("grid-page-next"));
       expect(previous.getAttribute("data-disabled")).toBe("true");
       expect(next.getAttribute("data-disabled")).toBe("true");
-      expect(pagination.querySelector(hook("grid-page-size"))).not.toBeNull();
+      const pageSize = pagination.querySelector(hook("grid-page-size"));
+      expect(pageSize).not.toBeNull();
+      // The text of the dropdown also holds its hidden native selector: the value is exposed to be read without it
+      expect(pageSize.getAttribute("data-value")).toBe(pageSize.querySelector("[data-pc-section='input']:not(input)").textContent);
     });
 
     it("exposes the loader only while the grid is loading", () => {

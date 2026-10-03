@@ -125,7 +125,9 @@ export const TestAttributes = Object.freeze({
   type: "data-type",
   container: "data-container",
   // Icon shown by an icon column
-  icon: "data-icon"
+  icon: "data-icon",
+  // React only: value of a control whose text repeats it (the page size of a grid)
+  value: "data-value"
 });
 
 /**

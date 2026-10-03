@@ -7,6 +7,7 @@ import {
 import {formatNumber, getFirstDefinedValueAsNumber} from "./numbers";
 import {ComponentType, getFirstDefinedAndNotNullValue, isEmpty} from "./general";
 import {extractCellModel, getGridData, getGridIdentifier} from "./grid";
+import {getChartImage, getPrintOrientation} from "./chartRegistry";
 
 /**
  * HTML void elements: React refuses to render them with children (not even an empty label)
@@ -469,6 +470,10 @@ export function getTabPrintData(tab = {}, model = {}, props = {}) {
  */
 export function getComponentData(component, props, forPrinting, model = "model") {
   const {attributes = {}} = component;
+  const chartImage = forPrinting ? getChartImage(component.address?.component, getPrintOrientation(props?.components)) : undefined;
+  if (chartImage !== undefined) {
+    return {[component.address.component]: {image: chartImage}};
+  }
   switch (attributes.component || "") {
     case COMPONENT_GRID:
       return getGridData(component, component[model], props, forPrinting);

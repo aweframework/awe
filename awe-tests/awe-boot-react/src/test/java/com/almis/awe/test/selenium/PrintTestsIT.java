@@ -5,12 +5,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class PrintTestsIT extends SeleniumUtilities {
@@ -20,7 +14,7 @@ class PrintTestsIT extends SeleniumUtilities {
    */
   @Test
   void t000_loginTest() {
-    checkLogin("test", "test", "button[aria-label='Manager (test)'] span.p-button-label", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -30,7 +24,7 @@ class PrintTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout("#ButLogIn .p-button-label", "Login");
+    checkLogoutWithConfirmation();
   }
 
   /**
@@ -46,11 +40,8 @@ class PrintTestsIT extends SeleniumUtilities {
     // Select module
     selectModule("Test");
 
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -137,9 +128,7 @@ class PrintTestsIT extends SeleniumUtilities {
     verifyPrintScreen(false, "test", "chart", "grid-and-chart");
 
     // Check for pager values selector
-    Select select = new Select(getDriver().findElement(By.cssSelector(".grid-pager")));
-    WebElement option = select.getFirstSelectedOption();
-    assertEquals("25", option.getText());
+    checkGridPageSize("25");
   }
 
   /**
@@ -200,7 +189,7 @@ class PrintTestsIT extends SeleniumUtilities {
     // Accept message
     checkAndCloseMessage("success");
 
-    // Wait modal backdrop to disappear
-    checkNotVisible(".modal-backdrop");
+    // Wait for the print dialog to be closed
+    checkDialogClosed("PrnOpt");
   }
 }
