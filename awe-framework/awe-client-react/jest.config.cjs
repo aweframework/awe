@@ -74,6 +74,7 @@ module.exports = {
     '**/components/AwePivotTableTest.{js,jsx}',
     '**/components/AweTreeGridTest.{js,jsx}',
     '**/components/AweGridTest.{js,jsx}',
+    '**/components/ErrorBoundaryTest.{js,jsx}',
     '**/components/TestIds*Test.{js,jsx}'
   ],
   transform: {

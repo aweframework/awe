@@ -99,3 +99,44 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+/* Error boundary: panel shown instead of a part of the application that failed to render */
+.error-boundary {
+  box-sizing: border-box;
+  margin: 24px auto;
+  max-width: 960px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.error-boundary .error-boundary-title {
+  color: var(--primary-color);
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.error-boundary .error-boundary-message {
+  color: var(--text-color);
+  font-size: 16px;
+  margin: 16px 0;
+  overflow-wrap: anywhere;
+}
+
+.error-boundary .error-boundary-details {
+  background: rgba(0, 0, 0, .05);
+  border-radius: 4px;
+  color: var(--text-color);
+  font-size: 12px;
+  margin: 0 auto 16px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 8px 12px;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.error-boundary .error-boundary-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}

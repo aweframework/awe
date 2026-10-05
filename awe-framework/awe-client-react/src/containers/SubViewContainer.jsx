@@ -9,6 +9,7 @@ import {ProgressSpinner} from "primereact/progressspinner";
 import {TestIds, testHook} from "../utilities/testIds";
 import ViewRegistry from "../redux/registry/ViewRegistry";
 import { useView } from "../hooks/useViewRegistry";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 const VIEW = "report";
 import {translateLabel} from "../utilities";
@@ -18,6 +19,9 @@ import {translateLabel} from "../utilities";
  * @category Containers
  * @subcategory View
  */
+// Builds the templates of the view inside its error boundary: a structure that fails to build is caught there too
+const ViewTemplates = ({structure}) => Templates(structure);
+
 function SubViewContainer() {
   const {subScreenId} = useParams();
   const location = useLocation();
@@ -35,12 +39,14 @@ function SubViewContainer() {
 
   return view.loading ?
     <div className="expand grid animate__animated animate__fadeIn"><ProgressSpinner className="p-col align-self-center" pt={{root: testHook(TestIds.loadingSpinner)}}/></div> : (
-    <div className={"expand expandible-vertical"}>
-      <Helmet>
-        <title>{translateLabel(view.title, t)}</title>
-      </Helmet>
-      {Templates(view.structure)}
-    </div>
+    <ErrorBoundary scope="view" resetKey={`${subScreenId}-${screenReloadToken}`}>
+      <div className={"expand expandible-vertical"}>
+        <Helmet>
+          <title>{translateLabel(view.title, t)}</title>
+        </Helmet>
+        <ViewTemplates structure={view.structure}/>
+      </div>
+    </ErrorBoundary>
   );
 }
 

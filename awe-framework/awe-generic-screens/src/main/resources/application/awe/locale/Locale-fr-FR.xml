@@ -49,6 +49,8 @@
   <locale name="BUTTON_PREVIOUS" value="Précédent"/>
   <locale name="BUTTON_PRINT" value="Imprimer"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimer selectión"/>
+  <locale name="BUTTON_RELOAD" value="Recharger la page"/>
+  <locale name="BUTTON_RETRY" value="Réessayer"/>
   <locale name="BUTTON_REMOVE" value="Supprimer la restriction"/>
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Supprimer l&apos;écran des favoris"/>
   <locale name="BUTTON_RESET" value="Reset"/>

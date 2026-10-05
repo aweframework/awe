@@ -646,6 +646,7 @@ these selectors.
 | `dialog`, `dialog-close` | A modal dialog (with `data-testid-owner` = dialog id, and `data-open`) and the button of its header that closes it | Inside `[dialog-id='X']` |
 | `confirm-dialog`, `confirm-accept`, `confirm-cancel` | The confirm dialog and its buttons | End of the alert zone |
 | `loader` | A component loader (criteria, columns, selects). Grids use `grid-loader` | Inside the component |
+| `error-boundary`, `error-boundary-title`, `error-boundary-message`, `error-boundary-details`, `error-boundary-retry`, `error-boundary-reload` | **React only.** The panel an error boundary shows when a part of the application fails to render (`data-scope` is `app` or `view`), its title, the message of the error, its component stack and its buttons. Read the message and the stack from the page source of the failure evidence to diagnose a white screen | Instead of the part that failed (`view`) or of the whole application (`app`) |
 | `loading-bar`, `loading-spinner` | The global loading bar (AngularJS only) and its spinner. React has no loading bar: it shows the spinner while a view loads. They exist only while the application is loading | End of `<body>` |
 
 ### State

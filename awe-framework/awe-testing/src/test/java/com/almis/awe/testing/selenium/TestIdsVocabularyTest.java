@@ -69,7 +69,13 @@ class TestIdsVocabularyTest {
       .containsEntry("selectTrigger", TestIds.SELECT_TRIGGER)
       .containsEntry("tagList", TestIds.TAG_LIST)
       .containsEntry("wizardStepNumber", TestIds.WIZARD_STEP_NUMBER)
-      .containsEntry("loadingSpinner", TestIds.LOADING_SPINNER);
+      .containsEntry("loadingSpinner", TestIds.LOADING_SPINNER)
+      .containsEntry("errorBoundary", TestIds.ERROR_BOUNDARY)
+      .containsEntry("errorBoundaryTitle", TestIds.ERROR_BOUNDARY_TITLE)
+      .containsEntry("errorBoundaryMessage", TestIds.ERROR_BOUNDARY_MESSAGE)
+      .containsEntry("errorBoundaryDetails", TestIds.ERROR_BOUNDARY_DETAILS)
+      .containsEntry("errorBoundaryRetry", TestIds.ERROR_BOUNDARY_RETRY)
+      .containsEntry("errorBoundaryReload", TestIds.ERROR_BOUNDARY_RELOAD);
   }
 
   @Test
