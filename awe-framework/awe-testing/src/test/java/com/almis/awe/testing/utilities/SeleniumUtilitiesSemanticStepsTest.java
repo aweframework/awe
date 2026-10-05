@@ -321,6 +321,22 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldFillTheLoginFormAgainWhenItWasClearedWhileBeingFilled() {
+    show(instructions.getLoggedUser(), "Manager (test)");
+    show(By.id("ButUsrAct"), "");
+    // The form was initialized again after the user name was typed (right after a logout): the user name is lost
+    WebElement user = show(instructions.getCriterionInput(instructions.getCriterionCss("cod_usr")), "");
+    WebElement password = show(instructions.getCriterionInput(instructions.getCriterionCss("pwd_usr")), "");
+    when(user.getAttribute("value")).thenReturn("", "test");
+    when(password.getAttribute("value")).thenReturn("test");
+
+    utilities.checkLogin("test", "test", "Manager (test)");
+
+    assertThat(utilities.events).containsExactly("write:cod_usr:test", "write:pwd_usr:test",
+      "write:cod_usr:test", "write:pwd_usr:test", "click:ButLogIn");
+  }
+
+  @Test
   void shouldCheckTheMessageOfARejectedLogin() {
     show(instructions.getMessageText("warning"), "The credentials entered for the user -test- are not valid");
     show(instructions.getMessageTitle("warning"), "Invalid credentials");

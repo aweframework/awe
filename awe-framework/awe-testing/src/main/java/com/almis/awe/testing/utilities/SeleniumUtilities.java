@@ -3037,6 +3037,20 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that a field of the login form holds the text that was typed in it
+   *
+   * @param criterionName Criterion of the field
+   * @param expected      Typed text
+   * @return The field holds the text, or it cannot be read
+   */
+  private boolean loginFieldHolds(String criterionName, String expected) {
+    By input = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
+    List<WebElement> inputs = seleniumModel.getDriver().findElements(input);
+    // A field that cannot be read is not filled again
+    return inputs.isEmpty() || expected.equals(inputs.get(0).getAttribute("value"));
+  }
+
+  /**
    * Fill the login form and submit it
    *
    * @param username Login of the user
@@ -3058,6 +3072,13 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Write password
     writeText("pwd_usr", password);
+
+    // A login form that is initialized again while it is being filled (right after a logout) loses what was typed
+    if (!loginFieldHolds("cod_usr", username) || !loginFieldHolds("pwd_usr", password)) {
+      log.warn("The login form was cleared while it was being filled, filling it again");
+      writeText("cod_usr", username);
+      writeText("pwd_usr", password);
+    }
 
     // Wait for login button to be clickable
     waitForButtonClickability("ButLogIn");
