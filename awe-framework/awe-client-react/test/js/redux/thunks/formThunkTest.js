@@ -1,4 +1,6 @@
 import * as formThunks from '../../../../src/redux/thunks/form';
+import {addActionsTop} from '../../../../src/redux/actions/actions';
+import {createStore} from '../../../../src/redux/store';
 
 describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
   let dispatch;
@@ -162,6 +164,57 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
       expect(addActionsTop.type).toBe('ADD_ACTIONS_TOP');
       expect(addActionsTop.payload.length).toBe(1);
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
+    });
+
+    describe('when the target component is not registered in the view', () => {
+      // Like the AngularJS client garbage action collector: an action targeting a component which does not exist
+      // is aborted (debug log only) and the actions queue goes on, as the scheduler does with the "reload-execution-data"
+      // filter of the "report" view, which only exists while the execution data dialog is open
+      let debugSpy;
+
+      beforeEach(() => {
+        debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+      });
+
+      afterEach(() => {
+        debugSpy.mockRestore();
+      });
+
+      it.each([
+        ['silent', true],
+        ['not silent', false]
+      ])('ignores a %s filter without throwing nor sending any message', (_label, silent) => {
+        const action = {
+          type: 'filter',
+          address: {view: 'report', component: 'reload-execution-data'},
+          async: true,
+          silent
+        };
+
+        expect(() => formThunks.filterAction(action)(dispatch, getState)).not.toThrow();
+
+        expect(dispatch).toHaveBeenCalledTimes(1);
+        expect(dispatch.mock.calls[0][0].type).toBe('ACCEPT_ACTION');
+        expect(debugSpy).toHaveBeenCalledWith(expect.stringContaining('reload-execution-data'), action);
+      });
+
+      it('lets the next queued action run', () => {
+        const store = createStore();
+        store.dispatch(addActionsTop([
+          {type: 'filter', address: {view: 'report', component: 'reload-execution-data'}, silent: true},
+          {type: 'confirm-marker'}
+        ]));
+        const [filter] = store.getState().actions.sync[0];
+        expect(filter.status).toBe('STATUS_RUNNING');
+
+        store.dispatch(formThunks.filterAction(filter));
+
+        const {sync, async} = store.getState().actions;
+        expect(sync[0].map(({type, status}) => ({type, status}))).toEqual([
+          {type: 'confirm-marker', status: 'STATUS_RUNNING'}
+        ]);
+        expect(async).toEqual([]);
+      });
     });
   });
 
