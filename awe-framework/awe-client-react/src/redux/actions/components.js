@@ -150,12 +150,12 @@ export function restoreMultipleAttributes(componentList) {
   return {type: RESTORE_MULTIPLE_ATTRIBUTES, componentList};
 }
 
-export function restoreModel(address, data) {
-  return {type: RESTORE_MODEL, address, data};
+export function restoreModel(address, data, initial = false) {
+  return {type: RESTORE_MODEL, address, data, initial};
 }
 
-export function restoreMultipleModel(componentList) {
-  return {type: RESTORE_MULTIPLE_MODEL, componentList};
+export function restoreMultipleModel(componentList, initial = false) {
+  return {type: RESTORE_MULTIPLE_MODEL, componentList, initial};
 }
 
 export function resetModel(address, data) {

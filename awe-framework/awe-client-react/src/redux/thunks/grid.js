@@ -14,8 +14,24 @@ import { validateRow } from "./validate";
 import { getAllComponents } from "../selectors/componentSelectors";
 const { BEFORE, AFTER, FIRST, LAST, CHILD } = RowPositionType;
 const { INSERT, UPDATE, DELETE } = OperationType;
-let addedRows = 0;
 let copiedRows = 0;
+
+const NEW_ROW_PREFIX = "new-row-";
+
+/**
+ * Identifier of the next new row of a grid: the AngularJS client numbers them from zero in every grid
+ * @param {Array} values Rows of the grid
+ * @param {string} gridId Row identifier field of the grid
+ * @return {string} Identifier of the new row
+ */
+const getNewRowId = (values, gridId) => {
+  const numbers = values
+    .map(row => String(row[gridId]))
+    .filter(id => id.startsWith(NEW_ROW_PREFIX))
+    .map(id => Number(id.substring(NEW_ROW_PREFIX.length)))
+    .filter(number => Number.isInteger(number));
+  return `${NEW_ROW_PREFIX}${numbers.length > 0 ? Math.max(...numbers) + 1 : 0}`;
+};
 
 const addRowToValues = (rowId, identifier, values, position, newRow) => {
   let rowIndex = values.findIndex((row) => String(row[identifier]) === String(rowId));
@@ -70,13 +86,21 @@ export const toggleColumnVisibilityGridAction = (action) => {
 export const selectRowGridAction = (action) => {
   return (dispatch, getState) => {
     const address = getActionAddress(action);
+    const component = getComponent(getAllComponents(getState()), address);
     const { values = [] } = action.parameters;
+
+    // The row being edited is the selected one (the AngularJS client edits the row the user selects): while it is
+    // edited, the selection stays on it, as a click on another row (or two quick clicks that unselect it) would leave
+    // a row being edited that is not selected, and the criteria that depend on the selected row would ignore it
+    const editingRow = !component?.attributes?.multiselect
+      ? component?.model?.values?.find(row => row.$row?.editing) : undefined;
+    const selected = editingRow ? [editingRow[getGridIdentifier(component.attributes)]] : values;
 
     dispatch(acceptAction(action));
 
     dispatch(updateModelWithDependencies(address, {
       event: "select-row",
-      selected: values
+      selected
     }));
   };
 };
@@ -322,10 +346,8 @@ export const addRowGridAction = (action, position) => {
     dispatch(updateModelWithDependencies(address, { event: "add-row" }));
     dispatch(acceptAction(action));
 
-    addedRows++;
-
     const newRow = {
-      [gridId]: `new-row-${addedRows}`,
+      [gridId]: getNewRowId(values, gridId),
       ...rowDefaultValues,
       ...(treegrid ? { [treeParent]: parentId } : {}),
       ...row,
@@ -336,9 +358,15 @@ export const addRowGridAction = (action, position) => {
       }
     };
 
+    // A branch that gets a child shows it, like the AngularJS client does
+    const branchValues = treegrid && position === CHILD
+      ? values.map(item => String(item[gridId]) === String(selectedRow[gridId])
+        ? { ...item, $row: { ...(item.$row || {}), expanded: true, loaded: true } } : item)
+      : values;
+
     dispatch(updateModelWithDependencies(address, {
       records: values.length + 1,
-      values: addRowToValues(selectedRow[gridId], gridId, values, position, {
+      values: addRowToValues(selectedRow[gridId], gridId, branchValues, position, {
         ...newRow,
         $row: {
           ...newRow.$row,
@@ -348,7 +376,6 @@ export const addRowGridAction = (action, position) => {
       }),
       event: "after-add-row"
     }));
-    addedRows++;
   };
 };
 

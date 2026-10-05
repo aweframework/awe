@@ -16,7 +16,7 @@ import {
   fillAction,
   filterAction, keepAction,
   resetAction,
-  restoreAction, selectAction, startLoadAction,
+  restoreAction, restoreTargetAction, selectAction, startLoadAction,
   submitAction,
   updateControllerAction
 } from "../redux/thunks/form";
@@ -79,6 +79,12 @@ function useFormService() {
    * @param {object} action
    */
   const restore = (action) => dispatch(restoreAction(action));
+
+  /**
+   * Restore view values loaded for the first time
+   * @param {object} action
+   */
+  const restoreTarget = (action) => dispatch(restoreTargetAction(action));
 
   /**
    * Check if model has been modified
@@ -149,7 +155,7 @@ function useFormService() {
       "server-download": serverDownload,
       "reset": reset,
       "restore": restore,
-      "restore-target": restore,
+      "restore-target": restoreTarget,
       "fill": fill,
       "update-controller": updateController,
       "select": select,

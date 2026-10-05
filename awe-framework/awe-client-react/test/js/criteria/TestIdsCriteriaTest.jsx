@@ -13,10 +13,13 @@ import AweInputFilteredDate from "../../../src/criteria/AweInputFilteredDate";
 import AweInputTime from "../../../src/criteria/AweInputTime";
 import AweInputUploader from "../../../src/criteria/AweInputUploader";
 import AweInputTextView from "../../../src/criteria/AweInputTextView";
+import AweInputHidden from "../../../src/criteria/AweInputHidden";
 import AweSelect from "../../../src/criteria/AweSelect";
 import AweSelectMultiple from "../../../src/criteria/AweSelectMultiple";
 import AweSuggest from "../../../src/criteria/AweSuggest";
 import AweSuggestMultiple from "../../../src/criteria/AweSuggestMultiple";
+import AweButtonCheckbox from "../../../src/criteria/AweButtonCheckbox";
+import AweButtonRadio from "../../../src/criteria/AweButtonRadio";
 
 const hook = (testId) => `[data-testid='${testId}']`;
 
@@ -69,6 +72,33 @@ describe("awe-react-client/test/js/criteria/TestIdsCriteriaTest.jsx", () => {
       expect(container.querySelector(hook("criterion-unit"))).toBeNull();
     });
 
+    it("exposes the validation error of the criterion", () => {
+      const { container } = renderWithProviders(<AweInputText id="Err" />,
+        { preloadedState: criterion("Err", [{ value: "", label: "", selected: true }], { error: { message: "Required field" } }) });
+
+      const error = container.querySelector(`[criterion-id='Err'] ${hook("criterion-error")}`);
+      expect(error).not.toBeNull();
+      expect(error.textContent).toBe("Required field");
+    });
+
+    it("does not render an error hook when the criterion is valid", () => {
+      const { container } = renderWithProviders(<AweInputText id="Err" />,
+        { preloadedState: criterion("Err", [{ value: "a", label: "a", selected: true }]) });
+
+      expect(container.querySelector(hook("criterion-error"))).toBeNull();
+    });
+
+    it("exposes the value of a hidden criterion without showing anything", () => {
+      const { container } = renderWithProviders(<AweInputHidden id="Hid" />,
+        { preloadedState: criterion("Hid", [{ value: "RstTst", label: "RstTst", selected: true }]) });
+
+      const input = container.querySelector(`[criterion-id='Hid'] ${hook("criterion-input")}`);
+      expect(input).not.toBeNull();
+      expect(input.getAttribute("type")).toBe("hidden");
+      expect(input.value).toBe("RstTst");
+      expect(container.querySelector("[criterion-id='Hid']").classList.contains("hidden")).toBe(true);
+    });
+
     it("exposes the shown text of a text view", () => {
       const { container } = renderWithProviders(<AweInputTextView id="Txv" />,
         { preloadedState: criterion("Txv", [{ value: "shown", label: "shown", selected: true }]) });
@@ -112,6 +142,26 @@ describe("awe-react-client/test/js/criteria/TestIdsCriteriaTest.jsx", () => {
       const input = container.querySelector(`[criterion-id='Rad'] ${hook("criterion-input")}`);
       expect(input.classList.contains("p-radiobutton")).toBe(true);
       expect(input.getAttribute("data-selected")).toBe("true");
+    });
+
+    it.each([
+      ["AweButtonCheckbox", AweButtonCheckbox],
+      ["AweButtonRadio", AweButtonRadio]
+    ])("%s exposes every option of the button group with its value and state", (_name, Component) => {
+      const { container } = renderWithProviders(<Component id="Grp" />,
+        {
+          preloadedState: criterion("Grp", [
+            { value: "Opt1", label: "One", selected: false },
+            { value: "Opt2", label: "Two", selected: true }
+          ])
+        });
+
+      const options = container.querySelectorAll(`[criterion-id='Grp'] ${hook("criterion-input")}`);
+      expect(options).toHaveLength(2);
+      expect(options[0].getAttribute("option-id")).toBe("Opt1");
+      expect(options[0].getAttribute("data-selected")).toBe("false");
+      expect(options[1].getAttribute("option-id")).toBe("Opt2");
+      expect(options[1].getAttribute("data-selected")).toBe("true");
     });
   });
 

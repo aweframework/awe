@@ -191,7 +191,9 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
   }
 
   public By getGridSaveButton(String gridId) {
-    return By.cssSelector(getGridScopeCss(gridId) + " " + css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
+    // The save button of a tree grid is inside its "tree-grid-id" root
+    return By.cssSelector(css(TestIds.GRID) + ":is([grid-id='" + gridId + "'],[tree-grid-id='" + gridId + "']) "
+      + css(TestIds.GRID_ROW_SAVE) + ":not([disabled])");
   }
 
   public By getGridCellText(String gridId, String rowId, String columnId, String search) {
@@ -348,6 +350,13 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.cssSelector(String.format("%s %s", parentSelector, css(TestIds.CRITERION_INPUT)));
   }
 
+  @Override
+  public By getCheckboxOption(String criterionName, String optionId) {
+    // A button group is one criterion: every option carries its value
+    return By.cssSelector(String.format("%s %s[option-id='%s']", getCriterionCss(criterionName),
+      css(TestIds.CRITERION_INPUT), optionId));
+  }
+
   public By getCheckboxChecked(String criterionName, boolean isChecked) {
     return By.cssSelector(String.format("%s %s%s", getCriterionCss(criterionName), css(TestIds.CRITERION_INPUT),
       stateCss(TestAttributes.SELECTED, isChecked)));
@@ -483,6 +492,11 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public String getLoginScreenText() {
     return "Login";
+  }
+
+  @Override
+  public By getValidationError() {
+    return By.cssSelector(css(TestIds.CRITERION_ERROR));
   }
 
   public By getCriterionUnit(String criterionName) {

@@ -63,7 +63,7 @@ const AweCriterion = ({children, address, attributes, validationRules,
 
   const getValidation = () => {
     if (error) {
-      return <small className="p-invalid">{formatMessage(error, t)}</small>;
+      return <small className="p-invalid" {...testHook(TestIds.criterionError)}>{formatMessage(error, t)}</small>;
     }
     return null;
   };

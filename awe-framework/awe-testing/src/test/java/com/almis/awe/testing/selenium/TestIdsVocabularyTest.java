@@ -63,6 +63,7 @@ class TestIdsVocabularyTest {
     assertThat(react).containsEntry("avatar", TestIds.AVATAR)
       .containsEntry("avatarName", TestIds.AVATAR_NAME)
       .containsEntry("chart", TestIds.CHART)
+      .containsEntry("criterionError", TestIds.CRITERION_ERROR)
       .containsEntry("criterionUnit", TestIds.CRITERION_UNIT)
       .containsEntry("gridRowEdit", TestIds.GRID_ROW_EDIT)
       .containsEntry("selectTrigger", TestIds.SELECT_TRIGGER)

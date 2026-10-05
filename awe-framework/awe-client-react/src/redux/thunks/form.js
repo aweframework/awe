@@ -58,17 +58,39 @@ export function resetAction(action) {
   };
 }
 
-export function restoreAction(action) {
+/**
+ * Restore the models of the components in the action context.
+ * @param {object} action Action received
+ * @param {boolean} initial True to restore the first loaded values, false to restore the default ones
+ * @return {function} Thunk
+ */
+function restoreModels(action, initial) {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());
-    // Check reset target
+    // Check restore target
     const address = getActionAddress(action);
     dispatch(restoreMultipleModelWithDependencies(Object.values(components)
-      .filter(component => isInsideContext(component.context, address.view, getActionSource(action, components)))));
+      .filter(component => isInsideContext(component.context, address.view, getActionSource(action, components))), initial));
 
     // Finish action
     dispatch(acceptAction(action));
   };
+}
+
+/**
+ * Restore the default values (the ones defined in the screen) like the AngularJS client "restore" action
+ * @param {object} action Action received
+ */
+export function restoreAction(action) {
+  return restoreModels(action, false);
+}
+
+/**
+ * Restore the first loaded values like the AngularJS client "restore-target" action
+ * @param {object} action Action received
+ */
+export function restoreTargetAction(action) {
+  return restoreModels(action, true);
 }
 
 export function filterAction(action, t = (o) => o) {

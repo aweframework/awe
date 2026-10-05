@@ -16,6 +16,7 @@ import {
 import {
   fixController,
   fixModel,
+  fixDefaultModel,
   getSpecificAttributes,
   inspectComponentStructure,
   parseValidationRules
@@ -95,6 +96,7 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
       const isGrid = "columnModel" in component.controller;
       const address = { view, component: component.id };
       const model = fixModel(component.model, isGrid);
+      const defaultModel = fixDefaultModel(model, component.model.defaultValues, isGrid);
       const controller = fixController(component.controller, isGrid, settings);
       const specificAttributes = getSpecificAttributes(component.controller, isGrid, settings);
       const validationRules = parseValidationRules(controller.validation, address);
@@ -105,6 +107,7 @@ export const loadScreen = (view, option, t) => async (dispatch, getState) => {
           address: { ...address },
           model: { ...model },
           storedModel: { ...model },
+          defaultModel: { ...defaultModel },
           attributes: { ...controller },
           specificAttributes: { ...specificAttributes },
           storedAttributes: { ...controller },

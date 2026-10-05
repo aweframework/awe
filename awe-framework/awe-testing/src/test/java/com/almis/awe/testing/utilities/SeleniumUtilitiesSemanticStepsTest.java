@@ -166,6 +166,26 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldReadTheCellOfTheRowBeingEditedEvenWhenTheClientDoesNotKeepItSelected() {
+    use(new ReactAweInstructions());
+    WebElement input = show(instructions.getCriterionInput(instructions.getEditingParentCss("Grd", "Dat")), "");
+    when(input.getAttribute("value")).thenReturn("23/10/1978");
+
+    assertThat(utilities.getText("Grd", "Dat")).isEqualTo("23/10/1978");
+  }
+
+  @Test
+  void shouldClickAnOptionOfAButtonGroupThroughTheInstructions() {
+    use(new ReactAweInstructions());
+    show(instructions.getCheckboxOption("Grp", "Opt1"), "One");
+
+    assertThatCode(() -> utilities.clickCheckboxOption("Grp", "Opt1")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.clickCheckboxOption("Grp", "Missing"));
+
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
   void shouldCheckAMenuOptionAndATagListByTheirText() {
     show(instructions.getMenuOptionItem("test"), "Tests Charts");
     show(instructions.getTagList("tags"), "Manager (test)");
@@ -548,6 +568,17 @@ class SeleniumUtilitiesSemanticStepsTest {
     show(instructions.findGridSelectedRow("Grd", "abc"), "abc");
 
     assertThatCode(() -> utilities.clickRowContents("Grd", "abc")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldClickARowThatIsSelectedWhenTheStepIsToToggleIt() {
+    use(new ReactAweInstructions());
+    show(instructions.findGridSelectedRow("Grd", "abc"), "abc");
+    show(instructions.findGridRowSelection("Grd", "abc"), "abc");
+
+    assertThatCode(() -> utilities.toggleRowContents("Grd", "abc")).doesNotThrowAnyException();
+
+    verify((Interactive) driver, atLeast(1)).perform(any());
   }
 
   @Test

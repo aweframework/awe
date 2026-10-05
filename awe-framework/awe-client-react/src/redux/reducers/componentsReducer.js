@@ -1676,12 +1676,13 @@ function keepRowModel(state, address, settings) {
  * @param {Object} state Current state
  * @param {string} componentId Component identifier
  * @param {Object} settings Settings
+ * @param {boolean} initial True to restore the first loaded model instead of the default one
  * @returns {Object} Updated state
  */
-function restoreModelComponent(state, componentId, settings) {
+function restoreModelComponent(state, componentId, settings, initial = false) {
   const newState = {
     ...state,
-    ...getRestoreModelComponent(state, componentId, settings)
+    ...getRestoreModelComponent(state, componentId, settings, initial)
   };
 
   const useRegistry = settings?.useComponentRegistry;
@@ -1696,22 +1697,48 @@ function restoreModelComponent(state, componentId, settings) {
 }
 
 /**
+ * Get the model a restore action goes back to.
+ * "restore-target" goes back to the first loaded model. "restore" goes back to the default selection registered with the
+ * screen, keeping the options the component has now (like the AngularJS client, it restores only the selection).
+ * Grids and components registered without a default model go back to the first loaded model.
+ * @param {Object} component Component to restore
+ * @param {boolean} initial True to restore the first loaded model
+ * @returns {Object} Model the component goes back to
+ */
+function getRestoredModel(component, initial) {
+  // The component registry merges a missing default model into an empty object: treat it as absent
+  if (initial || isGridComponent(component) || !Array.isArray(component?.defaultModel?.values)) {
+    return component?.storedModel || component?.model;
+  }
+  const defaults = (component.defaultModel.values || []).filter(value => value.selected);
+  const keys = new Set(defaults.map(value => String(value.value)));
+  const values = (component.model?.values || []).map(value => ({ ...value, selected: keys.has(String(value.value)) }));
+  const present = new Set(values.map(value => String(value.value)));
+  return {
+    ...component.model,
+    values: [...values, ...defaults.filter(value => !present.has(String(value.value))).map(value => ({ ...value }))]
+  };
+}
+
+/**
  * Build the restore update for a component model.
  * @param {Object} state Current state
  * @param {string} componentId Component identifier
  * @param {Object} settings Settings
+ * @param {boolean} initial True to restore the first loaded model instead of the default one
  * @returns {Object} State diff for the restore
  */
-function getRestoreModelComponent(state, componentId, settings) {
+function getRestoreModelComponent(state, componentId, settings, initial = false) {
   const useRegistry = settings?.useComponentRegistry;
 
   if (useRegistry) {
     const base = ComponentRegistry.get(componentId);
     if (base) {
       const currentFull = mergeComponentState(base, state[componentId]);
+      const source = getRestoredModel(currentFull, initial);
       currentFull.model = {
-        ...(currentFull?.storedModel || currentFull?.model),
-        values: (currentFull.storedModel?.values || currentFull.model?.values || []).map(value => ({ ...value })),
+        ...source,
+        values: (source?.values || []).map(value => ({ ...value })),
         changed: false
       };
 
@@ -1724,12 +1751,13 @@ function getRestoreModelComponent(state, componentId, settings) {
   // Legacy behavior
   if (!state[componentId]) return {};
 
+  const source = getRestoredModel(state[componentId], initial);
   return {
     [componentId]: {
       ...state[componentId],
       model: {
-        ...state[componentId].storedModel,
-        values: state[componentId].storedModel.values.map(value => ({ ...value })),
+        ...source,
+        values: (source?.values || []).map(value => ({ ...value })),
         changed: false
       }
     }
@@ -2060,11 +2088,11 @@ const actionHandlers = {
     action.componentList.reduce((newState, _action) => restoreAttributeAction(newState, _action, action.settings), state),
 
   [RESTORE_MODEL]: (state, action) =>
-    restoreModelComponent(state, memoizedGetComponentId(action.address), action.settings),
+    restoreModelComponent(state, memoizedGetComponentId(action.address), action.settings, action.initial),
 
   [RESTORE_MULTIPLE_MODEL]: (state, action) =>
     action.componentList.reduce(
-      (newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address), action.settings),
+      (newState, _action) => restoreModelComponent(newState, memoizedGetComponentId(_action.address), action.settings, action.initial),
       state
     ),
 

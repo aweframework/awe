@@ -230,6 +230,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getCheckbox(cell)", () -> i.getCheckbox(cell));
     catalog.put("getCheckboxChecked(checked)", () -> i.getCheckboxChecked(CRITERION, true));
     catalog.put("getCheckboxChecked(unchecked)", () -> i.getCheckboxChecked(CRITERION, false));
+    catalog.put("getCheckboxOption", () -> i.getCheckboxOption(CRITERION, "Opt1"));
     catalog.put("getSelectChoice", () -> i.getSelectChoice(criterion));
     catalog.put("getSelectLoader", () -> i.getSelectLoader(criterion));
     catalog.put("getSelectDropdownList", i::getSelectDropdownList);

@@ -389,6 +389,35 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
     expect(await screen.findByText("8 EUR")).toBeDefined();
   });
 
+  it('exposes the operation icon of every row of a multioperation grid', async () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {
+            values: [
+              {id: 1, test: "a", $row: {operation: "INSERT"}},
+              {id: 2, test: "b", $row: {operation: "UPDATE"}},
+              {id: 3, test: "c", $row: {operation: "DELETE"}}
+            ]
+          },
+          attributes: {
+            multioperation: true, editable: true, loadAll: true, max: 30,
+            columnModel: [{name: "test"}], headerModel: [], buttonModel: []
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+
+    const {container} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+
+    const icons = container.querySelectorAll("[grid-id='grid'] [column-id='RowIco'] [data-testid='column-icon']");
+    expect(Array.from(icons).map(icon => icon.getAttribute("data-icon"))).toEqual(["plus", "edit", "trash"]);
+  });
+
   it('renders Awe Grid component with footer without rows', async () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,

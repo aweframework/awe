@@ -134,7 +134,7 @@ export function paginatorPassThrough() {
  * @param {object} options Grid options
  * @param {string} options.gridId Grid identifier
  * @param {boolean} [options.tree] The grid is a tree grid (the identifier is rendered as "tree-grid-id")
- * @param {function} [options.getRowId] Function that returns the id of the row PrimeReact is rendering
+ * @param {function} [options.getRowId] Function that returns the id of the row PrimeReact is rendering (set by its "rowClassName")
  * @param {function} [options.isRowEditing] Function that tells if the row PrimeReact is rendering is being edited
  * @returns {object} DataTable or TreeTable pt
  */
@@ -145,17 +145,15 @@ export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing }
   };
   // A scrollable TreeTable renders its body in the "scrollableBody" part
   pt[tree ? "scrollableBody" : "wrapper"] = testHook(TestIds.gridViewport, { container: "body" });
-  if (!tree) {
-    // A TreeTable has no pass-through for its rows
-    pt.bodyRow = ({ context }) => {
-      const rowId = getRowId?.();
-      return testHook(TestIds.gridRow, {
-        selected: context.selected,
-        editing: isRowEditing ? !!isRowEditing() : undefined,
-        attributes: rowId !== undefined ? { "row-id": rowId } : {}
-      });
-    };
-  }
+  // The rows are "bodyRow" in a DataTable and "row" in a TreeTable
+  pt[tree ? "row" : "bodyRow"] = ({ context }) => {
+    const rowId = getRowId?.();
+    return testHook(TestIds.gridRow, {
+      selected: context.selected,
+      editing: isRowEditing ? !!isRowEditing() : undefined,
+      attributes: rowId !== undefined && rowId !== null ? { "row-id": rowId } : {}
+    });
+  };
   return pt;
 }
 
@@ -322,3 +320,14 @@ export function contextMenuLinkTemplate(item, options) {
     attributes: { "option-id": item.optionId }
   }));
 }
+
+/**
+ * Pass-through of the button group of a button checkbox or a button radio: every option is the control of one choice,
+ * it carries its value as "option-id" and tells if it is selected
+ */
+export const buttonGroupPassThrough = {
+  button: ({ context }) => testHook(TestIds.criterionInput, {
+    selected: context.selected,
+    attributes: { "option-id": context.option?.value }
+  })
+};

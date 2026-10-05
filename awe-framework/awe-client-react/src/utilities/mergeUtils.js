@@ -25,6 +25,7 @@ export function mergeComponentState(base, deltas = {}) {
         model: { ...base.model, ...(deltas.model || {}) },
         validationRules: { ...base.validationRules, ...(deltas.validationRules || {}) },
         storedModel: { ...base.storedModel, ...(deltas.storedModel || {}) },
+        defaultModel: { ...base.defaultModel, ...(deltas.defaultModel || {}) },
         storedAttributes: { ...base.storedAttributes, ...(deltas.storedAttributes || {}) },
         storedValidationRules: { ...base.storedValidationRules, ...(deltas.storedValidationRules || {}) },
         specificAttributes: { ...base.specificAttributes, ...(deltas.specificAttributes || {}) }
@@ -63,6 +64,7 @@ export function calculateDeltas(base, current) {
     }
 
     addDeltaIfChanged('storedModel', current.storedModel);
+    addDeltaIfChanged('defaultModel', current.defaultModel);
     addDeltaIfChanged('storedAttributes', current.storedAttributes);
     addDeltaIfChanged('storedValidationRules', current.storedValidationRules);
     addDeltaIfChanged('specificAttributes', current.specificAttributes);

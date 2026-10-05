@@ -25,4 +25,8 @@ describe('awe-react-client/test/js/services/FormServiceTest.jsx', () => {
     expect(Object.keys(actions).length).toBe(23);
   });
 
+  it('should restore the first loaded values on restore-target and the default ones on restore', () => {
+    expect(actions['restore-target']).not.toBe(actions['restore']);
+  });
+
 });

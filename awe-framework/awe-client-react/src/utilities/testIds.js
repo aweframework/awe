@@ -14,6 +14,8 @@ export const TestIds = Object.freeze({
   criterionInput: "criterion-input",
   // React only: unit addon of a criterion (the text after the input, such as "EUR")
   criterionUnit: "criterion-unit",
+  // React only: validation error of a criterion (AngularJS draws it in the shared "error-container")
+  criterionError: "criterion-error",
   // Selectors: container, chosen value, search input, multiple choice (and its close icon), overlay panel and options
   select: "select",
   selectValue: "select-value",

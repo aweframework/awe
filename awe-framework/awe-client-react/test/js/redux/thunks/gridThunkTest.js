@@ -60,6 +60,45 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     });
   });
 
+  describe('selectRowGridAction while a row is being edited', () => {
+    const selectRows = (values) => {
+      dispatch.mockClear();
+      gridThunks.selectRowGridAction({ parameters: { values }, address: mockAddress })(dispatch, getState);
+      const [, [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      updateModelWithDependencies(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].data.selected;
+    };
+
+    beforeEach(() => {
+      mockComponent.model.values = [
+        { id: 1, name: 'Row 1', selected: false },
+        { id: 2, name: 'Row 2', selected: true, $row: { editing: true } },
+        { id: 3, name: 'Row 3', selected: false }
+      ];
+    });
+
+    it('keeps the row being edited selected when another row is selected', () => {
+      expect(selectRows([3])).toEqual([2]);
+    });
+
+    it('keeps the row being edited selected when the selection is cleared', () => {
+      expect(selectRows([])).toEqual([2]);
+    });
+
+    it('selects the rows asked for when no row is being edited', () => {
+      mockComponent.model.values[1].$row = { editing: false };
+
+      expect(selectRows([3])).toEqual([3]);
+    });
+
+    it('selects the rows asked for in a grid with multiple selection', () => {
+      mockComponent.attributes = { ...mockComponent.attributes, multiselect: true };
+
+      expect(selectRows([3])).toEqual([3]);
+    });
+  });
+
   // -------------------------------
   // ✅ selectFirstRowGridAction
   // -------------------------------
@@ -189,6 +228,58 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
       expect(updateModel2.type).toBe('UPDATE_MODEL');
       expect(addEvent.type).toBe('SET_RUNTIME_EVENT');
+    });
+  });
+
+  describe('addRowGridAction identifiers and tree branches', () => {
+    beforeEach(() => {
+      // The identifier of the rows is not one of the columns of the grid
+      mockComponent.attributes = { ...mockComponent.attributes, columnModel: [{ name: 'name', label: 'Nombre' }] };
+    });
+
+    const addRow = (action, position) => {
+      dispatch.mockClear();
+      gridThunks.addRowGridAction(action, position)(dispatch, getState);
+      const [, , [updateModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      updateModelWithDependencies(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0].data.values;
+    };
+
+    it('numbers the new rows of a grid from zero, like the AngularJS client', () => {
+      const values = addRow({ parameters: { rowId: 2 }, address: mockAddress }, RowPositionType.AFTER);
+
+      expect(values.find(row => row.selected).id).toBe('new-row-0');
+    });
+
+    it('does not count the rows added to other grids or in previous calls', () => {
+      addRow({ parameters: { rowId: 2 }, address: mockAddress }, RowPositionType.AFTER);
+      const values = addRow({ parameters: { rowId: 2 }, address: mockAddress }, RowPositionType.AFTER);
+
+      expect(values.find(row => row.selected).id).toBe('new-row-0');
+    });
+
+    it('numbers a new row after the new rows the grid already has', () => {
+      mockComponent.model.values.push({ id: 'new-row-0', name: 'New', selected: false });
+      mockComponent.model.values.push({ id: 'new-row-3', name: 'New', selected: false });
+
+      const values = addRow({ parameters: { rowId: 2 }, address: mockAddress }, RowPositionType.AFTER);
+
+      expect(values.find(row => row.selected).id).toBe('new-row-4');
+    });
+
+    it('expands the branch of a tree grid when a child is added to it', () => {
+      mockComponent.attributes = { ...mockComponent.attributes, treegrid: true, treeParent: 'parent' };
+      mockComponent.model.values = [
+        { id: 'Root', parent: '', name: 'Root', selected: true, $row: { expanded: false } },
+        { id: 'Other', parent: '', name: 'Other', $row: { expanded: false } }
+      ];
+
+      const values = addRow({ parameters: { rowId: 'Root' }, address: mockAddress }, RowPositionType.CHILD);
+
+      expect(values.find(row => row.id === 'Root').$row).toEqual(expect.objectContaining({ expanded: true, loaded: true }));
+      expect(values.find(row => row.id === 'Other').$row.expanded).toBe(false);
+      expect(values.find(row => row.selected)).toEqual(expect.objectContaining({ id: 'new-row-0', parent: 'Root' }));
     });
   });
 

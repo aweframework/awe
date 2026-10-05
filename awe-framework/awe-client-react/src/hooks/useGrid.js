@@ -3,7 +3,7 @@ import { Column } from "primereact/column";
 import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
 import { getIconCode, translateLabel } from "../utilities";
-import { getGridIdentifier, getWidthStyle, OperationIcon } from "../utilities/grid";
+import { getGridIdentifier, getWidthStyle, OperationIcon, OperationIconName } from "../utilities/grid";
 import { ContextMenu } from "primereact/contextmenu";
 import { isEmpty } from "../utilities/general";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,11 +15,13 @@ import AweButton from "../components/AweButton";
 import useComponent from "./useComponent";
 import { useComponentState, useAllComponents } from "./useComponentState";
 import {
+  bodyCellPassThrough,
   contextMenuLinkTemplate,
   contextMenuPassThrough,
   headerCellPassThrough,
   selectionColumnPassThrough
 } from "../utilities/testPassThrough";
+import { TestAttributes, TestIds, testHook } from "../utilities/testIds";
 
 function mapContextMenu(contextMenu, props) {
   const { t, addActionsTop, address, components } = props;
@@ -145,8 +147,10 @@ export function useGrid(id) {
       bodyStyle={getWidthStyle(null, null, '32px')}
       style={{ textAlign: "center" }}
       footer={null}
+      pt={bodyCellPassThrough("RowIco")}
       body={rowData => <i role={rowData?.$row?.operation}
-        className={OperationIcon[rowData?.$row?.operation]} />} /> : null
+        className={OperationIcon[rowData?.$row?.operation]}
+        {...testHook(TestIds.columnIcon, { attributes: { [TestAttributes.icon]: OperationIconName[rowData?.$row?.operation] } })} />} /> : null
   );
 
   const columnTemplate = (col, rowSpan, enableFilters) => {
