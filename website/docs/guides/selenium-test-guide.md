@@ -740,7 +740,9 @@ Selenium adapter in a later release.
 
 Behind it, `com.almis.awe.testing.driver.BrowserDriver` is the internal, tool-neutral port that `SeleniumUtilities` will run on, with
 `SeleniumBrowserDriver` as its Selenium adapter (also available from `SeleniumModel.getBrowser()`). It is a preview with no
-compatibility promise yet: write your tests with the `SeleniumUtilities` steps, not against the port.
+compatibility promise yet: write your tests with the `SeleniumUtilities` steps, not against the port. Besides queries and
+actions it covers opening pages, scripts, scrolling, frames, window size, failure evidence (screenshot, page source, browser
+console) and quitting the browser.
 
 ## Writing Selenium tests for your product
 
