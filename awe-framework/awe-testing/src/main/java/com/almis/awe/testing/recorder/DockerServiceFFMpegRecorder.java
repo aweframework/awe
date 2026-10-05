@@ -7,11 +7,25 @@ import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionTimeoutException;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DockerServiceFFMpegRecorder extends VideoRecorder {
-  private final DockerServiceFFMpegWrapper ffmpegWrapper = new DockerServiceFFMpegWrapper();
+  private final DockerServiceFFMpegWrapper ffmpegWrapper;
+
+  public DockerServiceFFMpegRecorder() {
+    this(new DockerServiceFFMpegWrapper());
+  }
+
+  /**
+   * Recorder using the given wrapper (injectable for testing)
+   *
+   * @param ffmpegWrapper Wrapper of the recorder service
+   */
+  public DockerServiceFFMpegRecorder(DockerServiceFFMpegWrapper ffmpegWrapper) {
+    this.ffmpegWrapper = ffmpegWrapper;
+  }
 
   public DockerServiceFFMpegWrapper getFfmpegWrapper() {
     return this.ffmpegWrapper;
@@ -25,9 +39,26 @@ public class DockerServiceFFMpegRecorder extends VideoRecorder {
     );
   }
 
+  /**
+   * Stop the recording and store the video. It never waits for a video that was not retrieved.
+   *
+   * @param filename Video name, without extension
+   * @return The stored video, or null when it could not be retrieved
+   */
   public File stopAndSave(String filename) {
-    File file = this.getFfmpegWrapper().stopFFmpegAndSave(filename);
-    this.waitForVideoCompleted(file);
+    Optional<File> video = this.getFfmpegWrapper().retrieveVideo(filename);
+    if (!video.isPresent()) {
+      log.warn("Video recording {} could not be retrieved. The test result is not affected", filename);
+      return null;
+    }
+
+    File file = video.get();
+    try {
+      this.waitForVideoCompleted(file);
+    } catch (RecordingException exc) {
+      log.warn("Video recording {} was not completed. The test result is not affected", filename, exc);
+      return null;
+    }
     this.setLastVideo(file);
     return file;
   }
