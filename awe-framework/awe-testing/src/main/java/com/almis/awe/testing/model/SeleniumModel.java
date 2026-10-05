@@ -1,6 +1,8 @@
 package com.almis.awe.testing.model;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.SeleniumBrowserDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,12 +20,26 @@ public class SeleniumModel {
   private AweTestConfigProperties properties;
   // Drivers
   private WebDriver driver;
+  // Tool-neutral browser (preview). When none was set it is the Selenium adapter of the driver
+  private BrowserDriver browser;
   private WebDriverManager webDriverManager;
   // Local data
   private String currentOption;
   private String testTitle;
   // Whether a screenshot has already been stored for the test being run
   private boolean screenshotTaken;
+
+  /**
+   * Get the tool-neutral browser: the one that was set or, when none was, the Selenium adapter of the current driver
+   *
+   * @return Browser, or null if there is neither a browser nor a driver
+   */
+  public BrowserDriver getBrowser() {
+    if (browser != null) {
+      return browser;
+    }
+    return driver == null ? null : new SeleniumBrowserDriver(driver);
+  }
 
   /**
    * Get current base url
