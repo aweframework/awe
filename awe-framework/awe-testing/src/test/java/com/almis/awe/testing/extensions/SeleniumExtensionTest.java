@@ -2,6 +2,8 @@ package com.almis.awe.testing.extensions;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.model.SeleniumModel;
+import com.automation.remarks.video.exception.RecordingException;
+import com.automation.remarks.video.recorder.IVideoRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -20,7 +22,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -90,6 +97,83 @@ class SeleniumExtensionTest {
 
     extension.afterTestExecution(context("t020_next", new AssertionError("boom")));
     assertThat(shots()).hasSize(1);
+  }
+
+
+  @Test
+  void afterEachNeverFailsWhenTheRecorderCannotStopTheRecording() throws Exception {
+    IVideoRecorder recorder = mock(IVideoRecorder.class);
+    when(recorder.stopAndSave(anyString())).thenThrow(new RecordingException("Recording Condition was not fulfilled within 20 seconds"));
+    SeleniumExtension recording = recordingExtension(recorder);
+
+    recording.beforeEach(context("t010_login", null));
+
+    assertThatCode(() -> recording.afterEach(context("t010_login", null))).doesNotThrowAnyException();
+  }
+
+  @Test
+  void afterEachNeverFailsWhenTheRecorderThrowsAnyRuntimeException() throws Exception {
+    IVideoRecorder recorder = mock(IVideoRecorder.class);
+    when(recorder.stopAndSave(anyString())).thenThrow(new IllegalStateException("boom"));
+    SeleniumExtension recording = recordingExtension(recorder);
+
+    recording.beforeEach(context("t010_login", null));
+
+    assertThatCode(() -> recording.afterEach(context("t010_login", null))).doesNotThrowAnyException();
+  }
+
+  @Test
+  void aFailedRecordingStartDoesNotFailTheTestNorTheStop() throws Exception {
+    IVideoRecorder recorder = mock(IVideoRecorder.class);
+    doThrow(new RecordingException("start failed")).when(recorder).start();
+    SeleniumExtension recording = recordingExtension(recorder);
+
+    assertThatCode(() -> recording.beforeEach(context("t010_login", null))).doesNotThrowAnyException();
+    assertThatCode(() -> recording.afterEach(context("t010_login", null))).doesNotThrowAnyException();
+    verify(recorder, never()).stopAndSave(anyString());
+  }
+
+  @Test
+  void aFailedRecordingCreationDoesNotFailTheTest() throws Exception {
+    SeleniumExtension recording = new SeleniumExtension() {
+      @Override
+      protected IVideoRecorder createRecorder() {
+        throw new IllegalStateException("no recorder");
+      }
+    };
+    prepare(recording);
+
+    assertThatCode(() -> recording.beforeEach(context("t010_login", null))).doesNotThrowAnyException();
+    assertThatCode(() -> recording.afterEach(context("t010_login", null))).doesNotThrowAnyException();
+  }
+
+  @Test
+  void aNullVideoFromTheRecorderIsTolerated() throws Exception {
+    IVideoRecorder recorder = mock(IVideoRecorder.class);
+    when(recorder.stopAndSave(anyString())).thenReturn(null);
+    SeleniumExtension recording = recordingExtension(recorder);
+
+    recording.beforeEach(context("t010_login", null));
+
+    assertThatCode(() -> recording.afterEach(context("t010_login", new AssertionError("boom")))).doesNotThrowAnyException();
+    verify(recorder).stopAndSave(anyString());
+  }
+
+  private SeleniumExtension recordingExtension(IVideoRecorder recorder) {
+    SeleniumExtension recording = new SeleniumExtension() {
+      @Override
+      protected IVideoRecorder createRecorder() {
+        return recorder;
+      }
+    };
+    prepare(recording);
+    return recording;
+  }
+
+  private void prepare(SeleniumExtension target) {
+    model.getProperties().setAllowedRecording(true);
+    ReflectionTestUtils.setField(target, "seleniumModel", model);
+    ReflectionTestUtils.setField(target, "driver", model.getDriver());
   }
 
   private ExtensionContext context(String testName, Throwable failure) {

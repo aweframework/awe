@@ -252,10 +252,33 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     seleniumModel.setScreenshotTaken(false);
 
     // Check recording
+    this.recorder = null;
     if (seleniumModel.getProperties().isAllowedRecording()) {
-      this.recorder = SeleniumRecorderFactory.getRecorder(VideoRecorder.conf().recorderType());
-      this.recorder.start();
+      startRecording();
     }
+  }
+
+  /**
+   * Start the video recording. Recording is evidence, never a test condition: a failure is logged and the test goes on
+   * without video (no recorder is kept, so the stop is skipped).
+   */
+  private void startRecording() {
+    try {
+      IVideoRecorder videoRecorder = createRecorder();
+      videoRecorder.start();
+      this.recorder = videoRecorder;
+    } catch (Exception exc) {
+      log.warn("Video recording could not be started. The test goes on without video", exc);
+    }
+  }
+
+  /**
+   * Create the video recorder of the test
+   *
+   * @return Video recorder
+   */
+  protected IVideoRecorder createRecorder() {
+    return SeleniumRecorderFactory.getRecorder(VideoRecorder.conf().recorderType());
   }
 
   /**
@@ -276,13 +299,20 @@ public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, 
     boolean testFailed = extensionContext.getExecutionException().isPresent();
     String testClass = extensionContext.getParent().orElse(extensionContext).getDisplayName();
 
-    if (seleniumModel.getProperties().isAllowedRecording()) {
-      log.debug("Storing video recording...");
-      String fileName = failureEvidence.buildName(testClass, seleniumModel.getCurrentOption(),
-        seleniumModel.getTestTitle(), testFailed);
-      File result = this.recorder.stopAndSave(fileName);
-      boolean keepAll = "ALL".equalsIgnoreCase(seleniumModel.getProperties().getVideoSave().toString());
-      failureEvidence.resolveVideo(result, testFailed, keepAll);
+    IVideoRecorder videoRecorder = this.recorder;
+    this.recorder = null;
+    if (videoRecorder != null && seleniumModel.getProperties().isAllowedRecording()) {
+      try {
+        log.debug("Storing video recording...");
+        String fileName = failureEvidence.buildName(testClass, seleniumModel.getCurrentOption(),
+          seleniumModel.getTestTitle(), testFailed);
+        File result = videoRecorder.stopAndSave(fileName);
+        boolean keepAll = "ALL".equalsIgnoreCase(seleniumModel.getProperties().getVideoSave().toString());
+        failureEvidence.resolveVideo(result, testFailed, keepAll);
+      } catch (Exception exc) {
+        // Recording is evidence, never a test condition: it must not change the test result
+        log.warn("Video recording could not be stored. The test result is not affected", exc);
+      }
     }
   }
 

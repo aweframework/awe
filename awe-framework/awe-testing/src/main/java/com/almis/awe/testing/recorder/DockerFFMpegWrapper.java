@@ -44,6 +44,15 @@ public class DockerFFMpegWrapper {
     this.future = CompletableFuture.supplyAsync(() -> SystemUtils.runCommand(commands));
   }
 
+  /**
+   * Whether a recording was started and not stopped yet
+   *
+   * @return true when there is a recording to stop
+   */
+  public boolean isStarted() {
+    return this.future != null;
+  }
+
   public File stopFFmpegAndSave(String filename) {
     String killLog = killDockerFFmpeg();
     log.info("Process kill output: " + killLog);
@@ -57,6 +66,7 @@ public class DockerFFMpegWrapper {
       }
       log.info("Recording finished to: " + destFile.getAbsolutePath());
     });
+    this.future = null;
     return destFile;
   }
 
