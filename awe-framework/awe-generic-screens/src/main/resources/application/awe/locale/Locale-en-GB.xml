@@ -49,6 +49,8 @@
   <locale name="BUTTON_PREVIOUS" value="Previous"/>
   <locale name="BUTTON_PRINT" value="Print"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Print selection"/>
+  <locale name="BUTTON_RELOAD" value="Reload page"/>
+  <locale name="BUTTON_RETRY" value="Retry"/>
   <locale name="BUTTON_REMOVE" value="Unrestrict"/>
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Remove screen from favourites"/>
   <locale name="BUTTON_RESET" value="Reset"/>

@@ -47,6 +47,18 @@ describe('awe-react-client/test/js/mainTest.jsx', () => {
     expect(render).toHaveBeenCalledTimes(1);
   });
 
+  it('protects the whole application with an error boundary, so a render error does not leave an empty page', async () => {
+    fetchJson.mockResolvedValue({language: 'es-ES'});
+    i18nInit.mockResolvedValue();
+
+    loadMain();
+    await flushPromises();
+
+    const root = render.mock.calls[0][0];
+    expect(root.type.name).toBe('ErrorBoundary');
+    expect(root.props.scope).toBe('app');
+  });
+
   it('keeps a colon in a label (a time such as "00:00" is not a namespace and a key)', async () => {
     fetchJson.mockResolvedValue({language: 'es-ES'});
     i18nInit.mockResolvedValue();

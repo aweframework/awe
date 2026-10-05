@@ -105,6 +105,14 @@ export const TestIds = Object.freeze({
   confirmDialog: "confirm-dialog",
   confirmAccept: "confirm-accept",
   confirmCancel: "confirm-cancel",
+  // React only: error panel shown by an error boundary when a part of the application failed to render (the instance
+  // is identified by "data-scope"), with its title, the message of the error, the component stack and its buttons
+  errorBoundary: "error-boundary",
+  errorBoundaryTitle: "error-boundary-title",
+  errorBoundaryMessage: "error-boundary-message",
+  errorBoundaryDetails: "error-boundary-details",
+  errorBoundaryRetry: "error-boundary-retry",
+  errorBoundaryReload: "error-boundary-reload",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the spinner shown while a view is loading
   loader: "loader",
   loadingSpinner: "loading-spinner"

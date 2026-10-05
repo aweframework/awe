@@ -112,6 +112,15 @@ public final class TestIds {
   // Log viewer: the element that holds the text of the log
   public static final String LOG_VIEWER = "log-viewer";
 
+  // React only: error panel shown by an error boundary when a part of the application failed to render (the
+  // instance is identified by "data-scope"), with its title, the message of the error, the component stack and buttons
+  public static final String ERROR_BOUNDARY = "error-boundary";
+  public static final String ERROR_BOUNDARY_TITLE = "error-boundary-title";
+  public static final String ERROR_BOUNDARY_MESSAGE = "error-boundary-message";
+  public static final String ERROR_BOUNDARY_DETAILS = "error-boundary-details";
+  public static final String ERROR_BOUNDARY_RETRY = "error-boundary-retry";
+  public static final String ERROR_BOUNDARY_RELOAD = "error-boundary-reload";
+
   // Loaders
   public static final String LOADER = "loader";
   // AngularJS only: loading bar of the page

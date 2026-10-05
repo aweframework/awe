@@ -26,6 +26,7 @@ import './assets/css/pages/error-pages.css';
 import './assets/css/pages/sso-logout.css';
 
 import AweApp from './components/AweApp';
+import ErrorBoundary from "./components/ErrorBoundary";
 import {DEFAULT_SETTINGS, updateSettings} from "./redux/actions/settings";
 import {fetchJson, getContextPath} from "./utilities";
 import {Provider} from "react-redux";
@@ -70,11 +71,13 @@ fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
       const value = {ripple: true};
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(
-        <BrowserRouter basename={getContextPath()}>
-          <PrimeReactProvider value={value}>
-            <AppWithStore settings={settings}/>
-          </PrimeReactProvider>
-        </BrowserRouter>);
+        <ErrorBoundary scope="app">
+          <BrowserRouter basename={getContextPath()}>
+            <PrimeReactProvider value={value}>
+              <AppWithStore settings={settings}/>
+            </PrimeReactProvider>
+          </BrowserRouter>
+        </ErrorBoundary>);
     });
   })
   .catch((reason) => console.error("Error initialising the application:", reason));
