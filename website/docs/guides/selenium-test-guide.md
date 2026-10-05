@@ -727,6 +727,17 @@ writer still meets, because they are visible in the screens and not in the rende
 When a behaviour differs and no row above helps, do not branch on the client in your test: add a step (see
 [Adding a missing step](#adding-a-missing-step)) and let the engine profile of each client decide.
 
+### Tool-neutral locators (preview)
+
+The engine profiles (`IAweFrontEndInstructions`) still return Selenium `By` in AWE 5.0, so nothing changes for your tests.
+So that browser tests can later run on another automation tool without being rewritten, `com.almis.awe.testing.driver.Locator`
+is a tool-neutral, immutable locator (`Locator.css(...)` or `Locator.xpath(...)`, with `kind()` and `expression()`). You get one
+from a `By` with `Locator.from(by)` (or `Locator.from(listOfBy)`): CSS and XPath are kept as they are and `By.id` becomes the
+equivalent, escaped CSS id selector. Other kinds of `By` (name, class name, link text, tag name) are rejected with an
+`IllegalArgumentException`, because the profiles do not use them. `toBy()` goes back to Selenium. A unit test checks that every
+locator of the AngularJS and React profiles converts. `Locator` is a preview: its Selenium conversion methods may move to the
+Selenium adapter in a later release.
+
 ## Writing Selenium tests for your product
 
 Your product tests should not know which libraries AWE uses to draw its components. If they do, replacing a library (as AWE
