@@ -1,11 +1,10 @@
 import {
   asArray,
-  generateMessageAction,
   generateServerAction,
   getActionAddress,
   getActionSource,
   getComponent,
-  isInsideContext, translateLabel
+  isInsideContext
 } from "../../utilities";
 import { acceptAction, addActionsTop } from "../actions/actions";
 import { ButtonTypes, keepModel, updateAttributes } from "../actions/components";
@@ -93,19 +92,20 @@ export function restoreTargetAction(action) {
   return restoreModels(action, true);
 }
 
-export function filterAction(action, t = (o) => o) {
+export function filterAction(action) {
   return (dispatch, getState) => {
     const components = getAllComponents(getState());
-    const { settings, view } = getState();
+    const { settings } = getState();
     // Define server and target action
     const address = getActionAddress(action);
 
     // Get component
     let component = getComponent(components, address);
 
-    // If component not found, send an error message
+    // If the component is not found (i.e. a broadcast filter of a dialog which is not open), ignore the action like
+    // the AngularJS garbage action collector does
     if (!component) {
-      dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_NOT_DEFINED', t), translateLabel('ERROR_MESSAGE_NOT_DEFINED_IN', t, address.component, view[address.view].option))]));
+      console.debug(`filter action ignored, component '${address.component}' is not defined in view '${address.view}'`, action);
     } else {
       // Start loading component
       dispatch(updateAttributes(address, { loading: true }));

@@ -123,7 +123,7 @@ function useFormService() {
    * Filter a component data
    * @param {object} action Action received
    */
-  const filter = (action) => dispatch(filterAction(action, t));
+  const filter = (action) => dispatch(filterAction(action));
 
   /**
    * Start loading
