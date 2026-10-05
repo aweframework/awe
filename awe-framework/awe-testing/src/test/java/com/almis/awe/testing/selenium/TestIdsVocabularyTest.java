@@ -78,9 +78,10 @@ class TestIdsVocabularyTest {
     Map<String, String> angular = readJavaScriptConstant(ANGULAR_VOCABULARY_FILE, "TestAttributes");
 
     assertThat(react).containsEntry("editing", TestAttributes.EDITING)
+      .containsEntry("deleted", TestAttributes.DELETED)
       .containsEntry("rendered", TestAttributes.RENDERED)
       .containsEntry("stepNumber", TestAttributes.STEP_NUMBER);
-    assertThat(angular).doesNotContainKeys("editing", "rendered", "stepNumber");
+    assertThat(angular).doesNotContainKeys("editing", "deleted", "rendered", "stepNumber");
   }
 
   @Test

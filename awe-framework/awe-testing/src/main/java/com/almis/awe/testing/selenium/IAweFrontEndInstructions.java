@@ -393,6 +393,28 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Find the row that contains an element of a grid cell, relative to that element. A client whose rows are edited with
+   * a double click returns it, together with {@link #getGridEditingRow}, so that a double click that did not start the
+   * edition of the row can be repeated. By default the row is not identified.
+   *
+   * @return Selector of the row, to be searched from an element of a cell, or null if the client does not identify it
+   */
+  default By getGridRowOfCell() {
+    return null;
+  }
+
+  /**
+   * Find a row of a grid when it is being edited
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param rowId  Row identifier
+   * @return Selector of the row being edited, or null if the client does not tell it
+   */
+  default By getGridEditingRow(String gridId, String rowId) {
+    return null;
+  }
+
+  /**
    * Get row edit behavior
    * @return Row edit behavior
    */

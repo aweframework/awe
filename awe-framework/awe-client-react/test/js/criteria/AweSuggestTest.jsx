@@ -33,6 +33,41 @@ describe('awe-react-client/test/js/criteria/AweSuggestTest.jsx', () => {
     // check
     expect(document.querySelector("#suggest input[aria-autocomplete]")).not.toBeNull();
   });
+  it('does not crash on blur when the labels of the suggestions are numbers', async () => {
+    // A suggest over a numeric column (e.g. an identifier) answers numbers as labels
+    const numericState = {
+      ...baseState,
+      components: {
+        suggest: {
+          ...baseState.components.suggest,
+          model: {values: [{label: 1, value: 1, selected: true}, {label: 2, value: 2}]}
+        }
+      }
+    };
+    const errors = [];
+    const onError = event => { errors.push(event.error || event.message); event.preventDefault(); };
+    window.addEventListener("error", onError);
+    const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    let container;
+    await act(async () => {
+      ({container} = renderWithProviders(<AweSuggest id="suggest"/>, {preloadedState: numericState}));
+    });
+    const input = container.querySelector("#suggest input[aria-autocomplete]");
+
+    await act(async () => {
+      fireEvent.focus(input);
+      fireEvent.change(input, {target: {value: "2"}});
+      fireEvent.blur(input);
+    });
+
+    window.removeEventListener("error", onError);
+    consoleError.mockRestore();
+    expect(errors).toEqual([]);
+    // The typed text matches the label of a suggestion, so it is selected and shown as text
+    expect(input.value).toBe("2");
+  });
+
   it('renders a skeleton when address is missing', async () => {
     const preloadedState = {
       ...baseState,

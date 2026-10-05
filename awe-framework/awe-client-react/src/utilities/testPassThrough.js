@@ -46,6 +46,12 @@ export function calendarPassThrough(owner) {
 }
 
 /**
+ * Keep the focus where it is when the mouse is pressed on an overlay (the default action of the press moves the focus)
+ * @param {Event} event Mouse down event
+ */
+const keepInputFocus = (event) => event.preventDefault();
+
+/**
  * Option (item) of an overlay list of a select or a suggest
  * @param {string} owner Id of the component that owns the overlay
  * @returns {function} pt function
@@ -110,7 +116,9 @@ export function autoCompletePassThrough(owner, multiple = false) {
     token: testHook(TestIds.selectChoice),
     removeTokenIcon: testHook(TestIds.selectChoiceClose),
     loadingIcon: testHook(TestIds.loader),
-    panel: testHook(TestIds.selectDropdown, { owner }),
+    // Pressing the mouse on the list must not take the focus away from the input: the list is aligned again when the
+    // input loses the focus (it can then flip from above to below it) and the click would land outside the result
+    panel: { ...testHook(TestIds.selectDropdown, { owner }), onMouseDown: keepInputFocus },
     item: optionPassThrough(owner)
   };
 }
@@ -136,9 +144,10 @@ export function paginatorPassThrough() {
  * @param {boolean} [options.tree] The grid is a tree grid (the identifier is rendered as "tree-grid-id")
  * @param {function} [options.getRowId] Function that returns the id of the row PrimeReact is rendering (set by its "rowClassName")
  * @param {function} [options.isRowEditing] Function that tells if the row PrimeReact is rendering is being edited
+ * @param {function} [options.isRowDeleted] Function that tells if the row PrimeReact is rendering is marked to be deleted
  * @returns {object} DataTable or TreeTable pt
  */
-export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing }) {
+export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing, isRowDeleted }) {
   const pt = {
     root: testHook(TestIds.grid, { attributes: { [tree ? "tree-grid-id" : "grid-id"]: gridId } }),
     paginator: paginatorPassThrough()
@@ -151,6 +160,7 @@ export function gridPassThrough({ gridId, tree = false, getRowId, isRowEditing }
     return testHook(TestIds.gridRow, {
       selected: context.selected,
       editing: isRowEditing ? !!isRowEditing() : undefined,
+      deleted: isRowDeleted ? !!isRowDeleted() : undefined,
       attributes: rowId !== undefined && rowId !== null ? { "row-id": rowId } : {}
     });
   };

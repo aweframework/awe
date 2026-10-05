@@ -397,7 +397,7 @@ export function calculateFooterValue(column, values) {
 }
 
 /**
- * Get row values
+ * Get row values (by the identifier of the grid, which is not "id" in tree grids)
  * @param {object} grid Grid
  * @param {number|string} rowId Row id
  * @returns {object} Row values
@@ -405,7 +405,8 @@ export function calculateFooterValue(column, values) {
  */
 export function getRow(grid, rowId) {
   const {values} = grid.model;
-  return values.find(row => String(row.id) === String(rowId));
+  const gridId = getGridIdentifier(grid.attributes);
+  return values.find(row => String(row[gridId]) === String(rowId));
 }
 
 /**

@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
 import {generateServerAction} from "../utilities";
-import {getWidthStyle} from "../utilities/grid";
+import {getWidthStyle, OperationType} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
 import "./AweTreeGrid.less";
@@ -174,14 +174,17 @@ function AweTreeGrid(props) {
   // PrimeReact evaluates "rowClassName" with the node of a row right before the row pass-through, in the same render:
   // the id of the row being rendered is kept here to give the row its "row-id".
   const renderingRowId = useRef(null);
+  const renderingRowDeleted = useRef(false);
   const rowClassName = useCallback((node) => {
     renderingRowId.current = node?.data?.[treeId];
+    renderingRowDeleted.current = node?.data?.$row?.operation === OperationType.DELETE;
     return null;
   }, [treeId]);
   const passThrough = useMemo(() => gridPassThrough({
     gridId: address?.component,
     tree: true,
-    getRowId: () => renderingRowId.current
+    getRowId: () => renderingRowId.current,
+    isRowDeleted: () => renderingRowDeleted.current
   }), [address?.component]);
 
   const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false } = attributes;

@@ -21,6 +21,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Interactive;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
+import org.openqa.selenium.interactions.Sequence;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -29,8 +30,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -513,6 +516,115 @@ class SeleniumUtilitiesSemanticStepsTest {
     // A click on a button placed on the last pixels of the viewport is lost by the browser
     verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
       argThat((String script) -> script.contains("scrollIntoView") && script.contains("innerHeight")), any());
+  }
+
+  @Test
+  void shouldBringACellInsideItsScrollContainerBeforeDoubleClickingIt() {
+    use(new ReactAweInstructions());
+    WebElement cell = show(instructions.findGridCell("GrdEdi", "clean"), "clean");
+
+    utilities.editRow("GrdEdi", "clean");
+
+    // A grid wider than its container is scrolled by the client (the save button of the edited row is brought into
+    // view): the cell can be left clipped by the container, under the menu, where the pointer would not reach it. The
+    // scroll must be immediate: a smooth one is still moving when the pointer is placed over the cell
+    verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
+      argThat((String script) -> script.contains("scrollIntoView") && script.contains("inline: 'nearest'")
+        && script.contains("behavior: 'instant'")), eq(cell));
+  }
+
+  /**
+   * A cell of the row "3" of a grid, shown by the instructions of the React client, whose row is being edited as soon as
+   * the given number of double clicks has been performed
+   */
+  private AtomicInteger editRowAfterDoubleClicks(int doubleClicksToEdit) {
+    use(new ReactAweInstructions());
+    WebElement cell = show(instructions.findGridCell("GrdEdi", "clean"), "clean");
+    WebElement row = mock(WebElement.class);
+    when(row.getAttribute("row-id")).thenReturn("3");
+    when(cell.findElement(instructions.getGridRowOfCell())).thenReturn(row);
+    AtomicInteger doubleClicks = new AtomicInteger();
+    doAnswer(invocation -> doubleClicks.incrementAndGet()).when((Interactive) driver).perform(any());
+    By editingRow = instructions.getGridEditingRow("GrdEdi", "3");
+    when(driver.findElements(argThat(editingRow::equals)))
+      .thenAnswer(invocation -> doubleClicks.get() >= doubleClicksToEdit ? List.of(row) : Collections.emptyList());
+    return doubleClicks;
+  }
+
+  @Test
+  void shouldNotRepeatTheDoubleClickThatStartedTheEditionOfTheRow() {
+    AtomicInteger doubleClicks = editRowAfterDoubleClicks(1);
+
+    utilities.editRow("GrdEdi", "clean");
+
+    assertThat(doubleClicks).hasValue(1);
+  }
+
+  @Test
+  void shouldRepeatTheDoubleClickThatDidNotStartTheEditionOfTheRow() {
+    // On a loaded machine the browser takes more time than the double click interval between the two clicks of the
+    // action, so it only sees two clicks that select the row, and the row is never edited
+    AtomicInteger doubleClicks = editRowAfterDoubleClicks(2);
+
+    utilities.editRow("GrdEdi", "clean");
+
+    assertThat(doubleClicks).hasValue(2);
+  }
+
+  @Test
+  void shouldGiveUpRepeatingTheDoubleClickWhenTheRowIsNeverEdited() {
+    // The client may reject the edition on purpose (the row being edited has errors): the step does not fail by itself
+    AtomicInteger doubleClicks = editRowAfterDoubleClicks(Integer.MAX_VALUE);
+
+    assertThatCode(() -> utilities.editRow("GrdEdi", "clean")).doesNotThrowAnyException();
+
+    assertThat(doubleClicks).hasValue(3);
+  }
+
+  @Test
+  void shouldNotCheckTheEditionOfARowThatTheClientDoesNotIdentify() {
+    use(new ReactAweInstructions());
+    show(instructions.findGridCell("GrdEdi", "clean"), "clean");
+    AtomicInteger doubleClicks = new AtomicInteger();
+    doAnswer(invocation -> doubleClicks.incrementAndGet()).when((Interactive) driver).perform(any());
+
+    utilities.editRow("GrdEdi", "clean");
+
+    assertThat(doubleClicks).hasValue(1);
+  }
+
+  @Test
+  void shouldBringACellInsideItsScrollContainerBeforeOpeningItsContextMenu() {
+    use(new ReactAweInstructions());
+    WebElement cell = show(instructions.findGridCell("GrdEdi", "asphalt"), "asphalt");
+
+    utilities.contextMenuRowContents("GrdEdi", "asphalt");
+
+    // The same cell that a double click could not reach (clipped by the scroll of the grid, under the menu) would
+    // receive the right click on the menu instead, and the context menu of the grid would never open
+    verify((JavascriptExecutor) driver, atLeast(1)).executeScript(
+      argThat((String script) -> script.contains("scrollIntoView") && script.contains("inline: 'nearest'")
+        && script.contains("behavior: 'instant'")), eq(cell));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void shouldJumpToTheNestedOptionOfAContextMenuWithoutCrossingTheOptionsBetween() {
+    use(new ReactAweInstructions());
+    show(instructions.getContextButton("CtxNew"), "New");
+    show(instructions.getContextButton("CtxNewChild"), "Child");
+
+    utilities.clickContextButton("CtxNew", "CtxNewChild");
+
+    // A pointer that travels (as the one of Firefox does) from an option to its nested option crosses the options that
+    // lie between them, and the menu closes the nested options when the pointer leaves their parent
+    ArgumentCaptor<Collection<Sequence>> captor = ArgumentCaptor.forClass(Collection.class);
+    verify((Interactive) driver, atLeast(2)).perform(captor.capture());
+    List<Object> hoverMoves = new ArrayList<>();
+    captor.getAllValues().stream().limit(2).flatMap(Collection::stream)
+      .forEach(sequence -> ((List<Map<String, Object>>) sequence.toJson().get("actions")).stream()
+        .filter(action -> "pointerMove".equals(action.get("type"))).forEach(action -> hoverMoves.add(action.get("duration"))));
+    assertThat(hoverMoves).isNotEmpty().allMatch(duration -> Long.valueOf(0).equals(duration) || Integer.valueOf(0).equals(duration));
   }
 
   @Test

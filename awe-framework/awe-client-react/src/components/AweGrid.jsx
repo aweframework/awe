@@ -3,7 +3,7 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {getGridIdentifier, getWidthStyle} from "../utilities/grid";
+import {getGridIdentifier, getWidthStyle, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import "./AweGrid.less";
 import {classNames} from "../utilities/components";
@@ -78,13 +78,16 @@ function AweGrid(props) {
     setRowsPerPageOptions(Array.from(set).sort((a, b) => a - b));
   }, [attributes.pagerValues, attributes.max]);
 
-  // Scroll to save button when present
+  // Scroll to the save button when a row starts being edited. Doing it on every render moves a grid wider than its
+  // container whenever anything changes (a click on another row, a typed value), and the cells run away from under
+  // the pointer of the user
+  const editingRowId = (model.values || []).find(row => row.$row?.editing)?.[getGridIdentifier(attributes)];
   useEffect(() => {
     const element = document.querySelector(".p-row-editor-save");
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  });
+  }, [editingRowId]);
 
   const headerTemplate = useCallback(() => {
     const { headerModel = [], columnModel = [] } = attributes;
@@ -132,9 +135,11 @@ function AweGrid(props) {
   // in the same render, so the id of the row being rendered is kept here to give the row its "row-id".
   const renderingRowId = useRef(null);
   const renderingRowEditing = useRef(false);
+  const renderingRowDeleted = useRef(false);
   const rowClassName = useCallback((data) => {
     renderingRowId.current = data.id;
     renderingRowEditing.current = !!data.$row?.editing;
+    renderingRowDeleted.current = data.$row?.operation === OperationType.DELETE;
     return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
   }, []);
 
@@ -176,7 +181,8 @@ function AweGrid(props) {
       pt={gridPassThrough({
         gridId: address?.component,
         getRowId: () => renderingRowId.current,
-        isRowEditing: () => renderingRowEditing.current
+        isRowEditing: () => renderingRowEditing.current,
+        isRowDeleted: () => renderingRowDeleted.current
       })}
     >
       {preColumnTemplates("cell", 1, { multiselect, first, rows, rowNumbers: attributes.rowNumbers })}

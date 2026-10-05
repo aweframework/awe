@@ -13,7 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.Interactive;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -27,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -46,6 +50,8 @@ public class SeleniumUtilities implements IAweInstructions {
   // Constants
   private static final Integer RETRY_COUNT = 10;
   private static final int STALE_RETRY_COUNT = 3;
+  private static final int EDIT_ROW_ATTEMPTS = 3;
+  private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final String TEXT_VALUE = " text: '";
 
   private FailureEvidence failureEvidence = new FailureEvidence();
@@ -609,6 +615,41 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * An element can be inside the viewport but clipped by a container with its own scroll (a cell of a grid wider than
+   * its container, scrolled by the client), where the pointer reaches what lies over the container instead (the menu)
+   *
+   * @param element Element
+   */
+  private void scrollIntoItsContainer(WebElement element) {
+    WebDriver driver = seleniumModel.getDriver();
+    if (driver instanceof JavascriptExecutor) {
+      try {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});", element);
+      } catch (Exception exc) {
+        // The action itself scrolls the element into view when it is outside the viewport
+        log.debug("Could not scroll the element into its container", exc);
+      }
+    }
+  }
+
+  /**
+   * Put the pointer over an element in one jump, instead of travelling to it. The pointer of an action travels from
+   * where it was (Firefox moves it step by step), over whatever lies on the way
+   *
+   * @param element Element
+   */
+  private void hoverInstantly(WebElement element) {
+    WebDriver driver = seleniumModel.getDriver();
+    if (driver instanceof Interactive interactive) {
+      PointerInput mouse = new PointerInput(PointerInput.Kind.MOUSE, "default mouse");
+      interactive.perform(List.of(new Sequence(mouse, 0)
+        .addAction(mouse.createPointerMove(Duration.ZERO, PointerInput.Origin.fromElement(element), 0, 0))));
+    } else {
+      new Actions(driver).moveToElement(element).build().perform();
+    }
+  }
+
+  /**
    * Double click on an element
    *
    * @param selector Element selector
@@ -629,11 +670,13 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Click on element
     try {
+      scrollIntoItsContainer(element);
+      // The pointer goes to the element once: a click on the element finds it again for each one, and on a loaded
+      // machine the clicks end up farther apart than the double click interval of the browser, which then takes them as
+      // two single clicks
       new Actions(seleniumModel.getDriver())
         .moveToElement(element)
-        .click(element)
-        .pause(50)
-        .click(element)
+        .doubleClick()
         .pause(100)
         .perform();
 
@@ -658,6 +701,7 @@ public class SeleniumUtilities implements IAweInstructions {
     // Click on element
     try {
       WebElement element = getElement(selector);
+      scrollIntoItsContainer(element);
       new Actions(seleniumModel.getDriver())
         .moveToElement(element)
         .contextClick(element)
@@ -779,21 +823,90 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Row selector
    */
-  private void editRowFromSelector(By selector) {
+  private void editRowFromSelector(String gridId, By selector) {
     // Wait for element visible
     waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
 
     // Depending on behavior, do click or double click
     switch (frontEndInstructions.getRowEditBehavior()) {
       case DOUBLE_CLICK:
-        // Click button
-        doubleClick(selector);
+        // Double click, as many times as needed to start the edition of the row
+        doubleClickToEditRow(gridId, selector);
         break;
       case SINGLE_CLICK:
       default:
         // Click button
         click(selector);
         break;
+    }
+  }
+
+  /**
+   * Double click on a cell to edit its row. The browser takes a double click for two clicks when they are separated by
+   * more than the double click interval, and on a loaded machine the second click of the action waits for the browser
+   * to draw the selection of the row caused by the first one: the row is selected, but never edited. So, when the client
+   * tells which row is being edited, the double click is repeated until the row of the cell is being edited. The client
+   * can reject the edition on purpose (the row being edited has errors), so after the last attempt the step goes on.
+   *
+   * @param gridId   Grid identifier (null for any grid)
+   * @param selector Cell selector
+   */
+  private void doubleClickToEditRow(String gridId, By selector) {
+    By rowOfCell = frontEndInstructions.getGridRowOfCell();
+    String rowId = rowOfCell == null ? null : getRowIdOfCell(selector, rowOfCell);
+    if (rowId == null) {
+      doubleClick(selector);
+      return;
+    }
+
+    for (int attempt = 1; attempt <= EDIT_ROW_ATTEMPTS; attempt++) {
+      // The cell has been replaced by its editor when the edition started after the last attempt
+      if (attempt > 1 && getElements(selector).isEmpty()) {
+        return;
+      }
+      doubleClick(selector);
+      if (waitForRowEdition(gridId, rowId)) {
+        return;
+      }
+      log.warn("The row {} did not start being edited after the double click {} of {}", rowId, attempt, EDIT_ROW_ATTEMPTS);
+    }
+  }
+
+  /**
+   * Retrieve the identifier of the row that contains a cell
+   *
+   * @param selector  Cell selector
+   * @param rowOfCell Selector of the row, relative to the cell
+   * @return Row identifier, or null if the row cannot be identified
+   */
+  private String getRowIdOfCell(By selector, By rowOfCell) {
+    try {
+      WebElement row = getElement(selector).findElement(rowOfCell);
+      return row == null ? null : row.getAttribute("row-id");
+    } catch (WebDriverException exc) {
+      log.debug("Could not identify the row of the cell", exc);
+      return null;
+    }
+  }
+
+  /**
+   * Wait for a row to be edited, or for the time that the client needs to start it
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param rowId  Row identifier
+   * @return The row is being edited
+   */
+  private boolean waitForRowEdition(String gridId, String rowId) {
+    By editingRow = frontEndInstructions.getGridEditingRow(gridId, rowId);
+    if (editingRow == null) {
+      return true;
+    }
+    Duration timeout = properties.getTimeout().compareTo(EDIT_ROW_WAIT) < 0 ? properties.getTimeout() : EDIT_ROW_WAIT;
+    try {
+      new WebDriverWait(seleniumModel.getDriver(), timeout).until(driver -> !driver.findElements(editingRow).isEmpty());
+      return true;
+    } catch (TimeoutException exc) {
+      return false;
     }
   }
 
@@ -823,7 +936,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   private void editRowContentsFromSelector(String gridId, String search) {
-    editRowFromSelector(frontEndInstructions.findGridCell(gridId, search));
+    editRowFromSelector(gridId, frontEndInstructions.findGridCell(gridId, search));
   }
 
   /**
@@ -1534,11 +1647,9 @@ public class SeleniumUtilities implements IAweInstructions {
       // Wait for context button
       waitForContextButton(contextButtonOption);
 
-      // Mouse over context button
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(seleniumModel.getDriver().findElement(contextButtonSelector))
-        .build()
-        .perform();
+      // Mouse over context button. The pointer jumps: a pointer that travels from an option to its nested option
+      // (Firefox moves it step by step) crosses the options that lie between them and the menu closes the nested ones
+      hoverInstantly(seleniumModel.getDriver().findElement(contextButtonSelector));
     }
 
     // Click on last option
@@ -1903,7 +2014,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column identifier
    */
   protected void editRow(String gridId, String rowId, String columnId) {
-    editRowFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
+    editRowFromSelector(gridId, frontEndInstructions.getGridCell(gridId, rowId, columnId));
   }
 
   /**

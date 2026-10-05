@@ -319,7 +319,7 @@ function checkEditingRow(dispatch, getState, action) {
 }
 
 function errorsInValidatedRow(validatedRow) {
-  const cellErrors = Object.values(validatedRow.$attrs || {}).filter(cell => cell?.error);
+  const cellErrors = Object.values(validatedRow?.$attrs || {}).filter(cell => cell?.error);
   return cellErrors.length > 0;
 }
 

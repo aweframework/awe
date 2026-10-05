@@ -17,6 +17,10 @@ public final class TestAttributes {
    * Row being edited. Only the React client renders it: it can edit a row that is not selected
    */
   public static final String EDITING = "data-editing";
+  /**
+   * Row marked to be deleted when the grid is saved. Only the React client renders it
+   */
+  public static final String DELETED = "data-deleted";
   public static final String ACTIVE = "data-active";
   public static final String DISABLED = "data-disabled";
   public static final String OUTSIDE_MONTH = "data-outside-month";
