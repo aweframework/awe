@@ -738,6 +738,10 @@ equivalent, escaped CSS id selector. Other kinds of `By` (name, class name, link
 locator of the AngularJS and React profiles converts. `Locator` is a preview: its Selenium conversion methods may move to the
 Selenium adapter in a later release.
 
+Behind it, `com.almis.awe.testing.driver.BrowserDriver` is the internal, tool-neutral port that `SeleniumUtilities` will run on, with
+`SeleniumBrowserDriver` as its Selenium adapter (also available from `SeleniumModel.getBrowser()`). It is a preview with no
+compatibility promise yet: write your tests with the `SeleniumUtilities` steps, not against the port.
+
 ## Writing Selenium tests for your product
 
 Your product tests should not know which libraries AWE uses to draw its components. If they do, replacing a library (as AWE
