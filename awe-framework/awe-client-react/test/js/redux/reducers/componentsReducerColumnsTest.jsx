@@ -65,6 +65,22 @@ describe('awe-react-client/test/js/redux/reducers/componentsReducerColumnsTest.j
     const updatedRow = newState.grid.model.values.find(r => String(r.id) === '1');
     expect(updatedRow.$attrs.colA.validationRules).toEqual({minLength: 2});
   });
+  it('should keep the number format separators of a column when a partial number format is applied to it', function () {
+    state.grid.attributes.columnModel[0].numberFormat = {digitGroupSeparator: '.', decimalCharacter: ',', mDec: 2};
+
+    const newState = components(state, {
+      type: UPDATE_ATTRIBUTES,
+      address: {component: 'grid', view: 'base', column: 'colA'},
+      data: {numberFormat: {mDec: 2, aSign: ' $', pSign: 's'}}
+    });
+
+    // The separators come from the application settings: a format that only changes the sign must not drop them
+    expect(newState.grid.attributes.columnModel[0].numberFormat).toEqual({
+      digitGroupSeparator: '.', decimalCharacter: ',', mDec: 2, aSign: ' $', pSign: 's'
+    });
+    expect(newState.grid.attributes.columnModel[1].numberFormat).toBeUndefined();
+  });
+
   it('should update column attributes via UPDATE_ATTRIBUTES without affecting other columns', function () {
     const newState = components(state, {
       type: UPDATE_ATTRIBUTES,

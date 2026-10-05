@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {AutoComplete} from "primereact/autocomplete";
 import {classNames} from "../utilities/components";
 import "./AweSuggest.less";
@@ -7,6 +7,7 @@ import {useComponentState} from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
 import {translateLabel} from "../utilities";
+import {getSuggestionLabel, withTextLabels} from "../utilities/suggest";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
 import {autoCompletePassThrough} from "../utilities/testPassThrough";
@@ -19,6 +20,8 @@ function AweSuggestMultiple(props) {
   const { model, attributes, validationRules } = useComponentState(id);
   const autocompleteRef = useRef(null);
   const [suggestions, setSuggestions] = useState([...model.values]);
+  // PrimeReact needs the labels as text, but the server answers numbers for a suggest over a numeric column
+  const textSuggestions = useMemo(() => withTextLabels(suggestions), [suggestions]);
   const [value, setValue] = useState(model.values.filter(item => item.selected) || []);
 
   const { onChange, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
@@ -48,7 +51,7 @@ function AweSuggestMultiple(props) {
       <AutoComplete multiple={true}
         ref={autocompleteRef}
         id={id}
-        value={value.map(item => ({ ...item, label: item.label || item.value }))}
+        value={value.map(item => ({ ...item, label: getSuggestionLabel(item) }))}
         placeholder={translateLabel(placeholder, t)}
         required={required}
         disabled={readonly}
@@ -57,7 +60,7 @@ function AweSuggestMultiple(props) {
         delay={timeout || 300}
         field="label"
         invalid={error}
-        suggestions={suggestions}
+        suggestions={textSuggestions}
         completeMethod={onSuggest}
         className={classes}
         appendTo={document.body}

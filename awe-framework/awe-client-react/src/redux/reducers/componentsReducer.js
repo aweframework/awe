@@ -389,6 +389,18 @@ function updateAttributeComponent(state = {}, address = {}, data = {}, settings)
 }
 
 /**
+ * Merge a partial number format into the one of a column, so a format that only changes the sign or the decimals keeps
+ * the separators the column was created with.
+ * @param {Object} column Current column
+ * @param {Object} data Column attribute changes
+ * @returns {Object} Column attribute changes
+ */
+function mergeColumnNumberFormat(column = {}, data = {}) {
+  const hasNumberFormatUpdate = typeof data.numberFormat === 'object' && data.numberFormat !== null;
+  return hasNumberFormatUpdate ? {...data, numberFormat: {...(column.numberFormat || {}), ...data.numberFormat}} : data;
+}
+
+/**
  * Update column attributes inside a grid.
  * @param {Object} state Current state
  * @param {Object} address Column address
@@ -410,7 +422,7 @@ function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
 
       currentFull.attributes = {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, data)
+        columnModel: updateArrayElement(columnModel, columnIndex, mergeColumnNumberFormat(columnModel[columnIndex], data))
       };
 
       return {
@@ -432,7 +444,7 @@ function updateAttributeColumn(state = {}, address = {}, data = {}, settings) {
       ...state[componentId],
       attributes: {
         ...attributes,
-        columnModel: updateArrayElement(columnModel, columnIndex, data)
+        columnModel: updateArrayElement(columnModel, columnIndex, mergeColumnNumberFormat(columnModel[columnIndex], data))
       }
     }
   };

@@ -220,6 +220,15 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
       XpathLiterals.of(search)));
   }
 
+  public By getGridRowOfCell() {
+    return By.xpath("ancestor-or-self::*[" + xpath(TestIds.GRID_ROW) + "][1]");
+  }
+
+  public By getGridEditingRow(String gridId, String rowId) {
+    return By.xpath(getGridXpath(gridId) + "//*[" + xpath(TestIds.GRID_ROW) + " and "
+      + stateXpath(TestAttributes.EDITING, true) + " and @row-id=" + XpathLiterals.of(rowId) + "]");
+  }
+
   public RowEditBehavior getRowEditBehavior() {
     return RowEditBehavior.DOUBLE_CLICK;
   }
@@ -546,6 +555,15 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
 
   public By getTreeRow(String gridId, String rowId) {
     return By.cssSelector(String.format("[tree-grid-id='%s'] %s[row-id='%s']", gridId, css(TestIds.GRID_ROW), rowId));
+  }
+
+  /**
+   * A deleted row is marked with the deleted state of its row hook, not with the "DELETE" class AngularJS renders
+   */
+  @Override
+  public By getDeletedTreeRow(String gridId, String rowId) {
+    return By.cssSelector(String.format("[tree-grid-id='%s'] %s[row-id='%s']%s",
+      gridId, css(TestIds.GRID_ROW), rowId, stateCss(TestAttributes.DELETED, true)));
   }
 
   public By getTreeRowIcon(String gridId, String rowId) {

@@ -1,9 +1,10 @@
-import React from "react";
+import React, {useMemo} from "react";
 import {AutoComplete} from "primereact/autocomplete";
 import {formatMessage, translateLabel} from "../utilities";
 import {getFirstDefinedValue} from "../utilities/general";
 import PropTypes from "prop-types";
 import {autoCompletePassThrough} from "../utilities/testPassThrough";
+import {withTextLabel, withTextLabels} from "../utilities/suggest";
 
 function ColumnSuggestInput(props) {
   const {
@@ -28,11 +29,15 @@ function ColumnSuggestInput(props) {
     t
   } = props;
 
+  // PrimeReact needs the labels as text, but the server answers numbers for a suggest over a numeric column
+  const textValue = useMemo(() => withTextLabel(value), [value]);
+  const textSuggestions = useMemo(() => withTextLabels(suggestions), [suggestions]);
+
   return (
     <AutoComplete
       multiple={multiple}
       ref={autocompleteRef}
-      value={value}
+      value={textValue}
       placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
       required={getFirstDefinedValue(cellRequired, required, false)}
       disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
@@ -43,7 +48,7 @@ function ColumnSuggestInput(props) {
       delay={timeout || 300}
       field="label"
       invalid={error}
-      suggestions={suggestions}
+      suggestions={textSuggestions}
       completeMethod={onSuggest}
       className={classes}
       inputClassName={classes}

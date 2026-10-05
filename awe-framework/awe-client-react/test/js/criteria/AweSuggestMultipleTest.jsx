@@ -54,6 +54,35 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
     expect(tokens.map(token => token.textContent)).toEqual(['pei (pei@test.com)']);
   });
 
+  it('shows the values with a numeric label as text chips', async () => {
+    const numericState = {
+      ...preloadedState,
+      components: {
+        "suggest-multiple": {
+          ...preloadedState.components["suggest-multiple"],
+          model: {values: [{label: 1, value: 1, selected: true}, {label: 2, value: 2, selected: true}]}
+        }
+      }
+    };
+    const errors = [];
+    const onError = event => { errors.push(event.error || event.message); event.preventDefault(); };
+    window.addEventListener("error", onError);
+
+    await act(async () => {
+      renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: numericState});
+    });
+    const input = document.querySelector("#suggest-multiple input[aria-autocomplete]");
+    await act(async () => {
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+    });
+
+    window.removeEventListener("error", onError);
+    expect(errors).toEqual([]);
+    const tokens = Array.from(document.querySelectorAll("#suggest-multiple .p-autocomplete-token"));
+    expect(tokens.map(token => token.textContent)).toEqual(['1', '2']);
+  });
+
   describe('typing and picking a result', () => {
     let originalFetch;
     const answers = {};
@@ -117,6 +146,23 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
 
       const tokens = Array.from(document.querySelectorAll("#suggest-multiple .p-autocomplete-token"));
       expect(tokens.map(token => token.textContent)).toEqual(['test (test@test.com)']);
+    });
+
+    it('keeps the focus on the input while the mouse is pressed on a result, so the list stays where it is', async () => {
+      // Taking the focus away re-aligns the list (it can flip from above to below the input after the page scrolled),
+      // and the click would then land outside of the result that was pressed (a real browser, not jsdom)
+      answers.test = {rows: [{label: 'test (test@test.com)', value: 'test'}], delay: 0};
+      renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: strictFalseState});
+      const input = document.querySelector("#suggest-multiple input[aria-autocomplete]");
+      const wait = (ms) => act(async () => { await new Promise(resolve => setTimeout(resolve, ms)); });
+      fireEvent.change(input, {target: {value: "test"}});
+      await wait(300);
+
+      const option = document.querySelector(".p-autocomplete-item");
+      expect(option).not.toBeNull();
+
+      // fireEvent returns false when the default action of the event (the focus change) was prevented
+      expect(fireEvent.mouseDown(option)).toBe(false);
     });
   });
 });

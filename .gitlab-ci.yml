@@ -664,7 +664,7 @@ Firefox IT React:
       - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
         TEST_PORT: "6309"
         TEST_NAME: react-firefox-application-integration
-      - TEST_CLASSES: CRUDTestsIT
+      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
         TEST_PORT: "6310"
         TEST_NAME: react-firefox-crud-criteria-matrix
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT
@@ -683,7 +683,7 @@ Chrome IT React:
       - TEST_CLASSES: ApplicationTestsIT,IntegrationTestsIT
         TEST_PORT: "6313"
         TEST_NAME: react-chrome-application-integration
-      - TEST_CLASSES: CRUDTestsIT
+      - TEST_CLASSES: CRUDTestsIT,CriteriaAndMatrixTestsIT
         TEST_PORT: "6314"
         TEST_NAME: react-chrome-crud-criteria-matrix
       - TEST_CLASSES: RegressionTestsIT,WebsocketTestsIT,PrintTestsIT

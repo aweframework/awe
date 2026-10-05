@@ -83,6 +83,14 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateTheRowOfACellAndTheRowOfAGridBeingEdited() {
+    assertThat(instructions.getGridRowOfCell())
+      .hasToString("By.xpath: ancestor-or-self::*[@data-testid='grid-row'][1]");
+    assertThat(instructions.getGridEditingRow("Grd", "3")).hasToString("By.xpath: "
+      + "//*[@grid-id='Grd' or @tree-grid-id='Grd']//*[@data-testid='grid-row' and @data-editing='true' and @row-id='3']");
+  }
+
+  @Test
   void shouldLocateTheSuccessIconOfAColumnInsideItsCell() {
     assertThat(instructions.getColumnSuccessIcon("Sta"))
       .hasToString("By.cssSelector: [column-id='Sta'] [data-testid='column-icon'] .text-success");
@@ -337,6 +345,12 @@ class ReactAweInstructionsTest {
       "By.cssSelector: [tree-grid-id='Tre'] [data-testid='grid-row'][row-id='R1']");
     assertThat(instructions.getTreeRowIcon("Tre", "R1")).hasToString(
       "By.cssSelector: [tree-grid-id='Tre'] [data-testid='tree-icon'][row-id='R1']");
+  }
+
+  @Test
+  void shouldLocateTheDeletedTreeRowsByTheirDeletedState() {
+    assertThat(instructions.getDeletedTreeRow("Tre", "R1")).hasToString(
+      "By.cssSelector: [tree-grid-id='Tre'] [data-testid='grid-row'][row-id='R1'][data-deleted='true']");
   }
 
   @Test

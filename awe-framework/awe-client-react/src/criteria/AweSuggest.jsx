@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AutoComplete } from "primereact/autocomplete";
 import { classNames } from "../utilities/components";
 import "./AweSuggest.less";
@@ -7,6 +7,7 @@ import { useComponentState } from "../hooks/useComponentState";
 import AweCriterion from "./AweCriterion";
 import useSuggest from "../hooks/useSuggest";
 import { translateLabel } from "../utilities";
+import { getSuggestionLabel, withTextLabels } from "../utilities/suggest";
 import { Skeleton } from "primereact/skeleton";
 import PropTypes from "prop-types";
 import useComponent from "../hooks/useComponent";
@@ -21,13 +22,15 @@ function AweSuggest(props) {
   const autocompleteRef = useRef(null);
   const tooltipRef = useRef(null);
   const [suggestions, setSuggestions] = useState([...model?.values || []]);
+  // PrimeReact needs the labels as text, but the server answers numbers for a suggest over a numeric column
+  const textSuggestions = useMemo(() => withTextLabels(suggestions), [suggestions]);
   const [value, setValue] = useState({});
   const { onChange, onClear, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
 
   // Change model values if updated
   useEffect(() => {
     const fixedValues = (model?.values || [])
-      .map(item => ({ ...item, label: item.label || item.value, needsInit: !item?.label }))
+      .map(item => ({ ...item, label: getSuggestionLabel(item), needsInit: !item?.label && item?.label !== 0 }))
       .find(item => item.selected) || {};
     setValue(fixedValues);
   }, [model?.values]);
@@ -122,7 +125,7 @@ function AweSuggest(props) {
         invalid={error}
         onKeyDown={onKeyPress}
         delay={timeout || 300}
-        suggestions={suggestions}
+        suggestions={textSuggestions}
         completeMethod={onSuggest}
         className={classes}
         appendTo={document.body}

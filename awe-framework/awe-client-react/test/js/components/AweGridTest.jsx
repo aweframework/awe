@@ -1,9 +1,10 @@
 import React, {Suspense} from 'react';
-import {fireEvent, screen} from '@testing-library/react';
+import {act, fireEvent, screen} from '@testing-library/react';
 
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweGrid from "../../../src/components/AweGrid";
+import {updateModel} from "../../../src/redux/actions/components";
 
 describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
 
@@ -701,6 +702,37 @@ describe('awe-react-client/test/js/components/AweGridTest.jsx', () => {
       expect(screen.getByRole("cancel-edit-row")).toBeDefined();
 
       fireEvent.click(screen.getByRole("cancel-edit-row"));
+    });
+
+    it('... scrolls to the save button only when the row starts being edited', () => {
+      const scrollIntoView = jest.fn();
+      const original = Element.prototype.scrollIntoView;
+      Element.prototype.scrollIntoView = scrollIntoView;
+      try {
+        const {store} = renderWithProviders(<AweGrid id="grid"/>, {preloadedState});
+        const address = preloadedState.components.grid.address;
+        const values = preloadedState.components.grid.model.values;
+        // The save button of the row being edited is shown
+        expect(scrollIntoView).toHaveBeenCalled();
+        scrollIntoView.mockClear();
+
+        // A change of the grid that leaves the same row being edited (a click on another row, a typed value) must not
+        // move the grid again: the cells would run away from under the pointer of the user
+        act(() => {
+          store.dispatch(updateModel(address, {values: values.map(item => ({...item, selected: item.id === 2}))}));
+        });
+        expect(scrollIntoView).not.toHaveBeenCalled();
+
+        // The row being edited changes: its save button is shown
+        act(() => {
+          store.dispatch(updateModel(address, {
+            values: values.map(item => ({...item, $row: {editing: item.id === 2, id: item.id}}))
+          }));
+        });
+        expect(scrollIntoView).toHaveBeenCalled();
+      } finally {
+        Element.prototype.scrollIntoView = original;
+      }
     });
 
     it('... and save row with keyboard', () => {

@@ -88,6 +88,20 @@ describe("awe-react-client/test/js/components/TestIdsGridTest.jsx", () => {
       expect(trs.map(tr => tr.getAttribute("data-selected"))).toEqual(["true", "false"]);
     });
 
+    it("exposes which rows are marked to be deleted", () => {
+      const deleting = [
+        { id: "r1", name: "Ann", age: 30, $row: { operation: "UPDATE" } },
+        { id: "r2", name: "Bob", age: 41, $row: { operation: "DELETE" } },
+        { id: "r3", name: "Eve", age: 25 }
+      ];
+      const { container } = renderWithProviders(<AweGrid id="Grd" />, {
+        preloadedState: gridState({ multioperation: true }, deleting)
+      });
+
+      const trs = Array.from(container.querySelectorAll(`[grid-id='Grd'] ${hook("grid-row")}`));
+      expect(trs.map(tr => tr.getAttribute("data-deleted"))).toEqual(["false", "true", "false"]);
+    });
+
     it("exposes the cells with their column and row", () => {
       const { container } = renderWithProviders(<AweGrid id="Grd" />, { preloadedState: gridState({}, rows) });
 
@@ -203,6 +217,20 @@ describe("awe-react-client/test/js/components/TestIdsGridTest.jsx", () => {
         .toEqual(["name", "age"]);
       const cells = Array.from(grid.querySelectorAll(`${hook("grid-cell")}[column-id='age']`));
       expect(cells.map(cell => cell.textContent)).toEqual(["1", "2"]);
+    });
+
+    it("exposes which rows are marked to be deleted", () => {
+      const deleting = [
+        { id: "p1", parent: "", name: "Parent", age: 1, $row: { expanded: true, operation: "DELETE" }, isLeaf: false },
+        { id: "c1", parent: "p1", name: "Child", age: 2, isLeaf: true }
+      ];
+      const { container } = renderWithProviders(<AweTreeGrid id="Grd" />, {
+        preloadedState: gridState({ loadAll: true, expandColumn: "name" }, deleting, true)
+      });
+
+      const trs = Array.from(container.querySelectorAll(`[tree-grid-id='Grd'] ${hook("grid-row")}`));
+      expect(trs.map(tr => tr.getAttribute("row-id"))).toEqual(["p1", "c1"]);
+      expect(trs.map(tr => tr.getAttribute("data-deleted"))).toEqual(["true", "false"]);
     });
 
     it("exposes the tree icon of each row with its state", () => {

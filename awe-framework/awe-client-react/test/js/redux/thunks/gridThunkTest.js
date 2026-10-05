@@ -283,6 +283,44 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
     });
   });
 
+  describe('verifyRowValidationGridAction', () => {
+    const verify = (row) => {
+      dispatch.mockClear();
+      const action = { type: 'verify-row-validation', address: { ...mockAddress, row }, parameters: {} };
+      gridThunks.verifyRowValidationGridAction(action)(dispatch, getState);
+      return dispatch.mock.calls.map(([call]) => call.type);
+    };
+
+    it('accepts the action when the validated row has no errors', () => {
+      mockComponent.model.values = [{ id: 1, name: 'Row 1', $attrs: { name: { error: null } } }];
+
+      expect(verify(1)).toEqual(['ACCEPT_ACTION']);
+    });
+
+    it('rejects the action when the validated row has errors', () => {
+      mockComponent.model.values = [{ id: 1, name: 'Row 1', $attrs: { name: { error: { message: 'Required' } } } }];
+
+      expect(verify(1)).toEqual(['REJECT_ACTION']);
+    });
+
+    it('finds the row of a tree grid by the tree identifier, not by an id column', () => {
+      // New rows of a tree grid only carry the tree identifier
+      mockComponent.attributes = { ...mockComponent.attributes, treegrid: true, treeId: 'treeId', treeParent: 'parent' };
+      mockComponent.model.values = [
+        { treeId: 'Root', parent: '', $attrs: {} },
+        { treeId: 'new-row-0', parent: 'Root', $attrs: { name: { error: { message: 'Required' } } } }
+      ];
+
+      expect(verify('new-row-0')).toEqual(['REJECT_ACTION']);
+    });
+
+    it('accepts the action when the validated row does not exist any more', () => {
+      mockComponent.model.values = [{ id: 1, name: 'Row 1' }];
+
+      expect(verify('gone')).toEqual(['ACCEPT_ACTION']);
+    });
+  });
+
   // -------------------------------
   // ✅ deleteRowGridAction
   // -------------------------------
