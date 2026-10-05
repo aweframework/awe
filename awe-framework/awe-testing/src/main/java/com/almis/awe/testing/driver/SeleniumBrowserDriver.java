@@ -2,10 +2,14 @@ package com.almis.awe.testing.driver;
 
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -13,10 +17,13 @@ import org.openqa.selenium.interactions.Interactive;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -46,6 +53,10 @@ public class SeleniumBrowserDriver implements BrowserDriver {
   private static final String SCROLL_INTO_CONTAINER = "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});";
   // The Actions API does not scroll: Firefox refuses to move to an element outside the viewport
   private static final String SCROLL_NEAREST = "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest'});";
+
+  // Brings an element to the center of the viewport (a suggest panel opens aligned to its search box, so a scroll after
+  // that would leave it misplaced)
+  private static final String SCROLL_TO_CENTER = "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});";
 
   private final WebDriver driver;
 
@@ -209,6 +220,95 @@ public class SeleniumBrowserDriver implements BrowserDriver {
     new Actions(driver).pause(duration).perform();
   }
 
+  @Override
+  public void open(String url) {
+    driver.get(url);
+  }
+
+  @Override
+  public boolean isPageLoaded() {
+    return "complete".equals(executeScript("return document.readyState"));
+  }
+
+  @Override
+  public void setScriptTimeout(Duration timeout) {
+    driver.manage().timeouts().scriptTimeout(timeout);
+  }
+
+  @Override
+  public Object executeScript(String script, Object... args) {
+    return executor().executeScript(script, args);
+  }
+
+  @Override
+  public Object executeScriptOn(Locator locator, String script, Object... args) {
+    JavascriptExecutor executor = executor();
+    return on(locator, element -> executor.executeScript(script, withFirst(element, args)));
+  }
+
+  @Override
+  public void scrollTo(Locator locator, int x, int y) {
+    executeScriptOn(locator, "arguments[0].scrollTo(arguments[1], arguments[2]);", x, y);
+  }
+
+  @Override
+  public void scrollToCenter(Locator locator) {
+    act(locator, element -> runScript(SCROLL_TO_CENTER, element));
+  }
+
+  @Override
+  public void inFrame(Locator frame, Runnable body) {
+    WebElement frameElement = on(frame, element -> element);
+    driver.switchTo().frame(frameElement);
+    try {
+      body.run();
+    } finally {
+      driver.switchTo().defaultContent();
+    }
+  }
+
+  @Override
+  public Optional<byte[]> screenshot() {
+    if (driver instanceof TakesScreenshot camera) {
+      return Optional.of(camera.getScreenshotAs(OutputType.BYTES));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String pageSource() {
+    return driver.getPageSource();
+  }
+
+  @Override
+  public List<ConsoleEntry> consoleEntries() {
+    try {
+      List<ConsoleEntry> entries = new ArrayList<>();
+      driver.manage().logs().get(LogType.BROWSER).forEach(entry ->
+        entries.add(new ConsoleEntry(entry.getTimestamp(), entry.getLevel().getName(), entry.getMessage())));
+      return entries;
+    } catch (Exception exc) {
+      // Firefox and the remote drivers do not expose the browser logs
+      log.debug("The browser console is not available", exc);
+      return List.of();
+    }
+  }
+
+  @Override
+  public void setWindowSize(int width, int height) {
+    driver.manage().window().setSize(new Dimension(width, height));
+  }
+
+  @Override
+  public void setWindowPosition(int x, int y) {
+    driver.manage().window().setPosition(new Point(x, y));
+  }
+
+  @Override
+  public void quit() {
+    driver.quit();
+  }
+
   private <T> T on(Locator locator, Function<WebElement, T> operation) {
     return guard(locator, () -> operation.apply(driver.findElement(locator.toBy())));
   }
@@ -239,6 +339,20 @@ public class SeleniumBrowserDriver implements BrowserDriver {
     } catch (StaleElementReferenceException | MoveTargetOutOfBoundsException exc) {
       throw new ElementReplacedException(locator, exc);
     }
+  }
+
+  private JavascriptExecutor executor() {
+    if (driver instanceof JavascriptExecutor executor) {
+      return executor;
+    }
+    throw new UnsupportedOperationException("The browser cannot run scripts");
+  }
+
+  private static Object[] withFirst(Object first, Object[] rest) {
+    Object[] all = new Object[rest.length + 1];
+    all[0] = first;
+    System.arraycopy(rest, 0, all, 1, rest.length);
+    return all;
   }
 
   private void runScript(String script, WebElement element) {

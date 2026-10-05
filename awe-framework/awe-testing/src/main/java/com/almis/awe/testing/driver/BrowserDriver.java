@@ -2,6 +2,7 @@ package com.almis.awe.testing.driver;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Port of the browser automation that the test utilities need, independent of the tool that runs it (Selenium today).
@@ -192,4 +193,113 @@ public interface BrowserDriver {
    * @param duration Time to pause
    */
   void pause(Duration duration);
+
+  /**
+   * Open a page
+   *
+   * @param url Url
+   */
+  void open(String url);
+
+  /**
+   * Check whether the page has finished loading (an instant query: the caller polls it)
+   *
+   * @return true if the document is complete
+   */
+  boolean isPageLoaded();
+
+  /**
+   * Set how long a script may run before it is given up
+   *
+   * @param timeout Timeout
+   */
+  void setScriptTimeout(Duration timeout);
+
+  /**
+   * Run a script in the page
+   *
+   * @param script Script body; it reads its arguments from {@code arguments}
+   * @param args   Arguments (strings, numbers, booleans)
+   * @return What the script returns
+   * @throws UnsupportedOperationException If the browser cannot run scripts
+   */
+  Object executeScript(String script, Object... args);
+
+  /**
+   * Run a script in the page on the first match, which is {@code arguments[0]}; the arguments follow
+   *
+   * @param locator Locator
+   * @param script  Script body
+   * @param args    Arguments, from {@code arguments[1]}
+   * @return What the script returns
+   * @throws UnsupportedOperationException If the browser cannot run scripts
+   */
+  Object executeScriptOn(Locator locator, String script, Object... args);
+
+  /**
+   * Scroll the content of the first match
+   *
+   * @param locator Locator
+   * @param x       Horizontal position in pixels
+   * @param y       Vertical position in pixels
+   */
+  void scrollTo(Locator locator, int x, int y);
+
+  /**
+   * Bring the first match to the center of the viewport. It is a help for what comes next: when the browser cannot
+   * script it does nothing, as the action that follows scrolls on its own
+   *
+   * @param locator Locator
+   */
+  void scrollToCenter(Locator locator);
+
+  /**
+   * Run something inside a frame, and come back to the page afterwards, even if it fails
+   *
+   * @param frame Locator of the frame
+   * @param body  What to run, with the frame as the current page
+   */
+  void inFrame(Locator frame, Runnable body);
+
+  /**
+   * Take a screenshot of the page
+   *
+   * @return PNG image, or empty if the browser cannot take screenshots
+   */
+  Optional<byte[]> screenshot();
+
+  /**
+   * Get the source of the page
+   *
+   * @return Source
+   */
+  String pageSource();
+
+  /**
+   * Get the entries of the browser console
+   *
+   * @return Entries, or none if the browser does not expose its console (Firefox, remote drivers...)
+   */
+  List<ConsoleEntry> consoleEntries();
+
+  /**
+   * Resize the browser window
+   *
+   * @param width  Width in pixels
+   * @param height Height in pixels
+   */
+  void setWindowSize(int width, int height);
+
+  /**
+   * Move the browser window
+   *
+   * @param x Horizontal position in pixels
+   * @param y Vertical position in pixels
+   */
+  void setWindowPosition(int x, int y);
+
+  /**
+   * Close the browser and release the driver
+   */
+  void quit();
 }
