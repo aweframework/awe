@@ -4,6 +4,7 @@ import useCheckboxRadio from "../hooks/useCheckboxRadio";
 import AweCriterion from "./AweCriterion";
 import classNames from "classnames";
 import PropTypes from "prop-types";
+import { buttonGroupPassThrough } from "../utilities/testPassThrough";
 
 function AweButtonRadio(props) {
   const { id } = props;
@@ -20,6 +21,7 @@ function AweButtonRadio(props) {
         onChange={onChangeButtonRadio}
         itemTemplate={itemTemplate}
         className={classes}
+        pt={buttonGroupPassThrough}
       />
     </AweCriterion>
   );

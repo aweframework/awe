@@ -5,6 +5,7 @@ import {
   classNames, clickDropdown,
   fixController,
   fixModel,
+  fixDefaultModel,
   fixSelectedModel,
   getAddressType,
   getCheckboxData,
@@ -647,6 +648,42 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
 
   it('should fix selected model with number', () => {
     expect(fixSelectedModel(123)).toEqual({ value: '123' });
+  });
+
+  // Tests for fixDefaultModel
+  describe('fixDefaultModel', () => {
+    it('selects the default values of a criterion that was loaded with another selection', () => {
+      const model = {selected: null, values: [{value: '1', selected: true}], defaultValues: [{value: 'xml', label: 'xml'}]};
+
+      const result = fixDefaultModel(model, model.defaultValues, false);
+
+      expect(result.values.filter(value => value.selected)).toEqual([{value: 'xml', label: 'xml', selected: true}]);
+    });
+
+    it('selects the default options of a criterion with a list of options', () => {
+      const model = {
+        selected: null,
+        values: [{value: 'a', selected: false}, {value: 'b', selected: true}, {value: 'c', selected: false}],
+        defaultValues: ['c']
+      };
+
+      const result = fixDefaultModel(model, model.defaultValues, false);
+
+      expect(result.values).toEqual([{value: 'a', selected: false}, {value: 'b', selected: false}, {value: 'c', selected: true}]);
+    });
+
+    it('keeps the selection the criterion was loaded with when the server sent no default values (a checked radio)', () => {
+      const model = {selected: null, values: [{value: 'Radio5', selected: true}], defaultValues: []};
+
+      expect(fixDefaultModel(model, [], false)).toEqual(model);
+    });
+
+    it('does not change the model of a grid or of a component without default values', () => {
+      const model = {selected: null, values: [{id: 1, selected: true}]};
+
+      expect(fixDefaultModel(model, [{value: 'x'}], true)).toEqual(model);
+      expect(fixDefaultModel(model, undefined, false)).toEqual(model);
+    });
   });
 
   // Tests for fixModel

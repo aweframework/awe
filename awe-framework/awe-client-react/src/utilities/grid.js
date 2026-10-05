@@ -61,6 +61,17 @@ export const OperationIcon = {
 };
 
 /**
+ * Name of the operation icon, as the test hooks expose it (the same names the AngularJS client uses)
+ * @type {{INSERT: string, UPDATE: string, DELETE: string}}
+ * @memberOf Grid
+ */
+export const OperationIconName = {
+  "INSERT": "plus",
+  "UPDATE": "edit",
+  "DELETE": "trash"
+};
+
+/**
  * Retrieve cell attribute
  * @param {Object} model
  * @param {String} attribute

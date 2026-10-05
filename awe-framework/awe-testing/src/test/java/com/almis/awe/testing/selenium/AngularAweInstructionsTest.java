@@ -212,6 +212,8 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getActiveWizardStep("2")).hasToString("By.xpath: "
       + "//*[@data-testid='wizard-step' and @data-active='true']/span[contains(@class,'wizard-step-number') "
       + "and contains(normalize-space(.),'2')]");
+    assertThat(instructions.getCheckboxOption("Grp", "Opt1")).hasToString(
+      "By.cssSelector: [criterion-id='Opt1'] .input label,[criterion-id='Opt1']");
     assertThat(instructions.getTagList("tags")).hasToString("By.cssSelector: [awe-tag-list='tags'] span");
     assertThat(instructions.getChart("Chr")).hasToString("By.cssSelector: [chart-id='Chr'] svg");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");

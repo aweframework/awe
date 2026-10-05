@@ -250,6 +250,35 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       ]);
     });
 
+    it('registers every component with the XML default selection next to the loaded one', async () => {
+      jest.spyOn(window, 'fetch').mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          structure: {},
+          components: [{
+            id: 'CrtTst',
+            model: { selected: [{ value: '1', label: '1' }], values: [], defaultValues: [{ value: 'xml', label: 'xml' }] },
+            controller: { component: 'text' }
+          }],
+          messages: [],
+          screen: {}
+        })
+      });
+      const getState = () => ({ settings: { token: 'TOK' }, components: {} });
+
+      await screenThunks.loadScreen('view-a', 'option-a', (key) => key)(dispatch, getState);
+
+      const thunks = dispatch.mock.calls.map(a => a[0]).filter(a => typeof a === 'function');
+      const inner = jest.fn();
+      thunks.forEach(thunk => { try { thunk(inner, getState); } catch (e) { /* unrelated thunks */ } });
+      const registered = inner.mock.calls.map(a => a[0]).find(a => a?.type === 'UPDATE_VIEW_COMPONENTS');
+
+      const { model, storedModel, defaultModel } = registered.data.CrtTst;
+      expect(model.values.filter(value => value.selected)).toEqual([{ value: '1', label: '1', selected: true }]);
+      expect(storedModel.values).toEqual(model.values);
+      expect(defaultModel.values.filter(value => value.selected)).toEqual([{ value: 'xml', label: 'xml', selected: true }]);
+    });
+
     it('forgets the remembered class changes of the previous screen when a screen is loaded', async () => {
       jest.spyOn(window, 'fetch').mockResolvedValue({
         ok: true,

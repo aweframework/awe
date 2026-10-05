@@ -124,6 +124,26 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
     });
   });
 
+  describe('restore flavours', () => {
+    const restoreWith = (thunk) => {
+      thunk({type: 'restore', address: mockAddress})(dispatch, getState);
+      const [[restoreMultipleModelWithDependencies]] = dispatch.mock.calls;
+      const innerDispatch = jest.fn();
+      restoreMultipleModelWithDependencies(innerDispatch, getState);
+      return innerDispatch.mock.calls[0][0];
+    };
+
+    it('restoreAction restores the default model', () => {
+      expect(restoreWith(formThunks.restoreAction).initial).toBeFalsy();
+    });
+
+    it('restoreTargetAction restores the first loaded model', () => {
+      const restoreMultipleModel = restoreWith(formThunks.restoreTargetAction);
+      expect(restoreMultipleModel.type).toBe('RESTORE_MULTIPLE_MODEL');
+      expect(restoreMultipleModel.initial).toBe(true);
+    });
+  });
+
   describe('filterAction', () => {
     it('debería generar y despachar una acción de servidor', () => {
       const action = {

@@ -22,6 +22,8 @@ public final class TestIds {
   public static final String CRITERION_INPUT = "criterion-input";
   // React only: unit addon of a criterion (the text after the input)
   public static final String CRITERION_UNIT = "criterion-unit";
+  // React only: validation error of a criterion (AngularJS shows it in the shared "error-container")
+  public static final String CRITERION_ERROR = "criterion-error";
 
   // Selectors: container, chosen value, search input, multiple choice (and its close link), dropdown and its options
   public static final String SELECT = "select";

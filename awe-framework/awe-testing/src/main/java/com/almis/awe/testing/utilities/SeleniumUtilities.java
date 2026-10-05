@@ -1810,6 +1810,22 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Click on an option of a group of buttons (a button checkbox or a button radio rendered as one group)
+   *
+   * @param criterionName Criterion (group) name
+   * @param optionId      Value of the option
+   */
+  protected void clickCheckboxOption(String criterionName, String optionId) {
+    By selector = frontEndInstructions.getCheckboxOption(criterionName, optionId);
+
+    // Wait for element present
+    waitUntil(presenceOfElementLocated(selector));
+
+    // Click on the option
+    click(selector);
+  }
+
+  /**
    * Click on a checkbox or a radio button
    *
    * @param gridId   Grid id
@@ -1847,6 +1863,17 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void clickRowContents(String gridId, String search) {
     clickRowContentsFromSelector(gridId, search);
+  }
+
+  /**
+   * Click on a row with a text even if it is already selected, to toggle its selection: unlike
+   * {@link #clickRowContents(String, String)} it never leaves a selected row as it is
+   *
+   * @param gridId Grid to search in
+   * @param search Text to search
+   */
+  protected void toggleRowContents(String gridId, String search) {
+    clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
   }
 
   /**
@@ -2046,14 +2073,16 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Get selected row cell text
+   * Get the text of the editor of a cell of the row being edited (the selected one, in the clients that edit the row
+   * the user selects)
    *
    * @param gridId   Grid id
    * @param columnId Column id
    * @return Cell text
    */
   protected String getText(String gridId, String columnId) {
-    return getTextFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    // The text of a cell is read from its editor, so the row is the one being edited
+    return getTextFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**

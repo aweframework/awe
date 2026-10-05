@@ -113,7 +113,7 @@ class ReactAweInstructionsTest {
   void shouldLocateGridSaveButtonsAndLoaders() {
     assertThat(instructions.getGridSaveButton()).hasToString("By.cssSelector: [data-testid='grid-row-save']:not([disabled])");
     assertThat(instructions.getGridSaveButton("Grd")).hasToString("By.cssSelector: "
-      + "[data-testid='grid'][grid-id='Grd'] [data-testid='grid-row-save']:not([disabled])");
+      + "[data-testid='grid']:is([grid-id='Grd'],[tree-grid-id='Grd']) [data-testid='grid-row-save']:not([disabled])");
     assertThat(instructions.getGridLoaderSelector()).hasToString("By.cssSelector: [data-testid='grid-loader']");
     assertThat(instructions.getLoadingBar()).hasToString("By.cssSelector: [data-testid='loading-spinner']");
     assertThat(instructions.getLoaderSelector()).hasToString(
@@ -294,6 +294,11 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateTheValidationErrorOfACriterionThroughItsHook() {
+    assertThat(instructions.getValidationError()).hasToString("By.cssSelector: [data-testid='criterion-error']");
+  }
+
+  @Test
   void shouldLocateTheUnitTheWizardStepAndTheDatepickerDayThroughTheirHooks() {
     assertThat(instructions.getCriterionUnit("Unt"))
       .hasToString("By.cssSelector: [criterion-id='Unt'] [data-testid='criterion-unit']");
@@ -307,6 +312,12 @@ class ReactAweInstructionsTest {
   void shouldLocateTheActiveWizardStepByItsNumberEvenWhenTheStepShowsAnIcon() {
     assertThat(instructions.getActiveWizardStep("2")).hasToString("By.xpath: "
       + "//*[@data-testid='wizard-step' and @data-active='true' and @data-step-number='2']");
+  }
+
+  @Test
+  void shouldLocateAnOptionOfAButtonGroupThroughItsHook() {
+    assertThat(instructions.getCheckboxOption("ChkBoxButGrp", "ChkBoxVa21")).hasToString("By.cssSelector: "
+      + "[criterion-id='ChkBoxButGrp'] [data-testid='criterion-input'][option-id='ChkBoxVa21']");
   }
 
   @Test

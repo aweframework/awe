@@ -123,6 +123,13 @@ describe('awe-react-client/test/js/utilities/mergeUtilsTest.js', () => {
             expect(result.actions).toEqual(base.actions);
         });
 
+        it('debería usar defaultModel de base y de deltas', () => {
+            const base = { defaultModel: { values: [1] } };
+
+            expect(mergeComponentState(base, { model: { values: [2] } }).defaultModel).toEqual({ values: [1] });
+            expect(mergeComponentState(base, { defaultModel: { values: [3] } }).defaultModel).toEqual({ values: [3] });
+        });
+
         it('debería usar storedModel de deltas si existe', () => {
             const base = {
                 storedModel: { values: [1, 2] }
@@ -274,6 +281,12 @@ describe('awe-react-client/test/js/utilities/mergeUtilsTest.js', () => {
             const result = calculateDeltas(base, current);
 
             expect(result.validationRules).toEqual({ required: false });
+        });
+
+        it('debería incluir defaultModel si existe', () => {
+            const result = calculateDeltas({}, {defaultModel: { values: [1] }});
+
+            expect(result.defaultModel).toEqual({ values: [1] });
         });
 
         it('debería incluir storedModel si existe', () => {

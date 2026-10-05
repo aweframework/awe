@@ -523,6 +523,29 @@ export function fixModel(model, isGrid) {
   };
 }
 
+/**
+ * Fixes the model a "restore" action goes back to: the options of the component with the XML default values selected.
+ * The server sends the loaded selection and the default one apart ("selected" and "defaultValues"). A component
+ * without default values (a radio only has the loaded selection of its "checked" attribute) goes back to its loaded one.
+ * @param {object} model Component model, already fixed
+ * @param {Array} defaultValues Default values the server sent, undefined when it did not send them
+ * @param {boolean} isGrid Component is a grid (a grid has no default selection)
+ * @return {object} Model with the default values selected
+ */
+export function fixDefaultModel(model, defaultValues, isGrid) {
+  if (isGrid || !Array.isArray(defaultValues) || defaultValues.length === 0) {
+    return model;
+  }
+  const defaults = asArray(defaultValues).flat(Infinity).map(value => fixSelectedModel(value));
+  const keys = new Set(defaults.map(value => String(value?.value)));
+  const values = (model.values || []).map(value => ({...value, selected: keys.has(String(value.value))}));
+  const present = new Set(values.map(value => String(value.value)));
+  return {
+    ...model,
+    values: [...values, ...defaults.filter(value => !present.has(String(value?.value))).map(value => ({...value, selected: true}))]
+  };
+}
+
 export function fixSelectedModel(selected) {
   if (typeof selected === "object") {
     return selected;

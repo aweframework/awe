@@ -413,6 +413,18 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By getCheckbox(String parentSelector);
 
   /**
+   * Get an option of a button group (a button checkbox or a button radio that the client renders as a group of
+   * buttons). By default every option is a criterion of its own, as the AngularJS client renders it
+   *
+   * @param criterionName Criterion (group) name
+   * @param optionId      Value of the option
+   * @return Option selector
+   */
+  default By getCheckboxOption(String criterionName, String optionId) {
+    return getCheckbox(getCriterionCss(optionId));
+  }
+
+  /**
    * Get checkbox checked or not
    * @param criterionName Criterion name
    * @param isChecked Checked or not

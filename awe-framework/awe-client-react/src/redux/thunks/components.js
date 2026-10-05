@@ -94,11 +94,11 @@ export function restoreModelWithDependencies(address, data) {
   };
 }
 
-export function restoreMultipleModelWithDependencies(componentList) {
+export function restoreMultipleModelWithDependencies(componentList, initial = false) {
   return (dispatch, getState) => {
     const { settings } = getState();
     // Update the model first
-    dispatch({ ...restoreMultipleModel(componentList), settings });
+    dispatch({ ...restoreMultipleModel(componentList, initial), settings });
 
     // Dispatch calculate dependencies
     checkDependencies(getState(), dispatch);

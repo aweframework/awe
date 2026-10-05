@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {TreeTable} from "primereact/treetable";
 import {Column} from "primereact/column";
 import {generateServerAction} from "../utilities";
@@ -171,6 +171,19 @@ function AweTreeGrid(props) {
     }
   }, [attributes, onTogglerClick, baseCellTemplate, treeId]);
 
+  // PrimeReact evaluates "rowClassName" with the node of a row right before the row pass-through, in the same render:
+  // the id of the row being rendered is kept here to give the row its "row-id".
+  const renderingRowId = useRef(null);
+  const rowClassName = useCallback((node) => {
+    renderingRowId.current = node?.data?.[treeId];
+    return null;
+  }, [treeId]);
+  const passThrough = useMemo(() => gridPassThrough({
+    gridId: address?.component,
+    tree: true,
+    getRowId: () => renderingRowId.current
+  }), [address?.component]);
+
   const { style, headerModel = [], columnModel = [], max, disablePagination, loadAll, visible, loading = false } = attributes;
   const { first = 0, rows = max } = specificAttributes;
   const styles = classNames("p-treetable-sm", "expandible-vertical", style, { "hidden": !visible });
@@ -195,7 +208,8 @@ function AweTreeGrid(props) {
       resizableColumns={headerModel.length === 0} columnResizeMode="fit"
       scrollable
       loadingIcon={<ProgressSpinner pt={{ root: testHook(TestIds.gridLoader) }} />}
-      pt={gridPassThrough({ gridId: address?.component, tree: true })}
+      rowClassName={rowClassName}
+      pt={passThrough}
     >
       {
         columnModel

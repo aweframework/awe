@@ -234,6 +234,66 @@ describe('awe-react-client/test/js/components/AweTreeGridTest.jsx', () => {
     expect(screen.getByLabelText("Delete")).toBeDefined();
   });
 
+  it('exposes every row of the tree, leaves included, with its identifier', () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {
+            values: [
+              {id: "Root", parent: "", name: "Root", $row: {expanded: true}},
+              {id: "Leaf", parent: "Root", name: "Leaf"}
+            ]
+          },
+          attributes: {
+            treeId: "id", treeParent: "parent", expandColumn: "name", loadAll: true, max: 30,
+            columnModel: [{name: "name"}], headerModel: [], buttonModel: []
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+
+    const {container} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+
+    const rows = container.querySelectorAll("[tree-grid-id='grid'] [data-testid='grid-row']");
+    expect(Array.from(rows).map(row => row.getAttribute("row-id"))).toEqual(["Root", "Leaf"]);
+    // The hook is the row itself, so a context menu or a click on the row reaches the grid, not only its first cell
+    expect(Array.from(rows).map(row => row.tagName)).toEqual(["TR", "TR"]);
+    expect(container.querySelectorAll("[tree-grid-id='grid'] [data-testid='grid-row'] [data-testid='grid-row']")).toHaveLength(0);
+  });
+
+  it('tells which row of the tree is selected', () => {
+    const preloadedState = {
+      settings: DEFAULT_SETTINGS,
+      screen: {size: {width: 100, height: 100}, breadcrumbs: [], report: {name: "opcion", option: "opcion"}},
+      components: {
+        grid: {
+          address: {component: 'grid', view: 'report'},
+          model: {
+            values: [
+              {id: "Root", parent: "", name: "Root", selected: true, $row: {expanded: true}},
+              {id: "Leaf", parent: "Root", name: "Leaf"}
+            ]
+          },
+          attributes: {
+            treeId: "id", treeParent: "parent", expandColumn: "name", loadAll: true, max: 30,
+            columnModel: [{name: "name"}], headerModel: [], buttonModel: []
+          },
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+
+    const {container} = renderWithProviders(<AweTreeGrid id="grid"/>, {preloadedState});
+
+    const selected = Array.from(container.querySelectorAll("[tree-grid-id='grid'] [data-testid='grid-row']"))
+      .map(row => row.getAttribute("data-selected"));
+    expect(selected).toEqual(["true", "false"]);
+  });
+
   describe('renders Awe Tree Grid component editable', () => {
     const preloadedState = {
       settings: DEFAULT_SETTINGS,
