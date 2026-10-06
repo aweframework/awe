@@ -32,6 +32,7 @@ public interface BrowserDriverFactory {
   static BrowserDriverFactory forTool(BrowserTool tool) {
     return switch (Objects.requireNonNull(tool, "The test tool is required")) {
       case SELENIUM -> new SeleniumBrowserDriverFactory();
+      case PLAYWRIGHT -> new PlaywrightBrowserDriverFactory();
     };
   }
 }

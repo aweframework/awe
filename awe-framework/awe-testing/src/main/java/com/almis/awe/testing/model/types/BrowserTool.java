@@ -11,7 +11,11 @@ public enum BrowserTool {
   /**
    * Selenium WebDriver
    */
-  SELENIUM("selenium");
+  SELENIUM("selenium"),
+  /**
+   * Playwright (pilot): runs Chromium and Firefox locally, and has no remote or service browsers yet
+   */
+  PLAYWRIGHT("playwright");
 
   private final String name;
 

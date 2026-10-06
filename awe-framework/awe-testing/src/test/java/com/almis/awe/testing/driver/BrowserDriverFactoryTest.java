@@ -13,6 +13,11 @@ class BrowserDriverFactoryTest {
   }
 
   @Test
+  void thePlaywrightToolIsRunByThePlaywrightFactory() {
+    assertThat(BrowserDriverFactory.forTool(BrowserTool.PLAYWRIGHT)).isInstanceOf(PlaywrightBrowserDriverFactory.class);
+  }
+
+  @Test
   void everyToolHasAFactory() {
     for (BrowserTool tool : BrowserTool.values()) {
       assertThat(BrowserDriverFactory.forTool(tool)).as("Factory of %s", tool).isNotNull();

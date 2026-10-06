@@ -21,10 +21,14 @@ import java.time.Duration;
 @Data
 public class AweTestConfigProperties {
   /**
-   * Browser automation tool that runs the tests. Only selenium is available for now. An unknown tool stops the tests at
-   * startup. The Selenium driver (getDriver()) is only available with the selenium tool
+   * Browser automation tool that runs the tests: selenium or playwright (pilot: local Chromium and Firefox only). An
+   * unknown tool stops the tests at startup. The Selenium driver (getDriver()) is only available with the selenium tool
    */
   private BrowserTool tool = BrowserTool.SELENIUM;
+  /**
+   * Options of the Playwright tool (pilot)
+   */
+  private PlaywrightProperties playwright = new PlaywrightProperties();
   /**
    * Selenium browser type
    */
@@ -107,4 +111,17 @@ public class AweTestConfigProperties {
    * Frontend type for tests
    */
   private FrontendType frontend = FrontendType.ANGULAR;
+
+  /**
+   * Options of the Playwright tool
+   */
+  @Data
+  public static class PlaywrightProperties {
+    /**
+     * Whether Chromium runs without its sandbox ({@code --no-sandbox}). Left empty it is automatic: it runs without the
+     * sandbox when it is headless, or when the process runs as root or inside a container (Docker, Podman or Kubernetes),
+     * where the sandbox cannot start. Set it to false to keep the sandbox in such an environment, or to true to remove it
+     */
+    private Boolean noSandbox;
+  }
 }

@@ -149,3 +149,6 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 # AI assistant skill symlinks (agentskills.io — source in /skills)
 /.claude/skills
 /.agents/skills
+
+# Playwright browsers installed by the CI job of the unit tests
+.playwright-browsers/
