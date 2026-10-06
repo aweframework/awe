@@ -43,9 +43,7 @@ class SeleniumExtensionTest {
   @BeforeEach
   void setUp() throws IOException {
     WebDriver driver = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class));
-    Path source = Files.createTempFile(tempDir, "source", ".png");
-    Files.write(source, new byte[]{1, 2, 3});
-    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)).thenReturn(source.toFile());
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)).thenReturn(new byte[]{1, 2, 3});
 
     shots = tempDir.resolve("shots");
     AweTestConfigProperties properties = new AweTestConfigProperties();

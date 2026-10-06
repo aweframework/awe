@@ -166,6 +166,15 @@ public interface BrowserDriver {
   void type(Locator locator, CharSequence text);
 
   /**
+   * Send keys straight to the first match, without moving to it or pausing: what a file input needs to receive the path
+   * of a file
+   *
+   * @param locator Locator
+   * @param text    Text to send
+   */
+  void sendKeys(Locator locator, CharSequence... text);
+
+  /**
    * Clear the value of the first match, if it has one
    *
    * @param locator Locator

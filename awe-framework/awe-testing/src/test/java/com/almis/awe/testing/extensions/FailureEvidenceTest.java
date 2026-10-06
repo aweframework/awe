@@ -1,6 +1,8 @@
 package com.almis.awe.testing.extensions;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.ConsoleEntry;
 import com.almis.awe.testing.model.SeleniumModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,9 +62,7 @@ class FailureEvidenceTest {
       new PrintStream(console, true, StandardCharsets.UTF_8));
 
     driver = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class));
-    File png = Files.createTempFile(tempDir, "source", ".png").toFile();
-    Files.write(png.toPath(), new byte[]{1, 2, 3});
-    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)).thenReturn(png);
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)).thenReturn(new byte[]{1, 2, 3});
 
     AweTestConfigProperties properties = new AweTestConfigProperties();
     properties.setScreenshotPath(tempDir.resolve("shots").toString());
@@ -196,7 +196,7 @@ class FailureEvidenceTest {
 
   @Test
   void driverFailureWhileCapturingDoesNotPropagate() throws IOException {
-    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE))
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES))
       .thenThrow(new WebDriverException("session is gone"));
 
     assertThatCode(() -> evidence.captureScreenshotOnFailure(model, "LoginIT", true)).doesNotThrowAnyException();
@@ -304,6 +304,52 @@ class FailureEvidenceTest {
     assertThat(target).exists().hasBinaryContent(new byte[]{9});
     assertThat(model.isScreenshotTaken()).isTrue();
     assertThat(output()).contains("[[ATTACHMENT|shots/manual.png]]");
+  }
+
+  @Test
+  void storeScreenshotImageWritesFileMarksModelAndAnnouncesIt() throws IOException {
+    environment.put("CI_PROJECT_DIR", tempDir.toString());
+    Path target = tempDir.resolve("shots").resolve("image.png");
+
+    evidence.storeScreenshot(model, new byte[]{7, 8}, target);
+
+    assertThat(target).exists().hasBinaryContent(new byte[]{7, 8});
+    assertThat(model.isScreenshotTaken()).isTrue();
+    assertThat(output()).contains("[[ATTACHMENT|shots/image.png]]").contains("Failure screenshot: ");
+  }
+
+  @Test
+  void storeScreenshotImageFailurePrintsNothingAndDoesNotMarkModel() throws IOException {
+    environment.put("CI_PROJECT_DIR", tempDir.toString());
+    Path notADirectory = Files.createFile(tempDir.resolve("not-a-directory"));
+
+    assertThatThrownBy(() -> evidence.storeScreenshot(model, new byte[]{7}, notADirectory.resolve("image.png")))
+      .isInstanceOf(IOException.class);
+
+    assertThat(model.isScreenshotTaken()).isFalse();
+    assertThat(output()).isEmpty();
+  }
+
+  @Test
+  void failedTestTakesTheScreenshotFromTheBrowserOfTheModelWhenItWasSet() {
+    BrowserDriver browser = mock(BrowserDriver.class);
+    when(browser.screenshot()).thenReturn(Optional.of(new byte[]{4, 5}));
+    model.setBrowser(browser);
+
+    Optional<Path> stored = evidence.captureScreenshotOnFailure(model, "LoginIT", true);
+
+    assertThat(stored).isPresent();
+    assertThat(stored.get()).hasBinaryContent(new byte[]{4, 5});
+  }
+
+  @Test
+  void browserWithoutScreenshotsDoesNotPropagate() {
+    BrowserDriver browser = mock(BrowserDriver.class);
+    when(browser.screenshot()).thenReturn(Optional.empty());
+    model.setBrowser(browser);
+
+    assertThat(evidence.captureScreenshotOnFailure(model, "LoginIT", true)).isEmpty();
+    assertThat(model.isScreenshotTaken()).isFalse();
   }
 
   @Test
@@ -432,6 +478,39 @@ class FailureEvidenceTest {
     assertThatCode(() -> evidence.storeBrowserConsole(tempDir.resolve("shots").resolve("failure.png"), unsupported))
       .doesNotThrowAnyException();
     assertThat(evidence.storeBrowserConsole(tempDir.resolve("shots").resolve("failure.png"), unsupported)).isEmpty();
+  }
+
+  @Test
+  void storeConsoleEntriesWritesSiblingLogAndPrintsTheSevereOnes() throws IOException {
+    Path screenshot = tempDir.resolve("shots").resolve("failure.png");
+
+    Optional<Path> stored = evidence.storeConsoleEntries(screenshot, List.of(
+      new ConsoleEntry(1L, "SEVERE", "Uncaught TypeError: x is undefined"),
+      new ConsoleEntry(2L, "INFO", "just information")));
+
+    Path expected = tempDir.resolve("shots").resolve("failure.console.log");
+    assertThat(stored).contains(expected);
+    assertThat(Files.readString(expected, StandardCharsets.UTF_8)).hasLineCount(2)
+      .contains("[SEVERE] Uncaught TypeError: x is undefined").contains("[INFO] just information");
+    assertThat(output()).contains("Browser console SEVERE: Uncaught TypeError: x is undefined")
+      .doesNotContain("Browser console INFO");
+  }
+
+  @Test
+  void storeConsoleEntriesWithoutEntriesStoresNothing() {
+    Path screenshot = tempDir.resolve("shots").resolve("failure.png");
+
+    assertThat(evidence.storeConsoleEntries(screenshot, List.of())).isEmpty();
+    assertThat(evidence.storeConsoleEntries(screenshot, null)).isEmpty();
+    assertThat(output()).isEmpty();
+  }
+
+  @Test
+  void storeConsoleEntriesFailureDoesNotPropagate() throws IOException {
+    Path notADirectory = Files.createFile(tempDir.resolve("not-a-directory"));
+
+    assertThat(evidence.storeConsoleEntries(notADirectory.resolve("failure.png"),
+      List.of(new ConsoleEntry(1L, "SEVERE", "crash")))).isEmpty();
   }
 
   @Test

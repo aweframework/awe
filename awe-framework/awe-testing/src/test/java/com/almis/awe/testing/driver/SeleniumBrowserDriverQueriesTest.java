@@ -169,6 +169,38 @@ class SeleniumBrowserDriverQueriesTest {
   }
 
   @Test
+  void shouldTellWhetherEachReferencedElementIsVisibleAndEnabled() {
+    WebElement shown = mock(WebElement.class);
+    when(shown.isDisplayed()).thenReturn(true);
+    when(shown.isEnabled()).thenReturn(false);
+    WebElement hidden = mock(WebElement.class);
+    when(hidden.isDisplayed()).thenReturn(false);
+    when(hidden.isEnabled()).thenReturn(true);
+    when(driver.findElements(ITEM.toBy())).thenReturn(List.of(shown, hidden));
+
+    List<ElementRef> refs = browser.elements(ITEM);
+
+    assertThat(refs.get(0).isVisible()).isTrue();
+    assertThat(refs.get(0).isEnabled()).isFalse();
+    assertThat(refs.get(1).isVisible()).isFalse();
+    assertThat(refs.get(1).isEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldFailAsReplacedWhenAReferencedElementIsReadAfterItWasReplaced() {
+    WebElement element = mock(WebElement.class);
+    when(element.isDisplayed()).thenThrow(new StaleElementReferenceException("replaced"));
+    when(element.isEnabled()).thenThrow(new StaleElementReferenceException("replaced"));
+    when(driver.findElements(ITEM.toBy())).thenReturn(List.of(element));
+
+    ElementRef ref = browser.elements(ITEM).get(0);
+
+    assertThatThrownBy(ref::isVisible).isInstanceOf(ElementReplacedException.class)
+      .hasMessageContaining(ITEM.toString()).hasCauseInstanceOf(StaleElementReferenceException.class);
+    assertThatThrownBy(ref::isEnabled).isInstanceOf(ElementReplacedException.class);
+  }
+
+  @Test
   void shouldNotTakeDifferentElementsAsTheSame() {
     WebElement other = mock(WebElement.class);
     when(driver.findElements(ITEM.toBy())).thenReturn(List.of(mock(WebElement.class), other));

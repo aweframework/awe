@@ -94,6 +94,13 @@ class SeleniumBrowserDriverEvidenceTest {
   }
 
   @Test
+  void shouldHaveNoScreenshotWhenTheBrowserReturnsNone() {
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)).thenReturn(null);
+
+    assertThat(browser.screenshot()).isEmpty();
+  }
+
+  @Test
   void shouldHaveNoScreenshotWhenTheBrowserCannotTakeIt() {
     SeleniumBrowserDriver plain = new SeleniumBrowserDriver(mock(WebDriver.class));
 

@@ -126,7 +126,7 @@ public class SeleniumBrowserDriver implements BrowserDriver {
 
   @Override
   public List<ElementRef> elements(Locator locator) {
-    return guard(locator, () -> driver.findElements(locator.toBy()).stream().<ElementRef>map(SeleniumElementRef::new).toList());
+    return guard(locator, () -> driver.findElements(locator.toBy()).stream().<ElementRef>map(element -> new SeleniumElementRef(element, locator)).toList());
   }
 
   @Override
@@ -191,6 +191,11 @@ public class SeleniumBrowserDriver implements BrowserDriver {
       runScript(SCROLL_NEAREST, element);
       new Actions(driver).sendKeys(element, text).pause(TYPE_PAUSE_MILLIS).perform();
     });
+  }
+
+  @Override
+  public void sendKeys(Locator locator, CharSequence... text) {
+    act(locator, element -> element.sendKeys(text));
   }
 
   @Override
@@ -270,7 +275,7 @@ public class SeleniumBrowserDriver implements BrowserDriver {
   @Override
   public Optional<byte[]> screenshot() {
     if (driver instanceof TakesScreenshot camera) {
-      return Optional.of(camera.getScreenshotAs(OutputType.BYTES));
+      return Optional.ofNullable(camera.getScreenshotAs(OutputType.BYTES));
     }
     return Optional.empty();
   }
