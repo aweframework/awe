@@ -62,7 +62,11 @@ public class SeleniumUtilities implements IAweInstructions {
    * Get driver
    *
    * @return Get driver
+   * @deprecated Selenium specific: it exposes the Selenium driver and is only available when the tests run with the
+   * Selenium tool, so a step that uses it does not work with any other tool. Write the steps of your product with the neutral steps of this class, with a {@link Locator} and with
+   * {@link #getBrowser()}. It stays available through the whole 5.x line and is not removed before 6.0
    */
+  @Deprecated
   public WebDriver getDriver() {
     return this.seleniumModel.getDriver();
   }
@@ -93,11 +97,14 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Get the browser the queries and waits go through
+   * Get the browser the steps go through. It is the way for a step of a product to query and act on the page without
+   * Selenium types: ask it with a {@link Locator} (for instance {@code getBrowser().exists(Locator.css("#id"))}) and
+   * build the locators from the identifiers and test hooks of AWE. It is a preview of the tool-neutral
+   * {@link BrowserDriver}, which has no compatibility promise yet: prefer the steps of this class when there is one
    *
    * @return Tool-neutral browser
    */
-  private BrowserDriver getBrowser() {
+  protected final BrowserDriver getBrowser() {
     return seleniumModel.getBrowser();
   }
 
@@ -476,8 +483,18 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to type
    */
   private void sendKeys(By selector, CharSequence... text) {
+    sendKeys(locator(selector), text);
+  }
+
+  /**
+   * Type keys on a criterion
+   *
+   * @param selector Criterion selector to type keys
+   * @param text     Text to type
+   */
+  private void sendKeys(Locator selector, CharSequence... text) {
     try {
-      getBrowser().type(locator(selector), text.length == 1 ? text[0] : String.join("", text));
+      getBrowser().type(selector, text.length == 1 ? text[0] : String.join("", text));
     } catch (Exception exc) {
       assertWithScreenshot("Sending keys to element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
@@ -509,7 +526,7 @@ public class SeleniumUtilities implements IAweInstructions {
     String textToClear = getBrowser().attribute(locator(selector), "value");
     if (textToClear != null && !textToClear.isEmpty()) {
       getBrowser().clear(locator(selector));
-      waitForEmptyText(selector, textToClear);
+      waitForEmptyText(locator(selector), textToClear);
     }
   }
 
@@ -599,7 +616,7 @@ public class SeleniumUtilities implements IAweInstructions {
     clickDateFromSelector(parentSelector);
 
     // Wait until datepicker is visible
-    checkVisible(frontEndInstructions.getDatepicker());
+    checkVisible(locator(frontEndInstructions.getDatepicker()));
 
     // Write text on date
     By activeSelector = frontEndInstructions.getActiveDatepicker();
@@ -610,7 +627,7 @@ public class SeleniumUtilities implements IAweInstructions {
         clickSelector(activeSelector);
     }
     // Wait for not visible
-    checkNotVisible(frontEndInstructions.getDatepicker());
+    checkNotVisible(locator(frontEndInstructions.getDatepicker()));
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -634,7 +651,7 @@ public class SeleniumUtilities implements IAweInstructions {
     click(frontEndInstructions.getCellFromDatepicker(type, search));
 
     // Wait for not visible
-    checkNotVisible(frontEndInstructions.getDatepicker());
+    checkNotVisible(locator(frontEndInstructions.getDatepicker()));
   }
 
   /**
@@ -832,8 +849,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Selector to wait for
    */
   private void waitForSelector(By selector) {
+    waitForSelector(locator(selector));
+  }
+
+  /**
+   * Wait for selector to be clickable
+   *
+   * @param selector Selector to wait for
+   */
+  private void waitForSelector(Locator selector) {
     // Wait for element visible
-    waitUntil(toBeVisible(selector));
+    waitUntil(BrowserCondition.visible(selector));
 
     // Move mouse again
     moveMouse();
@@ -1166,7 +1192,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkText(By selector, String text) {
-    String nodeText = getBrowser().text(locator(selector));
+    checkText(locator(selector), text);
+  }
+
+  /**
+   * Check text inside selector
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkText(Locator selector, String text) {
+    String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' isn't equal to " + text;
 
     // Assert element is not located
@@ -1180,7 +1216,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextContains(By selector, String text) {
-    String nodeText = getBrowser().text(locator(selector));
+    checkTextContains(locator(selector), text);
+  }
+
+  /**
+   * Check if selector contains text
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkTextContains(Locator selector, String text) {
+    String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
@@ -1208,7 +1254,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextNotContains(By selector, String text) {
-    String nodeText = getBrowser().text(locator(selector));
+    checkTextNotContains(locator(selector), text);
+  }
+
+  /**
+   * Check if selector doesn't contain a text
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkTextNotContains(Locator selector, String text) {
+    String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' contains " + text;
 
     // Assert element is not located
@@ -1338,15 +1394,29 @@ public class SeleniumUtilities implements IAweInstructions {
    * Wait for css selector
    *
    * @param cssSelector CSS Selector
+   * @return Locator of the selector
    */
-  protected By waitForCssSelector(String cssSelector) {
-    By selector = By.cssSelector(cssSelector);
+  protected Locator waitForCssLocator(String cssSelector) {
+    Locator selector = Locator.css(cssSelector);
 
     // Wait for selector
     waitForSelector(selector);
 
     // Return selector
     return selector;
+  }
+
+  /**
+   * Wait for css selector
+   *
+   * @param cssSelector CSS Selector
+   * @return Selenium locator of the selector
+   * @deprecated It returns a Selenium type. Use {@link #waitForCssLocator(String)}, which returns a {@link Locator}.
+   * It stays available through the whole 5.x line and is not removed before 6.0
+   */
+  @Deprecated
+  protected By waitForCssSelector(String cssSelector) {
+    return waitForCssLocator(cssSelector).toBy();
   }
 
   /**
@@ -1412,14 +1482,14 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Wait for text inside a tag with a CSS class
+   * Wait for text inside an element
    *
-   * @param selector Selector
+   * @param selector Locator of the element
    * @param contains Text to check
    */
-  protected void waitForText(By selector, String contains) {
+  protected void waitForText(Locator selector, String contains) {
     // Wait for element visible
-    waitUntil(toContainText(selector, contains));
+    waitUntil(BrowserCondition.textContains(selector, contains));
   }
 
   /**
@@ -1427,10 +1497,47 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param contains Text to check
+   * @deprecated Selenium specific. Use {@link #waitForText(Locator, String)}. It stays available through the whole 5.x
+   * line and is not removed before 6.0
    */
-  protected void waitForValue(By selector, String contains) {
+  @Deprecated
+  protected void waitForText(By selector, String contains) {
+    waitForText(locator(selector), contains);
+  }
+
+  /**
+   * Wait for text inside the value of an input
+   *
+   * @param selector Locator of the input
+   * @param contains Text to check
+   */
+  protected void waitForValue(Locator selector, String contains) {
     // Wait for element visible
-    waitUntil(toContainValue(selector, contains));
+    waitUntil(BrowserCondition.valueContains(selector, contains));
+  }
+
+  /**
+   * Wait for text inside a tag with a CSS class
+   *
+   * @param selector Selector
+   * @param contains Text to check
+   * @deprecated Selenium specific. Use {@link #waitForValue(Locator, String)}. It stays available through the whole 5.x
+   * line and is not removed before 6.0
+   */
+  @Deprecated
+  protected void waitForValue(By selector, String contains) {
+    waitForValue(locator(selector), contains);
+  }
+
+  /**
+   * Wait for no text in the value of an input
+   *
+   * @param selector Locator of the input
+   * @param text     Text to check
+   */
+  protected void waitForEmptyText(Locator selector, String text) {
+    // Wait for element visible
+    waitUntil(BrowserCondition.not(BrowserCondition.valueContains(selector, text)));
   }
 
   /**
@@ -1438,10 +1545,12 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param text     Text to check
+   * @deprecated Selenium specific. Use {@link #waitForEmptyText(Locator, String)}. It stays available through the whole
+   * 5.x line and is not removed before 6.0
    */
+  @Deprecated
   protected void waitForEmptyText(By selector, String text) {
-    // Wait for element visible
-    waitUntil(BrowserCondition.not(toContainValue(selector, text)));
+    waitForEmptyText(locator(selector), text);
   }
 
   /**
@@ -1576,7 +1685,7 @@ public class SeleniumUtilities implements IAweInstructions {
     clickSelector(frontEndInstructions.getTreeButton(gridId, rowId));
 
     // Check loader is not visible
-    checkNotVisible(frontEndInstructions.getTreeButtonLoader());
+    checkNotVisible(locator(frontEndInstructions.getTreeButtonLoader()));
 
     // Pause to wait tree leaf to open
     pause(250);
@@ -1936,12 +2045,39 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Criterion selector to type keys
    * @param text     Text to type
    */
-  protected void writeTextOnDriver(By selector, CharSequence... text) {
+  protected void writeTextOnDriver(Locator selector, CharSequence... text) {
     // Wait for element present
-    waitUntil(toBePresent(selector));
+    waitUntil(BrowserCondition.present(selector));
 
     // Write text
-    getBrowser().sendKeys(locator(selector), text);
+    getBrowser().sendKeys(selector, text);
+  }
+
+  /**
+   * Type keys on a criterion
+   *
+   * @param selector Criterion selector to type keys
+   * @param text     Text to type
+   * @deprecated Selenium specific. Use {@link #writeTextOnDriver(Locator, CharSequence...)}. It stays available through
+   * the whole 5.x line and is not removed before 6.0
+   */
+  @Deprecated
+  protected void writeTextOnDriver(By selector, CharSequence... text) {
+    writeTextOnDriver(locator(selector), text);
+  }
+
+  /**
+   * Write text on selector
+   *
+   * @param selector Locator of the element
+   * @param text     Text
+   */
+  protected void writeText(Locator selector, CharSequence text) {
+    // Wait for element present
+    waitUntil(BrowserCondition.present(selector));
+
+    // Write text
+    sendKeys(selector, text);
   }
 
   /**
@@ -1949,13 +2085,12 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param text     Text
+   * @deprecated Selenium specific. Use {@link #writeText(Locator, CharSequence)}. It stays available through the whole
+   * 5.x line and is not removed before 6.0
    */
+  @Deprecated
   protected void writeText(By selector, CharSequence text) {
-    // Wait for element present
-    waitUntil(toBePresent(selector));
-
-    // Write text
-    sendKeys(selector, text);
+    writeText(locator(selector), text);
   }
 
   /**
@@ -2547,7 +2682,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkText(String cssSelector, String text) {
     // Check selector text
-    checkText(waitForCssSelector(cssSelector), text);
+    checkText(waitForCssLocator(cssSelector), text);
   }
 
   /**
@@ -2558,7 +2693,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkTextContains(String cssSelector, String text) {
     // Check selector text
-    checkTextContains(waitForCssSelector(cssSelector), text);
+    checkTextContains(waitForCssLocator(cssSelector), text);
   }
 
   /**
@@ -2568,7 +2703,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text        Text to compare
    */
   protected void checkTextNotContains(String cssSelector, String text) {
-    checkTextNotContains(waitForCssSelector(cssSelector), text);
+    checkTextNotContains(waitForCssLocator(cssSelector), text);
   }
 
   /**
@@ -2765,7 +2900,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param cssSelector CSS selector
    */
   protected void checkVisible(String cssSelector) {
-    checkVisible(By.cssSelector(cssSelector));
+    checkVisible(Locator.css(cssSelector));
   }
 
   /**
@@ -2773,9 +2908,21 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    */
-  protected void checkVisible(By selector) {
+  protected void checkVisible(Locator selector) {
     // Wait until visible
-    waitUntil(toBeVisible(selector));
+    waitUntil(BrowserCondition.visible(selector));
+  }
+
+  /**
+   * Check element is visible
+   *
+   * @param selector Selector
+   * @deprecated Selenium specific. Use {@link #checkVisible(Locator)}. It stays available through the whole 5.x line and
+   * is not removed before 6.0
+   */
+  @Deprecated
+  protected void checkVisible(By selector) {
+    checkVisible(locator(selector));
   }
 
   /**
@@ -2798,7 +2945,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param cssSelector CSS selector
    */
   protected void checkNotVisible(String cssSelector) {
-    checkNotVisible(By.cssSelector(cssSelector));
+    checkNotVisible(Locator.css(cssSelector));
   }
 
   /**
@@ -2806,9 +2953,21 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector selector
    */
+  protected void checkNotVisible(Locator selector) {
+    // Wait until not visible
+    waitUntil(BrowserCondition.invisible(selector));
+  }
+
+  /**
+   * Check element is not visible
+   *
+   * @param selector selector
+   * @deprecated Selenium specific. Use {@link #checkNotVisible(Locator)}. It stays available through the whole 5.x line
+   * and is not removed before 6.0
+   */
+  @Deprecated
   protected void checkNotVisible(By selector) {
-    // Wait until visible
-    waitUntil(toBeInvisible(selector));
+    checkNotVisible(locator(selector));
   }
 
   /**
@@ -3103,8 +3262,8 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkMenuOption(String option, String text) {
     By selector = frontEndInstructions.getMenuOptionItem(option);
-    checkVisible(selector);
-    waitForText(selector, text);
+    checkVisible(locator(selector));
+    waitForText(locator(selector), text);
   }
 
   /**
@@ -3135,7 +3294,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Check that the screen shows validation errors
    */
   protected void checkValidationErrorVisible() {
-    checkVisible(frontEndInstructions.getValidationError());
+    checkVisible(locator(frontEndInstructions.getValidationError()));
   }
 
   /**
@@ -3151,7 +3310,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param number Expected number of the step
    */
   protected void checkActiveWizardStep(String number) {
-    checkVisible(frontEndInstructions.getActiveWizardStep(number));
+    checkVisible(locator(frontEndInstructions.getActiveWizardStep(number)));
   }
 
   /**
@@ -3162,7 +3321,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkTagListContains(String tagListId, String text) {
     By selector = frontEndInstructions.getTagList(tagListId);
-    checkVisible(selector);
+    checkVisible(locator(selector));
     checkTextContains(selector, text);
   }
 
@@ -3172,7 +3331,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param chartId Chart identifier
    */
   protected void checkChartVisible(String chartId) {
-    checkVisible(frontEndInstructions.getChart(chartId));
+    checkVisible(locator(frontEndInstructions.getChart(chartId)));
   }
 
   /**
@@ -3182,7 +3341,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkLogViewerContains(String text) {
     By selector = frontEndInstructions.getLogViewer();
-    waitForText(selector, text);
+    waitForText(locator(selector), text);
     checkTextContains(selector, text);
   }
 
@@ -3217,7 +3376,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param buttonId Button identifier
    */
   protected void checkButtonVisible(String buttonId) {
-    checkVisible(frontEndInstructions.getAnyButton(buttonId));
+    checkVisible(locator(frontEndInstructions.getAnyButton(buttonId)));
   }
 
   /**
@@ -3226,7 +3385,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param buttonId Button identifier
    */
   protected void checkButtonNotVisible(String buttonId) {
-    checkNotVisible(frontEndInstructions.getAnyButton(buttonId));
+    checkNotVisible(locator(frontEndInstructions.getAnyButton(buttonId)));
   }
 
   /**
@@ -3235,7 +3394,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param buttonId Button identifier
    */
   protected void checkButtonDisabled(String buttonId) {
-    checkVisible(frontEndInstructions.getDisabledButton(buttonId));
+    checkVisible(locator(frontEndInstructions.getDisabledButton(buttonId)));
   }
 
   /**
@@ -3253,7 +3412,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param gridId Grid identifier
    */
   protected void checkGridNotVisible(String gridId) {
-    checkNotVisible(frontEndInstructions.getGrid(gridId));
+    checkNotVisible(locator(frontEndInstructions.getGrid(gridId)));
   }
 
   /**
@@ -3307,7 +3466,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param icon     Name of the icon, without the prefix of the icon library (for instance {@code plus})
    */
   protected void checkGridIconVisible(String gridId, String columnId, String icon) {
-    checkVisible(frontEndInstructions.getGridIcon(gridId, columnId, icon));
+    checkVisible(locator(frontEndInstructions.getGridIcon(gridId, columnId, icon)));
   }
 
   /**
@@ -3316,7 +3475,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column identifier
    */
   protected void checkColumnSuccessIcon(String columnId) {
-    checkVisible(frontEndInstructions.getColumnSuccessIcon(columnId));
+    checkVisible(locator(frontEndInstructions.getColumnSuccessIcon(columnId)));
   }
 
   /**
@@ -3326,7 +3485,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param rowId  Row identifier
    */
   protected void checkTreeRowVisible(String gridId, String rowId) {
-    checkVisible(frontEndInstructions.getTreeRow(gridId, rowId));
+    checkVisible(locator(frontEndInstructions.getTreeRow(gridId, rowId)));
   }
 
   /**
@@ -3336,7 +3495,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param rowId  Row identifier
    */
   protected void checkTreeRowNotVisible(String gridId, String rowId) {
-    checkNotVisible(frontEndInstructions.getTreeRow(gridId, rowId));
+    checkNotVisible(locator(frontEndInstructions.getTreeRow(gridId, rowId)));
   }
 
   /**
@@ -3346,7 +3505,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param rowId  Row identifier
    */
   protected void checkTreeRowDeleted(String gridId, String rowId) {
-    checkVisible(frontEndInstructions.getDeletedTreeRow(gridId, rowId));
+    checkVisible(locator(frontEndInstructions.getDeletedTreeRow(gridId, rowId)));
   }
 
   /**
@@ -3356,7 +3515,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param rowId  Row identifier
    */
   protected void checkTreeIconVisible(String gridId, String rowId) {
-    checkVisible(frontEndInstructions.getTreeRowIcon(gridId, rowId));
+    checkVisible(locator(frontEndInstructions.getTreeRowIcon(gridId, rowId)));
   }
 
   /**
@@ -3366,7 +3525,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param rowId  Row identifier
    */
   protected void checkTreeIconNotVisible(String gridId, String rowId) {
-    checkNotVisible(frontEndInstructions.getTreeRowIcon(gridId, rowId));
+    checkNotVisible(locator(frontEndInstructions.getTreeRowIcon(gridId, rowId)));
   }
 
   /**
@@ -3385,7 +3544,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Check that no context menu is displayed
    */
   protected void checkContextMenuNotVisible() {
-    checkNotVisible(frontEndInstructions.getContextMenu());
+    checkNotVisible(locator(frontEndInstructions.getContextMenu()));
   }
 
   /**
@@ -3394,7 +3553,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param dialogId Dialog identifier
    */
   protected void checkDialogClosed(String dialogId) {
-    checkNotVisible(frontEndInstructions.getOpenDialog(dialogId));
+    checkNotVisible(locator(frontEndInstructions.getOpenDialog(dialogId)));
   }
 
   /**
@@ -3413,7 +3572,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text          Text to search
    */
   protected void writeSuggestSearch(String criterionName, CharSequence text) {
-    writeText(frontEndInstructions.getSuggestInput(frontEndInstructions.getCriterionCss(criterionName)), text);
+    writeText(locator(frontEndInstructions.getSuggestInput(frontEndInstructions.getCriterionCss(criterionName))), text);
   }
 
   /**
@@ -3423,9 +3582,9 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkSuggestResultCount(int expected) {
     if (expected > 0) {
-      checkVisible(frontEndInstructions.getSelectOption(expected));
+      checkVisible(locator(frontEndInstructions.getSelectOption(expected)));
     }
-    checkNotVisible(frontEndInstructions.getSelectOption(expected + 1));
+    checkNotVisible(locator(frontEndInstructions.getSelectOption(expected + 1)));
   }
 
   /**
@@ -3471,7 +3630,7 @@ public class SeleniumUtilities implements IAweInstructions {
     // Write text
     waitUntil(toBePresent(searchBox));
     scrollToTheCenter(searchBox);
-    writeText(searchBox, search1);
+    writeText(locator(searchBox), search1);
 
     // Pause
     pause(pause);
@@ -3480,7 +3639,7 @@ public class SeleniumUtilities implements IAweInstructions {
     clearText(searchBox);
 
     // Write select
-    writeTextOnDriver(searchBox, search2);
+    writeTextOnDriver(locator(searchBox), search2);
 
     // Click selector
     selectResult(match);

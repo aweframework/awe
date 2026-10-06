@@ -18,7 +18,7 @@ public class SeleniumModel {
 
   // Properties
   private AweTestConfigProperties properties;
-  // Drivers
+  // Selenium driver: wiring of the Selenium tool and source of truth of the browser. Tests do not use it directly
   private WebDriver driver;
   // Tool-neutral browser (preview). When none was set it is the Selenium adapter of the driver
   private BrowserDriver browser;

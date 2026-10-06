@@ -82,7 +82,9 @@ class BrowserTestSourceGuardTest {
     "new Actions(wd).perform();",
     "click(TestIds.BUTTON);",
     "String attribute = TestAttributes.TEST_ID;",
-    "By selector = null;"
+    "By selector = null;",
+    "Locator selector = Locator.css(\"x\");",
+    "boolean there = getBrowser().exists(null);"
   })
   void shouldFlagAutomationToolTypesAndLocatorVocabulary(String statement) throws IOException {
     Report report = scanBody(statement);
@@ -111,6 +113,7 @@ class BrowserTestSourceGuardTest {
     "checkNotVisible(\".title\");",
     "checkVisibleAndContains(\".title\", \"Title\");",
     "waitForCssSelector(\".title\");",
+    "waitForCssLocator(\".title\");",
     "checkTextInEmbeddedFrame(\"ol.breadcrumb a\", \"Home\");",
     "checkLogin(\"user\", \"password\", \".user-name\", \"Test user\");",
     "checkLogout(\".login-form\", \"Sign in\");"
