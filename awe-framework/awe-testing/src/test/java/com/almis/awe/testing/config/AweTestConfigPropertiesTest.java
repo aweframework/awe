@@ -36,19 +36,30 @@ class AweTestConfigPropertiesTest {
       assertThat(root).isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("'cypress'")
         .hasMessageContaining("awe.test.tool")
-        .hasMessageContaining("Supported tools: selenium");
+        .hasMessageContaining("Supported tools: selenium, playwright");
     });
+  }
+
+  @Test
+  void thePlaywrightSandboxIsLeftToTheAutomaticRuleUnlessItIsConfigured() {
+    assertThat(new AweTestConfigProperties().getPlaywright().getNoSandbox()).isNull();
+    runner.run(context -> assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().getNoSandbox()).isNull());
+    runner.withPropertyValues("awe.test.playwright.no-sandbox=false")
+      .run(context -> assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().getNoSandbox()).isFalse());
+    runner.withPropertyValues("awe.test.playwright.no-sandbox=true")
+      .run(context -> assertThat(context.getBean(AweTestConfigProperties.class).getPlaywright().getNoSandbox()).isTrue());
   }
 
   @Test
   void aBlankToolIsNotAcceptedEither() {
     assertThatThrownBy(() -> BrowserTool.fromName("  ")).isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Supported tools: selenium");
+      .hasMessageContaining("Supported tools: selenium, playwright");
     assertThatThrownBy(() -> BrowserTool.fromName(null)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void aToolNameIgnoresCaseAndSurroundingBlanks() {
     assertThat(BrowserTool.fromName(" SeLeNiUm ")).isEqualTo(BrowserTool.SELENIUM);
+    assertThat(BrowserTool.fromName(" Playwright ")).isEqualTo(BrowserTool.PLAYWRIGHT);
   }
 }

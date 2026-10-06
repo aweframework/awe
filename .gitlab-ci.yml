@@ -391,8 +391,41 @@ Build website with i18n:
 
 All UT:
   extends: .unit-testing
+  variables:
+    # Browsers of the awe-testing tests that run a real Chromium through Playwright (they never download one). Kept
+    # under the project so the cache below can store them
+    PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-browsers"
+  # A job cache replaces the global one, so the Maven repository is declared again
+  cache:
+    - key: ${CI_COMMIT_REF_SLUG}
+      policy: pull
+      fallback_keys:
+        - develop
+      paths:
+        - .m2/repository/
+    # The browser revision follows the Playwright version, which awe-dependencies declares: a new version gets a new
+    # cache instead of piling revisions up in the old one
+    - key:
+        prefix: playwright
+        files:
+          - awe-framework/awe-dependencies/pom.xml
+      paths:
+        - .playwright-browsers/
+  before_script:
+    # Install the Chromium that the Playwright adapter tests run (awe-testing) with the CLI of the same Playwright version
+    # as the project: the version is read from awe-dependencies and the three jars of the CLI are fetched alone (a Maven
+    # exec on awe-testing would need the whole reactor built). Only the headless shell is installed (about 200 MB, not
+    # the three browsers of about 1 GB that Playwright downloads on its own); --with-deps adds the system libraries
+    # (apt, the job runs as root on Ubuntu). With the cache hit only the libraries are installed.
+    # The dependency plugin version is the one that the root pom pins (plugin-dependency.version)
+    - PLAYWRIGHT_VERSION=$(sed -n 's:.*<playwright.version>\(.*\)</playwright.version>.*:\1:p' awe-framework/awe-dependencies/pom.xml)
+    - mvn $MAVEN_CLI_OPTS -N org.apache.maven.plugins:maven-dependency-plugin:3.6.0:get -Dartifact=com.microsoft.playwright:playwright:${PLAYWRIGHT_VERSION} -Dtransitive=true
+    - PLAYWRIGHT_JARS=$MAVEN_REPO_PATH/com/microsoft/playwright
+    - java -cp "$PLAYWRIGHT_JARS/playwright/$PLAYWRIGHT_VERSION/playwright-$PLAYWRIGHT_VERSION.jar:$PLAYWRIGHT_JARS/driver/$PLAYWRIGHT_VERSION/driver-$PLAYWRIGHT_VERSION.jar:$PLAYWRIGHT_JARS/driver-bundle/$PLAYWRIGHT_VERSION/driver-bundle-$PLAYWRIGHT_VERSION.jar" com.microsoft.playwright.CLI install --with-deps --only-shell chromium
   script:
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec
+    # The Playwright tests must run here: without the browser they fail instead of being skipped as they are on a developer
+    # machine, so the coverage that Sonar reads for the adapter is real and cannot stop silently
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
   # Also on AngularJS template changes: awe-boot unit tests compare templates served by TemplateController
   # (src/test/resources/templates/*.txt), so a frontend-only merge request can break them.
   rules:

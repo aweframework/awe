@@ -769,9 +769,9 @@ console) and quitting the browser.
 
 ### Automation tool (`awe.test.tool`)
 
-The tool that drives the browser is chosen with `awe.test.tool`. Its only value today is `selenium` (the default), so nothing
-changes for existing suites; another tool (Playwright is planned) will be one more value. The name is not case sensitive, and
-a value that is not a supported tool stops the tests at startup with a message that lists the supported ones.
+The tool that drives the browser is chosen with `awe.test.tool`. Its values are `selenium` (the default, so nothing changes for
+existing suites) and `playwright`, which is a **pilot** (see below). The name is not case sensitive, and a value that is not a
+supported tool stops the tests at startup with a message that lists the supported ones.
 `getDriver()` is the one part of the API that belongs to Selenium: it returns the Selenium driver with `selenium` and throws an
 `UnsupportedOperationException` with any other tool, so write your own steps with the neutral steps and `getBrowser()`.
 
@@ -779,6 +779,76 @@ a value that is not a supported tool stops the tests at startup with a message t
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
   -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
+
+#### Playwright (pilot)
+
+`awe.test.tool=playwright` runs the same tests with [Playwright for Java](https://playwright.dev/java/), which is part of
+`awe-testing` (there is nothing else to add to your project). The steps behave as they do with Selenium: the same pauses, the
+same scrolls before a click, queries that answer at once and are polled by the steps. It is a pilot, so use it to try your
+suites and report what differs, not yet as the only tool of a pipeline.
+
+The browser is chosen with the usual `awe.test.browser`; Playwright runs the browsers it installs itself, not the ones of your
+machine:
+
+| `awe.test.browser` | Playwright browser |
+|---|---|
+| `chrome` | Chromium, with a window |
+| `headless-chrome` | Chromium, without a window |
+| `firefox` | Firefox, with a window |
+| `headless-firefox` | Firefox, without a window |
+
+Any other value (`edge`, `opera`, `ie`, `remote-*` and every `service-*` browser) stops the tests at startup with a message:
+**remote and service browsers are not supported by the Playwright pilot yet**, since they are Selenium grids and Docker images
+that Playwright does not use. Use `awe.test.tool=selenium` for them. `awe.test.browser-width` and `awe.test.browser-height` set
+the viewport and `awe.test.timeout` the default timeout of Playwright.
+
+Playwright **downloads its browsers** (Chromium, Firefox and WebKit, about 1 GB) to `~/.cache/ms-playwright` (on macOS
+`~/Library/Caches/ms-playwright`) the first time a test run that chooses it starts Playwright. To install them beforehand, for
+instance in the image of a CI job, or to install only the one you need, run its command line from your project, which needs no
+Playwright installation of its own (`--with-deps` also installs the system libraries on Linux; `--only-shell` installs just the
+headless shell of Chromium, about 200 MB, which is all that `headless-chrome` needs):
+
+```
+mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps chromium"
+```
+
+Set `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` to stop it from downloading anything on its own, and `PLAYWRIGHT_BROWSERS_PATH` to
+keep the browsers somewhere else, for instance in a folder that the CI caches.
+
+```
+mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
+  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
+```
+
+The unit tests of `awe-testing` that run a real Chromium through Playwright never download a browser: they use the one that is
+installed and are **skipped** where there is none, so a machine without browsers still gets a green build. The CI job of the
+unit tests (`All UT`) installs only the Chromium headless shell with its libraries, caches it between pipelines and passes
+`-Dawe.test.playwright.required=true`, which turns a missing browser into a **failure** instead of a skip; use the same switch
+to make sure that the tests run on your machine. CI only proves Chromium for now: the Firefox of the adapter is checked
+where Firefox is installed, by running the same tests with `-Dawe.test.playwright.engine=firefox` (a Firefox that is installed
+and fails to launch fails the test; one that is not installed skips it).
+
+Chromium is started with `--disable-dev-shm-usage` (the shared memory of a container is too small for it) and, when the
+sandbox cannot work, without its sandbox (`--no-sandbox`): that is the case when it runs headless, when the process runs as
+root, and inside a container (Docker, Podman or Kubernetes, which are detected by `/.dockerenv`, `/run/.containerenv` or
+`KUBERNETES_SERVICE_HOST`). A Chromium that a user shows on a desktop keeps its sandbox. Set
+`awe.test.playwright.no-sandbox=false` to keep the sandbox in any case, or `=true` to remove it in any case; left empty the
+rule above applies.
+
+Differences you may notice with respect to Selenium:
+
+- A window cannot be moved (a Playwright page has a viewport, not a window on a screen): the position is ignored, with a debug
+  log.
+- A script is given up when the page does not answer within the script timeout (30 seconds, as in Selenium), so a page whose
+  script thread is blocked fails the step with a `ScriptTimeoutException` instead of hanging the run. The console of the failure
+  evidence waits two seconds at most for such a page and returns what it had. A script that timed out may still be running in
+  the page (the browser cannot be told to stop it), and the page stays blocked until it ends; a script that had not begun
+  is not started later. A script that navigates the page (changes the location, submits a form) runs once and returns null.
+- A CSS locator also finds the elements inside open shadow roots.
+- Visible means that the element has a box and is not `visibility: hidden`; enabled also takes `aria-disabled` into account.
+- The video recorder of the test run films the screen of the machine, not the browser, so a headless Playwright run has nothing
+  of the test to film: turn it off with `awe.test.allowed-recording=false` and use the screenshot, page source and console of
+  the [failure evidence](#failure-evidence).
 
 ## Writing Selenium tests for your product
 
