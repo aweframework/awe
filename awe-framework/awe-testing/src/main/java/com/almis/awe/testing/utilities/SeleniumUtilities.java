@@ -2,6 +2,11 @@ package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.config.TestConfig;
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.ElementNotFoundException;
+import com.almis.awe.testing.driver.ElementRef;
+import com.almis.awe.testing.driver.ElementReplacedException;
+import com.almis.awe.testing.driver.Locator;
 import com.almis.awe.testing.extensions.FailureEvidence;
 import com.almis.awe.testing.extensions.SeleniumExtension;
 import com.almis.awe.testing.model.SeleniumModel;
@@ -18,7 +23,6 @@ import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
@@ -32,7 +36,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
@@ -116,6 +119,67 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Get the browser the queries and waits go through
+   *
+   * @return Tool-neutral browser
+   */
+  private BrowserDriver getBrowser() {
+    return seleniumModel.getBrowser();
+  }
+
+  /**
+   * Convert a selector of the front end instructions to the neutral locator the browser works with
+   *
+   * @param selector Selector
+   * @return Locator
+   */
+  private static Locator locator(By selector) {
+    return Locator.from(selector);
+  }
+
+  /**
+   * Condition: something matches the selector
+   */
+  private static BrowserCondition toBePresent(By selector) {
+    return BrowserCondition.present(locator(selector));
+  }
+
+  /**
+   * Condition: the selector matches a displayed element
+   */
+  private static BrowserCondition toBeVisible(By selector) {
+    return BrowserCondition.visible(locator(selector));
+  }
+
+  /**
+   * Condition: the selector matches no displayed element
+   */
+  private static BrowserCondition toBeInvisible(By selector) {
+    return BrowserCondition.invisible(locator(selector));
+  }
+
+  /**
+   * Condition: the selector matches a displayed and enabled element
+   */
+  private static BrowserCondition toBeClickable(By selector) {
+    return BrowserCondition.clickable(locator(selector));
+  }
+
+  /**
+   * Condition: the text of the selector contains a text
+   */
+  private static BrowserCondition toContainText(By selector, String text) {
+    return BrowserCondition.textContains(locator(selector), text);
+  }
+
+  /**
+   * Condition: the value of the selector contains a text
+   */
+  private static BrowserCondition toContainValue(By selector, String text) {
+    return BrowserCondition.valueContains(locator(selector), text);
+  }
+
+  /**
    * Wait for screen load
    */
   private void waitForLoad() {
@@ -131,6 +195,22 @@ public class SeleniumUtilities implements IAweInstructions {
   private void waitUntil(ExpectedCondition<?> condition) {
     try {
       new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout()).until(condition);
+      // Assert true on condition
+      assertTrue(true, condition.toString());
+      log.debug(condition.toString());
+    } catch (Exception exc) {
+      assertWithScreenshot(condition.toString(), false, exc);
+    }
+  }
+
+  /**
+   * Wait until a condition over the neutral browser is met, within the configured timeout
+   *
+   * @param condition Condition
+   */
+  private void waitUntil(BrowserCondition condition) {
+    try {
+      BrowserPoll.until(getBrowser(), condition, properties.getTimeout());
       // Assert true on condition
       assertTrue(true, condition.toString());
       log.debug(condition.toString());
@@ -180,7 +260,7 @@ public class SeleniumUtilities implements IAweInstructions {
   private boolean isWritable(By selector) {
     try {
       // A search box that exists but is hidden (selectors without search) cannot receive text
-      return getElement(selector).isDisplayed();
+      return getBrowser().isVisible(locator(selector));
     } catch (Exception exc) {
       return false;
     }
@@ -193,49 +273,23 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param diagnosticLabel Wait label used for diagnostics
    * @return Condition for element actionability
    */
-  private ExpectedCondition<Boolean> inputToBeActionable(By selector, String diagnosticLabel) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
-        try {
-          WebElement element = Objects.requireNonNull(driver).findElement(selector);
-          return element.isDisplayed() && element.isEnabled();
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
-          return false;
-        }
-      }
-
-      @Override
-      public String toString() {
-        return diagnosticLabel + ": input is visible and enabled for selector " + selector;
-      }
-    };
+  private BrowserCondition inputToBeActionable(By selector, String diagnosticLabel) {
+    Locator input = locator(selector);
+    return BrowserCondition.of(diagnosticLabel + ": input is visible and enabled for selector " + input,
+      browser -> browser.isVisible(input) && browser.isEnabled(input));
   }
 
   /**
-   * Checks whether a located element is ready for Selenium click actions.
+   * Checks whether a located element is ready for click actions.
    *
    * @param selector Element selector
    * @param diagnosticLabel Wait label used for diagnostics
    * @return Condition for element clickability
    */
-  private ExpectedCondition<Boolean> elementToBeActionableForClick(By selector, String diagnosticLabel) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
-        try {
-          WebElement element = elementToBeClickable(selector).apply(driver);
-          return element != null;
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
-          return false;
-        }
-      }
-
-      @Override
-      public String toString() {
-        return diagnosticLabel + ": element is clickable for selector " + selector;
-      }
-    };
+  private BrowserCondition elementToBeActionableForClick(By selector, String diagnosticLabel) {
+    Locator element = locator(selector);
+    return BrowserCondition.of(diagnosticLabel + ": element is clickable for selector " + element,
+      browser -> BrowserCondition.clickable(element).isMet(browser));
   }
 
   /**
@@ -543,7 +597,7 @@ public class SeleniumUtilities implements IAweInstructions {
     WebDriverException staleException = null;
     for (int attempt = 0; attempt < STALE_RETRY_COUNT; attempt++) {
       // Wait until element is clickable (the selector is resolved again on every check)
-      waitUntil(elementToBeClickable(selector));
+      waitUntil(toBeClickable(selector));
       WebElement element = getElement(selector);
       try {
         performClick(element);
@@ -696,7 +750,7 @@ public class SeleniumUtilities implements IAweInstructions {
     String conditionMessage = "";
 
     // Wait until element is clickable
-    waitUntil(elementToBeClickable(selector));
+    waitUntil(toBeClickable(selector));
 
     // Click on element
     try {
@@ -731,7 +785,7 @@ public class SeleniumUtilities implements IAweInstructions {
     writeTextFromSelector(frontEndInstructions.getCriterionInput(parentSelector), dateValue, true, activeSelector);
 
     // Make click twice if datepicker is still visible
-    if (frontEndInstructions.datePickerRequiresManualClick() && !seleniumModel.getDriver().findElements(activeSelector).isEmpty()) {
+    if (frontEndInstructions.datePickerRequiresManualClick() && getBrowser().exists(locator(activeSelector))) {
         clickSelector(activeSelector);
     }
     // Wait for not visible
@@ -753,7 +807,7 @@ public class SeleniumUtilities implements IAweInstructions {
     clickDateFromSelector(parentSelector);
 
     // Wait until datepicker is visible
-    waitUntil(visibilityOfElementLocated(frontEndInstructions.getDatepicker()));
+    waitUntil(toBeVisible(frontEndInstructions.getDatepicker()));
 
     // Click on selector
     click(frontEndInstructions.getCellFromDatepicker(type, search));
@@ -769,7 +823,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void clickSelector(By selector) {
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Move mouse before clicking on selector
     moveMouse();
@@ -792,8 +846,8 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @return Condition for loader visibility
    */
-  private ExpectedCondition<Boolean> checkIfLoaderIsNotVisible() {
-    return invisibilityOfElementLocated(frontEndInstructions.getLoaderSelector());
+  private BrowserCondition checkIfLoaderIsNotVisible() {
+    return toBeInvisible(frontEndInstructions.getLoaderSelector());
   }
 
   /**
@@ -801,8 +855,8 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @return Condition for grid visibility
    */
-  private ExpectedCondition<Boolean> checkIfGridLoaderIsNotVisible() {
-    return invisibilityOfElementLocated(frontEndInstructions.getGridLoaderSelector());
+  private BrowserCondition checkIfGridLoaderIsNotVisible() {
+    return toBeInvisible(frontEndInstructions.getGridLoaderSelector());
   }
 
   /**
@@ -812,7 +866,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void clickRowFromSelector(By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Click button
     click(selector);
@@ -825,7 +879,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void editRowFromSelector(String gridId, By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Depending on behavior, do click or double click
     switch (frontEndInstructions.getRowEditBehavior()) {
@@ -861,7 +915,7 @@ public class SeleniumUtilities implements IAweInstructions {
 
     for (int attempt = 1; attempt <= EDIT_ROW_ATTEMPTS; attempt++) {
       // The cell has been replaced by its editor when the edition started after the last attempt
-      if (attempt > 1 && getElements(selector).isEmpty()) {
+      if (attempt > 1 && !getBrowser().exists(locator(selector))) {
         return;
       }
       doubleClick(selector);
@@ -881,9 +935,8 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private String getRowIdOfCell(By selector, By rowOfCell) {
     try {
-      WebElement row = getElement(selector).findElement(rowOfCell);
-      return row == null ? null : row.getAttribute("row-id");
-    } catch (WebDriverException exc) {
+      return getBrowser().attribute(locator(selector), locator(rowOfCell), "row-id");
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
       log.debug("Could not identify the row of the cell", exc);
       return null;
     }
@@ -903,9 +956,9 @@ public class SeleniumUtilities implements IAweInstructions {
     }
     Duration timeout = properties.getTimeout().compareTo(EDIT_ROW_WAIT) < 0 ? properties.getTimeout() : EDIT_ROW_WAIT;
     try {
-      new WebDriverWait(seleniumModel.getDriver(), timeout).until(driver -> !driver.findElements(editingRow).isEmpty());
+      BrowserPoll.until(getBrowser(), toBePresent(editingRow), timeout);
       return true;
-    } catch (TimeoutException exc) {
+    } catch (BrowserPoll.PollTimeoutException exc) {
       return false;
     }
   }
@@ -922,7 +975,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selected = frontEndInstructions.findGridSelectedRow(gridId, search);
     if (selected != null) {
       waitUntil(checkIfGridLoaderIsNotVisible());
-      if (!seleniumModel.getDriver().findElements(selected).isEmpty()) {
+      if (getBrowser().exists(locator(selected))) {
         return;
       }
     }
@@ -946,7 +999,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void contextMenuFromSelector(By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Click button
     contextMenu(selector);
@@ -959,7 +1012,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void waitForSelector(By selector) {
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Move mouse again
     moveMouse();
@@ -1025,13 +1078,13 @@ public class SeleniumUtilities implements IAweInstructions {
     writeTextFromSelector(selector, text, clearText);
 
     // Click on click selector
-    waitUntil(elementToBeClickable(clickSelector));
+    waitUntil(toBeClickable(clickSelector));
     clickSelector(clickSelector);
   }
 
   private void writeTextFromSelector(By selector, CharSequence text, boolean clearText) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Clear previous text
     if (clearText) {
@@ -1052,10 +1105,10 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCriterionInput(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Get selector text
-    return getElement(selector).getAttribute("value");
+    return getBrowser().attribute(locator(selector), "value");
   }
 
   /**
@@ -1067,7 +1120,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCheckbox(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click on checkbox
     click(selector);
@@ -1083,16 +1136,16 @@ public class SeleniumUtilities implements IAweInstructions {
     By loaderSelector = frontEndInstructions.getSuggestLoader(parentSelector);
 
     // Wait for loader
-    waitUntil(invisibilityOfElementLocated(loaderSelector));
+    waitUntil(toBeInvisible(loaderSelector));
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Triple click selector
     click(selector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(frontEndInstructions.getSuggestDropdownList()));
+    waitUntil(toBePresent(frontEndInstructions.getSuggestDropdownList()));
   }
 
   /**
@@ -1105,16 +1158,16 @@ public class SeleniumUtilities implements IAweInstructions {
     By loaderSelector = frontEndInstructions.getSelectLoader(parentSelector);
 
     // Wait for loader
-    waitUntil(invisibilityOfElementLocated(loaderSelector));
+    waitUntil(toBeInvisible(loaderSelector));
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click selector
     click(selector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(frontEndInstructions.getSelectDropdownList()));
+    waitUntil(toBePresent(frontEndInstructions.getSelectDropdownList()));
   }
 
   /**
@@ -1175,7 +1228,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By suggestDropdownListInput = frontEndInstructions.getSuggest(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(suggestDropdownListInput));
+    waitUntil(toBePresent(suggestDropdownListInput));
 
     // Write text
     if (isWritable(frontEndInstructions.getSuggestInput(parentSelector))) {
@@ -1207,7 +1260,7 @@ public class SeleniumUtilities implements IAweInstructions {
     suggestClick(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(suggestDropdownListInput));
+    waitUntil(toBePresent(suggestDropdownListInput));
 
     // Write username
     sendKeys(suggestDropdownListInput, search);
@@ -1216,7 +1269,7 @@ public class SeleniumUtilities implements IAweInstructions {
     waitForLoadingBar();
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -1240,13 +1293,13 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait for element present. A panel based multiple choice shows its search box only once the panel is open
     if (!panelBased) {
-      waitUntil(presenceOfElementLocated(searchBox));
+      waitUntil(toBePresent(searchBox));
     }
 
     // Clear selector
     if (clear) {
       By clearSelector = frontEndInstructions.getSuggestMultipleChoiceClose(parentSelector);
-      while (!getElements(clearSelector).isEmpty() && safecheck < RETRY_COUNT) {
+      while (getBrowser().exists(locator(clearSelector)) && safecheck < RETRY_COUNT) {
         click(clearSelector);
         safecheck++;
       }
@@ -1254,11 +1307,11 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Open the panel when the search box lives inside it (a multiple select). A multiple suggest keeps its search box in
     // the criterion, so nothing is opened and the panel steps below are skipped
-    boolean openedPanel = panelBased && getElements(searchBox).isEmpty();
+    boolean openedPanel = panelBased && !getBrowser().exists(locator(searchBox));
     if (openedPanel) {
       selectClick(parentSelector);
     }
-    waitUntil(presenceOfElementLocated(searchBox));
+    waitUntil(toBePresent(searchBox));
 
     // Write search text (the panel keeps the text of the previous search)
     if (openedPanel) {
@@ -1279,7 +1332,7 @@ public class SeleniumUtilities implements IAweInstructions {
     if (openedPanel) {
       new Actions(seleniumModel.getDriver()).sendKeys(Keys.ESCAPE).perform();
       // The panel leaves with an exit animation: the next item must find it closed, or it would take it for an open one
-      waitUntil(invisibilityOfElementLocated(searchBox));
+      waitUntil(toBeInvisible(searchBox));
     }
   }
 
@@ -1290,7 +1343,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void saveRowFromSelector(By selector) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -1303,7 +1356,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkText(By selector, String text) {
-    String nodeText = getElement(selector).getText();
+    String nodeText = getBrowser().text(locator(selector));
     String message = selector.toString() + TEXT_VALUE + nodeText + "' isn't equal to " + text;
 
     // Assert element is not located
@@ -1317,7 +1370,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextContains(By selector, String text) {
-    String nodeText = getElement(selector).getText();
+    String nodeText = getBrowser().text(locator(selector));
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
@@ -1331,7 +1384,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextMultipleContains(By selector, String text) {
-    List<String> nodeValues = getElements(selector).stream().map(WebElement::getText).collect(Collectors.toList());
+    List<String> nodeValues = getBrowser().texts(locator(selector));
     String message = selector.toString() + " list doesn't contain " + text;
 
     // Assert element is not located
@@ -1345,7 +1398,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextNotContains(By selector, String text) {
-    String nodeText = getElement(selector).getText();
+    String nodeText = getBrowser().text(locator(selector));
     String message = selector.toString() + TEXT_VALUE + nodeText + "' contains " + text;
 
     // Assert element is not located
@@ -1360,14 +1413,15 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void checkCriterionContains(By selector, String text) {
     // An asynchronous action may still be changing the value: wait for it, then assert (with evidence) what is shown
+    Locator input = locator(selector);
     try {
-      new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout())
-        .until(driver -> String.valueOf(driver.findElement(selector).getAttribute("value")).contains(text));
+      BrowserPoll.until(getBrowser(), BrowserCondition.of("the value of " + input + " to contain '" + text + "'",
+        browser -> String.valueOf(browser.attribute(input, "value")).contains(text)), properties.getTimeout());
     } catch (Exception exc) {
       log.debug("The value of {} does not contain '{}' yet", selector, text);
     }
 
-    String nodeText = getElement(selector).getAttribute("value");
+    String nodeText = getBrowser().attribute(input, "value");
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
@@ -1401,7 +1455,7 @@ public class SeleniumUtilities implements IAweInstructions {
     int optionNumber = 1;
     for (String option : menuOptions) {
       // Wait for text in selector
-      waitUntil(visibilityOfElementLocated(frontEndInstructions.getMenuOption(option)));
+      waitUntil(toBeVisible(frontEndInstructions.getMenuOption(option)));
 
       switch (frontEndInstructions.getMenuBehavior()) {
         case CLICK_ALL:
@@ -1435,10 +1489,10 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void waitForMenuOption(String option) {
     By activeOption = frontEndInstructions.getMenuActiveOption(option);
     if (activeOption != null) {
-      waitUntil(visibilityOfElementLocated(activeOption));
+      waitUntil(toBeVisible(activeOption));
     } else {
       // Wait for element not visible
-      waitUntil(invisibilityOfElementLocated(frontEndInstructions.getMenuDropdown()));
+      waitUntil(toBeInvisible(frontEndInstructions.getMenuDropdown()));
     }
   }
 
@@ -1462,9 +1516,9 @@ public class SeleniumUtilities implements IAweInstructions {
 
   private void clickAllOptions(int optionNumber, String option, String[] options) {
     // If it is not the last option, check if it is already opened
-    List<WebElement> openedChildren = getElements(frontEndInstructions.getMenuOpenedChildren(option));
+    boolean hasOpenedChildren = getBrowser().exists(locator(frontEndInstructions.getMenuOpenedChildren(option)));
 
-    if (optionNumber == options.length || openedChildren.isEmpty()) {
+    if (optionNumber == options.length || !hasOpenedChildren) {
       // Click on screen
       click(frontEndInstructions.getMenuOption(option));
     }
@@ -1489,7 +1543,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Wait for loading bar to hide
    */
   protected void waitForLoadingBar() {
-    waitUntil(invisibilityOfElementLocated(frontEndInstructions.getLoadingBar()));
+    waitUntil(toBeInvisible(frontEndInstructions.getLoadingBar()));
   }
 
   /**
@@ -1544,7 +1598,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.containsText(clazz, contains);
 
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
   }
 
   /**
@@ -1555,7 +1609,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void waitForText(By selector, String contains) {
     // Wait for element visible
-    waitUntil(textToBePresentInElementLocated(selector, contains));
+    waitUntil(toContainText(selector, contains));
   }
 
   /**
@@ -1566,7 +1620,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void waitForValue(By selector, String contains) {
     // Wait for element visible
-    waitUntil(textToBePresentInElementValue(selector, contains));
+    waitUntil(toContainValue(selector, contains));
   }
 
   /**
@@ -1577,7 +1631,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void waitForEmptyText(By selector, String text) {
     // Wait for element visible
-    waitUntil(not(textToBePresentInElementValue(selector, text)));
+    waitUntil(BrowserCondition.not(toContainValue(selector, text)));
   }
 
   /**
@@ -1673,12 +1727,12 @@ public class SeleniumUtilities implements IAweInstructions {
     By tabSelector = frontEndInstructions.getTab(tabName, tabLabel);
 
     // If tab is visible, click on tab
-    if (getDriver().findElement(tabSelector).isDisplayed()) {
+    if (getBrowser().isVisible(locator(tabSelector))) {
       // Tab selector
       clickSelector(tabSelector);
 
       // Wait for tab active
-      waitUntil(visibilityOfElementLocated(frontEndInstructions.getTabActive(tabName, tabLabel)));
+      waitUntil(toBeVisible(frontEndInstructions.getTabActive(tabName, tabLabel)));
     } else {
       // If not visible, click on tab menu, wait for dropdown and click on dropdown option
       clickSelector(frontEndInstructions.getTabMenu(tabName));
@@ -1687,7 +1741,7 @@ public class SeleniumUtilities implements IAweInstructions {
       clickSelector(frontEndInstructions.getTabMenuDropdownOption(tabName, tabLabel));
 
       // Wait for dropdown not visible
-      waitUntil(invisibilityOfElementLocated(frontEndInstructions.getTabMenuDropdown(tabName)));
+      waitUntil(toBeInvisible(frontEndInstructions.getTabMenuDropdown(tabName)));
     }
   }
 
@@ -1709,7 +1763,7 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void clickTreeButton(String gridId, String rowId) {
 
     // Wait until visible
-    waitUntil(visibilityOfElementLocated(frontEndInstructions.getTreeButton(gridId, rowId)));
+    waitUntil(toBeVisible(frontEndInstructions.getTreeButton(gridId, rowId)));
 
     // Click on tree button
     clickSelector(frontEndInstructions.getTreeButton(gridId, rowId));
@@ -1930,7 +1984,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCheckboxOption(criterionName, optionId);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click on the option
     click(selector);
@@ -2077,7 +2131,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeTextOnDriver(By selector, CharSequence... text) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Write text
     getElement(selector).sendKeys(text);
@@ -2091,7 +2145,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeText(By selector, CharSequence text) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Write text
     sendKeys(selector, text);
@@ -2116,7 +2170,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeText(String criterionName, CharSequence text, boolean clearText) {
     By criterionSelector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
-    waitUntil(visibilityOfElementLocated(criterionSelector));
+    waitUntil(toBeVisible(criterionSelector));
     writeTextFromSelector(criterionSelector, text, clearText);
     moveMouseOutOfCriterion();
   }
@@ -2312,7 +2366,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = By.cssSelector(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click on checkbox
     click(selector);
@@ -2328,7 +2382,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSelectResult(match);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -2343,7 +2397,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSuggestResult(match);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -2605,7 +2659,7 @@ public class SeleniumUtilities implements IAweInstructions {
     clickButton("confirm-accept");
 
     // Wait for element not present
-    waitUntil(invisibilityOfElementLocated(By.id("confirm-accept")));
+    waitUntil(toBeInvisible(By.id("confirm-accept")));
   }
 
   /**
@@ -2617,13 +2671,13 @@ public class SeleniumUtilities implements IAweInstructions {
     By messageSelector = frontEndInstructions.getMessage(messageType);
 
     // Wait for message selector
-    waitUntil(elementToBeClickable(messageSelector));
+    waitUntil(toBeClickable(messageSelector));
 
     // Click on message selector
     click(messageSelector);
 
     // Wait for element not present
-    waitUntil(invisibilityOfElementLocated(messageSelector));
+    waitUntil(toBeInvisible(messageSelector));
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -2641,12 +2695,17 @@ public class SeleniumUtilities implements IAweInstructions {
 
     for (int closed = 0; closed < count; closed++) {
       // Wait for a message to close
-      waitUntil(elementToBeClickable(messageSelector));
-      WebElement message = getElement(messageSelector);
+      waitUntil(toBeClickable(messageSelector));
+      Locator messages = locator(messageSelector);
+      List<ElementRef> shown = getBrowser().elements(messages);
+      if (shown.isEmpty()) {
+        throw new ElementNotFoundException(messages, null);
+      }
+      ElementRef message = shown.get(0);
 
       // Close it and wait for it to leave (the client may show the next message of the stack in its place)
       click(messageSelector);
-      waitUntil(driver -> !getElements(messageSelector).contains(message));
+      waitUntil(BrowserCondition.of("message " + messages + " to leave the page", browser -> !browser.elements(messages).contains(message)));
     }
   }
 
@@ -2728,7 +2787,7 @@ public class SeleniumUtilities implements IAweInstructions {
       By selector = frontEndInstructions.findGridCell(gridId, search);
 
       // Wait for element visible
-      waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+      waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
       // Check text
       checkTextContains(selector, search);
@@ -2747,7 +2806,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getGridCellText(gridId, rowId, columnId, search);
 
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Check text
     checkTextContains(selector, search);
@@ -2761,10 +2820,10 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkRowNotContains(String search) {
     By selector = frontEndInstructions.findGridCell(null, search);
 
-    ExpectedCondition<Boolean> condition = and(invisibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible());
+    BrowserCondition condition = BrowserCondition.allOf(toBeInvisible(selector), checkIfGridLoaderIsNotVisible());
 
     // Assert element is not located
-    assertWithScreenshot(condition.toString(), condition.apply(seleniumModel.getDriver()));
+    assertWithScreenshot(condition.toString(), condition.isMet(getBrowser()));
   }
 
   /**
@@ -2777,7 +2836,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
 
     // Wait for element visible
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Check text
     checkCriterionContains(selector, search);
@@ -2792,7 +2851,7 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkCheckboxRadio(boolean isChecked, String... criteriaNames) {
     // Wait for element visible
     Arrays.stream(criteriaNames)
-      .forEach(criterionName -> waitUntil(presenceOfElementLocated(frontEndInstructions.getCheckboxChecked(criterionName, isChecked))));
+      .forEach(criterionName -> waitUntil(toBePresent(frontEndInstructions.getCheckboxChecked(criterionName, isChecked))));
   }
 
   /**
@@ -2805,7 +2864,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSelectChosen(criterionName);
 
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Check text
     checkTextContains(selector, search);
@@ -2821,9 +2880,9 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSuggestChosen(criterionName);
 
     // Wait for element visible
-    waitUntil(and(
-      visibilityOfElementLocated(selector),
-      invisibilityOfElementLocated(frontEndInstructions.getSuggestLoader(frontEndInstructions.getCriterionCss(criterionName)))));
+    waitUntil(BrowserCondition.allOf(
+      toBeVisible(selector),
+      toBeInvisible(frontEndInstructions.getSuggestLoader(frontEndInstructions.getCriterionCss(criterionName)))));
 
     switch (frontEndInstructions.getSuggestBehavior()) {
       case TEXT:
@@ -2849,7 +2908,7 @@ public class SeleniumUtilities implements IAweInstructions {
     selectClick(frontEndInstructions.getCriterionCss(criterionName));
 
     // Assert element is not located
-    assertWithScreenshot("Number of elements doesn't match", number == getElements(frontEndInstructions.getSelectDropdownListElements()).size());
+    assertWithScreenshot("Number of elements doesn't match", number == getBrowser().count(locator(frontEndInstructions.getSelectDropdownListElements())));
   }
 
   /**
@@ -2862,7 +2921,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSelectMultipleTextContainer(criterionName);
 
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Check text
     checkTextMultipleContains(selector, search);
@@ -2878,10 +2937,10 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait 1 second
     pause(1000);
-    List<WebElement> messages = getElements(messageSelector);
+    int messages = getBrowser().count(locator(messageSelector));
 
     // Check there are no messages of messageType
-    assertEquals(0, messages.size());
+    assertEquals(0, messages);
   }
 
   /**
@@ -2893,7 +2952,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = By.cssSelector(cssSelector);
 
     // Wait until visible
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
   }
 
   /**
@@ -2912,7 +2971,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkVisible(By selector) {
     // Wait until visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
   }
 
   /**
@@ -2945,7 +3004,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkNotVisible(By selector) {
     // Wait until visible
-    waitUntil(invisibilityOfElementLocated(selector));
+    waitUntil(toBeInvisible(selector));
   }
 
   /**
@@ -3381,7 +3440,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param gridId Grid identifier
    */
   protected void checkGridPresent(String gridId) {
-    waitUntil(presenceOfElementLocated(frontEndInstructions.getGrid(gridId)));
+    waitUntil(toBePresent(frontEndInstructions.getGrid(gridId)));
   }
 
   /**
@@ -3399,7 +3458,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param gridId Grid identifier
    */
   protected void checkAllRowsSelected(String gridId) {
-    waitUntil(presenceOfElementLocated(frontEndInstructions.getGridHeaderCheckboxSelected(gridId)));
+    waitUntil(toBePresent(frontEndInstructions.getGridHeaderCheckboxSelected(gridId)));
   }
 
   /**
@@ -3419,18 +3478,19 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkGridPageSize(String size) {
     By selector = frontEndInstructions.getGridPageSize();
     waitForSelector(selector);
-    WebElement pageSize = getElement(selector);
+    BrowserDriver browser = getBrowser();
+    Locator pageSize = locator(selector);
 
     // A native selector shows all its options: the page size is the selected one. A control whose text repeats the
     // page size (a dropdown holds a hidden selector too) exposes it as a value
-    String value = pageSize.getAttribute(TestAttributes.VALUE);
+    String value = browser.attribute(pageSize, TestAttributes.VALUE);
     String shown;
     if (value != null && !value.isEmpty()) {
       shown = value;
-    } else if ("select".equalsIgnoreCase(pageSize.getTagName())) {
-      shown = new Select(pageSize).getFirstSelectedOption().getText();
+    } else if ("select".equalsIgnoreCase(browser.tagName(pageSize))) {
+      shown = browser.selectedOptionText(pageSize);
     } else {
-      shown = pageSize.getText();
+      shown = browser.text(pageSize);
     }
     assertWithScreenshot(selector + TEXT_VALUE + shown + "' isn't equal to " + size, shown.equals(size));
   }
@@ -3605,7 +3665,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void delayedSearch(By searchBox, String search1, String search2, String match, Integer pause) {
     // Write text
-    waitUntil(presenceOfElementLocated(searchBox));
+    waitUntil(toBePresent(searchBox));
     scrollToTheCenter(searchBox);
     writeText(searchBox, search1);
 
