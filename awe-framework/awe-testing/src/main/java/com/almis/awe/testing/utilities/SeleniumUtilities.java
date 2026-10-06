@@ -6,6 +6,7 @@ import com.almis.awe.testing.driver.BrowserDriver;
 import com.almis.awe.testing.driver.ElementNotFoundException;
 import com.almis.awe.testing.driver.ElementRef;
 import com.almis.awe.testing.driver.ElementReplacedException;
+import com.almis.awe.testing.driver.Key;
 import com.almis.awe.testing.driver.Locator;
 import com.almis.awe.testing.extensions.FailureEvidence;
 import com.almis.awe.testing.extensions.SeleniumExtension;
@@ -17,11 +18,6 @@ import com.almis.awe.testing.selenium.TestAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.interactions.Interactive;
-import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
-import org.openqa.selenium.interactions.PointerInput;
-import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -496,21 +491,10 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to type
    */
   private void sendKeys(By selector, CharSequence... text) {
-    String conditionMessage = "";
     try {
-      WebElement element = getElement(selector);
-      // The Actions API does not scroll: Firefox refuses to move to an element outside the viewport
-      // (e.g. the row just added at the bottom of a long grid), Chrome scrolls on its own
-      ((JavascriptExecutor) seleniumModel.getDriver()).executeScript("arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest'});", element);
-      new Actions(seleniumModel.getDriver())
-        .sendKeys(element, text)
-        .pause(200)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+      getBrowser().type(locator(selector), text.length == 1 ? text[0] : String.join("", text));
     } catch (Exception exc) {
-      assertWithScreenshot("Sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Sending keys to element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -523,15 +507,11 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Search box selector
    */
   private void scrollToTheCenter(By selector) {
-    WebDriver driver = seleniumModel.getDriver();
-    if (driver instanceof JavascriptExecutor) {
-      try {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});",
-          getElement(selector));
-      } catch (Exception exc) {
-        // Typing in it scrolls it into view
-        log.debug("Could not scroll the search box to the center", exc);
-      }
+    try {
+      getBrowser().scrollToCenter(locator(selector));
+    } catch (Exception exc) {
+      // Typing in it scrolls it into view
+      log.debug("Could not scroll the search box to the center", exc);
     }
   }
 
@@ -541,166 +521,54 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Criterion selector
    */
   private void clearText(By selector) {
-    String textToClear = getElement(selector).getAttribute("value");
-    if (!textToClear.isEmpty()) {
-      getElement(selector).clear();
-      getElement(selector).sendKeys(IntStream
-        .range(-1, textToClear.length())
-        .mapToObj(t -> Keys.BACK_SPACE)
-        .toArray(CharSequence[]::new));
+    String textToClear = getBrowser().attribute(locator(selector), "value");
+    if (textToClear != null && !textToClear.isEmpty()) {
+      getBrowser().clear(locator(selector));
       waitForEmptyText(selector, textToClear);
     }
   }
 
   /**
-   * Click on an element
+   * Move over an element once it is displayed
    *
    * @param selector Element selector
    */
   private void moveTo(By selector) {
-    moveTo(getElement(selector));
-  }
+    // Wait until element is displayed
+    waitUntil(toBeVisible(selector));
 
-  /**
-   * Move to an element
-   *
-   * @param element Element
-   */
-  private void moveTo(WebElement element) {
-    String conditionMessage = "";
-    // Wait until element is clickable
-    waitUntil(visibilityOf(element));
-
-    // Click on element
     try {
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .pause(100)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+      getBrowser().hover(locator(selector));
     } catch (Exception exc) {
-      assertWithScreenshot("Moving over element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Moving over element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
   /**
    * Click on an element. A client may replace the element between finding and clicking it (a list that is filtered
-   * while the text is typed), so a replaced element is looked up again before giving up. Chrome reports it as stale,
-   * but Firefox, when the action is already running, finds no box for the detached element and reports that its
-   * origin is not displayed
+   * while the text is typed), so a replaced element is looked up again before giving up. The driver reports it as
+   * replaced whether the browser says that it is stale (Chrome) or, when the action is already running, that its origin
+   * is not displayed (Firefox)
    *
    * @param selector Element selector
    */
   private void click(By selector) {
-    WebDriverException staleException = null;
+    ElementReplacedException replacedException = null;
     for (int attempt = 0; attempt < STALE_RETRY_COUNT; attempt++) {
       // Wait until element is clickable (the selector is resolved again on every check)
       waitUntil(toBeClickable(selector));
-      WebElement element = getElement(selector);
       try {
-        performClick(element);
+        getBrowser().click(locator(selector));
         return;
-      } catch (StaleElementReferenceException | MoveTargetOutOfBoundsException exc) {
-        staleException = exc;
+      } catch (ElementReplacedException exc) {
+        replacedException = exc;
         log.debug("The element to click was replaced, looking for it again: {}", selector);
       } catch (Exception exc) {
-        assertWithScreenshot("Clicking on element: " + element + "\n" + exc.getMessage(), false, exc);
+        assertWithScreenshot("Clicking on element: " + selector + "\n" + exc.getMessage(), false, exc);
         return;
       }
     }
-    assertWithScreenshot("Clicking on element: " + selector + "\n" + staleException.getMessage(), false, staleException);
-  }
-
-  /**
-   * Click on an element
-   *
-   * @param element Element
-   */
-  private void click(WebElement element) {
-    // Wait until element is clickable
-    waitUntil(elementToBeClickable(element));
-
-    // Click on element
-    try {
-      performClick(element);
-    } catch (Exception exc) {
-      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
-    }
-  }
-
-  /**
-   * A click on an element placed on the last pixels of the viewport is lost by the browser (an update button at the
-   * bottom of a screen did nothing), so the elements close to an edge are brought to the center before clicking them
-   *
-   * @param element Element
-   */
-  private void scrollAwayFromTheViewportEdge(WebElement element) {
-    WebDriver driver = seleniumModel.getDriver();
-    if (driver instanceof JavascriptExecutor) {
-      try {
-        ((JavascriptExecutor) driver).executeScript(
-          // An element inside a list with its own scroll (the options of a select) is first shown inside that list, or
-          // a click on it would reach what lies below the list (Firefox does not scroll the list on its own)
-          "arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest'});"
-            + "var rect = arguments[0].getBoundingClientRect();"
-            + "if (rect.top < 60 || rect.bottom > window.innerHeight - 60) {"
-            + "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});}", element);
-      } catch (Exception exc) {
-        // The click itself scrolls the element into view
-        log.debug("Could not scroll the element away from the viewport edge", exc);
-      }
-    }
-  }
-
-  /**
-   * Move to an element and click on it
-   *
-   * @param element Element
-   */
-  private void performClick(WebElement element) {
-    scrollAwayFromTheViewportEdge(element);
-    new Actions(seleniumModel.getDriver())
-      .moveToElement(element)
-      .click(element)
-      .pause(100)
-      .perform();
-  }
-
-  /**
-   * An element can be inside the viewport but clipped by a container with its own scroll (a cell of a grid wider than
-   * its container, scrolled by the client), where the pointer reaches what lies over the container instead (the menu)
-   *
-   * @param element Element
-   */
-  private void scrollIntoItsContainer(WebElement element) {
-    WebDriver driver = seleniumModel.getDriver();
-    if (driver instanceof JavascriptExecutor) {
-      try {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'nearest', inline: 'nearest', behavior: 'instant'});", element);
-      } catch (Exception exc) {
-        // The action itself scrolls the element into view when it is outside the viewport
-        log.debug("Could not scroll the element into its container", exc);
-      }
-    }
-  }
-
-  /**
-   * Put the pointer over an element in one jump, instead of travelling to it. The pointer of an action travels from
-   * where it was (Firefox moves it step by step), over whatever lies on the way
-   *
-   * @param element Element
-   */
-  private void hoverInstantly(WebElement element) {
-    WebDriver driver = seleniumModel.getDriver();
-    if (driver instanceof Interactive interactive) {
-      PointerInput mouse = new PointerInput(PointerInput.Kind.MOUSE, "default mouse");
-      interactive.perform(List.of(new Sequence(mouse, 0)
-        .addAction(mouse.createPointerMove(Duration.ZERO, PointerInput.Origin.fromElement(element), 0, 0))));
-    } else {
-      new Actions(driver).moveToElement(element).build().perform();
-    }
+    assertWithScreenshot("Clicking on element: " + selector + "\n" + replacedException.getMessage(), false, replacedException);
   }
 
   /**
@@ -709,35 +577,13 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Element selector
    */
   private void doubleClick(By selector) {
-    doubleClick(getElement(selector));
-  }
-
-  /**
-   * Double click on an element
-   *
-   * @param element Element
-   */
-  private void doubleClick(WebElement element) {
-    String conditionMessage = "";
     // Wait until element is clickable
-    waitUntil(elementToBeClickable(element));
+    waitUntil(toBeClickable(selector));
 
-    // Click on element
     try {
-      scrollIntoItsContainer(element);
-      // The pointer goes to the element once: a click on the element finds it again for each one, and on a loaded
-      // machine the clicks end up farther apart than the double click interval of the browser, which then takes them as
-      // two single clicks
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .doubleClick()
-        .pause(100)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+      getBrowser().doubleClick(locator(selector));
     } catch (Exception exc) {
-      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Clicking on element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -747,23 +593,13 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Element selector
    */
   private void contextMenu(By selector) {
-    String conditionMessage = "";
-
     // Wait until element is clickable
     waitUntil(toBeClickable(selector));
 
-    // Click on element
     try {
-      WebElement element = getElement(selector);
-      scrollIntoItsContainer(element);
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .contextClick(element)
-        .pause(100)
-        .perform();
-      assertTrue(true, conditionMessage);
+      getBrowser().contextClick(locator(selector));
     } catch (Exception exc) {
-      assertWithScreenshot("Right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Right clicking on element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -1022,23 +858,16 @@ public class SeleniumUtilities implements IAweInstructions {
    * Move mouse to avoid help popovers
    */
   private void moveMouse() {
-    By popoverSelector = frontEndInstructions.getPopover();
     try {
+      Locator popover = locator(frontEndInstructions.getPopover());
       // Safecheck
       int safecheck = 0;
 
       // Move mouse while help is being displayed
-      List<WebElement> popovers = getElements(popoverSelector);
-      while (!popovers.isEmpty() && safecheck < RETRY_COUNT) {
-        new Actions(seleniumModel.getDriver())
-          .pause(100)
-          .moveToElement(popovers.get(0))
-          .moveByOffset(0, 30)
-          .pause(100)
-          .build()
-          .perform();
-
-        popovers = getElements(popoverSelector);
+      while (getBrowser().exists(popover) && safecheck < RETRY_COUNT) {
+        getBrowser().pause(Duration.ofMillis(100));
+        getBrowser().hover(popover);
+        getBrowser().moveMouseBy(0, 30);
         safecheck++;
       }
     } catch (Exception exc) {
@@ -1053,12 +882,8 @@ public class SeleniumUtilities implements IAweInstructions {
   private void moveMouseOutOfCriterion() {
     try {
       // Move mouse out of criterion (up)
-      new Actions(seleniumModel.getDriver())
-        .moveByOffset(0, -30)
-        .click()
-        .pause(100)
-        .build()
-        .perform();
+      getBrowser().moveMouseBy(0, -30);
+      getBrowser().clickAtPointer();
     } catch (Exception exc) {
       // Assert error moving mouse
       assertWithScreenshot("Moving mouse after criterion: " + exc.getMessage(), true);
@@ -1330,7 +1155,7 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // The panel this step opened stays open after choosing: close it so it does not cover the next steps
     if (openedPanel) {
-      new Actions(seleniumModel.getDriver()).sendKeys(Keys.ESCAPE).perform();
+      getBrowser().press(Key.ESCAPE);
       // The panel leaves with an exit animation: the next item must find it closed, or it would take it for an open one
       waitUntil(toBeInvisible(searchBox));
     }
@@ -1640,10 +1465,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param time Milliseconds
    */
   protected void pause(Integer time) {
-    new Actions(seleniumModel.getDriver())
-      .pause(time)
-      .build()
-      .perform();
+    getBrowser().pause(Duration.ofMillis(time));
   }
 
   /**
@@ -1703,7 +1525,7 @@ public class SeleniumUtilities implements IAweInstructions {
 
       // Mouse over context button. The pointer jumps: a pointer that travels from an option to its nested option
       // (Firefox moves it step by step) crosses the options that lie between them and the menu closes the nested ones
-      hoverInstantly(seleniumModel.getDriver().findElement(contextButtonSelector));
+      getBrowser().hoverInstantly(locator(contextButtonSelector));
     }
 
     // Click on last option
@@ -2605,17 +2427,14 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param vertical   Vertical scroll in pixels
    */
   protected void scrollGrid(String gridId, int horizontal, int vertical) {
-    JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
-    WebElement grid = seleniumModel.getDriver().findElement(frontEndInstructions.getGridScrollZone(gridId));
-    js.executeScript("arguments[0].scrollTo(arguments[1], arguments[2]);", grid, horizontal, vertical);
+    getBrowser().scrollTo(locator(frontEndInstructions.getGridScrollZone(gridId)), horizontal, vertical);
   }
 
   /**
    * Show mouse
    */
   protected void showMouse() {
-    JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
-    js.executeScript("let seleniumFollowerImg=document.createElement(\"span\");" +
+    getBrowser().executeScript("let seleniumFollowerImg=document.createElement(\"span\");" +
       "seleniumFollowerImg.setAttribute('id', 'selenium_mouse');" +
       "seleniumFollowerImg.setAttribute('style', 'position: absolute; z-index: 99999999999; pointer-events: none; transition: all .1s ease, text-shadow .1s linear; -moz-transition: all .01s linear, text-shadow .1s linear; color: white;-webkit-text-stroke-width: 2px;-webkit-text-stroke-color: #000;');" +
       // Visual aid for recordings: the pointer icon is injected, it is not a locator and no test looks for it
@@ -3573,7 +3392,7 @@ public class SeleniumUtilities implements IAweInstructions {
     if (mask != null) {
       click(mask);
     } else {
-      new Actions(seleniumModel.getDriver()).sendKeys(Keys.ESCAPE).perform();
+      getBrowser().press(Key.ESCAPE);
     }
   }
 
