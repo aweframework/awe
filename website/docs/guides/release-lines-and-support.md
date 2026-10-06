@@ -60,7 +60,8 @@ configuration (`develop`, `master` and merge requests into them): a failing suit
 pipeline, stops `Launch Sonar` (and with it the release jobs), and prevents Renovate from
 automerging. Each suite is retried once automatically on a script or runner failure to absorb
 an occasional flaky run; a real regression fails twice, and a timeout is not retried.
-`support/4.x` keeps its own pipeline configuration, where they are still non-blocking.
+`support/4.x` keeps its own pipeline configuration, and its Selenium suites are blocking in the
+same way (one automatic retry, no retry on timeout).
 The same four suites run twice per browser: against the AngularJS test application
 (`awe-tests/awe-boot`, jobs `Firefox IT` and `Chrome IT`) and against the React engine test
 application (`awe-tests/awe-boot-react`, jobs `Firefox IT React` and `Chrome IT React`). Both
