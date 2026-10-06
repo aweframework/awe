@@ -20,7 +20,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -28,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Guard for the migration that unifies the FTP credentials into the external
  * server row.
  *
- * <p>The launcher credential columns are dropped by this migration, so the
- * carry-over is irreversible: every dialect must ship the same migration, and
- * the credentials must reach {@code AweSchSrv} BEFORE the columns disappear.
- * The behaviour assertions run the real migration against HSQLDB.</p>
+ * <p>The launcher credential columns are kept as deprecated, nullable columns:
+ * application migrations that run after the scheduler module on an empty
+ * database still insert launchers with them. Every dialect must ship the same
+ * migration. The behaviour assertions run the real migration against HSQLDB.</p>
  */
 class SchedulerFtpCredentialsMigrationTest {
 
@@ -52,40 +51,32 @@ class SchedulerFtpCredentialsMigrationTest {
   }
 
   /**
-   * Every dialect must carry the credentials over before removing the source
-   * columns, otherwise the data is lost.
+   * Every dialect must carry the launcher credentials over to the server row.
    *
    * @param dialect Dialect folder
    */
   @ParameterizedTest
   @ValueSource(strings = {"h2", "mysql", "postgresql", "oracle", "sqlserver", "hsqldb"})
-  void migrationCarriesCredentialsBeforeDroppingColumns(String dialect) {
+  void migrationCarriesCredentialsOverToServer(String dialect) {
     String content = readStatements(dialect);
 
-    int carryOver = content.indexOf("UPDATE");
-    int firstDrop = content.indexOf("DROP");
-
-    assertTrue(carryOver >= 0, dialect + ": migration must carry the launcher credentials over to the server row");
-    assertTrue(firstDrop >= 0, dialect + ": migration must drop the launcher credential columns");
-    assertTrue(carryOver < firstDrop, dialect + ": credentials must be carried over before the columns are dropped");
+    assertTrue(content.startsWith("UPDATE"), dialect + ": migration must carry the launcher credentials over to the server row");
+    assertTrue(content.contains("AWESCHSRV"), dialect + ": migration must update AweSchSrv");
   }
 
   /**
-   * Both the live launcher table and its audit counterpart must lose the
-   * credential columns — never just one of the two.
+   * No dialect may drop the launcher credential columns: released application
+   * migrations still write them after the scheduler module has run.
    *
    * @param dialect Dialect folder
    */
   @ParameterizedTest
   @ValueSource(strings = {"h2", "mysql", "postgresql", "oracle", "sqlserver", "hsqldb"})
-  void migrationDropsColumnsFromBothLauncherTables(String dialect) {
+  void migrationKeepsLauncherCredentialColumns(String dialect) {
     String content = readStatements(dialect);
-    String afterCarryOver = content.substring(content.indexOf("DROP"));
 
-    assertTrue(afterCarryOver.contains("HISAWESCHTSKLCH"), dialect + ": migration must drop the columns from HISAweSchTskLch");
-    assertTrue(afterCarryOver.contains("AWESCHTSKLCH"), dialect + ": migration must drop the columns from AweSchTskLch");
-    assertTrue(afterCarryOver.contains("SRVUSR"), dialect + ": migration must drop SrvUsr");
-    assertTrue(afterCarryOver.contains("SRVPWD"), dialect + ": migration must drop SrvPwd");
+    assertFalse(content.contains("DROP"), dialect + ": migration must not drop the launcher credential columns");
+    assertFalse(content.contains("ALTER"), dialect + ": migration must not alter the launcher tables");
   }
 
   /**
@@ -209,13 +200,13 @@ class SchedulerFtpCredentialsMigrationTest {
   }
 
   /**
-   * Once the credentials live on the server row, the launcher columns must be
-   * gone so nothing can keep writing to them.
+   * The launcher credential columns survive the migration in both the live and
+   * the audit table, so later application migrations can still write them.
    *
    * @throws SQLException Test error
    */
   @Test
-  void launcherCredentialColumnsAreRemoved() throws SQLException {
+  void launcherCredentialColumnsAreKept() throws SQLException {
     try (Connection connection = memoryDatabase()) {
       createSchema(connection);
       insertServer(connection, 1, "ftp", null, null);
@@ -223,13 +214,11 @@ class SchedulerFtpCredentialsMigrationTest {
 
       runMigration(connection);
 
-      for (String table : new String[]{"AweSchTskLch", "HISAweSchTskLch"}) {
-        for (String column : new String[]{"SrvUsr", "SrvPwd"}) {
-          assertThrows(SQLException.class,
-              () -> query(connection, "SELECT " + column + " FROM " + table),
-              table + "." + column + " must no longer exist");
-        }
-      }
+      insertLauncher(connection, 20, 1, "userB", "pwdB");
+      execute(connection, "INSERT INTO HISAweSchTskLch (HISope, Ide, IdSrv, SrvUsr, SrvPwd) VALUES ('I', 20, 1, 'userB', 'pwdB')");
+      assertEquals("userA", launcherUser(connection, 10));
+      assertEquals("userB", launcherUser(connection, 20));
+      assertEquals("userA", serverUser(connection, 1));
     }
   }
 
@@ -318,9 +307,13 @@ class SchedulerFtpCredentialsMigrationTest {
     }
   }
 
-  private static void query(Connection connection, String sql) throws SQLException {
-    try (Statement statement = connection.createStatement()) {
-      statement.executeQuery(sql);
+  private static String launcherUser(Connection connection, int launcherId) throws SQLException {
+    try (PreparedStatement statement = connection.prepareStatement("SELECT SrvUsr FROM AweSchTskLch WHERE Ide = ?")) {
+      statement.setInt(1, launcherId);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        assertTrue(resultSet.next(), "launcher " + launcherId + " must still exist");
+        return resultSet.getString(1);
+      }
     }
   }
 
