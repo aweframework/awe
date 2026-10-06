@@ -56,6 +56,11 @@ from `develop`/`master`.
 | GitLab Pages (docs site) | yes | yes | no | no |
 | Tag pipeline (Maven Central, milestones, release notes) | on tag | on tag | on tag | no |
 
+The Selenium suites are blocking: a failing suite fails the pipeline and stops `Launch Sonar`
+(and with it the release jobs). Each suite is retried once automatically on a script or runner
+failure to absorb an occasional flaky run; a real regression fails twice, and a timeout is not
+retried.
+
 Tag pipeline jobs are branch-agnostic: they read the version from `$CI_COMMIT_TAG`, so
 they behave the same whether the tag came from `develop` or from `support/4.x`.
 
