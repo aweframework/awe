@@ -29,13 +29,13 @@ import java.util.stream.Stream;
  * <ul>
  *   <li>{@value #RULE_IMPORT}: imports of {@code org.openqa.selenium.*}, {@code TestIds} or {@code TestAttributes}.</li>
  *   <li>{@value #RULE_IDENTIFIER}: use of {@code By}, {@code WebDriver}, {@code WebElement}, {@code JavascriptExecutor},
- *   {@code Actions}, {@code new Select(...)}, {@code getDriver(...)}, {@code executeScript(...)}, {@code TestIds} or
- *   {@code TestAttributes}. Comments and string literals are ignored.</li>
+ *   {@code Actions}, {@code new Select(...)}, {@code getDriver(...)}, {@code executeScript(...)}, {@code Locator},
+ *   {@code getBrowser(...)}, {@code TestIds} or {@code TestAttributes}. Comments and string literals are ignored.</li>
  *   <li>{@value #RULE_SELECTOR}: a string literal that looks like a selector passed as the selector argument of a helper
  *   that takes a raw selector ({@code click}, {@code clearText}, {@code checkText}, {@code checkTextContains},
  *   {@code checkTextNotContains}, {@code checkPresence}, {@code checkVisible}, {@code checkNotVisible},
- *   {@code checkVisibleAndContains}, {@code checkTextInEmbeddedFrame}, {@code waitForCssSelector}, {@code waitForText}
- *   with a class, the four-argument {@code checkLogin} and the two-argument {@code checkLogout}).</li>
+ *   {@code checkVisibleAndContains}, {@code checkTextInEmbeddedFrame}, {@code waitForCssSelector}, {@code waitForCssLocator},
+ *   {@code waitForText} with a class, the four-argument {@code checkLogin} and the two-argument {@code checkLogout}).</li>
  * </ul>
  *
  * <p>The selector heuristic is deliberately simple. Only the <em>selector position</em> of those helpers is inspected
@@ -77,7 +77,7 @@ public final class BrowserTestSourceGuard {
   private static final Map<String, Pattern> FORBIDDEN_IDENTIFIERS = new LinkedHashMap<>();
   private static final Pattern SELECTOR_HELPER = Pattern.compile(
     "(?<![\\w$])(click|clearText|checkText|checkTextContains|checkTextNotContains|checkPresence|checkVisible|checkNotVisible"
-      + "|checkVisibleAndContains|checkTextInEmbeddedFrame|waitForCssSelector|waitForText|checkLogin|checkLogout)\\s*\\(");
+      + "|checkVisibleAndContains|checkTextInEmbeddedFrame|waitForCssSelector|waitForCssLocator|waitForText|checkLogin|checkLogout)\\s*\\(");
   private static final String SELECTOR_CHARACTERS = "[]#.>+~*/:";
 
   static {
@@ -88,6 +88,8 @@ public final class BrowserTestSourceGuard {
     FORBIDDEN_IDENTIFIERS.put("Select", Pattern.compile("\\bnew\\s+Select\\s*\\("));
     FORBIDDEN_IDENTIFIERS.put("Actions", Pattern.compile("\\bActions\\b"));
     FORBIDDEN_IDENTIFIERS.put("getDriver", Pattern.compile("\\bgetDriver\\s*\\("));
+    FORBIDDEN_IDENTIFIERS.put("Locator", Pattern.compile("\\bLocator\\b"));
+    FORBIDDEN_IDENTIFIERS.put("getBrowser", Pattern.compile("\\bgetBrowser\\s*\\("));
     FORBIDDEN_IDENTIFIERS.put("executeScript", Pattern.compile("\\bexecuteScript\\s*\\("));
     FORBIDDEN_IDENTIFIERS.put("TestIds", Pattern.compile("\\bTestIds\\b"));
     FORBIDDEN_IDENTIFIERS.put("TestAttributes", Pattern.compile("\\bTestAttributes\\b"));

@@ -298,8 +298,24 @@ writing a selector in your test. This list is checked by a unit test of `awe-tes
 build fails if a public or protected, non-deprecated method of `SeleniumUtilities` is not mentioned in this guide.
 
 :::note Deprecated steps
-No step is deprecated at this moment. A step that is replaced is marked `@Deprecated` in the source and kept through the
-whole 5.x line (see [API compatibility](#api-compatibility-of-awe-testing)), and its row here says what replaces it.
+A step that is replaced is marked `@Deprecated` in the source and kept through the whole 5.x line, with no removal before
+6.0 (see [API compatibility](#api-compatibility-of-awe-testing)). The steps that take or return a Selenium `By`, and
+`getDriver()`, are deprecated in favour of the same step with a `Locator` (see
+[Custom steps without Selenium types](#custom-steps-without-selenium-types)):
+
+| Deprecated | Use instead |
+|---|---|
+| `waitForText(By selector, String contains)` | `waitForText(Locator selector, String contains)` |
+| `waitForValue(By selector, String contains)` | `waitForValue(Locator selector, String contains)` |
+| `waitForEmptyText(By selector, String text)` | `waitForEmptyText(Locator selector, String text)` |
+| `waitForCssSelector(String cssSelector)` (returns a `By`) | `waitForCssLocator(String cssSelector)` (returns a `Locator`) |
+| `writeText(By selector, CharSequence text)` | `writeText(Locator selector, CharSequence text)` |
+| `writeTextOnDriver(By selector, CharSequence... text)` | `writeTextOnDriver(Locator selector, CharSequence... text)` |
+| `checkVisible(By selector)` | `checkVisible(Locator selector)` |
+| `checkNotVisible(By selector)` | `checkNotVisible(Locator selector)` |
+| `getDriver()` | The steps of this catalogue, or `getBrowser()` with a `Locator` |
+
+Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(String, String)`...) are not deprecated.
 :::
 
 ### Session and navigation
@@ -333,10 +349,14 @@ whole 5.x line (see [API compatibility](#api-compatibility-of-awe-testing)), and
 | `waitForLoadingBar()` | Waits for the loading bar of the page to disappear |
 | `waitForLoadingGrid()` | Waits for the loading of a grid to finish |
 | `waitForText(String clazz, String contains)` | Waits for a text inside the tag with a CSS class. Raw-selector form |
-| `waitForText(By selector, String contains)` | Waits for a text inside a selector. Selenium type: only for helpers of your product |
-| `waitForValue(By selector, String contains)` | Waits until the value of an input contains a text. Selenium type: only for helpers of your product |
-| `waitForEmptyText(By selector, String text)` | Waits until the value of an input no longer contains a text. Selenium type: only for helpers of your product |
-| `waitForCssSelector(String cssSelector)` | Waits for a CSS selector and returns it as a `By`. Raw-selector form |
+| `waitForText(Locator selector, String contains)` | Waits for a text inside a locator. For helpers of your product |
+| `waitForValue(Locator selector, String contains)` | Waits until the value of an input contains a text. For helpers of your product |
+| `waitForEmptyText(Locator selector, String text)` | Waits until the value of an input no longer contains a text. For helpers of your product |
+| `waitForCssLocator(String cssSelector)` | Waits for a CSS selector and returns it as a `Locator`. Raw-selector form |
+| `waitForText(By selector, String contains)` | Deprecated: use `waitForText(Locator, String)` |
+| `waitForValue(By selector, String contains)` | Deprecated: use `waitForValue(Locator, String)` |
+| `waitForEmptyText(By selector, String text)` | Deprecated: use `waitForEmptyText(Locator, String)` |
+| `waitForCssSelector(String cssSelector)` | Deprecated: returns a `By`. Use `waitForCssLocator(String)` |
 | `pause(Integer time)` | Sleeps for a number of milliseconds. Use it only when there is no state to wait for |
 | `showMouse()` | Shows a pointer that follows the real mouse, a visual aid for videos and screenshots |
 
@@ -377,8 +397,10 @@ whole 5.x line (see [API compatibility](#api-compatibility-of-awe-testing)), and
 |---|---|
 | `writeText(String criterionName, CharSequence text)` | Types a text in a criterion, clearing it first |
 | `writeText(String criterionName, CharSequence text, boolean clearText)` | Same, choosing whether to clear the criterion first |
-| `writeText(By selector, CharSequence text)` | Types a text in a selector. Selenium type: only for helpers of your product |
-| `writeTextOnDriver(By selector, CharSequence... text)` | Sends keys to a selector as the driver would. Selenium type: only for helpers of your product |
+| `writeText(Locator selector, CharSequence text)` | Types a text in a locator. For helpers of your product |
+| `writeTextOnDriver(Locator selector, CharSequence... text)` | Sends keys to a locator as the browser would, without scrolling or pausing. For helpers of your product |
+| `writeText(By selector, CharSequence text)` | Deprecated: use `writeText(Locator, CharSequence)` |
+| `writeTextOnDriver(By selector, CharSequence... text)` | Deprecated: use `writeTextOnDriver(Locator, CharSequence...)` |
 | `clearText(String cssSelector)` | Clears the text of the input found by a CSS selector. Raw-selector form |
 | `getText(String criterionName)` | Returns the text of a criterion |
 | `checkCriterionContents(String criterionName, String search)` | Checks the value of a text criterion |
@@ -518,8 +540,8 @@ test classes: see [Keeping browser tests free of selectors](#keeping-browser-tes
 | `checkTextContains(String cssSelector, String text)` | Checks that the text of an element contains a text |
 | `checkTextNotContains(String cssSelector, String text)` | Checks that the text of an element does not contain a text |
 | `checkPresence(String cssSelector)` | Checks that an element is present |
-| `checkVisible(String cssSelector)` | Checks that an element is visible (also with a `By`) |
-| `checkNotVisible(String cssSelector)` | Checks that an element is not visible (also with a `By`) |
+| `checkVisible(String cssSelector)` | Checks that an element is visible (also with a `Locator`; the `By` form is deprecated) |
+| `checkNotVisible(String cssSelector)` | Checks that an element is not visible (also with a `Locator`; the `By` form is deprecated) |
 | `checkVisibleAndContains(String cssSelector, String search)` | Checks that an element is visible and contains a text |
 
 ## API compatibility of `awe-testing`
@@ -674,22 +696,22 @@ or `"false"`, except `data-type`, `data-container`, `data-icon`, `data-value` an
 
 ```java
 // Value of the input of a criterion
-By input = By.cssSelector("[criterion-id='Txt'] [data-testid='criterion-input']");
+Locator input = Locator.css("[criterion-id='Txt'] [data-testid='criterion-input']");
 
 // Option "Yes" of the open dropdown of the criterion "Sta"
-By option = By.cssSelector("[data-testid='select-option'][data-testid-owner='Sta']");
+Locator option = Locator.css("[data-testid='select-option'][data-testid-owner='Sta']");
 
 // Enabled days of the current month in the popup of the criterion "Cal"
-By days = By.cssSelector("[data-testid='datepicker'][data-testid-owner='Cal'] "
+Locator days = Locator.css("[data-testid='datepicker'][data-testid-owner='Cal'] "
   + "[data-testid='datepicker-day'][data-outside-month='false'][data-disabled='false']");
 
 // Cell "name" of the selected rows of the grid "Grd"
-By cell = By.cssSelector("[grid-id='Grd'] [data-testid='grid-row'][data-selected='true'] "
+Locator cell = Locator.css("[grid-id='Grd'] [data-testid='grid-row'][data-selected='true'] "
   + "[data-testid='grid-cell'][column-id='name']");
 
 // Active tab of the criterion "Tab" and the danger alerts
-By tab = By.cssSelector("[criterion-id='Tab'] [data-testid='tab'][data-active='true']");
-By danger = By.cssSelector("[data-testid='alert'][data-type='danger']");
+Locator tab = Locator.css("[criterion-id='Tab'] [data-testid='tab'][data-active='true']");
+Locator danger = Locator.css("[data-testid='alert'][data-type='danger']");
 ```
 
 The vocabulary lives in a JavaScript constant for each client: `TestIds` and `TestAttributes` in
@@ -730,6 +752,7 @@ When a behaviour differs and no row above helps, do not branch on the client in 
 ### Tool-neutral locators (preview)
 
 The engine profiles (`IAweFrontEndInstructions`) still return Selenium `By` in AWE 5.0, so nothing changes for your tests.
+The steps that take a `By` have a twin that takes a `Locator`: see [Custom steps without Selenium types](#custom-steps-without-selenium-types).
 So that browser tests can later run on another automation tool without being rewritten, `com.almis.awe.testing.driver.Locator`
 is a tool-neutral, immutable locator (`Locator.css(...)` or `Locator.xpath(...)`, with `kind()` and `expression()`). You get one
 from a `By` with `Locator.from(by)` (or `Locator.from(listOfBy)`): CSS and XPath are kept as they are and `By.id` becomes the
@@ -771,7 +794,7 @@ checkText(TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, "
 click(TestIds.css(TestIds.DATEPICKER_DAY) + TestAttributes.css(TestAttributes.DISABLED, false));
 
 // Type in the search box of the open select dropdown
-writeText(By.cssSelector(TestIds.css(TestIds.SELECT_DROPDOWN) + " " + TestIds.css(TestIds.SELECT_SEARCH)), "tee");
+writeText(Locator.css(TestIds.css(TestIds.SELECT_DROPDOWN) + " " + TestIds.css(TestIds.SELECT_SEARCH)), "tee");
 ```
 
 ### The owner attribute
@@ -783,7 +806,7 @@ the open one carries its hook, so `select-dropdown` alone is enough in most test
 
 ```java
 // Dropdown and options opened by the select "Sta"
-By dropdown = By.cssSelector("[data-testid='select-dropdown'][data-testid-owner='Sta']");
+Locator dropdown = Locator.css("[data-testid='select-dropdown'][data-testid-owner='Sta']");
 ```
 
 ### Wait on state, not on classes
@@ -801,26 +824,68 @@ whole element, with `contains(normalize-space(.), 'Base')` in an xpath, or with 
 `//text()[contains(., 'Base')]` over AWE components.
 
 ```java
-By option = By.xpath("//*[@data-testid='select-dropdown']//*[@data-testid='select-option']"
+Locator option = Locator.xpath("//*[@data-testid='select-dropdown']//*[@data-testid='select-option']"
   + "[contains(normalize-space(.),'Base')]");
 ```
+
+## Custom steps without Selenium types
+
+A product that needs a step AWE does not have writes it in a helper class that extends `SeleniumUtilities` (see
+[Adding a missing step](#adding-a-missing-step)). Write it without Selenium types, so it keeps working if the tests run
+on another automation tool: locate with a `com.almis.awe.testing.driver.Locator` (`Locator.css(...)` or
+`Locator.xpath(...)`), compose the steps of the [catalogue](#step-catalogue) that take a `Locator`, and, when no step
+fits, use `getBrowser()`, which every subclass can call.
+
+```java
+import com.almis.awe.testing.driver.Locator;
+
+public class MyProductSteps extends SeleniumUtilities {
+
+  // Archive an invoice of the invoices screen and check that the screen confirms it
+  protected void archiveInvoice(String invoiceId) {
+    Locator archive = Locator.css("[row-id='" + invoiceId + "'] [data-testid='archive-action']");
+    // A step of the catalogue, with a locator
+    checkVisible(archive);
+    // No step for the click on a product action: ask the browser
+    getBrowser().click(archive);
+    waitForText(Locator.css("[data-testid='archive-status']"), "Archived");
+  }
+}
+```
+
+`getBrowser()` returns the `BrowserDriver` port: queries (`exists`, `isVisible`, `text`, `attribute`, `count`), actions
+(`click`, `type`, `hover`...) and page operations, all with a `Locator`. It is a preview with no compatibility promise
+yet, so use the steps of the catalogue when there is one and keep the calls to the browser inside your helpers. The
+engine profiles (`IAweFrontEndInstructions`) still return `By` in 5.0; turn one into a `Locator` with `Locator.from(by)`.
+
+:::note Deprecated: `By` and `getDriver()`
+The steps that take or return a Selenium `By` (see the table under [Deprecated steps](#step-catalogue)) and `getDriver()`
+are `@Deprecated`. They keep working with the Selenium tool through the whole 5.x line and are not removed before 6.0,
+so an existing helper compiles unchanged and only shows a deprecation warning. `getDriver()` is only available when the
+tests run with the Selenium tool, so a step that uses it will not work with any other tool. Migrate a helper by replacing
+`By.cssSelector(x)` with `Locator.css(x)`, `By.xpath(x)` with `Locator.xpath(x)` and `By.id(x)` with `Locator.css("[id='x']")`
+(`#x` stops matching when the id has dots, colons or other CSS special characters, as generated ids often do), and the
+calls to the driver with the neutral steps or `getBrowser()`.
+:::
 
 ## Keeping browser tests free of selectors
 
 The `*IT` test classes should only describe **screen steps**: click this button, select this value, check this message.
 How an element is found (a selector, a `data-testid` hook, an xpath) and which tool drives the browser belong to the
 front-end instructions and `SeleniumUtilities`, so the same test keeps working when the web engine is replaced (AngularJS
-or React) or when the automation tool changes. Locators written in the examples above (`TestIds`, `By`) are for the
+or React) or when the automation tool changes. Locators written in the examples above (`TestIds`, `Locator`) are for the
 helper classes of your product that extend `SeleniumUtilities`, not for the test classes.
 
 In a test class do not use:
 
 - Selenium imports (`org.openqa.selenium.*`) or types: `By`, `WebDriver` (`getDriver()`), `WebElement`, `Select`,
   `JavascriptExecutor` (`executeScript(...)`), `Actions`.
+- `Locator` and `getBrowser()`: they are the tool-neutral way to locate and drive elements, and belong to the helpers of
+  your product like `By` did.
 - `TestIds` and `TestAttributes`.
 - Selector literals in the helpers that take one: `click`, `clearText`, `checkText`, `checkTextContains`,
   `checkTextNotContains`, `checkPresence`, `checkVisible`, `checkNotVisible`, `checkVisibleAndContains`,
-  `checkTextInEmbeddedFrame`, `waitForCssSelector`, `waitForText` with a class, `checkLogin` with a selector and
+  `checkTextInEmbeddedFrame`, `waitForCssSelector`, `waitForCssLocator`, `waitForText` with a class, `checkLogin` with a selector and
   `checkLogout` with a selector. Use the semantic steps instead, for instance `checkLogin("test", "test", "Manager (test)")`
   and `checkLogout()`.
 
@@ -879,7 +944,7 @@ client. Do it in this order, test first:
    Many "missing" steps are an overload (the same step with a `gridId` and a `rowId`).
 2. **Write the step in the façade.** Add a `protected` method to `SeleniumUtilities` (`com.almis.awe.testing.utilities`)
    with a javadoc. It states **what the user does or sees**, takes only strings, numbers and booleans (never a
-   Selenium type, `By` or CSS) and asks `frontEndInstructions` where the element is. Wait on state (`data-*`) before
+   Selenium type, `By`, `Locator` or CSS) and asks `frontEndInstructions` where the element is. Wait on state (`data-*`) before
    acting. Write the unit test first (see `SeleniumUtilitiesSemanticStepsTest`) and watch it fail.
 3. **Add the locator to the engine profile.** In `IAweFrontEndInstructions` add a `default` method that returns the
    locator for the AngularJS rendering, through a `data-testid` hook whenever there is one. Never add an abstract method:
