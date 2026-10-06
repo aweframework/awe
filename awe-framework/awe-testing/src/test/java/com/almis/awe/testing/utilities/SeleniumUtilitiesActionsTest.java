@@ -25,7 +25,6 @@ import org.openqa.selenium.interactions.Sequence;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -71,8 +70,7 @@ class SeleniumUtilitiesActionsTest {
     driver = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class, JavascriptExecutor.class, Interactive.class));
     when(driver.findElements(any(By.class))).thenReturn(Collections.emptyList());
     when(driver.findElement(any(By.class))).thenThrow(new NoSuchElementException("missing element"));
-    File screenshot = Files.createTempFile(tempDir, "actions", ".png").toFile();
-    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenshot);
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)).thenReturn(new byte[]{1, 2, 3});
 
     AweTestConfigProperties properties = new AweTestConfigProperties();
     properties.setFrontend(FrontendType.ANGULAR);

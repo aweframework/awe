@@ -1,6 +1,7 @@
 package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.driver.Locator;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.selenium.AngularAweInstructions;
@@ -25,7 +26,6 @@ import org.openqa.selenium.interactions.Sequence;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -72,8 +72,7 @@ class SeleniumUtilitiesSemanticStepsTest {
     driver = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class, JavascriptExecutor.class, Interactive.class));
     when(driver.findElements(any(By.class))).thenReturn(Collections.emptyList());
     when(driver.findElement(any(By.class))).thenThrow(new NoSuchElementException("missing element"));
-    File screenshot = Files.createTempFile(tempDir, "semantic-steps", ".png").toFile();
-    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenshot);
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)).thenReturn(new byte[]{1, 2, 3});
 
     properties = new AweTestConfigProperties();
     properties.setFrontend(FrontendType.ANGULAR);
@@ -99,8 +98,10 @@ class SeleniumUtilitiesSemanticStepsTest {
     when(element.isDisplayed()).thenReturn(true);
     when(element.isEnabled()).thenReturn(true);
     when(element.getText()).thenReturn(text);
-    when(driver.findElement(argThat(selector::equals))).thenReturn(element);
-    when(driver.findElements(argThat(selector::equals))).thenReturn(List.of(element));
+    // The port looks an id up as the equivalent css selector
+    By portSelector = Locator.from(selector).toBy();
+    when(driver.findElement(argThat(portSelector::equals))).thenReturn(element);
+    when(driver.findElements(argThat(portSelector::equals))).thenReturn(List.of(element));
     return element;
   }
 

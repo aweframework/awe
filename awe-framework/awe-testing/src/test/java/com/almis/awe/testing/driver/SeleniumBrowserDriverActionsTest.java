@@ -22,6 +22,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -97,6 +98,22 @@ class SeleniumBrowserDriverActionsTest {
     List<Map<String, Object>> actions = performedActions();
     assertThat(types(actions).stream().filter("pointerDown"::equals)).hasSize(2);
     assertThat(pausedFor(actions, 100)).isTrue();
+  }
+
+  @Test
+  void shouldSendKeysStraightToTheElementWithoutScrollingOrPausing() {
+    browser.sendKeys(ITEM, "/tmp/", "file.txt");
+
+    verify(element).sendKeys("/tmp/", "file.txt");
+    verify((JavascriptExecutor) driver, never()).executeScript(anyString(), any(Object[].class));
+    verify((Interactive) driver, never()).perform(any());
+  }
+
+  @Test
+  void shouldNotSendKeysToAMissingElement() {
+    when(driver.findElement(ITEM.toBy())).thenThrow(new NoSuchElementException("none"));
+
+    assertThatThrownBy(() -> browser.sendKeys(ITEM, "text")).isInstanceOf(ElementNotFoundException.class);
   }
 
   @Test

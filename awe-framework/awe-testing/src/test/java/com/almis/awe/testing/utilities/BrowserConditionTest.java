@@ -82,6 +82,34 @@ class BrowserConditionTest {
   }
 
   @Test
+  void shouldBeMetWhenAnyOfTheConditionsIsAndStopAtTheFirstOneThatIs() {
+    BrowserCondition failing = BrowserCondition.of("failing", driver -> false);
+    BrowserCondition met = BrowserCondition.of("met", driver -> true);
+    BrowserCondition unreached = BrowserCondition.of("unreached", driver -> {
+      throw new IllegalStateException("must not be checked");
+    });
+
+    assertThat(BrowserCondition.anyOf(failing, met, unreached).isMet(browser)).isTrue();
+    assertThat(BrowserCondition.anyOf(failing, failing).isMet(browser)).isFalse();
+  }
+
+  @Test
+  void shouldKeepCheckingAfterAConditionThatFailsAndThrowItOnlyWhenNoneIsMet() {
+    BrowserCondition missing = BrowserCondition.of("missing", driver -> {
+      throw new ElementNotFoundException(ITEM, new RuntimeException());
+    });
+    BrowserCondition broken = BrowserCondition.of("broken", driver -> {
+      throw new IllegalStateException("broken");
+    });
+    BrowserCondition met = BrowserCondition.of("met", driver -> true);
+    BrowserCondition failing = BrowserCondition.of("failing", driver -> false);
+
+    assertThat(BrowserCondition.anyOf(missing, broken, met).isMet(browser)).isTrue();
+    assertThatThrownBy(() -> BrowserCondition.anyOf(missing, failing).isMet(browser))
+      .isInstanceOf(ElementNotFoundException.class);
+  }
+
+  @Test
   void shouldNegateTheConditionButLetAMissingElementThrough() {
     when(browser.attribute(ITEM, "value")).thenReturn("typed");
 
@@ -103,6 +131,8 @@ class BrowserConditionTest {
     assertThat(BrowserCondition.valueContains(ITEM, "a")).hasToString("text 'a' to be present in the value of element located by css=#item");
     assertThat(BrowserCondition.allOf(BrowserCondition.present(ITEM), BrowserCondition.visible(ITEM)))
       .hasToString("all conditions to be valid: presence of element located by css=#item and visibility of element located by css=#item");
+    assertThat(BrowserCondition.anyOf(BrowserCondition.present(ITEM), BrowserCondition.visible(ITEM)))
+      .hasToString("at least one condition to be valid: presence of element located by css=#item or visibility of element located by css=#item");
     assertThat(BrowserCondition.not(BrowserCondition.present(ITEM)))
       .hasToString("condition to not be valid: presence of element located by css=#item");
   }

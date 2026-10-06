@@ -1,14 +1,13 @@
 package com.almis.awe.testing.extensions;
 
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.ConsoleEntry;
+import com.almis.awe.testing.driver.SeleniumBrowserDriver;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.utilities.TextUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.logging.LogEntry;
-import org.openqa.selenium.logging.LogType;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +18,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -141,17 +138,17 @@ public class FailureEvidence {
       return Optional.empty();
     }
 
-    WebDriver driver = model.getDriver();
-    if (!(driver instanceof TakesScreenshot)) {
-      log.warn("Test failed but no screenshot could be taken: the driver does not support screenshots");
-      return Optional.empty();
-    }
-
     try {
-      File source = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+      BrowserDriver browser = model.getBrowser();
+      Optional<byte[]> screenshot = browser == null ? Optional.empty() : browser.screenshot();
+      if (screenshot.isEmpty()) {
+        log.warn("Test failed but no screenshot could be taken: the driver does not support screenshots");
+        return Optional.empty();
+      }
+
       Path target = Paths.get(model.getProperties().getScreenshotPath(),
         buildName(testClass, model.getCurrentOption(), model.getTestTitle(), true) + ".png");
-      storeScreenshot(model, source, target);
+      storeScreenshot(model, screenshot.get(), target);
       log.error("Test failed. Screenshot stored at: {}", target);
       return Optional.of(target);
     } catch (Exception exc) {
@@ -173,6 +170,25 @@ public class FailureEvidence {
   public void storeScreenshot(SeleniumModel model, File source, Path target) throws IOException {
     Files.createDirectories(target.getParent());
     FileUtils.copyFile(source, target.toFile());
+    announceScreenshot(model, target);
+  }
+
+  /**
+   * Store a failure screenshot taken as an image, flag it as taken in the model and announce it in the test output, as
+   * {@link #storeScreenshot(SeleniumModel, File, Path)} does
+   *
+   * @param model  Selenium model of the running test
+   * @param image  PNG image of the screenshot
+   * @param target Where the screenshot must be stored
+   * @throws IOException When the screenshot cannot be stored
+   */
+  public void storeScreenshot(SeleniumModel model, byte[] image, Path target) throws IOException {
+    Files.createDirectories(target.getParent());
+    Files.write(target, image);
+    announceScreenshot(model, target);
+  }
+
+  private void announceScreenshot(SeleniumModel model, Path target) {
     model.setScreenshotTaken(true);
     relativeToProjectDir(target).ifPresent(relative -> print("[[ATTACHMENT|" + relative + "]]"));
     print("Failure screenshot: " + describe(target));
@@ -221,26 +237,36 @@ public class FailureEvidence {
     if (driver == null) {
       return Optional.empty();
     }
+    return storeConsoleEntries(screenshotTarget, new SeleniumBrowserDriver(driver).consoleEntries());
+  }
+
+  /**
+   * Store the entries of the browser console of a failed test, as {@link #storeBrowserConsole(Path, WebDriver)} does.
+   * Reading the console empties it, so whoever reads it once hands the entries over here instead of reading it again.
+   * Never throws: it must not mask the original test failure.
+   *
+   * @param screenshotTarget Path of the failure screenshot the console belongs to
+   * @param entries          Entries read from the browser (may be null or empty when there is nothing to store)
+   * @return Path of the stored console log, if any
+   */
+  public Optional<Path> storeConsoleEntries(Path screenshotTarget, List<ConsoleEntry> entries) {
+    if (entries == null || entries.isEmpty()) {
+      log.debug("The browser console of the failed test is empty");
+      return Optional.empty();
+    }
 
     try {
-      List<LogEntry> entries = new ArrayList<>();
-      driver.manage().logs().get(LogType.BROWSER).forEach(entries::add);
-      if (entries.isEmpty()) {
-        log.debug("The browser console of the failed test is empty");
-        return Optional.empty();
-      }
-
       String fileName = screenshotTarget.getFileName().toString();
       String baseName = fileName.toLowerCase().endsWith(".png") ? fileName.substring(0, fileName.length() - 4) : fileName;
       Path target = screenshotTarget.resolveSibling(baseName + ".console.log");
       Files.createDirectories(target.getParent());
-      Files.write(target, entries.stream().map(LogEntry::toString).collect(Collectors.joining("\n", "", "\n"))
+      Files.write(target, entries.stream().map(ConsoleEntry::toString).collect(Collectors.joining("\n", "", "\n"))
         .getBytes(StandardCharsets.UTF_8));
       print("Failure browser console: " + describe(target));
       entries.stream()
-        .filter(entry -> Level.SEVERE.equals(entry.getLevel()))
+        .filter(ConsoleEntry::isSevere)
         .limit(MAX_PRINTED_CONSOLE_ENTRIES)
-        .forEach(entry -> print("Browser console " + entry.getLevel() + ": " + entry.getMessage()));
+        .forEach(entry -> print("Browser console " + entry.level() + ": " + entry.message()));
       return Optional.of(target);
     } catch (Exception exc) {
       log.warn("Test failed but the browser console could not be stored", exc);

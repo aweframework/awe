@@ -141,6 +141,39 @@ interface BrowserCondition {
   }
 
   /**
+   * At least one condition is met, checked in order until one is. A condition that fails (an element that is not there)
+   * does not stop the check: the failure is thrown only if no other condition is met, as the Selenium {@code or} did
+   *
+   * @param conditions Conditions
+   * @return Condition
+   */
+  static BrowserCondition anyOf(BrowserCondition... conditions) {
+    StringBuilder description = new StringBuilder("at least one condition to be valid:");
+    String separator = " ";
+    for (BrowserCondition condition : conditions) {
+      description.append(separator).append(condition);
+      separator = " or ";
+    }
+    BrowserCondition[] any = Arrays.copyOf(conditions, conditions.length);
+    return of(description.toString(), browser -> {
+      RuntimeException lastFailure = null;
+      for (BrowserCondition condition : any) {
+        try {
+          if (condition.isMet(browser)) {
+            return true;
+          }
+        } catch (RuntimeException exc) {
+          lastFailure = exc;
+        }
+      }
+      if (lastFailure != null) {
+        throw lastFailure;
+      }
+      return false;
+    });
+  }
+
+  /**
    * The condition is not met
    *
    * @param condition Condition

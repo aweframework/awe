@@ -1,6 +1,8 @@
 package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.Locator;
 import com.almis.awe.testing.extensions.FailureEvidence;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.model.types.FrontendType;
@@ -16,7 +18,6 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -58,8 +59,7 @@ class SeleniumUtilitiesTest {
     when(driver.findElements(any(By.class))).thenReturn(Collections.emptyList());
     when(driver.findElement(any(By.class))).thenThrow(new NoSuchElementException("missing element"));
 
-    File screenshot = Files.createTempFile(tempDir, "selenium-timeout", ".png").toFile();
-    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE)).thenReturn(screenshot);
+    when(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)).thenReturn(new byte[]{1, 2, 3});
 
     AweTestConfigProperties properties = new AweTestConfigProperties();
     properties.setFrontend(FrontendType.ANGULAR);
@@ -83,17 +83,7 @@ class SeleniumUtilitiesTest {
 
   @Test
   void shouldFailWithinConfiguredTimeoutWhenConditionNeverBecomesTrue() {
-    ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver ignored) {
-        return false;
-      }
-
-      @Override
-      public String toString() {
-        return "Slow path bounded timeout";
-      }
-    };
+    BrowserCondition condition = BrowserCondition.of("Slow path bounded timeout", browser -> false);
 
     long startedAt = System.nanoTime();
 
@@ -174,17 +164,7 @@ class SeleniumUtilitiesTest {
 
   @Test
   void shouldReturnQuicklyWhenConditionIsImmediatelySatisfied() {
-    ExpectedCondition<Boolean> condition = new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver ignored) {
-        return true;
-      }
-
-      @Override
-      public String toString() {
-        return "Fast path immediate success";
-      }
-    };
+    BrowserCondition condition = BrowserCondition.of("Fast path immediate success", browser -> true);
 
     long startedAt = System.nanoTime();
 
@@ -243,20 +223,20 @@ class SeleniumUtilitiesTest {
 
     when(driver.findElement(argThat(avatarTextSelector::equals))).thenReturn(avatarText);
 
-    ExpectedCondition<Boolean> condition = ReflectionTestUtils.invokeMethod(
+    BrowserCondition condition = ReflectionTestUtils.invokeMethod(
       seleniumUtilities,
       "authenticatedShellReady",
       avatarTextSelector,
       "Manager (test)");
 
-    assertThat(condition.apply(driver)).isFalse();
+    assertThat(condition.isMet(seleniumUtilitiesBrowser())).isFalse();
   }
 
   @Test
   void shouldRequireActionableShellControlsBeforeAuthenticatedShellIsReady() {
     By avatarTextSelector = By.cssSelector("#ButUsrAct span.avatar-text");
-    By userActionSelector = By.id("ButUsrAct");
-    By menuToggleSelector = By.id("main-menu-toggle");
+    By userActionSelector = portSelector(By.id("ButUsrAct"));
+    By menuToggleSelector = portSelector(By.id("main-menu-toggle"));
     WebElement avatarText = mockVisibleElement("Manager (test)", true);
     WebElement userAction = mockVisibleElement("", true);
     WebElement menuToggle = mockVisibleElement("", true);
@@ -267,20 +247,20 @@ class SeleniumUtilitiesTest {
     when(driver.findElements(argThat(userActionSelector::equals))).thenReturn(List.of(userAction));
     when(driver.findElements(argThat(menuToggleSelector::equals))).thenReturn(List.of(menuToggle));
 
-    ExpectedCondition<Boolean> condition = ReflectionTestUtils.invokeMethod(
+    BrowserCondition condition = ReflectionTestUtils.invokeMethod(
       seleniumUtilities,
       "authenticatedShellReady",
       avatarTextSelector,
       "Manager (test)");
 
-    assertThat(condition.apply(driver)).isTrue();
+    assertThat(condition.isMet(seleniumUtilitiesBrowser())).isTrue();
   }
 
   @Test
   void shouldBlockShellReadinessWhenVisibleOptionalControlIsNotActionable() {
     By avatarTextSelector = By.cssSelector("#ButUsrAct span.avatar-text");
-    By userActionSelector = By.id("ButUsrAct");
-    By logoutSelector = By.id("ButLogOut");
+    By userActionSelector = portSelector(By.id("ButUsrAct"));
+    By logoutSelector = portSelector(By.id("ButLogOut"));
     WebElement avatarText = mockVisibleElement("Manager (test)", true);
     WebElement userAction = mockVisibleElement("", true);
     WebElement logoutButton = mockVisibleElement("", false);
@@ -291,19 +271,19 @@ class SeleniumUtilitiesTest {
     when(driver.findElements(argThat(userActionSelector::equals))).thenReturn(List.of(userAction));
     when(driver.findElements(argThat(logoutSelector::equals))).thenReturn(List.of(logoutButton));
 
-    ExpectedCondition<Boolean> condition = ReflectionTestUtils.invokeMethod(
+    BrowserCondition condition = ReflectionTestUtils.invokeMethod(
       seleniumUtilities,
       "authenticatedShellReady",
       avatarTextSelector,
       "Manager (test)");
 
-    assertThat(condition.apply(driver)).isFalse();
+    assertThat(condition.isMet(seleniumUtilitiesBrowser())).isFalse();
   }
 
   @Test
   void shouldTreatAbsentAngularMenuControlsAsOptionalForShellReadiness() {
     By avatarTextSelector = By.cssSelector("#ButUsrAct span.avatar-text");
-    By userActionSelector = By.id("ButUsrAct");
+    By userActionSelector = portSelector(By.id("ButUsrAct"));
     WebElement avatarText = mockVisibleElement("Manager (test)", true);
     WebElement userAction = mockVisibleElement("", true);
 
@@ -311,13 +291,13 @@ class SeleniumUtilitiesTest {
     when(driver.findElement(argThat(userActionSelector::equals))).thenReturn(userAction);
     when(driver.findElements(argThat(userActionSelector::equals))).thenReturn(List.of(userAction));
 
-    ExpectedCondition<Boolean> condition = ReflectionTestUtils.invokeMethod(
+    BrowserCondition condition = ReflectionTestUtils.invokeMethod(
       seleniumUtilities,
       "authenticatedShellReady",
       avatarTextSelector,
       "Manager (test)");
 
-    assertThat(condition.apply(driver)).isTrue();
+    assertThat(condition.isMet(seleniumUtilitiesBrowser())).isTrue();
   }
 
   @Test
@@ -342,7 +322,7 @@ class SeleniumUtilitiesTest {
 
     // The React shell shows the logged user with an avatar (it carries the id) and its name, both with a test hook
     By avatarTextSelector = By.cssSelector("[data-testid='avatar-name']");
-    By userActionSelector = reactInstructions.getRequiredPostLoginShellControls().get(0);
+    By userActionSelector = portSelector(reactInstructions.getRequiredPostLoginShellControls().get(0));
     WebElement avatarText = mockVisibleElement("Manager (test)", true);
     WebElement userAction = mockVisibleElement("", true);
 
@@ -350,13 +330,13 @@ class SeleniumUtilitiesTest {
     when(driver.findElement(argThat(userActionSelector::equals))).thenReturn(userAction);
     when(driver.findElements(argThat(userActionSelector::equals))).thenReturn(List.of(userAction));
 
-    ExpectedCondition<Boolean> condition = ReflectionTestUtils.invokeMethod(
+    BrowserCondition condition = ReflectionTestUtils.invokeMethod(
       seleniumUtilities,
       "authenticatedShellReady",
       avatarTextSelector,
       "Manager (test)");
 
-    assertThat(condition.apply(driver)).isTrue();
+    assertThat(condition.isMet(seleniumUtilitiesBrowser())).isTrue();
   }
 
   @Test
@@ -384,7 +364,7 @@ class SeleniumUtilitiesTest {
     By passwordSelector = By.cssSelector("[criterion-id='pwd_usr'] [data-testid='criterion-input']");
     By loginButtonSelector = By.cssSelector("#ButLogIn:not([disabled])");
     By avatarTextSelector = By.cssSelector("#ButUsrAct span.avatar-text");
-    By userActionSelector = By.id("ButUsrAct");
+    By userActionSelector = portSelector(By.id("ButUsrAct"));
     WebElement usernameInput = mockVisibleElement("", true);
     WebElement passwordInput = mockVisibleElement("", true);
     WebElement loginButton = mockVisibleElement("", true);
@@ -395,6 +375,9 @@ class SeleniumUtilitiesTest {
 
     when(usernameInput.isEnabled()).thenAnswer(invocation -> usernamePolls.incrementAndGet() >= 2);
     when(passwordInput.isEnabled()).thenAnswer(invocation -> passwordPolls.incrementAndGet() >= 2);
+    // The fields keep what was typed, so the login form is not filled again
+    when(usernameInput.getAttribute("value")).thenReturn("test");
+    when(passwordInput.getAttribute("value")).thenReturn("test");
     when(driver.findElement(argThat(usernameSelector::equals))).thenReturn(usernameInput);
     when(driver.findElement(argThat(passwordSelector::equals))).thenReturn(passwordInput);
     when(driver.findElement(argThat(loginButtonSelector::equals))).thenReturn(loginButton);
@@ -469,6 +452,17 @@ class SeleniumUtilitiesTest {
     ReflectionTestUtils.setField(seleniumUtilities, "properties", reactProperties);
     ReflectionTestUtils.setField(seleniumUtilities, "seleniumModel", reactModel);
     ReflectionTestUtils.setField(seleniumUtilities, "frontEndInstructions", reactInstructions);
+  }
+
+  private BrowserDriver seleniumUtilitiesBrowser() {
+    return ((SeleniumModel) ReflectionTestUtils.getField(seleniumUtilities, "seleniumModel")).getBrowser();
+  }
+
+  /**
+   * The port looks an id up as the equivalent css selector
+   */
+  private static By portSelector(By selector) {
+    return Locator.from(selector).toBy();
   }
 
   private WebElement mockVisibleElement(String text, boolean enabled) {

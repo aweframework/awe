@@ -17,16 +17,14 @@ import com.almis.awe.testing.selenium.InstructionsFactory;
 import com.almis.awe.testing.selenium.TestAttributes;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.annotation.Nonnull;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +33,6 @@ import java.util.*;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
  * Utilities suite for selenium testing
@@ -51,6 +48,8 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final int EDIT_ROW_ATTEMPTS = 3;
   private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
   private static final String TEXT_VALUE = " text: '";
+  private static final By LOGIN_BUTTON = By.id("ButLogIn");
+  private static final By LOGIN_FORM_CONTROLS = By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input");
 
   private FailureEvidence failureEvidence = new FailureEvidence();
 
@@ -91,26 +90,6 @@ public class SeleniumUtilities implements IAweInstructions {
       .setSeleniumModel(seleniumModel);
 
     return this.frontEndInstructions;
-  }
-
-  /**
-   * Retrieve web element from selector
-   *
-   * @param selector Selector
-   * @return Element found
-   */
-  private WebElement getElement(By selector) {
-    return seleniumModel.getDriver().findElement(selector);
-  }
-
-  /**
-   * Retrieve web element from selector
-   *
-   * @param selector Selector
-   * @return Element found
-   */
-  private List<WebElement> getElements(By selector) {
-    return seleniumModel.getDriver().findElements(selector);
   }
 
   /**
@@ -178,24 +157,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * Wait for screen load
    */
   private void waitForLoad() {
-    ExpectedCondition<Boolean> pageLoadCondition = driver1 -> ((JavascriptExecutor) Objects.requireNonNull(driver1)).executeScript("return document.readyState").equals("complete");
-    waitUntil(pageLoadCondition);
-  }
-
-  /**
-   * Wait until an expected condition
-   *
-   * @param condition Expected condition
-   */
-  private void waitUntil(ExpectedCondition<?> condition) {
-    try {
-      new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout()).until(condition);
-      // Assert true on condition
-      assertTrue(true, condition.toString());
-      log.debug(condition.toString());
-    } catch (Exception exc) {
-      assertWithScreenshot(condition.toString(), false, exc);
-    }
+    waitUntil(BrowserCondition.of("page to finish loading", BrowserDriver::isPageLoaded));
   }
 
   /**
@@ -223,33 +185,73 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void assertWithScreenshot(String message, boolean condition, Throwable... throwable) {
     if (!condition) {
-      File scrFile = ((TakesScreenshot) seleniumModel.getDriver()).getScreenshotAs(OutputType.FILE);
-      String screenshotName = failureEvidence.buildName(getClass().getSimpleName(),
-        seleniumModel.getCurrentOption(), message, true);
-      Path path = Paths.get(properties.getScreenshotPath(), screenshotName + ".png");
-      log.error(message, (Object) throwable);
-      log.error("Storing screenshot at: " + path);
-
-      // Now you can do whatever you need to do with it, for example copy somewhere
-      try {
-        failureEvidence.storeScreenshot(seleniumModel, scrFile, path);
-      } catch (IOException ioExc) {
-        log.error("Error trying to store screenshot at: " + path, ioExc);
-      }
-
-      // The DOM next to the screenshot helps diagnosing selector failures; it must never break the assertion
-      try {
-        failureEvidence.storePageSource(path, seleniumModel.getDriver().getPageSource());
-      } catch (Exception exc) {
-        log.warn("Could not read the page source of the failed test", exc);
-      }
-
-      // A blank screen caused by a client crash can only be diagnosed with the browser console
-      failureEvidence.storeBrowserConsole(path, seleniumModel.getDriver());
+      storeFailureEvidence(message, throwable);
     }
 
     // Assert false
     assertTrue(condition, message);
+  }
+
+  /**
+   * Store the screenshot, the page source and the browser console of a failure. It is a help to diagnose the failure, so
+   * none of it can fail by itself or replace the failure that is being reported
+   *
+   * @param message   Assert message
+   * @param throwable Throwable list
+   */
+  private void storeFailureEvidence(String message, Throwable... throwable) {
+    try {
+      BrowserDriver browser = getBrowser();
+      if (browser == null) {
+        log.warn("There is no browser to take the evidence of the failed test from");
+        return;
+      }
+
+      Optional<byte[]> screenshot = takeScreenshot(browser);
+      String screenshotName = failureEvidence.buildName(getClass().getSimpleName(),
+        seleniumModel.getCurrentOption(), message, true);
+      Path path = Paths.get(properties.getScreenshotPath(), screenshotName + ".png");
+      log.error(message, (Object) throwable);
+
+      screenshot.ifPresent(image -> {
+        log.error("Storing screenshot at: " + path);
+        try {
+          failureEvidence.storeScreenshot(seleniumModel, image, path);
+        } catch (IOException ioExc) {
+          log.error("Error trying to store screenshot at: " + path, ioExc);
+        }
+      });
+
+      // The DOM next to the screenshot helps diagnosing selector failures
+      try {
+        failureEvidence.storePageSource(path, browser.pageSource());
+      } catch (Exception exc) {
+        log.warn("Could not read the page source of the failed test", exc);
+      }
+
+      // A blank screen caused by a client crash can only be diagnosed with the browser console. Reading it empties it,
+      // so it is read once
+      try {
+        failureEvidence.storeConsoleEntries(path, browser.consoleEntries());
+      } catch (Exception exc) {
+        log.warn("Could not read the browser console of the failed test", exc);
+      }
+    } catch (Exception exc) {
+      log.warn("Could not store the evidence of the failed test", exc);
+    }
+  }
+
+  private Optional<byte[]> takeScreenshot(BrowserDriver browser) {
+    try {
+      Optional<byte[]> screenshot = browser.screenshot();
+      if (screenshot.isEmpty()) {
+        log.warn("The browser cannot take screenshots");
+      }
+      return screenshot;
+    } catch (Exception exc) {
+      log.warn("Could not take the screenshot of the failed test", exc);
+      return Optional.empty();
+    }
   }
 
   private boolean isWritable(By selector) {
@@ -295,37 +297,30 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param diagnosticLabel Wait label used for diagnostics
    * @return Condition for selector text readiness
    */
-  private ExpectedCondition<Boolean> selectorVisibleWithText(By selector, String expectedText, String diagnosticLabel) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
+  private static BrowserCondition selectorVisibleWithText(By selector, String expectedText, String diagnosticLabel) {
+    Locator element = locator(selector);
+    return BrowserCondition.of(diagnosticLabel + ": selector " + element + " is visible with expected text: '" + expectedText + "'",
+      browser -> {
         try {
-          WebElement element = visibilityOfElementLocated(selector).apply(driver);
-          return element != null && element.getText().contains(expectedText);
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return browser.isVisible(element) && browser.text(element).contains(expectedText);
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
           return false;
         }
-      }
-
-      @Override
-      public String toString() {
-        return diagnosticLabel + ": selector " + selector + " is visible with expected text: '" + expectedText + "'";
-      }
-    };
+      });
   }
 
   /**
    * Checks whether the matched selector has at least one visible control and every visible control is enabled.
    *
+   * @param browser  Browser
    * @param selector Control selector
    * @return Control readiness
    */
-  private boolean visibleControlReady(By selector) {
+  private static boolean visibleControlReady(BrowserDriver browser, By selector) {
     try {
-      List<WebElement> elements = getElements(selector);
       boolean visibleControlFound = false;
-      for (WebElement element : elements) {
-        if (element.isDisplayed()) {
+      for (ElementRef element : browser.elements(locator(selector))) {
+        if (element.isVisible()) {
           visibleControlFound = true;
           if (!element.isEnabled()) {
             return false;
@@ -333,7 +328,7 @@ public class SeleniumUtilities implements IAweInstructions {
         }
       }
       return visibleControlFound;
-    } catch (StaleElementReferenceException exc) {
+    } catch (ElementReplacedException exc) {
       return false;
     }
   }
@@ -342,23 +337,24 @@ public class SeleniumUtilities implements IAweInstructions {
    * Checks whether all visible shell controls from the provided selectors are enabled.
    * Selectors with no visible matches are treated as optional for the current shell.
    *
+   * @param browser Browser
    * @return Whether every visible shell control is actionable
    */
-  private boolean visibleShellControlsReady() {
+  private boolean visibleShellControlsReady(BrowserDriver browser) {
     try {
       for (By selector : frontEndInstructions.getRequiredPostLoginShellControls()) {
-        if (!visibleControlReady(selector)) {
+        if (!visibleControlReady(browser, selector)) {
           return false;
         }
       }
 
       for (By selector : frontEndInstructions.getOptionalPostLoginShellControls()) {
-        if (hasVisibleElement(selector) && !visibleControlReady(selector)) {
+        if (hasVisibleElement(browser, selector) && !visibleControlReady(browser, selector)) {
           return false;
         }
       }
       return true;
-    } catch (StaleElementReferenceException exc) {
+    } catch (ElementReplacedException exc) {
       return false;
     }
   }
@@ -366,13 +362,14 @@ public class SeleniumUtilities implements IAweInstructions {
   /**
    * Checks whether any visible element matched by the selector exists.
    *
+   * @param browser  Browser
    * @param selector Element selector
    * @return Whether a visible element exists
    */
-  private boolean hasVisibleElement(By selector) {
+  private static boolean hasVisibleElement(BrowserDriver browser, By selector) {
     try {
-      return getElements(selector).stream().anyMatch(WebElement::isDisplayed);
-    } catch (StaleElementReferenceException exc) {
+      return browser.elements(locator(selector)).stream().anyMatch(ElementRef::isVisible);
+    } catch (ElementReplacedException exc) {
       return true;
     }
   }
@@ -404,19 +401,11 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param expectedText   Expected result text
    * @return Condition for login-screen result readiness
    */
-  private ExpectedCondition<Boolean> loginFormResultReady(By resultSelector, String expectedText) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
-        return hasVisibleElement(By.id("ButLogIn"))
-          && Boolean.TRUE.equals(selectorVisibleWithText(resultSelector, expectedText, "Login form result").apply(driver));
-      }
-
-      @Override
-      public String toString() {
-        return "Login form result: selector " + resultSelector + " is visible with expected text: '" + expectedText + "'";
-      }
-    };
+  private BrowserCondition loginFormResultReady(By resultSelector, String expectedText) {
+    BrowserCondition resultShown = selectorVisibleWithText(resultSelector, expectedText, "Login form result");
+    return BrowserCondition.of("Login form result: selector " + locator(resultSelector)
+        + " is visible with expected text: '" + expectedText + "'",
+      browser -> hasVisibleElement(browser, LOGIN_BUTTON) && resultShown.isMet(browser));
   }
 
   /**
@@ -436,27 +425,22 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param expectedText      Expected text inside the selector
    * @return Authenticated shell readiness condition
    */
-  private ExpectedCondition<Boolean> authenticatedShellReady(By postLoginSelector, String expectedText) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
+  private BrowserCondition authenticatedShellReady(By postLoginSelector, String expectedText) {
+    BrowserCondition loadingBarGone = toBeInvisible(frontEndInstructions.getLoadingBar());
+    BrowserCondition postLoginShown = selectorVisibleWithText(postLoginSelector, expectedText, "Post-login selector readiness");
+    return BrowserCondition.of("Authenticated shell readiness: loading bar invisible, login form hidden, post-login selector "
+        + locator(postLoginSelector) + " contains text: '" + expectedText
+        + "', and visible frontend shell controls are actionable",
+      browser -> {
         try {
-          return Boolean.TRUE.equals(invisibilityOfElementLocated(frontEndInstructions.getLoadingBar()).apply(driver))
-            && !hasVisibleElement(By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input"))
-            && Boolean.TRUE.equals(selectorVisibleWithText(postLoginSelector, expectedText, "Post-login selector readiness").apply(driver))
-            && visibleShellControlsReady();
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return loadingBarGone.isMet(browser)
+            && !hasVisibleElement(browser, LOGIN_FORM_CONTROLS)
+            && postLoginShown.isMet(browser)
+            && visibleShellControlsReady(browser);
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
           return false;
         }
-      }
-
-      @Override
-      public String toString() {
-        return "Authenticated shell readiness: loading bar invisible, login form hidden, post-login selector "
-          + postLoginSelector + " contains text: '" + expectedText
-          + "', and visible frontend shell controls are actionable";
-      }
-    };
+      });
   }
 
   /**
@@ -477,9 +461,10 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void waitForExpectedSelectorResult(By resultSelector, String expectedText) {
     waitForLoadingBar();
-    waitUntil(or(loginFormResultReady(resultSelector, expectedText), authenticatedShellReady(resultSelector, expectedText)));
+    waitUntil(BrowserCondition.anyOf(loginFormResultReady(resultSelector, expectedText),
+      authenticatedShellReady(resultSelector, expectedText)));
 
-    if (!hasVisibleElement(By.id("ButLogIn"))) {
+    if (!hasVisibleElement(getBrowser(), LOGIN_BUTTON)) {
       waitForAuthenticatedShell(resultSelector, expectedText);
     }
   }
@@ -1956,7 +1941,7 @@ public class SeleniumUtilities implements IAweInstructions {
     waitUntil(toBePresent(selector));
 
     // Write text
-    getElement(selector).sendKeys(text);
+    getBrowser().sendKeys(locator(selector), text);
   }
 
   /**
@@ -2832,16 +2817,16 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param url Start url
    */
   protected void goToUrl(String url) {
-    assertNotNull(seleniumModel.getDriver());
+    assertNotNull(getBrowser());
     seleniumModel.setCurrentOption("login");
 
     log.info("Launching tests with '{}' browser: {}'", properties.getBrowser(), seleniumModel.getBaseUrl());
 
     // Set driver timeout
-    seleniumModel.getDriver().manage().timeouts().scriptTimeout(properties.getTimeout());
+    getBrowser().setScriptTimeout(properties.getTimeout());
 
     // Open page in different browsers
-    seleniumModel.getDriver().get(url);
+    getBrowser().open(url);
 
     // Show mouse if defined
     if (properties.isShowMouse()) {
@@ -2919,13 +2904,19 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param criterionName Criterion of the field
    * @param expected      Typed text
-   * @return The field holds the text, or it cannot be read
+   * @return The field holds the text, or it is not there any more
    */
   private boolean loginFieldHolds(String criterionName, String expected) {
-    By input = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
-    List<WebElement> inputs = seleniumModel.getDriver().findElements(input);
-    // A field that cannot be read is not filled again
-    return inputs.isEmpty() || expected.equals(inputs.get(0).getAttribute("value"));
+    Locator input = locator(frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName)));
+    try {
+      return expected.equals(getBrowser().attribute(input, "value"));
+    } catch (ElementNotFoundException exc) {
+      // A field that is not there is not filled again: the login has moved on
+      return true;
+    } catch (ElementReplacedException exc) {
+      // The form was drawn again while it was read, and a new form comes back empty
+      return false;
+    }
   }
 
   /**
@@ -3208,21 +3199,15 @@ public class SeleniumUtilities implements IAweInstructions {
     // Wait for the frame
     waitForSelector(frameSelector);
 
-    // Switch driver to the frame
-    seleniumModel.getDriver().switchTo().frame(getElement(frameSelector));
-    try {
-      checkText(contentCssSelector, text);
-    } finally {
-      // Return driver
-      seleniumModel.getDriver().switchTo().defaultContent();
-    }
+    // Check inside the frame, and return to the page afterwards
+    getBrowser().inFrame(locator(frameSelector), () -> checkText(contentCssSelector, text));
   }
 
   /**
    * Invalidate the session of the user from another window, as if it had been closed on the server
    */
   protected void invalidateSession() {
-    ((JavascriptExecutor) seleniumModel.getDriver()).executeScript("var winNew = window.open('" + getBaseUrl()
+    getBrowser().executeScript("var winNew = window.open('" + getBaseUrl()
       + "session/invalidate','_blank', 'width=1, height=1');setTimeout(function(){ winNew.close();}, 1000);");
   }
 
